@@ -102,9 +102,9 @@ variable "endpoint_eip_address" {}
 
 variable "region" {}
 
-variable "vpc_id" {}
+variable "ssn_vpc_id" {}
 
-variable "ssn_subnets" {}
+variable "ssn_subnet" {}
 
 variable "service_base_name" {}
 

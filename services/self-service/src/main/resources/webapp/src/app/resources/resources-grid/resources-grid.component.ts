@@ -18,123 +18,176 @@
  */
 /* tslint:disable:no-empty */
 
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material';
 
 import { UserResourceService } from '../../core/services';
-import { CreateResourceModel } from './create-resource.model';
-import { ResourcesGridRowModel } from './resources-grid.model';
+
+import { ExploratoryModel, Exploratory } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
-import { GeneralEnvironmentStatus } from '../../management/management.model';
+import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { ConfirmationDialogType } from '../../shared';
-import { SortUtil } from '../../core/util';
+import { SortUtils, CheckUtils } from '../../core/util';
+import { DetailDialogComponent } from '../exploratory/detail-dialog';
+import { AmiCreateDialogComponent } from '../exploratory/ami-create-dialog';
+import { InstallLibrariesComponent } from '../exploratory/install-libraries';
+import { ComputationalResourceCreateDialogComponent } from '../computational/computational-resource-create-dialog/computational-resource-create-dialog.component';
+import { CostDetailsDialogComponent } from '../exploratory/cost-details-dialog';
+import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmation-dialog';
+import { SchedulerComponent } from '../scheduler';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'resources-grid',
   templateUrl: 'resources-grid.component.html',
-  styleUrls: ['./resources-grid.component.css']
+  styleUrls: ['./resources-grid.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 
 export class ResourcesGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
-  environments: Array<ResourcesGridRowModel>;
-  filteredEnvironments: Array<ResourcesGridRowModel> = [];
-  filterConfiguration: FilterConfigurationModel;
+  environments: Exploratory[];
+  forse: boolean = true;
+
+  collapsedFilterRow: boolean = false;
+
+
+  filteredEnvironments: Exploratory[] = [];
+  filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
   filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
-  model = new CreateResourceModel('', '');
-  notebookName: string;
+
+  public filteringColumns: Array<any> = [
+    { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
+    { title: 'Status', name: 'statuses', class: 'status-col', filter_class: 'status-filter', filtering: true },
+    { title: DICTIONARY.instance_size, name: 'shapes', class: 'shape-col', filter_class: 'shape-filter', filtering: true },
+    { title: DICTIONARY.computational_resource, name: 'resources', class: 'resources-col', filter_class: 'resource-filter', filtering: true },
+    { title: 'Cost', name: 'cost', class: 'cost-col', filter_class: 'cost-filter', filtering: false },
+    { title: '', name: 'actions', class: 'actions-col', filter_class: 'action-filter', filtering: false }
+  ];
+
+  public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
+  public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
+
+
+
+
+
   isOutscreenDropdown: boolean;
-  collapseFilterRow: boolean = false;
+
   filtering: boolean = false;
   activeFiltering: boolean = false;
   healthStatus: GeneralEnvironmentStatus;
-  delimitersRegex = /[-_]?/g;
-
-  @ViewChild('computationalResourceModal') computationalResourceModal;
-  @ViewChild('confirmationDialog') confirmationDialog;
-  @ViewChild('detailDialog') detailDialog;
-  @ViewChild('costDetailsDialog') costDetailsDialog;
-  @ViewChild('installLibs') installLibraries;
-  @ViewChild('envScheduler') scheduler;
-  @ViewChild('createAmi') createAMI;
 
 
-  public filteringColumns: Array<any> = [
-    { title: 'Environment name', name: 'name', className: 'th_name', filtering: {} },
-    { title: 'Status', name: 'statuses', className: 'th_status', filtering: {} },
-    { title: DICTIONARY.instance_size, name: 'shapes', className: 'th_shape', filtering: {} },
-    { title: DICTIONARY.computational_resource, name: 'resources', className: 'th_resources', filtering: {} },
-    { title: 'Cost', name: 'cost', className: 'th_cost' },
-    { title: 'Actions', className: 'th_actions' }
-  ];
+
+
+
 
   constructor(
+    public toastr: ToastrService,
     private userResourceService: UserResourceService,
-    public toastr: ToastrService
-  ) {}
+    private dialog: MatDialog
+  ) { }
 
   ngOnInit(): void {
     this.buildGrid();
   }
 
-  toggleFilterRow(): void {
-    this.collapseFilterRow = !this.collapseFilterRow;
+  public buildGrid(): void {
+    this.userResourceService.getUserProvisionedResources()
+      .subscribe((result: any) => {
+        this.filtering = false;
+        this.environments = ExploratoryModel.loadEnvironments(result);
+        this.getDefaultFilterConfiguration();
+        (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
+
+        this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
+      });
   }
 
-  getDefaultFilterConfiguration(): void {
-    const data: Array<ResourcesGridRowModel> = this.environments;
+  public toggleFilterRow(): void {
+    this.collapsedFilterRow = !this.collapsedFilterRow;
+  }
+
+
+
+  // PRIVATE
+  private getEnvironmentsListCopy() {
+    return this.environments.map(env => JSON.parse(JSON.stringify(env)));
+  }
+
+  private getDefaultFilterConfiguration(): void {
+    const data: Exploratory[] = this.environments;
     const shapes = [], statuses = [], resources = [];
 
-    data.forEach((item: any) => {
-      if (shapes.indexOf(item.shape) === -1)
-        shapes.push(item.shape);
-      if (statuses.indexOf(item.status) === -1)
-        statuses.push(item.status);
-        statuses.sort(SortUtil.statusSort);
+    data.filter(elem => elem.exploratory.map((item: any) => {
+      if (shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
+      if (statuses.indexOf(item.status) === -1) statuses.push(item.status);
+      statuses.sort(SortUtils.statusSort);
 
-      item.resources.forEach((resource: any) => {
-        if (resources.indexOf(resource.status) === -1)
-          resources.push(resource.status);
-          resources.sort(SortUtil.statusSort);
+      item.resources.map((resource: any) => {
+        if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
+        resources.sort(SortUtils.statusSort);
       });
-    });
+    }));
 
     this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '');
   }
 
-  applyFilter_btnClick(config: FilterConfigurationModel) {
-    this.filtering = true;
+  private applyFilter_btnClick(config: FilterConfigurationModel) {
+    let filteredData = this.getEnvironmentsListCopy();
 
-    // let filteredData: Array<ResourcesGridRowModel> = this.environments.map(env => (<any>Object).assign({}, env));
-    let filteredData: Array<ResourcesGridRowModel> = this.environments.map(env => (<any>Object).create(env));
     const containsStatus = (list, selectedItems) => {
       return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
     };
 
-    config && (filteredData = filteredData.filter((item: any) => {
-      const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
-      const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
-      const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+    if (filteredData.length) this.filtering = true;
+    if (config) {
+      filteredData = filteredData.filter(project => {
+        project.exploratory = project.exploratory.filter(item => {
 
-      const modifiedResources = containsStatus(item.resources, config.resources);
-      let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
+          const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
+          const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
+          const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
 
-      if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
-      if (config.resources.length === 0 && config.type === 'active' ||
-        modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
-        item.resources = modifiedResources;
-        isResources = true;
-      }
+          const modifiedResources = containsStatus(item.resources, config.resources);
+          let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
 
-      return isName && isStatus && isShape && isResources;
-    }));
+          if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
 
-    config && this.updateUserPreferences(config);
+          if (config.resources.length === 0 && config.type === 'active' ||
+            modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
+            item.resources = modifiedResources;
+            isResources = true;
+          }
+
+          return isName && isStatus && isShape && isResources;
+        });
+        return project.exploratory.length > 0;
+      });
+
+      this.updateUserPreferences(config);
+    }
+
     this.filteredEnvironments = filteredData;
   }
+
+  private modifyGrid() {
+    this.displayedColumns = this.displayedColumns.filter(el => el !== 'cost');
+    this.displayedFilterColumns = this.displayedFilterColumns.filter(el => el !== 'cost-filter');
+  }
+
+
 
   showActiveInstances(): void {
     this.filterForm = this.loadUserPreferences(this.filterActiveInstances());
@@ -143,15 +196,15 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   isResourcesInProgress(notebook) {
-    const filteredEnv: any = this.environments.find(env => env.name === notebook.name);
+    // const filteredEnv = this.environments.find(env => env.exploratory.find(el => el.name === notebook.name));
 
-    if (filteredEnv && filteredEnv.resources.length) {
-      return filteredEnv.resources.filter(resource => (
-        resource.status !== 'failed'
-        && resource.status !== 'terminated'
-        && resource.status !== 'running'
-        && resource.status !== 'stopped')).length > 0;
-    }
+    // if (filteredEnv && filteredEnv.resources.length) {
+    //   return filteredEnv.resources.filter(resource => (
+    //     resource.status !== 'failed'
+    //     && resource.status !== 'terminated'
+    //     && resource.status !== 'running'
+    //     && resource.status !== 'stopped')).length > 0;
+    // }
     return false;
   }
 
@@ -173,7 +226,7 @@ export class ResourcesGridComponent implements OnInit {
   aliveStatuses(сonfig): void {
     for (const index in this.filterConfiguration) {
       if (сonfig[index] && сonfig[index] instanceof Array)
-         сonfig[index] = сonfig[index].filter(item => this.filterConfiguration[index].includes(item));
+        сonfig[index] = сonfig[index].filter(item => this.filterConfiguration[index].includes(item));
     }
 
     return сonfig;
@@ -197,59 +250,15 @@ export class ResourcesGridComponent implements OnInit {
     this.buildGrid();
   }
 
-  buildGrid(): void {
 
-    this.userResourceService.getUserProvisionedResources()
-      .subscribe((result) => {
-        this.environments = this.loadEnvironments(result.exploratory, result.shared);
-        this.getDefaultFilterConfiguration();
-
-        (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
-      });
-  }
 
   containsNotebook(notebook_name: string): boolean {
-    if (notebook_name)
-      for (let index = 0; index < this.environments.length; index++)
-        if (this.delimitersFiltering(notebook_name) === this.delimitersFiltering(this.environments[index].name))
-          return true;
+    // if (notebook_name)
+    //   for (let index = 0; index < this.environments.length; index++)
+    //     if (CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(this.environments[index].name))
+    //       return true;
 
     return false;
-  }
-
-  public delimitersFiltering(notebook_name): string {
-    return notebook_name.replace(this.delimitersRegex, '').toString().toLowerCase();
-  }
-
-  loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ResourcesGridRowModel> {
-    if (exploratoryList && sharedDataList) {
-      return exploratoryList.map((value) => {
-        return new ResourcesGridRowModel(value.exploratory_name,
-          value.template_name,
-          value.image,
-          value.status,
-          value.shape,
-          value.computational_resources,
-          value.up_time,
-          value.exploratory_url,
-          sharedDataList.edge_node_ip,
-          value.exploratory_user,
-          value.exploratory_pass,
-          sharedDataList[DICTIONARY.bucket_name],
-          sharedDataList[DICTIONARY.shared_bucket_name],
-          value.error_message,
-          value[DICTIONARY.billing.cost],
-          value[DICTIONARY.billing.currencyCode],
-          value.billing,
-          value.libs,
-          sharedDataList[DICTIONARY.user_storage_account_name],
-          sharedDataList[DICTIONARY.shared_storage_account_name],
-          sharedDataList[DICTIONARY.datalake_name],
-          sharedDataList[DICTIONARY.datalake_user_directory_name],
-          sharedDataList[DICTIONARY.datalake_shared_directory_name],
-        );
-      });
-    }
   }
 
   getUserPreferences(): void {
@@ -270,23 +279,25 @@ export class ResourcesGridComponent implements OnInit {
   updateUserPreferences(filterConfiguration: FilterConfigurationModel): void {
     this.userResourceService.updateUserPreferences(filterConfiguration)
       .subscribe((result) => { },
-      (error) => {
-        console.log('UPDATE USER PREFERENCES ERROR ', error);
-      });
+        (error) => {
+          console.log('UPDATE USER PREFERENCES ERROR ', error);
+        });
   }
 
   printDetailEnvironmentModal(data): void {
-    this.detailDialog.open({ isFooter: false }, data);
+    this.dialog.open(DetailDialogComponent, { data: data, panelClass: 'modal-lg' })
+      .afterClosed().subscribe(() => this.buildGrid());
   }
 
   printCostDetails(data): void {
-    this.costDetailsDialog.open({ isFooter: false }, data);
+    this.dialog.open(CostDetailsDialogComponent, { data: data, panelClass: 'modal-xl' })
+      .afterClosed().subscribe(() => this.buildGrid());
   }
 
   exploratoryAction(data, action: string) {
     if (action === 'deploy') {
-      this.notebookName = data.name;
-      this.computationalResourceModal.open({ isFooter: false }, data, this.environments);
+      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: data, full_list: this.environments }, panelClass: 'modal-xxl' })
+        .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'run') {
       this.userResourceService
         .runExploratoryEnvironment({ notebook_instance_name: data.name })
@@ -294,15 +305,20 @@ export class ResourcesGridComponent implements OnInit {
           () => this.buildGrid(),
           error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
     } else if (action === 'stop') {
-      this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.StopExploratory);
+      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
+        .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'terminate') {
-      this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.TerminateExploratory);
+      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
+        .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'install') {
-      this.installLibraries.open({ isFooter: false }, data);
+      this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
+        .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'schedule') {
-      this.scheduler.open({ isFooter: false }, data, 'EXPLORATORY');
+      this.dialog.open(SchedulerComponent, { data: { notebook: data, type: 'EXPLORATORY' }, panelClass: 'modal-xl-s' })
+        .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'ami') {
-      this.createAMI.open({ isFooter: false }, data);
+      this.dialog.open(AmiCreateDialogComponent, { data: data, panelClass: 'modal-sm' })
+        .afterClosed().subscribe(() => this.buildGrid());
     }
   }
 }

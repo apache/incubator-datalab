@@ -1,0 +1,64 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<div id="dialog-box" class="billing-detail-dialog">
+  <header class="dialog-header header-white">
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="dialog-content">
+    <div *ngIf="notebook">
+      <table class="detail-header">
+        <tr>
+          <td matTooltip="{{ notebook.name }}" matTooltipPosition="above">{{ notebook.name }}</td>
+          <td>{{ notebook.template_name }}</td>
+          <td class="status" ngClass="{{ notebook.status || ''}}">{{ notebook.status }}</td>
+          <td>{{ notebook.shape }}</td>
+        </tr>
+      </table>
+      <div class="billing-detail content-box">
+        <mat-list>
+            <mat-list-item class="list-header">
+              <div class="resource-name ellipsis" [ngClass]="{ 'wide-name-field' : DICTIONARY.cloud_provider === 'azure' }">Name</div>
+              <div class="service">{{ DICTIONARY.service }}</div>
+              <div class="resource-type" *ngIf="DICTIONARY.cloud_provider === 'aws'">{{ DICTIONARY.type }}</div>
+              <div class="cost-currency">Cost</div>
+              <div class="usage-date-start">Start</div>
+              <div class="usage-date-end">End</div>
+            </mat-list-item>
+            <div class="scrolling-content" id="scrolling">
+              <mat-list-item *ngFor="let item of notebook.billing">
+                <div class="resource-name" [ngClass]="{ 'wide-name-field' : DICTIONARY.cloud_provider === 'azure' }"
+                     matTooltip="{{ item[DICTIONARY.billing.resourceName] }}"
+                     matTooltipPosition="above">
+                     {{ item[DICTIONARY.billing.resourceName] }}
+                </div>
+                <div class="service">{{ item[DICTIONARY.billing.service] }}</div>
+                <div class="resource-type" *ngIf="DICTIONARY.cloud_provider === 'aws'">{{ item[DICTIONARY.billing.type] }}</div>
+                <div class="cost-currency">{{ item[DICTIONARY.billing.cost] }} {{ item[DICTIONARY.billing.currencyCode] }}</div>
+                <div class="usage-date-start">{{ item[DICTIONARY.billing.dateFrom] | date }}</div>
+                <div class="usage-date-end">{{ item[DICTIONARY.billing.dateTo] | date }}</div>
+              </mat-list-item>
+            </div>
+        </mat-list>
+        <div class="total">
+          <strong>Total: </strong>{{ notebook.cost }} {{ notebook.currency_code }}</div>
+      </div>
+    </div>
+  </div>
+</div>

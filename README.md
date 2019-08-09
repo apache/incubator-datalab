@@ -15,13 +15,11 @@ CONTENTS
 
 [DLab Deployment](#DLab_Deployment)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Prerequisites](#Prerequisites)
-
-&nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DLab deployment](#Env_for_DLab)
-
 &nbsp; &nbsp; &nbsp; &nbsp; [Structure of main DLab directory](#DLab_directory)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Structure of log directory](#log_directory)
+
+&nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DLab deployment](#Env_for_DLab)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Self-Service Node](#Self_Service_Node)
 
@@ -29,7 +27,9 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Notebook node](#Notebook_node)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [EMR cluster](#EMR_cluster)
+&nbsp; &nbsp; &nbsp; &nbsp; [Dataengine-service cluster](#Dataengine-service_cluster)
+
+&nbsp; &nbsp; &nbsp; &nbsp; [Dataengine cluster](#Dataengine_cluster)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Configuration files](#Configuration_files)
 
@@ -157,8 +157,57 @@ That simplifies running big data frameworks, such as Apache Hadoop and Apache Sp
 ----------------------
 # DLab Deployment <a name="DLab_Deployment"></a>
 
-## Prerequisites<a name="Prerequisites"></a>
-#### In Amazon cloud
+### Structure of main DLab directory <a name="DLab_directory"></a>
+
+DLab’s SSN node main directory structure is as follows:
+
+    /opt  
+     └───dlab  
+         ├───conf  
+         ├───sources  
+         ├───template  
+         ├───tmp  
+         │   └───result  
+         └───webapp  
+
+-   conf – contains configuration for DLab Web UI and back-end services;
+-   sources – contains all Docker/Python scripts, templates and files for provisioning;
+-   template – docker’s templates;
+-   tmp –temporary directory of DLab;
+-   tmp/result – temporary directory for Docker’s response files;
+-   webapp – contains all .jar files for DLab Web UI and back-end
+    services.
+
+### Structure of log directory <a name="log_directory"></a>
+
+SSN node structure of log directory is as follows:
+
+    /var
+     └───opt
+         └───dlab
+             └───log
+                 ├───dataengine
+                 ├───dateengine-service
+                 ├───edge
+                 ├───notebook
+                 └───ssn
+
+These directories contain the log files for each template and for DLab back-end services.
+-   ssn – contains logs of back-end services;
+-   provisioning.log – Provisioning Service log file;
+-   security.log – Security Service log file;
+-   selfservice.log – Self-Service log file;
+-   edge, notebook, dataengine, dataengine-service – contains logs of Python scripts.
+
+## Self-Service Node <a name="Self_Service_Node"></a>
+
+### Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
+
+Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
+For each cloud provider, prerequisites are different.
+
+<details><summary>In Amazon cloud <i>(click to expand)</i></summary>
+
 Prerequisites:
 
 DLab can be deployed using the following two methods:
@@ -269,7 +318,7 @@ DLab can be deployed using the following two methods:
                 "s3:DeleteObject",
                 "s3:GetObject",
                 "s3:ListBucket",
-                "s3:PutEncryptionConfiguration",
+                "s3:PutEncryptionConfiguration"
                 "s3:ListAllMyBuckets",
                 "s3:CreateBucket",
                 "s3:PutBucketTagging",
@@ -282,111 +331,74 @@ DLab can be deployed using the following two methods:
 }
 ```
 
-#### In Azure cloud
+Preparation steps for deployment:
+
+- Create an EC2 instance with the following settings:
+    - The instance should have access to Internet in order to install required prerequisites
+    - The instance should have access to further DLab installation
+    - AMI - Ubuntu 16.04
+    - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
+- Put SSH key file created through Amazon Console on the instance with the same name
+- Install Git and clone DLab repository</details>
+
+<details><summary>In Azure cloud <i>(click to expand)</i></summary>
 
 Prerequisites:
 
 - IAM user with Contributor permissions.
-- Service principal and JSON based auth file with clientId, clientSecret and tenantId. 
+- Service principal and JSON based auth file with clientId, clientSecret and tenantId.
 
 **Note:** The following permissions should be assigned to the service principal:
 
 - Windows Azure Active Directory
 - Microsoft Graph
-- Windows Azure Service Management API
+- Windows Azure Service Management API</details>
 
-#### In Google cloud (GCP)
+<details><summary>In Google cloud (GCP) <i>(click to expand)</i></summary>
 
 Prerequisites:
 
 - IAM user
 - Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
-## Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
+- Google Cloud Storage JSON API should be enabled
 
-#### In Amazon cloud
-If you want to deploy DLab from inside of your AWS account, you can use the following instruction:
+Preparation steps for deployment:
 
-- Create an EC2 instance with the following settings:
-    - Shape of the instance shouldn't be less than t2.medium
-    - The instance should have access to Internet in order to install required prerequisites 
-    - The instance should have access to further DLab installation
-    - AMI - Ubuntu 16.04
-    - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
-- Connect to the instance via SSH and run the following commands:
-```
-    sudo su
-    apt-get update
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    apt-get update
-    apt-cache policy docker-ce
-    apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
-    usermod -a -G docker ubuntu
-    pip install fabric==1.14.0
-```
-- Clone DLab repository and run deploy script.
+- Create an VM instance with the following settings:
+    - The instance should have access to Internet in order to install required prerequisites
+    - Boot disk OS Image - Ubuntu 16.04
+- Generate SSH key pair and rename private key with .pem extension
+- Put JSON auth file created through Google cloud console to users home directory
+- Install Git and clone DLab repository</details>
 
-## Structure of main DLab directory <a name="DLab_directory"></a>
-
-DLab’s SSN node main directory structure is as follows:
-
-    /opt  
-     └───dlab  
-         ├───conf  
-         ├───sources  
-         ├───template  
-         ├───tmp  
-         │   └───result  
-         └───webapp  
-
--   conf – contains configuration for DLab Web UI and back-end services;
--   sources – contains all Docker/Python scripts, templates and files for provisioning;
--   template – docker’s templates;
--   tmp –temporary directory of DLab;
--   tmp/result – temporary directory for Docker’s response files;
--   webapp – contains all .jar files for DLab Web UI and back-end
-    services.
-
-## Structure of log directory <a name="log_directory"></a>
-
-SSN node structure of log directory is as follows:
-
-    /var
-     └───opt
-         └───dlab
-             └───log
-                 ├───dataengine
-                 ├───dateengine-service
-                 ├───edge
-                 ├───notebook
-                 └───ssn
-
-These directories contain the log files for each template and for DLab back-end services.
--   ssn – contains logs of back-end services;
--   provisioning.log – Provisioning Service log file;
--   security.log – Security Service log file;
--   selfservice.log – Self-Service log file;
--   edge, notebook, dataengine, dataengine-service – contains logs of Python scripts.
-
-## Self-Service Node <a name="Self_Service_Node"></a>
-
-### Create
-
-Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud. 
-For each cloud provider, prerequisites are different.
-
-#### In Amazon cloud
+### Executing deployment script
 
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
-2.  Go to *dlab* directory.
-3.  Execute following script:
+- Connect to the instance via SSH and run the following commands:
+
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region us-west-2 --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /root/ --conf_key_name Test --conf_tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
+sudo su
+apt-get update
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update
+apt-cache policy docker-ce
+apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
+usermod -a -G docker *username*
+apt-get install python-pip
+pip install fabric==1.14.0
 ```
+- Go to *dlab* directory
+- Run deployment script:
 
 This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
+
+<details><summary>In Amazon cloud <i>(click to expand)</i></summary>
+
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region xx-xxxxx-x --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /path/to/key/ --conf_key_name key_name --conf_tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
+```
 
 List of parameters for SSN node deployment:
 
@@ -397,7 +409,7 @@ List of parameters for SSN node deployment:
 | aws\_secret\_access\_key  | AWS user secret access key                                                              |
 | aws\_region               | AWS region                                                                              |
 | conf\_os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
-| conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS) 
+| conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS)
 | conf\_duo\_vpc\_enable    | "true" - for installing DLab into two Virtual Private Clouds (VPCs) or "false" - for installing DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC
 | aws\_vpc\_id              | ID of the VPC                                                   |
 | aws\_subnet\_id           | ID of the public subnet                                                                 |
@@ -429,22 +441,13 @@ After SSN node deployment following AWS resources will be created:
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
 -   S3 bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
--   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
+-   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket</details>
 
-#### In Azure cloud
+<details><summary>In Azure cloud <i>(click to expand)</i></summary>
 
-To build SSN node, following steps should be executed:
-
-1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed
-2.  Go to *dlab* directory
-3.  To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment
-4.  To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment
-5.  Execute following deploy_dlab.py script:
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --azure_region westus2 --conf_os_family debian --conf_cloud_provider azure --azure_vpc_name vpc-test --azure_subnet_name subnet-test --azure_security_group_name sg-test1,sg-test2 --key_path /root/ --conf_key_name Test --azure_auth_path /dir/file.json  --action create
 ```
-
-This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
 
 List of parameters for SSN node deployment:
 
@@ -487,15 +490,19 @@ To know azure\_offer\_number open [Azure Portal](https://portal.azure.com), go t
 Please see [RateCard API](https://msdn.microsoft.com/en-us/library/mt219004.aspx) to get more details about azure\_offer\_number,
 azure\_currency, azure\_locale, azure\_region_info. These DLab deploy properties correspond to RateCard API request parameters.
 
+To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment.
+
+To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment.
+
 **Note:** Azure Data Lake usage pre-requisites:
 
 1. Configure application in Azure portal and grant proper permissions to it.
 - Open *Azure Active Directory* tab, then *App registrations* and click *New application registration*
 - Fill in ui form with the following parameters *Name* - put name of the new application, *Application type* - select Native, *Sign-on URL* put any valid url as it will be updated later
 - Grant proper permissions to the application. Select the application you just created on *App registration* view, then click *Required permissions*, then *Add->Select an API-> In search field type MicrosoftAzureQueryService* and press *Select*, then check the box *Have full access to the Azure Data Lake service* and save the changes. Repeat the same actions for *Windows Azure Active Directory* API (available on *Required permissions->Add->Select an API*) and the box *Sign in and read user profile*
-- Get *Application ID* from application properties  it will be used as azure_application_id for deploy_dlap.py script 
+- Get *Application ID* from application properties  it will be used as azure_application_id for deploy_dlap.py script
 2. Usage of Data Lake resource predicts shared folder where all users can write or read any data. To manage access to this folder please create ot use existing group in Active Directory. All users from this group will have RW access to the shared folder. Put ID(in Active Directory) of the group as *azure_ad_group_id* parameter to deploy_dlab.py script
-3. After execution of deploy_dlab.py script go to the application created in step 1 and change *Redirect URIs* value to the https://SSN_HOSTNAME/ where SSN_HOSTNAME - SSN node hostname 
+3. After execution of deploy_dlab.py script go to the application created in step 1 and change *Redirect URIs* value to the https://SSN_HOSTNAME/ where SSN_HOSTNAME - SSN node hostname
 
 After SSN node deployment following Azure resources will be created:
 
@@ -507,20 +514,13 @@ After SSN node deployment following Azure resources will be created:
 -   Virtual network and Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   Storage account and blob container for collaboration between Dlab users
--   If support of Data Lake is enabled: Data Lake and shared directory will be created 
+-   If support of Data Lake is enabled: Data Lake and shared directory will be created</details>
 
-#### In Google cloud (GCP)
+<details><summary>In Google cloud (GCP) <i>(click to expand)</i></summary>
 
-To build SSN node, following steps should be executed:
-
-1.  Clone Git repository and make sure that all following [pre-requisites](#Pre-requisites) are installed.
-2.  Go to *dlab* directory.
-3.  Execute following script:
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab --gcp_region us-west1 --gcp_zone us-west1-a --conf_os_family debian --conf_cloud_provider gcp --key_path /key/path/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xxx-xxxxx-x --conf_os_family debian --conf_cloud_provider gcp --key_path /path/to/key/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
 ```
-
-This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
 
 List of parameters for SSN node deployment:
 
@@ -552,16 +552,17 @@ After SSN node deployment following GCP resources will be created:
 -   Security Groups for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
--   Bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
+-   Bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket</details>
 
-### Terminate
+### Terminating Self-Service Node
 
 Terminating SSN node will also remove all nodes and components related to it. Basically, terminating Self-service node will terminate all DLab’s infrastructure.
 Example of command for terminating DLab environment:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
+
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region us-west-2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider aws --action terminate
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider aws --action terminate
 ```
 List of parameters for SSN node termination:
 
@@ -576,8 +577,10 @@ List of parameters for SSN node termination:
 | conf\_os\_family           | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)  |
 | conf\_cloud\_provider      | Name of the cloud provider, which is supported by DLab (AWS)                       |
 | action                     | terminate                                                                          |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
+
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --azure_vpc_name vpc-test --azure_resource_group_name resource-group-test --azure_region westus2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider azure --azure_auth_path /dir/file.json --action terminate
 ```
@@ -594,11 +597,12 @@ List of parameters for SSN node termination:
 | conf\_key\_name            | Name of the uploaded SSH key file (without “.pem” extension)                       |
 | azure\_auth\_path          | Full path to auth json file                                                        |
 | action                     | terminate                                                                          |
+</details>
 
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
-#### In Google cloud
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --gcp_project_id project_id --conf_service_base_name dlab --gcp_region us-west1 --gcp_zone us-west1-a --key_path /root/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --gcp_project_id project_id --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
 ```
 List of parameters for SSN node termination:
 
@@ -614,7 +618,7 @@ List of parameters for SSN node termination:
 | gcp\_service\_account\_path  | Full path to auth json file                                                             |
 | gcp\_project\_id             | ID of GCP project                                                                       |
 | action                       | In case of SSN node termination, this parameter should be set to “terminate”            |
-
+</details>
 
 ## Edge Node <a name="Edge_Node"></a>
 
@@ -624,7 +628,7 @@ Gateway node (or an Edge node) is an instance(virtual machine) provisioned in a 
 
 In order to create Edge node using DLab Web UI – login and, click on the button “Upload” (Depending on authorization provider that was chosen on deployment stage, user may be taken from [LDAP](#LDAP_Authentication) or from [Azure AD (Oauth2)](#Azure_OAuth2_Authentication)). Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding instance (virtual machine) will be started.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 The following AWS resources will be created:
 -   Edge EC2 instance
@@ -654,8 +658,9 @@ List of parameters for Edge node creation:
 | aws\_private\_subnet\_prefix   | Prefix of the private subnet                                                      |
 | conf\_tag\_resource\_id        | The name of tag for billing reports                                               |
 | action                         | create                                                                            |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 The following Azure resources will be created:
 -   Edge virtual machine
@@ -666,7 +671,7 @@ The following Azure resources will be created:
 -   Security Groups for all further user's master nodes of data engine cluster
 -   Security Groups for all further user's slave nodes of data engine cluster
 -   User's private subnet. All further nodes (Notebooks, data engine clusters) will be provisioned in different subnet than SSN.
--   User's storage account and blob container 
+-   User's storage account and blob container
 
 List of parameters for Edge node creation:
 
@@ -682,8 +687,9 @@ List of parameters for Edge node creation:
 | azure\_vpc\_name               | Name of Azure Virtual network where all infrastructure is being deployed          |
 | azure\_subnet\_name            | Name of the Azure public subnet where Edge will be deployed                       |
 | action                         | create                                                                            |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 The following GCP resources will be created:
 -   Edge VM instance
@@ -693,7 +699,7 @@ The following GCP resources will be created:
 -   Security Groups for all further user's master nodes of data engine cluster
 -   Security Groups for all further user's slave nodes of data engine cluster
 -   User's private subnet. All further nodes (Notebooks, data engine clusters) will be provisioned in different subnet than SSN.
--   User's bucket 
+-   User's bucket
 
 List of parameters for Edge node creation:
 
@@ -710,12 +716,13 @@ List of parameters for Edge node creation:
 | gcp\_subnet\_name              | Name of the Azure public subnet where Edge will be deployed                       |
 | gcp\_project\_id               | ID of GCP project                                                                 |
 | action                         | create                                                                            |
+</details>
 
 ### Start/Stop <a name=""></a>
 
 To start/stop Edge node, click on the button which looks like a cycle on the top right corner, then click on the button which is located in “Action” field and in the drop-down menu click on the appropriate action.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 List of parameters for Edge node starting/stopping:
 
@@ -726,8 +733,9 @@ List of parameters for Edge node starting/stopping:
 | edge\_user\_name          | Name of the user                                             |
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | start/stop                                                   |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 List of parameters for Edge node starting:
 
@@ -749,8 +757,9 @@ List of parameters for Edge node stopping:
 | edge\_user\_name             | Name of the user                                                          |
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned |
 | action                       | stop                                                                      |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 List of parameters for Edge node starting/stopping:
 
@@ -763,6 +772,7 @@ List of parameters for Edge node starting/stopping:
 | gcp\_zone                      | GCP zone where infrastructure was deployed                                        |
 | gcp\_project\_id               | ID of GCP project                                                                 |
 | action                         | start/stop                                                                        |
+</details>
 
 ### Recreate <a name=""></a>
 
@@ -772,7 +782,7 @@ If Edge node was removed for some reason, to re-create it, click on the status b
 
 List of parameters for Edge node recreation:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                  | Description/Value                                                                 |
 |----------------------------|-----------------------------------------------------------------------------------|
@@ -788,8 +798,9 @@ List of parameters for Edge node recreation:
 | edge\_elastic\_ip          | AWS Elastic IP address which was associated to Edge node                          |
 | conf\_tag\_resource\_id    | The name of tag for billing reports                                               |
 | action                     | Create                                                                            |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                                 |
 |------------------------------|-----------------------------------------------------------------------------------|
@@ -803,8 +814,10 @@ List of parameters for Edge node recreation:
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned         |
 | azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                           |
 | action                       | Create                                                                            |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
+
 | Parameter                  | Description/Value                                                                     |
 |--------------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource                 | edge                                                                              |
@@ -818,6 +831,7 @@ List of parameters for Edge node recreation:
 | gcp\_subnet\_name              | Name of the Azure public subnet where Edge will be deployed                       |
 | gcp\_project\_id               | ID of GCP project                                                                 |
 | action                         | create                                                                            |
+</details>
 
 ## Notebook node <a name="Notebook_node"></a>
 
@@ -829,7 +843,7 @@ To create Notebook node, click on the “Create new” button. Then, in drop-dow
 
 List of parameters for Notebook node creation:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
@@ -847,8 +861,9 @@ List of parameters for Notebook node creation:
 | action                        | Create                                                                            |
 
 **Note:** For format of git_creds see "Manage git credentials" lower.
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                       | Description/Value                                                                 |
 |---------------------------------|-----------------------------------------------------------------------------------|
@@ -864,8 +879,9 @@ List of parameters for Notebook node creation:
 | application                     | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | git\_creds                      | User git credentials in JSON format                                               |
 | action                          | Create                                                                            |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
@@ -882,6 +898,7 @@ List of parameters for Notebook node creation:
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | Create                                                                            |
+</details>
 
 ### Stop
 
@@ -889,7 +906,7 @@ In order to stop Notebook node, click on the “gear” button in Actions column
 
 List of parameters for Notebook node stopping:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -900,8 +917,9 @@ List of parameters for Notebook node stopping:
 | notebook\_instance\_name  | Name of the Notebook instance to terminate                   |
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | Stop                                                         |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                       | Description/Value                                                                 |
 |---------------------------------|-----------------------------------------------------------------------------------|
@@ -912,8 +930,9 @@ List of parameters for Notebook node stopping:
 | notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
 | azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
 | action                          | Stop                                                                              |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -926,6 +945,7 @@ List of parameters for Notebook node stopping:
 | gcp\_zone                 | GCP zone where infrastructure was deployed                   |
 | gcp\_project\_id          | ID of GCP project                                            |
 | action                    | Stop                                                         |
+</details>
 
 ### Start
 
@@ -933,7 +953,7 @@ In order to start Notebook node, click on the button, which looks like gear in �
 
 List of parameters for Notebook node start:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -947,8 +967,9 @@ List of parameters for Notebook node start:
 | action                    | start                                                        |
 
 **Note:** For format of git_creds see "Manage git credentials" lower.
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                       | Description/Value                                                                 |
 |---------------------------------|-----------------------------------------------------------------------------------|
@@ -961,8 +982,9 @@ List of parameters for Notebook node start:
 | azure\_region                   | Azure region where infrastructure was deployed                                    |
 | git\_creds                      | User git credentials in JSON format                                               |
 | action                          | start                                                                             |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -976,6 +998,7 @@ List of parameters for Notebook node start:
 | gcp\_project\_id          | ID of GCP project                                            |
 | git\_creds                | User git credentials in JSON format                          |
 | action                    | Stop                                                         |
+</details>
 
 ### Terminate
 
@@ -983,7 +1006,7 @@ In order to terminate Notebook node, click on the button, which looks like gear 
 
 List of parameters for Notebook node termination:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -996,8 +1019,9 @@ List of parameters for Notebook node termination:
 | action                    | terminate                                                         |
 
 **Note:** If terminate action is called, all connected data engine clusters will be removed.
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                       | Description/Value                                                                 |
 |---------------------------------|-----------------------------------------------------------------------------------|
@@ -1007,8 +1031,9 @@ List of parameters for Notebook node termination:
 | notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
 | azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
 | action                          | terminate                                                                         |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -1021,12 +1046,13 @@ List of parameters for Notebook node termination:
 | gcp\_project\_id          | ID of GCP project                                            |
 | git\_creds                | User git credentials in JSON format                          |
 | action                    | Stop                                                         |
+</details>
 
 ### List/Install additional libraries
 
 In order to list available libraries (OS/Python2/Python3/R/Others) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -1051,7 +1077,7 @@ List of parameters for Notebook node to **get list** of available libraries:
   "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
   "r_pkg": {"rmarkdown": "1.5"},
-  "others": {"Keras": "N/A"} 
+  "others": {"Keras": "N/A"}
 }
 ```
 
@@ -1086,8 +1112,9 @@ List of parameters for Notebook node to **install** additional libraries:
   ...
 }
 ```
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -1115,9 +1142,9 @@ List of parameters for Notebook node to **install** additional libraries:
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
 | libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
 | action                        | lib_install                                                                          |
+</details>
 
-
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -1147,12 +1174,13 @@ List of parameters for Notebook node to **install** additional libraries:
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
 | libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
 | action                        | lib_install                                                                          |
+</details>
 
 ### Manage git credentials
 
 In order to manage git credentials on Notebook node, click on the button “Git credentials”. Then in menu you can add or edit existing credentials.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 List of parameters for Notebook node to **manage git credentials**:
 
@@ -1184,8 +1212,9 @@ List of parameters for Notebook node to **manage git credentials**:
 **Note:** Leave "hostname" field empty to apply login/password by default for all services.
 
 **Note:** Also your can use "Personal access tokens" against passwords.
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
@@ -1197,8 +1226,9 @@ List of parameters for Notebook node to **manage git credentials**:
 | azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | git\_creds                                                                        |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
@@ -1212,8 +1242,9 @@ List of parameters for Notebook node to **manage git credentials**:
 | notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | git\_creds                                                                        |
+</details>
 
-## Dataengine-service cluster <a name="Dataengine-service cluster"></a>
+## Dataengine-service cluster <a name="Dataengine-service_cluster"></a>
 
 Dataengine-service is a cluster provided by cloud as a service (EMR on AWS) can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
 
@@ -1223,7 +1254,7 @@ To create dataengine-service cluster click on the “gear” button in Actions c
 
 List of parameters for dataengine-service cluster creation:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                   | Description/Value                                                        |
 |-----------------------------|--------------------------------------------------------------------------|
@@ -1242,8 +1273,9 @@ List of parameters for dataengine-service cluster creation:
 | action                      | create                                                                   |
 
 **Note:** If “Spot instances” is enabled, dataengine-service Slave nodes will be created as EC2 Spot instances.
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                       | Description/Value                                                        |
 |---------------------------------|--------------------------------------------------------------------------|
@@ -1264,6 +1296,7 @@ List of parameters for dataengine-service cluster creation:
 | gcp\_zone                       | GCP zone name                                                            |
 | conf\_tag\_resource\_id         | The name of tag for billing reports                                      |
 | action                          | create                                                                   |
+</details>
 
 ### Terminate
 
@@ -1271,7 +1304,7 @@ In order to terminate dataengine-service cluster, click on “x” button which 
 
 List of parameters for dataengine-service cluster termination:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                                   |
 |---------------------------|---------------------------------------------------------------------|
@@ -1283,8 +1316,9 @@ List of parameters for dataengine-service cluster termination:
 | notebook\_instance\_name  | Name of the Notebook instance which dataengine-service is linked to |
 | aws\_region               | AWS region where infrastructure was deployed                        |
 | action                    | Terminate                                                           |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                 | Description/Value                                                   |
 |---------------------------|---------------------------------------------------------------------|
@@ -1298,12 +1332,13 @@ List of parameters for dataengine-service cluster termination:
 | gcp\_zone                 | GCP zone name                                                       |
 | dataproc\_cluster\_name   | Dataproc cluster name                                               |
 | action                    | Terminate                                                           |
+</details>
 
 ### List/Install additional libraries
 
 In order to list available libraries (OS/Python2/Python3/R/Others) on Dataengine-service, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 List of parameters for Dataengine-service node to **get list** of available libraries:
 
@@ -1327,7 +1362,7 @@ List of parameters for Dataengine-service node to **get list** of available libr
   "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
   "r_pkg": {"rmarkdown": "1.5"},
-  "others": {"Keras": "N/A"} 
+  "others": {"Keras": "N/A"}
 }
 ```
 
@@ -1361,8 +1396,9 @@ List of parameters for Dataengine-service to **install** additional libraries:
   ...
 }
 ```
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 List of parameters for Dataengine-service node to **get list** of available libraries:
 
@@ -1389,9 +1425,9 @@ List of parameters for Dataengine-service node to **install** additional librari
 | gcp\_region                   | GCP region name                                                                   |
 | gcp\_zone                     | GCP zone name                                                                     |
 | action                        | lib_install                                                                       |
+</details>
 
-
-## Dataengine cluster <a name="Dataengine cluster"></a>
+## Dataengine cluster <a name="Dataengine_cluster"></a>
 
 Dataengine is cluster based on Standalone Spark framework can be created if more computational resources are needed for executing analytical algorithms, but without additional expenses for cloud provided service.
 
@@ -1401,7 +1437,7 @@ To create Spark standalone cluster click on the “gear” button in Actions col
 
 List of parameters for dataengine cluster creation:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                      | Description/Value                                                                 |
 |--------------------------------|-----------------------------------------------------------------------------------|
@@ -1416,8 +1452,9 @@ List of parameters for dataengine cluster creation:
 | aws\_dataengine\_master\_size  | Size of master node                                                               |
 | aws\_dataengine\_slave\_size   | Size of slave node                                                                |
 | action                         | create                                                                            |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                      | Description/Value                                                                 |
 |--------------------------------|-----------------------------------------------------------------------------------|
@@ -1435,8 +1472,9 @@ List of parameters for dataengine cluster creation:
 | azure\_resource\_group\_name   | Name of the resource group where all DLAb resources are being provisioned         |
 | azure\_subnet\_name            | Name of the Azure public subnet where Edge was deployed                           |
 | action                         | create                                                                            |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                                 |
 |------------------------------|-----------------------------------------------------------------------------------|
@@ -1455,7 +1493,7 @@ List of parameters for dataengine cluster creation:
 | gcp\_zone                    | GCP zone name                                                                     |
 | edge\_user\_name             | Value that previously was used when Edge being provisioned                        |
 | action                       | create                                                                            |
-
+</details>
 
 ### Terminate
 
@@ -1463,7 +1501,7 @@ In order to terminate dataengine cluster, click on “x” button which is locat
 
 List of parameters for dataengine cluster termination:
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                        |
 |------------------------------|--------------------------------------------------------------------------|
@@ -1475,8 +1513,9 @@ List of parameters for dataengine cluster termination:
 | computational\_name          | Name of cluster                                                          |
 | aws\_region                  | AWS region where infrastructure was deployed                             |
 | action                       | Terminate                                                                |
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                        |
 |------------------------------|--------------------------------------------------------------------------|
@@ -1489,8 +1528,9 @@ List of parameters for dataengine cluster termination:
 | azure\_region                | Azure region where infrastructure was deployed                           |
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned|
 | action                       | Terminate                                                                |
+</details>
 
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 | Parameter                    | Description/Value                                                        |
 |------------------------------|--------------------------------------------------------------------------|
@@ -1504,12 +1544,13 @@ List of parameters for dataengine cluster termination:
 | gcp\_region                  | GCP region where infrastructure was deployed                             |
 | gcp\_zone                    | GCP zone name                                                            |
 | action                       | Terminate                                                                |
+</details>
 
 ### List/Install additional libraries
 
 In order to list available libraries (OS/Python2/Python3/R/Others) on Dataengine, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
 
-#### In Amazon
+<details><summary>In Amazon <i>(click to expand)</i></summary>
 
 List of parameters for Dataengine node to **get list** of available libraries:
 
@@ -1533,7 +1574,7 @@ List of parameters for Dataengine node to **get list** of available libraries:
   "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
   "r_pkg": {"rmarkdown": "1.5"},
-  "others": {"Keras": "N/A"} 
+  "others": {"Keras": "N/A"}
 }
 ```
 
@@ -1566,8 +1607,9 @@ List of parameters for Dataengine node to **install** additional libraries:
   ...
 }
 ```
+</details>
 
-#### In Azure
+<details><summary>In Azure <i>(click to expand)</i></summary>
 
 List of parameters for Dataengine node to **get list** of available libraries:
 
@@ -1594,9 +1636,9 @@ List of parameters for Dataengine node to **install** additional libraries:
 | computational\_id             | Name of cluster                                                                   |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | action                        | lib_install                                                                       |
+</details>
 
-
-#### In Google cloud
+<details><summary>In Google cloud <i>(click to expand)</i></summary>
 
 List of parameters for Dataengine node to **get list** of available libraries:
 
@@ -1625,7 +1667,7 @@ List of parameters for Dataengine node to **install** additional libraries:
 | gcp\_zone                     | GCP zone name                                                                     |
 | computational\_id             | Name of cluster                                                                   |
 | action                        | lib_install                                                                       |
-
+</details>
 
 ## Configuration files <a name="Configuration_files"></a>
 
@@ -1670,7 +1712,7 @@ To use your own certificate please do the following:
 
 ## Billing report <a name="Billing_Report"></a>
 
-### AWS
+<details><summary>AWS <i>(click to expand)</i></summary>
 
 Billing module is implemented as a separate jar file and can be running in the follow modes:
 
@@ -1700,8 +1742,9 @@ If you want billing to work as a separate process from the Self-Service use foll
 ```
 java -cp /opt/dlab/webapp/lib/billing/billing-aws.x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
 ```
+</details>
 
-### Azure
+<details><summary>Azure <i>(click to expand)</i></summary>
 
 Billing module is implemented as a separate jar file and can be running in the follow modes:
 
@@ -1712,6 +1755,7 @@ If you want to start billing module as a separate process use the following comm
 ```
 java -jar /opt/dlab/webapp/lib/billing/billing-azure.x.y.jar /opt/dlab/conf/billing.yml
 ```
+</details>
 
 ## Backup and Restore <a name="Backup_and_Restore"></a>
 
@@ -1766,7 +1810,7 @@ To deploy Gitlab server, set all needed parameters in ```gitlab.ini``` and run s
 
 **Note:** Terminate process uses ```node_name``` to find instance.
 
-**Note:** GitLab wouldn't be terminated with all environment termination process. 
+**Note:** GitLab wouldn't be terminated with all environment termination process.
 
 ## Troubleshooting <a name="Troubleshooting"></a>
 
@@ -1901,12 +1945,12 @@ Some class names may have endings like Aws or Azure(e.g. ComputationalResourceAw
 
 #### Security service
 
-Security service is REST based service for user authentication against LDAP/LDAP + AWS/Azure OAuth2 depending on module configuration and cloud provider. 
-LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance. 
+Security service is REST based service for user authentication against LDAP/LDAP + AWS/Azure OAuth2 depending on module configuration and cloud provider.
+LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance.
 If you use AWS cloud provider LDAP + AWS authentication could be useful as it allows to combine LDAP authentication and verification if user has any role in AWS account
 
 DLab provides OAuth2(client credentials and authorization code flow) security authorization mechanism for Azure users. This kind of authentication is required when you are going to use Data Lake. If Data Lake is not enabled you have two options LDAP or OAuth2
-If OAuth2 is in use security-service validates user's permissions to configured permission scope(resource in Azure). 
+If OAuth2 is in use security-service validates user's permissions to configured permission scope(resource in Azure).
 If Data Lake is enabled default permission scope(can be configured manually after deploy DLab) is Data Lake Store account so only if user has any role in scope of Data Lake Store Account resource he/she will be allowed to log in
 If Data Lake is disabled but Azure OAuth2 is in use default permission scope will be Resource Group where DLab is created and only users who have any roles in the resource group will be allowed to log in.
 
@@ -1925,7 +1969,7 @@ Sources are located in dlab/services/self-service/src/main/resources/webapp
 | Home page (list of resources) | HomeComponent<br>nested several main components like ResourcesGrid for notebooks data rendering and filtering, using custom MultiSelectDropdown component;<br>multiple modal dialogs components used for new instances creation, displaying detailed info and actions confirmation. |
 | Health Status page            | HealthStatusComponent<br>*HealthStatusGridComponent* displays list of instances, their types, statutes, ID’s and uses *healthStatusService* for handling main actions. |
 | Help pages                    | Static pages that contains information and instructions on how to access Notebook Server and generate SSH key pair. Includes only *NavbarComponent*. |
-| Error page                    | Simple static page letting users know that opened page does not exist. Includes only *NavbarComponent*. | 
+| Error page                    | Simple static page letting users know that opened page does not exist. Includes only *NavbarComponent*. |
 | Reporting page                | ReportingComponent<br>ReportingGridComponent displays billing detailed info with built-in filtering and DateRangePicker component for custom range filtering;<br>uses *BillingReportService* for handling main actions and exports report data to .csv file. |
 
 ## How to setup local development environment <a name="setup_local_environment"></a>
@@ -1989,7 +2033,7 @@ mongo:
 *Unix*
 
 ```
-ln -s ../../infrastructure-provisioning/src/ssn/templates/ssn.yml ssn.yml 
+ln -s ../../infrastructure-provisioning/src/ssn/templates/ssn.yml ssn.yml
 ```
 
 *Windows*
@@ -2036,7 +2080,7 @@ export * from './(aws|azure).dictionary';
 npm run build.prod
 ```
 
-### Prepare HTTPS prerequisites 
+### Prepare HTTPS prerequisites
 
 To enable a SSL connection the web server should have a Digital Certificate.
 To create a server certificate, follow these steps:
@@ -2051,7 +2095,7 @@ To create a server certificate, follow these steps:
 
 Please find below set of commands to create certificate, depending on OS.
 
-#### Create Unix/Ubuntu server certificate 
+#### Create Unix/Ubuntu server certificate
 
 Pay attention that the last command has to be executed with administrative permissions.
 ```
@@ -2445,7 +2489,7 @@ Also depending on customization, there might be differences in attributes config
 
 **CN** vs **UID**.
 
-The relation between users and groups also varies from vendor to vendor. 
+The relation between users and groups also varies from vendor to vendor.
 
 For example, in Open LDAP the group object may contain set (from 0 to many) attributes **"memberuid"** with values equal to user`s attribute **“uid”**.
 
@@ -2454,8 +2498,8 @@ On a group size there is attribute **"member"** (from 0 to many values) and its 
 
 
 To fit the unified way of LDAP usage, we introduced configuration file with set of properties and customized scripts (python and JavaScript based).
-On backend side, all valuable attributes are further collected and passed to these scripts. 
-To apply some customization it is required to update a few properties in **security.yml** and customize the scripts. 
+On backend side, all valuable attributes are further collected and passed to these scripts.
+To apply some customization it is required to update a few properties in **security.yml** and customize the scripts.
 
 
 ### Properties overview
@@ -2475,14 +2519,14 @@ Additional parameters that are populated during deployment and may be changed in
 - **ldapConnectionConfig.ldapHost: ldap host**
 - **ldapConnectionConfig.ldapPort: ldap port**
 - **ldapConnectionConfig.credentials: ldap credentials**
- 
+
 ### Scripts overview
 
 There are 3 scripts in security.yml:
-- **userLookUp** (python based)    - responsible for user lookup in LDap and returns additional user`s attributes; 
+- **userLookUp** (python based)    - responsible for user lookup in LDap and returns additional user`s attributes;
 - **userInfo** (python based)      - enriches user with additional data;
 - **groupInfo** (javascript based) – responsible for mapping between users and groups;
- 
+
 ### Script structure
 
 The scripts above were created to flexibly manage user`s security configuration. They all are part of **security.yml** configuration. All scripts have following structure:
@@ -2497,14 +2541,14 @@ The scripts above were created to flexibly manage user`s security configuration.
     - **searchResultProcessor:**
       - **language**
       - **code**
-     
-Major properties are: 
+
+Major properties are:
 - **attributes**             - list of attributes that will be retrieved from LDAP (-name, -cn, -uid, -member, etc);
-- **filter**               - the filter, based on which the object will be retrieved from LDAP; 
+- **filter**               - the filter, based on which the object will be retrieved from LDAP;
 - **searchResultProcessor**    - optional. If only LDAP object attributes retrieving is required, this property should be empty. For example, “userLookup” script only retrieves list of "attributes". Otherwise, code customization (like user enrichment, user to groups matching, etc.) should be added into sub-properties below:
-  - **language**                - the script language - "python" or "JavaScript" 
+  - **language**                - the script language - "python" or "JavaScript"
   - **code**                    - the script code.
-     
+
 
 ### "userLookUp" script
 
@@ -2521,34 +2565,34 @@ Script code:
     expirationTimeMsec: 600000
     scope: SUBTREE
     attributes:
-      - cn 
+      - cn
       - gidNumber
       - mail
       - memberOf
     timeLimit: 0
     base: ou=users,ou=alxn,dc=alexion,dc=cloud
     filter: "(&(objectCategory=person)(objectClass=user)(mail=%mail%))"
-    
+
 In the example above, the user login passed from GUI is a mail (**ldapSearchAttribute: mail**) and based on the filer (**filter: "(&(objectCategory=person)(objectClass=user)(mail=%mail%))")** so, the service would search user by its **“mail”**.
 If corresponding users are found - the script will return additional user`s attributes:
   - cn
   - gidNumber
   - mail
   - memberOf
-   
+
 User`s authentication into LDAP would be done for DN with following template **ldapBindTemplate: 'cn=%s,ou=users,ou=alxn,dc=alexion,dc=cloud'**, where CN is attribute retrieved by  **“userLookUp”** script.
 
 ## Azure OAuth2 Authentication <a name="Azure_OAuth2_Authentication"></a>
-DLab supports OAuth2 authentication that is configured automatically in Security Service and Self Service after DLab deployment. 
-Please see explanation details about configuration parameters for Self Service and Security Service below. 
-DLab supports client credentials(username + password) and authorization code flow for authentication. 
+DLab supports OAuth2 authentication that is configured automatically in Security Service and Self Service after DLab deployment.
+Please see explanation details about configuration parameters for Self Service and Security Service below.
+DLab supports client credentials(username + password) and authorization code flow for authentication.
 
 
 ### Azure OAuth2 Self Service configuration
 
     azureLoginConfiguration:
         useLdap: false
-        tenant: xxxx-xxxx-xxxx-xxxx 
+        tenant: xxxx-xxxx-xxxx-xxxx
         authority: https://login.microsoftonline.com/
         clientId: xxxx-xxxx-xxxx-xxxx
         redirectUrl: https://dlab.azure.cloudapp.azure.com/
@@ -2557,7 +2601,7 @@ DLab supports client credentials(username + password) and authorization code flo
         silent: true
         loginPage: https://dlab.azure.cloudapp.azure.com/
         maxSessionDurabilityMilliseconds: 288000000
-        
+
 where:
 - **useLdap** - defines if LDAP authentication is enabled(true/false). If false Azure OAuth2 takes place with configuration properties below
 - **tenant** - tenant id of your company
@@ -2566,25 +2610,25 @@ where:
 - **redirectUrl** - redirect URL to DLab application after try to login to Azure using OAuth2
 - **responseMode** - defines how Azure sends authorization code or error information to DLab during log in procedure
 - **prompt** - defines kind of prompt during Oauth2 login
-- **silent** - defines if DLab tries to log in user without interaction(true/false), if false DLab tries to login user with configured prompt 
+- **silent** - defines if DLab tries to log in user without interaction(true/false), if false DLab tries to login user with configured prompt
 - **loginPage** - start page of DLab application
-- **maxSessionDurabilityMilliseconds** - max user session durability. user will be asked to login after this period of time and when he/she creates ot starts notebook/cluster. This operation is needed to update refresh_token that is used by notebooks to access Data Lake Store 
-        
+- **maxSessionDurabilityMilliseconds** - max user session durability. user will be asked to login after this period of time and when he/she creates ot starts notebook/cluster. This operation is needed to update refresh_token that is used by notebooks to access Data Lake Store
+
 To get more info about *responseMode*, *prompt* parameters please visit [Authorize access to web applications using OAuth 2.0 and Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code)
-        
-   
+
+
 ### Azure OAuth2 Security Service configuration
 
     azureLoginConfiguration:
         useLdap: false
-        tenant: xxxx-xxxx-xxxx-xxxx 
+        tenant: xxxx-xxxx-xxxx-xxxx
         authority: https://login.microsoftonline.com/
         clientId: xxxx-xxxx-xxxx-xxxx
         redirectUrl: https://dlab.azure.cloudapp.azure.com/
-        validatePermissionScope: true 
+        validatePermissionScope: true
         permissionScope: subscriptions/xxxx-xxxx-xxxx-xxxx/resourceGroups/xxxx-xxxx/providers/Microsoft.DataLakeStore/accounts/xxxx/providers/Microsoft.Authorization/
         managementApiAuthFile: /dlab/keys/azure_authentication.json
-        
+
 where:
 - **useLdap** - defines if LDAP authentication is enabled(true/false). If false Azure OAuth2 takes place with configuration properties below
 - **tenant** - tenant id of your company
@@ -2594,4 +2638,3 @@ where:
 - **validatePermissionScope** - defines(true/false) if user's permissions should be validated to resource that is provided in permissionScope parameter. User will be logged in onlu in case he/she has any role in resource IAM described with permissionScope parameter
 - **permissionScope** - describes Azure resource where user should have any role to pass authentication. If user has no role in resource IAM he/she will not be logged in  
 - **managementApiAuthFile** - authentication file that is used to query Microsoft Graph API to check user roles in resource described in permissionScope  
-

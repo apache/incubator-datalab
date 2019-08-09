@@ -1,40 +1,41 @@
 {
-   "status": "ok",
-   "response": {
-      "result": {
-         "instance_id": "${INSTANCE_ID}",
-         "tunnel_port": "22",
-         "full_edge_conf": {
-            "notebook_role_profile_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-Profile",
-            "tag_name": "${CONF_SERVICE_BASE_NAME}-Tag",
-            "edge_security_group_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge-SG",
-            "allocation_id": "eipalloc-2801084f",
-            "key_name": "${CONF_KEY_NAME}",
-            "edge_public_ip": "35.166.104.208",
-            "instance_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge",
-            "edge_private_ip": "172.31.15.80",
-            "bucket_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-bucket",
-            "user_keyname": "${EDGE_USER_NAME}",
-            "private_subnet_cidr": "172.31.48.0/24",
-            "notebook_instance_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb",
-            "service_base_name": "${CONF_SERVICE_BASE_NAME}",
-            "notebook_security_group_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-SG",
-            "shared_bucket_name": "${CONF_SERVICE_BASE_NAME}-shared-bucket"
-         },
-         "notebook_sg": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-SG",
-         "ip": "172.31.15.80",
-         "hostname": "ec2-35-166-104-208.us-west-2.compute.amazonaws.com",
-         "user_own_bicket_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-bucket",
-         "notebook_profile": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-Profile",
-         "public_ip": "35.166.104.208",
-         "key_name": "${CONF_KEY_NAME}",
-         "Action": "Create new EDGE server",
-         "edge_sg": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge-SG",
-         "socks_port": "1080",
-         "notebook_subnet": "172.31.48.0/24",
-         "shared_bucket_name": "${CONF_SERVICE_BASE_NAME}-shared-bucket"
+  "status": "ok",
+  "response": {
+    "result": {
+      "instance_id": "${INSTANCE_ID}",
+      "tunnel_port": "22",
+      "full_edge_conf": {
+        "notebook_role_profile_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-Profile",
+        "tag_name": "${CONF_SERVICE_BASE_NAME}-Tag",
+        "edge_security_group_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge-SG",
+        "allocation_id": "eipalloc-2801084f",
+        "key_name": "${CONF_KEY_NAME}",
+        "edge_public_ip": "35.166.104.208",
+        "instance_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge",
+        "edge_private_ip": "172.31.15.80",
+        "bucket_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-bucket",
+        "user_keyname": "${EDGE_USER_NAME}",
+        "private_subnet_cidr": "172.31.48.0/24",
+        "notebook_instance_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb",
+        "service_base_name": "${CONF_SERVICE_BASE_NAME}",
+        "notebook_security_group_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-SG",
+        "shared_bucket_name": "${CONF_SERVICE_BASE_NAME}-shared-bucket"
       },
-      "log": "/var/log/dlab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
-   },
-   "request_id": "${REQUEST_ID}"
+      "notebook_sg": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-SG",
+      "ip": "172.31.15.80",
+      "hostname": "ec2-35-166-104-208.us-west-2.compute.amazonaws.com",
+      "user_own_bicket_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-bucket",
+      "notebook_profile": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-Profile",
+      "public_ip": "35.166.104.208",
+      "key_name": "${CONF_KEY_NAME}",
+      "Action": "Create new EDGE server",
+      "edge_sg": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge-SG",
+      "socks_port": "1080",
+      "notebook_subnet": "172.31.48.0/24",
+      "@class": "com.epam.dlab.dto.aws.edge.EdgeInfoAws",
+      "shared_bucket_name": "${CONF_SERVICE_BASE_NAME}-shared-bucket"
+    },
+    "log": "/var/log/dlab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+  },
+  "request_id": "${REQUEST_ID}"
 }

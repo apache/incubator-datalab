@@ -45,7 +45,7 @@ def stop_data_engine(resource_group_name, cluster_name):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -64,9 +64,10 @@ if __name__ == "__main__":
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
     data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+    data_engine['project_name'] = os.environ['project_name'].replace('_', '-')
     data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
     data_engine['cluster_name'] = '{}-{}-de-{}-{}'.format(data_engine['service_base_name'],
-                                                          data_engine['user_name'],
+                                                          data_engine['project_name'],
                                                           data_engine['exploratory_name'],
                                                           data_engine['computational_name'])
     try:

@@ -70,9 +70,9 @@ public class UserRoles {
 		LOGGER.trace("Loading roles from database...");
 		if (userRoles == null) {
 			userRoles = new UserRoles();
+			userRoles.load(dao, defaultAccess);
+			LOGGER.trace("New roles are	: {}", getRoles());
 		}
-		userRoles.load(dao, defaultAccess);
-		LOGGER.trace("New roles are: {}", getRoles());
 	}
 
 	/**
@@ -88,28 +88,35 @@ public class UserRoles {
 	 * @param userInfo user info.
 	 * @param type     the type of role.
 	 * @param name     the name of role.
+	 * @param roles
 	 * @return boolean value
 	 */
-	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name) {
-		return checkAccess(userInfo, type, name, true);
+	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name, Collection<String> roles) {
+		return checkAccess(userInfo, type, name, true, roles);
 	}
 
 	public static boolean isAdmin(UserInfo userInfo) {
 		final List<UserRole> roles = UserRoles.getRoles();
-		return roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equals(r.getId()) &&
-				(userRoles.hasAccessByGroup(userInfo, r) || userRoles.hasAccessByUserName(userInfo, r)));
+		if (roles == null || roles.isEmpty()) {
+			System.out.println("=============EMPTY==========");
+		}
+		final boolean b = roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equals(r.getId()) &&
+				(userRoles.hasAccessByGroup(userInfo, r, userInfo.getRoles()) || userRoles.hasAccessByUserName(userInfo, r)));
+		return b;
 	}
 
 	/**
 	 * Check access for user to the role.
 	 *
+	 * @param roles
 	 * @param userInfo user info.
 	 * @param type     the type of role.
 	 * @param name     the name of role.
 	 * @return boolean value
 	 */
-	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name, boolean useDefault) {
-		return (userRoles == null || userRoles.hasAccess(userInfo, type, name, useDefault));
+	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name, boolean useDefault,
+									  Collection<String> roles) {
+		return (userRoles == null || userRoles.hasAccess(userInfo, type, name, useDefault, roles));
 	}
 
 	/**
@@ -216,9 +223,11 @@ public class UserRoles {
 	 * @param type       the type of role.
 	 * @param name       the name of role.
 	 * @param useDefault true/false
+	 * @param roles
 	 * @return boolean value
 	 */
-	private boolean hasAccess(UserInfo userInfo, RoleType type, String name, boolean useDefault) {
+	private boolean hasAccess(UserInfo userInfo, RoleType type, String name, boolean useDefault,
+							  Collection<String> roles) {
 		if (userRoles == null) {
 			return true;
 		}
@@ -228,18 +237,18 @@ public class UserRoles {
 		if (role == null) {
 			return checkDefault(useDefault);
 		}
-		if (hasAccessByGroup(userInfo, role)) return true;
+		if (hasAccessByGroup(userInfo, role, roles)) return true;
 		LOGGER.trace("Access denied for user {} to {}/{}", userInfo.getName(), type, name);
 		return false;
 	}
 
-	private boolean hasAccessByGroup(UserInfo userInfo, UserRole role) {
+	private boolean hasAccessByGroup(UserInfo userInfo, UserRole role, Collection<String> userRoles) {
 		Set<String> groups = role.getGroups();
 		if (groups != null) {
 			if (groups.contains(ANY_USER)) {
 				return true;
 			}
-			for (String group : userInfo.getRoles()) {
+			for (String group : userRoles) {
 				if (group != null && groups.contains(group.toLowerCase())) {
 					LOGGER.trace("Got access by group {}", group);
 					return true;

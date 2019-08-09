@@ -47,7 +47,10 @@ def copy_key(config):
             config.get('user_keydir'),
             config.get('user_keyname'))
         print(user_key)
-        key = open('{0}'.format(user_key)).read()
+        if 'user_key' not in config or config.get('user_key') == None:
+            key = open('{0}'.format(user_key)).read()
+        else:
+            key = config.get('user_key')
         sudo('echo "{0}" >> /home/{1}/.ssh/authorized_keys'.format(key, args.user))
     except:
         print('No user key')

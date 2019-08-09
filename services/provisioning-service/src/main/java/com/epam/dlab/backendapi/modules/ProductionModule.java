@@ -29,9 +29,11 @@ import com.epam.dlab.backendapi.core.commands.CommandExecutor;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
 import com.epam.dlab.backendapi.core.response.handlers.dao.FileSystemCallbackHandlerDao;
-import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.dlab.backendapi.service.CheckInactivityService;
+import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
+import com.epam.dlab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
@@ -75,5 +77,6 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
 		bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
 		bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
 		bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
+		bind(ProjectService.class).to(ProjectServiceImpl.class);
 	}
 }

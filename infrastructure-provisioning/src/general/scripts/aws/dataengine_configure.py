@@ -141,9 +141,29 @@ def configure_slave(slave_number, data_engine):
         append_result("Failed to configure slave node.", str(err))
         sys.exit(1)
 
+    try:
+        print('[INSTALLING USERs KEY]')
+        logging.info('[INSTALLING USERs KEY]')
+        additional_config = {"user_keyname": data_engine['user_keyname'], "user_keydir": os.environ['conf_key_dir']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            slave_hostname, keyfile_name, json.dumps(additional_config), data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_user_key', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            remove_ec2(data_engine['tag_name'], slave_name)
+        append_result("Failed install users key on slave node.", str(err))
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -166,7 +186,7 @@ if __name__ == "__main__":
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
         data_engine['network_type'] = os.environ['conf_network_type']
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['project_name'] + \
                                       '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
@@ -174,21 +194,22 @@ if __name__ == "__main__":
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
         data_engine['dataengine_master_security_group_name'] = data_engine['service_base_name'] + '-' + \
-                                                               os.environ['edge_user_name'] + '-dataengine-master-sg'
+                                                               os.environ['project_name'] + '-dataengine-master-sg'
         data_engine['dataengine_slave_security_group_name'] = data_engine['service_base_name'] + '-' + \
-                                                              os.environ['edge_user_name'] + '-dataengine-slave-sg'
+                                                              os.environ['project_name'] + '-dataengine-slave-sg'
         data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
         tag = {"Key": data_engine['tag_name'],
-               "Value": "{}-{}-subnet".format(data_engine['service_base_name'], os.environ['edge_user_name'])}
+               "Value": "{}-{}-subnet".format(data_engine['service_base_name'], os.environ['project_name'])}
         data_engine['subnet_cidr'] = get_subnet_by_tag(tag)
         data_engine['notebook_dataengine_role_profile_name'] = data_engine['service_base_name']. \
                                                                    lower().replace('-', '_') + "-" + \
-                                                               os.environ['edge_user_name'] + '-nb-de-Profile'
+                                                               os.environ['project_name'] + '-nb-de-Profile'
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         master_node_hostname = get_instance_hostname(data_engine['tag_name'], data_engine['master_node_name'])
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
+        data_engine['user_keyname'] = os.environ['project_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+        edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['project_name'] + '-edge'
         edge_instance_hostname = get_instance_hostname(data_engine['tag_name'], edge_instance_name)
         edge_instance_private_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Private')
         if data_engine['network_type'] == 'private':
@@ -204,7 +225,7 @@ if __name__ == "__main__":
             sudo_group = 'wheel'
     except Exception as err:
         data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['project_name'] + \
                                       '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
@@ -296,6 +317,26 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         append_result("Failed to install prerequisites on master.", str(err))
+        sys.exit(1)
+
+    try:
+        print('[INSTALLING USERs KEY on MASTER NODE]')
+        logging.info('[INSTALLING USERs KEY]')
+        additional_config = {"user_keyname": data_engine['user_keyname'], "user_keydir": os.environ['conf_key_dir']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            master_node_hostname, keyfile_name, json.dumps(additional_config), data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_user_key', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            remove_ec2(data_engine['tag_name'], slave_name)
+        append_result("Failed install users key on master node.", str(err))
         sys.exit(1)
 
     try:
