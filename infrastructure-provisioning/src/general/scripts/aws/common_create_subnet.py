@@ -116,7 +116,7 @@ if __name__ == "__main__":
             subnet_id = get_subnet_by_cidr(dlab_subnet_cidr, args.vpc_id)
             subnet_check = get_subnet_by_tag(tag, False, args.vpc_id)
         else:
-            subnet_id = get_subnet_by_cidr(dlab_subnet_cidr)
+            subnet_id = get_subnet_by_cidr(dlab_subnet_cidr, args.vpc_id)
             subnet_check = get_subnet_by_tag(tag, args.vpc_id)
         if not subnet_check:
             if subnet_id == '':
