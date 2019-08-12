@@ -78,7 +78,8 @@ export const NAMING_CONVENTION = {
         'instance_number': 'Total node number',
         'master_node_shape': 'dataengine_instance_shape',
         'total_instance_number': 'dataengine_instance_count',
-    }
+    },
+    'max_project_name_length': 40
 };
 
 export class ReportingConfigModel {
