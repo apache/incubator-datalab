@@ -1501,7 +1501,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                       '--no-cache-dir'.format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy=={1} SciPy '
-                      'Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror, numpy_version))
+                      'Matplotlib==2.0.2 pandas==0.24.2 Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror, numpy_version))
                 # Need to refactor when we add GPU cluster
                 if application == 'deeplearning':
                     local(venv_command + ' && sudo -i ' + pip_command +
@@ -1523,7 +1523,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install boto boto3 NumPy=={} SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn '
+                  ' install boto boto3 NumPy=={} SciPy Matplotlib==2.0.2 pandas==0.24.2 Sympy Pillow sklearn '
                   '--no-cache-dir'.format(numpy_version))
             # Need to refactor when we add GPU cluster
             if application == 'deeplearning':
