@@ -10,4 +10,6 @@ import lombok.Data;
 public class ProjectActionDTO extends ResourceBaseDTO<ProjectActionDTO> {
 	@JsonProperty("project_name")
 	private final String name;
+	@JsonProperty("endpoint_name")
+	private final String endpoint;
 }

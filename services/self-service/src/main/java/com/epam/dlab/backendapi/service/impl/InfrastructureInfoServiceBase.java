@@ -78,6 +78,7 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 					.entrySet()
 					.stream()
 					.map(e -> new ProjectInfrastructureInfo(e.getKey(),
+							billingDAO.getBillingProjectQuoteUsed(e.getKey()),
 							getSharedInfo(projectService.get(e.getKey()).getEdgeInfo()),
 							e.getValue()))
 					.collect(Collectors.toList());

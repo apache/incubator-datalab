@@ -30,26 +30,21 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 })
 export class ManageEnvironmentComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  // public usersList: Array<string> = [];
   public manageUsersForm: FormGroup;
   public manageTotalsForm: FormGroup;
 
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
-  // @Output() setBudget: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private _fb: FormBuilder,
     public dialog: MatDialog,
-    public dialogRef: MatDialogRef<ManageEnvironmentComponent>
+    public dialogRef: MatDialogRef<ManageEnvironmentComponent>,
+    private _fb: FormBuilder,
   ) { }
 
   ngOnInit() {
     !this.manageUsersForm && this.initForm();
-    this.manageUsersForm.setControl('projects',
-      this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
-        project: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
-      }))));
+    this.setProjectsControl();
 
     this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || null);
   }
@@ -62,13 +57,20 @@ export class ManageEnvironmentComponent implements OnInit {
     this.dialogRef.close(value);
   }
 
-  public applyAction(action, user) {
+  public applyAction(action, project) {
     const dialogRef: MatDialogRef<ConfirmActionDialogComponent> = this.dialog.open(
-      ConfirmActionDialogComponent, { data: { action, user: user.value.name }, width: '550px', panelClass: 'error-modalbox' });
+      ConfirmActionDialogComponent, { data: { action, project: project.value.project }, width: '550px', panelClass: 'error-modalbox' });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) this.manageEnv.emit({ action, user: user.value.name });
+      if (result) this.manageEnv.emit({ action, project: { project_name: project.value.project } });
     });
+  }
+
+  public setProjectsControl() {
+    this.manageUsersForm.setControl('projects',
+      this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
+        project: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
+      }))));
   }
 
   private initForm(): void {
@@ -107,7 +109,7 @@ export class ManageEnvironmentComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p>Environment of <b>{{ data.user }}</b> will be
+    <p>Environment of <b>{{ data.project }}</b> will be
       <span *ngIf="data.action === 'terminate'"> terminated.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </p>
