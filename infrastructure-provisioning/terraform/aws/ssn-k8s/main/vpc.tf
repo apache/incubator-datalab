@@ -107,6 +107,23 @@ resource "aws_eip" "k8s-endpoint-eip" {
   }
 }
 
+resource "aws_route_table" "ssn-k8s-users-route-table" {
+  vpc_id = data.aws_vpc.ssn_k8s_vpc_data.id
+  tags = {
+    "${var.service_base_name}-Tag" = var.service_base_name
+  }
+}
+
+resource "aws_vpc_endpoint" "ssn-k8s-users-s3-endpoint" {
+  vpc_id       = data.aws_vpc.ssn_k8s_vpc_data.id
+  service_name = "com.amazonaws.${var.region}.s3"
+}
+
+resource "aws_vpc_endpoint_route_table_association" "ssn-k8s-users-s3-route" {
+  route_table_id  = aws_route_table.ssn-k8s-users-route-table.id
+  vpc_endpoint_id = aws_vpc_endpoint.ssn-k8s-users-s3-endpoint.id
+}
+
 //resource "aws_eip" "k8s-lb-eip-a" {
 //  vpc      = true
 //  tags = {
