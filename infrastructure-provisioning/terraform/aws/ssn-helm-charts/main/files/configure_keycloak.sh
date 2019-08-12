@@ -44,8 +44,8 @@
           -s 'config.vendor=["other"]' -s 'config.usernameLDAPAttribute=["${ldap_usernameAttr}"]' \
           -s 'config.rdnLDAPAttribute=["${ldap_rdnAttr}"]' -s 'config.uuidLDAPAttribute=["${ldap_uuidAttr}"]' \
           -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
-          -s 'config.connectionUrl=["${ldap_connection_url}"]'  -s 'config.usersDn=["${ldap_users_dn}"]' \
-          -s 'config.authType=["simple"]' -s 'config.bindDn=["${ldap_bind_dn}"]' \
+          -s 'config.connectionUrl=["ldap://${ldap_host}:389"]'  -s 'config.usersDn=["${ldap_users_group},${ldap_dn}"]' \
+          -s 'config.authType=["simple"]' -s 'config.bindDn=["${ldap_user},${ldap_dn}"]' \
           -s 'config.bindCredential=["${ldap_bind_creds}"]' -s 'config.searchScope=["1"]' \
           -s 'config.useTruststoreSpi=["ldapsOnly"]' -s 'config.connectionPooling=["true"]' \
           -s 'config.pagination=["true"]' --server http://127.0.0.1:8080/auth

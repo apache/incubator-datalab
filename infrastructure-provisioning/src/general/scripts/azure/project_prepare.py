@@ -732,12 +732,12 @@ if __name__ == "__main__":
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
             --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
             --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
-            --instance_type {} --user_name {} --instance_storage_account_type {} --image_name {} --tags '{}'".\
+            --instance_type {} --project_name {} --instance_storage_account_type {} --image_name {} --tags '{}'".\
             format(project_conf['instance_name'], os.environ['azure_edge_instance_size'], project_conf['region'],
                    project_conf['vpc_name'], project_conf['network_interface_name'], project_conf['edge_security_group_name'],
                    project_conf['subnet_name'], project_conf['service_base_name'], project_conf['resource_group_name'],
                    initial_user, project_conf['static_public_ip_name'], project_conf['public_ssh_key'],
-                   project_conf['primary_disk_size'], 'edge', project_conf['user_name'], project_conf['instance_storage_account_type'],
+                   project_conf['primary_disk_size'], 'edge', project_conf['project_name'], project_conf['instance_storage_account_type'],
                    project_conf['image_name'], json.dumps(project_conf['instance_tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))

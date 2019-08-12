@@ -420,13 +420,15 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--endpoint_eip_address', 'endpoint_eip_address',
                   group='helm_charts')
-         .add_str('--ldap_connection_url', 'ldap connection url', required=True,
+         .add_str('--ldap_host', 'ldap host', required=True,
                   group='helm_charts')
-         .add_str('--ldap_bind_dn', 'ldap bind dn', required=True,
+         .add_str('--ldap_dn', 'ldap dn', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_user', 'ldap user', required=True,
                   group='helm_charts')
          .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
                   group='helm_charts')
-         .add_str('--ldap_users_dn', 'ldap users dn', required=True,
+         .add_str('--ldap_users_group', 'ldap users group', required=True,
                   group='helm_charts')
          )
         return params.build()

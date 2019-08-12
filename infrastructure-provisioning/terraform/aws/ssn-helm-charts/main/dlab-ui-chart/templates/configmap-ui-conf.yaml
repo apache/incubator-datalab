@@ -252,6 +252,7 @@ data:
       edgeInstanceSize: {{ .Values.ui.cloud_properties.edge_instanse_shape }}
       subnetId: {{ .Values.ui.cloud_properties.subnet_id }}
       region: {{ .Values.ui.cloud_properties.region }}
+      zone: {{ .Values.ui.cloud_properties.zone }}
       confTagResourceId: "{{ .Values.ui.cloud_properties.tag_resource_id }}"
       securityGroupIds: {{ .Values.ui.cloud_properties.security_group_ids }}
       ssnInstanceSize: {{ .Values.ui.cloud_properties.ssn_instance_shape }}
@@ -259,3 +260,9 @@ data:
       notebookSubnetId: {{ .Values.ui.cloud_properties.subnet_id }}
       confKeyDir: {{ .Values.ui.cloud_properties.key_dir }}
       vpcId: {{ .Values.ui.cloud_properties.vpc_id }}
+      ldap:
+        host: {{ .Values.ui.cloud_properties.ldap.host }}
+        dn: {{ .Values.ui.cloud_properties.ldap.dn }}
+        ou: {{ .Values.ui.cloud_properties.ldap.ou }}
+        user: {{ .Values.ui.cloud_properties.ldap.user }}
+        password: {{ .Values.ui.cloud_properties.ldap.password }}

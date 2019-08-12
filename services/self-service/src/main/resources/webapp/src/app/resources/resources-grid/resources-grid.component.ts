@@ -59,8 +59,10 @@ export class ResourcesGridComponent implements OnInit {
   environments: Exploratory[];
   forse: boolean = true;
 
-  collapsedFilterRow: boolean = false;
-
+  collapseFilterRow: boolean = false;
+  filtering: boolean = false;
+  activeFiltering: boolean = false;
+  healthStatus: GeneralEnvironmentStatus;
 
   filteredEnvironments: Exploratory[] = [];
   filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
@@ -81,12 +83,6 @@ export class ResourcesGridComponent implements OnInit {
 
 
 
-
-  isOutscreenDropdown: boolean;
-
-  filtering: boolean = false;
-  activeFiltering: boolean = false;
-  healthStatus: GeneralEnvironmentStatus;
 
 
 
@@ -116,9 +112,25 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public toggleFilterRow(): void {
-    this.collapsedFilterRow = !this.collapsedFilterRow;
+    this.collapseFilterRow = !this.collapseFilterRow;
   }
 
+  public onUpdate($event) {
+    this.filterForm[$event.type] = $event.model;
+  }
+
+  public showActiveInstances(): void {
+    this.filterForm = this.loadUserPreferences(this.filterActiveInstances());
+    this.applyFilter_btnClick(this.filterForm);
+    this.buildGrid();
+  }
+
+  public containsNotebook(notebook_name: string): boolean {
+    if (notebook_name)
+      return this.environments
+        .filter(project => project.exploratory
+          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name))).length > 0;
+  }
 
 
   // PRIVATE
@@ -189,11 +201,7 @@ export class ResourcesGridComponent implements OnInit {
 
 
 
-  showActiveInstances(): void {
-    this.filterForm = this.loadUserPreferences(this.filterActiveInstances());
-    this.applyFilter_btnClick(this.filterForm);
-    this.buildGrid();
-  }
+
 
   isResourcesInProgress(notebook) {
     // const filteredEnv = this.environments.find(env => env.exploratory.find(el => el.name === notebook.name));
@@ -240,9 +248,7 @@ export class ResourcesGridComponent implements OnInit {
         this.activeFiltering = true;
   }
 
-  onUpdate($event) {
-    this.filterForm[$event.type] = $event.model;
-  }
+
 
   resetFilterConfigurations(): void {
     this.filterForm.resetConfigurations();
@@ -250,16 +256,6 @@ export class ResourcesGridComponent implements OnInit {
     this.buildGrid();
   }
 
-
-
-  containsNotebook(notebook_name: string): boolean {
-    // if (notebook_name)
-    //   for (let index = 0; index < this.environments.length; index++)
-    //     if (CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(this.environments[index].name))
-    //       return true;
-
-    return false;
-  }
 
   getUserPreferences(): void {
     this.userResourceService.getUserPreferences()
