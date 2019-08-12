@@ -132,7 +132,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   `,
   styles: [`
     .content { color: #718ba6; padding: 0; font-size: 14px; font-weight: 400; margin: 0; overflow: hidden; }
-    .edit-form { height: 380px; overflow: hidden; }
+    .edit-form { height: 410px; overflow: hidden; }
   `]
 })
 export class EditProjectComponent {
