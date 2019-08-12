@@ -236,8 +236,8 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(project_conf['tag_name'], '{}-ssn'.format(
-                    project_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": get_instance_ip_address(project_conf['tag_name'], '{0}-{1}-endpoint'.format(
+                    project_conf['service_base_name'], os.environ['endpoint_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
@@ -395,8 +395,8 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(project_conf['tag_name'], '{}-ssn'.format(
-                    project_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": get_instance_ip_address(project_conf['tag_name'], '{0}-{1}-endpoint'.format(
+                    project_conf['service_base_name'], os.environ['endpoint_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
@@ -411,8 +411,8 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(project_conf['tag_name'], '{}-ssn'.format(
-                    project_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": get_instance_ip_address(project_conf['tag_name'], '{0}-{1}-endpoint'.format(
+                    project_conf['service_base_name'], os.environ['endpoint_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             },
