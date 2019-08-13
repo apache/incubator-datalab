@@ -20,43 +20,57 @@
 package com.epam.dlab.mongo;
 
 import com.epam.dlab.billing.DlabResourceType;
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import org.apache.commons.lang3.StringUtils;
 
-/** The resource of DLab environment.
+/**
+ * The resource of DLab environment.
  */
 public class ResourceItem implements Comparable<ResourceItem> {
-	
-	/** Resource ID. */
+
+	private final String project;
+	/**
+	 * Resource ID.
+	 */
 	String resourceId;
-	
-	/** User friendly name of resource.*/
+
+	/**
+	 * User friendly name of resource.
+	 */
 	String resourceName;
-	
-	/** Type of resource. */
+
+	/**
+	 * Type of resource.
+	 */
 	DlabResourceType type;
-	
-	/** Name of user. */
+
+	/**
+	 * Name of user.
+	 */
 	String user;
-	
-	/** Name of exploratory.*/
+
+	/**
+	 * Name of exploratory.
+	 */
 	String exploratoryName;
-	
-	/** Instantiate resource of DLab environment.
-	 * @param resourceId resource id.
-	 * @param type the type of resource.
-	 * @param user the name of user.
+
+	/**
+	 * Instantiate resource of DLab environment.
+	 *
+	 * @param resourceId      resource id.
+	 * @param type            the type of resource.
+	 * @param user            the name of user.
 	 * @param exploratoryName the name of exploratory.
 	 */
 	public ResourceItem(String resourceId, String resourceName, DlabResourceType type,
-			String user, String exploratoryName) {
+						String user, String exploratoryName, String project) {
 		this.resourceId = resourceId;
 		this.resourceName = resourceName;
 		this.type = type;
 		this.user = user;
 		this.exploratoryName = exploratoryName;
+		this.project = project;
 	}
 
 	@Override
@@ -78,44 +92,58 @@ public class ResourceItem implements Comparable<ResourceItem> {
 	}
 
 
-	/** Returns the resource id. */
+	/**
+	 * Returns the resource id.
+	 */
 	public String getResourceId() {
 		return resourceId;
 	}
 
-	/** Return user friendly name of resource.*/
+	/**
+	 * Return user friendly name of resource.
+	 */
 	public String getResourceName() {
 		return resourceName;
 	}
-	
-	/** Returns the type of resource. */
+
+	/**
+	 * Returns the type of resource.
+	 */
 	public DlabResourceType getType() {
 		return type;
 	}
-	
-	/** Returns the name of user. */
+
+	/**
+	 * Returns the name of user.
+	 */
 	public String getUser() {
 		return user;
 	}
 
-	/** Returns the name of exploratory. */
+	/**
+	 * Returns the name of exploratory.
+	 */
 	public String getExploratoryName() {
 		return exploratoryName;
 	}
 
+	public String getProject() {
+		return project;
+	}
 
-	
-	/** Returns a string representation of the object.
+	/**
+	 * Returns a string representation of the object.
+	 *
 	 * @param self the object to generate the string for (typically this), used only for its class name.
 	 */
 	public ToStringHelper toStringHelper(Object self) {
-    	return MoreObjects.toStringHelper(self)
-    			.add("resourceId",  resourceId)
-    			.add("resourceName", resourceName)
-    			.add("type",  type)
-    			.add("user",  user)
-    			.add("exploratoryName", exploratoryName);
-    }
+		return MoreObjects.toStringHelper(self)
+				.add("resourceId", resourceId)
+				.add("resourceName", resourceName)
+				.add("type", type)
+				.add("user", user)
+				.add("exploratoryName", exploratoryName);
+	}
 
 	@Override
 	public String toString() {

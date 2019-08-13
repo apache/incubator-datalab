@@ -119,15 +119,6 @@ public class DlabResourceTypeDAO implements MongoConstants {
 	}
 
 	/**
-	 * Return the name of bucket.
-	 *
-	 * @param name the name of bucket.
-	 */
-	private String getBucketName(String name) {
-		return name.replace('_', '-').toLowerCase();
-	}
-
-	/**
 	 * Load and return DLab resources from Mongo DB.
 	 *
 	 * @throws InitializationException
@@ -137,14 +128,13 @@ public class DlabResourceTypeDAO implements MongoConstants {
 
 		// Add SSN
 		String sbName = getServiceBaseName();
-		resourceList.append(sbName + "-ssn", "SSN", DlabResourceType.SSN, null, null);
-		resourceList.append(sbName + "-ssn-volume-primary", "SSN volume", DlabResourceType.VOLUME, null, null);
-		resourceList.append(getBucketName(sbName) + "-ssn-bucket", "SSN bucket", DlabResourceType.SSN_BUCKET, null,
-				null);
+		resourceList.append(sbName + "-ssn", "SSN", DlabResourceType.SSN);
+		resourceList.append(sbName + "-ssn-volume-primary", "SSN volume", DlabResourceType.VOLUME);
+		resourceList.append(sbName + "-ssn-bucket", "SSN bucket", DlabResourceType.SSN_BUCKET);
 
 		// collaboration bucket
-		resourceList.append(getBucketName(sbName) + "-shared-bucket", "Collaboration bucket", DlabResourceType
-				.COLLABORATION_BUCKET, null, null);
+		resourceList.append(sbName + "-shared-bucket", "Collaboration bucket", DlabResourceType
+				.COLLABORATION_BUCKET);
 
 		// Add PROJECTS
 		Bson projection = fields(include("name"));
@@ -152,17 +142,18 @@ public class DlabResourceTypeDAO implements MongoConstants {
 		for (Document d : docs) {
 			String projectName = d.getString("name");
 			resourceList.append(sbName + "-" + projectName + "-edge", "EDGE Node",
-					DlabResourceType.EDGE, null, null);
+					DlabResourceType.EDGE, null, null, projectName);
 			resourceList.append(sbName + "-" + projectName + "-bucket", "Project bucket",
-					DlabResourceType.COLLABORATION_BUCKET, null, null);
+					DlabResourceType.COLLABORATION_BUCKET, null, null, projectName);
 			resourceList.append(sbName + "-" + projectName + "-edge-volume-primary",
-					"EDGE Volume", DlabResourceType.VOLUME, null, null);
+					"EDGE Volume", DlabResourceType.VOLUME, null, null, projectName);
 		}
 
 		// Add exploratory
 		projection = fields(include(FIELD_USER,
 				FIELD_EXPLORATORY_NAME,
 				FIELD_EXPLORATORY_ID,
+				FIELD_PROJECT,
 				FIELD_COMPUTATIONAL_RESOURCES + "." + FIELD_COMPUTATIONAL_ID,
 				FIELD_COMPUTATIONAL_RESOURCES + "." + FIELD_COMPUTATIONAL_NAME,
 				FIELD_COMPUTATIONAL_RESOURCES + "." + FIELD_IMAGE,
@@ -173,9 +164,10 @@ public class DlabResourceTypeDAO implements MongoConstants {
 			String username = exp.getString(FIELD_USER);
 			String exploratoryName = exp.getString(FIELD_EXPLORATORY_NAME);
 			String exploratoryId = exp.getString(FIELD_EXPLORATORY_ID);
+			String project = exp.getString(FIELD_PROJECT);
 			resourceList.append(exploratoryId, exploratoryName, DlabResourceType.EXPLORATORY, username,
-					exploratoryName);
-			appendExploratoryVolumes(username, exploratoryName, exploratoryId);
+					exploratoryName, project);
+			appendExploratoryVolumes(username, exploratoryName, exploratoryId, project);
 
 			// Add computational
 			@SuppressWarnings("unchecked")
@@ -188,46 +180,49 @@ public class DlabResourceTypeDAO implements MongoConstants {
 				String computationalName = comp.getString(FIELD_COMPUTATIONAL_NAME);
 				final DataEngineType dataEngineType = DataEngineType.fromDockerImageName(comp.getString(FIELD_IMAGE));
 				resourceList.append(computationalId, computationalName, DlabResourceType.COMPUTATIONAL, username,
-						exploratoryName);
+						exploratoryName, project);
 				if (DataEngineType.CLOUD_SERVICE == dataEngineType) {
-					appendDataengineServiceVolumes(username, exploratoryName, computationalId, computationalName);
+					appendDataengineServiceVolumes(username, exploratoryName, computationalId, computationalName,
+							project);
 				} else {
-					appendDataengineVolumes(username, exploratoryName, comp, computationalId, computationalName);
+					appendDataengineVolumes(username, exploratoryName, comp, computationalId, computationalName,
+							project);
 				}
 			}
 		}
 		LOGGER.debug("resourceList is {}", resourceList);
 	}
 
-	private void appendExploratoryVolumes(String username, String exploratoryName, String exploratoryId) {
+	private void appendExploratoryVolumes(String username, String exploratoryName, String exploratoryId,
+										  String project) {
 		resourceList.append(exploratoryId + VOLUME_PRIMARY_SUFFIX, "Volume primary", DlabResourceType.VOLUME,
-				username, exploratoryName);
+				username, exploratoryName, project);
 		resourceList.append(exploratoryId + VOLUME_SECONDARY_SUFFIX, "Volume secondary", DlabResourceType.VOLUME,
-				username, exploratoryName);
+				username, exploratoryName, project);
 	}
 
 	private void appendDataengineServiceVolumes(String username, String exploratoryName, String computationalId,
-												String computationalName) {
+												String computationalName, String project) {
 		resourceList.append(computationalId + VOLUME_PRIMARY_SUFFIX, computationalName + " volume primary",
-				DlabResourceType.VOLUME, username, exploratoryName);
+				DlabResourceType.VOLUME, username, exploratoryName, project);
 		resourceList.append(computationalId + VOLUME_SECONDARY_SUFFIX, computationalName + " volume secondary",
-				DlabResourceType.VOLUME, username, exploratoryName);
+				DlabResourceType.VOLUME, username, exploratoryName, project);
 	}
 
 	private void appendDataengineVolumes(String username, String exploratoryName, Document comp, String
-			computationalId, String computationalName) {
+			computationalId, String computationalName, String project) {
 		resourceList.append(computationalId + "-m-volume-primary", computationalName + " master volume primary",
-				DlabResourceType.VOLUME, username, exploratoryName);
+				DlabResourceType.VOLUME, username, exploratoryName, project);
 		resourceList.append(computationalId + "-m-volume-secondary", computationalName + " master volume secondary",
-				DlabResourceType.VOLUME, username, exploratoryName);
+				DlabResourceType.VOLUME, username, exploratoryName, project);
 		final Integer instanceCount = Integer.valueOf(comp.getString(FIELD_DATAENGINE_INSTANCE_COUNT));
 		for (int i = instanceCount - 1; i > 0; i--) {
 			final String slaveId = computationalId + "-s" + i;
 			final String slaveName = computationalName + "-s" + i;
 			resourceList.append(slaveId + VOLUME_PRIMARY_SUFFIX, slaveName + " volume primary", DlabResourceType
-					.VOLUME, username, exploratoryName);
+					.VOLUME, username, exploratoryName, project);
 			resourceList.append(slaveId + VOLUME_SECONDARY_SUFFIX, slaveName + " volume secondary", DlabResourceType
-					.VOLUME, username, exploratoryName);
+					.VOLUME, username, exploratoryName, project);
 		}
 	}
 
@@ -259,6 +254,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
 			d.put(FIELD_DLAB_RESOURCE_TYPE, resource.getType().toString());
 			d.put(ReportLine.FIELD_USER_ID, resource.getUser());
 			d.put(FIELD_EXPLORATORY_NAME, resource.getExploratoryName());
+			d.put(FIELD_PROJECT, resource.getProject());
 		}
 		return d.append(ReportLine.FIELD_USAGE_DATE, row.getUsageDate())
 				.append(ReportLine.FIELD_PRODUCT, row.getProduct())

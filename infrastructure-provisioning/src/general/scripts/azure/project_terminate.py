@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -46,7 +46,7 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
     try:
         for network_interface in AzureMeta().list_network_interfaces(resource_group_name):
             try:
-                if project_tag == network_interface.tags["project_tag"]:
+                if project_tag == network_interface.tags["project_name"]:
                     AzureActions().delete_network_if(resource_group_name, network_interface.name)
                     print("Network interface {} has been removed".format(network_interface.name))
             except:
@@ -130,29 +130,28 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
     print('Generating infrastructure names and tags')
-    edge_conf = dict()
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
-    edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-    edge_conf['project_name'] = os.environ['project_name'].replace('_', '-')
-    edge_conf['project_tag'] = os.environ['project_name'].replace('_', '-')
-    edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + '-subnet'
-    edge_conf['vpc_name'] = os.environ['azure_vpc_name']
+    project_conf = dict()
+    project_conf['service_base_name'] = os.environ['conf_service_base_name']
+    project_conf['resource_group_name'] = os.environ['azure_resource_group_name']
+    project_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+    project_conf['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
+    project_conf['private_subnet_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name'] + '-subnet'
+    project_conf['vpc_name'] = os.environ['azure_vpc_name']
 
 
     try:
         logging.info('[TERMINATE EDGE]')
         print('[TERMINATE EDGE]')
         try:
-            terminate_edge_node(edge_conf['resource_group_name'], edge_conf['service_base_name'],
-                                edge_conf['project_tag'], edge_conf['private_subnet_name'], edge_conf['vpc_name'])
+            terminate_edge_node(project_conf['resource_group_name'], edge_conf['service_base_name'],
+                                project_conf['project_tag'], project_conf['private_subnet_name'], project_conf['vpc_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate edge.", str(err))
@@ -162,7 +161,7 @@ if __name__ == "__main__":
     try:
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": os.environ['conf_service_base_name'],
-                   "project_name": edge_conf['project_name'],
+                   "project_name": project_conf['project_name'],
                    "Action": "Terminate edge node"}
             print(json.dumps(res))
             result.write(json.dumps(res))

@@ -98,9 +98,16 @@ if __name__ == "__main__":
         data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
 
-        data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(os.environ['conf_service_base_name'],
+        data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(os.environ['conf_service_base_name'],
+                                                                           os.environ['endpoint_name'],
+                                                                           os.environ['project_name'],
                                                                            os.environ['application'])
-        data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+        data_engine['notebook_image_name'] = (
+            lambda x: '{0}-{1}-{2}-{3}'.format(os.environ['conf_service_base_name'],
+                                               os.environ['project_name'],
+                                               os.environ['application'],
+                                               os.environ['notebook_image_name'].lower().replace('_', '-')) if (
+                    x != 'None' and x != '')
             else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         data_engine['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])

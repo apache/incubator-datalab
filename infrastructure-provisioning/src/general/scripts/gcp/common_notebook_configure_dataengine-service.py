@@ -46,6 +46,8 @@ if __name__ == "__main__":
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    notebook_config['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
+    notebook_config['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     notebook_config['bucket_name'] = '{}-{}-bucket'.format(notebook_config['service_base_name'], notebook_config['project_name'])
     notebook_config['cluster_name'] = meta_lib.GCPMeta().get_not_configured_dataproc(notebook_config['notebook_name'])
@@ -63,6 +65,8 @@ if __name__ == "__main__":
         "sbn": notebook_config['service_base_name'],
         "user": notebook_config['edge_user_name'],
         "notebook_name": os.environ['notebook_instance_name'],
+        "project_tag": notebook_config['project_tag'],
+        "endpoint_tag": notebook_config['endpoint_tag'],
         "product": "dlab",
         "computational_name": (os.environ['computational_name']).lower().replace('_', '-')
     }
@@ -70,7 +74,7 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        params = "--bucket {} --cluster_name {} --dataproc_version {} --keyfile {} --notebook_ip {} --region {} --edge_user_name --project_name {} --os_user {}  --edge_hostname {} --proxy_port {} --scala_version {} --application {} --pip_mirror {}" \
+        params = "--bucket {} --cluster_name {} --dataproc_version {} --keyfile {} --notebook_ip {} --region {} --edge_user_name {} --project_name {} --os_user {}  --edge_hostname {} --proxy_port {} --scala_version {} --application {} --pip_mirror {}" \
             .format(notebook_config['bucket_name'], notebook_config['cluster_name'], os.environ['dataproc_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['gcp_region'],
                     notebook_config['edge_user_name'], notebook_config['project_name'], os.environ['conf_os_user'], edge_instance_hostname, '3128',

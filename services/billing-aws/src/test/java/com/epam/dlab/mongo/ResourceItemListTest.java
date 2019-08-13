@@ -29,8 +29,8 @@ public class ResourceItemListTest {
 	@Test
 	public void append() {
 		ResourceItemList list = new ResourceItemList();
-		list.append("tag-user-nb-exp", "exp", DlabResourceType.EXPLORATORY, "user", "exp");
-		list.append("tag-user-emr-exp-comp", "comp", DlabResourceType.COMPUTATIONAL, "user", "exp");
+		list.append("tag-user-nb-exp", "exp", DlabResourceType.EXPLORATORY, "user", "exp", "");
+		list.append("tag-user-emr-exp-comp", "comp", DlabResourceType.COMPUTATIONAL, "user", "exp", "");
 		
 		assertEquals(2, list.size());
 		

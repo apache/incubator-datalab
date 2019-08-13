@@ -43,6 +43,8 @@ if __name__ == "__main__":
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    notebook_config['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
+    notebook_config['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     notebook_config['region'] = os.environ['gcp_region']
     notebook_config['zone'] = os.environ['gcp_zone']
 
@@ -122,7 +124,8 @@ if __name__ == "__main__":
 
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                  "sbn": notebook_config['service_base_name'],
-                                 "project_name": notebook_config['project_name'],
+                                 "project_tag": notebook_config['project_tag'],
+                                 "endpoint_tag": notebook_config['endpoint_tag'],
                                  "user": notebook_config['edge_user_name'],
                                  "product": "dlab",
                                  }
