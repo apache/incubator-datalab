@@ -56,8 +56,7 @@ if __name__ == "__main__":
     try:
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
-        service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
+        service_base_name = os.environ['conf_service_base_name']
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
