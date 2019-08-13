@@ -1499,9 +1499,10 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel '
                       '--no-cache-dir'.format(pip_mirror))
+                local(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={0}'.format(numpy_version))
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy=={1} SciPy '
-                      'Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror, numpy_version))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 SciPy '
+                      'Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.format(pip_mirror))
                 # Need to refactor when we add GPU cluster
                 if application == 'deeplearning':
                     local(venv_command + ' && sudo -i ' + pip_command +
@@ -1522,9 +1523,10 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3 --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={}'.format(numpy_version))
             local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install boto boto3 NumPy=={} SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn '
-                  '--no-cache-dir'.format(numpy_version))
+                  ' install boto boto3 SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn '
+                  '--no-cache-dir')
             # Need to refactor when we add GPU cluster
             if application == 'deeplearning':
                 local(venv_command + ' && sudo -i ' + pip_command +

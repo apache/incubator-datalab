@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -145,7 +145,7 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     try:
-        emr_waiter(os.environ['notebook_instance_name'])
+        emr_waiter(emr_conf['tag_name'], os.environ['notebook_instance_name'])
         local('touch /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
         traceback.print_exc()
@@ -176,8 +176,8 @@ if __name__ == "__main__":
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": get_instance_ip_address(
-                    emr_conf['tag_name'], '{}-ssn'.format(
-                    emr_conf['service_base_name'])).get('Private') + "/32"}],
+                    emr_conf['tag_name'], '{0}-{1}-endpoint'.format(
+                        emr_conf['service_base_name'], os.environ['endpoint_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
@@ -192,8 +192,8 @@ if __name__ == "__main__":
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": get_instance_ip_address(
-                    emr_conf['tag_name'], '{}-ssn'.format(
-                    emr_conf['service_base_name'])).get('Private') + "/32"}],
+                    emr_conf['tag_name'], '{0}-{1}-endpoint'.format(
+                        emr_conf['service_base_name'], os.environ['endpoint_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             },
