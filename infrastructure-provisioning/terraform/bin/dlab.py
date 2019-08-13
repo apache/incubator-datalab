@@ -564,7 +564,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         remote_dir = '/home/{}/terraform/'.format(self.user_name)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             conn.run('mkdir -p {}'.format(remote_dir))
-            rsync(conn, source, remote_dir)
+            rsync(conn, source, remote_dir, strict_host_keys=False)
 
     def run_remote_terraform(self):
         logging.info('apply helm charts')
