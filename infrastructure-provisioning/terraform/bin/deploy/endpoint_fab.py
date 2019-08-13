@@ -474,11 +474,11 @@ def start_deploy():
     logging.info("Ensure jar")
     ensure_jar_endpoint()
 
-    logging.info("Starting supervisor")
-    start_supervisor_endpoint()
-
     logging.info("Pulling docker images")
     pull_docker_images()
+
+    logging.info("Starting supervisor")
+    start_supervisor_endpoint()
 
     close_connection()
     print("Done provisioning of Endpoint.")
