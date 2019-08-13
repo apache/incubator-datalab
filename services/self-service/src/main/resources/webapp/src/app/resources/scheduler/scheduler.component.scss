@@ -24,30 +24,38 @@
       font-size: 13px;
     }
   }
+
   .mat-select-value {
     color: #758da9;
   }
+
   .mat-select-disabled {
     .mat-select-value {
       color: #9e9e9e;
     }
   }
+
   .mat-form-field-flex {
     width: 160px;
   }
+
   .mat-select-trigger {
     width: 180px;
   }
+
   .content-box {
     overflow: hidden;
   }
+
   .enable-schedule {
     display: flex;
     margin-bottom: 10px;
     justify-content: space-between;
+
     .idle {
       display: flex;
       width: 50%;
+
       i {
         font-size: 20px;
         padding-left: 10px;
@@ -57,6 +65,7 @@
       }
     }
   }
+
   .info-message,
   .idle-control {
     height: 0;
@@ -65,6 +74,7 @@
     text-align: left;
     transition: height 0.35s linear 0.2s;
     padding-bottom: 0;
+
     &.show {
       height: 30px;
       visibility: visible;
@@ -72,9 +82,11 @@
       margin-bottom: 50px;
     }
   }
+
   .idle-control {
     .control {
       position: relative;
+
       .error {
         position: absolute;
         left: 5px;
@@ -83,104 +95,131 @@
       }
     }
   }
+
   .info-message {
     &.show {
       margin-bottom: 15px;
     }
   }
+
   .schedule-by-time {
     transition: opacity 0.5s linear 0.2s;
     visibility: visible;
     height: 240px;
     opacity: 1;
+
     &.hide {
       height: 0;
       opacity: 0;
       visibility: hidden;
       text-align: left;
     }
+
     &.resource {
       height: 280px;
     }
+
     &.des {
       height: 80px;
     }
+
     .row-wrap {
       position: relative;
+
       .error {
         position: absolute;
         bottom: -10px;
         font-size: 12px;
+
         &.term {
           right: 40px;
           bottom: -15px;
         }
       }
+
       mat-datepicker-toggle.not-allowed {
         opacity: 1;
       }
     }
   }
+
   .col-3 {
     width: 33%;
     box-sizing: border-box;
     padding: 0 5px;
+
     &:last-child {
       padding-right: 0;
     }
   }
+
   .control-group {
     .label.repeat {
       width: 100%;
     }
+
     .week-day {
       display: flex;
       width: 50%;
       padding: 5px 10px;
       transition: all 0.4s ease-out;
+
       &.Sunday {
         order: 0;
       }
+
       &.Monday {
         order: 1;
       }
+
       &.Tuesday {
         order: 5;
       }
+
       &.Wednesday {
         order: 6;
       }
+
       &.Thursday {
         order: 0;
       }
+
       &.Friday {
         order: 1;
       }
+
       &.Saturday {
         order: 5;
       }
+
       &:hover {
         color: #35afd5;
       }
     }
+
     &.time-range {
       padding-bottom: 0 !important;
     }
+
     .days-block {
       padding-bottom: 0;
       margin: 15px 15px 0 0;
+
       .mat-button-toggle-standalone {
         box-shadow: none;
         margin: 2px;
         border: none;
         color: #607D8B;
+
         &.mat-button-toggle-checked {
           background-color: rgba(77, 184, 218, 0.62);
           color: #ffffff;
         }
+
         &.mat-button-toggle-disabled.mat-button-toggle-checked {
           background-color: #bdbdbd !important;
         }
+
         .mat-button-toggle-label-content {
           line-height: 26px;
           padding: 0px 8px;
@@ -192,22 +231,27 @@
       }
     }
   }
+
   .timezone-offset {
     width: 100%;
     padding-right: 10px;
   }
+
   .note {
     display: flex;
     font-size: 12px;
     color: #36afd5;
   }
+
   .options {
     color: #718ba6;
     font-size: 15px;
     font-weight: 600;
     margin-bottom: 10px;
+
     .mat-slide-toggle-content {
       padding: 5px;
+
       .hold-label {
         span {
           font-size: 13px;

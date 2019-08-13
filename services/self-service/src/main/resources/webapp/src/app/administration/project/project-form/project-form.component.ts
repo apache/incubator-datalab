@@ -26,6 +26,7 @@ import { ProjectService, RolesGroupsService, EndpointService } from '../../../co
 import { ProjectDataService } from '../project-data.service';
 import { CheckUtils, PATTERNS } from '../../../core/util';
 import { Project } from '../project.component';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'project-form',
@@ -33,6 +34,8 @@ import { Project } from '../project.component';
   styleUrls: ['./project-form.component.scss']
 })
 export class ProjectFormComponent implements OnInit {
+
+  readonly DICTIONARY = DICTIONARY;
 
   public projectForm: FormGroup;
   public groupsList: any = [];
@@ -93,8 +96,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public generateProjectTag($event) {
-    let user_tag = `dlab-${$event.target.value}`;
-    this.projectForm.controls.tag.setValue(user_tag.toLowerCase());
+    this.projectForm.controls.tag.setValue($event.target.value.toLowerCase());
   }
 
   public onFileChange($event) {
@@ -178,6 +180,6 @@ export class ProjectFormComponent implements OnInit {
   }
 
   private providerMaxLength(control) {
-    return control.value.length <= 50 ? null : { limit: true };
+    return control.value.length <= DICTIONARY.max_project_name_length ? null : { limit: true };
   }
 }

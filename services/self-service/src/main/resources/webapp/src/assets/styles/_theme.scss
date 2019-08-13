@@ -238,12 +238,12 @@ span.mat-slide-toggle-content {
 }
 
 .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb,
-.scheduler-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
+.scheduler-dialog .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
   background-color: #36afd5;
 }
 
 .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar,
-.scheduler-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
+.scheduler-dialog .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
   background-color: rgba(54, 175, 213, 0.3);
 }
 
