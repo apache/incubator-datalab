@@ -22,10 +22,12 @@
 data "template_file" "dlab_billing_values" {
   template = file("./dlab-billing-chart/values.yaml")
   vars = {
-      mongo_db_name       = var.mongo_dbname
-      mongo_user          = var.mongo_db_username
-      mongo_port          = var.mongo_service_port
-      mongo_service_name  = var.mongo_service_name
+    mongo_db_name       = var.mongo_dbname
+    mongo_user          = var.mongo_db_username
+    mongo_port          = var.mongo_service_port
+    mongo_service_name  = var.mongo_service_name
+    service_base_name   = var.service_base_name
+    tag_resource_id     = var.tag_resource_id
   }
 }
 

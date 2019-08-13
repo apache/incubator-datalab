@@ -120,6 +120,8 @@ variable "env_os" {}
 
 variable "ssn_k8s_masters_shape" {}
 
+variable "tag_resource_id" {}
+
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

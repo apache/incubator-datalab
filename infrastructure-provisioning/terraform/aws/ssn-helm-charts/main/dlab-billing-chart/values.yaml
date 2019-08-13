@@ -59,3 +59,5 @@ billing:
     port: ${mongo_port}
     username: ${mongo_user}
     db_name: ${mongo_db_name}
+  service_base_name: ${service_base_name}
+  tag_resource_id: ${tag_resource_id}

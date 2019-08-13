@@ -69,8 +69,8 @@ data:
     filter:
       - type: aws
         currencyCode: USD
-        columnDlabTag: user:user:tag
-        serviceBaseName: dem5-k8s
+        columnDlabTag: user:{{ .Values.billing.tag_resource_id }}
+        serviceBaseName: {{ .Values.billing.service_base_name }}
 
 
     # Parser of source data to common format.

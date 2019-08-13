@@ -493,6 +493,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--ssn_subnet', 'ssn subnet id', group='helm_charts')
          .add_str('--ssn_k8s_sg_id', 'ssn sg ids', group='helm_charts')
          .add_str('--ssn_vpc_id', 'ssn vpc id', group='helm_charts')
+         .add_str('--tag_resource_id', 'Tag resource ID.',
+                  default='user:tag', group=('k8s', 'helm_charts'))
          )
         return params.build()
 
