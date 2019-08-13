@@ -14,6 +14,7 @@ from deploy.endpoint_fab import start_deploy
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logging.basicConfig(level=logging.INFO, format='%(levelname)s-%(message)s')
+INITIAL_LOCATION = os.path.abspath(__file__)
 
 
 class TerraformOutputBase:
@@ -38,7 +39,8 @@ class TerraformOutputBase:
 class LocalStorageOutputProcessor(TerraformOutputBase):
     @property
     def output_path(self):
-        return '/tmp/data.json'
+        return os.path.abspath(
+            os.path.join(os.path.dirname(INITIAL_LOCATION), 'output.json'))
 
     def write(self, obj):
         existed_data = {}
@@ -298,18 +300,6 @@ class AbstractDeployBuilder:
         terraform = TerraformProvider()
         terraform.destroy(terraform_args)
 
-    @staticmethod
-    def update_output_file(obj):
-        output_file_path = '/tmp/data.json'
-        existed_data = {}
-        if os.path.isfile(output_file_path):
-            with open(output_file_path, 'r') as fp:
-                existed_data = json.loads(fp.read())
-        existed_data.update(obj)
-
-        with open(output_file_path, 'w') as fp:
-            json.dump(existed_data, fp)
-
     def store_output_to_file(self):
         terraform = TerraformProvider()
         output = terraform.output('-json')
@@ -382,22 +372,6 @@ class AbstractDeployBuilder:
             terraform.validate()
         except TerraformProviderError as ex:
             raise Exception('Error while provisioning {}'.format(ex))
-
-    @staticmethod
-    def get_node_ip(output):
-        """Extract ip
-
-        Args:
-            output: str of terraform output
-        Returns:
-            str: extracted ip
-
-        """
-
-        ips = json.loads(output)
-        if not ips:
-            raise TerraformProviderError('no ips')
-        return ips[0]
 
 
 class AWSK8sSourceBuilder(AbstractDeployBuilder):
@@ -532,7 +506,6 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
         """
         start_time = time.time()
-        Console.execute('ssh-keyscan {} >> ~/.ssh/known_hosts'.format(self.ip))
         while True:
             with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
                 k8c_info_status = c.run(
@@ -580,7 +553,10 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
     def select_master_ip(self):
         terraform = TerraformProvider()
         output = terraform.output('-json ssn_k8s_masters_ip_addresses')
-        self.ip = self.get_node_ip(output)
+        ips = json.loads(output)
+        if not ips:
+            raise TerraformProviderError('no ips')
+        self.ip = ips[0]
 
     def copy_terraform_to_remote(self):
         logging.info('transfer terraform dir to remote')
@@ -590,7 +566,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         remote_dir = '/home/{}/terraform/'.format(self.user_name)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             conn.run('mkdir -p {}'.format(remote_dir))
-            rsync(conn, source, remote_dir)
+            rsync(conn, source, remote_dir, strict_host_keys=False)
 
     def run_remote_terraform(self):
         logging.info('apply helm charts')
@@ -652,9 +628,21 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                           for key, value in json.loads(output).items()}
                 output_processor.write(output)
 
+    @staticmethod
+    def add_ip_to_known_hosts(ip):
+        attempt = 0
+        while attempt < 10:
+            if len(Console.execute('ssh-keygen -H -F {}'.format(ip))) == 0:
+                Console.execute(
+                    'ssh-keyscan {} >> ~/.ssh/known_hosts'.format(ip))
+                attempt += 1
+            else:
+                break
+
     def deploy(self):
         logging.info('deploy')
         self.select_master_ip()
+        self.add_ip_to_known_hosts(self.ip)
         self.check_k8s_cluster_status()
         self.check_tiller_status()
         output = ' '.join(TerraformProvider().output('-json').split())
