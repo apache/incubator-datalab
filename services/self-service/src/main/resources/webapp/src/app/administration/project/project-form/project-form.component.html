@@ -59,7 +59,7 @@
 
         <div class="form-block">
           <div>
-            <div class="control-group">
+            <div class="control-group m-bott-10">
               <label class="label">Project name</label>
               <div class="control">
                 <input type="text" formControlName="name" placeholder="Enter project name"
@@ -70,22 +70,23 @@
                   && !projectForm?.controls.name.hasError('duplication')
                   && !projectForm?.controls.name.hasError('limit')
                   && projectForm?.controls.name.dirty">
-                  Project name can only contain letters, numbers, hyphens and '_' but can not end with special
+                  Project name can only
+                  contain letters, numbers, hyphens and '_' but can not end with special
                   characters
                 </span>
                 <span class="error" *ngIf="projectForm?.controls.name.hasError('limit')">
-                  Project name cannot exceed 50 characters
+                  Project name cannot be longer than {{ DICTIONARY.max_project_name_length}} characters
                 </span>
               </div>
             </div>
-            <div class="control-group">
+            <div class="control-group m-bott-10">
               <label class="label">Project tag</label>
               <div class="control">
                 <input readonly type="text" formControlName="tag" placeholder="< equal to project name >"
                   class="not-allowed">
               </div>
             </div>
-            <div class="control-group">
+            <div class="control-group m-bott-10">
               <label class="label">Endpoints</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
