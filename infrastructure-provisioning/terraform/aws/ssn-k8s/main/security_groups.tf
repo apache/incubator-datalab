@@ -34,8 +34,12 @@
 //  depends_on = [aws_lb_listener.ssn_k8s_nlb_listener]
 //}
 
+locals {
+  ssn_sg_name = "${var.service_base_name}-ssn-sg"
+}
+
 resource "aws_security_group" "ssn_k8s_sg" {
-  name        = "${var.service_base_name}-ssn-sg"
+  name        = local.ssn_sg_name
   description = "SG for SSN K8S cluster"
   vpc_id      = data.aws_vpc.ssn_k8s_vpc_data.id
 
@@ -73,6 +77,9 @@ resource "aws_security_group" "ssn_k8s_sg" {
   }
 
   tags = {
-    Name = "${var.service_base_name}-ssn-sg"
+    Name                           = local.ssn_sg_name
+    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_sg_name}"
+    "${var.service_base_name}-Tag" = local.ssn_sg_name
   }
 }

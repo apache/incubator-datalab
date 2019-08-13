@@ -19,56 +19,79 @@
 #
 # ******************************************************************************
 
+locals {
+  ssn_nlb_name            = "${var.service_base_name}-ssn-nlb"
+  ssn_alb_name            = "${var.service_base_name}-ssn-alb"
+  ssn_k8s_nlb_api_tg_name = "${var.service_base_name}-ssn-nlb-api-tg"
+  ssn_k8s_nlb_ss_tg_name  = "${var.service_base_name}-ssn-nlb-ss-tg"
+  ssn_k8s_alb_tg_name     = "${var.service_base_name}-ssn-alb-tg"
+}
+
 resource "aws_lb" "ssn_k8s_nlb" {
-  name               = "${var.service_base_name}-ssn-nlb"
+  name               = local.ssn_nlb_name
   load_balancer_type = "network"
   subnets            = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id,
                                 local.subnet_c_id])
-  tags = {
-    Name = "${var.service_base_name}-ssn-nlb"
+  tags               = {
+    Name                           = local.ssn_nlb_name
+    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_nlb_name}"
+    "${var.service_base_name}-Tag" = local.ssn_nlb_name
   }
 }
 
 resource "aws_lb" "ssn_k8s_alb" {
-  name               = "${var.service_base_name}-ssn-alb"
+  name               = local.ssn_alb_name
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.ssn_k8s_sg.id]
   subnets            = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id,
                                 local.subnet_c_id])
 
-  tags = {
-    Name = "${var.service_base_name}-ssn-alb"
+  tags               = {
+    Name                           = local.ssn_alb_name
+    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_alb_name}"
+    "${var.service_base_name}-Tag" = local.ssn_alb_name
   }
 }
 
 resource "aws_lb_target_group" "ssn_k8s_nlb_api_target_group" {
-  name     = "${var.service_base_name}-ssn-nlb-api-tg"
+  name     = local.ssn_k8s_nlb_api_tg_name
   port     = 6443
   protocol = "TCP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
-  tags = {
-    Name = "${var.service_base_name}-ssn-nlb-api-tg"
+  tags     = {
+    Name                           = local.ssn_k8s_nlb_api_tg_name
+    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_k8s_nlb_api_tg_name}"
+    "${var.service_base_name}-Tag" = local.ssn_k8s_nlb_api_tg_name
   }
 }
 
 resource "aws_lb_target_group" "ssn_k8s_nlb_ss_target_group" {
-  name     = "${var.service_base_name}-ssn-nlb-ss-tg"
+  name     = local.ssn_k8s_nlb_ss_tg_name
   port     = 30433
   protocol = "TCP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
-  tags = {
-    Name = "${var.service_base_name}-ssn-nlb-ss-tg"
+  tags     = {
+    Name                           = local.ssn_k8s_nlb_ss_tg_name
+    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_k8s_nlb_ss_tg_name}"
+    "${var.service_base_name}-Tag" = local.ssn_k8s_nlb_ss_tg_name
   }
 }
 
 resource "aws_lb_target_group" "ssn_k8s_alb_target_group" {
-  name     = "${var.service_base_name}-ssn-alb-tg"
+  name     = local.ssn_k8s_alb_tg_name
   port     = 31080
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
   tags = {
-    Name = "${var.service_base_name}-ssn-alb-tg"
+    Name                           = local.ssn_k8s_alb_tg_name
+    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_k8s_alb_tg_name}"
+    "${var.service_base_name}-Tag" = local.ssn_k8s_alb_tg_name
   }
 }
 

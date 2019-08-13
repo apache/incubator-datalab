@@ -20,15 +20,15 @@
 # ******************************************************************************
 
 locals {
-  ec2_name = "${var.service_base_name}-${var.endpoint_id}-endpoint"
+  endpoint_instance_name = "${var.service_base_name}-${var.endpoint_id}-endpoint"
 }
 
 resource "aws_instance" "endpoint" {
-  ami             = var.ami
-  instance_type   = var.endpoint_instance_shape
-  key_name        = var.key_name
-  subnet_id       = data.aws_subnet.data_subnet.id
-  security_groups = ["${aws_security_group.endpoint_sec_group.id}"]
+  ami                  = var.ami
+  instance_type        = var.endpoint_instance_shape
+  key_name             = var.key_name
+  subnet_id            = data.aws_subnet.data_subnet.id
+  security_groups      = [aws_security_group.endpoint_sec_group.id]
   iam_instance_profile = aws_iam_instance_profile.endpoint_profile.name
   root_block_device {
     volume_type           = "gp2"
@@ -36,10 +36,10 @@ resource "aws_instance" "endpoint" {
     delete_on_termination = true
   }
   tags = {
-    Name = "${local.ec2_name}"
-    "${var.service_base_name}-Tag" = "${local.ec2_name}"
-    product = "${var.product}"
-    "user:tag" = "${var.service_base_name}:${local.ec2_name}"
+    Name                           = local.endpoint_instance_name
+    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_instance_name}"
+    "${var.service_base_name}-Tag" = local.endpoint_instance_name
   }
 }
 

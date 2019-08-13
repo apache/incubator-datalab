@@ -55,3 +55,11 @@ variable "endpoint_volume_size" {}
 variable "endpoint_eip_allocation_id" {}
 
 variable "endpoint_id" {}
+
+variable "billing_tag" {
+  default = "product:dlab"
+}
+
+variable "tag_resource_id" {
+  default = "user:tag"
+}

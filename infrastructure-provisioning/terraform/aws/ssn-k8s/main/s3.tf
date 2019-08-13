@@ -19,11 +19,18 @@
 #
 # ******************************************************************************
 
+locals {
+  ssn_s3_name = "${var.service_base_name}-ssn-bucket"
+}
+
 resource "aws_s3_bucket" "ssn_k8s_bucket" {
-  bucket = "${var.service_base_name}-ssn-bucket"
+  bucket = local.ssn_s3_name
   acl    = "private"
-  tags = {
-    Name = "${var.service_base_name}-ssn-bucket"
+  tags   = {
+    Name                           = local.ssn_s3_name
+    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_s3_name}"
+    "${var.service_base_name}-Tag" = local.ssn_s3_name
   }
   force_destroy = true
 }
