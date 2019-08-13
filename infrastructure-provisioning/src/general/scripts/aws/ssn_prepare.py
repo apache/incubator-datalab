@@ -57,7 +57,7 @@ if __name__ == "__main__":
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
         service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'][:12], '-', True)
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         sg_name = instance_name + '-SG'
         network_type = os.environ['conf_network_type']
         all_ip_cidr = '0.0.0.0/0'
-        elastic_ip_name = '{0}-ssn-EIP'.format(os.environ['conf_service_base_name'])
+        elastic_ip_name = '{0}-ssn-EIP'.format(service_base_name)
 
         try:
             if not os.environ['aws_vpc_id']:

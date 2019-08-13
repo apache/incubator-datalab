@@ -181,7 +181,8 @@ if __name__ == "__main__":
             data_engine['computational_name'] = os.environ['computational_name']
         except:
             data_engine['computational_name'] = ''
-        data_engine['service_base_name'] = os.environ['conf_service_base_name']
+        data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
@@ -209,7 +210,7 @@ if __name__ == "__main__":
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
         data_engine['user_keyname'] = os.environ['project_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['project_name'] + '-edge'
+        edge_instance_name = data_engine['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
         edge_instance_hostname = get_instance_hostname(data_engine['tag_name'], edge_instance_name)
         edge_instance_private_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Private')
         if data_engine['network_type'] == 'private':

@@ -52,14 +52,16 @@ if __name__ == "__main__":
     if os.path.exists('/response/.emr_creating_{}'.format(os.environ['exploratory_name'])):
         time.sleep(30)
     create_aws_config_files()
-    edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
-        os.environ['conf_service_base_name'] + '-' + os.environ['project_name'] + '-edge')
+    emr_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+        os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    edge_status = get_instance_status(emr_conf['service_base_name'] + '-Tag',
+        emr_conf['service_base_name'] + '-' + os.environ['project_name'] + '-edge')
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
         ssn_hostname = get_instance_hostname(
-            os.environ['conf_service_base_name'] + '-Tag',
-            os.environ['conf_service_base_name'] + '-ssn')
+            emr_conf['service_base_name'] + '-Tag',
+            emr_conf['service_base_name'] + '-ssn')
         put_resource_status('edge', 'Unavailable',
                             os.environ['ssn_dlab_path'],
                             os.environ['conf_os_user'], ssn_hostname)
@@ -76,7 +78,7 @@ if __name__ == "__main__":
     except:
         emr_conf['computational_name'] = ''
     emr_conf['apps'] = 'Hadoop Hive Hue Spark'
-    emr_conf['service_base_name'] = os.environ['conf_service_base_name']
+
     emr_conf['tag_name'] = '{0}-Tag'.format(emr_conf['service_base_name'])
     emr_conf['key_name'] = os.environ['conf_key_name']
     emr_conf['region'] = os.environ['aws_region']

@@ -38,7 +38,8 @@ if __name__ == "__main__":
     create_aws_config_files()
     print('Generating infrastructure names and tags')
     edge_conf = dict()
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
     edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
 

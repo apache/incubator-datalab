@@ -42,7 +42,9 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
 
-    bucket_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
+    service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
+        os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    bucket_name = ('{}-ssn-bucket'.format(service_base_name)).lower().replace('_', '-')
     gitlab_certfile = os.environ['conf_gitlab_certfile']
     if dlab.actions_lib.get_gitlab_cert(bucket_name, gitlab_certfile):
         put(gitlab_certfile, gitlab_certfile)
