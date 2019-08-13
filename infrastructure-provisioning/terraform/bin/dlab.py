@@ -480,16 +480,16 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--endpoint_eip_address', 'endpoint_eip_address',
                   group='helm_charts')
-         # .add_str('--ldap_host', 'ldap host', required=True,
-         #          group='helm_charts')
-         # .add_str('--ldap_dn', 'ldap dn', required=True,
-         #          group='helm_charts')
-         # .add_str('--ldap_user', 'ldap user', required=True,
-         #          group='helm_charts')
-         # .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
-         #          group='helm_charts')
-         # .add_str('--ldap_users_group', 'ldap users group', required=True,
-         #          group='helm_charts')
+         .add_str('--ldap_host', 'ldap host', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_dn', 'ldap dn', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_user', 'ldap user', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
+                  group='helm_charts')
+         .add_str('--ldap_users_group', 'ldap users group', required=True,
+                  group='helm_charts')
          .add_str('--ssn_subnet', 'ssn subnet id', group='helm_charts')
          .add_str('--ssn_k8s_sg_id', 'ssn sg ids', group='helm_charts')
          .add_str('--ssn_vpc_id', 'ssn vpc id', group='helm_charts')
