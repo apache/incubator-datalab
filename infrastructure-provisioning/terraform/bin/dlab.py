@@ -14,6 +14,7 @@ from deploy.endpoint_fab import start_deploy
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logging.basicConfig(level=logging.INFO, format='%(levelname)s-%(message)s')
+INITIAL_LOCATION = os.path.abspath(__file__)
 
 
 class TerraformOutputBase:
@@ -38,7 +39,8 @@ class TerraformOutputBase:
 class LocalStorageOutputProcessor(TerraformOutputBase):
     @property
     def output_path(self):
-        return '/tmp/data.json'
+        return os.path.abspath(
+            os.path.join(os.path.dirname(INITIAL_LOCATION), 'output.json'))
 
     def write(self, obj):
         existed_data = {}
@@ -478,16 +480,16 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--endpoint_eip_address', 'endpoint_eip_address',
                   group='helm_charts')
-         .add_str('--ldap_host', 'ldap host', required=True,
-                  group='helm_charts')
-         .add_str('--ldap_dn', 'ldap dn', required=True,
-                  group='helm_charts')
-         .add_str('--ldap_user', 'ldap user', required=True,
-                  group='helm_charts')
-         .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
-                  group='helm_charts')
-         .add_str('--ldap_users_group', 'ldap users group', required=True,
-                  group='helm_charts')
+         # .add_str('--ldap_host', 'ldap host', required=True,
+         #          group='helm_charts')
+         # .add_str('--ldap_dn', 'ldap dn', required=True,
+         #          group='helm_charts')
+         # .add_str('--ldap_user', 'ldap user', required=True,
+         #          group='helm_charts')
+         # .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
+         #          group='helm_charts')
+         # .add_str('--ldap_users_group', 'ldap users group', required=True,
+         #          group='helm_charts')
          .add_str('--ssn_subnet', 'ssn subnet id', group='helm_charts')
          .add_str('--ssn_k8s_sg_id', 'ssn sg ids', group='helm_charts')
          .add_str('--ssn_vpc_id', 'ssn vpc id', group='helm_charts')
