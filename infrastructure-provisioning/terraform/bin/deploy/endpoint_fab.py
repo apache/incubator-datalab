@@ -54,7 +54,7 @@ def copy_keys():
         sys.exit(1)
 
 
-def ensure_crutch_endpoint():
+def ensure_dir_endpoint():
     try:
         if not exists(conn, '/home/{}/.ensure_dir'.format(args.os_user)):
             conn.sudo('mkdir /home/{}/.ensure_dir'.format(args.os_user))
@@ -234,8 +234,8 @@ def configure_supervisor_endpoint():
                       .format(args.ssn_k8s_alb_dns_name, dlab_conf_dir))
             conn.sudo('sed -i "s|CLIENT_SECRET|{}|g" {}provisioning.yml'
                       .format(args.keycloak_client_secret, dlab_conf_dir))
-            conn.sudo('sed -i "s|MONGO_PASSWORD|{}|g" {}provisioning.yml'
-                      .format(args.mongo_password, dlab_conf_dir))
+            # conn.sudo('sed -i "s|MONGO_PASSWORD|{}|g" {}provisioning.yml'
+            #           .format(args.mongo_password, dlab_conf_dir))
             conn.sudo('touch /home/{}/.ensure_dir/configure_supervisor_ensured'
                       .format(args.os_user))
     except Exception as err:
@@ -378,7 +378,7 @@ def init_args():
     parser.add_argument('--cloud_provider', type=str, default='')
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
     parser.add_argument('--ssn_k8s_alb_dns_name', type=str, default='')
-    parser.add_argument('--mongo_password', type=str, default='')
+    # parser.add_argument('--mongo_password', type=str, default='')
     parser.add_argument('--repository_address', type=str, default='')
     parser.add_argument('--repository_port', type=str, default='')
     parser.add_argument('--repository_user', type=str, default='')
@@ -442,8 +442,8 @@ def start_deploy():
     init_dlab_connection()
     update_system()
 
-    logging.info("Configuring Crutch")
-    ensure_crutch_endpoint()
+    logging.info("Configuring ensure dir")
+    ensure_dir_endpoint()
 
     logging.info("Configuring Logs")
     ensure_logs_endpoint()
