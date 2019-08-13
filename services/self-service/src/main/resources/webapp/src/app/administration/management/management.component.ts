@@ -139,7 +139,6 @@ export class ManagementComponent implements OnInit {
   handleSuccessAction(action) {
     this.toastr.success(`Action ${action} is processing!`, 'Processing!');
     this.projectService.getProjectsList().subscribe(data => {
-      debugger;
       this.dialogRef.componentInstance.data.projectsList = data
       this.dialogRef.componentInstance.setProjectsControl();
     });
