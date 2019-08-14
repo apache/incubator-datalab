@@ -539,6 +539,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   'Column name in report file that contains tags',
                   default='line_item_operation,line_item_line_item_description',
                   group='helm_charts')
+         .add_str('--billing_tag', 'Billing tag', default='dlab', group='helm_charts')
          )
         return params.build()
 
