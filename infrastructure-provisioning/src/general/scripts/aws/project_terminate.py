@@ -94,8 +94,9 @@ if __name__ == "__main__":
     create_aws_config_files()
     print('Generating infrastructure names and tags')
     project_conf = dict()
-    project_conf['service_base_name'] = os.environ['conf_service_base_name']
-    project_conf['endpoint_name'] = '{}-{}-endpoint'.format(os.environ['conf_service_base_name'], os.environ['endpoint_name'])
+    project_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    project_conf['endpoint_name'] = '{}-{}-endpoint'.format(project_conf['service_base_name'], os.environ['endpoint_name'])
     project_conf['project_name'] = os.environ['project_name']
     project_conf['tag_name'] = project_conf['service_base_name'] + '-Tag'
     project_conf['tag_value'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-*'
