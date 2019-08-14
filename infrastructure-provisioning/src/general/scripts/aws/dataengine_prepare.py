@@ -44,6 +44,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     try:
         create_aws_config_files()
+        data_engine = dict()
         data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].lower()[:12], '-', True)
         edge_status = get_instance_status(data_engine['service_base_name'] + '-Tag',
@@ -59,7 +60,7 @@ if __name__ == "__main__":
             append_result("Edge node is unavailable")
             sys.exit(1)
         print('Generating infrastructure names and tags')
-        data_engine = dict()
+
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name']
         except:

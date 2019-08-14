@@ -52,6 +52,7 @@ if __name__ == "__main__":
     if os.path.exists('/response/.emr_creating_{}'.format(os.environ['exploratory_name'])):
         time.sleep(30)
     create_aws_config_files()
+    emr_conf = dict()
     emr_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'].lower()[:12], '-', True)
     edge_status = get_instance_status(emr_conf['service_base_name'] + '-Tag',
@@ -68,7 +69,6 @@ if __name__ == "__main__":
         append_result("Edge node is unavailable")
         sys.exit(1)
     print('Generating infrastructure names and tags')
-    emr_conf = dict()
     try:
         emr_conf['exploratory_name'] = os.environ['exploratory_name']
     except:

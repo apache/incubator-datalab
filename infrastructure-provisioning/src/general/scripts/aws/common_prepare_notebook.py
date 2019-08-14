@@ -45,6 +45,7 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
+    notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'].lower()[:12], '-', True)
     edge_status = get_instance_status(notebook_config['service_base_name'] + '-Tag',
@@ -57,7 +58,6 @@ if __name__ == "__main__":
         append_result("Edge node is unavailable")
         sys.exit(1)
     print('Generating infrastructure names and tags')
-    notebook_config = dict()
     try:
         notebook_config['exploratory_name'] = os.environ['exploratory_name']
     except:
