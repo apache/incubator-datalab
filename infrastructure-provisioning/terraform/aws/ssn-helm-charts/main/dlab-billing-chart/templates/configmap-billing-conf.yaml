@@ -80,7 +80,7 @@ data:
         skipLines: 1
         columnMapping: >-
           dlab_id={{ .Values.billing.dlab_id }};usage_date={{ .Values.billing.usage_date }};product={{ .Values.billing.product }};
-          usage_type={{ .Values.billing.usage_type }}billing_usage_type;usage={{ .Values.billing.usage }};cost={{ .Values.billing.cost }};
+          usage_type={{ .Values.billing.usage_type }};usage={{ .Values.billing.usage }};cost={{ .Values.billing.cost }};
           resource_id={{ .Values.billing.resource_id }};tags={{ .Values.billing.tags }}
         aggregate: day
 
