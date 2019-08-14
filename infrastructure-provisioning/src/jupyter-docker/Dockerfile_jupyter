@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-FROM nexus.cc.epm.kharlamov.biz:443/legion/python-toolchain:1.0.0-20190715020857.542.3935d27
+FROM legionplatformtest/python-toolchain:1.0.0-rc14
 
 ARG NB_USER="dlab-user"
 
