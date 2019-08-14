@@ -26,6 +26,6 @@ export class CloudProviderGuard implements CanActivate {
   constructor(private _healthStatus: HealthStatusService) {}
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this._healthStatus.isBillingEnabled();
+    return this._healthStatus.isPassageway('billing');
   }
 }

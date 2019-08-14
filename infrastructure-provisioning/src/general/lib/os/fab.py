@@ -512,7 +512,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sys.exit(1)
 
 
-def install_ungit(os_user, notebook_name):
+def install_ungit(os_user, notebook_name, edge_ip):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
             sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
@@ -534,6 +534,12 @@ def install_ungit(os_user, notebook_name):
             run('echo "spark-warehouse/" >> ~/.gitignore')
             run('echo "metastore_db/" >> ~/.gitignore')
             run('echo "derby.log" >> ~/.gitignore')
+            sudo(
+                'echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(
+                    edge_ip, os_user))
+            sudo(
+                'echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(
+                    edge_ip, os_user))
             sudo('systemctl daemon-reload')
             sudo('systemctl enable ungit.service')
             sudo('systemctl start ungit.service')

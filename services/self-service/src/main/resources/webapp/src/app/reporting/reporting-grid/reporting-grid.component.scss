@@ -17,24 +17,40 @@
  * under the License.
  */
 
-.dashboard_table.reporting {
+.table-wrapper {
+  width: 100%;
+}
+
+.reporting {
+  width: 100%;
+  min-width: 1100px;
+  overflow: auto;
+
   tr {
     th {
       font-size: 11px;
     }
+
     td {
-      font-size: 13px; 
+      font-size: 13px;
     }
+
     &.filter-row {
+      th {
+        padding: 5px;
+      }
+
       .filter-field {
         font-size: 13px;
       }
 
     }
   }
+
   .th_shape {
     width: 10%;
   }
+
   .th_user,
   .env_name,
   .service {
@@ -42,43 +58,54 @@
     overflow: hidden;
     word-wrap: break-word;
   }
+
   .th_type {
     width: 8%;
   }
-  .th_rstatus {
+
+  .th_status {
     width: 8%;
   }
+
   .th_charges {
     width: 8%;
   }
 }
+
 .dashboard_table_body {
   td:first-child {
     cursor: default;
   }
- .dropdown-multiselect {
-  button {
-    font-size: 14px;
-    height: 34px;
-    padding: 7px 20px;
+
+  .dropdown-multiselect {
+    button {
+      font-size: 14px;
+      height: 34px;
+      padding: 7px 20px;
+    }
   }
- }
 }
+
+.no-data {}
 
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {
+
     .env_name,
     .service,
     .th_type,
     .th_rstatus {
       width: 10%;
     }
+
     .th_user {
       width: 12%;
     }
+
     .th_charges {
       width: 6%;
     }
+
     .user-field {
       word-wrap: break-word;
     }

@@ -27,13 +27,18 @@ public interface BillingDAO<T extends BillingFilter> {
 
 	Double getUserCost(String user);
 
+	Double getProjectCost(String project);
+
 	int getBillingQuoteUsed();
 
 	int getBillingUserQuoteUsed(String user);
+	int getBillingProjectQuoteUsed(String project);
 
 	boolean isBillingQuoteReached();
 
 	boolean isUserQuoteReached(String user);
+
+	boolean isProjectQuoteReached(String project);
 
 	Document getReport(UserInfo userInfo, T filter);
 }

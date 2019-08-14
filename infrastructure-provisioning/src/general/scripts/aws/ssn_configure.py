@@ -39,7 +39,8 @@ if __name__ == "__main__":
     try:
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
-        service_base_name = os.environ['conf_service_base_name']
+        service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
@@ -262,6 +263,7 @@ if __name__ == "__main__":
         print('[CONFIGURING DOCKER AT SSN INSTANCE]')
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
+                             {"name": "project", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
@@ -316,7 +318,7 @@ if __name__ == "__main__":
             "aws_region": os.environ['aws_region'],
             "aws_vpc_id": os.environ['aws_vpc_id'],
             "aws_subnet_id": os.environ['aws_subnet_id'],
-            "conf_service_base_name": os.environ['conf_service_base_name'],
+            "conf_service_base_name": service_base_name,
             "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
             "conf_os_family": os.environ['conf_os_family'],
             "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
@@ -347,6 +349,7 @@ if __name__ == "__main__":
                  "--resource {} " \
                  "--service_base_name {} " \
                  "--tag_resource_id {} " \
+                 "--billing_tag {} " \
                  "--cloud_provider {} " \
                  "--account_id {} " \
                  "--billing_bucket {} " \
@@ -369,8 +372,9 @@ if __name__ == "__main__":
                    os.environ['conf_os_family'],
                    os.environ['request_id'],
                    os.environ['conf_resource'],
-                   os.environ['conf_service_base_name'],
+                   service_base_name,
                    os.environ['conf_tag_resource_id'],
+                   os.environ['conf_billing_tag'],
                    os.environ['conf_cloud_provider'],
                    os.environ['aws_account_id'],
                    os.environ['aws_billing_bucket'],

@@ -38,7 +38,7 @@ def start_data_engine(cluster_name):
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'],
-                                               os.environ['edge_user_name'],
+                                               os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + \
                          os.environ['conf_resource'] + "/" + local_log_filename
@@ -59,11 +59,12 @@ if __name__ == "__main__":
         data_engine['computational_name'] = os.environ['computational_name']
     except:
         data_engine['computational_name'] = ''
-    data_engine['service_base_name'] = os.environ['conf_service_base_name']
-    data_engine['user_name'] = os.environ['edge_user_name']
+    data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    data_engine['project_name'] = os.environ['project_name']
     data_engine['cluster_name'] = \
         data_engine['service_base_name'] + '-' + \
-        data_engine['user_name'] + '-de-' + \
+        data_engine['project_name'] + '-de-' + \
         data_engine['exploratory_name'] + '-' + \
         data_engine['computational_name']
 
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     logging.info('[START DATA ENGINE CLUSTER]')
     print('[START DATA ENGINE CLUSTER]')
     try:
-        start_data_engine("{}:{}".format(os.environ['conf_service_base_name'],
+        start_data_engine("{}:{}".format(data_engine['service_base_name'],
                                          data_engine['cluster_name']))
     except Exception as err:
         print('Error: {0}'.format(err))

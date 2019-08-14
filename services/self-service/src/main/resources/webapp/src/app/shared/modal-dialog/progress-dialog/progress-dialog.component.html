@@ -17,13 +17,14 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="modal-xs progress-dialog">
-  <modal-header></modal-header>
-  <modal-content class="text-center">
+<div id="dialog-box" class="progress-dialog">
+  <header class="dialog-header header-white">
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="dialog-content text-center">
     <div class="content-box">
       <div><img src="assets/img/gif-spinner.gif" alt="loader"></div>
       <p class="info-label">Initial infrastructure is being created, <br/>please, wait...</p>
     </div>
-  </modal-content>
-  <modal-footer></modal-footer>
-</modal-dialog>
+  </div>
+</div>

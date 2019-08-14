@@ -32,7 +32,7 @@ import uuid
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -55,7 +55,8 @@ if __name__ == "__main__":
         notebook_config['region'] = os.environ['gcp_region']
         notebook_config['zone'] = os.environ['gcp_zone']
         notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + notebook_config['user_name'] + \
+        notebook_config['project_name'] = os.environ['project_name'].replace('_', '-')
+        notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + notebook_config['project_name'] + \
                                           '-de-' + notebook_config['exploratory_name'] + '-' + \
                                           notebook_config['computational_name']
         notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-m'
@@ -110,9 +111,11 @@ if __name__ == "__main__":
         params = "--hostname {0} " \
                  "--keyfile {1} " \
                  "--os_user {2} " \
+                 "--cluster_name {3}" \
             .format(notebook_config['notebook_ip'],
                     notebook_config['key_path'],
-                    notebook_config['dlab_ssh_user'])
+                    notebook_config['dlab_ssh_user'],
+                    notebook_config['cluster_name'])
         try:
             local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
         except:

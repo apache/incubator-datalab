@@ -33,7 +33,7 @@ import traceback
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -51,19 +51,24 @@ if __name__ == "__main__":
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        notebook_config['user_keyname'] = os.environ['edge_user_name']
+        notebook_config['project_name'] = os.environ['project_name'].replace('_', '-')
+        notebook_config['project_tag'] = os.environ['project_name'].replace('_', '-')
+        notebook_config['endpoint_tag'] = os.environ['endpoint_name'].replace('_', '-')
+        notebook_config['user_keyname'] = os.environ['project_name']
         notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
-                                                                notebook_config['user_name'],
+                                                                notebook_config['project_name'],
                                                                 notebook_config['exploratory_name'])
         notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
                                                                                os.environ['application'])
         notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
         notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                      notebook_config['user_name'])
+                                                                      notebook_config['project_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
                                    "User": notebook_config['user_name'],
+                                   "project_tag": notebook_config['project_tag'],
+                                   "endpoint_tag": notebook_config['endpoint_tag'],
                                    "Exploratory": notebook_config['exploratory_name'],
                                    os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
@@ -73,7 +78,7 @@ if __name__ == "__main__":
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                notebook_config['instance_name'])
-        edge_instance_name = '{}-{}-edge'.format(notebook_config['service_base_name'], notebook_config['user_name'])
+        edge_instance_name = '{}-{}-edge'.format(notebook_config['service_base_name'], notebook_config['project_name'])
         edge_instance_private_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                             edge_instance_name)
         if os.environ['conf_network_type'] == 'private':
@@ -83,6 +88,8 @@ if __name__ == "__main__":
             edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['resource_group_name'],
                                                                                 edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        edge_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                    edge_instance_name)
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -155,10 +162,10 @@ if __name__ == "__main__":
         print('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         params = "--hostname {0} --keyfile {1} " \
                  "--region {2} --os_user {3} " \
-                 "--ip_adress {4} --exploratory_name {5}" \
+                 "--ip_adress {4} --exploratory_name {5} --edge_ip {6}" \
                  .format(instance_hostname, keyfile_name,
                          os.environ['azure_region'], notebook_config['dlab_ssh_user'],
-                         notebook_config['ip_address'], notebook_config['exploratory_name'])
+                         notebook_config['ip_address'], notebook_config['exploratory_name'], edge_hostname)
         try:
             local("~/scripts/{}.py {}".format('configure_tensor_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,

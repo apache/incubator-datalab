@@ -22,19 +22,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../../shared/material.module';
 
-import { ModalModule } from '../../../shared';
 import { AmiCreateDialogComponent } from './ami-create-dialog.component';
 export * from './ami-create-dialog.component';
 
 @NgModule({
   imports: [
     CommonModule,
-    ModalModule,
     MaterialModule,
     FormsModule,
     ReactiveFormsModule
   ],
   declarations: [AmiCreateDialogComponent],
+  entryComponents: [AmiCreateDialogComponent],
   exports: [AmiCreateDialogComponent]
 })
 export class AmiCreateDialogModule {}

@@ -21,7 +21,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MaterialModule } from '../../../shared/material.module';
-import { ModalModule } from '../../../shared';
 import { ComputationalResourcesListComponent, ConfirmationDialogComponent } from './computational-resources-list.component';
 import { DetailComputationalResourcesModule } from '../cluster-details';
 import { SchedulerModule } from '../../scheduler';
@@ -31,7 +30,6 @@ export * from './computational-resources-list.component';
 @NgModule({
   imports: [
     CommonModule,
-    ModalModule,
     DetailComputationalResourcesModule,
     SchedulerModule,
     MaterialModule

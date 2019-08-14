@@ -21,7 +21,9 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -43,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.rest.contracts.DockerAPI.DOCKER_COMPUTATIONAL;
@@ -56,6 +59,8 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 
 	@Inject
 	private SettingsDAO settingsDAO;
+	@Inject
+	private ProjectDAO projectDAO;
 
 
 	@Inject
@@ -63,18 +68,20 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 	private RESTService provisioningService;
 
 	@Override
-	public List<ExploratoryMetadataDTO> getExploratoryTemplates(UserInfo user) {
+	public List<ExploratoryMetadataDTO> getExploratoryTemplates(UserInfo user, String project) {
 
-		log.debug("Loading list of exploratory templates for user {}", user.getName());
+		log.debug("Loading list of exploratory templates for user {} for project {}", user.getName(), project);
 		try {
 			ExploratoryMetadataDTO[] array =
 					provisioningService.get(DOCKER_EXPLORATORY, user.getAccessToken(), ExploratoryMetadataDTO[].class);
 
+			final Set<String> roles = getRoles(user, project);
 			return Arrays.stream(array)
 					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
 					.filter(e -> exploratoryGpuIssuesAzureFilter(e) &&
-							UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage()))
-					.peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes(), RoleType.EXPLORATORY_SHAPES))
+							UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage(), roles))
+					.peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes(), RoleType.EXPLORATORY_SHAPES,
+							roles))
 					.collect(Collectors.toList());
 
 		} catch (DlabException e) {
@@ -89,15 +96,16 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 	 * @param user              user
 	 * @param environmentShapes shape types
 	 * @param roleType
+	 * @param roles
 	 */
 	private void filterShapes(UserInfo user, Map<String, List<ComputationalResourceShapeDto>> environmentShapes,
-							  RoleType roleType) {
+							  RoleType roleType, Set<String> roles) {
 		environmentShapes.forEach((k, v) -> v.removeIf(compResShapeDto ->
-				!UserRoles.checkAccess(user, roleType, compResShapeDto.getType())));
+				!UserRoles.checkAccess(user, roleType, compResShapeDto.getType(), roles)));
 	}
 
 	@Override
-	public List<FullComputationalTemplate> getComputationalTemplates(UserInfo user) {
+	public List<FullComputationalTemplate> getComputationalTemplates(UserInfo user, String project) {
 
 		log.debug("Loading list of computational templates for user {}", user.getName());
 		try {
@@ -105,10 +113,13 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 					provisioningService.get(DOCKER_COMPUTATIONAL, user.getAccessToken(), ComputationalMetadataDTO[]
 							.class);
 
+			final Set<String> roles = getRoles(user, project);
+
 			return Arrays.stream(array)
 					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
-					.peek(e -> filterShapes(user, e.getComputationResourceShapes(), RoleType.COMPUTATIONAL_SHAPES))
-					.filter(e -> UserRoles.checkAccess(user, RoleType.COMPUTATIONAL, e.getImage()))
+					.peek(e -> filterShapes(user, e.getComputationResourceShapes(), RoleType.COMPUTATIONAL_SHAPES,
+							user.getRoles()))
+					.filter(e -> UserRoles.checkAccess(user, RoleType.COMPUTATIONAL, e.getImage(), roles))
 					.map(this::fullComputationalTemplate)
 					.collect(Collectors.toList());
 
@@ -116,6 +127,12 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 			log.error("Could not load list of computational templates for user: {}", user.getName(), e);
 			throw e;
 		}
+	}
+
+	private Set<String> getRoles(UserInfo user, String project) {
+		return projectDAO.get(project)
+				.map(ProjectDTO::getGroups)
+				.orElse(user.getRoles());
 	}
 
 	protected abstract FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO
