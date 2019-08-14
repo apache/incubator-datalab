@@ -56,7 +56,7 @@ variable "endpoint_eip_allocation_id" {}
 
 variable "endpoint_id" {}
 
-variable "billing_tag" {
+variable "additional_tag" {
   default = "product:dlab"
 }
 

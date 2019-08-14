@@ -52,7 +52,7 @@ variable "project_tag" {
   default = ""
 }
 
-variable "billing_tag" {
+variable "additional_tag" {
   default = "product:dlab"
 }
 

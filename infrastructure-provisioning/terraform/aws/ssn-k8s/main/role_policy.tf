@@ -26,9 +26,6 @@ locals {
 
 data "template_file" "ssn_k8s_s3_policy" {
   template = file("./files/ssn-policy.json.tpl")
-  vars     = {
-    bucket_arn = aws_s3_bucket.ssn_k8s_bucket.arn
-  }
 }
 
 resource "aws_iam_policy" "ssn_k8s_policy" {
@@ -42,7 +39,7 @@ resource "aws_iam_role" "ssn_k8s_role" {
   assume_role_policy = file("./files/assume-policy.json")
   tags               = {
     Name                           = local.ssn_role_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_role_name}"
     "${var.service_base_name}-Tag" = local.ssn_role_name
   }

@@ -119,8 +119,8 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
       propagate_at_launch = true
     },
     {
-      key                 = local.billing_tag[0]
-      value               = local.billing_tag[1]
+      key                 = local.additional_tag[0]
+      value               = local.additional_tag[1]
       propagate_at_launch = true
     },
     {
@@ -154,8 +154,8 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_workers" {
       propagate_at_launch = true
     },
     {
-      key                 = local.billing_tag[0]
-      value               = local.billing_tag[1]
+      key                 = local.additional_tag[0]
+      value               = local.additional_tag[1]
       propagate_at_launch = true
     },
     {

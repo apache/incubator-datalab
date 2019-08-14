@@ -20,7 +20,7 @@
 # ******************************************************************************
 
 locals {
-  billing_tag       = split(":", var.billing_tag)
+  additional_tag       = split(":", var.additional_tag)
   ssn_vpc_name      = "${var.service_base_name}-ssn-vpc"
   ssn_igw_name      = "${var.service_base_name}-ssn-igw"
   ssn_subnet_a_name = "${var.service_base_name}-ssn-subnet-az-a"
@@ -40,7 +40,7 @@ resource "aws_vpc" "ssn_k8s_vpc" {
 
   tags = {
     Name                           = local.ssn_vpc_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_vpc_name}"
     "${var.service_base_name}-Tag" = local.ssn_vpc_name
   }
@@ -52,7 +52,7 @@ resource "aws_internet_gateway" "ssn_k8s_igw" {
 
   tags = {
     Name                           = local.ssn_igw_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_igw_name}"
     "${var.service_base_name}-Tag" = local.ssn_igw_name
   }
@@ -78,7 +78,7 @@ resource "aws_subnet" "ssn_k8s_subnet_a" {
 
   tags = {
     Name                           = local.ssn_subnet_a_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_subnet_a_name}"
     "${var.service_base_name}-Tag" = local.ssn_subnet_a_name
   }
@@ -93,7 +93,7 @@ resource "aws_subnet" "ssn_k8s_subnet_b" {
 
   tags = {
     Name                           = local.ssn_subnet_b_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_subnet_b_name}"
     "${var.service_base_name}-Tag" = local.ssn_subnet_b_name
   }
@@ -108,7 +108,7 @@ resource "aws_subnet" "ssn_k8s_subnet_c" {
 
   tags = {
     Name                           = local.ssn_subnet_c_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_subnet_c_name}"
     "${var.service_base_name}-Tag" = local.ssn_subnet_c_name
   }
@@ -131,7 +131,7 @@ resource "aws_eip" "k8s-endpoint-eip" {
   vpc      = true
   tags = {
     Name                           = local.endpoint_ip_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_ip_name}"
     "${var.service_base_name}-Tag" = local.endpoint_ip_name
   }
@@ -142,7 +142,7 @@ resource "aws_route_table" "ssn-k8s-users-route-table" {
   tags = {
     Name                           = local.endpoint_rt_name
     "${var.service_base_name}-Tag" = var.service_base_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_rt_name}"
   }
 }
@@ -152,7 +152,7 @@ resource "aws_vpc_endpoint" "ssn-k8s-users-s3-endpoint" {
   service_name = "com.amazonaws.${var.region}.s3"
   tags = {
     Name                           = local.endpoint_s3_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_s3_name}"
     "${var.service_base_name}-Tag" = local.endpoint_s3_name
   }

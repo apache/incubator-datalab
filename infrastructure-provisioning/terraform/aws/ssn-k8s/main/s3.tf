@@ -21,6 +21,7 @@
 
 locals {
   ssn_s3_name = "${var.service_base_name}-ssn-bucket"
+  ssn_s3_shared_name = "${var.service_base_name}-shared-bucket"
 }
 
 resource "aws_s3_bucket" "ssn_k8s_bucket" {
@@ -28,9 +29,21 @@ resource "aws_s3_bucket" "ssn_k8s_bucket" {
   acl    = "private"
   tags   = {
     Name                           = local.ssn_s3_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_s3_name}"
     "${var.service_base_name}-Tag" = local.ssn_s3_name
+  }
+  force_destroy = true
+}
+
+resource "aws_s3_bucket" "ssn_k8s_shared_bucket" {
+  bucket = local.ssn_s3_shared_name
+  acl    = "private"
+  tags   = {
+    Name                           = local.ssn_s3_shared_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_s3_shared_name}"
+    "${var.service_base_name}-Tag" = local.ssn_s3_shared_name
   }
   force_destroy = true
 }

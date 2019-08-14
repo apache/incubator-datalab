@@ -34,7 +34,7 @@ resource "aws_iam_role" "endpoint_role" {
   assume_role_policy = file("./files/assume-policy.json")
   tags = {
     Name = "${local.endpoint_role_name}"
-    "${local.billing_tag[0]}" = local.billing_tag[1]
+    "${local.additional_tag[0]}" = local.additional_tag[1]
     "${var.tag_resource_id}" = "${var.service_base_name}:${local.endpoint_role_name}"
     "${var.service_base_name}-Tag" = local.endpoint_role_name
   }

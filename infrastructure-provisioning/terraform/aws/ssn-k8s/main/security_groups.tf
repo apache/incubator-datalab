@@ -78,7 +78,7 @@ resource "aws_security_group" "ssn_k8s_sg" {
 
   tags = {
     Name                           = local.ssn_sg_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_sg_name}"
     "${var.service_base_name}-Tag" = local.ssn_sg_name
   }
