@@ -38,11 +38,12 @@
                 <div class="username ellipsis">{{ manageUsersForm.controls['projects'].controls[i].value['project'] }}
                 </div>
                 <div class="quotes" *ngIf="DICTIONARY.cloud_provider !== 'gcp'">
-                  <input type="number" min="0" placeholder="Enter limit, in USD" formControlName="budget">
-                  <span class="danger_color"
+                  <input type="number" (keypress)="CheckUtils.isNumberKey($event)" min="0"
+                    placeholder="Enter limit, in USD" formControlName="budget">
+                  <span class="error"
                     *ngIf="!manageUsersForm?.controls['projects'].controls[i].controls['budget'].valid && !manageUsersForm?.controls['projects'].controls[i].controls['budget'].hasError('overrun')">Only
                     positive integers are allowed</span>
-                  <span class="danger_color"
+                  <span class="error"
                     *ngIf="manageUsersForm?.controls['projects'].controls[i].controls['budget'].hasError('overrun')">Per-user
                     quotes cannot be greater than total budget</span>
                 </div>
@@ -74,8 +75,9 @@
             <div class="control-group total-budget" *ngIf="DICTIONARY.cloud_provider !== 'gcp'">
               <label class="label">Total budget</label>
               <div class="control">
-                <input type="number" formControlName="total" placeholder="Enter total budget, in USD">
-                <span class="danger_color" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')">Total budget
+                <input type="number" (keypress)="CheckUtils.isNumberKey($event)" formControlName="total"
+                  placeholder="Enter total budget, in USD">
+                <span class="error" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')">Total budget
                   cannot be lower than a sum of users quotes</span>
               </div>
             </div>

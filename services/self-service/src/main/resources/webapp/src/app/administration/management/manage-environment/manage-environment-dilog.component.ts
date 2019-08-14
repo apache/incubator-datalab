@@ -21,6 +21,7 @@ import { Component, Output, EventEmitter, ViewEncapsulation, Inject, OnInit } fr
 import { Validators, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+import { CheckUtils } from '../../../core/util';
 
 @Component({
   selector: 'dlab-manage-env-dilog',
@@ -30,6 +31,8 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 })
 export class ManageEnvironmentComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+  readonly CheckUtils = CheckUtils;
+
   public manageUsersForm: FormGroup;
   public manageTotalsForm: FormGroup;
 
