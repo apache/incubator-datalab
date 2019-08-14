@@ -21,7 +21,9 @@
   .mat-list {
     .mat-list-item {
       height: 60px;
+      margin: 5px 0;
       position: relative;
+
       .mat-list-item-content {
         padding: 0 !important;
         justify-content: space-between;
@@ -29,57 +31,71 @@
       }
     }
   }
+
   .scrolling-content {
     max-height: 300px;
     min-height: 85px;
     overflow-y: auto;
   }
+
   .username {
     width: 45%;
   }
+
   .quotes {
     width: 40%;
     margin-right: 10px;
     position: relative;
-    .danger_color {
+
+    .error {
       position: absolute;
       left: 0;
-      top: 36px;
+      bottom: -14px;
     }
   }
+
   .action {
     width: 15%;
+
     span {
       padding: 3px;
       cursor: pointer;
+
       &:hover {
         color: #35afd5;
       }
+
       i {
         font-size: 20px;
       }
     }
+
     .disabled {
       cursor: not-allowed !important;
       pointer-events: all;
       opacity: .6;
+
       &:hover {
         color: #6b8299;
       }
     }
   }
+
   .total-budget {
     border-top: 1px solid #edf1f5;
     padding-top: 15px;
+
     .control {
       position: relative;
       width: 56%;
-      .danger_color {
+
+      .error {
         position: absolute;
         left: 0;
-        bottom: -20px;
+        bottom: -14px;
       }
     }
+
     .label {
       width: 44%;
     }
