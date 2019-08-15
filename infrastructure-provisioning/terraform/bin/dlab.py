@@ -3,6 +3,7 @@ import itertools
 import json
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -14,7 +15,7 @@ from deploy.endpoint_fab import start_deploy
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logging.basicConfig(level=logging.INFO, format='%(levelname)s-%(message)s')
-INITIAL_LOCATION = os.path.abspath(__file__)
+INITIAL_LOCATION = os.path.dirname(os.path.abspath(__file__))
 
 
 class TerraformOutputBase:
@@ -290,16 +291,17 @@ class AbstractDeployBuilder:
         self.service_args = args.get('service')
         state_dir = self.service_args.get('state')
         if not state_dir:
+            self.output_dir = None
             self.tf_output = os.path.join(INITIAL_LOCATION, 'output.json')
             self.tf_params = {}
         else:
             if os.path.isdir(state_dir) and os.access(state_dir, os.W_OK):
                 service_name = (args.get(self.terraform_args_group_name)
                                 .get('service_base_name'))
-                output_dir = (os.path.join(state_dir, service_name))
-                self.tf_output = os.path.join(output_dir, 'output.json')
+                self.output_dir = (os.path.join(state_dir, service_name))
+                self.tf_output = os.path.join(self.output_dir, 'output.json')
                 self.tf_params = {
-                    '-state': os.path.join(output_dir,
+                    '-state': os.path.join(self.output_dir,
                                            '{}.tfstate'.format(self.name))
                 }
             else:
@@ -491,7 +493,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
     def cli_args(self):
         params = ParamsBuilder()
         (params
-         .add_str('--state', 'State file path', required=True, group='service')
+         .add_str('--state', 'State file path', group='service')
          .add_str('--access_key_id', 'AWS Access Key ID', required=True,
                   group='k8s')
          .add_str('--allowed_cidrs',
@@ -733,14 +735,11 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.output_terraform_result()
 
     def destroy(self):
-        logging.info('ssn-k8s destroy')
-        output_processor = LocalStorageOutputProcessor(self.tf_output)
-        endpoint_output_keys = ['keycloak_client_secret']
-        endpoint_output_keys.extend(
-            json.loads(
-                TerraformProvider().output(self.tf_params, '-json')).keys())
-        output_processor.remove_keys(endpoint_output_keys)
         super(AWSK8sSourceBuilder, self).destroy()
+        if self.output_dir is not None:
+            shutil.rmtree(self.output_dir)
+        elif os.path.isfile(os.path.join(INITIAL_LOCATION, 'output.json')):
+            os.remove(os.path.join(INITIAL_LOCATION, 'output.json'))
 
 
 class AWSEndpointBuilder(AbstractDeployBuilder):
@@ -770,7 +769,7 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
     def cli_args(self):
         params = ParamsBuilder()
         (params
-         .add_str('--state', 'State file path', required=True, group='service')
+         .add_str('--state', 'State file path', group='service')
          .add_str('--secret_access_key', 'AWS Secret Access Key', required=True,
                   group='endpoint')
          .add_str('--access_key_id', 'AWS Access Key ID', required=True,
