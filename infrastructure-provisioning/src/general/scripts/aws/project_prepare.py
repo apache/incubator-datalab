@@ -121,12 +121,13 @@ if __name__ == "__main__":
           format(json.dumps(project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(project_conf))
 
-    try:
+    if 'conf_additional_tags' in os.environ:
         os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(project_conf['project_tag'], project_conf['endpoint_tag'])
-    except KeyError:
+    else:
         os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'], project_conf['endpoint_tag'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
+    # attach project_tag and endpoint_tag to endpoint
     try:
         endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
         print("Endpoint id: " + endpoint_id)
