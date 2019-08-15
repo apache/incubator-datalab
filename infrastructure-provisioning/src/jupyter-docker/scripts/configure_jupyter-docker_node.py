@@ -32,12 +32,14 @@ import os
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
+parser.add_argument('--edge_ip', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
+parser.add_argument('--ip_adress', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 
@@ -105,7 +107,7 @@ if __name__ == "__main__":
 
     # CONFIGURE JUPYTER FILES
     print("Configure jupyter files")
-    ensure_jupyter_docker_files(args.os_user,  jupyter_dir, jupyter_conf_file, docker_jupyter_conf, args.exploratory_name)
+    ensure_jupyter_docker_files(args.os_user,  jupyter_dir, jupyter_conf_file, docker_jupyter_conf, args.exploratory_name, args.edge_ip)
 
     # INSTALL UNGIT
     print("Install nodejs")
@@ -114,3 +116,7 @@ if __name__ == "__main__":
     install_ungit(args.os_user, args.exploratory_name)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
+
+    # INSTALL INACTIVITY CHECKER
+    print("Install inactivity checker")
+    install_inactivity_checker(args.os_user, args.ip_adress)

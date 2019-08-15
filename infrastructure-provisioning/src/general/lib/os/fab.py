@@ -223,20 +223,23 @@ def configure_docker(os_user, http_file, https_file):
         print('Failed to configure Docker:', str(err))
         sys.exit(1)
 
-def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, docker_jupyter_conf, exploratory_name):
+def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, docker_jupyter_conf, exploratory_name, edge_ip):
     if not exists(jupyter_dir):
         try:
             sudo('mkdir {}'.format(jupyter_dir))
 #            put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
 #            put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
             put('/root/Dockerfile_jupyter', '/tmp/Dockerfile_jupyter')
-            put('/root/jupyter_run.sh', '/tmp/jupyter_run.sh')
+            put('/root/scripts/*', '/tmp/')
 #            sudo('\cp /tmp/pyspark_local_template.json ' + jupyter_dir + 'pyspark_local_template.json')
 #            sudo('\cp /tmp/py3spark_local_template.json ' + jupyter_dir + 'py3spark_local_template.json')
 #            sudo('sed -i \'s/3.5/3.6/g\' {}py3spark_local_template.json'.format(jupyter_dir))
             sudo('mv /tmp/jupyter_run.sh {}jupyter_run.sh'.format(jupyter_dir))
             sudo('mv /tmp/Dockerfile_jupyter {}Dockerfile_jupyter'.format(jupyter_dir))
+            sudo('mv /tmp/build.sh {}build.sh'.format(jupyter_dir))
+            sudo('mv /tmp/start.sh {}start.sh'.format(jupyter_dir))
             sudo('sed -i \'s/nb_user/{}/g\' {}Dockerfile_jupyter'.format(os_user, jupyter_dir))
+            sudo('sed -i \'s/nb_user/{}/g\' {}start.sh'.format(os_user, jupyter_dir))
 #            sudo('sed -i \'s/jup_version/{}/g\' {}Dockerfile_jupyter'.format(jupyter_version, jupyter_dir))
 #            sudo('sed -i \'s/hadoop_version/{}/g\' {}Dockerfile_jupyter'.format(os.environ['notebook_hadoop_version'], jupyter_dir))
 #            sudo('sed -i \'s/tornado_version/{}/g\' {}Dockerfile_jupyter'.format(os.environ['notebook_tornado_version'], jupyter_dir))
@@ -253,6 +256,8 @@ def ensure_jupyter_docker_files(os_user, jupyter_dir, jupyter_conf_file, docker_
             sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
             sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
             sudo('chown dlab-user:dlab-user /opt')
+            sudo('echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(edge_ip, os_user))
+            sudo('echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(edge_ip, os_user))
 #            sudo('touch {}'.format(spark_script))
 #            sudo('echo "#!/bin/bash" >> {}'.format(spark_script))
 #            sudo(
@@ -507,7 +512,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sys.exit(1)
 
 
-def install_ungit(os_user, notebook_name):
+def install_ungit(os_user, notebook_name, edge_ip):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
             sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
@@ -529,6 +534,12 @@ def install_ungit(os_user, notebook_name):
             run('echo "spark-warehouse/" >> ~/.gitignore')
             run('echo "metastore_db/" >> ~/.gitignore')
             run('echo "derby.log" >> ~/.gitignore')
+            sudo(
+                'echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(
+                    edge_ip, os_user))
+            sudo(
+                'echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(
+                    edge_ip, os_user))
             sudo('systemctl daemon-reload')
             sudo('systemctl enable ungit.service')
             sudo('systemctl start ungit.service')
@@ -548,6 +559,31 @@ def install_ungit(os_user, notebook_name):
             sys.exit(1)
     run('git config --global http.proxy $http_proxy')
     run('git config --global https.proxy $https_proxy')
+
+
+def install_inactivity_checker(os_user, ip_adress, rstudio=False):
+    if not exists('/home/{}/.ensure_dir/inactivity_ensured'.format(os_user)):
+        try:
+            if not exists('/opt/inactivity'):
+                sudo('mkdir /opt/inactivity')
+            put('/root/templates/inactive.service', '/etc/systemd/system/inactive.service', use_sudo=True)
+            put('/root/templates/inactive.timer', '/etc/systemd/system/inactive.timer', use_sudo=True)
+            if rstudio:
+                put('/root/templates/inactive_rs.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
+            else:
+                put('/root/templates/inactive.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
+            sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_adress))
+            sudo("chmod 755 /opt/inactivity/inactive.sh")
+            sudo("chown root:root /etc/systemd/system/inactive.service")
+            sudo("chown root:root /etc/systemd/system/inactive.timer")
+            sudo("date +%s > /opt/inactivity/local_inactivity")
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable inactive.timer')
+            sudo('systemctl start inactive.timer')
+            sudo('touch /home/{}/.ensure_dir/inactive_ensured'.format(os_user))
+        except Exception as err:
+            print('Failed to setup inactivity check service!', str(err))
+            sys.exit(1)
 
 
 def set_git_proxy(os_user, hostname, keyfile, proxy_host):

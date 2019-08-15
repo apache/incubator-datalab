@@ -23,6 +23,7 @@ import { catchError, map } from 'rxjs/operators';
 
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util/';
+import { ScheduleSchema } from '../../resources/scheduler/scheduler.model';
 
 @Injectable()
 export class SchedulerService {
@@ -37,7 +38,7 @@ export class SchedulerService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public setExploratorySchedule(notebook, data, resource?): Observable<{}> {
+  public setExploratorySchedule(notebook, data, resource?): Observable<ScheduleSchema> {
     const param = resource ? `/${notebook}/${resource}` : `/${notebook}`;
     return this.applicationServiceFacade
       .buildSetExploratorySchedule(param, data)

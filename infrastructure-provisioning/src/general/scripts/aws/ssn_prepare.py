@@ -56,7 +56,8 @@ if __name__ == "__main__":
     try:
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
-        service_base_name = os.environ['conf_service_base_name']
+        service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
@@ -83,7 +84,7 @@ if __name__ == "__main__":
         sg_name = instance_name + '-SG'
         network_type = os.environ['conf_network_type']
         all_ip_cidr = '0.0.0.0/0'
-        elastic_ip_name = '{0}-ssn-EIP'.format(os.environ['conf_service_base_name'])
+        elastic_ip_name = '{0}-ssn-EIP'.format(service_base_name)
 
         try:
             if not os.environ['aws_vpc_id']:
@@ -426,10 +427,10 @@ if __name__ == "__main__":
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
         params = "--node_name {0} --ami_id {1} --instance_type {2} --key_name {3} --security_group_ids {4} --subnet_id {5} " \
-                 "--iam_profile {6} --infra_tag_name {7} --infra_tag_value {8} --instance_class {9}".\
+                 "--iam_profile {6} --infra_tag_name {7} --infra_tag_value {8} --instance_class {9} --primary_disk_size {10}".\
             format(instance_name, ssn_ami_id, os.environ['aws_ssn_instance_size'], os.environ['conf_key_name'],
                    os.environ['aws_security_groups_ids'], os.environ['aws_subnet_id'],
-                   role_profile_name, tag_name, instance_name, 'ssn')
+                   role_profile_name, tag_name, instance_name, 'ssn', '20')
 
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))

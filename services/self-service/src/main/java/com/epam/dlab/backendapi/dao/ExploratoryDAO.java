@@ -67,6 +67,7 @@ public class ExploratoryDAO extends BaseDAO {
 	private static final String EXPLORATORY_PRIVATE_IP = "private_ip";
 	public static final String EXPLORATORY_NOT_FOUND_MSG = "Exploratory for user %s with name %s not found";
 	private static final String EXPLORATORY_LAST_ACTIVITY = "last_activity";
+	private static final String PROJECT = "project";
 
 	public ExploratoryDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -129,6 +130,10 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(and(eq(USER, user), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
 	}
 
+	public List<UserInstanceDTO> fetchRunningExploratoryFieldsForProject(String project) {
+		return getUserInstances(and(eq(PROJECT, project), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
+	}
+
 	/**
 	 * Finds and returns the info of all user's notebooks whose status is present among predefined ones.
 	 *
@@ -169,6 +174,20 @@ public class ExploratoryDAO extends BaseDAO {
 				false);
 	}
 
+	public List<UserInstanceDTO> fetchProjectExploratoriesWhereStatusIn(String project,
+																		List<UserInstanceStatus> exploratoryStatuses,
+																		UserInstanceStatus... computationalStatuses) {
+		final List<String> exploratoryStatusList = statusList(exploratoryStatuses);
+		final List<String> computationalStatusList = statusList(computationalStatuses);
+		return getUserInstances(
+				and(
+						eq(PROJECT, project),
+						or(in(STATUS, exploratoryStatusList),
+								in(COMPUTATIONAL_RESOURCES + "." + STATUS, computationalStatusList))
+				),
+				false);
+	}
+
 	/**
 	 * Finds and returns the info of all user's notebooks whose status is absent among predefined ones.
 	 *
@@ -180,6 +199,17 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(
 				and(
 						eq(USER, user),
+						not(in(STATUS, statusList))
+				),
+				false);
+	}
+
+	public List<UserInstanceDTO> fetchProjectExploratoriesWhereStatusNotIn(String project,
+																		   UserInstanceStatus... statuses) {
+		final List<String> statusList = statusList(statuses);
+		return getUserInstances(
+				and(
+						eq(PROJECT, project),
 						not(in(STATUS, statusList))
 				),
 				false);
@@ -203,32 +233,13 @@ public class ExploratoryDAO extends BaseDAO {
 				.collect(Collectors.toList());
 	}
 
-	/**
-	 * Finds and returns the info about all exploratories in database.
-	 **/
-	public List<UserInstanceDTO> getInstancesByComputationalIdsAndStatus(List<String> ids, UserInstanceStatus status) {
-		return instancesByCompResourceIds(and(in(INSTANCE_ID, ids), eq(STATUS, status.toString())));
+	public void updateLastActivity(String user, String exploratoryName, LocalDateTime lastActivity) {
+		updateOne(USER_INSTANCES, and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName)),
+				set(EXPLORATORY_LAST_ACTIVITY, toDate(lastActivity)));
 	}
 
-	public List<UserInstanceDTO> getInstancesByIdsAndStatus(List<String> ids, UserInstanceStatus status) {
-		return stream(getCollection(USER_INSTANCES)
-				.find(and(in(INSTANCE_ID, ids), eq(STATUS, status.toString())))
-				.projection(fields(exclude(COMPUTATIONAL_RESOURCES))))
-				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
-				.collect(Collectors.toList());
-	}
-
-	public void updateLastActivityDateForInstanceId(String instanceId, LocalDateTime lastActivity) {
-		updateOne(USER_INSTANCES, eq(INSTANCE_ID, instanceId),
-				set(EXPLORATORY_LAST_ACTIVITY, Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant())));
-	}
-
-	private List<UserInstanceDTO> instancesByCompResourceIds(Bson compCondition) {
-		return stream(getCollection(USER_INSTANCES)
-				.find(com.mongodb.client.model.Filters.elemMatch(COMPUTATIONAL_RESOURCES, compCondition))
-				.projection(include(COMPUTATIONAL_RESOURCES + ".$", EXPLORATORY_NAME, USER)))
-				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
-				.collect(Collectors.toList());
+	private Date toDate(LocalDateTime lastActivity) {
+		return Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
 	/**
@@ -405,6 +416,10 @@ public class ExploratoryDAO extends BaseDAO {
 		}
 		if (dto.getExploratoryId() != null) {
 			values.append(EXPLORATORY_ID, dto.getExploratoryId());
+		}
+
+		if (dto.getLastActivity() != null) {
+			values.append(EXPLORATORY_LAST_ACTIVITY, dto.getLastActivity());
 		}
 
 		if (dto.getResourceUrl() != null) {

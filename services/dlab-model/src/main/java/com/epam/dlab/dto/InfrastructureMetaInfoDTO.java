@@ -19,6 +19,7 @@
 
 package com.epam.dlab.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -28,4 +29,6 @@ public class InfrastructureMetaInfoDTO {
 	private final String branch;
 	private final String version;
 	private final String commit;
+	@JsonProperty("release_notes")
+	private final String releaseNotes;
 }

@@ -53,8 +53,12 @@ import static java.util.stream.Collectors.toList;
 public class SchedulerJobDAO extends BaseDAO {
 
 	static final String SCHEDULER_DATA = "scheduler_data";
+	private static final String CONSIDER_INACTIVITY_FLAG = SCHEDULER_DATA + ".consider_inactivity";
+	public static final String TIMEZONE_PREFIX = "UTC";
+	private static final String LAST_ACTIVITY = "last_activity";
 	private static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
 	private static final String CHECK_INACTIVITY_FLAG = SCHEDULER_DATA + "." + CHECK_INACTIVITY_REQUIRED;
+
 
 	public SchedulerJobDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -121,6 +125,25 @@ public class SchedulerJobDAO extends BaseDAO {
 				.collect(toList());
 	}
 
+	public List<SchedulerJobData> getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(UserInstanceStatus status,
+																								  Date lastActivity) {
+		return stream(find(USER_INSTANCES,
+				and(
+						eq(STATUS, status.toString()),
+						schedulerNotNullCondition(),
+						or(and(eq(CONSIDER_INACTIVITY_FLAG, true),
+								or(eq(COMPUTATIONAL_RESOURCES, Collections.emptyList()),
+										and(ne(COMPUTATIONAL_RESOURCES, Collections.emptyList()),
+												Filters.elemMatch(COMPUTATIONAL_RESOURCES,
+														lte(LAST_ACTIVITY, lastActivity))))),
+								eq(CONSIDER_INACTIVITY_FLAG, false)
+						)
+				),
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA))))
+				.map(d -> convertFromDocument(d, SchedulerJobData.class))
+				.collect(toList());
+	}
+
 	public List<SchedulerJobData> getExploratorySchedulerDataWithOneOfStatus(UserInstanceStatus... statuses) {
 		FindIterable<Document> userInstances = userInstancesWithScheduler(in(STATUS,
 				Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(toList())));
@@ -138,9 +161,11 @@ public class SchedulerJobDAO extends BaseDAO {
 				.collect(toList());
 	}
 
-	public List<SchedulerJobData> getComputationalSchedulerDataWithOneOfStatus(UserInstanceStatus exploratoryStatus, UserInstanceStatus... statuses) {
+	public List<SchedulerJobData> getComputationalSchedulerDataWithOneOfStatus(UserInstanceStatus exploratoryStatus,
+																			   UserInstanceStatus... statuses) {
 		return stream(computationalResourcesWithScheduler(exploratoryStatus))
-				.map(doc -> computationalSchedulerData(doc, statuses).map(compResource -> toSchedulerData(doc, compResource)))
+				.map(doc -> computationalSchedulerData(doc, statuses).map(compResource -> toSchedulerData(doc,
+						compResource)))
 				.flatMap(Function.identity())
 				.collect(toList());
 	}

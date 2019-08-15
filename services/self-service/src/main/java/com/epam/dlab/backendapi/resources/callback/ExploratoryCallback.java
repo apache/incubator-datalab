@@ -42,6 +42,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Date;
 
 import static com.epam.dlab.dto.UserInstanceStatus.*;
 
@@ -89,7 +90,7 @@ public class ExploratoryCallback {
 				dto.getExploratoryName(), dto.getUser(), currentStatus);
 
 		try {
-			exploratoryDAO.updateExploratoryFields(dto);
+			exploratoryDAO.updateExploratoryFields(dto.withLastActivity(new Date()));
 			if (currentStatus == TERMINATING) {
 				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(),
 						UserInstanceStatus.of(dto.getStatus()));

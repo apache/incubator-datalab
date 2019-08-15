@@ -141,7 +141,7 @@ public class ReuploadKeyServiceImplTest {
 				Arrays.asList(RUNNING, REUPLOADING_KEY), Arrays.asList(DataEngineType.SPARK_STANDALONE,
 						DataEngineType.CLOUD_SERVICE), RUNNING);
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(keyContent), any(List.class));
-		verify(provisioningService).post("/reupload_key", TOKEN, reuploadFile, String.class);
+		verify(provisioningService).post("/key/reupload", TOKEN, reuploadFile, String.class);
 		verifyNoMoreInteractions(userResourceService, exploratoryService, keyDAO, exploratoryDAO, computationalDAO,
 				requestBuilder, provisioningService);
 		verifyZeroInteractions(requestId);
@@ -184,7 +184,7 @@ public class ReuploadKeyServiceImplTest {
 				Arrays.asList(RUNNING, REUPLOADING_KEY), Arrays.asList(DataEngineType.SPARK_STANDALONE,
 						DataEngineType.CLOUD_SERVICE), RUNNING);
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(keyContent), any(List.class));
-		verify(provisioningService).post("/reupload_key", TOKEN, reuploadFile, String.class);
+		verify(provisioningService).post("/key/reupload", TOKEN, reuploadFile, String.class);
 		verifyNoMoreInteractions(userResourceService, exploratoryService, keyDAO, exploratoryDAO, computationalDAO,
 				requestBuilder, provisioningService);
 		verifyZeroInteractions(requestId);
@@ -299,7 +299,7 @@ public class ReuploadKeyServiceImplTest {
 
 		verify(keyDAO).updateEdgeStatus(USER, "reuploading key");
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(""), any(List.class));
-		verify(provisioningService).post("/reupload_key", TOKEN, reuploadFile, String.class,
+		verify(provisioningService).post("/key/reupload", TOKEN, reuploadFile, String.class,
 				Collections.singletonMap("is_primary_reuploading", false));
 		verify(requestId).put(USER, expectedUuid);
 		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
@@ -347,7 +347,7 @@ public class ReuploadKeyServiceImplTest {
 
 		verify(exploratoryDAO).updateStatusForExploratory(USER, EXPLORATORY_NAME, REUPLOADING_KEY);
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(""), any(List.class));
-		verify(provisioningService).post("/reupload_key", TOKEN, reuploadFile, String.class,
+		verify(provisioningService).post("/key/reupload", TOKEN, reuploadFile, String.class,
 				Collections.singletonMap("is_primary_reuploading", false));
 		verify(requestId).put(USER, expectedUuid);
 		verifyNoMoreInteractions(exploratoryDAO, requestBuilder, provisioningService, requestId);
@@ -399,7 +399,7 @@ public class ReuploadKeyServiceImplTest {
 		verify(computationalDAO).updateStatusForComputationalResource(USER, EXPLORATORY_NAME,
 				"compName", REUPLOADING_KEY);
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(""), any(List.class));
-		verify(provisioningService).post("/reupload_key", TOKEN, reuploadFile, String.class,
+		verify(provisioningService).post("/key/reupload", TOKEN, reuploadFile, String.class,
 				Collections.singletonMap("is_primary_reuploading", false));
 		verify(requestId).put(USER, expectedUuid);
 		verifyNoMoreInteractions(computationalDAO, requestBuilder, provisioningService, requestId);

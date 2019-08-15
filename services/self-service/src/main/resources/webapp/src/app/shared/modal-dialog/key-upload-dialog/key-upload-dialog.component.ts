@@ -17,8 +17,9 @@
  * under the License.
  */
 
-import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, Input, Output, ViewChild, Inject } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { KeyUploadDialogModel } from './key-upload.model';
 import { UserAccessKeyService } from '../../../core/services';
@@ -32,13 +33,14 @@ import { HTTP_STATUS_CODES } from '../../../core/util';
 export class UploadKeyDialogComponent implements OnInit {
   model: KeyUploadDialogModel;
   @Input() primaryUploading: boolean = true;
-  
-  @ViewChild('bindDialog') bindDialog;
+
   @ViewChild('userAccessKeyUploadControl') userAccessKeyUploadControl;
   @Output() checkInfrastructureCreationProgress: EventEmitter<{}> = new EventEmitter();
   @Output() generateUserKey: EventEmitter<{}> = new EventEmitter();
 
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<UploadKeyDialogComponent>,
     private userAccessKeyService: UserAccessKeyService,
     public toastr: ToastrService
   ) {
@@ -46,7 +48,15 @@ export class UploadKeyDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.bindDialog.onClosing = () => this.resetDialog();
+    this.model = new KeyUploadDialogModel(null,
+      response => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.close();
+          this.checkInfrastructureCreationProgress.emit();
+        }
+      },
+      error => this.toastr.error(error.message, 'Oops!'),
+      this.userAccessKeyService);
   }
 
   public uploadUserAccessKey_onChange($event) {
@@ -66,27 +76,7 @@ export class UploadKeyDialogComponent implements OnInit {
     return false;
   }
 
-  public open(params) {
-    if (!this.bindDialog.isOpened) {
-      this.model = new KeyUploadDialogModel(null,
-        response => {
-          if (response.status === HTTP_STATUS_CODES.OK) {
-            this.close();
-            this.checkInfrastructureCreationProgress.emit();
-          }
-        },
-        error => this.toastr.error(error.message, 'Oops!'),
-        this.userAccessKeyService);
-      this.bindDialog.open(params);
-    }
-  }
-
   public close() {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
-  }
-
-  private resetDialog(): void {
-    this.userAccessKeyUploadControl.nativeElement.value = '';
+    this.dialogRef.close();
   }
 }

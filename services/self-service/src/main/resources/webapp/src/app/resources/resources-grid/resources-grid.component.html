@@ -17,140 +17,359 @@
   ~ under the License.
   -->
 
-<table class="dashboard_table">
-  <tr>
-    <th *ngFor="let column of filteringColumns"
-        ngClass="{{column.className || ''}}" [hidden]="column.name === 'cost' && !healthStatus?.billingEnabled">
-      {{column.title}}
-      <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
-        <i class="material-icons">
-          <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">filter_list</span>
-          <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">more_vert</span>
-        </i>
-      </button>
-    </th>
-  </tr>
+<section class="table-wrapper">
+  <table mat-table [dataSource]="filteredEnvironments" multiTemplateDataRows
+    class="data-grid resources mat-elevation-z6">
 
-  <tr *ngIf="filteredEnvironments && collapseFilterRow" class="filter-row">
-    <td>
-      <input placeholder="Filter by environment name" type="text" class="form-control filter-field" [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
-    </td>
-    <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'" [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
-    </td>
-    <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="DICTIONARY.cloud_provider === 'aws' ? 'shapes': 'sizes'" [items]="filterConfiguration.shapes" [model]="filterForm.shapes"></multi-select-dropdown>
-    </td>
-    <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'" [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
-    </td>
-    <td *ngIf="healthStatus?.billingEnabled"></td>
-    <td>
-      <div class="actions">
-        <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
-          <i class="material-icons">close</i>
+    <ng-container matColumnDef="project">
+      <td mat-cell *matCellDef="let element" [attr.colspan]="6" class="highlight"> {{ element.project }} </td>
+    </ng-container>
+    <ng-container *ngFor="let column of filteringColumns; let i = index" matColumnDef="{{ column.name }}">
+      <th mat-header-cell *matHeaderCellDef ngClass="{{ column.class }}">
+        <span class="label">{{ column.title }}</span>
+        <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
         </button>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="expandedDetail">
+      <td mat-cell *matCellDef="let element" class="exploratory" [attr.colspan]="6"
+        [@detailExpand]="element == expandedElement || forse ? 'expanded' : 'collapsed'">
 
-        <button mat-icon-button class="btn apply" (click)="applyFilter_btnClick(filterForm)" [disabled]="filteredEnvironments.length == 0 && !filtering">
-          <i class="material-icons" [ngClass]="{'not-allowed': filteredEnvironments.length == 0 && !filtering}">done</i>
-        </button>
-      </div>
-    </td>
-  </tr>
+        <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
+          <td class="name-col" (click)="printDetailEnvironmentModal(element)">{{ element.name }}</td>
+          <td class="status-col status" ngClass="{{ element.status.toLowerCase() || ''}}">
+            {{element.status | underscoreless }}
+          </td>
+          <td class="shape-col">{{ element.shape }}</td>
 
-  <tr *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering" class="message_block">
-    <td [colSpan]="!healthStatus?.billingEnabled ? filteringColumns.length -1 : filteringColumns.length">To start working, please, create new environment</td>
-  </tr>
+          <td class="resources-col">
+            <computational-resources-list [resources]="element.resources" [environment]="element"
+              (buildGrid)="buildGrid($event)">
+            </computational-resources-list>
+          </td>
+          <td *ngIf="healthStatus?.billingEnabled" class="cost-col">
+            <span class="total_cost">{{ element.cost || 'N/A' }} {{ element.currency_code || '' }}</span>
+            <span (click)="element.billing && printCostDetails(element)" class="currency_details"
+              [ngClass]="{ 'not-allowed' : !element.billing }">
+              <i class="material-icons">help_outline</i>
+            </span>
+          </td>
 
-  <tr *ngIf="(filteredEnvironments.length == 0) && filtering" class="message_block">
-    <td [colSpan]="!healthStatus?.billingEnabled ? filteringColumns.length -1 : filteringColumns.length">No matches found</td>
-  </tr>
+          <td class="actions-col settings">
+            <span #settings (click)="actions.toggle($event, settings)" class="actions"
+              [ngClass]="{ 'disabled': element.status.toLowerCase() === 'creating' }">
+            </span>
 
-  <tr *ngFor="let env of filteredEnvironments;" class="dashboard_table_body" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
-    <td (click)="printDetailEnvironmentModal(env)">{{env.name}}</td>
-    <td class="status" ngClass="{{env.status.toLowerCase() || ''}}">{{ env.status | underscoreless }}</td>
-    <td>{{env.shape}}</td>
-    <td>
-      <computational-resources-list [resources]="env.resources" [environment]="env" [healthStatus]="healthStatus?.status" (buildGrid)="buildGrid($event)"></computational-resources-list>
-    </td>
-    <td *ngIf="healthStatus?.billingEnabled">
-      <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
-      <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}">
-        <i class="material-icons">help_outline</i>
-      </span>
-    </td>
-    <td class="settings">
-      <span #settings (click)="actions.toggle($event, settings)" class="actions"
-            [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' || healthStatus?.status === 'error'}">
-      </span>
+            <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+              <ul class="list-unstyled">
+                <div class="active-items" *ngIf="element.status.toLowerCase() !== 'failed'
+                && element.status !== 'terminating'
+                && element.status !== 'terminated'
+                && element.status !== 'creating image'">
+                  <li
+                    *ngIf="element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'starting' && element.status !== 'creating image'"
+                    matTooltip="Unable to stop notebook because at least one computational resource is in progress"
+                    matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
+                    <div (click)="exploratoryAction(element, 'stop')"
+                      [ngClass]="{'not-allowed': isResourcesInProgress(element) }">
+                      <i class="material-icons">pause_circle_outline</i>
+                      <span>Stop</span>
+                    </div>
+                  </li>
+                  <li *ngIf="element.status.toLowerCase() === 'stopped' || element.status.toLowerCase() === 'stopping'"
+                    matTooltip="Unable to run notebook until it will be stopped" matTooltipPosition="above"
+                    [matTooltipDisabled]="!isResourcesInProgress(element) && element.status.toLowerCase() !== 'stopping'">
+                    <div (click)="exploratoryAction(element, 'run')"
+                      [ngClass]="{'not-allowed': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' }">
+                      <i class="material-icons">play_circle_outline</i>
+                      <span>Run</span>
+                    </div>
+                  </li>
+                  <li *ngIf="element.status.toLowerCase() === 'running' || element.status.toLowerCase() === 'stopped'"
+                    matTooltip="Unable to terminate notebook because at least one computational resource is in progress"
+                    matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
+                    <div (click)="exploratoryAction(element, 'terminate')"
+                      [ngClass]="{'not-allowed': isResourcesInProgress(element) }">
+                      <i class="material-icons">phonelink_off</i>
+                      <span>Terminate</span>
+                    </div>
+                  </li>
+                  <li (click)="exploratoryAction(element, 'deploy')" *ngIf="element.status != 'stopping'
+                && element.status !== 'stopped'
+                && element.status !== 'starting'
+                && element.status !== 'creating image'">
+                    <i class="material-icons">memory</i>
+                    <span>Add compute</span>
+                  </li>
+                  <li (click)="exploratoryAction(element, 'schedule')" *ngIf="element.status.toLowerCase() === 'running'
+                || element.status.toLowerCase() === 'stopped'">
+                    <i class="material-icons">schedule</i>
+                    <span>Scheduler</span>
+                  </li>
+                </div>
+                <li (click)="exploratoryAction(element, 'ami')"
+                  *ngIf="element.status === 'running' && DICTIONARY.cloud_provider !== 'gcp'">
+                  <i class="material-icons">view_module</i>
+                  <span>Create {{ DICTIONARY.image }}</span>
+                </li>
+                <li (click)="exploratoryAction(element, 'install')">
+                  <i class="material-icons">developer_board</i>
+                  <span>Manage libraries</span>
+                </li>
+                <li *ngIf="element.status === 'running'">
+                  <a target="_blank" [attr.href]="'/#/terminal/' + element.private_ip" class="navigate">
+                    <i class="material-icons">laptop</i>
+                    <span>Open terminal</span>
+                  </a>
+                </li>
+              </ul>
+            </bubble-up>
+          </td>
+        </tr>
+      </td>
+    </ng-container>
 
-      <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
-        <ul class="list-unstyled">
-          <div class="active-items" *ngIf="env.status.toLowerCase() !== 'failed'
+    <!-- FILTER START -->
+    <ng-container matColumnDef="name-filter" sticky>
+      <th mat-header-cell *matHeaderCellDef class="name-col">
+        <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
+          [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="status-filter">
+      <th mat-header-cell *matHeaderCellDef class="status-col">
+        <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'"
+          [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="shape-filter">
+      <th mat-header-cell *matHeaderCellDef class="shape-col">
+        <multi-select-dropdown (selectionChange)="onUpdate($event)"
+          [type]="DICTIONARY.cloud_provider === 'aws' ? 'shapes': 'sizes'" [items]="filterConfiguration.shapes"
+          [model]="filterForm.shapes"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="resource-filter">
+      <th mat-header-cell *matHeaderCellDef class="resources-col">
+        <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'"
+          [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="cost-filter">
+      <th mat-header-cell *matHeaderCellDef class="cost-col">
+
+      </th>
+    </ng-container>
+
+    <ng-container matColumnDef="action-filter" stickyEnd>
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="actions">
+          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+            <i class="material-icons">close</i>
+          </button>
+
+          <button mat-icon-button class="btn apply" (click)="applyFilter_btnClick(filterForm)"
+            [disabled]="filteredEnvironments.length == 0 && !filtering">
+            <i class="material-icons"
+              [ngClass]="{'not-allowed': filteredEnvironments.length == 0 && !filtering}">done</i>
+          </button>
+        </div>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="placeholder">
+      <td mat-footer-cell *matFooterCellDef
+        [colSpan]="!healthStatus?.billingEnabled ? displayedFilterColumns.length -1 : displayedFilterColumns.length"
+        class="info">
+        <span *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering">
+          To start working, please, create new environment</span>
+        <span *ngIf="(filteredEnvironments.length == 0) && filtering">No matches found</span>
+      </td>
+    </ng-container>
+
+    <!-- FILTER END -->
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></tr>
+
+    <tr [hidden]="!collapseFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
+      class="filter-row"></tr>
+
+    <tr mat-row *matRowDef="let element; columns: ['project']" class="element-row"
+      [class.expanded-row]="expandedElement === element"
+      (click)="expandedElement = expandedElement === element ? null : element">
+    </tr>
+    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+
+    <tr [hidden]="filteredEnvironments?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
+  </table>
+</section>
+
+
+
+
+
+
+
+
+<!-- <table class=" dashboard_table data-grid">
+        <tr>
+          <th *ngFor="let column of filteringColumns" ngClass="{{column.className || ''}}"
+            [hidden]="column.name === 'cost' && !healthStatus?.billingEnabled">
+            {{column.title}}
+            <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">filter_list</span>
+                <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">more_vert</span>
+              </i>
+            </button>
+          </th>
+        </tr>
+
+
+
+
+        <tr *ngIf="filteredEnvironments && collapseFilterRow" class="filter-row">
+          <td>
+            <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
+              [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
+          </td>
+          <td>
+            <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'"
+              [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
+          </td>
+          <td>
+            <multi-select-dropdown (selectionChange)="onUpdate($event)"
+              [type]="DICTIONARY.cloud_provider === 'aws' ? 'shapes': 'sizes'" [items]="filterConfiguration.shapes"
+              [model]="filterForm.shapes"></multi-select-dropdown>
+          </td>
+          <td>
+            <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'"
+              [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
+          </td>
+          <td *ngIf="healthStatus?.billingEnabled"></td>
+          <td>
+            <div class="actions">
+              <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+                <i class="material-icons">close</i>
+              </button>
+
+              <button mat-icon-button class="btn apply" (click)="applyFilter_btnClick(filterForm)"
+                [disabled]="filteredEnvironments.length == 0 && !filtering">
+                <i class="material-icons"
+                  [ngClass]="{'not-allowed': filteredEnvironments.length == 0 && !filtering}">done</i>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering"
+          class="message_block">
+          <td [colSpan]="!healthStatus?.billingEnabled ? filteringColumns.length -1 : filteringColumns.length">To start
+            working, please, create new environment</td>
+        </tr>
+
+        <tr *ngIf="(filteredEnvironments.length == 0) && filtering" class="message_block">
+          <td [colSpan]="!healthStatus?.billingEnabled ? filteringColumns.length -1 : filteringColumns.length">No
+            matches
+            found</td>
+        </tr>
+
+
+
+
+
+        <tr *ngFor="let env of filteredEnvironments;" class="dashboard_table_body"
+          [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
+          <td (click)="printDetailEnvironmentModal(env)">{{env.name}}</td>
+          <td class="status" ngClass="{{env.status.toLowerCase() || ''}}">{{ env.status | underscoreless }}</td>
+          <td>{{env.shape}}</td>
+          <td>
+            <computational-resources-list [resources]="env.resources" [environment]="env"
+              (buildGrid)="buildGrid($event)">
+            </computational-resources-list>
+          </td>
+          <td *ngIf="healthStatus?.billingEnabled">
+            <span class="total_cost">{{ env.cost || 'N/A' }} {{ env.currency_code || '' }}</span>
+            <span (click)="env.billing && printCostDetails(env)" class="currency_details"
+              [ngClass]="{ 'not-allowed' : !env.billing }">
+              <i class="material-icons">help_outline</i>
+            </span>
+          </td>
+
+
+
+          <td class="settings">
+            <span #settings (click)="actions.toggle($event, settings)" class="actions"
+              [ngClass]="{ 'disabled': env.status.toLowerCase() === 'creating' }">
+            </span>
+
+            <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+              <ul class="list-unstyled">
+                <div class="active-items" *ngIf="env.status.toLowerCase() !== 'failed'
                 && env.status !== 'terminating'
                 && env.status !== 'terminated'
                 && env.status !== 'creating image'">
-            <li *ngIf="env.status !== 'stopped' && env.status !== 'stopping' && env.status !== 'starting' && env.status !== 'creating image'"
-                matTooltip="Unable to stop notebook because at least one computational resource is in progress"
-                matTooltipPosition="above"
-                [matTooltipDisabled]="!isResourcesInProgress(env)">
-                <div (click)="exploratoryAction(env, 'stop')" [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
-                  <i class="material-icons">pause_circle_outline</i>
-                  <span>Stop</span>
-                </div>
-            </li>
-            <li *ngIf="env.status.toLowerCase() === 'stopped' || env.status.toLowerCase() === 'stopping'"
-                matTooltip="Unable to run notebook until it will be stopped"
-                matTooltipPosition="above"
-                [matTooltipDisabled]="!isResourcesInProgress(env) && env.status.toLowerCase() !== 'stopping'">
-              <div (click)="exploratoryAction(env, 'run')" [ngClass]="{'not-allowed': isResourcesInProgress(env) || env.status.toLowerCase() === 'stopping' }">
-                <i class="material-icons">play_circle_outline</i>
-                <span>Run</span>
-              </div>
-            </li>
-            <li *ngIf="env.status.toLowerCase() === 'running' || env.status.toLowerCase() === 'stopped'"
-                matTooltip="Unable to terminate notebook because at least one computational resource is in progress"
-                matTooltipPosition="above"
-                [matTooltipDisabled]="!isResourcesInProgress(env)">
-              <div (click)="exploratoryAction(env, 'terminate')" [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
-                <i class="material-icons">phonelink_off</i>
-                <span>Terminate</span>
-              </div>
-            </li>
-            <li (click)="exploratoryAction(env, 'deploy')"
-                *ngIf="env.status != 'stopping'
+                  <li
+                    *ngIf="env.status !== 'stopped' && env.status !== 'stopping' && env.status !== 'starting' && env.status !== 'creating image'"
+                    matTooltip="Unable to stop notebook because at least one computational resource is in progress"
+                    matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(env)">
+                    <div (click)="exploratoryAction(env, 'stop')"
+                      [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
+                      <i class="material-icons">pause_circle_outline</i>
+                      <span>Stop</span>
+                    </div>
+                  </li>
+                  <li *ngIf="env.status.toLowerCase() === 'stopped' || env.status.toLowerCase() === 'stopping'"
+                    matTooltip="Unable to run notebook until it will be stopped" matTooltipPosition="above"
+                    [matTooltipDisabled]="!isResourcesInProgress(env) && env.status.toLowerCase() !== 'stopping'">
+                    <div (click)="exploratoryAction(env, 'run')"
+                      [ngClass]="{'not-allowed': isResourcesInProgress(env) || env.status.toLowerCase() === 'stopping' }">
+                      <i class="material-icons">play_circle_outline</i>
+                      <span>Run</span>
+                    </div>
+                  </li>
+                  <li *ngIf="env.status.toLowerCase() === 'running' || env.status.toLowerCase() === 'stopped'"
+                    matTooltip="Unable to terminate notebook because at least one computational resource is in progress"
+                    matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(env)">
+                    <div (click)="exploratoryAction(env, 'terminate')"
+                      [ngClass]="{'not-allowed': isResourcesInProgress(env) }">
+                      <i class="material-icons">phonelink_off</i>
+                      <span>Terminate</span>
+                    </div>
+                  </li>
+                  <li (click)="exploratoryAction(env, 'deploy')" *ngIf="env.status != 'stopping'
                 && env.status !== 'stopped'
                 && env.status !== 'starting'
                 && env.status !== 'creating image'">
-              <i class="material-icons">memory</i>
-              <span>Add compute</span>
-            </li>
-            <li (click)="exploratoryAction(env, 'schedule')"
-                *ngIf="env.status.toLowerCase() === 'running'
+                    <i class="material-icons">memory</i>
+                    <span>Add compute</span>
+                  </li>
+                  <li (click)="exploratoryAction(env, 'schedule')" *ngIf="env.status.toLowerCase() === 'running'
                 || env.status.toLowerCase() === 'stopped'">
-                <i class="material-icons">schedule</i>
-              <span>Scheduler</span>
-            </li>
-          </div>
-          <li (click)="exploratoryAction(env, 'ami')"
-              *ngIf="env.status === 'running' && DICTIONARY.cloud_provider !== 'gcp'">
-            <i class="material-icons">view_module</i>
-            <span>Create {{ DICTIONARY.image }}</span>
-          </li>
-          <li (click)="exploratoryAction(env, 'install')">
-            <i class="material-icons">developer_board</i>
-            <span>Manage libraries</span>
-          </li>
-        </ul>
-      </bubble-up>
-    </td>
-  </tr>
-</table>
-
-<computational-resource-create-dialog #computationalResourceModal (buildGrid)="buildGrid()"></computational-resource-create-dialog>
-<confirmation-dialog #confirmationDialog (buildGrid)="buildGrid()"></confirmation-dialog>
-<detail-dialog #detailDialog (buildGrid)="buildGrid()"></detail-dialog>
-<cost-details-dialog #costDetailsDialog></cost-details-dialog>
-<install-libraries #installLibs (buildGrid)="buildGrid()"></install-libraries>
-<dlab-scheduler #envScheduler (buildGrid)="buildGrid()"></dlab-scheduler>
-<dlab-ami-create-dialog #createAmi (buildGrid)="buildGrid()"></dlab-ami-create-dialog>
+                    <i class="material-icons">schedule</i>
+                    <span>Scheduler</span>
+                  </li>
+                </div>
+                <li (click)="exploratoryAction(env, 'ami')"
+                  *ngIf="env.status === 'running' && DICTIONARY.cloud_provider !== 'gcp'">
+                  <i class="material-icons">view_module</i>
+                  <span>Create {{ DICTIONARY.image }}</span>
+                </li>
+                <li (click)="exploratoryAction(env, 'install')">
+                  <i class="material-icons">developer_board</i>
+                  <span>Manage libraries</span>
+                </li>
+                <li *ngIf="env.status === 'running'">
+                  <a target="_blank" [attr.href]="'/#/terminal/' + env.private_ip" class="navigate">
+                    <i class="material-icons">laptop</i>
+                    <span>Open terminal</span>
+                  </a>
+                </li>
+              </ul>
+            </bubble-up>
+          </td>
+        </tr>
+  </table> -->

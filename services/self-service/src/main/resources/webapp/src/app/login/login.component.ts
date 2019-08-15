@@ -50,11 +50,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.applicationSecurityService.isLoggedIn().subscribe(result => {
-      console.log('LOGGED IN  /login component');
+    // this.applicationSecurityService.isLoggedIn().subscribe(result => {
+    //   console.log('LOGGED IN  /login component');
 
-      result && this.checkHealthStatusAndRedirect(result);
-    });
+    //   result && this.checkHealthStatusAndRedirect(result);
+    // });
   }
 
   ngOnDestroy() {
@@ -69,7 +69,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       .login(this.model)
       .subscribe((result) => {
         if (result) {
-          this.checkHealthStatusAndRedirect(result);
+          this.appRoutingService.redirectToHomePage();
           return true;
         }
 

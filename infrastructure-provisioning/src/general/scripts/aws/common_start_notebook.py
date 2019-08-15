@@ -33,7 +33,7 @@ import argparse
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -43,7 +43,8 @@ if __name__ == "__main__":
     create_aws_config_files()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['service_base_name'] = notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
 
@@ -74,6 +75,20 @@ if __name__ == "__main__":
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to setup git credentials.", str(err))
+            raise Exception
+    except:
+        sys.exit(1)
+
+    try:
+        logging.info('[UPDATE LAST ACTIVITY TIME]')
+        print('[UPDATE LAST ACTIVITY TIME]')
+        params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
+            .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
+        try:
+            local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
+        except Exception as err:
+            traceback.print_exc()
+            append_result("Failed to update last activity time.", str(err))
             raise Exception
     except:
         sys.exit(1)

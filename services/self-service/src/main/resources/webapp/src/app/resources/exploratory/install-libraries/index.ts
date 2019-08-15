@@ -22,18 +22,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from '../../../shared/material.module';
-import { ModalModule, BubbleModule } from '../../../shared';
+import { BubbleModule } from '../../../shared';
 import { FormControlsModule } from '../../../shared/form-controls';
 
 import { KeysPipeModule, LibSortPipeModule, HighLightPipeModule } from '../../../core/pipes';
 import { InstallLibrariesComponent, ErrorMessageDialogComponent } from './install-libraries.component';
+export * from './install-libraries.component';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ModalModule,
     KeysPipeModule,
     LibSortPipeModule,
     HighLightPipeModule,
@@ -42,7 +42,7 @@ import { InstallLibrariesComponent, ErrorMessageDialogComponent } from './instal
     BubbleModule
   ],
   declarations: [InstallLibrariesComponent, ErrorMessageDialogComponent],
-  entryComponents: [ErrorMessageDialogComponent],
+  entryComponents: [InstallLibrariesComponent, ErrorMessageDialogComponent],
   exports: [InstallLibrariesComponent]
 })
 export class InstallLibrariesModule {}

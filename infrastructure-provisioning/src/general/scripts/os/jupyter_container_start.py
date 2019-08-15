@@ -38,9 +38,13 @@ jupyter_dir = '/home/' + args.os_user + '/.jupyter/'
 def start_jupyter_container(jupyter_dir):
     try:
         with cd('{}'.format(jupyter_dir)):
-            run('docker volume create -d local-persist -o mountpoint=/home/{} --name=jup_volume'.format(args.os_user))
-            run('docker build --file /home/{}/.jupyter/Dockerfile_jupyter -t jupyter-notebook .'.format(args.os_user))
-            run('docker run -d --restart unless-stopped -p 8888:8888 -v jup_volume:/opt/legion/repository jupyter-notebook:latest')
+            run('docker volume create -d local-persist \
+                     -o mountpoint=/home/{} --name=jup_volume'.format(args.os_user))
+            run('docker build --file Dockerfile_jupyter -t jupyter-lab .'.format(args.os_user))
+            run('docker run -d --restart unless-stopped -p 8888:8888 \
+                     -v jup_volume:/opt/legion/repository \
+                     -v /home/{0}/.ssh/:/home/{0}/.ssh/ \
+                     jupyter-lab:latest'.format(args.os_user))
     except: sys.exit(1)
 
 if __name__ == "__main__":

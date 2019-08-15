@@ -277,7 +277,9 @@
       "/api/infrastructure/backup",
       "/roleManagement",
       "/api/settings",
-      "/user/settings"
+      "/user/settings",
+      "/api/project",
+      "/api/endpoint"
     ],
     "groups": [
       "$anyuser"

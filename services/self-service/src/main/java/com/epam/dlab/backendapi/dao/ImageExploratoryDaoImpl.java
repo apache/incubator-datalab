@@ -97,7 +97,7 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 	}
 
 	private Bson imageLibraryCondition(String user, String imageFullName, LibStatus status) {
-		return and(eq(USER, user), eq(IMAGE_FULL_NAME, imageFullName),
+		return and(eq(USER, user), eq(IMAGE_NAME, imageFullName),
 				elemMatch(LIBRARIES, eq(STATUS, status.name())));
 	}
 

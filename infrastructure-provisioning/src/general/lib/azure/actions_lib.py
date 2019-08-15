@@ -495,7 +495,7 @@ class AzureActions:
 
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
-                        image_full_name, tags, user_name='', create_option='fromImage', disk_id='',
+                        image_full_name, tags, project_name='', create_option='fromImage', disk_id='',
                         instance_storage_account_type='Premium_LRS', image_type='default'):
         if image_type == 'pre-configured':
             image_id = meta_lib.AzureMeta().get_image(resource_group_name, image_full_name).id
@@ -568,7 +568,7 @@ class AzureActions:
                             },
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
+                                'name': '{}-{}-edge-disk0'.format(service_base_name, project_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'tags': tags,
@@ -608,7 +608,7 @@ class AzureActions:
                         'storage_profile': {
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
+                                'name': '{}-{}-edge-disk0'.format(service_base_name, project_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'tags': tags,
@@ -1082,7 +1082,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
             except:
                 spark_jars_paths = None
-        user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
+        user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['project_name']).\
             replace('_', '-') + '-storage'
         shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
         for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
