@@ -57,6 +57,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       (value: Project[]) => {
         if (value) this.projectList = value;
       }));
+    this.refreshGrid();
   }
 
   ngOnDestroy() {
