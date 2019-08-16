@@ -40,6 +40,7 @@ resource "aws_instance" "endpoint" {
     "${var.service_base_name}-Tag" = "${local.ec2_name}"
     product = "${var.product}"
     "user:tag" = "${var.service_base_name}:${local.ec2_name}"
+    endpoint_id = "${var.endpoint_id}"
   }
 }
 
