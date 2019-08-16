@@ -35,8 +35,6 @@ variable "notebook_name" {}
 
 variable "region" {}
 
-variable "zone" {}
-
 variable "product" {}
 
 variable "vpc" {}
@@ -47,4 +45,4 @@ variable "traefik_cidr" {}
 
 variable "instance_type" {}
 
-variable "env_rg" {}
+variable "resource_group" {}

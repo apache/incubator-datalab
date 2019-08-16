@@ -49,4 +49,44 @@ variable "subnet_id" {}
 
 variable "nb-sg_id" {}
 
-variable "env_rg" {}
+variable "resource_group" {}
+
+variable "ami_publisher" {
+  type = "map"
+  default = {
+    debian = "Canonical"
+    redhat = "RedHat"
+    custom = ""
+  }
+}
+
+variable "ami_offer" {
+  type = "map"
+  default = {
+    debian = "UbuntuServer"
+    redhat = "RHEL"
+    custom = ""
+  }
+}
+
+variable "ami_sku" {
+  type = "map"
+  default = {
+    debian = "16.04-LTS"
+    redhat = "7.3"
+    custom = ""
+  }
+}
+
+variable "ami_version" {
+  type = "map"
+  default = {
+    debian = "16.04.201907290"
+    redhat = "7.3.2017090800"
+    custom = ""
+  }
+}
+
+variable "custom_ami" {}
+
+variable "os_env" {}

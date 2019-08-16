@@ -28,13 +28,13 @@ locals {
 resource "azurerm_network_interface" "master-nic" {
     name                      = "${local.nic}-m"
     location                  = var.region
-    resource_group_name       = var.sbn
+    resource_group_name       = var.resource_group
     network_security_group_id = var.nb-sg_id
 
     ip_configuration {
         name                          = "${local.nic}-m-IPconigurations"
         subnet_id                     = var.subnet_id
-        private_ip_address_allocation = "Static"
+        private_ip_address_allocation = "Dynamic"
     }
 
     tags = {
@@ -52,16 +52,19 @@ resource "azurerm_network_interface" "master-nic" {
 resource "azurerm_virtual_machine" "master" {
     name                  = "${local.cluster_name}-m"
     location              = var.region
-    resource_group_name   = var.sbn
+    resource_group_name   = var.resource_group
     network_interface_ids = ["${azurerm_network_interface.master-nic.id}"]
-    vm_size               = var.instance_type
+    vm_size               = var.master_shape
 
     storage_os_disk {
         name              = "${local.cluster_name}-m-disk0"
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"
-        image_uri         = var.ami #publisherName:offer:skus:version
+    }
+
+    storage_image_reference {
+        id = var.ami
     }
 
     os_profile {
@@ -96,13 +99,13 @@ resource "azurerm_network_interface" "slave-nic" {
     count                     = var.slave_count
     name                      = "${local.nic}-s-${count.index + 1}"
     location                  = var.region
-    resource_group_name       = var.sbn
+    resource_group_name       = var.resource_group
     network_security_group_id = var.nb-sg_id
 
     ip_configuration {
         name                          = "${local.nic}-s-${count.index + 1}-IPconigurations"
         subnet_id                     = var.subnet_id
-        private_ip_address_allocation = "Static"
+        private_ip_address_allocation = "Dynamic"
     }
 
     tags = {
@@ -118,18 +121,22 @@ resource "azurerm_network_interface" "slave-nic" {
 }
 
 resource "azurerm_virtual_machine" "slave" {
+    count                 = var.slave_count
     name                  = "${local.cluster_name}-s-${count.index + 1}"
     location              = var.region
-    resource_group_name   = var.sbn
-    network_interface_ids = ["${azurerm_network_interface.slave-nic.id}"]
-    vm_size               = var.instance_type
+    resource_group_name   = var.resource_group
+    network_interface_ids = ["${azurerm_network_interface.slave-nic[count.index].id}"]
+    vm_size               = var.slave_shape
 
     storage_os_disk {
         name              = "${local.notebook_name}-s-${count.index + 1}-disk0"
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"
-        image_uri         = var.ami #publisherName:offer:skus:version
+    }
+
+    storage_image_reference {
+        id = var.ami
     }
 
     os_profile {

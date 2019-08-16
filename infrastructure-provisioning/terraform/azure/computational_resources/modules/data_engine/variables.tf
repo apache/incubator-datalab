@@ -39,7 +39,9 @@ variable "product" {}
 
 variable "ami" {}
 
-variable "instance_type" {}
+variable "master_shape" {}
+
+variable "slave_shape" {}
 
 variable "ssh_key" {}
 
@@ -53,4 +55,4 @@ variable "cluster_name" {}
 
 variable "slave_count" {}
 
-variable "env_rg" {}
+variable "resource_group" {}

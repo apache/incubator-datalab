@@ -1,6 +1,14 @@
-variable "credentials" {}
+variable "subscription_id" {}
+
+variable "client_id" {}
+
+variable "client_secret" {}
+
+variable "tenant_id" {}
 
 variable "service_base_name" {}
+
+variable "resource_group" {}
 
 variable "project_name" {}
 
@@ -12,11 +20,11 @@ variable "user_tag" {}
 
 variable "custom_tag" {}
 
+variable "os_env" {}
+
 variable "notebook_name" {}
 
 variable "region" {}
-
-variable "zone" {}
 
 variable "product_name" {}
 
@@ -26,13 +34,13 @@ variable "subnet_id" {}
 
 variable "nb-sg_id" {}
 
-variable "iam_profile_name" {}
-
 variable "cidr_range" {}
 
 variable "traefik_cidr" {}
 
 variable "ami" {}
+
+variable "custom_ami" {}
 
 variable "instance_type" {}
 
@@ -44,14 +52,8 @@ variable "cluster_name" {}
 
 variable "slave_count" {}
 
-variable "emr_template" {}
-
 variable "master_shape" {}
 
 variable "slave_shape" {}
-
-variable "instance_count" {}
-
-variable "bid_price" {}
 
 variable "source_instance_id" {}

@@ -26,7 +26,7 @@ locals {
 
 resource "azurerm_subnet" "subnet" {
     name                 = local.subnet_name
-    resource_group_name  = var.sbn
+    resource_group_name  = var.resource_group
     virtual_network_name = var.vpc
     address_prefix       = var.cidr_range
 }
@@ -34,7 +34,7 @@ resource "azurerm_subnet" "subnet" {
 resource "azurerm_network_security_group" "nb-sg" {
     name                = local.sg_name
     location            = var.region
-    resource_group_name = var.sbn
+    resource_group_name = var.resource_group
 
     security_rule {
         name                       = "in-1"
@@ -108,55 +108,10 @@ resource "azurerm_network_security_group" "nb-sg" {
     }
 }
 
-resource "aws_subnet" "subnet" {
-  vpc_id     = var.vpc
-  cidr_block = var.cidr_range
-
-  tags = {
-    Name             = local.subnet_name
-    SBN              = var.sbn
-    Product          = var.product
-    Project_name     = var.project_name
-    Project_tag      = var.project_tag
-    Endpoint_tag     = var.endpoint_tag
-    User_tag         = var.user_tag
-    Custom_tag       = var.custom_tag
-  }
+output "subnet_id" {
+    value = azurerm_subnet
 }
 
-resource "aws_security_group" "nb-sg" {
-  name   = local.sg_name
-  vpc_id = var.vpc
-
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["${var.cidr_range}", "${var.traefik_cidr}"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "TCP"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name             = local.sg_name
-    SBN              = var.sbn
-    Product          = var.product
-    Project_name     = var.project_name
-    Project_tag      = var.project_tag
-    Endpoint_tag     = var.endpoint_tag
-    User_tag         = var.user_tag
-    Custom_tag       = var.custom_tag
-  }
+output "nb-sg_id" {
+    value = azurerm_network_security_group
 }
