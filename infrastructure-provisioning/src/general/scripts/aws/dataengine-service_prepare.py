@@ -81,6 +81,8 @@ if __name__ == "__main__":
 
     emr_conf['tag_name'] = '{0}-Tag'.format(emr_conf['service_base_name'])
     emr_conf['key_name'] = os.environ['conf_key_name']
+    emr_conf['endpoint_tag'] = os.environ['endpoint_name']
+    emr_conf['project_tag'] = os.environ['project_name']
     emr_conf['region'] = os.environ['aws_region']
     emr_conf['release_label'] = os.environ['emr_version']
     emr_conf['edge_instance_name'] = '{0}-{1}-edge'.format(emr_conf['service_base_name'], os.environ['project_name'])
@@ -229,6 +231,12 @@ if __name__ == "__main__":
                    emr_conf['service_base_name'],
                    emr_conf['cluster_name'], True)
         try:
+            if 'conf_additional_tags' in os.environ:
+                os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(
+                    emr_conf['project_tag'], emr_conf['endpoint_tag'])
+            else:
+                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(emr_conf['project_tag'], emr_conf['endpoint_tag'])
+            print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
             traceback.print_exc()
