@@ -19,47 +19,40 @@
 #
 # ******************************************************************************
 
-variable "service_base_name" {}
+variable "project_name" {}
 
-variable "access_key_id" {
-  default = ""
-}
-variable "secret_access_key" {
-  default = ""
-}
+variable "sbn" {}
+
+variable "project_tag" {}
+
+variable "endpoint_tag" {}
+
+variable "user_tag" {}
+
+variable "custom_tag" {}
+
+variable "notebook_name" {}
 
 variable "region" {}
 
-variable "zone" {}
-
 variable "product" {}
-
-variable "subnet_cidr" {}
-
-variable "endpoint_instance_shape" {}
-
-variable "key_name" {}
 
 variable "ami" {}
 
-variable "vpc_id" {}
+variable "master_shape" {}
 
-variable "ssn_subnet" {}
+variable "slave_shape" {}
 
-variable "network_type" {}
+variable "ssh_key" {}
 
-variable "vpc_cidr" {}
+variable "initial_user" {}
 
-variable "endpoint_volume_size" {}
+variable "subnet_id" {}
 
-variable "endpoint_eip_allocation_id" {}
+variable "nb-sg_id" {}
 
-variable "endpoint_id" {}
+variable "cluster_name" {}
 
-variable "additional_tag" {
-  default = "product:dlab"
-}
+variable "slave_count" {}
 
-variable "tag_resource_id" {
-  default = "user:tag"
-}
+variable "resource_group" {}

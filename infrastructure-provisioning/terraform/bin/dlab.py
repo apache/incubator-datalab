@@ -3,6 +3,7 @@ import itertools
 import json
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -14,6 +15,7 @@ from deploy.endpoint_fab import start_deploy
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logging.basicConfig(level=logging.INFO, format='%(levelname)s-%(message)s')
+INITIAL_LOCATION = os.path.dirname(os.path.abspath(__file__))
 
 
 class TerraformOutputBase:
@@ -36,9 +38,10 @@ class TerraformOutputBase:
 
 
 class LocalStorageOutputProcessor(TerraformOutputBase):
-    @property
-    def output_path(self):
-        return '/tmp/data.json'
+    output_path = None
+
+    def __init__(self, path):
+        self.output_path = path
 
     def write(self, obj):
         existed_data = {}
@@ -68,14 +71,7 @@ class LocalStorageOutputProcessor(TerraformOutputBase):
             json.dump(updated, fp)
 
 
-def get_args_string(cli_args):
-    """Convert dict of cli argument into string
-
-    Args:
-        cli_args: dict of cli arguments
-    Returns:
-        str: string of joined key=values
-    """
+def extract_args(cli_args):
     args = []
     for key, value in cli_args.items():
         if not value:
@@ -84,7 +80,34 @@ def get_args_string(cli_args):
             quoted_list = ['"{}"'.format(item) for item in value]
             joined_values = ', '.join(quoted_list)
             value = '[{}]'.format(joined_values)
-        args.append("-var '{0}={1}'".format(key, value))
+        args.append((key, value))
+    return args
+
+
+def get_var_args_string(cli_args):
+    """Convert dict of cli argument into string
+
+    Args:
+        cli_args: dict of cli arguments
+    Returns:
+        str: string of joined key=values
+    """
+    args = extract_args(cli_args)
+    args = ["-var '{0}={1}'".format(key, value) for key, value in args]
+    return ' '.join(args)
+
+
+def get_args_string(cli_args):
+    """Convert dict of cli argument into string
+
+    Args:
+        cli_args: dict of cli arguments
+    Returns:
+        str: string of joined key=values
+    """
+
+    args = extract_args(cli_args)
+    args = ["{0} {1}".format(key, value) for key, value in args]
     return ' '.join(args)
 
 
@@ -203,48 +226,90 @@ class TerraformProvider:
         if terraform_success_validate not in terraform_validate_result:
             raise TerraformProviderError(terraform_validate_result)
 
-    def apply(self, cli_args):
+    @staticmethod
+    def apply(tf_params, cli_args):
         """Run terraform
 
         Args:
-            target: str
+            tf_params: dict of terraform parameters
             cli_args: dict of parameters
         Returns:
              None
         """
         logging.info('terraform apply')
-        args_str = get_args_string(cli_args)
-        command = 'terraform apply -auto-approve {}'
-        logging.info(command.format(args_str))
-        Console.execute_to_command_line(command.format(args_str))
 
-    def destroy(self, cli_args):
+        args_str = get_var_args_string(cli_args)
+        params_str = get_args_string(tf_params)
+        command = ('terraform apply -auto-approve {} {}'
+                   .format(params_str, args_str))
+        logging.info(command)
+        Console.execute_to_command_line(command)
+
+    @staticmethod
+    def destroy(tf_params, cli_args):
         """Destroy terraform
 
         Args:
-            target: str
+            tf_params: dict of terraform parameters
             cli_args: dict of parameters
         Returns:
              None
         """
         logging.info('terraform destroy')
-        args_str = get_args_string(cli_args)
-        command = 'terraform destroy -auto-approve {}'
-        logging.info(command.format(args_str))
-        Console.execute_to_command_line(command.format(args_str))
+        args_str = get_var_args_string(cli_args)
+        params_str = get_args_string(tf_params)
+        command = ('terraform destroy -auto-approve {} {}'
+                   .format(params_str, args_str))
+        logging.info(command)
+        Console.execute_to_command_line(command)
+        state_file = tf_params['-state']
+        state_file_backup = tf_params['-state']+'.backup'
+        if os.path.isfile(state_file):
+            os.remove(state_file)
+        if os.path.isfile(state_file_backup):
+            os.remove(state_file_backup)
 
-    def output(self, *args):
+    @staticmethod
+    def output(tf_params, *args):
         """Get terraform output
 
         Args:
+            tf_params: dict of terraform parameters
             *args: list of str parameters
         Returns:
             str: terraform output result
         """
-        return Console.execute('terraform output {}'.format(' '.join(args)))
+        params = get_args_string(tf_params)
+        return Console.execute('terraform output {} {}'
+                               .format(params, ' '.join(args)))
 
 
 class AbstractDeployBuilder:
+    def __init__(self):
+
+        args = self.parse_args()
+        self.service_args = args.get('service')
+        state_dir = self.service_args.get('state')
+        if not state_dir:
+            self.output_dir = None
+            self.tf_output = os.path.join(INITIAL_LOCATION, 'output.json')
+            self.tf_params = {}
+        else:
+            if os.path.isdir(state_dir) and os.access(state_dir, os.W_OK):
+                service_name = (args.get(self.terraform_args_group_name)
+                                .get('service_base_name'))
+                self.output_dir = (os.path.join(state_dir, service_name))
+                self.tf_output = os.path.join(self.output_dir, 'output.json')
+                self.tf_params = {
+                    '-state': os.path.join(self.output_dir,
+                                           '{}.tfstate'.format(self.name))
+                }
+            else:
+                sys.stdout.write('path doesn\'t exist')
+                sys.exit(1)
+        if self.use_tf_output_file:
+            self.fill_sys_argv_from_file()
+        self.terraform_args = self.parse_args().get(self.terraform_args_group_name)
 
     @property
     @abstractmethod
@@ -253,6 +318,16 @@ class AbstractDeployBuilder:
 
         Returns:
             str: TF script location
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def name(self):
+        """ get Terraform name
+
+        Returns:
+            str: TF name
         """
         raise NotImplementedError
 
@@ -286,36 +361,24 @@ class AbstractDeployBuilder:
         """
         raise NotImplementedError
 
+    @property
+    def use_tf_output_file(self):
+        return False
+
     def apply(self):
-        cli_args = self.parse_args()
-        terraform_args = cli_args.get(self.terraform_args_group_name)
         terraform = TerraformProvider()
-        terraform.apply(terraform_args)
+        terraform.apply(self.tf_params, self.terraform_args)
 
     def destroy(self):
-        cli_args = self.parse_args()
-        terraform_args = cli_args.get(self.terraform_args_group_name)
         terraform = TerraformProvider()
-        terraform.destroy(terraform_args)
-
-    @staticmethod
-    def update_output_file(obj):
-        output_file_path = '/tmp/data.json'
-        existed_data = {}
-        if os.path.isfile(output_file_path):
-            with open(output_file_path, 'r') as fp:
-                existed_data = json.loads(fp.read())
-        existed_data.update(obj)
-
-        with open(output_file_path, 'w') as fp:
-            json.dump(existed_data, fp)
+        terraform.destroy(self.tf_params, self.terraform_args)
 
     def store_output_to_file(self):
         terraform = TerraformProvider()
-        output = terraform.output('-json')
+        output = terraform.output(self.tf_params, '-json')
         output = {key: value.get('value')
                   for key, value in json.loads(output).items()}
-        output_writer = LocalStorageOutputProcessor()
+        output_writer = LocalStorageOutputProcessor(self.tf_output)
         output_writer.write(output)
 
     def update_extracted_file_data(self, obj):
@@ -327,8 +390,7 @@ class AbstractDeployBuilder:
         pass
 
     def fill_sys_argv_from_file(self):
-
-        output_processor = LocalStorageOutputProcessor()
+        output_processor = LocalStorageOutputProcessor(self.tf_output)
         output = output_processor.extract()
         if output:
             self.update_extracted_file_data(output)
@@ -383,22 +445,6 @@ class AbstractDeployBuilder:
         except TerraformProviderError as ex:
             raise Exception('Error while provisioning {}'.format(ex))
 
-    @staticmethod
-    def get_node_ip(output):
-        """Extract ip
-
-        Args:
-            output: str of terraform output
-        Returns:
-            str: extracted ip
-
-        """
-
-        ips = json.loads(output)
-        if not ips:
-            raise TerraformProviderError('no ips')
-        return ips[0]
-
 
 class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
@@ -409,6 +455,10 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self._user_name = self.args.get(self.terraform_args_group_name).get(
             'os_user')
         self._pkey_path = self.args.get('service').get('pkey')
+
+    @property
+    def name(self):
+        return 'ssn-k8s'
 
     @property
     def args(self):
@@ -443,6 +493,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
     def cli_args(self):
         params = ParamsBuilder()
         (params
+         .add_str('--state', 'State file path', group='service')
          .add_str('--access_key_id', 'AWS Access Key ID', required=True,
                   group='k8s')
          .add_str('--allowed_cidrs',
@@ -519,6 +570,53 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--ssn_subnet', 'ssn subnet id', group='helm_charts')
          .add_str('--ssn_k8s_sg_id', 'ssn sg ids', group='helm_charts')
          .add_str('--ssn_vpc_id', 'ssn vpc id', group='helm_charts')
+         .add_str('--tag_resource_id', 'Tag resource ID.',
+                  default='user:tag', group=('k8s', 'helm_charts'))
+         .add_str('--additional_tag', 'Additional tag.',
+                  default='product:dlab', group='k8s')
+         .add_str('--billing_bucket', 'Billing bucket name', group='helm_charts')
+         .add_str('--billing_bucket_path',
+                  'The path to billing reports directory in S3 bucket', default='',
+                  group='helm_charts')
+         .add_str('--billing_aws_job_enabled',
+                  'Billing format. Available options: true (aws), false(epam)', default='false',
+                  group='helm_charts')
+         .add_str('--billing_aws_account_id',
+                  'The ID of Amazon account', default='',
+                  group='helm_charts')
+         .add_str('--billing_dlab_id',
+                  'Column name in report file that contains dlab id tag',
+                  default='resource_tags_user_user_tag',
+                  group='helm_charts')
+         .add_str('--billing_usage_date',
+                  'Column name in report file that contains usage date tag',
+                  default='line_item_usage_start_date',
+                  group='helm_charts')
+         .add_str('--billing_product',
+                  'Column name in report file that contains product name tag',
+                  default='product_product_name',
+                  group='helm_charts')
+         .add_str('--billing_usage_type',
+                  'Column name in report file that contains usage type tag',
+                  default='line_item_usage_type',
+                  group='helm_charts')
+         .add_str('--billing_usage',
+                  'Column name in report file that contains usage tag',
+                  default='line_item_usage_amount',
+                  group='helm_charts')
+         .add_str('--billing_cost',
+                  'Column name in report file that contains cost tag',
+                  default='line_item_blended_cost',
+                  group='helm_charts')
+         .add_str('--billing_resource_id',
+                  'Column name in report file that contains dlab resource id tag',
+                  default='line_item_resource_id',
+                  group='helm_charts')
+         .add_str('--billing_tags',
+                  'Column name in report file that contains tags',
+                  default='line_item_operation,line_item_line_item_description',
+                  group='helm_charts')
+         .add_str('--billing_tag', 'Billing tag', default='dlab', group='helm_charts')
          )
         return params.build()
 
@@ -532,7 +630,6 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
         """
         start_time = time.time()
-        Console.execute('ssh-keyscan {} >> ~/.ssh/known_hosts'.format(self.ip))
         while True:
             with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
                 k8c_info_status = c.run(
@@ -566,11 +663,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as c:
             while True:
                 tiller_status = c.run(
-                    "kubectl get pods --all-namespaces | grep tiller | awk '{print $4}'") \
-                    .stdout
-
+                    "kubectl get pods --all-namespaces "
+                    "| grep tiller | awk '{print $4}'").stdout
                 tiller_success_status = 'Running'
-
                 if tiller_success_status in tiller_status:
                     break
                 if (time.time() - start_time) >= 1200:
@@ -579,8 +674,12 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
     def select_master_ip(self):
         terraform = TerraformProvider()
-        output = terraform.output('-json ssn_k8s_masters_ip_addresses')
-        self.ip = self.get_node_ip(output)
+        output = terraform.output(self.tf_params,
+                                  '-json ssn_k8s_masters_ip_addresses')
+        ips = json.loads(output)
+        if not ips:
+            raise TerraformProviderError('no ips')
+        self.ip = ips[0]
 
     def copy_terraform_to_remote(self):
         logging.info('transfer terraform dir to remote')
@@ -590,16 +689,17 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         remote_dir = '/home/{}/terraform/'.format(self.user_name)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             conn.run('mkdir -p {}'.format(remote_dir))
-            rsync(conn, source, remote_dir)
+            rsync(conn, source, remote_dir, strict_host_keys=False)
 
     def run_remote_terraform(self):
         logging.info('apply helm charts')
         args = self.parse_args()
         dns_name = json.loads(TerraformProvider()
-                              .output('-json ssn_k8s_alb_dns_name'))
+                              .output(self.tf_params,
+                                      '-json ssn_k8s_alb_dns_name'))
         logging.info('apply ssn-helm-charts')
         terraform_args = args.get('helm_charts')
-        args_str = get_args_string(terraform_args)
+        args_str = get_var_args_string(terraform_args)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             with conn.cd('terraform/ssn-helm-charts/main'):
                 conn.run('terraform init')
@@ -615,14 +715,16 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
     def output_terraform_result(self):
         dns_name = json.loads(
-            TerraformProvider().output('-json ssn_k8s_alb_dns_name'))
+            TerraformProvider().output(self.tf_params,
+                                       '-json ssn_k8s_alb_dns_name'))
         ssn_bucket_name = json.loads(
-            TerraformProvider().output('-json ssn_bucket_name'))
+            TerraformProvider().output(self.tf_params, '-json ssn_bucket_name'))
         ssn_k8s_sg_id = json.loads(
-            TerraformProvider().output('-json ssn_k8s_sg_id'))
+            TerraformProvider().output(self.tf_params, '-json ssn_k8s_sg_id'))
         ssn_subnet = json.loads(
-            TerraformProvider().output('-json ssn_subnet'))
-        ssn_vpc_id = json.loads(TerraformProvider().output('-json ssn_vpc_id'))
+            TerraformProvider().output(self.tf_params, '-json ssn_subnet'))
+        ssn_vpc_id = json.loads(
+            TerraformProvider().output(self.tf_params, '-json ssn_vpc_id'))
 
         logging.info("""
         DLab SSN K8S cluster has been deployed successfully!
@@ -647,42 +749,57 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 output = ' '.join(conn.run('terraform output -json')
                                   .stdout.split())
                 self.fill_args_from_dict(json.loads(output))
-                output_processor = LocalStorageOutputProcessor()
+                output_processor = LocalStorageOutputProcessor(self.tf_output)
                 output = {key: value.get('value')
                           for key, value in json.loads(output).items()}
                 output_processor.write(output)
 
+    @staticmethod
+    def add_ip_to_known_hosts(ip):
+        attempt = 0
+        while attempt < 10:
+            if len(Console.execute('ssh-keygen -H -F {}'.format(ip))) == 0:
+                Console.execute(
+                    'ssh-keyscan {} >> ~/.ssh/known_hosts'.format(ip))
+                attempt += 1
+            else:
+                break
+
     def deploy(self):
         logging.info('deploy')
+        output = ' '.join(
+            TerraformProvider().output(self.tf_params, '-json').split())
+        self.fill_args_from_dict(json.loads(output))
         self.select_master_ip()
+        self.add_ip_to_known_hosts(self.ip)
         self.check_k8s_cluster_status()
         self.check_tiller_status()
-        output = ' '.join(TerraformProvider().output('-json').split())
-        self.fill_args_from_dict(json.loads(output))
         self.copy_terraform_to_remote()
         self.run_remote_terraform()
         self.fill_remote_terraform_output()
         self.output_terraform_result()
 
     def destroy(self):
-        logging.info('ssn-k8s destroy')
-        output_processor = LocalStorageOutputProcessor()
-        endpoint_output_keys = ['keycloak_client_secret']
-        endpoint_output_keys.extend(
-            json.loads(TerraformProvider().output('-json')).keys())
-        output_processor.remove_keys(endpoint_output_keys)
         super(AWSK8sSourceBuilder, self).destroy()
+        if self.output_dir is not None:
+            shutil.rmtree(self.output_dir)
+        elif os.path.isfile(os.path.join(INITIAL_LOCATION, 'output.json')):
+            os.remove(os.path.join(INITIAL_LOCATION, 'output.json'))
 
 
 class AWSEndpointBuilder(AbstractDeployBuilder):
 
-    def __init__(self):
-        super(AWSEndpointBuilder, self).__init__()
-        self.fill_sys_argv_from_file()
-
     def update_extracted_file_data(self, obj):
         if 'ssn_vpc_id' in obj:
             obj['vpc_id'] = obj['ssn_vpc_id']
+
+    @property
+    def name(self):
+        return 'endpoint'
+
+    @property
+    def use_tf_output_file(self):
+        return True
 
     @property
     def terraform_location(self):
@@ -697,6 +814,7 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
     def cli_args(self):
         params = ParamsBuilder()
         (params
+         .add_str('--state', 'State file path', group='service')
          .add_str('--secret_access_key', 'AWS Secret Access Key', required=True,
                   group='endpoint')
          .add_str('--access_key_id', 'AWS Access Key ID', required=True,
@@ -737,6 +855,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   group='endpoint')
          .add_str('--product', 'Product name.', default='dlab',
                   group='endpoint')
+         .add_str('--additional_tag', 'Additional tag.',
+                  default='product:dlab', group='endpoint')
          )
         return params.build()
 

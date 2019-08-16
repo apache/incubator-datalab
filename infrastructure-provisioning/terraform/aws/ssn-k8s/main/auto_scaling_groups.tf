@@ -20,7 +20,11 @@
 # ******************************************************************************
 
 locals {
-  subnet_c_id = data.aws_subnet.k8s-subnet-c-data == [] ? "" : data.aws_subnet.k8s-subnet-c-data.0.id
+  subnet_c_id                      = data.aws_subnet.k8s-subnet-c-data == [] ? "" : data.aws_subnet.k8s-subnet-c-data.0.id
+  ssn_k8s_launch_conf_masters_name = "${var.service_base_name}-ssn-launch-conf-masters"
+  ssn_k8s_launch_conf_workers_name = "${var.service_base_name}-ssn-launch-conf-workers"
+  ssn_k8s_ag_masters_name          = "${var.service_base_name}-ssn-masters"
+  ssn_k8s_ag_workers_name          = "${var.service_base_name}-ssn-workers"
 }
 
 resource "random_string" "ssn_keystore_password" {
@@ -36,7 +40,7 @@ resource "random_string" "endpoint_keystore_password" {
 data "template_file" "ssn_k8s_masters_user_data" {
   template = file("./files/masters-user-data.sh")
   vars = {
-    k8s-asg                    = "${var.service_base_name}-ssn-masters"
+    k8s-asg                    = local.ssn_k8s_ag_masters_name
     k8s-region                 = var.region
     k8s-bucket-name            = aws_s3_bucket.ssn_k8s_bucket.id
     k8s-nlb-dns-name           = aws_lb.ssn_k8s_nlb.dns_name
@@ -57,7 +61,7 @@ data "template_file" "ssn_k8s_workers_user_data" {
 }
 
 resource "aws_launch_configuration" "ssn_k8s_launch_conf_masters" {
-  name                 = "${var.service_base_name}-ssn-launch-conf-masters"
+  name                 = local.ssn_k8s_launch_conf_masters_name
   image_id             = var.ami
   instance_type        = var.ssn_k8s_masters_shape
   key_name             = var.key_name
@@ -76,7 +80,7 @@ resource "aws_launch_configuration" "ssn_k8s_launch_conf_masters" {
 }
 
 resource "aws_launch_configuration" "ssn_k8s_launch_conf_workers" {
-  name                 = "${var.service_base_name}-ssn-launch-conf-workers"
+  name                 = local.ssn_k8s_launch_conf_workers_name
   image_id             = var.ami
   instance_type        = var.ssn_k8s_workers_shape
   key_name             = var.key_name
@@ -95,7 +99,7 @@ resource "aws_launch_configuration" "ssn_k8s_launch_conf_workers" {
 }
 
 resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
-  name                 = "${var.service_base_name}-ssn-masters"
+  name                 = local.ssn_k8s_ag_masters_name
   launch_configuration = aws_launch_configuration.ssn_k8s_launch_conf_masters.name
   min_size             = var.ssn_k8s_masters_count
   max_size             = var.ssn_k8s_masters_count
@@ -111,14 +115,29 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
   tags = [
     {
       key                 = "Name"
-      value               = "${var.service_base_name}-ssn-masters"
+      value               = local.ssn_k8s_ag_masters_name
+      propagate_at_launch = true
+    },
+    {
+      key                 = local.additional_tag[0]
+      value               = local.additional_tag[1]
+      propagate_at_launch = true
+    },
+    {
+      key                 = var.tag_resource_id
+      value               = "${var.service_base_name}:${local.ssn_k8s_ag_masters_name}"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "${var.service_base_name}-Tag"
+      value               = local.ssn_k8s_ag_masters_name
       propagate_at_launch = true
     }
   ]
 }
 
 resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_workers" {
-  name                 = "${var.service_base_name}-ssn-workers"
+  name                 = local.ssn_k8s_ag_workers_name
   launch_configuration = aws_launch_configuration.ssn_k8s_launch_conf_workers.name
   min_size             = var.ssn_k8s_workers_count
   max_size             = var.ssn_k8s_workers_count
@@ -131,7 +150,22 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_workers" {
   tags = [
     {
       key                 = "Name"
-      value               = "${var.service_base_name}-ssn-workers"
+      value               = local.ssn_k8s_ag_workers_name
+      propagate_at_launch = true
+    },
+    {
+      key                 = local.additional_tag[0]
+      value               = local.additional_tag[1]
+      propagate_at_launch = true
+    },
+    {
+      key                 = var.tag_resource_id
+      value               = "${var.service_base_name}:${local.ssn_k8s_ag_workers_name}"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "${var.service_base_name}-Tag"
+      value               = local.ssn_k8s_ag_workers_name
       propagate_at_launch = true
     }
   ]

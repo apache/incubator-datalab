@@ -52,6 +52,14 @@ variable "project_tag" {
   default = ""
 }
 
+variable "additional_tag" {
+  default = "product:dlab"
+}
+
+variable "tag_resource_id" {
+  default = "user:tag"
+}
+
 // SSN
 variable "service_base_name" {
   default = "dlab-k8s"

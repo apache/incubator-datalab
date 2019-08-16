@@ -20,19 +20,25 @@
 # ******************************************************************************
 
 locals {
-  subnet_name = "${var.service_base_name}-subnet"
-  sg_name     = "${var.service_base_name}-sg"
+  endpoint_subnet_name       = "${var.service_base_name}-subnet"
+  endpoint_sg_name           = "${var.service_base_name}-sg"
+  endpoint_vpc_name = "${var.service_base_name}-endpoint-vpc"
+  additional_tag       = split(":", var.additional_tag)
+  endpoint_igw_name = "${var.service_base_name}-endpoint-igw"
 }
 
 
 resource "aws_vpc" "vpc_create" {
-  cidr_block         = var.vpc_cidr
-  count              = var.vpc_id == "" ? 1 : 0
-  instance_tenancy   = "default"
+  cidr_block           = var.vpc_cidr
+  count                = var.vpc_id == "" ? 1 : 0
+  instance_tenancy     = "default"
   enable_dns_hostnames = true
   enable_dns_support   = true
-  tags = {
-    Name = "${var.service_base_name}-endpoint-vpc"
+  tags                 = {
+    Name                           = local.endpoint_vpc_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_vpc_name}"
+    "${var.service_base_name}-Tag" = local.endpoint_vpc_name
   }
 }
 
@@ -43,8 +49,11 @@ data "aws_vpc" "data_vpc" {
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.vpc_create.0.id
   count  = var.vpc_id == "" ? 1 : 0
-  tags = {
-    Name = "${var.service_base_name}-endpoint-vpc"
+  tags   = {
+    Name                           = local.endpoint_igw_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_igw_name}"
+    "${var.service_base_name}-Tag" = local.endpoint_igw_name
   }
 }
 
@@ -52,11 +61,11 @@ resource "aws_subnet" "endpoint_subnet" {
   vpc_id            = aws_vpc.vpc_create.0.id
   cidr_block        = var.subnet_cidr
   availability_zone = "${var.region}${var.zone}"
-  tags = {
-    Name = "${local.subnet_name}"
-    "${var.service_base_name}-Tag" = "${local.subnet_name}"
-    product = "${var.product}"
-    "user:tag" = "${var.service_base_name}:${local.subnet_name}"
+  tags              = {
+    Name                           = local.endpoint_subnet_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_subnet_name}"
+    "${var.service_base_name}-Tag" = local.endpoint_subnet_name
   }
   count = var.vpc_id == "" ? 1 : 0
 }
@@ -73,7 +82,7 @@ resource "aws_route" "route" {
 }
 
 resource "aws_security_group" "endpoint_sec_group" {
-  name        = "endpoint_sec_group"
+  name        = local.endpoint_sg_name
   vpc_id      = data.aws_vpc.data_vpc.id
   ingress {
     from_port   = 22
@@ -104,8 +113,9 @@ resource "aws_security_group" "endpoint_sec_group" {
   }
 
   tags = {
-  Name = "${local.sg_name}"
-  product = "${var.product}"
-  "user:tag" = "${var.service_base_name}:${local.sg_name}"
+    Name                           = local.endpoint_sg_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_sg_name}"
+    "${var.service_base_name}-Tag" = local.endpoint_sg_name
   }
 }

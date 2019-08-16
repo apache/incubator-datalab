@@ -19,32 +19,74 @@
 #
 # ******************************************************************************
 
-locals {
-  ssn_s3_name = "${var.service_base_name}-ssn-bucket"
-  ssn_s3_shared_name = "${var.service_base_name}-shared-bucket"
-}
+variable "project_name" {}
 
-resource "aws_s3_bucket" "ssn_k8s_bucket" {
-  bucket = local.ssn_s3_name
-  acl    = "private"
-  tags   = {
-    Name                           = local.ssn_s3_name
-    "${local.additional_tag[0]}"      = local.additional_tag[1]
-    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_s3_name}"
-    "${var.service_base_name}-Tag" = local.ssn_s3_name
+variable "sbn" {}
+
+variable "project_tag" {}
+
+variable "endpoint_tag" {}
+
+variable "user_tag" {}
+
+variable "custom_tag" {}
+
+variable "notebook_name" {}
+
+variable "region" {}
+
+variable "product" {}
+
+variable "ami" {}
+
+variable "instance_type" {}
+
+variable "ssh_key" {}
+
+variable "initial_user" {}
+
+variable "subnet_id" {}
+
+variable "nb-sg_id" {}
+
+variable "resource_group" {}
+
+variable "ami_publisher" {
+  type = "map"
+  default = {
+    debian = "Canonical"
+    redhat = "RedHat"
+    custom = ""
   }
-  force_destroy = true
 }
 
-resource "aws_s3_bucket" "ssn_k8s_shared_bucket" {
-  bucket = local.ssn_s3_shared_name
-  acl    = "private"
-  tags   = {
-    Name                           = local.ssn_s3_shared_name
-    "${local.additional_tag[0]}"      = local.additional_tag[1]
-    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_s3_shared_name}"
-    "${var.service_base_name}-Tag" = local.ssn_s3_shared_name
+variable "ami_offer" {
+  type = "map"
+  default = {
+    debian = "UbuntuServer"
+    redhat = "RHEL"
+    custom = ""
   }
-  force_destroy = true
 }
 
+variable "ami_sku" {
+  type = "map"
+  default = {
+    debian = "16.04-LTS"
+    redhat = "7.3"
+    custom = ""
+  }
+}
+
+variable "ami_version" {
+  type = "map"
+  default = {
+    debian = "16.04.201907290"
+    redhat = "7.3.2017090800"
+    custom = ""
+  }
+}
+
+variable "custom_ami" {}
+
+variable "os_env" {}

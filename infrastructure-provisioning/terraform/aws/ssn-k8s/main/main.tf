@@ -90,3 +90,7 @@ output "ssn_k8s_masters_shape" {
 output "zone" {
   value = var.zone
 }
+
+output "tag_resource_id" {
+  value = var.tag_resource_id
+}

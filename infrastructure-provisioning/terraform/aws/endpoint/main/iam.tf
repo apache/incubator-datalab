@@ -20,9 +20,9 @@
 # ******************************************************************************
 
 locals {
-  role_name    = "${var.service_base_name}-endpoint-role"
-  role_profile = "${var.service_base_name}-endpoint-profile"
-  policy_name  = "${var.service_base_name}-endpoint-policy"
+  endpoint_role_name    = "${var.service_base_name}-endpoint-role"
+  endpoint_role_profile = "${var.service_base_name}-endpoint-profile"
+  endpoint_policy_name  = "${var.service_base_name}-endpoint-policy"
 }
 
 data "template_file" "endpoint_policy" {
@@ -30,22 +30,23 @@ data "template_file" "endpoint_policy" {
 }
 
 resource "aws_iam_role" "endpoint_role" {
-  name               = local.role_name
+  name               = local.endpoint_role_name
   assume_role_policy = file("./files/assume-policy.json")
   tags = {
-    product = "${var.product}"
-    Name = "${local.role_name}"
-    "${var.service_base_name}-Tag" = "${local.role_name}"
+    Name = "${local.endpoint_role_name}"
+    "${local.additional_tag[0]}" = local.additional_tag[1]
+    "${var.tag_resource_id}" = "${var.service_base_name}:${local.endpoint_role_name}"
+    "${var.service_base_name}-Tag" = local.endpoint_role_name
   }
 }
 
 resource "aws_iam_instance_profile" "endpoint_profile" {
-  name = local.role_profile
+  name = local.endpoint_role_profile
   role = aws_iam_role.endpoint_role.name
 }
 
 resource "aws_iam_policy" "endpoint_policy" {
-  name   = local.policy_name
+  name   = local.endpoint_policy_name
   policy = data.template_file.endpoint_policy.rendered
 }
 

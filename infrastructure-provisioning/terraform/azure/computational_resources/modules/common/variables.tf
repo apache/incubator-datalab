@@ -19,47 +19,30 @@
 #
 # ******************************************************************************
 
-variable "service_base_name" {}
+variable "project_name" {}
 
-variable "access_key_id" {
-  default = ""
-}
-variable "secret_access_key" {
-  default = ""
-}
+variable "sbn" {}
+
+variable "project_tag" {}
+
+variable "endpoint_tag" {}
+
+variable "user_tag" {}
+
+variable "custom_tag" {}
+
+variable "notebook_name" {}
 
 variable "region" {}
 
-variable "zone" {}
-
 variable "product" {}
 
-variable "subnet_cidr" {}
+variable "vpc" {}
 
-variable "endpoint_instance_shape" {}
+variable "cidr_range" {}
 
-variable "key_name" {}
+variable "traefik_cidr" {}
 
-variable "ami" {}
+variable "instance_type" {}
 
-variable "vpc_id" {}
-
-variable "ssn_subnet" {}
-
-variable "network_type" {}
-
-variable "vpc_cidr" {}
-
-variable "endpoint_volume_size" {}
-
-variable "endpoint_eip_allocation_id" {}
-
-variable "endpoint_id" {}
-
-variable "additional_tag" {
-  default = "product:dlab"
-}
-
-variable "tag_resource_id" {
-  default = "user:tag"
-}
+variable "resource_group" {}

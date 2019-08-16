@@ -120,6 +120,59 @@ variable "env_os" {}
 
 variable "ssn_k8s_masters_shape" {}
 
+variable "tag_resource_id" {}
+
+variable "billing_bucket" {
+    default = ""
+}
+
+variable "billing_bucket_path" {
+    default = ""
+}
+
+variable "billing_aws_job_enabled" {
+    default = "false"
+}
+
+variable "billing_aws_account_id" {
+    default = ""
+}
+
+variable "billing_tag" {
+    default = "dlab"
+}
+
+variable "billing_dlab_id" {
+    default = "resource_tags_user_user_tag"
+}
+
+variable "billing_usage_date" {
+    default = "line_item_usage_start_date"
+}
+
+variable "billing_product" {
+    default = "product_product_name"
+}
+
+variable "billing_usage_type" {
+    default = "line_item_usage_type"
+}
+
+variable "billing_usage" {
+    default = "line_item_usage_amount"
+}
+
+variable "billing_cost" {
+    default = "line_item_blended_cost"
+}
+
+variable "billing_resource_id" {
+    default = "line_item_resource_id"
+}
+
+variable "billing_tags" {
+    default = "line_item_operation,line_item_line_item_description"
+}
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

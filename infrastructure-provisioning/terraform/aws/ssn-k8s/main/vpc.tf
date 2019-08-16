@@ -19,6 +19,18 @@
 #
 # ******************************************************************************
 
+locals {
+  additional_tag       = split(":", var.additional_tag)
+  ssn_vpc_name      = "${var.service_base_name}-ssn-vpc"
+  ssn_igw_name      = "${var.service_base_name}-ssn-igw"
+  ssn_subnet_a_name = "${var.service_base_name}-ssn-subnet-az-a"
+  ssn_subnet_b_name = "${var.service_base_name}-ssn-subnet-az-b"
+  ssn_subnet_c_name = "${var.service_base_name}-ssn-subnet-az-c"
+  endpoint_ip_name  = "${var.service_base_name}-endpoint-eip"
+  endpoint_rt_name  = "${var.service_base_name}-endpoint-rt"
+  endpoint_s3_name  = "${var.service_base_name}-endpoint-s3"
+}
+
 resource "aws_vpc" "ssn_k8s_vpc" {
   count = var.vpc_id == "" ? 1 : 0
   cidr_block           = var.vpc_cidr
@@ -27,7 +39,10 @@ resource "aws_vpc" "ssn_k8s_vpc" {
   enable_dns_support   = true
 
   tags = {
-    Name = "${var.service_base_name}-ssn-vpc"
+    Name                           = local.ssn_vpc_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_vpc_name}"
+    "${var.service_base_name}-Tag" = local.ssn_vpc_name
   }
 }
 
@@ -36,7 +51,10 @@ resource "aws_internet_gateway" "ssn_k8s_igw" {
   vpc_id = aws_vpc.ssn_k8s_vpc.0.id
 
   tags = {
-    Name = "${var.service_base_name}-ssn-igw"
+    Name                           = local.ssn_igw_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_igw_name}"
+    "${var.service_base_name}-Tag" = local.ssn_igw_name
   }
 }
 
@@ -59,7 +77,10 @@ resource "aws_subnet" "ssn_k8s_subnet_a" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.service_base_name}-ssn-subnet-az-a"
+    Name                           = local.ssn_subnet_a_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_subnet_a_name}"
+    "${var.service_base_name}-Tag" = local.ssn_subnet_a_name
   }
 }
 
@@ -71,7 +92,10 @@ resource "aws_subnet" "ssn_k8s_subnet_b" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.service_base_name}-ssn-subnet-az-b"
+    Name                           = local.ssn_subnet_b_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_subnet_b_name}"
+    "${var.service_base_name}-Tag" = local.ssn_subnet_b_name
   }
 }
 
@@ -83,7 +107,10 @@ resource "aws_subnet" "ssn_k8s_subnet_c" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.service_base_name}-ssn-subnet-az-c"
+    Name                           = local.ssn_subnet_c_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_subnet_c_name}"
+    "${var.service_base_name}-Tag" = local.ssn_subnet_c_name
   }
 }
 
@@ -103,20 +130,32 @@ data "aws_subnet" "k8s-subnet-c-data" {
 resource "aws_eip" "k8s-endpoint-eip" {
   vpc      = true
   tags = {
-    Name = "${var.service_base_name}-endpoint-eip"
+    Name                           = local.endpoint_ip_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_ip_name}"
+    "${var.service_base_name}-Tag" = local.endpoint_ip_name
   }
 }
 
 resource "aws_route_table" "ssn-k8s-users-route-table" {
   vpc_id = data.aws_vpc.ssn_k8s_vpc_data.id
   tags = {
+    Name                           = local.endpoint_rt_name
     "${var.service_base_name}-Tag" = var.service_base_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_rt_name}"
   }
 }
 
 resource "aws_vpc_endpoint" "ssn-k8s-users-s3-endpoint" {
   vpc_id       = data.aws_vpc.ssn_k8s_vpc_data.id
   service_name = "com.amazonaws.${var.region}.s3"
+  tags = {
+    Name                           = local.endpoint_s3_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_s3_name}"
+    "${var.service_base_name}-Tag" = local.endpoint_s3_name
+  }
 }
 
 resource "aws_vpc_endpoint_route_table_association" "ssn-k8s-users-s3-route" {
