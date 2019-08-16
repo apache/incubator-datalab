@@ -150,6 +150,10 @@ if __name__ == "__main__":
         print("Install python3 specific version")
         ensure_python3_specific_version(python3_version, args.os_user)
 
+    # INSTALL GCLOUD
+    print("Install GCloud")
+    install_gcloud(args.os_user)
+
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
