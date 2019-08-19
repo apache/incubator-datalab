@@ -3,6 +3,7 @@ import itertools
 import json
 import logging
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -154,7 +155,12 @@ class Console:
         Returns:
             str: command result
         """
-        subprocess.run(command, shell=True)
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT, universal_newlines=True)
+        for line in p.stdout.readlines():
+            print(line)
+            if 'error' in line.lower():
+                sys.exit(0)
 
     @staticmethod
     def execute(command):
@@ -263,7 +269,7 @@ class TerraformProvider:
         logging.info(command)
         Console.execute_to_command_line(command)
         state_file = tf_params['-state']
-        state_file_backup = tf_params['-state']+'.backup'
+        state_file_backup = tf_params['-state'] + '.backup'
         if os.path.isfile(state_file):
             os.remove(state_file)
         if os.path.isfile(state_file_backup):
@@ -309,7 +315,8 @@ class AbstractDeployBuilder:
                 sys.exit(1)
         if self.use_tf_output_file:
             self.fill_sys_argv_from_file()
-        self.terraform_args = self.parse_args().get(self.terraform_args_group_name)
+        self.terraform_args = self.parse_args().get(
+            self.terraform_args_group_name)
 
     @property
     @abstractmethod
@@ -428,6 +435,16 @@ class AbstractDeployBuilder:
             for group, parser in parsers.items()
         }
 
+    def validate_params(self):
+        params = self.parse_args()[self.terraform_args_group_name]
+        if len(params.get('service_base_name')) > 12:
+            sys.stderr.write('service_base_name length should be less then 12')
+            sys.exit(1)
+        if not re.match("^[a-z0-9\-]+$", params.get('service_base_name')):
+            sys.stderr.write('service_base_name should contain only lowercase '
+                             'alphanumetic characters and hyphens')
+            sys.exit(1)
+
     def provision(self):
         """Execute terraform script
 
@@ -436,6 +453,7 @@ class AbstractDeployBuilder:
         Raises:
             TerraformProviderError: if init or validate fails
         """
+        self.validate_params()
         tf_location = self.terraform_location
         terraform = TerraformProvider()
         os.chdir(tf_location)
@@ -488,6 +506,16 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
     @property
     def terraform_args_group_name(self):
         return 'k8s'
+
+    def validate_params(self):
+        super(AWSK8sSourceBuilder, self).validate_params()
+        params = self.parse_args()[self.terraform_args_group_name]
+        if params.get('ssn_k8s_masters_count', 1) < 1:
+            sys.stderr.write('ssn_k8s_masters_count should be greater then 0')
+            sys.exit(1)
+        if params.get('ssn_k8s_workers_count', 3) < 3:
+            sys.stderr.write('ssn_k8s_masters_count should be minimum 3')
+            sys.exit(1)
 
     @property
     def cli_args(self):
@@ -809,6 +837,13 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
     @property
     def terraform_args_group_name(self):
         return 'endpoint'
+
+    def validate_params(self):
+        super(AWSEndpointBuilder, self).validate_params()
+        params = self.parse_args()[self.terraform_args_group_name]
+        if len(params.get('endpoint_id')) > 12:
+            sys.stderr.write('endpoint_id length should be less then 12')
+            sys.exit(1)
 
     @property
     def cli_args(self):
