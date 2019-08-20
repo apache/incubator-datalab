@@ -94,7 +94,8 @@ if __name__ == "__main__":
         notebook_config['service_base_name'], os.environ['application'])
     notebook_config['expected_secondary_image_name'] = '{}-{}-notebook-secondary-image'.format(
         notebook_config['service_base_name'], os.environ['application'])
-    notebook_config['notebook_primary_image_name'] = (lambda x: os.environ['notebook_primary_image_name'] if x != 'None'
+    notebook_config['notebook_primary_image_name'] = (lambda x: os.environ['notebook_primary_image_name'] if (
+            x != 'None' and x != '')
         else notebook_config['expected_primary_image_name'])(str(os.environ.get('notebook_primary_image_name')))
     print('Searching pre-configured images')
     notebook_config['primary_image_name'] = GCPMeta().get_image_by_name(notebook_config['expected_primary_image_name'])
