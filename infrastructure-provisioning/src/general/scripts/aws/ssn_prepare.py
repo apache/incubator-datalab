@@ -86,6 +86,10 @@ if __name__ == "__main__":
         all_ip_cidr = '0.0.0.0/0'
         elastic_ip_name = '{0}-ssn-EIP'.format(service_base_name)
 
+        if get_instance_by_name(tag_name, instance_name):
+            print("Service base name should be unique and less or equal 12 symbols. Please try again.")
+            sys.exit(1)
+
         try:
             if not os.environ['aws_vpc_id']:
                 raise KeyError
