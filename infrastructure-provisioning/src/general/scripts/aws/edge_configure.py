@@ -37,7 +37,8 @@ if __name__ == "__main__":
 
     print('Generating infrastructure names and tags')
     edge_conf = dict()
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['user_key'] = os.environ['key']
     edge_conf['instance_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'], os.environ['project_name'])

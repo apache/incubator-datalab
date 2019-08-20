@@ -29,6 +29,11 @@ table {
       display: inline-block;
       padding-top: 10px;
       vertical-align: super !important;
+      padding-left: 5px;
+    }
+
+    th {
+      text-align: center;
     }
   }
 
@@ -59,6 +64,7 @@ table {
   .name-col {
     width: 20%;
     padding-left: 24px;
+    padding-right: 5px;
   }
 
   .status-col {
