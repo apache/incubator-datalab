@@ -25,7 +25,8 @@ import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dic
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
   styleUrls: ['./reporting-grid.component.scss',
-    '../../resources/resources-grid/resources-grid.component.scss']
+    '../../resources/resources-grid/resources-grid.component.scss'],
+
 })
 export class ReportingGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
@@ -33,7 +34,8 @@ export class ReportingGridComponent implements OnInit {
   filterConfiguration: ReportingConfigModel;
   filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '');
   collapseFilterRow: boolean = false;
-  reportData: any;
+  reportData: Array<any> = [];
+  fullReport: Array<any>;
   isFiltered: boolean = false;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
@@ -41,10 +43,17 @@ export class ReportingGridComponent implements OnInit {
   displayedColumns: string[] = ['name', 'user', 'type', 'status', 'shape', 'service', 'charge'];
   displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
 
+  constructor() { }
+
   ngOnInit() { }
 
   onUpdate($event): void {
     this.filteredReportData[$event.type] = $event.model;
+  }
+
+  refreshData(fullReport, report) {
+    this.reportData = [...report];
+    this.fullReport = fullReport;
   }
 
   setFullReport(data): void {
