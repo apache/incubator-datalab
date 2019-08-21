@@ -61,3 +61,16 @@ billing:
     db_name: ${mongo_db_name}
   service_base_name: ${service_base_name}
   tag_resource_id: ${tag_resource_id}
+  bucket: ${billing_bucket}
+  path: ${billing_bucket_path}
+  aws_job_enabled: ${billing_aws_job_enabled}
+  account_id: ${billing_aws_account_id}
+  tag: ${billing_tag}
+  dlab_id: ${billing_dlab_id}
+  usage_date: ${billing_usage_date}
+  product: ${billing_product}
+  usage_type: ${billing_usage_type}
+  usage: ${billing_usage}
+  cost: ${billing_cost}
+  resource_id: ${billing_resource_id}
+  tags: ${billing_tags}

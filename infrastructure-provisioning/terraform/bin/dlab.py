@@ -615,6 +615,51 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--ssn_vpc_id', 'ssn vpc id', group='helm_charts')
          .add_str('--tag_resource_id', 'Tag resource ID.',
                   default='user:tag', group=('k8s', 'helm_charts'))
+         .add_str('--additional_tag', 'Additional tag.',
+                  default='product:dlab', group='k8s')
+         .add_str('--billing_bucket', 'Billing bucket name', group='helm_charts')
+         .add_str('--billing_bucket_path',
+                  'The path to billing reports directory in S3 bucket', default='',
+                  group='helm_charts')
+         .add_str('--billing_aws_job_enabled',
+                  'Billing format. Available options: true (aws), false(epam)', default='false',
+                  group='helm_charts')
+         .add_str('--billing_aws_account_id',
+                  'The ID of Amazon account', default='',
+                  group='helm_charts')
+         .add_str('--billing_dlab_id',
+                  'Column name in report file that contains dlab id tag',
+                  default='resource_tags_user_user_tag',
+                  group='helm_charts')
+         .add_str('--billing_usage_date',
+                  'Column name in report file that contains usage date tag',
+                  default='line_item_usage_start_date',
+                  group='helm_charts')
+         .add_str('--billing_product',
+                  'Column name in report file that contains product name tag',
+                  default='product_product_name',
+                  group='helm_charts')
+         .add_str('--billing_usage_type',
+                  'Column name in report file that contains usage type tag',
+                  default='line_item_usage_type',
+                  group='helm_charts')
+         .add_str('--billing_usage',
+                  'Column name in report file that contains usage tag',
+                  default='line_item_usage_amount',
+                  group='helm_charts')
+         .add_str('--billing_cost',
+                  'Column name in report file that contains cost tag',
+                  default='line_item_blended_cost',
+                  group='helm_charts')
+         .add_str('--billing_resource_id',
+                  'Column name in report file that contains dlab resource id tag',
+                  default='line_item_resource_id',
+                  group='helm_charts')
+         .add_str('--billing_tags',
+                  'Column name in report file that contains tags',
+                  default='line_item_operation,line_item_line_item_description',
+                  group='helm_charts')
+         .add_str('--billing_tag', 'Billing tag', default='dlab', group='helm_charts')
          # Tmp for jenkins job
          .add_str('--endpoint_id', 'Endpoint Id',
                   default='user:tag', group=())
@@ -863,6 +908,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   group='endpoint')
          .add_str('--product', 'Product name.', default='dlab',
                   group='endpoint')
+         .add_str('--additional_tag', 'Additional tag.',
+                  default='product:dlab', group='endpoint')
          )
         return params.build()
 

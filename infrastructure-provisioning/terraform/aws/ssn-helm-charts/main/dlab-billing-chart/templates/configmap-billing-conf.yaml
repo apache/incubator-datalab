@@ -47,10 +47,10 @@ data:
     # Adapter for reading source data. Known types: file, s3file
     adapterIn:
       - type: s3file
-        bucket: dlab-billing-reports
-        path:
-        awsJobEnabled: false
-        accountId: 203753054073
+        bucket: {{ .Values.billing.bucket }}
+        path: {{ .Values.billing.path }}
+        awsJobEnabled: {{ .Values.billing.aws_job_enabled }}
+        accountId: {{ .Values.billing.account_id }}
         accessKeyId:
         secretAccessKey:
 
@@ -69,7 +69,7 @@ data:
     filter:
       - type: aws
         currencyCode: USD
-        columnDlabTag: user:{{ .Values.billing.tag_resource_id }}
+        columnDlabTag: {{ .Values.billing.tag }}
         serviceBaseName: {{ .Values.billing.service_base_name }}
 
 
@@ -79,9 +79,9 @@ data:
         headerLineNo: 1
         skipLines: 1
         columnMapping: >-
-          dlab_id=user:user:tag;usage_date=UsageStartDate;product=ProductName;
-          usage_type=UsageType;usage=UsageQuantity;cost=BlendedCost;
-          resource_id=ResourceId;tags=Operation,ItemDescription
+          dlab_id={{ .Values.billing.dlab_id }};usage_date={{ .Values.billing.usage_date }};product={{ .Values.billing.product }};
+          usage_type={{ .Values.billing.usage_type }};usage={{ .Values.billing.usage }};cost={{ .Values.billing.cost }};
+          resource_id={{ .Values.billing.resource_id }};tags={{ .Values.billing.tags }}
         aggregate: day
 
 

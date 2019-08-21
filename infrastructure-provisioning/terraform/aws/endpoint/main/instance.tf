@@ -37,9 +37,10 @@ resource "aws_instance" "endpoint" {
   }
   tags = {
     Name                           = local.endpoint_instance_name
-    "${local.billing_tag[0]}"      = local.billing_tag[1]
+    "${local.additional_tag[0]}"   = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_instance_name}"
     "${var.service_base_name}-Tag" = local.endpoint_instance_name
+    endpoint_id                    = var.endpoint_id
   }
 }
 
