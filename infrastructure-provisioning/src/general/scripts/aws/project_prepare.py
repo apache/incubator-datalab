@@ -69,7 +69,7 @@ if __name__ == "__main__":
                                                                  os.environ['project_name'])
     project_conf['edge_policy_name'] = '{}-{}-edge-Policy'.format(project_conf['service_base_name'].lower().replace('-', '_'),
                                                           os.environ['project_name'])
-    project_conf['edge_security_group_name'] = '{}-SG'.format(project_conf['edge_instance_name'])
+    project_conf['edge_security_group_name'] = '{}-sg'.format(project_conf['edge_instance_name'])
     project_conf['notebook_instance_name'] = '{}-{}-nb'.format(project_conf['service_base_name'],
                                                             os.environ['project_name'])
     project_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
     project_conf['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    project_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(project_conf['service_base_name'],
+    project_conf['notebook_security_group_name'] = '{}-{}-nb-sg'.format(project_conf['service_base_name'],
                                                                      os.environ['project_name'])
     project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
     project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'],
