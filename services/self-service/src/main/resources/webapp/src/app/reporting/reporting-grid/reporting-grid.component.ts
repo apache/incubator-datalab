@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 
 import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dictionary';
 
@@ -38,12 +38,12 @@ export class ReportingGridComponent implements OnInit {
   fullReport: Array<any>;
   isFiltered: boolean = false;
 
+  @ViewChild('nameFilter') filter;
+
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
   displayedColumns: string[] = ['name', 'user', 'type', 'status', 'shape', 'service', 'charge'];
   displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
-
-  constructor() { }
 
   ngOnInit() { }
 
@@ -79,6 +79,7 @@ export class ReportingGridComponent implements OnInit {
   resetFiltering(): void {
     this.filteredReportData.defaultConfigurations();
 
+    this.filter.nativeElement.value = ''
     this.filterReport.emit(this.filteredReportData);
     this.resetRangePicker.emit(true);
   }

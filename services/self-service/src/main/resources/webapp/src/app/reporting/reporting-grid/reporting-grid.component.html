@@ -80,7 +80,7 @@
     <!-- ----------------FILTER -->
     <ng-container matColumnDef="name-filter" sticky>
       <th mat-header-cell *matHeaderCellDef>
-        <input type="text" placeholder="Filter by environment name" class="form-control filter-field"
+        <input #nameFilter type="text" placeholder="Filter by environment name" class="form-control filter-field"
           [value]="filtered?.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
       </th>
     </ng-container>
