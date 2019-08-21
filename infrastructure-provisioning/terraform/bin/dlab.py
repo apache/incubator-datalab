@@ -161,11 +161,16 @@ class Console:
         Returns:
             str: command result
         """
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT, universal_newlines=True)
-        for line in p.stdout.readlines():
-            print(line)
-            if 'error' in line.lower():
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT,
+                                   universal_newlines=True)
+
+        while True:
+            nextline = process.stdout.readline()
+            print(nextline)
+            if nextline == '' and process.poll() is not None:
+                break
+            if 'error' in nextline.lower():
                 sys.exit(0)
 
     @staticmethod
