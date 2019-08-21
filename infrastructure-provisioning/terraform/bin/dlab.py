@@ -118,8 +118,14 @@ class ParamsBuilder:
         self.__params = []
 
     def add(self, arg_type, name, desc, **kwargs):
+        default_group = ['all_args']
+        if isinstance(kwargs.get('group'), str):
+            default_group.append(kwargs.get('group'))
+        if isinstance(kwargs.get('group'), (list, tuple)):
+            default_group.extend(kwargs.get('group'))
+
         parameter = {
-            'group': kwargs.get('group'),
+            'group': default_group,
             'name': name,
             'props': {
                 'help': desc,
@@ -509,12 +515,16 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
     def validate_params(self):
         super(AWSK8sSourceBuilder, self).validate_params()
-        params = self.parse_args()[self.terraform_args_group_name]
+        params = self.parse_args()['all_args']
         if params.get('ssn_k8s_masters_count', 1) < 1:
             sys.stderr.write('ssn_k8s_masters_count should be greater then 0')
             sys.exit(1)
         if params.get('ssn_k8s_workers_count', 3) < 3:
             sys.stderr.write('ssn_k8s_masters_count should be minimum 3')
+            sys.exit(1)
+        # Temporary condition for Jenkins job
+        if 'endpoint_id' in params and len(params.get('endpoint_id')) > 12:
+            sys.stderr.write('endpoint_id length should be less then 12')
             sys.exit(1)
 
     @property
@@ -600,6 +610,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--ssn_vpc_id', 'ssn vpc id', group='helm_charts')
          .add_str('--tag_resource_id', 'Tag resource ID.',
                   default='user:tag', group=('k8s', 'helm_charts'))
+         # Tmp for jenkins job
+         .add_str('--endpoint_id', 'Endpoint Id',
+                  default='user:tag', group=())
          )
         return params.build()
 
