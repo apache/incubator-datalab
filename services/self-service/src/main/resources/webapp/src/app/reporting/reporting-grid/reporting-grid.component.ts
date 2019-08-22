@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 
 import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dictionary';
 
@@ -25,7 +25,8 @@ import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dic
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
   styleUrls: ['./reporting-grid.component.scss',
-    '../../resources/resources-grid/resources-grid.component.scss']
+    '../../resources/resources-grid/resources-grid.component.scss'],
+
 })
 export class ReportingGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
@@ -33,8 +34,11 @@ export class ReportingGridComponent implements OnInit {
   filterConfiguration: ReportingConfigModel;
   filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '');
   collapseFilterRow: boolean = false;
-  reportData: any;
+  reportData: Array<any> = [];
+  fullReport: Array<any>;
   isFiltered: boolean = false;
+
+  @ViewChild('nameFilter') filter;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
@@ -45,6 +49,11 @@ export class ReportingGridComponent implements OnInit {
 
   onUpdate($event): void {
     this.filteredReportData[$event.type] = $event.model;
+  }
+
+  refreshData(fullReport, report) {
+    this.reportData = [...report];
+    this.fullReport = fullReport;
   }
 
   setFullReport(data): void {
@@ -70,6 +79,7 @@ export class ReportingGridComponent implements OnInit {
   resetFiltering(): void {
     this.filteredReportData.defaultConfigurations();
 
+    this.filter.nativeElement.value = ''
     this.filterReport.emit(this.filteredReportData);
     this.resetRangePicker.emit(true);
   }
