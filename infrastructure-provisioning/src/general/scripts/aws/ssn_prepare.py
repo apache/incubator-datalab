@@ -81,7 +81,7 @@ if __name__ == "__main__":
         allowed_ip_cidr = list()
         for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
             allowed_ip_cidr.append({"CidrIp": cidr.replace(' ','')})
-        sg_name = instance_name + '-SG'
+        sg_name = instance_name + '-sg'
         network_type = os.environ['conf_network_type']
         all_ip_cidr = '0.0.0.0/0'
         elastic_ip_name = '{0}-ssn-EIP'.format(service_base_name)
