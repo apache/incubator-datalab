@@ -33,7 +33,7 @@ table {
     }
 
     th {
-      text-align: center;
+      // text-align: center;
     }
   }
 
@@ -62,18 +62,23 @@ table {
   }
 
   .name-col {
-    width: 20%;
+    width: 18%;
     padding-left: 24px;
     padding-right: 5px;
   }
 
   .status-col {
-    width: 16%;
+    width: 14%;
     padding: 5px;
   }
 
   .shape-col {
-    width: 16%;
+    width: 14%;
+    padding: 5px;
+  }
+
+  .tag-col {
+    width: 10%;
     padding: 5px;
   }
 
