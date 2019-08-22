@@ -86,7 +86,7 @@ if __name__ == "__main__":
     emr_conf['region'] = os.environ['aws_region']
     emr_conf['release_label'] = os.environ['emr_version']
     emr_conf['edge_instance_name'] = '{0}-{1}-edge'.format(emr_conf['service_base_name'], os.environ['project_name'])
-    emr_conf['edge_security_group_name'] = '{0}-SG'.format(emr_conf['edge_instance_name'])
+    emr_conf['edge_security_group_name'] = '{0}-sg'.format(emr_conf['edge_instance_name'])
     emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
     emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
     emr_conf['instance_count'] = os.environ['emr_instance_count']
