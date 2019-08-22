@@ -48,7 +48,6 @@ table {
         border-bottom: 1px solid #d9d9d9;
       }
     }
-
   }
 
   .filter-row {
@@ -80,6 +79,18 @@ table {
   .tag-col {
     width: 10%;
     padding: 5px;
+
+    mat-chip {
+      min-height: 20px;
+      padding: 5px 10px;
+      font-size: 13px;
+      max-width: 110px !important;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      line-height: 10px;
+      margin: 2px;
+    }
   }
 
   .resources-col {
