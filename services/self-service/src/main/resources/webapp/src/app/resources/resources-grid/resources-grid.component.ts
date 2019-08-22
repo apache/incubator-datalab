@@ -82,13 +82,6 @@ export class ResourcesGridComponent implements OnInit {
 
 
 
-
-
-
-
-
-
-
   constructor(
     public toastr: ToastrService,
     private userResourceService: UserResourceService,
@@ -204,15 +197,16 @@ export class ResourcesGridComponent implements OnInit {
 
 
   isResourcesInProgress(notebook) {
-    // const filteredEnv = this.environments.find(env => env.exploratory.find(el => el.name === notebook.name));
+    const env = this.getEnvironmentsListCopy().filter(env => env.exploratory.find(el => el.name === notebook.name))[0];
+    let resource = [];
 
-    // if (filteredEnv && filteredEnv.resources.length) {
-    //   return filteredEnv.resources.filter(resource => (
-    //     resource.status !== 'failed'
-    //     && resource.status !== 'terminated'
-    //     && resource.status !== 'running'
-    //     && resource.status !== 'stopped')).length > 0;
-    // }
+    if (env) resource = env.exploratory[0].resources;
+
+    if (resource.length) {
+      return resource.filter(item => (
+        item.status !== 'failed' && item.status !== 'terminated'
+        && item.status !== 'running' && item.status !== 'stopped')).length > 0;
+    }
     return false;
   }
 
