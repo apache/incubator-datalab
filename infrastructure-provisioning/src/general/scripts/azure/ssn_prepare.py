@@ -94,6 +94,10 @@ if __name__ == "__main__":
         print("Failed to generate variables dictionary." + str(err))
         sys.exit(1)
 
+    if AzureMeta().get_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name']):
+        print("Service base name should be unique and less or equal 12 symbols. Please try again.")
+        sys.exit(1)
+
     try:
         if 'azure_resource_group_name' in os.environ:
             logging.info('Resource group predefined')
