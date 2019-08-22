@@ -111,10 +111,10 @@
 
           <td class="tag-col selection">
             <mat-chip-list aria-label="Fish selection">
-              <mat-chip>{{ element.tags.endpoint_tag }}</mat-chip>
-              <mat-chip>{{ element.tags.custom_tag }}</mat-chip>
-              <mat-chip>{{ element.tags.user_tag }}</mat-chip>
-              <mat-chip>{{ element.tags.project_tag }}</mat-chip>
+              <mat-chip matTooltip="Endpoint tag" matTooltipPosition="above">{{ element.tags.endpoint_tag }}</mat-chip>
+              <mat-chip matTooltip="Custom tag" matTooltipPosition="above">{{ element.tags.custom_tag }}</mat-chip>
+              <mat-chip matTooltip="User tag" matTooltipPosition="above">{{ element.tags.user_tag }}</mat-chip>
+              <mat-chip matTooltip="Project tag" matTooltipPosition="above">{{ element.tags.project_tag }}</mat-chip>
             </mat-chip-list>
           </td>
 
