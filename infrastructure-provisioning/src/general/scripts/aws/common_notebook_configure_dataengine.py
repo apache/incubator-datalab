@@ -52,7 +52,8 @@ if __name__ == "__main__":
             notebook_config['computational_name'] = os.environ['computational_name']
         except:
             notebook_config['computational_name'] = ''
-        notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         notebook_config['region'] = os.environ['aws_region']
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
         notebook_config['project_name'] = os.environ['project_name']

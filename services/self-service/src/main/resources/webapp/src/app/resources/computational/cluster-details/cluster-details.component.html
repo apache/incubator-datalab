@@ -19,7 +19,7 @@
 
 <div class="detail-dialog" id="dialog-box">
   <header class="dialog-header header-white">
-      <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
     <div *ngIf="resource">
@@ -27,84 +27,114 @@
         <tr>
           <td class="tooltip-wrap" (mouseover)="isEllipsisActive($event)">
             <div class="hint-title ellipsis">{{resource.computational_name}}</div>
-            <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{resource.computational_name}}</div>
+            <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{resource.computational_name}}
+            </div>
           </td>
-            <td>
-              <span class="status" [ngClass]="resource.status || ''">
-                {{resource.status}}
-              </span>
-            </td>
+          <td>
+            <span class="status" [ngClass]="resource.status || ''">
+              {{resource.status}}
+            </span>
+          </td>
           <td>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</td>
         </tr>
       </table>
       <div class="detail-info content-box" *ngIf="!resource.error_message">
         <div class="row-wrap">
-          <div class="col"><p>Cluster type:</p></div>
+          <div class="col">
+            <p>Cluster type:</p>
+          </div>
           <div class="col"><span>{{ resource.template_name }}</span></div>
         </div>
         <div class="row-wrap" *ngIf="resource.image === 'docker.dlab-dataengine-service'">
-          <div class="col"><p>Cluster version:</p></div>
+          <div class="col">
+            <p>Cluster version:</p>
+          </div>
           <div class="col"><span>{{ resource[DICTIONARY.cluster_version] }}</span></div>
         </div>
         <div class="row-wrap">
-         <div class="col"><p>Cluster alias:</p></div>
-         <div class="col tooltip-wrap" (mouseover)="isEllipsisActive($event)">
-           <span>{{resource.computational_name}}</span>
-           <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{resource.computational_name}}</div>
-         </div>
+          <div class="col">
+            <p>Cluster alias:</p>
+          </div>
+          <div class="col tooltip-wrap" (mouseover)="isEllipsisActive($event)">
+            <span>{{resource.computational_name}}</span>
+            <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{resource.computational_name}}
+            </div>
+          </div>
         </div>
         <div class="row-wrap">
-          <div class="col" *ngIf="DICTIONARY.cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'; else inst"><p>{{ DICTIONARY[resource.image].master_instance_number }}:</p></div>
-          <ng-template #inst><div class="col"><p>{{ DICTIONARY[resource.image].instance_number }}:</p></div></ng-template>
+          <div class="col"
+            *ngIf="DICTIONARY.cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'; else inst">
+            <p>{{ DICTIONARY[resource.image].master_instance_number }}:</p>
+          </div>
+          <ng-template #inst>
+            <div class="col">
+              <p>{{ DICTIONARY[resource.image].instance_number }}:</p>
+            </div>
+          </ng-template>
           <div class="col"><span>{{ resource[DICTIONARY[resource.image].total_instance_number] }}</span></div>
         </div>
-        <div class="row-wrap" *ngIf="DICTIONARY.cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'">
-          <div class="col"><p>{{ DICTIONARY[resource.image].slave_instance_number }}:</p></div>
+        <div class="row-wrap"
+          *ngIf="DICTIONARY.cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'">
+          <div class="col">
+            <p>{{ DICTIONARY[resource.image].slave_instance_number }}:</p>
+          </div>
           <div class="col"><span>{{ resource[DICTIONARY[resource.image].total_slave_instance_number] }}</span></div>
         </div>
         <div class="row-wrap">
-         <div class="col"><p>{{ DICTIONARY[resource.image].data_engine_master_instance_size }}:</p></div>
-         <div class="col"><span>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</span></div>
+          <div class="col">
+            <p>{{ DICTIONARY[resource.image].data_engine_master_instance_size }}:</p>
+          </div>
+          <div class="col"><span>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</span></div>
         </div>
         <div class="row-wrap" *ngIf="resource.image === 'docker.dlab-dataengine-service'">
-         <div class="col"><p>{{ DICTIONARY[resource.image].data_engine_slave_instance_size }}:</p></div>
-         <div class="col"><span>{{ resource[DICTIONARY[resource.image].slave_node_shape] }}</span></div>
-        </div>
-        <div class="row-wrap">
-          <div *ngIf="resource.status === 'running'">
-            <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
+          <div class="col">
+            <p>{{ DICTIONARY[resource.image].data_engine_slave_instance_size }}:</p>
           </div>
-        </div>
-        <div class="m-top-10">
-          <p *ngFor="let item of resource.computational_url">
-            <strong>{{ item.description }}:</strong>&nbsp;
-            <a href="{{item.url}}" target="_blank">{{ item.url }}</a>
-          </p>
+          <div class="col"><span>{{ resource[DICTIONARY[resource.image].slave_node_shape] }}</span></div>
         </div>
 
-        <div class="checkbox-group" *ngIf="resource.image === 'docker.dlab-dataengine' && resource.status === 'running' && environment.image !== 'docker.dlab-zeppelin'">
+        <div *ngIf="resource.status === 'running'">
+          <div class="row-wrap">
+            <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
+          </div>
+          <div class="m-top-10">
+            <p *ngFor="let item of resource.computational_url">
+              <strong>{{ item.description }}:</strong>&nbsp;
+              <a href="{{item.url}}" target="_blank">{{ item.url }}</a>
+            </p>
+          </div>
+        </div>
+
+        <div class="checkbox-group"
+          *ngIf="resource.image === 'docker.dlab-dataengine' && resource.status === 'running' && environment.image !== 'docker.dlab-zeppelin'">
           <label>
-            <input #configurationNode type="checkbox" (change)="selectConfiguration()"/> Cluster configurations
+            <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
           </label>
           <div class="checkbox-group">
             <form [formGroup]="configurationForm" novalidate>
               <div class="config-details" [ngClass]="{ show: configuration?.nativeElement['checked'] || false }">
-                <textarea formControlName="configuration_parameters" placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
-                <span class="danger_color" *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration parameters is not in a valid format</span>
+                <textarea formControlName="configuration_parameters" placeholder="Cluster configuration template, JSON"
+                  data-gramm_editor="false"></textarea>
+                <span class="danger_color"
+                  *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration
+                  parameters is not in a valid format</span>
               </div>
             </form>
           </div>
         </div>
         <div *ngIf="environment.image === 'docker.dlab-zeppelin' && resource.status === 'running'">
-          <small>Spark default configuration for Apache Zeppelin can not be changed from DLab UI.  Currently it can be done directly through Apache Zeppelin interpreter menu.
-            For more details please refer for Apache Zeppelin <a href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official documentation</a>.
+          <small>Spark default configuration for Apache Zeppelin can not be changed from DLab UI. Currently it can be
+            done directly through Apache Zeppelin interpreter menu.
+            For more details please refer for Apache Zeppelin <a
+              href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official
+              documentation</a>.
           </small>
         </div>
         <div class="text-center m-top-30" *ngIf="configuration?.nativeElement['checked'] || false">
           <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
-          <button mat-raised-button type="submit" [disabled]="!configurationForm.valid"
-                  class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"
-                  (click)="editClusterConfiguration(configurationForm.value)">Update</button>
+          <button mat-raised-button type="submit" [disabled]="!configurationForm.valid" class="butt butt-success action"
+            [ngClass]="{'not-allowed': !configurationForm.valid}"
+            (click)="editClusterConfiguration(configurationForm.value)">Update</button>
         </div>
       </div>
 

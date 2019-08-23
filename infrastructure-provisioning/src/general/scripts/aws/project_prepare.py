@@ -41,8 +41,9 @@ if __name__ == "__main__":
     create_aws_config_files()
     print('Generating infrastructure names and tags')
     project_conf = dict()
-    project_conf['service_base_name'] = os.environ['conf_service_base_name']
-    project_conf['endpoint_name'] = '{0}-{1}-endpoint'.format(os.environ['conf_service_base_name'], os.environ['endpoint_name'])
+    project_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    project_conf['endpoint_name'] = '{0}-{1}-endpoint'.format(project_conf['service_base_name'], os.environ['endpoint_name'])
     project_conf['endpoint_tag'] = os.environ['endpoint_name']
     project_conf['project_name'] = os.environ['project_name']
     project_conf['project_tag'] = os.environ['project_name']
@@ -68,7 +69,7 @@ if __name__ == "__main__":
                                                                  os.environ['project_name'])
     project_conf['edge_policy_name'] = '{}-{}-edge-Policy'.format(project_conf['service_base_name'].lower().replace('-', '_'),
                                                           os.environ['project_name'])
-    project_conf['edge_security_group_name'] = '{}-SG'.format(project_conf['edge_instance_name'])
+    project_conf['edge_security_group_name'] = '{}-sg'.format(project_conf['edge_instance_name'])
     project_conf['notebook_instance_name'] = '{}-{}-nb'.format(project_conf['service_base_name'],
                                                             os.environ['project_name'])
     project_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
@@ -79,7 +80,7 @@ if __name__ == "__main__":
         .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
     project_conf['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    project_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(project_conf['service_base_name'],
+    project_conf['notebook_security_group_name'] = '{}-{}-nb-sg'.format(project_conf['service_base_name'],
                                                                      os.environ['project_name'])
     project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
     project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'],
@@ -120,12 +121,13 @@ if __name__ == "__main__":
           format(json.dumps(project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(project_conf))
 
-    try:
+    if 'conf_additional_tags' in os.environ:
         os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(project_conf['project_tag'], project_conf['endpoint_tag'])
-    except KeyError:
+    else:
         os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'], project_conf['endpoint_tag'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
+    # attach project_tag and endpoint_tag to endpoint
     try:
         endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
         print("Endpoint id: " + endpoint_id)

@@ -17,8 +17,8 @@
   ~ under the License.
   -->
 
-<section class="table-wrapper" *ngIf="reportData?.lines">
-  <table mat-table [dataSource]="reportData.lines" class="data-grid reporting mat-elevation-z6">
+<section class="table-wrapper">
+  <table mat-table [dataSource]="reportData" class="data-grid reporting mat-elevation-z6">
 
     <ng-container matColumnDef="name" sticky>
       <th mat-header-cell *matHeaderCellDef class="env_name"> Environment name </th>
@@ -72,16 +72,16 @@
         {{ element[DICTIONARY.billing.cost] }} {{ element[DICTIONARY.billing.currencyCode] }}
       </td>
       <td mat-footer-cell *matFooterCellDef>
-        <span *ngIf="reportData">{{ reportData[DICTIONARY.billing.costTotal] }}
-          {{ reportData[DICTIONARY.billing.currencyCode] }}</span>
+        <span *ngIf="reportData?.length">{{ fullReport[DICTIONARY.billing.costTotal] }}
+          {{ fullReport[DICTIONARY.billing.currencyCode] }}</span>
       </td>
     </ng-container>
 
     <!-- ----------------FILTER -->
     <ng-container matColumnDef="name-filter" sticky>
       <th mat-header-cell *matHeaderCellDef>
-        <input type="text" placeholder="Filter by environment name" class="form-control filter-field"
-          [value]="filteredReportData.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
+        <input #nameFilter type="text" placeholder="Filter by environment name" class="form-control filter-field"
+          [value]="filtered?.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
       </th>
     </ng-container>
     <ng-container matColumnDef="user-filter">
@@ -133,19 +133,17 @@
     </ng-container>
     <ng-container matColumnDef="placeholder">
       <td mat-footer-cell *matFooterCellDef colspan="7" class="info">
-        To start working, please, create new environment
+        No data available
       </td>
     </ng-container>
 
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
 
-    <ng-container *ngIf="reportData?.lines.length">
-      <tr mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true" class="filter-row"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true" class="filter-row"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="DATA"></tr>
 
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      <tr mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></tr>
-    </ng-container>
-    <tr [hidden]="reportData?.lines.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
+    <tr [hidden]="!reportData?.length" mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></tr>
+    <tr [hidden]="reportData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
   </table>
 </section>

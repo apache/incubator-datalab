@@ -57,6 +57,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       (value: Project[]) => {
         if (value) this.projectList = value;
       }));
+    this.refreshGrid();
   }
 
   ngOnDestroy() {
@@ -68,12 +69,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   createProject() {
-    console.log('create');
-
     if (this.projectList.length)
       this.dialog.open(EditProjectComponent, { data: { action: 'create', item: null }, panelClass: 'modal-xl-s' })
         .afterClosed().subscribe(() => {
           console.log('Create project');
+          this.getEnvironmentHealthStatus();
         });
   }
 
