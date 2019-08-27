@@ -361,6 +361,7 @@ if __name__ == "__main__":
                        "instance_id": edge_conf['instance_name'],
                        "full_edge_conf": edge_conf,
                        "project_name": os.environ['project_name'],
+                       "@class": "com.epam.dlab.dto.azure.edge.EdgeInfoAzure",
                        "Action": "Create new EDGE server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
