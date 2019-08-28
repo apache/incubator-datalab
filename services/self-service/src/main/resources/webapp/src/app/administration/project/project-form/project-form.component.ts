@@ -128,7 +128,7 @@ export class ProjectFormComponent implements OnInit {
   private initFormModel(): void {
     this.projectForm = this._fb.group({
       'key': ['', Validators.required],
-      'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this), this.providerMaxLength.bind(this)])],
+      'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.double), this.checkDuplication.bind(this), this.providerMaxLength.bind(this), this.checkCheck.bind(this)])],
       'endpoints': [[], Validators.required],
       'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
       'groups': [[], Validators.required]
@@ -181,5 +181,12 @@ export class ProjectFormComponent implements OnInit {
 
   private providerMaxLength(control) {
     return control.value.length <= DICTIONARY.max_project_name_length ? null : { limit: true };
+  }
+
+  private checkCheck(control) {
+    debugger;
+
+    if (RegExp(PATTERNS.double).test(control.value))
+      debugger;
   }
 }
