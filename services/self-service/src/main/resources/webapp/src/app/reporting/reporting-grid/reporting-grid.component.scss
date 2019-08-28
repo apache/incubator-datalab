@@ -25,6 +25,7 @@
   width: 100%;
   min-width: 1100px;
   overflow: auto;
+  border-collapse: inherit;
 
   .mat-cell {
     vertical-align: middle;
