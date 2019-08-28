@@ -17,6 +17,8 @@
  * under the License.
  */
 
+@import '_variables.scss';
+
 @-webkit-keyframes bounce {
   from {
     opacity: 0;
@@ -56,16 +58,18 @@
 }
 
 .time-picker {
-  .time-select{
+  .time-select {
     .not-allowed {
       pointer-events: none;
     }
   }
+
   .button {
     padding: 0;
     margin: 0;
     min-width: 44px;
   }
+
   mat-icon {
     cursor: pointer;
     color: #757575;
@@ -78,53 +82,72 @@
   margin: -24px;
   padding: 0;
 }
+
 .timepicker-dialog .mat-button-ripple.mat-button-ripple-round.mat-ripple {
   border-radius: 50%;
 }
 
 .time-cover {
   max-height: 100%;
-  min-height: 350px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+
   .container {
     padding: 15px;
     min-width: 160px;
     width: 160px;
+
     &.mat-toolbar-single-row {
+      background: $modal-header-color;
       width: 100%;
     }
   }
+
   .selected-time {
     font-size: 3.5rem;
     font-weight: 400;
     display: flex;
+
+    .active {
+      color: #36afd5;
+    }
   }
+
   .selected-meridiem {
     font-size: 1rem;
     line-height: 1.3rem;
     padding-top: 2rem;
+
+    .active {
+      color: #36afd5;
+    }
   }
+
   .cover-block {
     width: 100%;
     padding: 6px;
+
     .actions {
-      padding: 40px 40px 0;
+      padding: 10px 10px 30px;
+      text-align: center;
     }
   }
 }
 
-.selected-time > span,
-.selected-meridiem > span {
+.selected-time>span,
+.selected-meridiem>span {
   outline: 0;
   opacity: 0.5;
 }
 
-.selected-time > span:not(.active),
-.selected-meridiem > span:not(.active) {
+.selected-time>span:not(.active),
+.selected-meridiem>span:not(.active) {
   cursor: pointer;
 }
 
-.selected-time > span.active,
-.selected-meridiem > span.active {
+.selected-time>span.active,
+.selected-meridiem>span.active {
   opacity: 1;
 }
 
@@ -139,7 +162,7 @@
 
 .ticker-wrap {
   height: 100%;
-  padding: 0 24px;
+
   .ticker {
     width: 200px;
     height: 200px;
@@ -147,12 +170,15 @@
     cursor: pointer;
     padding: 24px;
     background: #ededed;
+    margin: 30px auto;
+
     .ticker-container {
       width: 100%;
       height: 100%;
       position: relative;
       display: block;
     }
+
     .ticker-center {
       height: 6px;
       width: 6px;
@@ -164,6 +190,7 @@
       margin: auto;
       border-radius: 50%;
     }
+
     .pointer {
       box-shadow: none;
       width: 1px;
@@ -179,16 +206,19 @@
       z-index: 0;
       pointer-events: none;
     }
+
     .ticker-step {
       display: block;
       position: absolute;
       transform: translate(-50%, -50%);
       transition: transform 200ms;
+
       .mat-mini-fab {
         box-shadow: none;
         background-color: transparent;
       }
     }
+
     .ticker-selected {
       position: absolute;
       bottom: -19px;

@@ -28,15 +28,15 @@
   </div>
 
   <mat-card *ngIf="stepperView" class="m-top-10">
-    <mat-horizontal-stepper #stepper  class="stepper ani">
+    <mat-horizontal-stepper #stepper class="stepper ani">
       <mat-step>
         <ng-template matStepLabel>Groups</ng-template>
         <div class="inner-step mat-reset">
           <input [validator]="groupValidarion()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup"
             #setupGroupName="ngModel">
-          <div class="danger_color" *ngIf="setupGroupName.errors?.patterns && setupGroupName.dirty">Group name can only
+          <div class="error" *ngIf="setupGroupName.errors?.patterns && setupGroupName.dirty">Group name can only
             contain letters, numbers, hyphens and '_'</div>
-          <div class="danger_color" *ngIf="setupGroupName.errors?.duplicate && setupGroupName.dirty">Group name already
+          <div class="error" *ngIf="setupGroupName.errors?.duplicate && setupGroupName.dirty">Group name already
             exists</div>
         </div>
         <div class="text-center m-bott-10">
@@ -88,7 +88,7 @@
               class="material-icons">keyboard_arrow_left</i>Back</button>
           <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
           <button mat-raised-button (click)="manageAction('create', 'group')" class="butt butt-success"
-            [disabled]="!setupGroup || setupGroupName.errors?.pattern || !setupRoles.length > 0">Create</button>
+            [disabled]="!setupGroup || setupGroupName.errors?.patterns || setupGroupName.errors?.duplicate || !setupRoles.length > 0">Create</button>
         </div>
       </mat-step>
     </mat-horizontal-stepper>
@@ -107,8 +107,8 @@
         <td mat-cell *matCellDef="let element" class="roles mat-reset">
           <div class="selector-wrapper-edit">
             <mat-form-field>
-              <mat-select multiple [compareWith]="compareObjects" name="selected_roles" [(value)]="element.selected_roles"
-                placeholder="Select roles">
+              <mat-select multiple [compareWith]="compareObjects" name="selected_roles"
+                [(value)]="element.selected_roles" placeholder="Select roles">
                 <mat-option class="multiple-select" disabled>
                   <a class="select ani" (click)="selectAllOptions(element, rolesList, 'selected_roles')">
                     <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -157,8 +157,9 @@
             <mat-icon>delete_forever</mat-icon>
           </span>
           <span class="apply ani" matTooltip="Group cannot be updated without any selected role"
-                matTooltipPosition="above" [matTooltipDisabled]="element.selected_roles.length > 0"
-                [ngClass]="{ 'not-allowed' : !element.selected_roles.length }" (click)="manageAction('update', 'group', element)">
+            matTooltipPosition="above" [matTooltipDisabled]="element.selected_roles.length > 0"
+            [ngClass]="{ 'not-allowed' : !element.selected_roles.length }"
+            (click)="manageAction('update', 'group', element)">
             <mat-icon>done</mat-icon>
           </span>
         </td>

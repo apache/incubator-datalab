@@ -13,7 +13,6 @@ import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.project.ProjectActionDTO;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.client.RESTService;
@@ -21,6 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -91,7 +91,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public void terminate(UserInfo userInfo, String name) {
-		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API);
+		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, getEndpoint(name));
 		exploratoryService.updateProjectExploratoryStatuses(name, UserInstanceStatus.TERMINATING);
 		projectDAO.updateStatus(name, ProjectDTO.Status.DELETING);
 	}
@@ -99,13 +99,18 @@ public class ProjectServiceImpl implements ProjectService {
 	@BudgetLimited
 	@Override
 	public void start(UserInfo userInfo, @Project String name) {
-		projectActionOnCloud(userInfo, name, START_PRJ_API);
+		getEndpoint(name);
+		projectActionOnCloud(userInfo, name, START_PRJ_API, getEndpoint(name));
 		projectDAO.updateStatus(name, ProjectDTO.Status.ACTIVATING);
+	}
+
+	private String getEndpoint(String project) {
+		return projectDAO.get(project).map(ProjectDTO::getEndpoints).orElse(Collections.singleton("")).iterator().next(); //TODO change hardcoded value
 	}
 
 	@Override
 	public void stop(UserInfo userInfo, String name) {
-		projectActionOnCloud(userInfo, name, STOP_PRJ_API);
+		projectActionOnCloud(userInfo, name, STOP_PRJ_API, getEndpoint(name));
 		projectDAO.updateStatus(name, ProjectDTO.Status.DEACTIVATING);
 	}
 
@@ -146,10 +151,10 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 
-	private void projectActionOnCloud(UserInfo user, String projectName, String provisioningApiUri) {
+	private void projectActionOnCloud(UserInfo user, String projectName, String provisioningApiUri, String endpoint) {
 		try {
 			String uuid = provisioningService.post(provisioningApiUri, user.getAccessToken(),
-					new ProjectActionDTO(projectName), String.class);
+					requestBuilder.newProjectAction(user, projectName, endpoint), String.class);
 			requestId.put(user.getName(), uuid);
 		} catch (Exception e) {
 			log.error("Can not terminate project due to: {}", e.getMessage());

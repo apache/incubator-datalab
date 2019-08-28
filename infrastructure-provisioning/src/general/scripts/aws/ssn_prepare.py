@@ -56,7 +56,8 @@ if __name__ == "__main__":
     try:
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
-        service_base_name = os.environ['conf_service_base_name']
+        service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
@@ -80,10 +81,14 @@ if __name__ == "__main__":
         allowed_ip_cidr = list()
         for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
             allowed_ip_cidr.append({"CidrIp": cidr.replace(' ','')})
-        sg_name = instance_name + '-SG'
+        sg_name = instance_name + '-sg'
         network_type = os.environ['conf_network_type']
         all_ip_cidr = '0.0.0.0/0'
-        elastic_ip_name = '{0}-ssn-EIP'.format(os.environ['conf_service_base_name'])
+        elastic_ip_name = '{0}-ssn-EIP'.format(service_base_name)
+
+        if get_instance_by_name(tag_name, instance_name):
+            print("Service base name should be unique and less or equal 12 symbols. Please try again.")
+            sys.exit(1)
 
         try:
             if not os.environ['aws_vpc_id']:

@@ -1082,7 +1082,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
             except:
                 spark_jars_paths = None
-        user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
+        user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['project_name']).\
             replace('_', '-') + '-storage'
         shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
         for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):

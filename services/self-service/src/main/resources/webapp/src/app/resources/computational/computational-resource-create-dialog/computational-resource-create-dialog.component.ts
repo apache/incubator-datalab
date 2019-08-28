@@ -79,7 +79,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.selectedImage = $event;
     this.getComputationalResourceLimits();
 
-    if ($event.templates)
+    if ($event.templates && $event.templates.length)
       this.resourceForm.controls['version'].setValue($event.templates[0].version)
   }
 
@@ -279,16 +279,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private containsComputationalResource(conputational_resource_name: string): boolean {
-    if (conputational_resource_name)
-      for (let index = 0; index < this.resourcesList.length; index++) {
-        if (this.notebook_instance.name === this.resourcesList[index].name) {
-          for (let iindex = 0; iindex < this.resourcesList[index].resources.length; iindex++) {
-            const computational_name = this.resourcesList[index].resources[iindex].computational_name.toString().toLowerCase();
-            if (CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(computational_name))
-              return true;
-          }
-        }
-      }
-    return false;
+    if (conputational_resource_name) {
+      return this.resourcesList.filter(project => project.exploratory.some(item =>
+        item.resources.some(resource =>
+          CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource.computational_name))
+      )).length > 0;
+    }
   }
 }

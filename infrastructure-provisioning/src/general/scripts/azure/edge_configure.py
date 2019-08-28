@@ -28,7 +28,7 @@ import sys, time, os
 from dlab.actions_lib import *
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -44,34 +44,34 @@ if __name__ == "__main__":
         edge_conf['vpc_name'] = os.environ['azure_vpc_name']
         edge_conf['region'] = os.environ['azure_region']
         edge_conf['subnet_name'] = os.environ['azure_subnet_name']
-        edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+        edge_conf['project_name'] = os.environ['project_name'].replace('_', '-')
         edge_conf['user_keyname'] = os.environ['project_name']
-        edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-subnet'
-        edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge'
-        edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
+        edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + edge_conf['project_name'] + '-subnet'
+        edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + '-edge'
+        edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + \
                                               '-edge-nif'
-        edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
+        edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + \
                                              '-edge-ip'
         edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-disk0'
         edge_conf['instance_dns_name'] = 'host-' + edge_conf['instance_name'] + '.' + edge_conf['region'] + \
                                          '.cloudapp.azure.com'
         edge_conf['user_storage_account_name'] = edge_conf['service_base_name'] + '-' + edge_conf[
-            'user_name'] + '-storage'
-        edge_conf['user_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] +
+            'project_name'] + '-storage'
+        edge_conf['user_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['project_name'] +
                                             '-container').lower()
         edge_conf['shared_storage_account_name'] = edge_conf['service_base_name'] + '-shared-storage'
         edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower()
         edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'
         edge_conf['datalake_shared_directory_name'] = edge_conf['service_base_name'] + '-shared-folder'
         edge_conf['datalake_user_directory_name'] = '{0}-{1}-folder'.format(edge_conf['service_base_name'],
-                                                                            edge_conf['user_name'])
+                                                                            edge_conf['project_name'])
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
-        edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
+        edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + \
                                                     '-nb-sg'
         edge_conf['master_security_group_name'] = edge_conf['service_base_name'] + '-' \
-                                                    + edge_conf['user_name'] + '-dataengine-master-sg'
+                                                    + edge_conf['project_name'] + '-dataengine-master-sg'
         edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
-                                                   + edge_conf['user_name'] + '-dataengine-slave-sg'
+                                                   + edge_conf['project_name'] + '-dataengine-slave-sg'
         edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
         edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'],
@@ -190,7 +190,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf",
-                             "edge_user_name": os.environ['azure_iam_user'],
+                             "project_name": os.environ['project_name'],
                              "ldap_host": os.environ['ldap_hostname'],
                              "ldap_dn": os.environ['ldap_dn'],
                              "ldap_user": os.environ['ldap_service_username'],
@@ -337,6 +337,7 @@ if __name__ == "__main__":
                        "notebook_subnet": edge_conf['private_subnet_cidr'],
                        "instance_id": edge_conf['instance_name'],
                        "full_edge_conf": edge_conf,
+                       "project_name": os.environ['project_name'],
                        "Action": "Create new EDGE server"}
             else:
                 res = {"hostname": edge_conf['instance_dns_name'],
@@ -359,6 +360,8 @@ if __name__ == "__main__":
                        "notebook_subnet": edge_conf['private_subnet_cidr'],
                        "instance_id": edge_conf['instance_name'],
                        "full_edge_conf": edge_conf,
+                       "project_name": os.environ['project_name'],
+                       "@class": "com.epam.dlab.dto.azure.edge.EdgeInfoAzure",
                        "Action": "Create new EDGE server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
