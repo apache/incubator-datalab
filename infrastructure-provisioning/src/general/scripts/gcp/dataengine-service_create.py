@@ -57,7 +57,7 @@ def send_parser_job(args, cluster_name, cluster_version):
     job_body['job']['placement']['clusterName'] = cluster_name
     job_body['job']['pysparkJob']['mainPythonFileUri'] = 'gs://{}/jars_parser.py'.format(args.bucket)
     job_body['job']['pysparkJob']['args'][1] = args.bucket
-    job_body['job']['pysparkJob']['args'][3] = (os.environ['project_name']).replace('_', '-')
+    job_body['job']['pysparkJob']['args'][3] = (os.environ['project_name']).lower().replace('_', '-')
     job_body['job']['pysparkJob']['args'][5] = cluster_name
     job_body['job']['pysparkJob']['args'][7] = cluster_version
     job_body['job']['pysparkJob']['args'][9] = os.environ['conf_os_user']

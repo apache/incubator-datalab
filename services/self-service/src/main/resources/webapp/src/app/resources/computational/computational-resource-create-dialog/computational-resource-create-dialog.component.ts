@@ -79,7 +79,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.selectedImage = $event;
     this.getComputationalResourceLimits();
 
-    if ($event.templates)
+    if ($event.templates && $event.templates.length)
       this.resourceForm.controls['version'].setValue($event.templates[0].version)
   }
 

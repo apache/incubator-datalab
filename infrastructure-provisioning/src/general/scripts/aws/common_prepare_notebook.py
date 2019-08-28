@@ -45,22 +45,24 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
-    edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
-        os.environ['conf_service_base_name'] + '-' + os.environ['project_name'] + '-edge')
+    notebook_config = dict()
+    notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+        os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    edge_status = get_instance_status(notebook_config['service_base_name'] + '-Tag',
+        notebook_config['service_base_name'] + '-' + os.environ['project_name'] + '-edge')
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
-        ssn_hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag', os.environ['conf_service_base_name'] + '-ssn')
+        ssn_hostname = get_instance_hostname(notebook_config['service_base_name'] + '-Tag', notebook_config['service_base_name'] + '-ssn')
         put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'], ssn_hostname)
         append_result("Edge node is unavailable")
         sys.exit(1)
     print('Generating infrastructure names and tags')
-    notebook_config = dict()
     try:
         notebook_config['exploratory_name'] = os.environ['exploratory_name']
     except:
         notebook_config['exploratory_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+
     notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
@@ -69,7 +71,7 @@ if __name__ == "__main__":
     notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
+    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                   os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
 

@@ -60,6 +60,7 @@ import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
+import com.epam.dlab.dto.project.ProjectActionDTO;
 import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -637,6 +638,11 @@ public class RequestBuilder {
 				.tag(projectDTO.getTag())
 				.endpoint(projectDTO.getEndpoints().iterator().next()) //TODO figure out how to deal with endpoints
 				.build()
+				.withCloudSettings(cloudSettings(userInfo));
+	}
+
+	public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, String endpoint) {
+		return new ProjectActionDTO(project, endpoint)
 				.withCloudSettings(cloudSettings(userInfo));
 	}
 

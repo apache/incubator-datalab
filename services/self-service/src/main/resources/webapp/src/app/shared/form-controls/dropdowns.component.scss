@@ -27,7 +27,7 @@
 .dropdown-multiselect button {
   min-width: 100%;
   background: #fff;
-  padding-left: 20px;
+  padding-left: 15px;
   font-size: 14px;
   // height: 34px;
   text-align: left;
@@ -36,14 +36,16 @@
   border-radius: 0;
   border: none;
   outline: none;
-  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
 }
 
 .dropdown-list {
   button {
     line-height: 38px;
+
     span {
       color: #4a5c89;
+
       em {
         font-size: 13px;
         color: #35afd5;
@@ -58,7 +60,7 @@
 .dropdown-list button:focus,
 .dropdown-multiselect button:active,
 .dropdown-multiselect button:focus {
-  box-shadow: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12);
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, .2), 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12);
 }
 
 .dropdown-multiselect {
@@ -69,6 +71,7 @@
       display: inline-block;
       max-width: 80%;
     }
+
     .selected-items {
       color: #4eaf3e;
     }
@@ -79,7 +82,8 @@
   font-weight: 300;
 }
 
-.dropdown-list, .dropdown-multiselect {
+.dropdown-list,
+.dropdown-multiselect {
   .caret-btn {
     position: absolute;
     top: 0;
@@ -94,6 +98,7 @@
     background: #fff;
     color: #36afd5 !important;
   }
+
   .list-menu {
     width: 100%;
     max-height: 260px;
@@ -102,14 +107,17 @@
     margin: 0;
     overflow-y: auto;
     overflow-x: hidden;
+
     li {
       padding: 0;
       margin: 0;
     }
+
     .list-item {
       text-transform: capitalize;
     }
   }
+
   &.user {
     .list-menu {
       .list-item {
@@ -117,7 +125,9 @@
       }
     }
   }
-  &.shapes, &.shape {
+
+  &.shapes,
+  &.shape {
     .list-menu {
       .list-item {
         text-transform: initial;
@@ -165,7 +175,9 @@
 }
 
 .dropdown-list {
-  .list-menu, .title {
+
+  .list-menu,
+  .title {
     span {
       display: flex;
       justify-content: space-between;
@@ -180,6 +192,7 @@
   padding: 10px 15px;
   cursor: default;
 }
+
 .dropdown-list .list-menu li i,
 .dropdown-list .list-menu li strong {
   display: inline-block;
@@ -189,6 +202,7 @@
   color: #35afd5;
   line-height: 26px;
 }
+
 .dropdown-list .list-menu li i {
   vertical-align: sub;
   font-size: 18px;
@@ -200,6 +214,7 @@
   position: relative;
   font-weight: 300;
   cursor: pointer;
+
   em {
     font-size: 13px;
     color: #35afd5;
@@ -207,16 +222,17 @@
     font-style: normal;
   }
 }
+
 .dropdown-list .list-menu a.empty {
   height: 36px;
 }
 
 .dropdown-multiselect .list-menu .filter-actions i {
-    vertical-align: sub;
-    color: #35afd5;
-    font-size: 18px;
-    line-height: 26px;
-    transition: all .45s ease-in-out;
+  vertical-align: sub;
+  color: #35afd5;
+  font-size: 18px;
+  line-height: 26px;
+  transition: all .45s ease-in-out;
 }
 
 .dropdown-multiselect .list-menu .select_all:hover,

@@ -21,61 +21,77 @@
   .no-details {
     color: #bdc9d5;
   }
+
   .resource-wrap {
     display: flex;
     justify-content: space-between;
     height: 26px;
+
     .resource-name {
       width: 55%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+
       .detailed-link {
         color: #577289;
         cursor: pointer;
       }
     }
+
     .resource-status {
       width: 30%;
       text-transform: capitalize;
     }
+
     .resource-actions {
       width: 15%;
       display: flex;
       justify-content: flex-end;
+      padding-right: 10px;
+
       a {
         text-decoration: none;
         color: #748ba3;
         font-size: 18px;
         text-align: center;
+
         i {
           font-size: 18px;
           padding: 0 2px;
         }
       }
+
       .schedule {
         cursor: pointer;
+
         &.not-allowed {
           pointer-events: none;
         }
+
         &.active {
           color: #49af38;
         }
       }
+
       .start-stop-action {
-        
+
         font-size: 18px;
         color: #36afd5;
+
         i {
           cursor: pointer;
+
           &.not-allowed {
             pointer-events: none;
           }
         }
       }
+
       .remove_butt {
         cursor: pointer;
         color: #ef5c4b;
+
         &.disabled {
           color: #f5d3d3;
           pointer-events: none;

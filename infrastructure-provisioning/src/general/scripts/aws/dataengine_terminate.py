@@ -68,7 +68,8 @@ if __name__ == "__main__":
         data_engine['computational_name'] = os.environ['computational_name']
     except:
         data_engine['computational_name'] = ''
-    data_engine['service_base_name'] = os.environ['conf_service_base_name']
+    data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
     data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
     data_engine['project_name'] = os.environ['project_name']
     data_engine['cluster_name'] = \
@@ -88,7 +89,7 @@ if __name__ == "__main__":
                                   data_engine['notebook_name'],
                                   os.environ['conf_os_user'],
                                   data_engine['key_path'], "{}:{}".format(
-                    os.environ['conf_service_base_name'],
+                    data_engine['service_base_name'],
                     data_engine['cluster_name']), data_engine['cluster_name'])
         except Exception as err:
             traceback.print_exc()

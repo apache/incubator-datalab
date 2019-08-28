@@ -179,7 +179,8 @@ if __name__ == "__main__":
     except:
         emr_conf['computational_name'] = ''
     emr_conf['apps'] = 'Hadoop Hive Hue Spark'
-    emr_conf['service_base_name'] = os.environ['conf_service_base_name']
+    emr_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
     emr_conf['tag_name'] = emr_conf['service_base_name'] + '-Tag'
     emr_conf['key_name'] = os.environ['conf_key_name']
     emr_conf['region'] = os.environ['aws_region']
