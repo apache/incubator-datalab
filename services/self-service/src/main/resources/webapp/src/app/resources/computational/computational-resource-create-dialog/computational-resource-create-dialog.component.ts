@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
@@ -47,6 +47,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   selectedImage: any;
   spotInstance: boolean = true;
 
+  loading: boolean = false;
+
   public minInstanceNumber: number;
   public maxInstanceNumber: number;
   public minPreemptibleInstanceNumber: number;
@@ -65,13 +67,16 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<ComputationalResourceCreateDialogComponent>,
     private userResourceService: UserResourceService,
     private model: ComputationalResourceModel,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private _ref: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {
+    this.loading = true;
     this.notebook_instance = this.data.notebook;
     this.resourcesList = this.data.full_list;
     this.initFormModel();
+
     this.getTemplates(this.notebook_instance.project);
   }
 
@@ -239,11 +244,15 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.selectedImage = clusterTypes[0];
 
         if (this.selectedImage) {
+          this.loading = false;
+          this._ref.detectChanges();
+
           this.filterShapes();
-          this.getComputationalResourceLimits();
           this.resourceForm.get('template_name').setValue(this.selectedImage.template_name);
+          this.getComputationalResourceLimits();
         }
-      }, error => { });
+
+      }, () => this.loading = false);
   }
 
   private filterShapes(): void {
