@@ -85,8 +85,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectSpotInstances($event?): void {
     if ($event ? $event.target.checked : (this.spotInstancesSelect && this.spotInstancesSelect.nativeElement['checked'])) {
-      const filtered = this.filterAvailableSpots();
-      this.spotInstance = this.shapePlaceholder(filtered, 'spot');
+      this.spotInstance = true;
       this.resourceForm.controls['instance_price'].setValue(50);
     } else {
       this.spotInstance = false;
@@ -240,8 +239,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.selectedImage = clusterTypes[0];
 
         if (this.selectedImage) {
-          this.getComputationalResourceLimits();
           this.filterShapes();
+          this.getComputationalResourceLimits();
           this.resourceForm.get('template_name').setValue(this.selectedImage.template_name);
         }
       }, error => { });
@@ -262,6 +261,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       if (DICTIONARY.cloud_provider !== 'azure') {
         const images = this.clusterTypes.filter(image => image.image === 'docker.dlab-dataengine');
         this.clusterTypes = images;
+        this.selectedImage = this.clusterTypes[0];
       }
       this.selectedImage.computation_resources_shapes = filtered;
     }
