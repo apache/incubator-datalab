@@ -24,7 +24,7 @@
   </header>
   <div class="dialog-content selection">
     <div class="content-box mat-reset">
-      <form [formGroup]="resourceForm" *ngIf="clusterTypes.length && resourceForm; else empty">
+      <form [formGroup]="resourceForm" *ngIf="clusterTypes.length && resourceForm; else placeholder">
 
         <div class="form-wrapper" [ngClass]="{ compress: selectedImage?.image === 'docker.dlab-dataengine' }">
           <div class="col">
@@ -229,10 +229,14 @@
         </div>
       </form>
 
-      <ng-template #empty>
-        <div class="info message">Computational resource creations are not available.<br>Please, check your permissions.
-        </div>
-      </ng-template>
     </div>
+    <ng-template #placeholder>
+      <div *ngIf="!loading" class="info message">Computational resource creations are not available.<br>Please, check
+        your permissions.</div>
+      <div *ngIf="loading" class="info message">
+        Computational resource data is processing
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+    </ng-template>
   </div>
 </div>
