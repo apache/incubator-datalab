@@ -20,6 +20,7 @@
 # ******************************************************************************
 
 provider "google" {
+  version = "2.13.0"
   credentials = var.credentials
   project     = var.gcp_project_id
   region      = var.region

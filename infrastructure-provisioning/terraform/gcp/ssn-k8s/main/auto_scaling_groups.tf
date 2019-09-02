@@ -1,4 +1,4 @@
-# *****************************************************************************
+#******************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -26,7 +26,7 @@ locals {
   ssn_k8s_ag_masters_name          = "${var.service_base_name}-ssn-masters"
   ssn_k8s_ag_workers_name          = "${var.service_base_name}-ssn-workers"
   ssn_k8s_masters_igm              = "${var.service_base_name}-ssn-igm-masters"
-  ssn_k8s_slaves_igm               = "${var.service_base_name}-ssn-igm-slves"
+  ssn_k8s_workers_igm               = "${var.service_base_name}-ssn-igm-workers"
 }
 
 resource "random_string" "ssn_keystore_password" {
@@ -38,7 +38,7 @@ resource "random_string" "endpoint_keystore_password" {
   length = 16
   special = false
 }
-
+/*
 data "template_file" "ssn_k8s_masters_user_data" {
   template = file("./files/masters-user-data.sh")
   vars = {
@@ -53,10 +53,11 @@ data "template_file" "ssn_k8s_masters_user_data" {
     endpoint_elastic_ip        = google_compute_address.k8s-endpoint-eip.address
   }
 }
-
+*/
 resource "google_compute_autoscaler" "master_group" {
   name = local.ssn_k8s_ag_masters_name
-  target = ""
+  zone = var.zone
+  target = google_compute_instance_group_manager.masters_igm
   autoscaling_policy {
     max_replicas = var.ssn_k8s_masters_count
     min_replicas = var.ssn_k8s_masters_count
@@ -71,8 +72,10 @@ resource "google_compute_instance_template" "masters_template" {
   }
   network_interface {
     network = var.vpc_id
-    subnetwork = compact([data.google_compute_subnetwork.k8s-subnet-a-data.name, data.google_compute_subnetwork.k8s-subnet-b-data.name, local.subnet_c_id])
+    subnetwork = var.subnet_id_a
   }
+
+  tags = [var.ssn_net_tag]
 
   service_account {
     email = google_service_account.ssn_k8s_sa.email
@@ -91,22 +94,23 @@ resource "google_compute_instance_group_manager" "masters_igm" {
   name = local.ssn_k8s_masters_igm
   zone = var.zone
 
-  instance_template = google_compute_instance_template.masters_template.self_link
+  instance_template = ""
 
-  target_pools       = ["${google_compute_target_pool.ssn_target_pool.self_link}"]
+  target_pools       = [google_compute_target_pool.ssn_target_pool.self_link]
   base_instance_name = "autoscaler-sample"
 }
 
-resource "google_compute_autoscaler" "master_group" {
-  name = local.ssn_k8s_ag_masters_name
-  target = ""
+resource "google_compute_autoscaler" "workers_group" {
+  name   = local.ssn_k8s_ag_workers_name
+  zone   = var.zone
+  target = google_compute_instance_group_manager.workers_igm
   autoscaling_policy {
-    max_replicas = var.ssn_k8s_masters_count
-    min_replicas = var.ssn_k8s_masters_count
+    max_replicas = var.ssn_k8s_workers_count
+    min_replicas = var.ssn_k8s_workers_count
   }
 }
 
-resource "google_compute_instance_template" "slaves_template" {
+resource "google_compute_instance_template" "workers_template" {
   name = local.ssn_k8s_launch_conf_masters_name
   machine_type = var.ssn_k8s_masters_shape
   disk {
@@ -114,8 +118,10 @@ resource "google_compute_instance_template" "slaves_template" {
   }
   network_interface {
     network = var.vpc_id
-    subnetwork = compact([data.google_compute_subnetwork.k8s-subnet-a-data.name, data.google_compute_subnetwork.k8s-subnet-b-data.name, local.subnet_c_id])
+    subnetwork = var.subnet_id_b
   }
+
+  tags = [var.ssn_net_tag]
 
   service_account {
     email = google_service_account.ssn_k8s_sa.email
@@ -123,19 +129,20 @@ resource "google_compute_instance_template" "slaves_template" {
   }
 }
 
-resource "google_compute_instance_group_manager" "slaves_igm" {
+resource "google_compute_instance_group_manager" "workers_igm" {
   provider = "google-beta"
 
-  name = local.ssn_k8s_slaves_igm
+  name = local.ssn_k8s_workers_igm
   zone = var.zone
 
-  instance_template = google_compute_instance_template.slaves_template.self_link
+  instance_template = ""
 
-  target_pools       = ["${google_compute_target_pool.ssn_target_pool.self_link}"]
+  target_pools       = [google_compute_target_pool.ssn_target_pool.self_link]
   base_instance_name = "autoscaler-sample"
 }
 
 provider "google-beta"{
+  version = "2.13.0"
   region = var.region
   zone   = var.zone
 }

@@ -51,7 +51,6 @@ resource "google_compute_firewall" "ssn_k8s_ingress_all" {
     protocol = "all"
   }
   target_tags        = ["${var.ssn_net_tag}"]
-  destination_ranges = ["0.0.0.0/0"]
 }
 
 resource "google_compute_firewall" "ssn_k8s_egress" {

@@ -30,12 +30,11 @@ locals {
 
 resource "google_compute_forwarding_rule" "ssn_k8s_nlb" {
   name   = local.ssn_nlb_name
-  backend_service = google_compute_backend_service
+  backend_service = google_compute_backend_service.nlb_service.self_link
   target = google_compute_target_pool.ssn_target_pool.self_link
   ports = ["8443", "6443"]
   load_balancing_scheme = "INTERNAL"
-  network = google_compute_network.ssn_k8s_vpc.name
-  subnetwork = compact([data.google_compute_subnetwork.k8s-subnet-a-data.name, data.google_compute_subnetwork.k8s-subnet-b-data.name, local.subnet_c_id])
+  network = google_compute_network.ssn_k8s_vpc.0.name
 }
 
 resource "google_compute_backend_service" "nlb_service" {
@@ -93,14 +92,5 @@ resource "google_compute_http_health_check" "ssn_http_hc" {
   request_path       = "/"
   check_interval_sec = 1
   timeout_sec        = 1
-}
-
-resource "google_compute_global_forwarding_rule" "ssn_k8s_alb" {
-  name       = local.ssn_alb_name
-  target     = google_compute_target_http_proxy.http[0].self_link
-  ip_address = google_compute_global_address.default.address
-  port_range = "80"
-
-
 }
 
