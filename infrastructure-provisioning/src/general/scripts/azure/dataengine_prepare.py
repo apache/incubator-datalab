@@ -44,10 +44,10 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     try:
         data_engine = dict()
-        data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        data_engine['project_name'] = os.environ['project_name'].replace('_', '-')
-        data_engine['project_tag'] = os.environ['project_name'].replace('_', '-')
-        data_engine['endpoint_tag'] = os.environ['endpoint_name'].replace('_', '-')
+        data_engine['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
+        data_engine['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        data_engine['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
+        data_engine['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         print('Generating infrastructure names and tags')
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')

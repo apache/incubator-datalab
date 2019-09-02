@@ -43,10 +43,10 @@ if __name__ == "__main__":
     # generating variables dictionary
     try:
         notebook_config = dict()
-        notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        notebook_config['project_name'] = os.environ['project_name'].replace('_', '-')
-        notebook_config['project_tag'] = os.environ['project_name'].replace('_', '-')
-        notebook_config['endpoint_tag'] = os.environ['endpoint_name'].replace('_', '-')
+        notebook_config['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
+        notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
+        notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         
         print('Generating infrastructure names and tags')
         try:

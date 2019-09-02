@@ -34,7 +34,7 @@ if __name__ == "__main__":
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
         image_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         image_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        image_conf['project_name'] = os.environ['project_name'].replace('_', '-')
+        image_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
         image_conf['project_tag'] = os.environ['project_name'].replace('_', '-')
         image_conf['endpoint_tag'] = os.environ['project_name'].replace('_', '-')
         image_conf['instance_name'] = os.environ['notebook_instance_name']
