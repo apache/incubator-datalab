@@ -25,6 +25,11 @@
   width: 100%;
   min-width: 1100px;
   overflow: auto;
+  border-collapse: inherit;
+
+  .mat-cell {
+    vertical-align: middle;
+  }
 
   tr {
     th {
@@ -69,6 +74,18 @@
 
   .th_charges {
     width: 8%;
+    padding-right: 15px;
+    text-align: right;
+  }
+
+  .mat-column-charge {
+    text-align: right;
+  }
+
+  .filter-row {
+    .actions {
+      text-align: right;
+    }
   }
 }
 

@@ -72,6 +72,7 @@ export class ResourcesGridComponent implements OnInit {
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
     { title: 'Status', name: 'statuses', class: 'status-col', filter_class: 'status-filter', filtering: true },
     { title: DICTIONARY.instance_size, name: 'shapes', class: 'shape-col', filter_class: 'shape-filter', filtering: true },
+    { title: 'Tags', name: 'tag', class: 'tag-col', filter_class: 'tag-filter', filtering: false },
     { title: DICTIONARY.computational_resource, name: 'resources', class: 'resources-col', filter_class: 'resource-filter', filtering: true },
     { title: 'Cost', name: 'cost', class: 'cost-col', filter_class: 'cost-filter', filtering: false },
     { title: '', name: 'actions', class: 'actions-col', filter_class: 'action-filter', filtering: false }
@@ -79,13 +80,6 @@ export class ResourcesGridComponent implements OnInit {
 
   public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
   public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
-
-
-
-
-
-
-
 
 
 
@@ -204,15 +198,16 @@ export class ResourcesGridComponent implements OnInit {
 
 
   isResourcesInProgress(notebook) {
-    // const filteredEnv = this.environments.find(env => env.exploratory.find(el => el.name === notebook.name));
+    const env = this.getEnvironmentsListCopy().filter(env => env.exploratory.find(el => el.name === notebook.name))[0];
+    let resource = [];
 
-    // if (filteredEnv && filteredEnv.resources.length) {
-    //   return filteredEnv.resources.filter(resource => (
-    //     resource.status !== 'failed'
-    //     && resource.status !== 'terminated'
-    //     && resource.status !== 'running'
-    //     && resource.status !== 'stopped')).length > 0;
-    // }
+    if (env) resource = env.exploratory[0].resources;
+
+    if (resource.length) {
+      return resource.filter(item => (
+        item.status !== 'failed' && item.status !== 'terminated'
+        && item.status !== 'running' && item.status !== 'stopped')).length > 0;
+    }
     return false;
   }
 

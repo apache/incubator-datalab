@@ -13,7 +13,6 @@ import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.project.ProjectActionDTO;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.client.RESTService;
@@ -155,7 +154,7 @@ public class ProjectServiceImpl implements ProjectService {
 	private void projectActionOnCloud(UserInfo user, String projectName, String provisioningApiUri, String endpoint) {
 		try {
 			String uuid = provisioningService.post(provisioningApiUri, user.getAccessToken(),
-					new ProjectActionDTO(projectName, endpoint), String.class);
+					requestBuilder.newProjectAction(user, projectName, endpoint), String.class);
 			requestId.put(user.getName(), uuid);
 		} catch (Exception e) {
 			log.error("Can not terminate project due to: {}", e.getMessage());

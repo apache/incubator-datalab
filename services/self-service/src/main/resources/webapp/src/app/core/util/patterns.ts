@@ -19,6 +19,7 @@
 
 export const PATTERNS = {
   namePattern: '[-_a-zA-Z0-9]*[_-]*[a-zA-Z0-9]+',
+  projectName: '[a-zA-Z0-9]+',
   delimitersRegex: '/[-_]?/g',
   url: '[a-zA-Z0-9.://%#&\\.@:%-_\+~#=]*\.[^\s]*[a-zA-Z0-9]+',
   nodeCountPattern: '^[1-9]\\d*$',

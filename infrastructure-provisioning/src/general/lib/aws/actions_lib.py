@@ -546,6 +546,9 @@ def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
             if 'project_name' in os.environ:
                 conn.tag_role(RoleName=role_name, Tags=[{'Key': "project_tag",
                                                          'Value': os.environ['project_name']}])
+            if 'endpoint_name' in os.environ:
+                conn.tag_role(RoleName=role_name, Tags=[{'Key': "endpoint_tag",
+                                                         'Value': os.environ['endpoint_name']}])
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print("IAM role already exists. Reusing...")

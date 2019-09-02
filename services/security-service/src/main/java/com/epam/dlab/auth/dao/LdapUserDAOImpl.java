@@ -87,7 +87,7 @@ public class LdapUserDAOImpl implements LdapUserDAO {
 
 	private Stream<? extends String> groupStream(String groupUserAttribute, Entry e) {
 		final Attribute groupAttribute = e.get(configuration.getLdapGroupAttribute());
-		return StreamSupport.stream(groupAttribute.spliterator(), false)
+		return groupAttribute != null && StreamSupport.stream(groupAttribute.spliterator(), false)
 				.anyMatch(v -> v.toString().equals(groupUserAttribute)) ?
 				Stream.of(e.get(configuration.getLdapGroupNameAttribute()).get().toString()) :
 				Stream.empty();
