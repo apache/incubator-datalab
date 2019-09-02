@@ -51,15 +51,31 @@
           -s 'config.pagination=["true"]' --server http://127.0.0.1:8080/auth
           # Get user federation ID
           user_f_id=$(/opt/jboss/keycloak/bin/kcadm.sh get components -r dlab --query name=dlab-ldap | /usr/bin/jq -er '.[].id')
-          # Create user federation mapper
+          # Create user federation email mapper
           /opt/jboss/keycloak/bin/kcadm.sh create components -r dlab -s name=uid-attribute-to-email-mapper \
           -s providerId=user-attribute-ldap-mapper -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
           -s parentId=$user_f_id -s 'config."user.model.attribute"=["email"]' \
           -s 'config."ldap.attribute"=["uid"]' -s 'config."read.only"=["false"]' \
           -s 'config."always.read.value.from.ldap"=["false"]' -s 'config."is.mandatory.in.ldap"=["false"]'
+          # Create user federation group mapper
+          /opt/jboss/keycloak/bin/kcadm.sh create components -r dlab -s name=group_mapper -s providerId=group-ldap-mapper \
+          -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper -s parentId=$user_f_id \
+          -s 'config."groups.dn"=["ou=Groups,${ldap_dn}"]' -s 'config."group.name.ldap.attribute"=["cn"]' \
+          -s 'config."group.object.classes"=["posixGroup"]' -s 'config."preserve.group.inheritance"=["false"]' \
+          -s 'config."membership.ldap.attribute"=["memberUid"]' -s 'config."membership.attribute.type"=["UID"]' \
+          -s 'config."groups.ldap.filter"=[]' -s 'config.mode=["IMPORT"]' \
+          -s 'config."user.roles.retrieve.strategy"=["LOAD_GROUPS_BY_MEMBER_ATTRIBUTE"]' \
+          -s 'config."mapped.group.attributes"=[]' -s 'config."drop.non.existing.groups.during.sync"=["false"]'
           # Create client
           /opt/jboss/keycloak/bin/kcadm.sh create clients -r dlab -s clientId=dlab-ui -s enabled=true -s \
           'redirectUris=["http://${ssn_k8s_alb_dns_name}/"]' -s secret=${keycloak_client_secret}
+          # Get clint ID
+          client_id=$(/opt/jboss/keycloak/bin/kcadm.sh get clients -r dlab --query clientId=dlab-ui | /usr/bin/jq -er '.[].id')
+          # Create client mapper
+          /opt/jboss/keycloak/bin/kcadm.sh create clients/$client_id/protocol-mappers/models \
+          -r dlab -s name=group_mapper -s protocol=openid-connect -s protocolMapper="oidc-group-membership-mapper" \
+          -s 'config."full.path"="false"' -s 'config."id.token.claim"="true"' -s 'config."access.token.claim"="true"' \
+          -s 'config."claim.name"="groups"' -s 'config."userinfo.token.claim"="true"'
       }
       main_func () {
           hostname=$(hostname)
