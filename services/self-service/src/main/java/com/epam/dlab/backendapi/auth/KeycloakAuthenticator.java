@@ -12,11 +12,15 @@ import org.keycloak.representations.AccessToken;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
+import java.util.List;
 import java.util.Optional;
+
+import static java.util.Collections.emptyList;
 
 public class KeycloakAuthenticator extends AbstractKeycloakAuthenticator<UserInfo> {
 
 	private static final String TOKEN_PREFIX = "Bearer ";
+	private static final String GROUPS_CLAIM = "groups";
 
 	public KeycloakAuthenticator(KeycloakConfiguration keycloakConfiguration) {
 		super(keycloakConfiguration);
@@ -35,15 +39,14 @@ public class KeycloakAuthenticator extends AbstractKeycloakAuthenticator<UserInf
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected UserInfo prepareAuthentication(KeycloakSecurityContext keycloakSecurityContext,
 											 HttpServletRequest httpServletRequest,
 											 KeycloakConfiguration keycloakConfiguration) {
 		final AccessToken token = keycloakSecurityContext.getToken();
 		final UserInfo userInfo = new UserInfo(token.getPreferredUsername(),
 				keycloakSecurityContext.getTokenString());
-		final AccessToken.Access resourceAccess =
-				token.getResourceAccess(keycloakConfiguration.getResource());
-		Optional.ofNullable(resourceAccess).ifPresent(ra -> userInfo.addRoles(ra.getRoles()));
+		userInfo.addRoles((List<String>) token.getOtherClaims().getOrDefault(GROUPS_CLAIM, emptyList()));
 		return userInfo;
 	}
 }
