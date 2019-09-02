@@ -19,15 +19,14 @@
 
 package com.epam.dlab.backendapi;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.dropwizard.bundles.DlabKeycloakBundle;
+import com.epam.dlab.backendapi.dropwizard.listeners.MongoStartupListener;
+import com.epam.dlab.backendapi.dropwizard.listeners.RestoreHandlerStartupListener;
 import com.epam.dlab.backendapi.healthcheck.MongoHealthCheck;
-import com.epam.dlab.backendapi.listeners.MongoStartupListener;
-import com.epam.dlab.backendapi.listeners.RestoreHandlerStartupListener;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
@@ -45,15 +44,10 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import de.ahus1.keycloak.dropwizard.AbstractKeycloakAuthenticator;
-import de.ahus1.keycloak.dropwizard.KeycloakBundle;
-import de.ahus1.keycloak.dropwizard.KeycloakConfiguration;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
-import io.dropwizard.auth.Authenticator;
-import io.dropwizard.auth.Authorizer;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.jetty.BiDiGzipHandler;
@@ -68,14 +62,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.representations.AccessToken;
 
 import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
 import java.util.EnumSet;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -111,46 +100,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
 		));
 
-		bootstrap.addBundle(new KeycloakBundle<SelfServiceApplicationConfiguration>() {
-			@Override
-			protected KeycloakConfiguration getKeycloakConfiguration(SelfServiceApplicationConfiguration configuration) {
-				return configuration.getKeycloakConfiguration();
-			}
-
-			@Override
-			protected Class<? extends Principal> getUserClass() {
-				return UserInfo.class;
-			}
-
-			@Override
-			protected Authorizer createAuthorizer() {
-				return new SelfServiceSecurityAuthorizer();
-			}
-
-			@Override
-			protected Authenticator createAuthenticator(KeycloakConfiguration configuration) {
-				class KeycloakAuthenticator extends AbstractKeycloakAuthenticator<UserInfo> {
-
-					private KeycloakAuthenticator(KeycloakConfiguration keycloakConfiguration) {
-						super(keycloakConfiguration);
-					}
-
-					@Override
-					protected UserInfo prepareAuthentication(KeycloakSecurityContext keycloakSecurityContext,
-															 HttpServletRequest httpServletRequest,
-															 KeycloakConfiguration keycloakConfiguration) {
-						final AccessToken token = keycloakSecurityContext.getToken();
-						final UserInfo userInfo = new UserInfo(token.getPreferredUsername(),
-								keycloakSecurityContext.getTokenString());
-						final AccessToken.Access resourceAccess =
-								token.getResourceAccess(keycloakConfiguration.getResource());
-						Optional.ofNullable(resourceAccess).ifPresent(ra -> userInfo.addRoles(ra.getRoles()));
-						return userInfo;
-					}
-				}
-				return new KeycloakAuthenticator(configuration);
-			}
-		});
+		bootstrap.addBundle(new DlabKeycloakBundle());
 	}
 
 	@Override

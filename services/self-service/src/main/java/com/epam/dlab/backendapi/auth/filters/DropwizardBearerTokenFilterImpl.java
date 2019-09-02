@@ -1,4 +1,4 @@
-package com.epam.dlab.backendapi;
+package com.epam.dlab.backendapi.auth.filters;
 
 import org.keycloak.adapters.AdapterDeploymentContext;
 import org.keycloak.adapters.KeycloakDeployment;

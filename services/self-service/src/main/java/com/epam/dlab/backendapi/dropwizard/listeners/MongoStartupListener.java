@@ -1,4 +1,4 @@
-package com.epam.dlab.backendapi.listeners;
+package com.epam.dlab.backendapi.dropwizard.listeners;
 
 import com.epam.dlab.backendapi.conf.CloudConfiguration;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;

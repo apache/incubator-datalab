@@ -19,9 +19,12 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.util.UsernameUtils;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Projections;
@@ -33,8 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.MongoCollections.LOGIN_ATTEMPTS;
 import static com.epam.dlab.backendapi.dao.MongoCollections.ROLES;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.ne;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 
 /**
@@ -42,6 +44,11 @@ import static com.mongodb.client.model.Projections.*;
  */
 @Singleton
 public class SecurityDAO extends BaseDAO {
+
+	@Inject
+	private SelfServiceApplicationConfiguration conf;
+	private static final String SECURITY_COLLECTION = "security";
+	private static final String TOKEN_RESPONSE = "tokenResponse";
 
 	/**
 	 * Write the attempt of user login into Mongo database.
@@ -71,16 +78,28 @@ public class SecurityDAO extends BaseDAO {
 	}
 
 	public void saveUser(String userName, AccessTokenResponse accessTokenResponse) {
-		updateOne("security", eq(ID, userName),
+		updateOne(SECURITY_COLLECTION, eq(ID, userName),
 				new Document(SET,
-						new Document().append(ID, userName).append("created", new Date()).append("tokenResponse",
-								convertToBson(accessTokenResponse))),
+						new Document()
+								.append(ID, userName)
+								.append("created", new Date())
+								.append("last_access", new Date())
+								.append(TOKEN_RESPONSE, convertToBson(accessTokenResponse))),
 				true);
 	}
 
+	public Optional<UserInfo> getUser(String token) {
+		return Optional.ofNullable(mongoService.getCollection(SECURITY_COLLECTION)
+				.findOneAndUpdate(and(eq(TOKEN_RESPONSE + ".access_token", token), gte("last_access",
+						new Date(new Date().getTime() - conf.getInactiveUserTimeoutMillSec()))), new Document("$set",
+						new Document("last_access", new Date()))))
+				.map(d -> new UserInfo(d.getString(ID), token));
+	}
+
+
 	public Optional<AccessTokenResponse> getTokenResponse(String user) {
-		return findOne("security", eq(ID, user), Projections.fields(include("tokenResponse")))
-				.map(d -> convertFromDocument((Document) d.get("tokenResponse"), AccessTokenResponse.class));
+		return findOne(SECURITY_COLLECTION, eq(ID, user), Projections.fields(include(TOKEN_RESPONSE)))
+				.map(d -> convertFromDocument((Document) d.get(TOKEN_RESPONSE), AccessTokenResponse.class));
 	}
 
 	@SuppressWarnings("unchecked")

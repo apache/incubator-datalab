@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.listeners;
+package com.epam.dlab.backendapi.dropwizard.listeners;
 
 import com.epam.dlab.rest.client.RESTService;
 import io.dropwizard.lifecycle.ServerLifecycleListener;
