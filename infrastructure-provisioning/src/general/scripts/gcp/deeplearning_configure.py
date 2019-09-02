@@ -138,7 +138,7 @@ if __name__ == "__main__":
                  "--os_user {} --jupyter_version {} " \
                  "--scala_version {} --spark_version {} " \
                  "--hadoop_version {} --region {} " \
-                 "--r_mirror {} --exploratory_name {} --edge_ip" \
+                 "--r_mirror {} --exploratory_name {} --edge_ip {}" \
                  .format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
