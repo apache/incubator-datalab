@@ -289,10 +289,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private containsComputationalResource(conputational_resource_name: string): boolean {
     if (conputational_resource_name) {
-      return this.resourcesList.filter(project => project.exploratory.some(item =>
-        item.resources.some(resource =>
-          CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource.computational_name))
-      )).length > 0;
+      return this.notebook_instance.resources.some(resource =>
+        CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource.computational_name));
     }
   }
 }
