@@ -53,7 +53,7 @@ if __name__ == "__main__":
         notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         notebook_config['user_keyname'] = os.environ['project_name']
-        notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
+        notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                 notebook_config['project_name'],
                                                                 notebook_config['exploratory_name'])
         notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                notebook_config['instance_name'])
-        edge_instance_name = '{}-{}-edge'.format(notebook_config['service_base_name'], notebook_config['project'])
+        edge_instance_name = '{}-{}-edge'.format(notebook_config['service_base_name'], notebook_config['project_name'])
         edge_instance_private_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                             edge_instance_name)
         if os.environ['conf_network_type'] == 'private':
@@ -164,7 +164,7 @@ if __name__ == "__main__":
         params = "--hostname {0}  --keyfile {1} " \
                  "--region {2} --rstudio_pass {3} " \
                  "--rstudio_version {4} --os_user {5} " \
-                 "--r_mirror {6} --ip_adress {7} --exploratory_name {8} --edge_ip" \
+                 "--r_mirror {6} --ip_adress {7} --exploratory_name {8} --edge_ip {9} " \
             .format(instance_hostname, keyfile_name,
                     os.environ['azure_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'],
