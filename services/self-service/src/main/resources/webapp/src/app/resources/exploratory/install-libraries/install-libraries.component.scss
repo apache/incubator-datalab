@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 .aligner {
   height: 100%;
   display: flex;
   flex-direction: column;
-  > div {
+
+  >div {
     &.actions {
       display: flex;
       flex: initial;
@@ -33,17 +34,20 @@
 }
 
 .loading-block {
-  height: 45%;
+  height: 40%;
   display: flex;
   justify-content: center;
+
   .uploading {
     flex-direction: column;
     align-items: center;
     align-self: center;
     list-style: none;
     display: flex;
+
     p {
-      font-size: 16px;;
+      font-size: 16px;
+      ;
     }
   }
 }
@@ -58,8 +62,14 @@
 
 
 .install-libraries {
+  height: 100%;
+
   .dialog-header {
     padding-left: 25px;
+  }
+
+  .dialog-content {
+    height: calc(100% - 50px);
   }
 
   .info {
@@ -69,22 +79,27 @@
     align-items: center;
     justify-content: center;
   }
+
   .mat-list-item {
     height: auto !important;
+
     .mat-list-item-content {
       height: auto !important;
       min-height: 54px !important;
       border-bottom: 1px solid #edf1f5;
     }
   }
+
   .lib-view-wrap {
     display: flex;
     flex-direction: column;
+    height: 40%;
   }
 
   .error {
     padding: 15px 20px;
   }
+
   .uploading {
     margin: 0 auto;
   }
@@ -93,35 +108,44 @@
 .search-box {
   display: flex;
   padding: 20px 25px 10px;
+
   .search-form {
     display: flex;
     flex-direction: column;
     width: 100%;
-    & > div {
+
+    &>div {
       display: flex;
       flex-direction: row;
     }
+
     .control-group {
       width: 50%;
+
       .label {
         width: 20%;
       }
     }
+
     .search {
       flex-grow: 1;
       padding-bottom: 0;
       flex-direction: column;
-      box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
+
       .mat-form-field-flex {
         padding-left: 15px;
       }
+
       .chip-list {
         width: 100%;
         overflow-y: auto;
+
         .mat-form-field {
           width: 100%;
           padding: 5px 20px;
         }
+
         .mat-input-flex {
           padding: 2px 10px;
         }
@@ -134,21 +158,26 @@
 .suggestions {
   text-decoration: none;
   list-style: none;
+
   mat-option {
     font-size: 13px;
     font-weight: 300;
     font-family: 'Open Sans', sans-serif;
     position: relative;
     padding-top: 4px;
+
     a {
       display: block;
       cursor: pointer;
       text-decoration: none;
       color: #718ba6;
-      &:hover, span:hover {
+
+      &:hover,
+      span:hover {
         color: #35afd5;
       }
     }
+
     strong {
       position: absolute;
       top: 5px;
@@ -157,6 +186,7 @@
       text-align: center;
       font-size: 11px;
       font-weight: 300;
+
       i {
         position: absolute;
         top: 9px;
@@ -165,10 +195,17 @@
       }
     }
   }
+
   span {
     color: rgba(122, 146, 172, 0.6);
-    .configuring {color: #35afd5;}
-    .highlight {color: #35afd5;}
+
+    .configuring {
+      color: #35afd5;
+    }
+
+    .highlight {
+      color: #35afd5;
+    }
   }
 }
 
@@ -177,6 +214,7 @@
   font-family: 'Open Sans', sans-serif;
   height: 130px;
   overflow-y: auto;
+
   h4 {
     margin-bottom: 20px;
     font-size: 14px;
@@ -184,6 +222,7 @@
     font-weight: 400;
     color: #718ba6;
   }
+
   mat-chip-list .mat-chip-list-wrapper {
     overflow-y: auto;
     padding: 3px;
@@ -195,9 +234,10 @@
   font-size: 14px;
   font-weight: 300;
 }
+
 mat-chip.mat-chip:not(.mat-basic-chip) {
   margin: 2px !important;
-  background-color: rgba(47,174,215,.2)!important;
+  background-color: rgba(47, 174, 215, .2) !important;
   color: #687e96;
 }
 
@@ -207,13 +247,17 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   display: flex;
   flex: 1 1 auto;
   min-height: 0px;
+  height: 50%;
+
   .mat-list {
     width: 100%;
+
     .scrollingList {
       max-height: 80%;
       height: 80%;
       overflow-y: auto;
       overflow-x: hidden;
+
       .info {
         p {
           text-align: center;
@@ -222,19 +266,25 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
       }
     }
   }
+
   .lib-name {
     width: 30%;
+
     strong {
       font-weight: 400;
     }
   }
-  .lib-group, .lib-destination {
+
+  .lib-group,
+  .lib-destination {
     width: 20%;
   }
+
   .lib-status {
     width: 20%;
     text-align: center;
   }
+
   .lib-resource-type {
     width: 10%;
   }
@@ -243,34 +293,42 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     display: flex;
     flex-direction: column;
     width: 50%;
+
     .wrap-col {
       display: flex;
       padding: 5px 0px;
+
       .lib-destination-col {
         width: 40%;
       }
+
       .lib-resource-type-col {
         width: 20%;
         color: #36afd5;
       }
+
       .lib-status-col {
         text-align: center;
         position: relative;
         width: 40%;
         text-align: center;
+
         .warn-action {
           position: absolute;
           top: 0;
           right: -10px;
+
           div {
             display: inline-block;
             cursor: pointer;
             width: 25px;
             pointer-events: auto;
+
             span {
               display: block;
             }
           }
+
           .lib-error {
             color: #35afd5;
           }
@@ -295,10 +353,11 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 @media screen and (min-width: 1281px) {
   .libs-info {
     height: 60%;
+
     .mat-list {
       .scrollingList {
-        max-height: 90%;
-        height: 90%;
+        max-height: 85%;
+        height: 85%;
       }
     }
   }

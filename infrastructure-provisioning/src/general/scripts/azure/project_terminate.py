@@ -150,7 +150,7 @@ if __name__ == "__main__":
         logging.info('[TERMINATE EDGE]')
         print('[TERMINATE EDGE]')
         try:
-            terminate_edge_node(project_conf['resource_group_name'], edge_conf['service_base_name'],
+            terminate_edge_node(project_conf['resource_group_name'], project_conf['service_base_name'],
                                 project_conf['project_tag'], project_conf['private_subnet_name'], project_conf['vpc_name'])
         except Exception as err:
             traceback.print_exc()

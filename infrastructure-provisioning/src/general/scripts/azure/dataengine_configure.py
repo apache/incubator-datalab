@@ -192,9 +192,9 @@ if __name__ == "__main__":
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['vpc_name'] = os.environ['azure_vpc_name']
         data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        data_engine['project_name'] = os.environ['project_name'].replace('_', '-')
-        data_engine['project_tag'] = os.environ['project_name'].replace('_', '-')
-        data_engine['endpoint_tag'] = os.environ['project_name'].replace('_', '-')
+        data_engine['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        data_engine['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
+        data_engine['endpoint_tag'] = os.environ['project_name'].lower().replace('_', '-')
         data_engine['private_subnet_name'] = '{}-{}-subnet'.format(data_engine['service_base_name'],
                                                                    data_engine['project_name'])
         data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],

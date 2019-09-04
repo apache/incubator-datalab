@@ -38,7 +38,7 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['project_name'] = os.environ['project_name'].replace('_', '-')
+    edge_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + '-edge'
 
     logging.info('[STOP EDGE]')

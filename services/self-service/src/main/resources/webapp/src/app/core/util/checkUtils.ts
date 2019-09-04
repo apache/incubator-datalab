@@ -41,6 +41,6 @@ export class CheckUtils {
   }
 
   public static delimitersFiltering(resource): string {
-    return resource.replace(PATTERNS.delimitersRegex, '').toString().toLowerCase();
+    return resource.replace(RegExp(PATTERNS.delimitersRegex, 'g'), '').toString().toLowerCase();
   }
 }

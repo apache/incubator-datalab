@@ -110,9 +110,10 @@
           <td class="shape-col">{{ element.shape }}</td>
 
           <td class="tag-col selection">
-            <mat-chip-list aria-label="Fish selection">
+            <mat-chip-list aria-label="Tags">
               <mat-chip matTooltip="Endpoint tag" matTooltipPosition="above">{{ element.tags.endpoint_tag }}</mat-chip>
-              <mat-chip matTooltip="Custom tag" matTooltipPosition="above">{{ element.tags.custom_tag }}</mat-chip>
+              <mat-chip *ngIf="element.tags.custom_tag" matTooltip="Custom tag" matTooltipPosition="above">
+                {{ element.tags.custom_tag }}</mat-chip>
               <mat-chip matTooltip="User tag" matTooltipPosition="above">{{ element.tags.user_tag }}</mat-chip>
               <mat-chip matTooltip="Project tag" matTooltipPosition="above">{{ element.tags.project_tag }}</mat-chip>
             </mat-chip-list>

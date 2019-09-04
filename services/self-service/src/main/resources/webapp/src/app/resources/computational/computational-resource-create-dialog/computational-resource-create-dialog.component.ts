@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
@@ -47,6 +47,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   selectedImage: any;
   spotInstance: boolean = true;
 
+  loading: boolean = false;
+
   public minInstanceNumber: number;
   public maxInstanceNumber: number;
   public minPreemptibleInstanceNumber: number;
@@ -65,13 +67,16 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<ComputationalResourceCreateDialogComponent>,
     private userResourceService: UserResourceService,
     private model: ComputationalResourceModel,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private _ref: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {
+    this.loading = true;
     this.notebook_instance = this.data.notebook;
     this.resourcesList = this.data.full_list;
     this.initFormModel();
+
     this.getTemplates(this.notebook_instance.project);
   }
 
@@ -85,8 +90,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectSpotInstances($event?): void {
     if ($event ? $event.target.checked : (this.spotInstancesSelect && this.spotInstancesSelect.nativeElement['checked'])) {
-      const filtered = this.filterAvailableSpots();
-      this.spotInstance = this.shapePlaceholder(filtered, 'spot');
+      this.spotInstance = true;
       this.resourceForm.controls['instance_price'].setValue(50);
     } else {
       this.spotInstance = false;
@@ -240,11 +244,15 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.selectedImage = clusterTypes[0];
 
         if (this.selectedImage) {
-          this.getComputationalResourceLimits();
+          this.loading = false;
+          this._ref.detectChanges();
+
           this.filterShapes();
           this.resourceForm.get('template_name').setValue(this.selectedImage.template_name);
+          this.getComputationalResourceLimits();
         }
-      }, error => { });
+
+      }, () => this.loading = false);
   }
 
   private filterShapes(): void {
@@ -262,6 +270,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       if (DICTIONARY.cloud_provider !== 'azure') {
         const images = this.clusterTypes.filter(image => image.image === 'docker.dlab-dataengine');
         this.clusterTypes = images;
+        this.selectedImage = this.clusterTypes[0];
       }
       this.selectedImage.computation_resources_shapes = filtered;
     }
@@ -280,10 +289,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private containsComputationalResource(conputational_resource_name: string): boolean {
     if (conputational_resource_name) {
-      return this.resourcesList.filter(project => project.exploratory.some(item =>
-        item.resources.some(resource =>
-          CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource.computational_name))
-      )).length > 0;
+      return this.notebook_instance.resources.some(resource =>
+        CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource.computational_name));
     }
   }
 }
