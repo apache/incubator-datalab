@@ -124,6 +124,10 @@ parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organ
 parser.add_argument('--ldap_service_username', type=str, default='cn=service-user', help='Ldap service user name')
 parser.add_argument('--ldap_service_password', type=str, default='service-user-password',
                     help='Ldap password for admin user')
+parser.add_argument('--keycloak_realm_name', type=str, default='dlab', help='Keycloak Realm name')
+parser.add_argument('--keycloak_auth_server_url', type=str, default='dlab', help='Keycloak auth server URL')
+parser.add_argument('--keycloak_client_name', type=str, default='dlab', help='Keycloak client name')
+parser.add_argument('--keycloak_client_secret', type=str, default='dlab', help='Keycloak client secret')
 parser.add_argument('--tags', type=str, default='line_item_operation,line_item_line_item_description', help='Column name in report file that '
                                                                                   'contains tags')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],

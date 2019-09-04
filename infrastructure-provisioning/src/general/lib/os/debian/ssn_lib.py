@@ -259,6 +259,10 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '--usage {} ' \
                          '--cost {} ' \
                          '--resource_id {} ' \
+                         '--keycloak_realm_name {} ' \
+                         '--keycloak_auth_server_url {} ' \
+                         '--keycloak_client_name {} ' \
+                         '--keycloak_client_secret {} ' \
                          '--tags {}'.\
                             format(cloud_provider,
                                    service_base_name,
@@ -282,6 +286,10 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                                    usage,
                                    cost,
                                    resource_id,
+                                   os.environ['keycloak_realm_name'],
+                                   os.environ['keycloak_auth_server_url'],
+                                   os.environ['keycloak_client_name'],
+                                   os.environ['keycloak_client_secret'],
                                    tags)
                 sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
