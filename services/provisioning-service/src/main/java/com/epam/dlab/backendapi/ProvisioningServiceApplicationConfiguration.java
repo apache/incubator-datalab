@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.validation.ProvisioningServiceCloudConfigurationSequenceProvider;
 import com.epam.dlab.validation.AwsValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.ahus1.keycloak.dropwizard.KeycloakConfiguration;
 import io.dropwizard.util.Duration;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.group.GroupSequenceProvider;
@@ -92,6 +93,8 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 	private String backupDirectory;
 	@JsonProperty
 	private boolean handlersPersistenceEnabled;
+
+	private KeycloakConfiguration keycloakConfiguration = new KeycloakConfiguration();
 
 	public boolean isHandlersPersistenceEnabled() {
 		return handlersPersistenceEnabled;
@@ -178,5 +181,9 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 
 	public String getHandlerDirectory() {
 		return handlerDirectory;
+	}
+
+	public KeycloakConfiguration getKeycloakConfiguration() {
+		return keycloakConfiguration;
 	}
 }

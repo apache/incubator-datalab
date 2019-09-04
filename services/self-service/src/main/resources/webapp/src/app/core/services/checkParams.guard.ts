@@ -18,11 +18,12 @@
  */
 
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
 import { ApplicationSecurityService } from './applicationSecurity.service';
-import { AuthorizationGuard } from './authorization.guard';
+import { AppRoutingService } from './appRouting.service';
 
 @Injectable()
 export class CheckParamsGuard implements CanActivate {
@@ -30,17 +31,16 @@ export class CheckParamsGuard implements CanActivate {
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private _authGuard: AuthorizationGuard,
-    private router: Router
-  ) {}
+    private appRoutingService: AppRoutingService
+  ) { }
 
-  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot):  Observable<any> | Promise<boolean> | boolean {
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> | Promise<boolean> | boolean {
     return this.applicationSecurityService.isLoggedIn().pipe(
       map(authState => {
         const search = document.URL.split('?')[1];
 
         if (search && this.checkParamsCoincidence(search)) {
-          this.result = search.split('&').reduce(function(prev, curr) {
+          this.result = search.split('&').reduce(function (prev, curr) {
             const params = curr.split('=');
             prev[decodeURIComponent(params[0])] = decodeURIComponent(params[1]);
             return prev;
@@ -50,7 +50,8 @@ export class CheckParamsGuard implements CanActivate {
             .redirectParams(this.result)
             .toPromise();
         }
-        if (!authState) this.router.navigate(['/login']);
+        if (!authState)
+          this.applicationSecurityService.locationCheck().subscribe(location => window.location.href = location.headers.get('Location'));
         return !!authState;
       }));
   }

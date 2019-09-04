@@ -19,14 +19,12 @@
 
 package com.epam.dlab.backendapi.resources.callback.azure;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.callback.base.EdgeCallback;
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
-import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -45,21 +43,21 @@ public class EdgeCallbackAzure extends EdgeCallback {
 	@Inject
 	private RequestId requestId;
 
-    public EdgeCallbackAzure() {
-        log.info("{} is initialized", getClass().getSimpleName());
-    }
+	public EdgeCallbackAzure() {
+		log.info("{} is initialized", getClass().getSimpleName());
+	}
 
-    /**
-     * Stores the result of the upload the user key.
-     *
-     * @param dto result of the upload the user key.
-     * @return 200 OK
-     */
-    @POST
-    @Path(ApiCallbacks.STATUS_URI)
-    public Response status(@Auth UserInfo ui, UploadFileResult<EdgeInfoAzure> dto) {
+	/**
+	 * Stores the result of the upload the user key.
+	 *
+	 * @param dto result of the upload the user key.
+	 * @return 200 OK
+	 */
+	@POST
+	@Path(ApiCallbacks.STATUS_URI)
+	public Response status(UploadFileResult<EdgeInfoAzure> dto) {
 		requestId.checkAndRemove(dto.getRequestId());
-        handleEdgeCallback(dto.getUser(), dto.getStatus());
-        return Response.ok().build();
-    }
+		handleEdgeCallback(dto.getUser(), dto.getStatus());
+		return Response.ok().build();
+	}
 }

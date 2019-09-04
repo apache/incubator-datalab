@@ -21,6 +21,7 @@ package com.epam.dlab.dto.base;
 
 import com.epam.dlab.util.CloudSettingsDeserializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;

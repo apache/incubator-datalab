@@ -19,19 +19,14 @@
 
 package com.epam.dlab.backendapi.modules;
 
-import com.epam.dlab.auth.SecurityFactory;
-import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
 import com.epam.dlab.backendapi.SelfServiceApplication;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
-import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureKeyDao;
 import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
-import com.epam.dlab.backendapi.resources.SecurityResource;
-import com.epam.dlab.backendapi.resources.azure.AzureOauthResource;
 import com.epam.dlab.backendapi.resources.azure.BillingResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.EdgeCallbackAzure;
@@ -48,7 +43,6 @@ import com.fiestacabin.dropwizard.quartz.SchedulerConfiguration;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
@@ -92,18 +86,6 @@ public class AzureSelfServiceModule extends CloudModule {
 		environment.jersey().register(injector.getInstance(KeyUploaderCallbackAzure.class));
 		environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
 		environment.jersey().register(injector.getInstance(BillingResourceAzure.class));
-
-		if (!useLdap) {
-			environment.jersey().register(injector.getInstance(AzureOauthResource.class));
-			injector.getInstance(SecurityFactory.class).configure(injector, environment,
-					SelfServiceSecurityAuthenticator.class,
-					new UserSessionDurationAuthorizer(ui ->
-							injector.getInstance(SecurityResource.class).userLogout(ui),
-							maxSessionDurabilityMilliseconds));
-		}
-
-		injector.getInstance(SecurityFactory.class).configure(injector, environment,
-				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
 
 	}
 

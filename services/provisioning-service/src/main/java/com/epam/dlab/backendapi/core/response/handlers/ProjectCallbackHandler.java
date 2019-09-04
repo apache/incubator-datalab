@@ -1,6 +1,5 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
@@ -18,10 +17,10 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
 	private final String projectName;
 	private final Class<? extends EdgeInfo> clazz;
 
-	public ProjectCallbackHandler(SystemUserInfoService systemUserInfoService, RESTService selfService, String user,
+	public ProjectCallbackHandler(RESTService selfService, String user,
 								  String uuid, DockerAction action, String callbackUri, String projectName,
 								  Class<? extends EdgeInfo> clazz) {
-		super(systemUserInfoService, selfService, user, uuid, action);
+		super(selfService, user, uuid, action);
 		this.callbackUri = callbackUri;
 		this.projectName = projectName;
 		this.clazz = clazz;

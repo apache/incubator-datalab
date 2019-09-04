@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.resources;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
@@ -37,7 +36,6 @@ import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,8 +51,6 @@ import javax.ws.rs.core.MediaType;
 @Slf4j
 public class LibraryResource extends DockerService implements DockerCommands {
 
-	@Inject
-	private SystemUserInfoService systemUserInfoService;
 
 	@POST
 	@Path(ExploratoryAPI.EXPLORATORY + "/lib_list")
@@ -156,11 +152,11 @@ public class LibraryResource extends DockerService implements DockerCommands {
 																  ExploratoryBaseDTO<?> dto) {
 		switch (action) {
 			case LIB_INSTALL:
-				return new LibInstallCallbackHandler(systemUserInfoService, selfService, action, uuid,
+				return new LibInstallCallbackHandler(selfService, action, uuid,
 						dto.getCloudSettings().getIamUser(),
 						(LibraryInstallDTO) dto);
 			case LIB_LIST:
-				return new LibListCallbackHandler(systemUserInfoService, selfService, DockerAction.LIB_LIST, uuid,
+				return new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid,
 						dto.getCloudSettings().getIamUser(), dto.getNotebookImage());
 			default:
 				throw new IllegalArgumentException("Unknown action " + action);
@@ -171,10 +167,10 @@ public class LibraryResource extends DockerService implements DockerCommands {
 																	ExploratoryBaseDTO<?> dto) {
 		switch (action) {
 			case LIB_LIST:
-				return new LibListCallbackHandler(systemUserInfoService, selfService, action, uuid,
+				return new LibListCallbackHandler(selfService, action, uuid,
 						dto.getCloudSettings().getIamUser(), ((LibListComputationalDTO) dto).getLibCacheKey());
 			case LIB_INSTALL:
-				return new LibInstallCallbackHandler(systemUserInfoService, selfService, action, uuid,
+				return new LibInstallCallbackHandler(selfService, action, uuid,
 						dto.getCloudSettings().getIamUser(), ((LibraryInstallDTO) dto));
 
 			default:

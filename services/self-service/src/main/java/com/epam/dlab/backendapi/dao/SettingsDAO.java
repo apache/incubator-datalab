@@ -45,11 +45,19 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(SERIVICE_BASE_NAME);
 	}
 
+	public void setServiceBaseName(String sbn) {
+		setSetting(SERIVICE_BASE_NAME, sbn);
+	}
+
 	/**
 	 * Returns the name of OS family.
 	 */
 	public String getConfOsFamily() {
 		return getSetting(CONF_OS_FAMILY);
+	}
+
+	public void setConfOsFamily(String osFamily) {
+		setSetting(CONF_OS_FAMILY, osFamily);
 	}
 
 	/**
@@ -59,6 +67,10 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(CONF_KEY_DIRECTORY);
 	}
 
+	public void setConfKeyDir(String confKeyDir) {
+		setSetting(CONF_KEY_DIRECTORY, confKeyDir);
+	}
+
 	/**
 	 * Returns the name of tag for resource id.
 	 */
@@ -66,10 +78,62 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(CONF_TAG_RESOURCE_ID);
 	}
 
+	public void setConfTagResourceId(String confTagResourceId) {
+		setSetting(CONF_TAG_RESOURCE_ID, confTagResourceId);
+	}
+
 	public Optional<Integer> getMaxBudget() {
 		return getOptionalSetting(CONF_MAX_BUDGET)
 				.map(Integer::valueOf);
 
+	}
+
+	public String getAwsZone() {
+		return getSetting(AWS_ZONE);
+	}
+
+	public void setAwsZone(String awsZone) {
+		setSetting(AWS_ZONE, awsZone);
+	}
+
+	public String getLdapHost() {
+		return getSetting(LDAP_HOSTNAME);
+	}
+
+	public void setLdapHost(String ldapHost) {
+		setSetting(LDAP_HOSTNAME, ldapHost);
+	}
+
+	public String getLdapOu() {
+		return getSetting(LDAP_OU);
+	}
+
+	public void setLdapOu(String ldapOu) {
+		setSetting(LDAP_OU, ldapOu);
+	}
+
+	public String getLdapDn() {
+		return getSetting(LDAP_DN);
+	}
+
+	public void setLdapDn(String ldapDn) {
+		setSetting(LDAP_DN, ldapDn);
+	}
+
+	public String getLdapUser() {
+		return getSetting(LDAP_USER);
+	}
+
+	public void setLdapUser(String user) {
+		setSetting(LDAP_USER, user);
+	}
+
+	public String getLdapPassword() {
+		return getSetting(LDAP_PASSWORD);
+	}
+
+	public void setLdapPassword(String ldapPassword) {
+		setSetting(LDAP_PASSWORD, ldapPassword);
 	}
 
 	/**
@@ -79,11 +143,19 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AWS_REGION);
 	}
 
+	public void setAwsRegion(String awsRegion) {
+		setSetting(AWS_REGION, awsRegion);
+	}
+
 	/**
 	 * Returns the id of security group.
 	 */
 	public String getAwsSecurityGroups() {
 		return getSetting(AWS_SECURITY_GROUPS);
+	}
+
+	public void setAwsSecurityGroups(String awsSecurityGroups) {
+		setSetting(AWS_SECURITY_GROUPS, awsSecurityGroups);
 	}
 
 	/**
@@ -93,9 +165,17 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AWS_VPC_ID);
 	}
 
+	public void setAwsVpcId(String awsVpcId) {
+		setSetting(AWS_VPC_ID, awsVpcId);
+	}
+
 	/**
 	 * Returns the id of virtual private cloud subnet for AWS account.
 	 */
+	public void setAwsSubnetId(String awsSubnetId) {
+		setSetting(AWS_SUBNET_ID, awsSubnetId);
+	}
+
 	public String getAwsSubnetId() {
 		return getSetting(AWS_SUBNET_ID);
 	}
@@ -104,8 +184,16 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AWS_NOTEBOOK_VPC_ID);
 	}
 
+	public void setAwsNotebookVpcId(String awsNotebookVpcId) {
+		setSetting(AWS_NOTEBOOK_VPC_ID, awsNotebookVpcId);
+	}
+
 	public String getAwsNotebookSubnetId() {
 		return getSetting(AWS_NOTEBOOK_SUBNET_ID);
+	}
+
+	public void setAwsNotebookSubnetId(String awsNotebookSubnetId) {
+		setSetting(AWS_NOTEBOOK_SUBNET_ID, awsNotebookSubnetId);
 	}
 
 	public String getAzureRegion() {

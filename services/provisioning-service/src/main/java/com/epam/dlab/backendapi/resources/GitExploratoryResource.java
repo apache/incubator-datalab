@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.resources;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
@@ -31,7 +30,6 @@ import com.epam.dlab.backendapi.service.impl.DockerService;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,9 +44,6 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class GitExploratoryResource extends DockerService implements DockerCommands {
-
-	@Inject
-	private SystemUserInfoService systemUserInfoService;
 
 	@Path("/git_creds")
 	@POST
@@ -80,8 +75,7 @@ public class GitExploratoryResource extends DockerService implements DockerComma
 	}
 
 	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
-		return new ExploratoryGitCredsCallbackHandler(systemUserInfoService, selfService, action, uuid,
-				dto.getCloudSettings().getIamUser(), dto.getExploratoryName());
+		return new ExploratoryGitCredsCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(), dto.getExploratoryName());
 	}
 
 	private String nameContainer(String user, DockerAction action, String name) {

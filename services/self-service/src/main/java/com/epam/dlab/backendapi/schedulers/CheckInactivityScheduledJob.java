@@ -18,7 +18,6 @@
  */
 package com.epam.dlab.backendapi.schedulers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
 import com.epam.dlab.backendapi.service.InactivityService;
 import com.google.inject.Inject;
@@ -38,9 +37,6 @@ public class CheckInactivityScheduledJob implements Job {
 
 	@Inject
 	private InactivityService inactivityService;
-
-	@Inject
-	private SystemUserInfoService systemUserInfoService;
 
 	@Override
 	public void execute(JobExecutionContext context) {

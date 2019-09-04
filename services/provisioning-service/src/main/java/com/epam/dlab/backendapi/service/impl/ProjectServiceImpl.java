@@ -1,6 +1,5 @@
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.commands.*;
@@ -26,8 +25,6 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String CALLBACK_URI = "/api/project/status";
 	@Inject
 	protected RESTService selfService;
-	@Inject
-	protected SystemUserInfoService systemUserInfoService;
 	@Inject
 	private ProvisioningServiceApplicationConfiguration configuration;
 	@Inject
@@ -63,7 +60,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
-				new ProjectCallbackHandler(systemUserInfoService, selfService, userInfo.getName(), uuid,
+				new ProjectCallbackHandler(selfService, userInfo.getName(), uuid,
 						action, CALLBACK_URI, projectName, getEdgeClass()));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()

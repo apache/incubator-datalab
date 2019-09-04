@@ -70,7 +70,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 * {@link Response.Status#FOUND} request for provisioning service has been duplicated.
 	 */
 	@PUT
-	@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
+	//@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
 	@ApiOperation("Creates notebook")
 	@ApiResponses({@ApiResponse(code = 302, message = "Notebook with current parameters already exists"),
 			@ApiResponse(code = 200, message = "Notebook created successfully")})

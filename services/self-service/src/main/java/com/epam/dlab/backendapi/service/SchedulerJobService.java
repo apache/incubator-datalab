@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 

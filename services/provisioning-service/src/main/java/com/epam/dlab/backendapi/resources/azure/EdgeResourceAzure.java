@@ -41,9 +41,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
-import static com.epam.dlab.rest.contracts.ApiCallbacks.EDGE;
-import static com.epam.dlab.rest.contracts.ApiCallbacks.KEY_LOADER;
-import static com.epam.dlab.rest.contracts.ApiCallbacks.STATUS_URI;
+import static com.epam.dlab.rest.contracts.ApiCallbacks.*;
 
 /**
  * Provides API to manage Edge node on Azure
@@ -88,7 +86,7 @@ public class EdgeResourceAzure extends EdgeService {
 	@SuppressWarnings("unchecked")
 	protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user, String
 			callbackURI) {
-		return new EdgeCallbackHandler(systemUserInfoService, selfService, action, uuid, user, callbackURI,
+		return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI,
 				EdgeInfoAzure.class,
 				UploadFileResult.class);
 	}

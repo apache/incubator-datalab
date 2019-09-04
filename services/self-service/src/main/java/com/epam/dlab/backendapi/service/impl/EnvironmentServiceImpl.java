@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -62,7 +61,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Inject
 	private ComputationalService computationalService;
 	@Inject
-	private SystemUserInfoService systemUserInfoService;
+	private SecurityService securityService;
 	@Inject
 	private KeyDAO keyDAO;
 	@Inject
@@ -129,14 +128,14 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(project)
 				.forEach(this::stopNotebook);
 		if (projectService.get(project).getStatus() == ProjectDTO.Status.ACTIVE) {
-			projectService.stop(systemUserInfoService.create("admin"), project);
+			projectService.stop(securityService.getUserInfoOffline("admin"), project);
 		}
 	}
 
 	@Override
 	public void stopEdge(String user) {
 		if (UserInstanceStatus.RUNNING.toString().equals(keyDAO.getEdgeStatus(user))) {
-			edgeService.stop(systemUserInfoService.create(user));
+			edgeService.stop(securityService.getUserInfoOffline(user));
 		}
 	}
 
@@ -195,31 +194,31 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private void stopNotebook(UserInstanceDTO instance) {
-		final UserInfo userInfo = systemUserInfoService.create(instance.getUser());
+		final UserInfo userInfo = securityService.getUserInfoOffline(instance.getUser());
 		exploratoryService.stop(userInfo, instance.getExploratoryName());
 	}
 
 	private void stopDataengine(String user, String exploratoryName, String computationalName) {
-		final UserInfo userInfo = systemUserInfoService.create(user);
+		final UserInfo userInfo = securityService.getUserInfoOffline(user);
 		computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
 	}
 
 	private boolean terminateEdge(String user) {
 		final boolean nodeExists = keyDAO.edgeNodeExist(user);
 		if (nodeExists) {
-			edgeService.terminate(systemUserInfoService.create(user));
+			edgeService.terminate(securityService.getUserInfoOffline(user));
 			exploratoryService.updateExploratoryStatuses(user, UserInstanceStatus.TERMINATING);
 		}
 		return nodeExists;
 	}
 
 	private void terminateNotebook(UserInstanceDTO instance) {
-		final UserInfo userInfo = systemUserInfoService.create(instance.getUser());
+		final UserInfo userInfo = securityService.getUserInfoOffline(instance.getUser());
 		exploratoryService.terminate(userInfo, instance.getExploratoryName());
 	}
 
 	private void terminateCluster(String user, String exploratoryName, String computationalName) {
-		final UserInfo userInfo = systemUserInfoService.create(user);
+		final UserInfo userInfo = securityService.getUserInfoOffline(user);
 		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
 	}
 

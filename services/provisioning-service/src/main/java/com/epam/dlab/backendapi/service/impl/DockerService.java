@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.commands.CommandBuilder;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
@@ -29,17 +28,15 @@ import com.google.inject.Inject;
 
 public abstract class DockerService {
 
-    @Inject
-    protected ProvisioningServiceApplicationConfiguration configuration;
-    @Inject
-    protected FolderListenerExecutor folderListenerExecutor;
-    @Inject
-    protected ICommandExecutor commandExecutor;
-    @Inject
-    protected CommandBuilder commandBuilder;
-    @Inject
-    protected RESTService selfService;
-    @Inject
-    protected SystemUserInfoService sysUserService;
+	@Inject
+	protected ProvisioningServiceApplicationConfiguration configuration;
+	@Inject
+	protected FolderListenerExecutor folderListenerExecutor;
+	@Inject
+	protected ICommandExecutor commandExecutor;
+	@Inject
+	protected CommandBuilder commandBuilder;
+	@Inject
+	protected RESTService selfService;
 
 }

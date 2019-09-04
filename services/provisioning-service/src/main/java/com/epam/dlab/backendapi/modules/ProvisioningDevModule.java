@@ -20,7 +20,6 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
@@ -34,11 +33,11 @@ import com.epam.dlab.backendapi.core.response.handlers.dao.FileSystemCallbackHan
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.dlab.backendapi.service.CheckInactivityService;
+import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
 import com.epam.dlab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
 import com.fasterxml.jackson.core.JsonParser;
@@ -47,7 +46,6 @@ import com.google.inject.name.Names;
 import io.dropwizard.setup.Environment;
 
 import javax.ws.rs.core.Response;
-import java.util.Optional;
 
 /**
  * Mock class for an application configuration of Provisioning Service for tests.
@@ -77,18 +75,6 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 				.SELF_SERVICE_NAME));
 		bind(MetadataHolder.class).to(DockerWarmuper.class);
 		bind(ICommandExecutor.class).toInstance(new CommandExecutorMock(configuration.getCloudProvider()));
-		bind(SystemUserInfoService.class).toInstance(new SystemUserInfoService() {
-			@Override
-			public Optional<UserInfo> getUser(String token) {
-				return Optional.of(getUserInfo());
-			}
-
-			@Override
-			public UserInfo create(String name) {
-				return getUserInfo();
-			}
-		});
-		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
 		bind(ObjectMapper.class).toInstance(new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true));
 		bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
 		bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);

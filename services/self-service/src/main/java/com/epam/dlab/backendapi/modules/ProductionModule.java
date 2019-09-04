@@ -20,9 +20,7 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
-import com.epam.dlab.auth.SystemUserInfoService;
-import com.epam.dlab.auth.SystemUserInfoServiceImpl;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.dao.*;
 import com.epam.dlab.backendapi.service.*;
@@ -32,7 +30,11 @@ import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.name.Names;
 import io.dropwizard.auth.Authorizer;
+import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
+import org.glassfish.jersey.logging.LoggingFeature;
+
+import javax.ws.rs.client.Client;
 
 /**
  * Production class for an application configuration of SelfService.
@@ -51,6 +53,11 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 
 	@Override
 	protected void configure() {
+		final Client httpClient =
+				new JerseyClientBuilder(environment)
+						.using(configuration.getJerseyClientConfiguration())
+						.build("httpClient")
+						.register(new LoggingFeature());
 		bind(SelfServiceApplicationConfiguration.class).toInstance(configuration);
 		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
@@ -64,7 +71,6 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(BackupService.class).to(BackupServiceImpl.class);
 		bind(BackupDao.class).to(BackupDaoImpl.class);
 		bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
-		bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
 		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
 		bind(AccessKeyService.class).to(AccessKeyServiceImpl.class);
 		bind(GitCredentialService.class).to(GitCredentialServiceImpl.class);
@@ -92,5 +98,8 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(ProjectService.class).to(ProjectServiceImpl.class);
 		bind(ProjectDAO.class).to(ProjectDAOImpl.class);
 		bind(TagService.class).to(TagServiceImpl.class);
+		bind(SecurityService.class).to(SecurityServiceImpl.class);
+		bind(KeycloakService.class).to(KeycloakServiceImpl.class);
+		bind(Client.class).toInstance(httpClient);
 	}
 }

@@ -39,7 +39,7 @@ const routes: Routes = [{
   component: LoginComponent
 }, {
   path: '',
-  canActivate: [AuthorizationGuard],
+  canActivate: [CheckParamsGuard],
   component: LayoutComponent,
   children: [
     {

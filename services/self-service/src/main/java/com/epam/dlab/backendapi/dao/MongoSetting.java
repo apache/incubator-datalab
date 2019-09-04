@@ -34,6 +34,12 @@ public enum MongoSetting {
 
     CONF_MAX_BUDGET("conf_max_budget"),
 
+    LDAP_HOSTNAME("ldap_hostname"),
+    LDAP_DN("ldap_dn"),
+    LDAP_OU("ldap_ou"),
+    LDAP_USER("ldap_service_username"),
+    LDAP_PASSWORD("ldap_service_password"),
+
 
     // AWS Related properties
     /** Name of AWS region. */
@@ -46,6 +52,7 @@ public enum MongoSetting {
     AWS_SUBNET_ID("aws_subnet_id"),
     AWS_NOTEBOOK_VPC_ID("aws_notebook_vpc_id"),
     AWS_NOTEBOOK_SUBNET_ID("aws_notebook_subnet_id"),
+    AWS_ZONE("aws_zone"),
 
 
     // Azure related properties

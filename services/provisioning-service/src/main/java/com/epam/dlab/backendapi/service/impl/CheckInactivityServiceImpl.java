@@ -82,7 +82,7 @@ public class CheckInactivityServiceImpl extends DockerService implements CheckIn
 	private void startComputationalCallbackListener(String userName, ComputationalCheckInactivityDTO dto,
 													String uuid) {
 		final CheckInactivityCallbackHandler handler = new CheckInactivityCallbackHandler(
-				selfService, sysUserService, ApiCallbacks.CHECK_INACTIVITY_COMPUTATIONAL_URI, userName, uuid,
+				selfService, ApiCallbacks.CHECK_INACTIVITY_COMPUTATIONAL_URI, userName, uuid,
 				dto.getExploratoryName(), dto.getComputationalName());
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(), handler);
@@ -90,7 +90,7 @@ public class CheckInactivityServiceImpl extends DockerService implements CheckIn
 
 	private void startExploratoryCallbackListener(String userName, ExploratoryCheckInactivityAction dto, String uuid) {
 		final CheckInactivityCallbackHandler handler = new CheckInactivityCallbackHandler(
-				selfService, sysUserService, ApiCallbacks.CHECK_INACTIVITY_EXPLORATORY_URI, userName, uuid,
+				selfService, ApiCallbacks.CHECK_INACTIVITY_EXPLORATORY_URI, userName, uuid,
 				dto.getExploratoryName());
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(), handler);
