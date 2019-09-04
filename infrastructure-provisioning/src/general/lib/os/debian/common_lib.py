@@ -34,7 +34,10 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
                                 'libffi-dev unzip libxml2-dev haveged'):
     count = 0
     check = False
-    while check == False and count <= 60:
+    while check == False and count <= 61:
+        if count == 61:
+            print("Repositories are not available. Please, try again later.")
+            sys.exit(1)
         try:
             if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
                 print("Updating repositories "
