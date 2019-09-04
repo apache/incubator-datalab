@@ -24,7 +24,7 @@
       <section class="inner-step mat-reset upload-key">
         <div class="form-block split">
           <div class="row-wrap">
-            <div class="col">
+            <div class="col label">
               <label class="control-label">
                 <span>Upload public key to start project creation</span>
               </label>
@@ -35,7 +35,7 @@
                 </a>
               </div>
             </div>
-            <div class="col txt-r">
+            <div class="col txt-r action">
               <span mat-raised-button class="butt butt-file" [ngClass]="{ 'not-allowed' : item }">
                 <span class="upload-icon"></span> Upload
                 <input (change)="onFileChange($event)" type="file" name="file" accept=".pub" />
