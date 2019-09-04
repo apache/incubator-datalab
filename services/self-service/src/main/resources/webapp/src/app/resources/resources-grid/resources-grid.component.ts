@@ -198,14 +198,10 @@ export class ResourcesGridComponent implements OnInit {
 
 
   isResourcesInProgress(notebook) {
-    const env = this.getEnvironmentsListCopy().filter(env => env.exploratory.find(el => el.name === notebook.name))[0];
-    let resource = [];
+    const env = this.getEnvironmentsListCopy().map(env => env.exploratory.find(el => el.name === notebook.name))[0];
 
-    if (env) resource = env.exploratory[0].resources;
-
-    if (resource.length) {
-      return resource.filter(item => (
-        item.status !== 'failed' && item.status !== 'terminated'
+    if (env.resources.length) {
+      return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
         && item.status !== 'running' && item.status !== 'stopped')).length > 0;
     }
     return false;

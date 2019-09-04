@@ -20,6 +20,18 @@
 .form-block {
   width: 600px;
 
+  .row-wrap {
+    .col {
+      &.label {
+        width: 60%;
+      }
+
+      &.action {
+        width: 40%;
+      }
+    }
+  }
+
   &.split {
     flex-direction: column;
     display: flex;
