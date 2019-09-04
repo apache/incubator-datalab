@@ -27,7 +27,7 @@ import sys
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -38,8 +38,7 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-    edge_conf['project_name'] = os.environ['project_name'].replace('_', '-')
+    edge_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + '-edge'
     edge_conf['instance_dns_name'] = 'host-' + edge_conf['instance_name'] + '.' + os.environ['azure_region'] + '.cloudapp.azure.com'
 
