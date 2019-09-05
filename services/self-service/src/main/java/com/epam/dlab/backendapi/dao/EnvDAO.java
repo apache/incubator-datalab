@@ -26,7 +26,6 @@ import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
-import com.epam.dlab.backendapi.resources.dto.HealthStatusResource;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -146,28 +145,9 @@ public class EnvDAO extends BaseDAO {
 	 * @throws DlabException in case of any exception
 	 */
 	public HealthStatusPageDTO getHealthStatusPageDTO(String user, boolean fullReport) {
-		List<HealthStatusResource> listResource = new ArrayList<>(1);
-		final HealthStatusPageDTO healthStatusPageDTO = new HealthStatusPageDTO()
-				.withStatus(HealthStatusEnum.OK);
-
-		final Optional<Document> edgeNode = getEdgeNode(user);
-		if (edgeNode.isPresent()) {
-			final Document document = edgeNode.get();
-			final String edgeStatus = document.getString(EDGE_STATUS);
-			if (UserInstanceStatus.RUNNING != UserInstanceStatus.of(edgeStatus)) {
-				healthStatusPageDTO.withStatus(HealthStatusEnum.ERROR);
-			}
-			if (fullReport) {
-				listResource.add(new HealthStatusResource()
-						.withType("Edge Node")
-						.withResourceId(document.getString(EDGE_PUBLIC_IP))
-						.withStatus(edgeStatus));
-			}
-		} else {
-			healthStatusPageDTO.withStatus(HealthStatusEnum.ERROR);
-		}
-		return healthStatusPageDTO
-				.withListResources(fullReport ? listResource : null);
+		return new HealthStatusPageDTO()
+				.withStatus(HealthStatusEnum.OK)
+				.withListResources(Collections.emptyList());
 	}
 
 
