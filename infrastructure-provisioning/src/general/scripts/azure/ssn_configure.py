@@ -268,7 +268,7 @@ if __name__ == "__main__":
                 'value': os.environ['ldap_ou']
             },
             {
-                'key': 'LDAP_USER',
+                'key': 'LDAP_USER_NAME',
                 'value': os.environ['ldap_service_username']
             },
             {

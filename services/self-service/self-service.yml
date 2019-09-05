@@ -110,14 +110,14 @@ logging:
     com.novemberain: ERROR
     io.swagger.v3: DEBUG
   appenders:
-  <#if DEV_MODE == "true">
-- type: console
-  </#if>
-- type: file
-  currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
-  archive: true
-  archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
-  archivedFileCount: 10
+ <#if DEV_MODE == "true">
+  - type: console
+ </#if>
+  - type: file
+    currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
+    archive: true
+    archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
+    archivedFileCount: 10
 
 swaggerConfiguration:
   resourcePackage: com.epam.dlab.backendapi.resources
@@ -218,7 +218,7 @@ cloudProperties:
     host: LDAP_HOST
     dn: LDAP_DN
     ou: LDAP_OU
-    user: LDAP_USER
+    user: LDAP_USER_NAME
     password: LDAP_USER_PASSWORD
 
 
