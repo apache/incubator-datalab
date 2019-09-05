@@ -56,10 +56,6 @@ parser.add_argument('--usage_type', type=str, default='', help='Column name in r
 parser.add_argument('--usage', type=str, default='', help='Column name in report file that contains usage tag')
 parser.add_argument('--cost', type=str, default='', help='Column name in report file that contains cost tag')
 parser.add_argument('--resource_id', type=str, default='', help='Column name in report file that contains dlab resource id tag')
-parser.add_argument('--keycloak_realm_name', type=str, default='')
-parser.add_argument('--keycloak_auth_server_url', type=str, default='')
-parser.add_argument('--keycloak_client_name', type=str, default='')
-parser.add_argument('--keycloak_client_secret', type=str, default='')
 parser.add_argument('--tags', type=str, default='', help='Column name in report file that contains tags')
 args = parser.parse_args()
 
@@ -115,10 +111,6 @@ def yml_self_service(path):
             config_orig = config_yml_r.read()
 
         config_orig = config_orig.replace('billingSchedulerEnabled: false', 'billingSchedulerEnabled: true')
-        config_orig = config_orig.replace('KEYCLOAK_REALM_NAME', args.keycloak_realm_name)
-        config_orig = config_orig.replace('KEYCLOAK_AUTH_SERVER_URL', args.keycloak_auth_server_url)
-        config_orig = config_orig.replace('KEYCLOAK_CLIENT_NAME', args.keycloak_client_name)
-        config_orig = config_orig.replace('KEYCLOAK_CLIENT_SECRET', args.keycloak_client_secret)
 
         f = open(path, 'w')
         f.write(config_orig)

@@ -27,6 +27,7 @@ import yaml
 from dlab.fab import *
 from dlab.meta_lib import *
 import os
+import json
 import traceback
 import sys
 
@@ -170,7 +171,7 @@ def ensure_mongo():
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              os_user, mongo_passwd, keystore_passwd, cloud_provider,
              service_base_name, tag_resource_id, billing_tag, account_id, billing_bucket,
-             aws_job_enabled, dlab_path, billing_enabled,
+             aws_job_enabled, dlab_path, billing_enabled, cloud_params,
              authentication_file, offer_number, currency,
              locale, region_info, ldap_login, tenant_id,
              application_id, hostname, data_lake_name, subscription_id,
@@ -204,32 +205,34 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             try:
                 sudo('mkdir -p /var/log/application')
                 run('mkdir -p /tmp/yml_tmp/')
-                for service in ['self-service', 'security-service', 'provisioning-service', 'billing']:
+                for service in ['self-service', 'provisioning-service', 'billing']:
                     jar = sudo('cd {0}{1}/lib/; find {1}*.jar -type f'.format(web_path, service))
                     sudo('ln -s {0}{2}/lib/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
                     sudo('cp {0}/webapp/{1}/conf/*.yml /tmp/yml_tmp/'.format(dlab_path, service))
+                    # Replacing Keycloak and cloud parameters
+                    for item in json.loads(cloud_params):
+                        sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/self-service.yml'.format(
+                            item['key'], item['value']))
+
                 if cloud_provider == 'azure':
-                    for config in ['self-service', 'security']:
-                        sudo('sed -i "s|<LOGIN_USE_LDAP>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, ldap_login))
-                        sudo('sed -i "s|<LOGIN_TENANT_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, tenant_id))
-                        sudo('sed -i "s|<LOGIN_APPLICATION_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
-                                                                                                   application_id))
-                        sudo('sed -i "s|<DLAB_SUBSCRIPTION_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
-                                                                                                   subscription_id))
-                        sudo('sed -i "s|<MANAGEMENT_API_AUTH_FILE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, authentication_file))
-                        sudo('sed -i "s|<VALIDATE_PERMISSION_SCOPE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(
-                            config, validate_permission_scope))
-                        sudo('sed -i "s|<LOGIN_APPLICATION_REDIRECT_URL>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
-                                                                                                             hostname))
-                        sudo('sed -i "s|<LOGIN_PAGE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, hostname))
-                    if os.environ['azure_datalake_enable'] == 'true':
-                        permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.DataLakeStore/accounts/{}/providers/Microsoft.Authorization/'.format(
-                            subscription_id, service_base_name, data_lake_name)
-                    else:
-                        permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.Authorization/'.format(
-                            subscription_id, service_base_name
-                        )
-                    sudo('sed -i "s|<PERMISSION_SCOPE>|{}|g" /tmp/yml_tmp/security.yml'.format(permission_scope))
+                    sudo('sed -i "s|<LOGIN_USE_LDAP>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(ldap_login))
+                    sudo('sed -i "s|<LOGIN_TENANT_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(tenant_id))
+                    sudo('sed -i "s|<LOGIN_APPLICATION_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(application_id))
+                    sudo('sed -i "s|<DLAB_SUBSCRIPTION_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(subscription_id))
+                    sudo('sed -i "s|<MANAGEMENT_API_AUTH_FILE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                        authentication_file))
+                    sudo('sed -i "s|<VALIDATE_PERMISSION_SCOPE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                        validate_permission_scope))
+                    sudo('sed -i "s|<LOGIN_APPLICATION_REDIRECT_URL>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                        hostname))
+                    sudo('sed -i "s|<LOGIN_PAGE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(hostname))
+                    # if os.environ['azure_datalake_enable'] == 'true':
+                    #     permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.DataLakeStore/accounts/{}/providers/Microsoft.Authorization/'.format(
+                    #         subscription_id, service_base_name, data_lake_name)
+                    # else:
+                    #     permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.Authorization/'.format(
+                    #         subscription_id, service_base_name
+                    #     )
                 sudo('mv /tmp/yml_tmp/* ' + dlab_conf_dir)
                 sudo('rmdir /tmp/yml_tmp/')
             except:
@@ -259,10 +262,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '--usage {} ' \
                          '--cost {} ' \
                          '--resource_id {} ' \
-                         '--keycloak_realm_name {} ' \
-                         '--keycloak_auth_server_url {} ' \
-                         '--keycloak_client_name {} ' \
-                         '--keycloak_client_secret {} ' \
                          '--tags {}'.\
                             format(cloud_provider,
                                    service_base_name,
@@ -286,10 +285,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                                    usage,
                                    cost,
                                    resource_id,
-                                   os.environ['keycloak_realm_name'],
-                                   os.environ['keycloak_auth_server_url'],
-                                   os.environ['keycloak_client_name'],
-                                   os.environ['keycloak_client_secret'],
                                    tags)
                 sudo('python /tmp/configure_billing.py {}'.format(params))
             try:

@@ -195,24 +195,30 @@ jerseyClient:
   chunkedEncodingEnabled: true
 
 cloudProperties:
-  os: debian
-  serviceBaseName: dev
-  edgeInstanceSize: t2.medium
-  subnetId: subnet-22db937a
-  region: us-west-2
-  zone: us
-  confTagResourceId: user:tag
-  securityGroupIds: sg-4d42dc35,sg-f19a0389,sg-71e27b09,sg-d3e67fab
-  ssnInstanceSize: t2.large
-  notebookVpcId: vpc-83c469e4
-  notebookSubnetId: subnet-22db937a
-  confKeyDir: /root/keys/
-  vpcId: vpc-83c469e4
+  os: CONF_OS
+  serviceBaseName: SERVICE_BASE_NAME
+  edgeInstanceSize: EDGE_INSTANCE_SIZE
+  subnetId: SUBNET_ID
+  region: REGION
+  zone: ZONE
+  confTagResourceId: TAG_RESOURCE_ID
+  securityGroupIds: SG_IDS
+  ssnInstanceSize: SSN_INSTANCE_SIZE
+  notebookVpcId: VPC2_ID
+  notebookSubnetId: SUBNET2_ID
+  confKeyDir: CONF_KEY_DIR
+  vpcId: VPC_ID
+  peeringId: PEERING_ID
+  azureResourceGroupName: AZURE_RESOURCE_GROUP_NAME
+  ssnStorageAccountTagName: AZURE_SSN_STORAGE_ACCOUNT_TAG
+  sharedStorageAccountTagName: AZURE_SHARED_STORAGE_ACCOUNT_TAG
+  datalakeTagName: AZURE_DATALAKE_TAG
+  azureClientId: AZURE_CLIENT_ID
   ldap:
-    host: ec2-52-36-63-161.us-west-2.compute.amazonaws.com
-    dn: dc=example,dc=com
-    ou: ou=People
-    user: cn=admin
-    password: pass
+    host: LDAP_HOST
+    dn: LDAP_DN
+    ou: LDAP_OU
+    user: LDAP_USER
+    password: LDAP_USER_PASSWORD
 
 
