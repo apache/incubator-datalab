@@ -56,6 +56,8 @@ public class MongoStartupListener implements ServerLifecycleListener {
 		settingsDAO.setLdapOu(ldapConfig.getOu());
 		settingsDAO.setLdapUser(ldapConfig.getUser());
 		settingsDAO.setLdapPassword(ldapConfig.getPassword());
+		settingsDAO.setSsnStorageAccountTagName(cloudConfiguration.getSsnStorageAccountTagName());
+		settingsDAO.setPeeringId(cloudConfiguration.getPeeringId());
 
 		if (configuration.getCloudProvider() == CloudProvider.AWS) {
 			settingsDAO.setAwsZone(cloudConfiguration.getZone());
@@ -65,6 +67,18 @@ public class MongoStartupListener implements ServerLifecycleListener {
 			settingsDAO.setAwsNotebookVpcId(cloudConfiguration.getNotebookVpcId());
 			settingsDAO.setAwsNotebookSubnetId(cloudConfiguration.getNotebookSubnetId());
 			settingsDAO.setAwsSecurityGroups(cloudConfiguration.getSecurityGroupIds());
+		}
+
+		if (configuration.getCloudProvider() == CloudProvider.AZURE) {
+			settingsDAO.setAzureRegion(cloudConfiguration.getRegion());
+			settingsDAO.setAzureVpcName(cloudConfiguration.getVpcId());
+			settingsDAO.setAzureDataLakeClientId(cloudConfiguration.getAzureClientId());
+			settingsDAO.setAzureResourceGroupName(cloudConfiguration.getAzureResourceGroupName());
+			settingsDAO.setAzureSecurityGroupName(cloudConfiguration.getSecurityGroupIds());
+			settingsDAO.setAzureDataLakeNameTag(cloudConfiguration.getDatalakeTagName());
+			settingsDAO.setSsnStorageAccountTagName(cloudConfiguration.getSsnStorageAccountTagName());
+			settingsDAO.setSharedStorageAccountTagName(cloudConfiguration.getSharedStorageAccountTagName());
+
 		}
 	}
 
