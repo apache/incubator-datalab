@@ -320,7 +320,7 @@ if __name__ == "__main__":
             },
             {
                 'key': 'LDAP_HOST',
-                'value': os.environ['ldap_host']
+                'value': os.environ['ldap_hostname']
             },
             {
                 'key': 'LDAP_DN',
