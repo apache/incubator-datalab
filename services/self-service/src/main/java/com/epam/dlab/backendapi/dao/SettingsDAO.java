@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.model.UpdateOptions;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
 import java.util.Map;
@@ -184,6 +185,26 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AWS_NOTEBOOK_VPC_ID);
 	}
 
+	public void setSsnStorageAccountTagName(String ssnStorageAccountTagName) {
+		setSetting(SSN_STORAGE_ACCOUNT_TAG_NAME, ssnStorageAccountTagName);
+	}
+
+	public String getSsnStorageAccountTagName() {
+		return getSetting(SSN_STORAGE_ACCOUNT_TAG_NAME);
+	}
+
+	public void setSharedStorageAccountTagName(String sharedStorageAccountTagName) {
+		setSetting(SHARED_STORAGE_ACCOUNT_TAG_NAME, sharedStorageAccountTagName);
+	}
+
+	public String getSharedStorageAccountTagName() {
+		return getSetting(SHARED_STORAGE_ACCOUNT_TAG_NAME);
+	}
+
+	public void setPeeringId(String peeringId) {
+		setSetting(PEERING_ID, peeringId);
+	}
+
 	public void setAwsNotebookVpcId(String awsNotebookVpcId) {
 		setSetting(AWS_NOTEBOOK_VPC_ID, awsNotebookVpcId);
 	}
@@ -235,6 +256,42 @@ public class SettingsDAO extends BaseDAO {
 
 	public String getAzureDataLakeClientId() {
 		return getSetting(AZURE_DATA_LAKE_CLIENT_ID);
+	}
+
+	public void setAzureRegion(String region) {
+		setSetting(AZURE_REGION, region);
+	}
+
+	public void setAzureResourceGroupName(String resourceGroupName) {
+		setSetting(AZURE_RESOURCE_GROUP_NAME, resourceGroupName);
+	}
+
+	public void setAzureSubnetName(String subnetName) {
+		setSetting(AZURE_SUBNET_NAME, subnetName);
+	}
+
+	public void setAzureVpcName(String vpcName) {
+		setSetting(AZURE_VPC_NAME, vpcName);
+	}
+
+	public void setAzureSecurityGroupName(String securityGroupName) {
+		setSetting(AZURE_SECURITY_GROUP_NAME, securityGroupName);
+	}
+
+	public void setAzureEdgeInstanceSize(String azureEdgeInstanceSize) {
+		setSetting(AZURE_EDGE_INSTANCE_SIZE, azureEdgeInstanceSize);
+	}
+
+	public void setAzureSsnInstanceSize(String ssnInstanceSize) {
+		setSetting(AZURE_SSN_INSTANCE_SIZE, ssnInstanceSize);
+	}
+
+	public void setAzureDataLakeNameTag(String dataLakeNameTag) {
+		setSetting(AZURE_DATA_LAKE_NAME_TAG, dataLakeNameTag);
+	}
+
+	public void setAzureDataLakeClientId(String dataLakeClientId) {
+		setSetting(AZURE_DATA_LAKE_CLIENT_ID, dataLakeClientId);
 	}
 
 	public String getGcpRegion() {
@@ -296,9 +353,11 @@ public class SettingsDAO extends BaseDAO {
 	}
 
 	private void setSetting(MongoSetting mongoSetting, String value) {
-		mongoService.getCollection(SETTINGS)
-				.updateOne(eq(ID, mongoSetting.getId()), new Document("$set", new Document(VALUE, value)),
-						new UpdateOptions().upsert(true));
+		if (StringUtils.isNotEmpty(value)) {
+			mongoService.getCollection(SETTINGS)
+					.updateOne(eq(ID, mongoSetting.getId()), new Document("$set", new Document(VALUE, value)),
+							new UpdateOptions().upsert(true));
+		}
 	}
 
 

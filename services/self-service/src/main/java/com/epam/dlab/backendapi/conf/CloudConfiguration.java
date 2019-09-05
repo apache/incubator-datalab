@@ -21,6 +21,12 @@ public class CloudConfiguration {
 	private final String notebookSubnetId;
 	private final String confKeyDir;
 	private final String vpcId;
+	private final String azureResourceGroupName;
+	private final String ssnStorageAccountTagName;
+	private final String sharedStorageAccountTagName;
+	private final String datalakeTagName;
+	private final String azureClientId;
+	private final String peeringId;
 	@JsonProperty("ldap")
 	private final LdapConfig ldapConfig;
 
