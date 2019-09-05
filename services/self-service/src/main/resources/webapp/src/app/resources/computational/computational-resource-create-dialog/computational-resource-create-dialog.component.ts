@@ -133,7 +133,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance)
       .subscribe((response: any) => {
         if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
-      });
+      }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
   private initFormModel(): void {
