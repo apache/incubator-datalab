@@ -682,7 +682,7 @@ def emr_waiter(tag_name, tag_value):
         with hide('stderr', 'running', 'warnings'):
             local("echo 'Some EMR cluster is still being created/terminated, waiting..'")
         time.sleep(60)
-        emr_waiter(tag_name)
+        emr_waiter(tag_name, tag_value)
     else:
         return True
 

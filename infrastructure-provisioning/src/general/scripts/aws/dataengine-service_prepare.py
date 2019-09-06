@@ -125,6 +125,14 @@ if __name__ == "__main__":
         .format(emr_conf['service_base_name'], os.environ['project_name'])
     emr_conf['vpc_id'] = os.environ['aws_vpc_id']
     emr_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
+    emr_conf['provision_instance_ip'] = None
+    try:
+        emr_conf['provision_instance_ip'] = get_instance_ip_address(
+            emr_conf['tag_name'], '{0}-{1}-endpoint'.format(emr_conf['service_base_name'],
+                                                            os.environ['endpoint_name'])).get('Private') + "/32"
+    except:
+        emr_conf['provision_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'], '{0}-ssn'.format(
+            emr_conf['service_base_name'])).get('Private') + "/32"
     if os.environ['emr_slave_instance_spot'] == 'True':
         ondemand_price = float(get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region']))
         emr_conf['slave_bid_price'] = (ondemand_price * int(os.environ['emr_slave_instance_spot_pct_price'])) / 100
@@ -179,9 +187,7 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(
-                    emr_conf['tag_name'], '{0}-{1}-endpoint'.format(
-                        emr_conf['service_base_name'], os.environ['endpoint_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": emr_conf['provision_instance_ip']}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
@@ -195,9 +201,7 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(
-                    emr_conf['tag_name'], '{0}-{1}-endpoint'.format(
-                        emr_conf['service_base_name'], os.environ['endpoint_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": emr_conf['provision_instance_ip']}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             },
