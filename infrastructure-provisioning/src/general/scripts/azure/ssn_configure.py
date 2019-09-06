@@ -277,15 +277,15 @@ if __name__ == "__main__":
             },
             {
                 'key': 'AZURE_RESOURCE_GROUP_NAME',
-                'value': ''
+                'value': ssn_conf['resource_group_name']
             },
             {
                 'key': 'AZURE_SSN_STORAGE_ACCOUNT_TAG',
-                'value': ''
+                'value': ssn_conf['ssn_storage_account_name']
             },
             {
                 'key': 'AZURE_SHARED_STORAGE_ACCOUNT_TAG',
-                'value': ''
+                'value': ssn_conf['shared_storage_account_name']
             },
             {
                 'key': 'SUBNET2_ID',
