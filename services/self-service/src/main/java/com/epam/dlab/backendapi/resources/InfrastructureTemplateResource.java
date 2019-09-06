@@ -32,10 +32,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -61,11 +58,12 @@ public class InfrastructureTemplateResource implements DockerAPI {
 	 * @param userInfo user info.
 	 */
 	@GET
-	@Path("/computational_templates")
+	@Path("/{project}/computational_templates")
 	@ApiOperation("Returns list of cluster's templates")
 	public Iterable<FullComputationalTemplate> getComputationalTemplates(@ApiParam(hidden = true)
-																		 @Auth UserInfo userInfo) {
-		return infrastructureTemplateService.getComputationalTemplates(userInfo);
+																		 @Auth UserInfo userInfo,
+																		 @PathParam("project") String project) {
+		return infrastructureTemplateService.getComputationalTemplates(userInfo, project);
 	}
 
 	/**
@@ -74,10 +72,11 @@ public class InfrastructureTemplateResource implements DockerAPI {
 	 * @param userInfo user info.
 	 */
 	@GET
-	@Path("/exploratory_templates")
+	@Path("/{project}/exploratory_templates")
 	@ApiOperation("Returns list of notebook's templates")
-	public Iterable<ExploratoryMetadataDTO> getExploratoryTemplates(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
-		return infrastructureTemplateService.getExploratoryTemplates(userInfo);
+	public Iterable<ExploratoryMetadataDTO> getExploratoryTemplates(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+																	@PathParam("project") String project) {
+		return infrastructureTemplateService.getExploratoryTemplates(userInfo, project);
 	}
 }
 

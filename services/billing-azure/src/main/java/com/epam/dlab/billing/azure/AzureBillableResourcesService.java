@@ -46,8 +46,8 @@ import static com.mongodb.client.model.Projections.fields;
  */
 @Slf4j
 public class AzureBillableResourcesService {
-	private static final String[] USER_INSTANCES_EXCLUDED_FIELDS = {"scheduler_data", "computational_resources" +
-			".scheduler_data"};
+	private static final String[] USER_INSTANCES_EXCLUDED_FIELDS = {"scheduler_data", "last_activity",
+			"computational_resources.scheduler_data", "computational_resources.last_activity"};
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	private MongoDbBillingClient mongoDbBillingClient;

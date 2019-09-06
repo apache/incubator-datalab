@@ -24,9 +24,10 @@
 from fabric.api import *
 from fabric.contrib.files import exists
 import sys
+import os
 
 
-def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip'):
+def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip libxml2-devel'):
     try:
         if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             print("Updating repositories and installing requested tools: {}".format(requisites))
@@ -73,3 +74,19 @@ def find_java_path_remote():
 def find_java_path_local():
     java_path = local("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'", capture=True)
     return java_path
+
+
+def ensure_ntpd(user, edge_private_ip=''):
+    try:
+        if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
+            sudo('systemctl disable chronyd')
+            sudo('yum -y install ntp')
+            sudo('echo "tinker panic 0" >> /etc/ntp.conf')
+            sudo('systemctl start ntpd')
+            if os.environ['conf_resource'] != 'ssn' and os.environ['conf_resource'] != 'edge':
+                sudo('echo "server {} prefer iburst" >> /etc/ntp.conf'.format(edge_private_ip))
+                sudo('systemctl restart ntpd')
+            sudo('systemctl enable ntpd')
+            sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))
+    except:
+        sys.exit(1)

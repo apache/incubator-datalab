@@ -28,8 +28,8 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:git:file://.</connection>
-        <url>scm:git:file://.</url>
+        <connection>scm:git:https://github.com/apache/incubator-dlab.git</connection>
+        <url>scm:git:https://github.com/apache/incubator-dlab.git</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -62,9 +62,6 @@
         <module>services/provisioning-service</module>
         <module>services/self-service</module>
         <module>services/security-service</module>
-        <module>services/dlab-process</module>
-        <module>services/dlab-auth-common</module>
-        <module>services/dlab-rest-client</module>
         <module>services/dlab-model</module>
         <module>services/dlab-utils</module>
         <module>services/dlab-webapp-common</module>
@@ -117,11 +114,6 @@
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
                 <version>${com.google.inject.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.epam.dlab</groupId>
-                <artifactId>dlab-auth-common</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>

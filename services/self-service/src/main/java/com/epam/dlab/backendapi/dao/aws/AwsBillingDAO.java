@@ -21,8 +21,17 @@ package com.epam.dlab.backendapi.dao.aws;
 
 import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
 import com.epam.dlab.util.UsernameUtils;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.billing.BillingCalculationUtils;
+import com.epam.dlab.billing.DlabResourceType;
+import com.epam.dlab.dto.UserInstanceStatus;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 

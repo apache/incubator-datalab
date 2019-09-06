@@ -62,10 +62,11 @@ def configure_slave(slave_number, data_engine):
     try:
         print('[INSTALLING USERs KEY ON SLAVE NODE]')
         logging.info('[INSTALLING USERs KEY ON SLAVE NODE]')
-        additional_config = {"user_keyname": os.environ['edge_user_name'],
+        additional_config = {"user_keyname": os.environ['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])
+            slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(
+                additional_config), data_engine['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
@@ -104,8 +105,9 @@ def configure_slave(slave_number, data_engine):
     try:
         logging.info('[INSTALLING PREREQUISITES ON SLAVE NODE]')
         print('[INSTALLING PREREQUISITES ON SLAVE NODE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}". \
-            format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}". \
+            format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'],
+                   edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -124,7 +126,8 @@ def configure_slave(slave_number, data_engine):
     try:
         logging.info('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
         print('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
-        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
+        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
+                 "--scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
             format(slave_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], data_engine['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
@@ -146,7 +149,7 @@ def configure_slave(slave_number, data_engine):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -158,6 +161,7 @@ if __name__ == "__main__":
         data_engine = dict()
         data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
         data_engine['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+        data_engine['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
         data_engine['region'] = os.environ['gcp_region']
         data_engine['zone'] = os.environ['gcp_zone']
         try:
@@ -177,13 +181,13 @@ if __name__ == "__main__":
             data_engine['computational_name'] = ''
 
         data_engine['subnet_name'] = '{0}-{1}-subnet'.format(data_engine['service_base_name'],
-                                                             data_engine['edge_user_name'])
+                                                             data_engine['project_name'])
         data_engine['master_size'] = os.environ['gcp_dataengine_master_size']
         data_engine['slave_size'] = os.environ['gcp_dataengine_slave_size']
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], data_engine['key_name'])
         data_engine['dataengine_service_account_name'] = '{}-{}-ps'.format(data_engine['service_base_name'],
-                                                                           data_engine['edge_user_name'])
+                                                                           data_engine['project_name'])
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -191,7 +195,7 @@ if __name__ == "__main__":
         if os.environ['conf_os_family'] == 'redhat':
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['edge_user_name'] + \
+        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['project_name'] + \
                                       '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
@@ -202,10 +206,12 @@ if __name__ == "__main__":
         if os.environ['application'] in ('tensor', 'deeplearning'):
             data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
         data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
-                                                         data_engine['edge_user_name'])
+                                                         data_engine['project_name'])
         master_node_hostname = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
         edge_instance_name = '{0}-{1}-edge'.format(data_engine['service_base_name'],
-                                                   data_engine['edge_user_name'])
+                                                   data_engine['project_name'])
+        edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
+        edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     except Exception as err:
@@ -242,7 +248,7 @@ if __name__ == "__main__":
     try:
         print('[INSTALLING USERs KEY ON MASTER NODE]')
         logging.info('[INSTALLING USERs KEY ON MASTER NODE]')
-        additional_config = {"user_keyname": os.environ['edge_user_name'],
+        additional_config = {"user_keyname": os.environ['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])
@@ -284,8 +290,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES ON MASTER NODE]')
         print('[INSTALLING PREREQUISITES ON MASTER NODE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}".\
+            format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'],
+                   edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -304,7 +311,8 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE MASTER NODE]')
         print('[CONFIGURE MASTER NODE]')
-        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {} --master_ip {} --node_type {}".\
+        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
+                 "--scala_version {} --r_mirror {} --master_ip {} --node_type {}".\
             format(master_node_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], data_engine['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
@@ -342,8 +350,49 @@ if __name__ == "__main__":
         GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
         sys.exit(1)
 
+    try:
+        print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
+        notebook_instance_ip = GCPMeta().get_private_ip_address(data_engine['notebook_name'])
+        additional_info = {
+            "computational_name": data_engine['computational_name'],
+            "master_node_hostname": master_node_hostname,
+            "notebook_instance_ip": notebook_instance_ip,
+            "instance_count": data_engine['instance_count'],
+            "master_node_name": data_engine['master_node_name'],
+            "slave_node_name": data_engine['slave_node_name'],
+            "tensor": False
+        }
+        params = "--edge_hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} " \
+                 "--type {} " \
+                 "--exploratory_name {} " \
+                 "--additional_info '{}'"\
+            .format(edge_instance_hostname,
+                    keyfile_name,
+                    data_engine['dlab_ssh_user'],
+                    'spark',
+                    data_engine['exploratory_name'],
+                    json.dumps(additional_info))
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
+        except:
+            append_result("Failed edge reverse proxy template")
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            GCPActions().remove_instance(slave_name, data_engine['zone'])
+        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        sys.exit(1)
 
     try:
+        ip_address = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
+        spark_master_url = "http://" + ip_address + ":8080"
+        spark_master_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+            data_engine['exploratory_name'] + '_' + data_engine['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(data_engine['service_base_name']))
@@ -356,7 +405,14 @@ if __name__ == "__main__":
             res = {"hostname": data_engine['cluster_name'],
                    "instance_id": data_engine['master_node_name'],
                    "key_name": data_engine['key_name'],
-                   "Action": "Create new Data Engine"}
+                   "Action": "Create new Data Engine",
+                   "computational_url": [
+                       {"description": "Apache Spark Master",
+                        "url": spark_master_acces_url},
+                       # {"description": "Apache Spark Master (via tunnel)",
+                       # "url": spark_master_url}
+                   ]
+                   }
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:

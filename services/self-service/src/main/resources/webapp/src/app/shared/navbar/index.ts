@@ -21,7 +21,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../material.module';
-import { ModalModule, UploadKeyDialogModule, ProgressDialogModule } from '../index';
+import { UploadKeyDialogModule, ProgressDialogModule, BubbleModule } from '../index';
 
 import { NavbarComponent } from './navbar.component';
 import { NotificationDialogModule } from '../modal-dialog/notification-dialog';
@@ -34,9 +34,9 @@ export * from './navbar.component';
     RouterModule,
     MaterialModule,
     NotificationDialogModule,
-    ModalModule,
     UploadKeyDialogModule,
-    ProgressDialogModule
+    ProgressDialogModule,
+    BubbleModule
   ],
   declarations: [NavbarComponent],
   exports: [NavbarComponent, RouterModule]

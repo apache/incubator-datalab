@@ -21,7 +21,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
-import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
+import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
 import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Provides the REST API for the basic information about infrastructure.
@@ -73,7 +74,7 @@ public class InfrastructureInfoResource {
 									  @ApiParam(value = "Full version of report required", defaultValue = "0")
 									  @QueryParam("full") @DefaultValue("0") int fullReport) {
 		return infrastructureInfoService
-				.getHeathStatus(userInfo.getName(), fullReport != 0, UserRoles.isAdmin(userInfo));
+				.getHeathStatus(userInfo, fullReport != 0, UserRoles.isAdmin(userInfo));
 	}
 
 	/**
@@ -84,8 +85,17 @@ public class InfrastructureInfoResource {
 	@GET
 	@Path("/info")
 	@ApiOperation("Returns list of user's resources")
-	public InfrastructureInfo getUserResources(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+	public List<ProjectInfrastructureInfo> getUserResources(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
 		return infrastructureInfoService.getUserResources(userInfo.getName());
+
+	}
+
+	@GET
+	@Path("/meta")
+	@ApiOperation("Return metainfo regarding application version etc")
+	public Response getVersion(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+		return Response.ok(infrastructureInfoService.getInfrastructureMetaInfo())
+				.build();
 
 	}
 }

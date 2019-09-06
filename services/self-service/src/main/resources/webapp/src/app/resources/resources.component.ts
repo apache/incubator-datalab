@@ -20,11 +20,13 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
-import { UserAccessKeyService, HealthStatusService } from '../core/services';
-import { ResourcesGridRowModel } from './resources-grid/resources-grid.model';
-import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
+import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';
+import { ExploratoryModel, Exploratory } from './resources-grid/resources-grid.model';
+import { HealthStatusService } from '../core/services';
+import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 
 @Component({
   selector: 'dlab-resources',
@@ -32,45 +34,26 @@ import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
   styleUrls: ['./resources.component.scss']
 })
 
-export class ResourcesComponent implements OnInit, OnDestroy {
-
-  public userUploadAccessKeyState: number;
-  public exploratoryEnvironments: Array<ResourcesGridRowModel> = [];
+export class ResourcesComponent implements OnInit {
+  public exploratoryEnvironments: Exploratory[] = [];
   public healthStatus: any;
 
-  @ViewChild('createAnalyticalModal') createAnalyticalModal;
-  @ViewChild('manageUngitDialog') manageUngitDialog;
   @ViewChild(ResourcesGridComponent) resourcesGrid: ResourcesGridComponent;
 
-  subscriptions: Subscription = new Subscription();
-
   constructor(
-    private userAccessKeyService: UserAccessKeyService,
+    public toastr: ToastrService,
     private healthStatusService: HealthStatusService,
-    public toastr: ToastrService
-  ) {
-    this.userUploadAccessKeyState = HTTP_STATUS_CODES.NOT_FOUND;
-  }
+    private dialog: MatDialog
+  ) { }
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.createAnalyticalModal.resourceGrid = this.resourcesGrid;
-
-    this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(response => {
-      if (response) this.userUploadAccessKeyState = response.status;
-    }));
+    this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
-
-  public createNotebook_btnClick(): void {
-    if (this.userUploadAccessKeyState === HTTP_STATUS_CODES.OK) {
-      if (!this.createAnalyticalModal.isOpened) this.createAnalyticalModal.open({ isFooter: false });
-    } else {
-      this.userAccessKeyService.initialUserAccessKeyCheck();
-    }
+  public createEnvironment(): void {
+    this.dialog.open(ExploratoryEnvironmentCreateComponent, { data: this.resourcesGrid, panelClass: 'modal-lg' })
+      .afterClosed().subscribe(() => this.refreshGrid());
   }
 
   public refreshGrid(): void {
@@ -88,17 +71,16 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   }
 
   public manageUngit(): void {
-    if (!this.manageUngitDialog.isOpened)
-        this.manageUngitDialog.open({ isFooter: false });
+    this.dialog.open(ManageUngitComponent, { panelClass: 'modal-xxl' })
+      .afterClosed().subscribe(() => this.refreshGrid());
   }
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus().subscribe(
-        (result: any) => {
-          this.healthStatus = result;
-          this.resourcesGrid.healthStatus = this.healthStatus;
-          this.userAccessKeyService.initialUserAccessKeyCheck();
-        },
+      (result: any) => {
+        this.healthStatus = result;
+        this.resourcesGrid.healthStatus = this.healthStatus;
+      },
       error => this.toastr.error(error.message, 'Oops!'));
   }
 }

@@ -56,7 +56,7 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
 	@Inject
 	private ICommandExecutor commandExecutor;
 	private Map<String, String> imageList = new ConcurrentHashMap<>();
-	private Set<ImageMetadataDTO> metadataDTOs = new ConcurrentHashSet<>();
+	private Set<ImageMetadataDTO> metadataDTOs = ConcurrentHashMap.newKeySet();
 
 
 	@Override

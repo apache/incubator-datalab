@@ -102,7 +102,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             except:
                 sudo('R -e "options(download.file.method = "wget");library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
             if os.environ['application'] == 'tensor-rstudio':
-                sudo('R -e "library(\'devtools\');install_github(\'rstudio/keras\');"')
+                sudo('R -e "library(\'devtools\');install_version(\'keras\', version = \'{}\', repos = \'{}\');"'.format(os.environ['notebook_keras_version'],r_repository))
             sudo('R -e "install.packages(\'RJDBC\',repos=\'{}\',dep=TRUE)"'.format(r_repository))
             sudo('touch /home/' + os_user + '/.ensure_dir/r_ensured')
         except:
@@ -150,6 +150,8 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
 def ensure_matplot(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/matplot_ensured'):
         try:
+            sudo("sudo sed -i~orig -e 's/# deb-src/deb-src/' /etc/apt/sources.list")
+            sudo('sudo apt-get update')
             sudo('apt-get build-dep -y python-matplotlib')
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
@@ -280,10 +282,10 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('apt-get -y install dkms')
             kernel_version = run('uname -r | tr -d "[..0-9-]"')
             if kernel_version == 'azure':
-                sudo('apt-get -y install linux-modules-extra-`uname -r`')
+                sudo('apt-get -y install linux-modules-`uname -r`')
             else:
                 #legacy support for old kernels
-                sudo('if [[ $(apt-cache search linux-image-extra-`uname -r`) ]]; then apt-get -y install linux-image-extra-`uname -r`; else apt-get -y install linux-modules-extra-`uname -r`; fi;')
+                sudo('if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
@@ -401,45 +403,6 @@ def get_available_os_pkgs():
         return os_pkgs
     except:
         sys.exit(1)
-
-
-def install_caffe(os_user, region, caffe_version):
-    if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
-        env.shell = "/bin/bash -l -c -i"
-        sudo('apt-get install -y python-dev')
-        sudo('apt-get install -y python3-dev')
-        sudo('apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler')
-        sudo('apt-get install -y --no-install-recommends libboost-all-dev')
-        sudo('apt-get install -y libatlas-base-dev libopenblas-dev')
-        sudo('apt-get install -y libgflags-dev libgoogle-glog-dev liblmdb-dev')
-        with cd('/usr/lib/x86_64-linux-gnu/'):
-            sudo('ln -s libhdf5_serial_hl.so.10.0.2 libhdf5_hl.so')
-            sudo('ln -s libhdf5_serial.so.10.1.0 libhdf5.so')
-        sudo('git clone https://github.com/BVLC/caffe.git')
-        with cd('/home/{}/caffe/'.format(os_user)):
-            sudo('git checkout {}'.format(caffe_version))
-            sudo('pip2 install -r python/requirements.txt --no-cache-dir')
-            sudo('pip3 install -r python/requirements.txt --no-cache-dir')
-            sudo('echo "CUDA_DIR := /usr/local/cuda" > Makefile.config')
-            cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
-            sudo('echo "CUDA_ARCH := -gencode arch=compute_{0},code=sm_{0}" >> Makefile.config'.format(cuda_arch.replace('.', '')))
-            sudo('echo "PYTHON_INCLUDE := /usr/include/python2.7 /usr/local/lib/python2.7/dist-packages/numpy/core/include" >> Makefile.config')
-            sudo('echo "BLAS := open" >> Makefile.config')
-            sudo('echo "BLAS_INCLUDE := /usr/include/openblas" >> Makefile.config')
-            #sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
-            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" >> Makefile.config')
-            sudo('echo "PYTHON_LIB := /usr/lib" >> Makefile.config')
-            sudo('echo "INCLUDE_DIRS := \\\$(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ /usr /usr/lib /usr/include/python2.7 /usr/local/lib/python2.7/dist-packages/numpy/core/include" >> Makefile.config')
-            sudo('echo "LIBRARY_DIRS := \\\$(PYTHON_LIB) /usr/local/lib /usr/lib /usr /usr/lib" >> Makefile.config')
-            sudo('echo "BUILD_DIR := build" >> Makefile.config')
-            sudo('echo "DISTRIBUTE_DIR := distribute" >> Makefile.config')
-            sudo('echo "TEST_GPUID := 0" >> Makefile.config')
-            sudo('echo "Q ?= @" >> Makefile.config')
-            sudo('make all -j$(nproc)')
-            sudo('make test -j$(nproc)')
-            run('make runtest')
-            sudo('make pycaffe')
-        sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
 
 
 def install_caffe2(os_user, caffe2_version, cmake_version):

@@ -18,186 +18,64 @@
  */
 /* tslint:disable:no-empty */
 
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { UserResourceService } from '../../../core/services';
-import { ComputationalResourceImage,
-         ComputationalResourceApplicationTemplate,
-         ResourceShapeTypesModel } from '../../../core/models';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
-export class ComputationalResourceCreateModel {
+@Injectable()
+export class ComputationalResourceModel {
 
-  confirmAction: Function;
-  selectedItemChanged: Function;
+  constructor(private userResourceService: UserResourceService) { }
 
-  computational_resource_alias: string;
-  computational_resource_count: number;
-  computational_resource_instance_shape: string;
-  computational_resource_slave_shape: string;
-  notebook_name: string;
-  emr_slave_instance_spot: boolean;
-  emr_slave_instance_price: number;
-  preemptible_inst: number;
-  config: any;
+  public createComputationalResource(parameters, image, env, spot): Observable<{}> {
+    const config = parameters.configuration_parameters ? JSON.parse(parameters.configuration_parameters) : null;
 
-  selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
-    new ResourceShapeTypesModel({}), '', '', '');
-  selectedImage: ComputationalResourceImage;
-  resourceImages: Array<ComputationalResourceImage> = [];
-  templates: Array<ComputationalResourceApplicationTemplate> = [];
-
-  availableTemplates: boolean = false;
-  private userResourceService: UserResourceService;
-  private continueWith: Function;
-
-  static getDefault(userResourceService): ComputationalResourceCreateModel {
-    return new ComputationalResourceCreateModel('', 0, '', '', '', () => { }, () => { }, null, null, userResourceService);
-  }
-
-  constructor(
-    computational_resource_alias: string,
-    computational_resource_count: number,
-    computational_resource_master_shape: string,
-    computational_resource_slave_shape: string,
-    notebook_name: string,
-    fnProcessResults: any,
-    fnProcessErrors: any,
-    selectedItemChanged: Function,
-    continueWith: Function,
-    userResourceService: UserResourceService
-  ) {
-    this.notebook_name = notebook_name;
-    this.userResourceService = userResourceService;
-    this.selectedItemChanged = selectedItemChanged;
-    this.continueWith = continueWith;
-    this.prepareModel(fnProcessResults, fnProcessErrors);
-    this.loadTemplates();
-  }
-
-  public setSelectedItem(item: ComputationalResourceApplicationTemplate) {
-    this.selectedItem = item;
-  }
-
-  public setCreatingParams(
-    name: string,
-    count: number,
-    instance_shape: string,
-    shape_slave: string,
-    spot: boolean,
-    price: number,
-    preemptible_inst?: number,
-    config?: any
-  ): void {
-    this.computational_resource_alias = name;
-    this.computational_resource_count = count;
-    this.computational_resource_instance_shape = instance_shape;
-    this.computational_resource_slave_shape = shape_slave;
-    this.emr_slave_instance_spot = spot;
-    this.emr_slave_instance_price = price;
-    this.preemptible_inst = preemptible_inst || 0;
-    this.config = config || null;
-  }
-
-  public loadTemplates(): void {
-    if (this.resourceImages.length === 0)
-      this.userResourceService.getComputationalResourcesTemplates()
-        .subscribe(
-        data => {
-          let computationalResourceImage;
-
-          this.availableTemplates = !!data.length;
-
-          for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
-            computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
-
-            if (DICTIONARY.cloud_provider !== 'azure')
-              this.resourceImages.push(computationalResourceImage);
-          }
-
-          if (this.resourceImages.length > 0 && DICTIONARY.cloud_provider !== 'azure') {
-            this.setSelectedClusterType(0);
-          } else if (DICTIONARY.cloud_provider === 'azure') {
-            this.selectedItem = computationalResourceImage || {};
-            this.selectedImage = computationalResourceImage || {};
-          }
-
-          if (this.continueWith)
-            this.continueWith();
-        });
-  }
-
-  public setSelectedClusterType(index) {
-    this.selectedImage = this.resourceImages[index];
-    this.templates = [];
-
-    for (let index = 0; index < this.selectedImage.application_templates.length; index++)
-      this.templates.push(this.selectedImage.application_templates[index]);
-
-    this.setSelectedTemplate(0);
-  }
-
-  public setSelectedTemplate(index: number): void {
-    if (this.templates && this.templates[index]) {
-      this.selectedItem = this.templates[index];
-      if (this.selectedItemChanged)
-        this.selectedItemChanged();
-    } else {
-      this.selectedItem = null;
-    }
-  }
-
-  public resetModel() {
-    this.setSelectedTemplate(0);
-  }
-
-  private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
-    this.confirmAction = () => this.createComputationalResource()
-      .subscribe(
-      response => fnProcessResults(response),
-      error => fnProcessErrors(error)
-      );
-  }
-
-  private createComputationalResource(): Observable<{}> {
-    if (DICTIONARY.cloud_provider === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
+    if (DICTIONARY.cloud_provider === 'aws' && image.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
-        name: this.computational_resource_alias,
-        emr_instance_count: this.computational_resource_count,
-        emr_master_instance_type: this.computational_resource_instance_shape,
-        emr_slave_instance_type: this.computational_resource_slave_shape,
-        emr_version: this.selectedItem.version,
-        notebook_name: this.notebook_name,
-        image: this.selectedItem.image,
-        template_name: this.selectedItem.template_name,
-        emr_slave_instance_spot: this.emr_slave_instance_spot,
-        emr_slave_instance_spot_pct_price: this.emr_slave_instance_price,
-        config: this.config
+        name: parameters.cluster_alias_name,
+        emr_instance_count: parameters.instance_number,
+        emr_master_instance_type: parameters.shape_master,
+        emr_slave_instance_type: parameters.shape_slave,
+        emr_version: parameters.version,
+        notebook_name: env.name,
+        image: image.image,
+        template_name: image.template_name,
+        emr_slave_instance_spot: spot,
+        emr_slave_instance_spot_pct_price: parameters.instance_price,
+        config: config,
+        project: env.project,
+        custom_tag: parameters.custom_tag
       });
-    } else if (DICTIONARY.cloud_provider === 'gcp' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
+    } else if (DICTIONARY.cloud_provider === 'gcp' && image.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
-        name: this.computational_resource_alias,
-        template_name: this.selectedItem.template_name,
-        notebook_name: this.notebook_name,
-        image: this.selectedItem.image,
-        dataproc_master_instance_type:  this.computational_resource_instance_shape,
-        dataproc_slave_instance_type: this.computational_resource_slave_shape,
-        dataproc_version: this.selectedItem.version,
+        template_name: image.template_name,
+        image: image.image,
+        notebook_name: env.name,
+        name: parameters.cluster_alias_name,
         dataproc_master_count: 1,
-        dataproc_slave_count: (this.computational_resource_count - 1),
-        dataproc_preemptible_count: this.preemptible_inst,
-        config: this.config
+        dataproc_slave_count: (parameters.instance_number - 1),
+        dataproc_preemptible_count: parameters.preemptible_instance_number,
+        dataproc_master_instance_type: parameters.shape_master,
+        dataproc_slave_instance_type: parameters.shape_slave,
+        dataproc_version: parameters.version,
+        config: config,
+        project: env.project,
+        custom_tag: parameters.custom_tag
       });
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
-        name: this.computational_resource_alias,
-        dataengine_instance_count: this.computational_resource_count,
-        dataengine_instance_shape: this.computational_resource_instance_shape,
-        notebook_name: this.notebook_name,
-        image: this.selectedImage.image,
-        template_name: this.selectedImage.template_name,
-        config: this.config
+        name: parameters.cluster_alias_name,
+        dataengine_instance_count: parameters.instance_number,
+        dataengine_instance_shape: parameters.shape_master,
+        notebook_name: env.name,
+        image: image.image,
+        template_name: image.template_name,
+        config: config,
+        project: env.project,
+        custom_tag: parameters.custom_tag
       });
     }
-  };
+  }
 }

@@ -33,6 +33,7 @@ export const NAMING_CONVENTION = {
     'slave_node_shape': 'slave_node_shape',
     'total_instance_number': 'total_instance_number',
     'spot_instance': 'Spot instance',
+    'cluster_version': 'emr_version',
     'billing': {
         'resourceName': 'resource_name',
         'cost': 'cost',
@@ -77,7 +78,8 @@ export const NAMING_CONVENTION = {
         'instance_number': 'Total node number',
         'master_node_shape': 'dataengine_instance_shape',
         'total_instance_number': 'dataengine_instance_count',
-    }
+    },
+    'max_project_name_length': 40
 };
 
 export class ReportingConfigModel {

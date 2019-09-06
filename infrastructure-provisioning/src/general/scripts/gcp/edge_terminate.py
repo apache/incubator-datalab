@@ -97,10 +97,12 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
     try:
         list_service_accounts = GCPMeta().get_list_service_accounts()
         for service_account in (set(targets) & set(list_service_accounts)):
-            GCPActions().remove_service_account(service_account)
+            if service_account.startswith(service_base_name):
+                GCPActions().remove_service_account(service_account)
         list_roles_names = GCPMeta().get_list_roles()
         for role in (set(targets) & set(list_roles_names)):
-            GCPActions().remove_role(role)
+            if role.startswith(service_base_name):
+                GCPActions().remove_role(role)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)

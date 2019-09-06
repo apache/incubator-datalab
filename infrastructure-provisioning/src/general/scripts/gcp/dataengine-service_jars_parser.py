@@ -39,34 +39,34 @@ if __name__ == "__main__":
     spark_def_path = "/usr/lib/spark/conf/spark-defaults.conf"
 
     os.system('touch /tmp/r_version')
-    r_ver = subprocess.check_output("R --version | awk '/version / {print $3}'", shell=True)
+    r_ver = subprocess.check_output("R --version | awk '/version / {print $3}'", shell=True).decode('UTF-8')
     with open('/tmp/r_version', 'w') as outfile:
         outfile.write(r_ver)
 
     os.system('touch /tmp/python_version')
-    python_ver = subprocess.check_output("python3.5 -V 2>/dev/null | awk '{print $2}'", shell=True)
+    python_ver = subprocess.check_output("python3.5 -V 2>/dev/null | awk '{print $2}'", shell=True).decode('UTF-8')
     if python_ver != '':
         with open('/tmp/python_version', 'w') as outfile:
             outfile.write(python_ver)
     else:
-        python_ver = subprocess.check_output("python3.4 -V 2>/dev/null | awk '{print $2}'", shell=True)
+        python_ver = subprocess.check_output("python3.4 -V 2>/dev/null | awk '{print $2}'", shell=True).decode('UTF-8')
         with open('/tmp/python_version', 'w') as outfile:
             outfile.write(python_ver)
     os.system('touch /tmp/spark_version')
-    spark_ver = subprocess.check_output("dpkg -l | grep spark-core | tr -s ' ' '-' | cut -f 4 -d '-'", shell=True)
+    spark_ver = subprocess.check_output("dpkg -l | grep spark-core | tr -s ' ' '-' | cut -f 4 -d '-'", shell=True).decode('UTF-8')
     with open('/tmp/spark_version', 'w') as outfile:
         outfile.write(spark_ver)
     os.system('touch /tmp/hadoop_version')
-    hadoop_ver = subprocess.check_output("dpkg -l | grep hadoop | head -n 1 | tr -s ' ' '-' | cut -f 3 -d '-'", shell=True)
+    hadoop_ver = subprocess.check_output("dpkg -l | grep hadoop | head -n 1 | tr -s ' ' '-' | cut -f 3 -d '-'", shell=True).decode('UTF-8')
     with open('/tmp/hadoop_version', 'w') as outfile:
         outfile.write(hadoop_ver)
 
     os.system('/bin/tar -zhcvf /tmp/jars.tar.gz --no-recursion --absolute-names --ignore-failed-read /usr/lib/hadoop/* /usr/lib/hadoop/client/*')
     os.system('/bin/tar -zhcvf /tmp/spark.tar.gz -C /usr/lib/ spark')
-    md5sum = subprocess.check_output('md5sum /tmp/jars.tar.gz', shell=True)
+    md5sum = subprocess.check_output('md5sum /tmp/jars.tar.gz', shell=True).decode('UTF-8')
     with open('/tmp/jars-checksum.chk', 'w') as outfile:
         outfile.write(md5sum)
-    md5sum = subprocess.check_output('md5sum /tmp/spark.tar.gz', shell=True)
+    md5sum = subprocess.check_output('md5sum /tmp/spark.tar.gz', shell=True).decode('UTF-8')
     with open('/tmp/spark-checksum.chk', 'w') as outfile:
         outfile.write(md5sum)
 

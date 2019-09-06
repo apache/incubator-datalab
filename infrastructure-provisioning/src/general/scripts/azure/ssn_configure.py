@@ -169,6 +169,7 @@ if __name__ == "__main__":
         print('[CONFIGURING DOCKER AT SSN INSTANCE]')
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
+                             {"name": "project", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
@@ -292,6 +293,8 @@ if __name__ == "__main__":
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instnace_ip'])
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
+        print("DLab UI HTTP URL: http://{}".format(ssn_conf['instnace_ip']))
+        print("DLab UI HTTPS URL: https://{}".format(ssn_conf['instnace_ip']))
 
         try:
             with open('jenkins_creds.txt') as f:

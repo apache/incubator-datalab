@@ -50,7 +50,9 @@ parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
 parser.add_argument('--endpoint_url', type=str, default='')
+parser.add_argument('--ip_adress', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
+parser.add_argument('--edge_ip', type=str, default='')
 args = parser.parse_args()
 
 spark_version = args.spark_version
@@ -242,11 +244,15 @@ if __name__ == "__main__":
     print("Install nodejs")
     install_nodejs(args.os_user)
     print("Install Ungit")
-    install_ungit(args.os_user, args.exploratory_name)
+    install_ungit(args.os_user, args.exploratory_name, args.edge_ip)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
     # COPY PRE-COMMIT SCRIPT TO ZEPPELIN
     sudo('cp /home/{}/.git/templates/hooks/pre-commit /opt/zeppelin/notebook/.git/hooks/'.format(args.os_user))
+
+    # INSTALL INACTIVITY CHECKER
+    print("Install inactivity checker")
+    install_inactivity_checker(args.os_user, args.ip_adress)
 
     # INSTALL OPTIONAL PACKAGES
     if os.environ['notebook_r_enabled'] == 'true':

@@ -44,7 +44,7 @@ def terminate_emr_cluster(emr_name, bucket_name, tag_name, nb_tag_value, ssh_use
                 for tag in cluster.get('Tags'):
                     if tag.get('Key') == 'ComputationalName':
                         computational_name = tag.get('Value')
-                s3_cleanup(bucket_name, emr_name, os.environ['edge_user_name'])
+                s3_cleanup(bucket_name, emr_name, os.environ['project_name'])
                 print("The bucket {} has been cleaned successfully".format(bucket_name))
                 terminate_emr(cluster_id)
                 print("The EMR cluster {} has been terminated successfully".format(emr_name))
@@ -58,7 +58,7 @@ def terminate_emr_cluster(emr_name, bucket_name, tag_name, nb_tag_value, ssh_use
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -69,7 +69,8 @@ if __name__ == "__main__":
     create_aws_config_files()
     print('Generating infrastructure names and tags')
     emr_conf = dict()
-    emr_conf['service_base_name'] = os.environ['conf_service_base_name']
+    emr_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
     emr_conf['emr_name'] = os.environ['emr_cluster_name']
     emr_conf['notebook_name'] = os.environ['notebook_instance_name']
     emr_conf['bucket_name'] = (emr_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')

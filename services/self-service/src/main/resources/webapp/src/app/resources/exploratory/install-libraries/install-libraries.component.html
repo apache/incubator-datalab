@@ -17,12 +17,12 @@
   ~ under the License.
   -->
 
-<modal-dialog #bindDialog modalClass="install-libraries modal-xl">
-  <modal-header>
-    <h4 class="modal-title" id="myModalLabel">Manage
-      <b>{{ notebook?.name }}</b> Libraries</h4>
-  </modal-header>
-  <modal-content>
+<div class="install-libraries" id="dialog-box">
+  <header class="dialog-header">
+    <h4 class="modal-title">Manage <b>{{ notebook?.name }}</b> Libraries</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="dialog-content">
    <div class="aligner">
     <div class="info" *ngIf="notebook?.status !== 'running'">
       <p class=" message">Cannot install libraries: Exploratory
@@ -115,7 +115,7 @@
 
           <mat-list-item *ngFor="let lib of notebookLibs">
             <div class="lib-name">
-              <strong>{{ lib.name }}</strong>
+              <strong>{{ lib.name }}</strong>&nbsp;
               <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
             </div>
             <div class="lib-group">{{ groupsListMap[lib.group] }}</div>
@@ -151,9 +151,9 @@
       </mat-list>
     </div>
     <div class="m-top-15 actions" *ngIf="!uploading && notebook?.status === 'running'">
-      <button mat-raised-button type="button" class="butt action" (click)="close()">Close</button>
+      <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Close</button>
       <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
     </div>
    </div>
-  </modal-content>
-</modal-dialog>
+  </div>
+</div>

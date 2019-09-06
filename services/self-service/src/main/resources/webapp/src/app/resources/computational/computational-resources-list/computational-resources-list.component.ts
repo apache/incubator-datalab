@@ -17,11 +17,13 @@
  * under the License.
  */
 
-import { Component, EventEmitter, Input, Output, ViewChild, Inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 
 import { UserResourceService } from '../../../core/services';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { DetailComputationalResourcesComponent } from '../cluster-details';
+import { SchedulerComponent } from '../../scheduler';
 
 @Component({
   selector: 'computational-resources-list',
@@ -30,36 +32,35 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 })
 
 export class ComputationalResourcesListComponent {
-  @ViewChild('confirmationDialog') confirmationDialog;
-  @ViewChild('detailComputationalResource') detailComputationalResource;
-  @ViewChild('clusterScheduler') clusterScheduler;
-
   @Input() resources: any[];
-  @Input() environment: any[];
-  @Input() healthStatus: string;
+  @Input() environment: any;
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
-    private userResourceService: UserResourceService,
     public dialog: MatDialog,
-    public toastr: ToastrService
+    public toastr: ToastrService,
+    private userResourceService: UserResourceService
   ) { }
 
-  toggleResourceAction(resource, action: string) {
+  rebuildGrid(): void {
+    this.buildGrid.emit();
+  }
+
+  public toggleResourceAction(resource, action: string): void {
     if (action === 'stop' || action === 'terminate') {
       const dialogRef: MatDialogRef<ConfirmationDialogComponent> = this.dialog.open(ConfirmationDialogComponent,
-        { data: {action, resource}, width: '550px' });
+        { data: { action, resource }, width: '550px', panelClass: 'error-modalbox' });
       dialogRef.afterClosed().subscribe(result => {
         if (result && action === 'stop') {
           this.userResourceService
-            .toggleStopStartAction(this.environment['name'], resource.computational_name, action)
+            .toggleStopStartAction(this.environment.project, this.environment.name, resource.computational_name, action)
             .subscribe(() => {
               this.rebuildGrid();
             });
         } else if (result && action === 'terminate') {
           this.userResourceService
-            .suspendComputationalResource(this.environment['name'], resource.computational_name)
+            .suspendComputationalResource(this.environment.name, resource.computational_name)
             .subscribe(() => {
               this.rebuildGrid();
             });
@@ -67,23 +68,21 @@ export class ComputationalResourcesListComponent {
       });
     } else if (action === 'start') {
       this.userResourceService
-        .toggleStopStartAction(this.environment['name'], resource.computational_name, 'start')
+        .toggleStopStartAction(this.environment.project, this.environment.name, resource.computational_name, 'start')
         .subscribe(
           () => this.rebuildGrid(),
           error => this.toastr.error(error.message || 'Computational resource starting failed!', 'Oops!'));
     }
   }
 
-  rebuildGrid(): void {
-    this.buildGrid.emit();
-  }
-
-  detailComputationalResources(environment, resource): void {
-    this.detailComputationalResource.open({ isFooter: false }, environment, resource);
+  public detailComputationalResources(environment, resource): void {
+    this.dialog.open(DetailComputationalResourcesComponent, { data: { environment, resource }, panelClass: 'modal-sm' })
+      .afterClosed().subscribe(() => this.rebuildGrid());
   };
 
-  openScheduleDialog(resource) {
-    this.clusterScheduler.open({ isFooter: false }, this.environment, 'СOMPUTATIONAL', resource);
+  public openScheduleDialog(resource) {
+    this.dialog.open(SchedulerComponent, { data: { notebook: this.environment, type: 'СOMPUTATIONAL', resource }, panelClass: 'modal-xl-s' })
+      .afterClosed().subscribe(() => this.rebuildGrid());
   }
 }
 
@@ -91,8 +90,11 @@ export class ComputationalResourcesListComponent {
 @Component({
   selector: 'confirmation-dialog',
   template: `
+  <div class="dialog-header">
+    <h4 class="modal-title"><span class="capitalize">{{ data.action }}</span> resource</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
   <div mat-dialog-content class="content">
-
     <p>Computational resource <strong> {{ data.resource.computational_name }}</strong> will be 
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
@@ -103,10 +105,7 @@ export class ComputationalResourcesListComponent {
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
     <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
-  `,
-  styles: [`
-    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
-  `]
+  `
 })
 export class ConfirmationDialogComponent {
   constructor(

@@ -1,0 +1,170 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<form [formGroup]="projectForm" novalidate>
+  <mat-horizontal-stepper #stepper class="stepper ani">
+    <mat-step>
+      <ng-template matStepLabel>Key upload</ng-template>
+      <section class="inner-step mat-reset upload-key">
+        <div class="form-block split">
+          <div class="row-wrap">
+            <div class="col label">
+              <label class="control-label">
+                <span>Upload public key to start project creation</span>
+              </label>
+              <div>
+                <a href="#/help/publickeyguide" target="_blank">
+                  <small class="helper_instruction">
+                    <i class="material-icons">help_outline</i>Where can I get public key?</small>
+                </a>
+              </div>
+            </div>
+            <div class="col txt-r action">
+              <span mat-raised-button class="butt butt-file" [ngClass]="{ 'not-allowed' : item }">
+                <span class="upload-icon"></span> Upload
+                <input (change)="onFileChange($event)" type="file" name="file" accept=".pub" />
+              </span>
+
+              <div *ngIf="keyLabel" class="m-bott-10 m-top-10 ellipsis" [class.danger_color]="!accessKeyValid">
+                {{ keyLabel }}</div>
+            </div>
+          </div>
+          <div class="text-center m-bott-10">
+            <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
+            <button mat-raised-button type="button" class="butt next" matStepperNext>Next
+              <i class="material-icons">keyboard_arrow_right</i></button>
+          </div>
+        </div>
+      </section>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Project</ng-template>
+      <section class="inner-step mat-reset">
+
+        <div class="form-block">
+          <div>
+            <div class="control-group m-bott-10">
+              <label class="label">Project name</label>
+              <div class="control">
+                <input type="text" formControlName="name" placeholder="Enter project name"
+                  (blur)="generateProjectTag($event)" [ngClass]="{ 'not-allowed' : item }">
+                <span class="error" *ngIf="projectForm?.controls.name.hasError('duplication')">This project name already
+                  exists.</span>
+                <span class="error" *ngIf="!projectForm?.controls.name.valid
+                  && !projectForm?.controls.name.hasError('duplication')
+                  && !projectForm?.controls.name.hasError('limit')
+                  && projectForm?.controls.name.dirty">
+                  Project name can only contain letters and numbers
+                </span>
+                <span class="error" *ngIf="projectForm?.controls.name.hasError('limit')">
+                  Project name cannot be longer than {{ DICTIONARY.max_project_name_length}} characters
+                </span>
+              </div>
+            </div>
+            <div class="control-group m-bott-10">
+              <label class="label">Project tag</label>
+              <div class="control">
+                <input readonly type="text" formControlName="tag" placeholder="< equal to project name >"
+                  class="not-allowed">
+              </div>
+            </div>
+            <div class="control-group m-bott-10">
+              <label class="label">Endpoints</label>
+              <div class="control selector-wrapper">
+                <mat-form-field>
+                  <mat-select multiple formControlName="endpoints" placeholder="Select endpoints">
+                    <mat-option class="multiple-select" disabled>
+                      <a class="select ani" (click)="selectOptions(endpointsList, 'endpoints', 'all')">
+                        <i class="material-icons">playlist_add_check</i>&nbsp;All
+                      </a>
+                      <a class="deselect ani" (click)="!item && selectOptions(endpointsList, 'endpoints')"
+                        [ngClass]="{ 'not-active' : item }">
+                        <i class="material-icons">clear</i>&nbsp;None
+                      </a>
+                    </mat-option>
+                    <mat-option *ngFor="let endpoint of endpointsList" [value]="endpoint.name"
+                      [disabled]="isDisabled(endpoint.name)">
+                      {{ endpoint.name }}
+                    </mat-option>
+                    <mat-option *ngIf="!endpointsList.length" class="multiple-select empty ml-10" disabled>
+                      Endpoints list is empty</mat-option>
+                  </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center m-bott-10">
+            <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
+            <button mat-raised-button matStepperPrevious class="butt"><i
+                class="material-icons">keyboard_arrow_left</i>Back</button>
+            <button mat-raised-button type="button" class="butt next" matStepperNext>Next<i
+                class="material-icons">keyboard_arrow_right</i></button>
+          </div>
+        </div>
+
+      </section>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Groups</ng-template>
+      <div class="inner-step mat-reset">
+        <div class="form-block split">
+          <div class="control-group">
+            <label class="label">Groups</label>
+            <div class="control selector-wrapper">
+              <mat-form-field>
+                <mat-select multiple formControlName="groups" placeholder="Select user groups">
+                  <mat-option class="multiple-select" disabled>
+                    <a class="select ani" (click)="selectOptions(groupsList, 'groups', 'all')">
+                      <i class="material-icons">playlist_add_check</i>&nbsp;All
+                    </a>
+                    <a class="deselect ani" (click)="selectOptions(groupsList, 'groups')">
+                      <i class="material-icons">clear</i>&nbsp;None
+                    </a>
+                  </mat-option>
+                  <mat-option *ngFor="let group of groupsList" [value]="group">
+                    {{ group }}
+                  </mat-option>
+                  <mat-option *ngIf="!groupsList.length" class="multiple-select ml-10" disabled>Groups list is empty
+                  </mat-option>
+                </mat-select>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="text-center m-bott-10">
+            <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
+            <button mat-raised-button matStepperPrevious class="butt"><i
+                class="material-icons">keyboard_arrow_left</i>Back</button>
+            <button mat-raised-button type="button" class="butt butt-success" [disabled]="!projectForm.valid"
+              (click)="confirm(projectForm.value)">
+              <span *ngIf="item; else update">Update</span>
+              <ng-template #update>Create</ng-template>
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-step>
+  </mat-horizontal-stepper>
+</form>

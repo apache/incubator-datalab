@@ -18,24 +18,15 @@
  */
 
 
-import {debounceTime} from 'rxjs/operators';
-import { Component,
-  OnInit,
-  ViewChild,
-  Output,
-  EventEmitter,
-  ViewEncapsulation,
-  ChangeDetectorRef,
-  Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { debounceTime } from 'rxjs/operators';
 
 import { InstallLibrariesModel } from './install-libraries.model';
-import { LibrariesInstallationService} from '../../../core/services';
-import { SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
-
-
+import { LibrariesInstallationService } from '../../../core/services';
+import { SortUtils, HTTP_STATUS_CODES } from '../../../core/util';
 
 
 @Component({
@@ -77,17 +68,16 @@ export class InstallLibrariesComponent implements OnInit {
   private clear: number;
   private clearCheckInstalling = undefined;
 
-  @ViewChild('bindDialog') bindDialog;
   @ViewChild('groupSelect') group_select;
   @ViewChild('resourceSelect') resource_select;
 
-  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
-
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public toastr: ToastrService,
     public dialog: MatDialog,
+    public dialogRef: MatDialogRef<InstallLibrariesComponent>,
     private librariesInstallationService: LibrariesInstallationService,
-    private changeDetector: ChangeDetectorRef,
-    public toastr: ToastrService
+    private changeDetector: ChangeDetectorRef
   ) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
   }
@@ -100,14 +90,11 @@ export class InstallLibrariesComponent implements OnInit {
         this.query = newValue || '';
         this.filterList();
       });
-    this.bindDialog.onClosing = () => {
-      this.resetDialog();
-      this.buildGrid.emit();
-    };
+    this.open(this.data);
   }
 
   uploadLibGroups(): void {
-     this.librariesInstallationService.getGroupsList(this.notebook.name, this.model.computational_name)
+    this.librariesInstallationService.getGroupsList(this.notebook.name, this.model.computational_name)
       .subscribe(
         response => {
           this.libsUploadingStatus(response);
@@ -125,12 +112,12 @@ export class InstallLibrariesComponent implements OnInit {
 
   private getResourcesList() {
     this.notebook.type = 'EXPLORATORY';
-    this.notebook.title = `${ this.notebook.name } <em class="capt">notebook</em>`;
+    this.notebook.title = `${this.notebook.name} <em class="capt">notebook</em>`;
     return [this.notebook].concat(this.notebook.resources
       .filter(item => item.status === 'running')
       .map(item => {
         item['name'] = item.computational_name;
-        item['title'] = `${ item.computational_name } <em class="capt">cluster</em>`;
+        item['title'] = `${item.computational_name} <em class="capt">cluster</em>`;
         item['type'] = 'СOMPUTATIONAL';
         return item;
       }));
@@ -147,7 +134,7 @@ export class InstallLibrariesComponent implements OnInit {
     const templateCheck = PREVENT_TEMPLATES.some(template => CURRENT_TEMPLATE.indexOf(template) !== -1);
 
     const filteredGroups = templateCheck ? groupsList.filter(group => group !== 'java') : groupsList;
-    return SortUtil.libGroupsSort(filteredGroups);
+    return SortUtils.libGroupsSort(filteredGroups);
   }
 
   public onUpdate($event) {
@@ -169,7 +156,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public isDuplicated(item) {
-    const select = {group: this.group, name: item.name, version: item.version};
+    const select = { group: this.group, name: item.name, version: item.version };
 
     this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
 
@@ -184,7 +171,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public selectLibrary(item): void {
-    this.model.selectedLibs.push({group: this.group, name: item.name, version: item.version});
+    this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
 
     this.query = '';
     this.libSearch.setValue('');
@@ -196,33 +183,22 @@ export class InstallLibrariesComponent implements OnInit {
     this.model.selectedLibs.splice(this.model.selectedLibs.indexOf(item), 1);
   }
 
-  public open(param, notebook): void {
-    if (!this.bindDialog.isOpened)
-      this.notebook = notebook;
-      this.model = new InstallLibrariesModel(notebook,
-        response => {
-          if (response.status === HTTP_STATUS_CODES.OK) {
-            this.getInstalledLibrariesList();
-            this.resetDialog();
-          }
-        },
-        error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!'),
-        () => {
-          this.bindDialog.open(param);
-
-          this.getInstalledLibrariesList(true);
-          this.changeDetector.detectChanges();
-          this.selectorsReset();
-        },
-       this.librariesInstallationService);
-  }
-
-  public close(): void {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
-
-    this.buildGrid.emit();
-    this.resetDialog();
+  public open(notebook): void {
+    this.notebook = notebook;
+    this.model = new InstallLibrariesModel(notebook,
+      response => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.getInstalledLibrariesList();
+          this.resetDialog();
+        }
+      },
+      error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!'),
+      () => {
+        this.getInstalledLibrariesList(true);
+        this.changeDetector.detectChanges();
+        this.selectorsReset();
+      },
+      this.librariesInstallationService);
   }
 
   public showErrorMessage(item): void {
@@ -244,7 +220,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public reinstallLibrary(item, lib) {
-    const retry = [{group: lib.group, name: lib.name, version: lib.version}];
+    const retry = [{ group: lib.group, name: lib.name, version: lib.version }];
 
     if (this.getResourcesList().find(el => el.name === item.resource).type === 'СOMPUTATIONAL') {
       this.model.confirmAction(retry, item.resource);
@@ -287,13 +263,13 @@ export class InstallLibrariesComponent implements OnInit {
         .subscribe(
           lib => this.filteredList = [lib],
           error => {
-          if (error.status === HTTP_STATUS_CODES.NOT_FOUND
-            || error.status === HTTP_STATUS_CODES.BAD_REQUEST
-            || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
-            this.validity_format = error.message;
-            this.filteredList = null;
-          }
-        });
+            if (error.status === HTTP_STATUS_CODES.NOT_FOUND
+              || error.status === HTTP_STATUS_CODES.BAD_REQUEST
+              || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
+              this.validity_format = error.message;
+              this.filteredList = null;
+            }
+          });
     } else {
       this.model.getLibrariesList(this.group, this.query)
         .subscribe(libs => this.filteredList = libs);
@@ -314,7 +290,7 @@ export class InstallLibrariesComponent implements OnInit {
     this.isInSelectedList = false;
     this.uploading = false;
     this.model.selectedLibs = [];
-    this.filteredList = null ;
+    this.filteredList = null;
     this.destination = null;
     this.groupsList = [];
 
@@ -338,41 +314,7 @@ export class InstallLibrariesComponent implements OnInit {
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
   </div>
   `,
-  styles: [`
-  .content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }
-  .dialog-header {
-    position: relative;
-    top: 0;
-    padding-left: 30px;
-    background: #f6fafe;
-    height: 54px;
-    line-height: 54px;
-  }
-  .dialog-header h4 {
-    color: #455c74;
-    font-size: 18px;
-    font-weight: 600;
-  }
-  .close {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 50px;
-    width: 50px;
-    font-size: 24px;
-    border: 0;
-    background: none;
-    color: #577289;
-    outline: none;
-    cursor: pointer;
-    transition: all .45s ease-in-out;
-    }
-    .close:hover {
-      color: #36afd5;
-    }
-    .text-center button {
-      margin-bottom: 25px;
-    }`]
+  styles: []
 })
 export class ErrorMessageDialogComponent {
   constructor(

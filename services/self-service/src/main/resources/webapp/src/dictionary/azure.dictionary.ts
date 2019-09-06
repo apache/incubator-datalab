@@ -34,6 +34,7 @@ export const NAMING_CONVENTION = {
     'total_instance_number': 'dataengine_instance_count',
 
     'spot_instance': 'Low-priority virtual machines',
+    'cluster_version': '',
     'billing': {
         'resourceName': 'resourceName',
         'cost': 'costString',
@@ -78,7 +79,8 @@ export const NAMING_CONVENTION = {
         'instance_number': 'Total node number',
         'master_node_shape': 'dataengine_instance_shape',
         'total_instance_number': 'dataengine_instance_count'
-    }
+    },
+    'max_project_name_length': 30
 };
 
 export class ReportingConfigModel {

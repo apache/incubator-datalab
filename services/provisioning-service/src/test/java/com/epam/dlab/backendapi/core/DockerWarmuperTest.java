@@ -80,12 +80,12 @@ public class DockerWarmuperTest {
 		ImageMetadataDTO testExploratory = warmuper.getMetadata(ImageType.EXPLORATORY)
 				.toArray(new ImageMetadataDTO[1])[0];
 		testExploratory.setImage("executeResult");
-		assertEquals(exploratoryMetadata, testExploratory);
+		assertEquals(exploratoryMetadata.getImageType(), testExploratory.getImageType());
 
 		ImageMetadataDTO testComputational = warmuper.getMetadata(ImageType.COMPUTATIONAL)
 				.toArray(new ImageMetadataDTO[1])[0];
 		testComputational.setImage("executeResult");
-		assertEquals(computationalMetadata, testComputational);
+		assertEquals(computationalMetadata.getImageType(), testComputational.getImageType());
 	}
 
 	private String getFirstUUID() {

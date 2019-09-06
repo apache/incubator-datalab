@@ -18,8 +18,9 @@
  */
 
 export * from './http-status-codes';
-export * from './sortUtil';
+export * from './sortUtils';
 export * from './errorUtils';
 export * from './dateUtils';
 export * from './fileUtils';
 export * from './checkUtils';
+export * from './patterns';

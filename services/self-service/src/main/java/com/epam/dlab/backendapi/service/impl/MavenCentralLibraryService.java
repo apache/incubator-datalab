@@ -56,7 +56,7 @@ public class MavenCentralLibraryService implements ExternalLibraryService {
 	}
 
 	private LibraryDTO getMavenLibrary(String groupId, String artifactId, String version) {
-		final String query = and(artifactQuery(artifactId), groupQuery(groupId), versionQuery(version), jarPackage());
+		final String query = and(artifactQuery(artifactId), groupQuery(groupId), versionQuery(version), jarOrBundlePackage());
 		return restClient.get(URI.create(String.format(SEARCH_API_QUERY_FORMAT, query)),
 				MavenSearchArtifactResponse.class)
 				.getArtifacts()
@@ -79,8 +79,8 @@ public class MavenCentralLibraryService implements ExternalLibraryService {
 		return "v:" + QUOTE_ENCODED + version + QUOTE_ENCODED;
 	}
 
-	private String jarPackage() {
-		return "p:" + QUOTE_ENCODED + "jar" + QUOTE_ENCODED;
+	private String jarOrBundlePackage() {
+		return "(p:" + QUOTE_ENCODED + "jar" + QUOTE_ENCODED + "%20OR%20p:" + QUOTE_ENCODED + "bundle" + QUOTE_ENCODED + ")";
 	}
 
 	private String and(String... strings) {

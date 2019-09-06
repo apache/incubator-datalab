@@ -21,14 +21,14 @@ package com.epam.dlab.auth.modules;
 
 import com.epam.dlab.auth.SecurityServiceConfiguration;
 import com.epam.dlab.auth.UserVerificationService;
+import com.epam.dlab.auth.conf.GcpLoginConfiguration;
 import com.epam.dlab.auth.gcp.resources.GcpOauth2SecurityResource;
 import com.epam.dlab.auth.gcp.service.GcpAuthenticationService;
 import com.epam.dlab.auth.oauth2.Oauth2AuthenticationService;
-import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationService;
+import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationResource;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.epam.dlab.config.gcp.GcpLoginConfiguration;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 public class GcpSecurityServiceModule extends CloudModule {
 	private static final List<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/plus.login", "email",
 			"profile", "https://www.googleapis.com/auth/plus.me");
-	private final com.epam.dlab.config.gcp.GcpLoginConfiguration conf;
+	private final GcpLoginConfiguration conf;
 
 	GcpSecurityServiceModule(SecurityServiceConfiguration conf) {
 		this.conf = conf.getGcpLoginConfiguration();
@@ -63,7 +63,7 @@ public class GcpSecurityServiceModule extends CloudModule {
 
 	@Override
 	public void init(Environment environment, Injector injector) {
-		environment.jersey().register(injector.getInstance(SynchronousLdapAuthenticationService.class));
+		environment.jersey().register(injector.getInstance(SynchronousLdapAuthenticationResource.class));
 		if (conf.isOauth2authenticationEnabled()) {
 			environment.jersey().register(injector.getInstance(GcpOauth2SecurityResource.class));
 		}

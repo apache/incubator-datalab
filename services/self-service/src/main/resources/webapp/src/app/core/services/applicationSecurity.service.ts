@@ -25,7 +25,7 @@ import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { AppRoutingService } from './appRouting.service';
 import { StorageService } from './storage.service';
 import { LoginModel } from '../../login/login.model';
-import { HTTP_STATUS_CODES } from '../util';
+import { ErrorUtils, HTTP_STATUS_CODES } from '../util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Injectable()
@@ -64,7 +64,8 @@ export class ApplicationSecurityService {
           }
           this._loggedInStatus.next(false);
           return false;
-        }));
+        }),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public logout(): Observable<boolean> {
@@ -100,7 +101,6 @@ export class ApplicationSecurityService {
             }
 
             this.storage.destroyToken();
-            this.appRoutingService.redirectToLoginPage();
             return false;
           }),
           catchError(error => {
@@ -110,7 +110,6 @@ export class ApplicationSecurityService {
             return observableOf(false);
           }));
     }
-    this.appRoutingService.redirectToLoginPage();
     this._loggedInStatus.next(false);
     return observableOf(false);
   }
@@ -141,8 +140,7 @@ export class ApplicationSecurityService {
           if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
             window.location.href = error.headers.get('Location');
           } else {
-            const errObj = error.json();
-            this.emmitMessage(errObj.message);
+            this.emmitMessage(error.message);
             return observableOf(false);
           }
         }));

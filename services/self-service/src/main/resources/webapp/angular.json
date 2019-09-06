@@ -22,11 +22,18 @@
               "src/favicon.ico"
             ],
             "styles": [
+              {
+                "input": "node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"
+              },
               "src/styles.scss",
-              "node_modules/ngx-toastr/toastr.css" 
+              "node_modules/ngx-toastr/toastr.css"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/assets/styles"
+              ]
+            },
             "scripts": [
-              "node_modules/hammerjs/hammer.min.js"
             ]
           },
           "configurations": {
@@ -74,11 +81,12 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [
-              "node_modules/hammerjs/hammer.min.js"
             ],
             "styles": [
+              {
+                "input": "node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"
+              },
               "src/styles.scss",
-              "node_modules/ng2-toastr/bundles/ng2-toastr.min.css",
               "src/assets/fonts/iconfont/material-icons.css"
             ],
             "assets": [
@@ -93,29 +101,6 @@
             "tsConfig": [
               "src/tsconfig.app.json",
               "src/tsconfig.spec.json"
-            ],
-            "exclude": []
-          }
-        }
-      }
-    },
-    "webapp-e2e": {
-      "root": "e2e",
-      "sourceRoot": "e2e",
-      "projectType": "application",
-      "architect": {
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "webapp:serve"
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "e2e/tsconfig.e2e.json"
             ],
             "exclude": []
           }

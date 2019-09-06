@@ -1,0 +1,122 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<div id="dialog-box" class="ssn-monitor-dialog">
+  <header class="dialog-header">
+    <h4 class="modal-title">SSN Monitor</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+  <div class="dialog-content">
+    <div class="content-box" *ngIf="data; else empty">
+      <div class="ssn-info">
+        <mat-tab-group *ngIf="data?.processorInfo" [dynamicHeight]="true">
+          <mat-tab label="CPU">
+            <div class="scrolling-content" id="scrolling">
+              <mat-list-item class="list-header">
+                <div class="col">Name</div>
+                <div class="col">{{ data.processorInfo.name }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Vendor</div>
+                <div class="col">{{ data.processorInfo.vendor }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Logical Core Count</div>
+                <div class="col">{{ data.processorInfo.logicalCoreCount }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Physical Core Count</div>
+                <div class="col">{{ data.processorInfo.physicalCoreCount }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Current System Load</div>
+                <div class="col">{{ data.processorInfo.currentSystemLoad /100 | percent:'1.0-2' }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">System Load Average</div>
+                <div class="col">{{ data.processorInfo.systemLoadAverage /100 | percent:'1.0-2' }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">CPU 64 Bit</div>
+                <div class="col">{{ data.processorInfo.cpu64Bit }}</div>
+              </mat-list-item>
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Memory">
+            <div class="scrolling-content" id="scrolling">
+              <mat-list-item class="list-header">
+                <div class="col">Available Memory</div>
+                <div class="col">{{ convertSize(data.memoryInfo.availableMemory) }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Total Memory</div>
+                <div class="col">{{ convertSize(data.memoryInfo.totalMemory) }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Swap Total</div>
+                <div class="col">{{ convertSize(data.memoryInfo.swapTotal) }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Swap Used</div>
+                <div class="col">{{ convertSize(data.memoryInfo.swapUsed) }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Pages Page In</div>
+                <div class="col">{{ convertSize(data.memoryInfo.pagesPageIn) }}</div>
+              </mat-list-item>
+              <mat-list-item class="list-header">
+                <div class="col">Pages Page Out</div>
+                <div class="col">{{ convertSize(data.memoryInfo.pagesPageOut) }}</div>
+              </mat-list-item>
+            </div>
+
+          </mat-tab>
+          <mat-tab label="HDD">
+            <div class="scrolling-content" id="scrolling">
+              <div *ngFor="let disk of data.disksInfo; let i = index">
+                <mat-list-item>
+                  <div class="col"><strong>Disk {{i +1}}</strong></div>
+                </mat-list-item>
+                <mat-list-item>
+                  <div class="col">Used Space</div>
+                  <div class="col">{{ convertSize(disk.usedByteSpace) }}</div>
+                </mat-list-item>
+                <mat-list-item>
+                  <div class="col">Total Space</div>
+                  <div class="col">{{ convertSize(disk.totalByteSpace) }}</div>
+                </mat-list-item>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+        <div class="text-center">
+          <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
+        </div>
+      </div>
+      <div class="info message" *ngIf="isEmpty(data)">
+        No ssn monitor data available
+      </div>
+    </div>
+    <ng-template #empty>
+      <p class="info message">Monitor data are not available</p>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </ng-template>
+  </div>
+</div>

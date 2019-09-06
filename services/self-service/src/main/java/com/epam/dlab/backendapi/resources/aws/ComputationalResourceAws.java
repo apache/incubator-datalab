@@ -105,7 +105,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					.version(form.getVersion())
 					.build();
 			boolean resourceAdded = computationalService.createDataEngineService(userInfo, form,
-					awsComputationalResource);
+					awsComputationalResource, form.getProject());
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
 		}
 
@@ -133,7 +133,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
 		validate(form);
-		return computationalService.createSparkCluster(userInfo, form)
+		return computationalService.createSparkCluster(userInfo, form, form.getProject())
 				? Response.ok().build()
 				: Response.status(Response.Status.FOUND).build();
 	}
@@ -171,7 +171,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 * @return 200 OK if operation is successfully triggered
 	 */
 	@DELETE
-	@Path("/{exploratoryName}/{computationalName}/stop")
+	@Path("/{project}/{exploratoryName}/{computationalName}/stop")
 	@ApiOperation("Stops Spark cluster on AWS")
 	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on AWS successfully stopped"))
 	public Response stop(@ApiParam(hidden = true) @Auth UserInfo userInfo,
@@ -195,17 +195,19 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 * @return 200 OK if operation is successfully triggered
 	 */
 	@PUT
-	@Path("/{exploratoryName}/{computationalName}/start")
+	@Path("/{project}/{exploratoryName}/{computationalName}/start")
 	@ApiOperation("Starts Spark cluster on AWS")
 	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on AWS successfully started"))
 	public Response start(@ApiParam(hidden = true) @Auth UserInfo userInfo,
 						  @ApiParam(value = "Notebook's name corresponding to Spark cluster", required = true)
 						  @PathParam("exploratoryName") String exploratoryName,
 						  @ApiParam(value = "Spark cluster's name for starting", required = true)
-						  @PathParam("computationalName") String computationalName) {
+						  @PathParam("computationalName") String computationalName,
+						  @ApiParam(value = "Project name", required = true)
+						  @PathParam("project") String project) {
 		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName);
+		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName, project);
 
 		return Response.ok().build();
 	}
@@ -260,7 +262,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	}
 
 	private void validate(UserInfo userInfo, AwsComputationalCreateForm formDTO) {
-		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
+		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage(), userInfo.getRoles())) {
 			log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
 			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
 		}
@@ -277,16 +279,18 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					".");
 		}
 
-		int slaveSpotInstanceBidPct = formDTO.getSlaveInstanceSpotPctPrice();
-		if (formDTO.getSlaveInstanceSpot() && (slaveSpotInstanceBidPct < configuration.getMinEmrSpotInstanceBidPct()
-				|| slaveSpotInstanceBidPct > configuration.getMaxEmrSpotInstanceBidPct())) {
-			log.debug("Creating computational resource {} for user {} fail: Spot instances bidding percentage value " +
-							"out of the boundaries. Minimum is {}, maximum is {}",
-					formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(),
-					configuration.getMaxEmrSpotInstanceBidPct());
-			throw new DlabException("Spot instances bidding percentage value out of the boundaries. Minimum is " +
-					configuration.getMinEmrSpotInstanceBidPct() + ", maximum is " +
-					configuration.getMaxEmrSpotInstanceBidPct() + ".");
+		if (formDTO.getSlaveInstanceSpotPctPrice() != null){
+			int slaveSpotInstanceBidPct = formDTO.getSlaveInstanceSpotPctPrice();
+			if (formDTO.getSlaveInstanceSpot() && (slaveSpotInstanceBidPct < configuration.getMinEmrSpotInstanceBidPct()
+					|| slaveSpotInstanceBidPct > configuration.getMaxEmrSpotInstanceBidPct())) {
+				log.debug("Creating computational resource {} for user {} fail: Spot instances bidding percentage value " +
+								"out of the boundaries. Minimum is {}, maximum is {}",
+						formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(),
+						configuration.getMaxEmrSpotInstanceBidPct());
+				throw new DlabException("Spot instances bidding percentage value out of the boundaries. Minimum is " +
+						configuration.getMinEmrSpotInstanceBidPct() + ", maximum is " +
+						configuration.getMaxEmrSpotInstanceBidPct() + ".");
+			}
 		}
 	}
 }

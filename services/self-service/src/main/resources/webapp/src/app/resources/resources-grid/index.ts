@@ -19,15 +19,15 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../shared/material.module';
 import { ResourcesGridComponent } from './resources-grid.component';
 import { ComputationalResourcesModule } from '../computational/computational-resources-list';
-import { ModalModule, ConfirmationDialogModule, BubbleModule } from '../../shared';
+import { ConfirmationDialogModule, BubbleModule } from '../../shared';
 import { ComputationalResourceCreateDialogModule } from '../computational/computational-resource-create-dialog';
 import { DetailDialogModule } from '../exploratory/detail-dialog';
 import { FormControlsModule } from '../../shared/form-controls';
-import { CostDetailsDialogModule } from '../billing/cost-details-dialog';
+import { CostDetailsDialogModule } from '../exploratory/cost-details-dialog';
 import { InstallLibrariesModule } from '../exploratory/install-libraries';
 import { AmiCreateDialogModule } from '../exploratory/ami-create-dialog';
 import { SchedulerModule } from '../scheduler';
@@ -36,8 +36,8 @@ import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
 @NgModule({
   imports: [
     CommonModule,
+    RouterModule,
     ComputationalResourcesModule,
-    ModalModule,
     ConfirmationDialogModule,
     BubbleModule,
     DetailDialogModule,

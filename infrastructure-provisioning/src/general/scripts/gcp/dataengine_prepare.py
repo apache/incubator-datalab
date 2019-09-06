@@ -32,7 +32,7 @@ import argparse
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -43,11 +43,14 @@ if __name__ == "__main__":
     data_engine = dict()
     data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     data_engine['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    data_engine['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    data_engine['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
+    data_engine['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     data_engine['region'] = os.environ['gcp_region']
     data_engine['zone'] = os.environ['gcp_zone']
 
     edge_status = GCPMeta().get_instance_status('{0}-{1}-edge'.format(data_engine['service_base_name'],
-                                                                      data_engine['edge_user_name']))
+                                                                      data_engine['project_name']))
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
@@ -74,12 +77,12 @@ if __name__ == "__main__":
         data_engine['computational_name'] = ''
 
     data_engine['subnet_name'] = '{0}-{1}-subnet'.format(data_engine['service_base_name'],
-                                                         data_engine['edge_user_name'])
+                                                         data_engine['project_name'])
     data_engine['master_size'] = os.environ['gcp_dataengine_master_size']
     data_engine['slave_size'] = os.environ['gcp_dataengine_slave_size']
     data_engine['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     data_engine['dataengine_service_account_name'] = '{}-{}-ps'.format(data_engine['service_base_name'],
-                                                                       data_engine['edge_user_name'])
+                                                                       data_engine['project_name'])
 
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
@@ -87,7 +90,7 @@ if __name__ == "__main__":
     if os.environ['conf_os_family'] == 'redhat':
         initial_user = 'ec2-user'
         sudo_group = 'wheel'
-    data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['edge_user_name'] + \
+    data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['project_name'] + \
                                   '-de-' + data_engine['exploratory_name'] + '-' + \
                                   data_engine['computational_name']
     data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
@@ -96,19 +99,23 @@ if __name__ == "__main__":
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
     data_engine['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
     data_engine['gpu_accelerator_type'] = 'None'
-    if os.environ['application'] in ('tensor', 'deeplearning'):
+    if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
         data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
     data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
-                                                     data_engine['edge_user_name'])
+                                                     data_engine['project_name'])
     data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
                                    "sbn": data_engine['service_base_name'],
                                    "user": data_engine['edge_user_name'],
+                                   "project_tag": data_engine['project_tag'],
+                                   "endpoint_tag": data_engine['endpoint_tag'],
                                    "type": "slave",
                                    "notebook_name": data_engine['notebook_name'],
                                    "product": "dlab"}
     data_engine['master_labels'] = {"name": data_engine['cluster_name'],
                                     "sbn": data_engine['service_base_name'],
                                     "user": data_engine['edge_user_name'],
+                                    "project_tag": data_engine['project_tag'],
+                                    "endpoint_tag": data_engine['endpoint_tag'],
                                     "type": "master",
                                     "notebook_name": data_engine['notebook_name'],
                                     "product": "dlab"}

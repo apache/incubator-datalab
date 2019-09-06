@@ -60,16 +60,6 @@
     ]
   },
   {
-    "_id": "nbShapes_n1-standard-1_fetching",
-    "description": "Use n1-standard-1 instance shape for notebook",
-    "exploratory_shapes": [
-      "n1-standard-1"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
     "_id": "nbShapes_n1-standard-2_fetching",
     "description": "Use n1-standard-2 instance shape for notebook",
     "exploratory_shapes": [
@@ -120,6 +110,16 @@
     ]
   },
   {
+    "_id": "nbCreateTensorRstudio",
+    "description": "Create Notebook RStudio with TensorFlow",
+    "exploratories": [
+      "docker.dlab-tensor-rstudio"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateZeppelin",
     "description": "Create Notebook Apache Zeppelin",
     "exploratories": [
@@ -150,20 +150,10 @@
     ]
   },
   {
-    "_id": "compShapes_n1-standard-1_fetching",
-    "description": "Use n1-standard-1 instance shape for cluster",
-    "computational_shapes": [
-      "n1-standard-1"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
     "_id": "compShapes_n1-standard-2_fetching",
     "description": "Use n1-standard-2 instance shape for cluster",
     "computational_shapes": [
-      "n1-standard-1"
+      "n1-standard-2"
     ],
     "groups": [
       "$anyuser"
@@ -237,7 +227,9 @@
       "/api/infrastructure/backup",
       "/roleManagement",
       "/api/settings",
-      "/user/settings"
+      "/user/settings",
+      "/api/project",
+      "/api/endpoint"
     ],
     "groups": [
       "$anyuser"

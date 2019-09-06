@@ -17,37 +17,91 @@
   ~ under the License.
   -->
 
-<div class="nav-bar" *ngIf="isLoggedIn">
+<div class="nav-bar" [hidden]="!isLoggedIn">
   <div class="menu-area" *ngIf="healthStatus">
 
-    <button class="hamburger" [matMenuTriggerFor]="menu">
+    <button class="hamburger" (click)="collapse()">
       <span class="line"></span>
       <span class="line"></span>
       <span class="line"></span>
     </button>
 
-    <nav role="navigation">
-      <mat-menu #menu="matMenu" [overlapTrigger]="false">
-        <a class="nav-item" mat-menu-item [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
-        <a class="nav-item" mat-menu-item [routerLink]="['/environment_management']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Management</a>
-        <a *ngIf="healthStatus.billingEnabled" class="nav-item" mat-menu-item [routerLink]="['/billing_report']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Billing Report</a>
-      </mat-menu>
-    </nav>
     <a [routerLink]="['/resources_list']" class="navbar-logo">
       <img src="assets/img/logo-nav.png" alt="">
     </a>
   </div>
 
   <div class="control-area" *ngIf="healthStatus">
-    <a *ngIf="healthStatus.status" [routerLink]="['/environment_management']" class="statusbar">
+    <!-- <a *ngIf="healthStatus.status" [routerLink]="['/environment_management']" class="statusbar">
       <span class="material-icons" ngClass="{{healthStatus.status || ''}}">radio_button_checked</span>
+    </a> -->
+    <a class="statusbar" #info (click)="actions.toggle($event, info)" *ngIf="metadata">
+      <span class="material-icons meta">info</span>
     </a>
-    <button class="btn btn-logout" (click)="logout_btnClick()">Log out <span class="user-name">{{currentUserName}}</span></button>
+    <bubble-up #actions class="list-menu" position="bottom-right">
+      <div class="app-info">
+        <p>
+          <strong>Version: </strong>
+          <span class="ellipsis">{{ metadata?.version }}</span>
+        </p>
+        <p>
+          <strong>Branch: </strong>
+          <span class="ellipsis">{{ metadata?.branch }}</span>
+        </p>
+        <p>
+          <strong>Revision: </strong>
+          <span class="ellipsis commit" matTooltip="{{ metadata?.commit }}"
+            matTooltipPosition="above">{{ metadata?.commit }}</span>
+        </p>
+        <p>
+          <a class="helper_instruction" [attr.href]="metadata?.release_notes" target="_blank">
+            <i class="material-icons">link</i>Release notes </a>
+        </p>
+      </div>
+    </bubble-up>
+    <button class="btn btn-logout" (click)="logout_btnClick()">Log out <span
+        class="user-name">{{currentUserName}}</span></button>
   </div>
-</div>
 
-<key-upload-dialog #keyUploadModal
-  (generateUserKey)="generateUserKey($event)"
-  (checkInfrastructureCreationProgress)="checkCreationProgress($event)"
-  [primaryUploading]="true"></key-upload-dialog>
-<progress-dialog #preloaderModal></progress-dialog>
+</div>
+<mat-sidenav-container class="example-container" autosize>
+  <mat-sidenav #drawer mode="side" opened role="navigation" [style.width]="isExpanded ? '220px' : '60px'">
+    <mat-nav-list>
+      <nav>
+        <a class="nav-item" [routerLink]="['/resources_list']" [routerLinkActive]="['active']"
+          [routerLinkActiveOptions]="{exact:true}">
+          <span *ngIf="isExpanded; else resources">List of Resources</span>
+          <ng-template #resources><i class="material-icons">dashboard</i></ng-template>
+        </a>
+        <a class="nav-item has-children" *ngIf="healthStatus?.admin">
+          <span *ngIf="isExpanded">Administration</span>
+
+          <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/roles']"
+            [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+            <span *ngIf="isExpanded; else roles">Roles</span>
+            <ng-template #roles><i class="material-icons">account_box</i></ng-template>
+          </a>
+          <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/projects']"
+            [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+            <span *ngIf="isExpanded; else projects">Projects</span>
+            <ng-template #projects><i class="material-icons">dns</i></ng-template>
+          </a>
+          <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'"
+            [routerLink]="['/environment_management']" [routerLinkActive]="['active']"
+            [routerLinkActiveOptions]="{exact:true}">
+            <span *ngIf="isExpanded; else env">Environment Management</span>
+            <ng-template #env><i class="material-icons">settings</i></ng-template>
+          </a>
+        </a>
+        <a *ngIf="healthStatus?.billingEnabled" class="nav-item" [routerLink]="['/billing_report']"
+          [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+          <span *ngIf="isExpanded; else billing">Billing Report</span>
+          <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
+        </a>
+      </nav>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content id="scrolling" [style.margin-left]="isExpanded ? '220px' : '60px'">
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

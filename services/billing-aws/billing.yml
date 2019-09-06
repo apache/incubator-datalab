@@ -61,7 +61,7 @@ adapterOut:
 filter:
   - type: aws
     currencyCode: USD
-    columnDlabTag: <CONF_TAG_RESOURCE_ID>
+    columnDlabTag: <CONF_BILLING_TAG>
     serviceBaseName: <CONF_SERVICE_BASE_NAME>
 
 

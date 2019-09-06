@@ -23,6 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
@@ -59,6 +60,8 @@ import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
+import com.epam.dlab.dto.project.ProjectActionDTO;
+import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
@@ -68,6 +71,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.epam.dlab.cloud.CloudProvider.*;
@@ -196,7 +200,8 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	public <T extends ExploratoryCreateDTO<T>> T newExploratoryCreate(Exploratory exploratory, UserInfo userInfo,
-																	  ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
+																	  ExploratoryGitCredsDTO exploratoryGitCredsDTO,
+																	  Map<String, String> tags) {
 
 		T exploratoryCreate;
 
@@ -210,7 +215,6 @@ public class RequestBuilder {
 						.withNotebookInstanceSize(exploratory.getShape());
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((ExploratoryCreateAzure) exploratoryCreate)
-							.withAzureClientId(settingsDAO.getAzureDataLakeClientId())
 							.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
 				}
 
@@ -221,7 +225,6 @@ public class RequestBuilder {
 				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, ExploratoryCreateGcp.class)
 						.withNotebookInstanceType(exploratory.getShape());
 				break;
-
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
 		}
@@ -231,7 +234,10 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(exploratory.getDockerImage()))
 				.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 				.withImageName(exploratory.getImageName())
-				.withClusterConfig(exploratory.getClusterConfig());
+				.withClusterConfig(exploratory.getClusterConfig())
+				.withProject(exploratory.getProject())
+				.withEndpoint(exploratory.getEndpoint())
+				.withTags(tags);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -248,18 +254,19 @@ public class RequestBuilder {
 						.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 						.withNotebookImage(userInstance.getImageName())
 						.withExploratoryName(userInstance.getExploratoryName())
-						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+						.withProject(userInstance.getProject());
 			case AZURE:
 				T exploratoryStart = (T) newResourceSysBaseDTO(userInfo, ExploratoryActionStartAzure.class)
 						.withNotebookInstanceName(userInstance.getExploratoryId())
 						.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 						.withNotebookImage(userInstance.getImageName())
 						.withExploratoryName(userInstance.getExploratoryName())
-						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+						.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+						.withProject(userInstance.getProject());
 
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((ExploratoryActionStartAzure) exploratoryStart)
-							.withAzureClientId(settingsDAO.getAzureDataLakeClientId())
 							.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
 				}
 
@@ -294,7 +301,8 @@ public class RequestBuilder {
 				.withNotebookImage(userInstance.getImageName())
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withNotebookImage(userInstance.getImageName())
-				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired());
+				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+				.withProject(userInstance.getProject());
 	}
 
 	public ExploratoryGitCredsUpdateDTO newGitCredentialsUpdate(UserInfo userInfo, UserInstanceDTO instanceDTO,
@@ -303,6 +311,7 @@ public class RequestBuilder {
 		return newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
 				.withNotebookImage(instanceDTO.getImageName())
 				.withApplicationName(getApplicationNameFromImage(instanceDTO.getImageName()))
+				.withProject(instanceDTO.getProject())
 				.withNotebookInstanceName(instanceDTO.getExploratoryId())
 				.withExploratoryName(instanceDTO.getExploratoryName())
 				.withGitCreds(exploratoryGitCredsDTO.getGitCreds());
@@ -316,6 +325,7 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withExploratoryName(userInstance.getExploratoryName())
+				.withProject(userInstance.getProject())
 				.withLibs(libs);
 	}
 
@@ -325,6 +335,7 @@ public class RequestBuilder {
 		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class)
 				.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withProject(userInstance.getProject())
 				.withNotebookImage(userInstance.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withExploratoryName(userInstance.getExploratoryName());
@@ -339,6 +350,7 @@ public class RequestBuilder {
 				.withComputationalId(computationalResource.getComputationalId())
 				.withComputationalName(computationalResource.getComputationalName())
 				.withExploratoryName(userInstance.getExploratoryName())
+				.withProject(userInstance.getProject())
 				.withComputationalImage(computationalResource.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withLibs(libs);
@@ -353,6 +365,7 @@ public class RequestBuilder {
 		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, LibListComputationalDTO.class)
 				.withComputationalId(computationalResource.getComputationalId())
+				.withProject(userInstance.getProject())
 				.withComputationalImage(computationalResource.getImageName())
 				.withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance))
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()));
@@ -398,7 +411,10 @@ public class RequestBuilder {
 				.withComputationalName(form.getName())
 				.withNotebookTemplateName(userInstance.getTemplateName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-				.withNotebookInstanceName(userInstance.getExploratoryId());
+				.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withProject(userInstance.getProject())
+				.withTags(userInstance.getTags())
+				.withEndpoint(userInstance.getEndpoint());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -424,7 +440,6 @@ public class RequestBuilder {
 						.withConfig(form.getConfig());
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((SparkComputationalCreateAzure) computationalCreate)
-							.withAzureClientId(settingsDAO.getAzureDataLakeClientId())
 							.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
 				}
 
@@ -448,7 +463,10 @@ public class RequestBuilder {
 				.withComputationalName(form.getName())
 				.withNotebookTemplateName(userInstance.getTemplateName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-				.withNotebookInstanceName(userInstance.getExploratoryId());
+				.withNotebookInstanceName(userInstance.getExploratoryId())
+				.withProject(userInstance.getProject())
+				.withTags(userInstance.getTags())
+				.withEndpoint(userInstance.getEndpoint());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -457,7 +475,8 @@ public class RequestBuilder {
 																		String exploratoryId,
 																		String computationalName,
 																		String computationalId,
-																		DataEngineType dataEngineType) {
+																		DataEngineType dataEngineType,
+																		String project) {
 		T computationalTerminate;
 
 		switch (cloudProvider()) {
@@ -488,7 +507,8 @@ public class RequestBuilder {
 		return computationalTerminate
 				.withExploratoryName(exploratoryName)
 				.withComputationalName(computationalName)
-				.withNotebookInstanceName(exploratoryId);
+				.withNotebookInstanceName(exploratoryId)
+				.withProject(project);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -499,7 +519,8 @@ public class RequestBuilder {
 				.withExploratoryName(exploratory.getExploratoryName())
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratory.getExploratoryId())
-				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()));
+				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
+				.withProject(exploratory.getProject());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -509,7 +530,8 @@ public class RequestBuilder {
 				.withExploratoryName(exploratory.getExploratoryName())
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratory.getExploratoryId())
-				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()));
+				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
+				.withProject(exploratory.getProject());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -517,11 +539,29 @@ public class RequestBuilder {
 																	   String imageName) {
 		checkInappropriateCloudProviderOrElseThrowException();
 		return (T) newResourceSysBaseDTO(userInfo, ExploratoryImageDTO.class)
+				.withProject(userInstance.getProject())
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookImage(userInstance.getImageName())
-				.withImageName(imageName);
+				.withImageName(imageName)
+				.withEndpoint(userInstance.getEndpoint())
+				.withTags(userInstance.getTags());
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends ComputationalBase<T>> T newComputationalCheckInactivity(UserInfo userInfo,
+																			  UserInstanceDTO exploratory,
+																			  UserComputationalResource cr) {
+		return (T) newResourceSysBaseDTO(userInfo, ComputationalCheckInactivityDTO.class)
+				.withExploratoryName(exploratory.getExploratoryName())
+				.withComputationalName(cr.getComputationalName())
+				.withNotebookInstanceName(exploratory.getExploratoryId())
+				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
+				.withNotebookImageName(exploratory.getImageName())
+				.withImage(cr.getImageName())
+				.withComputationalId(cr.getComputationalId())
+				.withProject(exploratory.getProject());
 	}
 
 
@@ -547,9 +587,14 @@ public class RequestBuilder {
 				.withExploratoryName(userInstanceDTO.getExploratoryName())
 				.withNotebookInstanceName(userInstanceDTO.getExploratoryId())
 				.withComputationalName(compRes.getComputationalName())
-				.withApplicationName(compRes.getImageName());
+				.withApplicationName(compRes.getImageName())
+				.withProject(userInstanceDTO.getProject());
 		clusterConfigDTO.setCopmutationalId(compRes.getComputationalId());
 		clusterConfigDTO.setConfig(config);
+		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
+			clusterConfigDTO.setAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
+		}
+
 		return clusterConfigDTO;
 	}
 
@@ -557,12 +602,48 @@ public class RequestBuilder {
 																			  UserInstanceDTO userInstance,
 																			  List<ClusterConfig> config) {
 
-		return newResourceSysBaseDTO(userInfo, ExploratoryReconfigureSparkClusterActionDTO.class)
-				.withNotebookInstanceName(userInstance.getExploratoryId())
-				.withExploratoryName(userInstance.getExploratoryName())
-				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+		final ExploratoryReconfigureSparkClusterActionDTO dto =
+				newResourceSysBaseDTO(userInfo, ExploratoryReconfigureSparkClusterActionDTO.class)
+						.withNotebookInstanceName(userInstance.getExploratoryId())
+						.withExploratoryName(userInstance.getExploratoryName())
+						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+						.withNotebookImage(userInstance.getImageName())
+						.withConfig(config)
+						.withProject(userInstance.getProject());
+		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
+			dto.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
+		}
+
+		return dto;
+
+
+	}
+
+	public ExploratoryCheckInactivityAction newExploratoryCheckInactivityAction(UserInfo userInfo,
+																				UserInstanceDTO userInstance) {
+		final ExploratoryCheckInactivityAction dto = newResourceSysBaseDTO(userInfo,
+				ExploratoryCheckInactivityAction.class);
+		dto.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withNotebookImage(userInstance.getImageName())
-				.withConfig(config);
+				.withExploratoryName(userInstance.getExploratoryName())
+				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
+				.withProject(userInstance.getProject());
+		return dto;
+	}
+
+	public ProjectCreateDTO newProjectCreate(UserInfo userInfo, ProjectDTO projectDTO) {
+		return ProjectCreateDTO.builder()
+				.key(projectDTO.getKey())
+				.name(projectDTO.getName())
+				.tag(projectDTO.getTag())
+				.endpoint(projectDTO.getEndpoints().iterator().next()) //TODO figure out how to deal with endpoints
+				.build()
+				.withCloudSettings(cloudSettings(userInfo));
+	}
+
+	public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, String endpoint) {
+		return new ProjectActionDTO(project, endpoint)
+				.withCloudSettings(cloudSettings(userInfo));
 	}
 
 	private CloudProvider cloudProvider() {

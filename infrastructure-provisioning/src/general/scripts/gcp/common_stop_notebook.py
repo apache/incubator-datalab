@@ -33,7 +33,7 @@ import argparse
 import sys
 
 
-def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, user_name):
+def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, project_name):
     print('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
     try:
         labels = [
@@ -45,7 +45,7 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
                 computational_name = meta_lib.GCPMeta().get_cluster(cluster_name).get('labels').get(
                     'computational_name')
                 cluster = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
-                actions_lib.GCPActions().bucket_cleanup(bucket_name, user_name, cluster_name)
+                actions_lib.GCPActions().bucket_cleanup(bucket_name, project_name, cluster_name)
                 print('The bucket {} has been cleaned successfully'.format(bucket_name))
                 actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, region)
                 print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
@@ -58,17 +58,18 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
         sys.exit(1)
 
     print("Stopping data engine cluster")
-    cluster_list = []
     try:
-        for vm in GCPMeta().get_list_instances(zone)['items']:
-            try:
-                if instance_name == vm['labels']['notebook_name']:
-                    if 'master' == vm['labels']["type"]:
-                        cluster_list.append(vm['labels']["name"])
+        clusters_list = GCPMeta().get_list_instances_by_label(zone, instance_name)
+        if clusters_list.get('items'):
+            for vm in clusters_list['items']:
+                try:
                     GCPActions().stop_instance(vm['name'], zone)
                     print("Instance {} has been stopped".format(vm['name']))
-            except:
-                pass
+                except:
+                    pass
+        else:
+            print("There are no data engine clusters to terminate.")
+
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -83,7 +84,7 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -95,9 +96,10 @@ if __name__ == "__main__":
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['bucket_name'] = '{}-{}-bucket'.format(notebook_config['service_base_name'],
-                                                           notebook_config['edge_user_name'])
+                                                           notebook_config['project_name'])
     notebook_config['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['gcp_region'] = os.environ['gcp_region']
     notebook_config['gcp_zone'] = os.environ['gcp_zone']
@@ -108,7 +110,7 @@ if __name__ == "__main__":
         stop_notebook(notebook_config['notebook_name'], notebook_config['bucket_name'],
                       notebook_config['gcp_region'], notebook_config['gcp_zone'],
                       os.environ['conf_os_user'], notebook_config['key_path'],
-                      notebook_config['edge_user_name'])
+                      notebook_config['project_name'])
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to stop notebook.", str(err))

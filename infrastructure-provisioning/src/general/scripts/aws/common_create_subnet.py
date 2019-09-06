@@ -39,14 +39,14 @@ parser.add_argument('--infra_tag_value', type=str, default='')
 parser.add_argument('--prefix', type=str, default='')
 parser.add_argument('--ssn', type=bool, default=False)
 parser.add_argument('--user_subnets_range', type=str, default='')
+parser.add_argument('--zone', type=str, default='')
+parser.add_argument('--subnet_name', type=str, default='')
 args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    if args.ssn:
-        tag = {"Key": args.infra_tag_name, "Value": "{}-subnet".format(args.infra_tag_value)}
-    else:
-        tag = {"Key": args.infra_tag_name, "Value": "{}-{}-subnet".format(args.infra_tag_value, args.username)}
+    tag = {"Key": args.infra_tag_name, "Value": args.subnet_name}
+    tag_name = {"Key": "Name", "Value": args.subnet_name}
     try:
         if args.user_subnets_range == '' or args.ssn:
             ec2 = boto3.resource('ec2')
@@ -122,7 +122,8 @@ if __name__ == "__main__":
             if subnet_id == '':
                 print("Creating subnet {0} in vpc {1} with tag {2}".
                       format(dlab_subnet_cidr, args.vpc_id, json.dumps(tag)))
-                subnet_id = create_subnet(args.vpc_id, dlab_subnet_cidr, tag)
+                subnet_id = create_subnet(args.vpc_id, dlab_subnet_cidr, tag, args.zone)
+                create_tag(subnet_id, tag_name)
         else:
             print("REQUESTED SUBNET ALREADY EXISTS. USING CIDR {}".format(subnet_check))
             subnet_id = get_subnet_by_cidr(subnet_check)

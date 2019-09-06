@@ -18,14 +18,23 @@
  */
 
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { map } from 'rxjs/operators';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { ApplicationSecurityService } from './applicationSecurity.service';
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
-  constructor(private applicationSecurityService: ApplicationSecurityService) { }
+  constructor(
+    private applicationSecurityService: ApplicationSecurityService,
+    private router: Router
+  ) { }
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this.applicationSecurityService.isLoggedIn();
+    return this.applicationSecurityService.isLoggedIn().pipe(
+      map(authState => {
+        if (!authState) this.router.navigate(['/login']);
+        return !!authState;
+      })
+    );
   }
 }
