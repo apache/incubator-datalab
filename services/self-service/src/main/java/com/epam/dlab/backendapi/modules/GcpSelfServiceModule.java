@@ -25,6 +25,10 @@ import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.gcp.GcpBillingDao;
 import com.epam.dlab.backendapi.dao.gcp.GcpKeyDao;
+import com.epam.dlab.backendapi.resources.callback.gcp.EdgeCallbackGcp;
+import com.epam.dlab.backendapi.resources.callback.gcp.KeyUploaderCallbackGcp;
+import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
+import com.epam.dlab.backendapi.resources.gcp.GcpOauthResource;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
 import com.epam.dlab.backendapi.service.gcp.GcpInfrastructureInfoService;
@@ -50,12 +54,12 @@ public class GcpSelfServiceModule extends CloudModule {
 	@SuppressWarnings("unchecked")
 	public void init(Environment environment, Injector injector) {
 
-		/*environment.jersey().register(injector.getInstance(EdgeCallbackGcp.class));
+		environment.jersey().register(injector.getInstance(EdgeCallbackGcp.class));
 		environment.jersey().register(injector.getInstance(KeyUploaderCallbackGcp.class));
 		environment.jersey().register(injector.getInstance(ComputationalResourceGcp.class));
 		if (injector.getInstance(SelfServiceApplicationConfiguration.class).isGcpOuauth2AuthenticationEnabled()) {
 			environment.jersey().register(injector.getInstance(GcpOauthResource.class));
-		}*/
+		}
 
 	}
 
