@@ -72,6 +72,7 @@ public class MongoStartupListener implements ServerLifecycleListener {
 		if (configuration.getCloudProvider() == CloudProvider.AZURE) {
 			settingsDAO.setAzureRegion(cloudConfiguration.getRegion());
 			settingsDAO.setAzureVpcName(cloudConfiguration.getVpcId());
+			settingsDAO.setAzureSubnetName(cloudConfiguration.getSubnetId());
 			settingsDAO.setAzureDataLakeClientId(cloudConfiguration.getAzureClientId());
 			settingsDAO.setAzureResourceGroupName(cloudConfiguration.getAzureResourceGroupName());
 			settingsDAO.setAzureSecurityGroupName(cloudConfiguration.getSecurityGroupIds());
