@@ -38,21 +38,18 @@
             <id>aws</id>
             <modules>
                 <module>services/billing-aws</module>
-                <module>services/security-aws</module>
             </modules>
         </profile>
         <profile>
             <id>azure</id>
             <modules>
                 <module>services/billing-azure</module>
-                <module>services/security-azure</module>
             </modules>
         </profile>
         <profile>
             <id>gcp</id>
             <modules>
                 <module>services/billing-gcp</module>
-                <module>services/security-gcp</module>
             </modules>
         </profile>
     </profiles>
@@ -66,6 +63,9 @@
         <module>services/dlab-utils</module>
         <module>services/dlab-webapp-common</module>
         <module>services/dlab-mongo-migration</module>
+        <module>services/security-azure</module>
+        <module>services/security-gcp</module>
+        <module>services/security-aws</module>
     </modules>
 
     <properties>
