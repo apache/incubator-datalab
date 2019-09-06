@@ -150,7 +150,7 @@ def build_ui():
             sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
 
         sudo('mkdir -p {}/webapp/'.format(args.dlab_path))
-        for service in ['self-service', 'security-service', 'provisioning-service', 'billing']:
+        for service in ['self-service', 'security-service', 'provisioning-service']:
             sudo('mkdir -p {}/webapp/{}/lib/'.format(args.dlab_path, service))
             sudo('mkdir -p {}/webapp/{}/conf/'.format(args.dlab_path, service))
         sudo('cp {0}/sources/services/self-service/self-service.yml {0}/webapp/self-service/conf/'.format(
@@ -185,11 +185,6 @@ def build_ui():
             sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
             sudo(
                 'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/webapp/billing/lib/'.format(
-                    args.dlab_path))
-        elif args.cloud_provider == 'gcp':
-            sudo('cp {0}/sources/services/billing-gcp/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
-            sudo(
-                'cp {0}/sources/services/billing-gcp/target/billing-gcp*.jar {0}/webapp/billing/lib/'.format(
                     args.dlab_path))
     except Exception as err:
         traceback.print_exc()

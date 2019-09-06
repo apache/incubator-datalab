@@ -230,7 +230,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             try:
                 sudo('mkdir -p /var/log/application')
                 run('mkdir -p /tmp/yml_tmp/')
-                for service in ['self-service', 'security-service', 'provisioning-service', 'billing']:
+                for service in ['self-service', 'security-service', 'provisioning-service']:
                     jar = sudo('cd {0}{1}/lib/; find {1}*.jar -type f'.format(web_path, service))
                     sudo('ln -s {0}{2}/lib/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
                     sudo('cp {0}/webapp/{1}/conf/*.yml /tmp/yml_tmp/'.format(dlab_path, service))
@@ -264,56 +264,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 append_result("Unable to upload webapp jars. ", str(err))
                 sys.exit(1)
 
-            if billing_enabled:
-                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
-                                                                                                         host_string))
-                params = '--cloud_provider {} ' \
-                         '--infrastructure_tag {} ' \
-                         '--tag_resource_id {} ' \
-                         '--billing_tag {} ' \
-                         '--account_id {} ' \
-                         '--billing_bucket {} ' \
-                         '--aws_job_enabled {} ' \
-                         '--report_path "{}" ' \
-                         '--mongo_password {} ' \
-                         '--dlab_dir {} ' \
-                         '--authentication_file "{}" ' \
-                         '--offer_number {} ' \
-                         '--currency {} ' \
-                         '--locale {} ' \
-                         '--region_info {} ' \
-                         '--dlab_id {} ' \
-                         '--usage_date {} ' \
-                         '--product {} ' \
-                         '--usage_type {} ' \
-                         '--usage {} ' \
-                         '--cost {} ' \
-                         '--resource_id {} ' \
-                         '--tags {}'.\
-                            format(cloud_provider,
-                                   service_base_name,
-                                   tag_resource_id,
-                                   billing_tag,
-                                   account_id,
-                                   billing_bucket,
-                                   aws_job_enabled,
-                                   report_path,
-                                   mongo_passwd,
-                                   dlab_path,
-                                   authentication_file,
-                                   offer_number,
-                                   currency,
-                                   locale,
-                                   region_info,
-                                   dlab_id,
-                                   usage_date,
-                                   product,
-                                   usage_type,
-                                   usage,
-                                   cost,
-                                   resource_id,
-                                   tags)
-                sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
                 sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
                      -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
