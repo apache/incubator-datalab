@@ -50,17 +50,21 @@ if __name__ == "__main__":
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
         notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
         notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         notebook_config['user_keyname'] = os.environ['project_name']
         notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                 notebook_config['project_name'],
                                                                 notebook_config['exploratory_name'])
-        notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
-                                                                               os.environ['application'])
+        notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+            notebook_config['service_base_name'],
+            notebook_config['endpoint_name'],
+            notebook_config['project_name'],
+            os.environ['application'])
         notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
         notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                      notebook_config['user_name'])
+                                                                      notebook_config['project_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],

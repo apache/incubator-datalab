@@ -126,6 +126,16 @@ export class ResourcesGridComponent implements OnInit {
           .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name))).length > 0;
   }
 
+  public isResourcesInProgress(notebook) {
+    const env = this.getEnvironmentsListCopy().map(env => env.exploratory.find(el => el.name === notebook.name))[0];
+
+    if (env && env.resources.length) {
+      return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
+        && item.status !== 'running' && item.status !== 'stopped')).length > 0;
+    }
+    return false;
+  }
+
 
   // PRIVATE
   private getEnvironmentsListCopy() {
@@ -195,18 +205,6 @@ export class ResourcesGridComponent implements OnInit {
 
 
 
-
-
-  isResourcesInProgress(notebook) {
-    const env = this.getEnvironmentsListCopy().map(env => env.exploratory.find(el => el.name === notebook.name))[0];
-
-    if (env.resources.length) {
-      return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
-        && item.status !== 'running' && item.status !== 'stopped')).length > 0;
-    }
-    return false;
-  }
-
   filterActiveInstances(): FilterConfigurationModel {
     const filteredData = (<any>Object).assign({}, this.filterConfiguration);
     for (const index in filteredData) {
@@ -216,7 +214,6 @@ export class ResourcesGridComponent implements OnInit {
         });
       if (index === 'shapes') { filteredData[index] = []; }
     }
-
     filteredData.type = 'active';
 
     return filteredData;
@@ -227,7 +224,6 @@ export class ResourcesGridComponent implements OnInit {
       if (сonfig[index] && сonfig[index] instanceof Array)
         сonfig[index] = сonfig[index].filter(item => this.filterConfiguration[index].includes(item));
     }
-
     return сonfig;
   }
 
