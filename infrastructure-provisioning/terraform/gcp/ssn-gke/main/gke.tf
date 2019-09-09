@@ -61,7 +61,7 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
 
   node_config {
     machine_type = var.ssn_k8s_workers_shape
-    service_account = google_service_account.ssn_k8s_sa.name
+    service_account = google_service_account.ssn_k8s_sa.display_name
     labels = {
       name                              = local.gke_node_pool_name
       "${local.additional_tag[0]}"      = local.additional_tag[1]
