@@ -57,6 +57,7 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
   cluster    = google_container_cluster.ssn_k8s_gke_cluster.name
   node_count = var.ssn_k8s_workers_count
   version    = var.gke_cluster_version
+  depends_on = [google_container_cluster.ssn_k8s_gke_cluster]
 
   node_config {
     machine_type = var.ssn_k8s_workers_shape
@@ -72,6 +73,9 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
     }
 
     oauth_scopes = [
+      "https://www.googleapis.com/auth/compute",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/cloud-platform",
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]

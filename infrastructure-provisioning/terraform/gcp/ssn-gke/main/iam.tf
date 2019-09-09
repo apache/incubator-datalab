@@ -27,6 +27,7 @@ locals {
 resource "google_service_account" "ssn_k8s_sa" {
   account_id   = local.service_account_name
   display_name = local.service_account_name
+  project = var.project_id
 }
 
 resource "google_project_iam_member" "iam" {
