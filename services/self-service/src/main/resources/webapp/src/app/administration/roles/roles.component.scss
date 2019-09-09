@@ -60,10 +60,16 @@
     justify-content: center;
     flex-direction: column;
     text-align: center;
+    position: relative;
 
     input {
       width: 490px;
       align-self: center;
+    }
+
+    .error {
+      position: absolute;
+      bottom: 2px;
     }
 
     .caret {

@@ -25,6 +25,7 @@ from fabric.api import *
 from fabric.contrib.files import exists
 import sys
 import os
+import time
 
 
 def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
@@ -59,7 +60,6 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
                         time.sleep(50)
     except:
         sys.exit(1)
-
 
 def renew_gpg_key():
     try:

@@ -133,7 +133,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance)
       .subscribe((response: any) => {
         if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
-      });
+      }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
   private initFormModel(): void {
@@ -289,10 +289,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private containsComputationalResource(conputational_resource_name: string): boolean {
     if (conputational_resource_name) {
-      return this.resourcesList.filter(project => project.exploratory.some(item =>
-        item.resources.some(resource =>
-          CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource.computational_name))
-      )).length > 0;
+      return this.notebook_instance.resources.some(resource =>
+        CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource.computational_name));
     }
   }
 }
