@@ -22,6 +22,7 @@
 # ******************************************************************************
 
 from pymongo import MongoClient
+from fabric.api import *
 import yaml, json, sys
 import subprocess
 import time
@@ -34,6 +35,8 @@ outfile = "/etc/mongo_params.yml"
 parser = argparse.ArgumentParser()
 parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--mongo_parameters', type=str, default='')
+parser.add_argument('--cloud_provider', type=str, default='')
+parser.add_argument('--k8s', type=str, default=False)
 args = parser.parse_args()
 
 
@@ -78,24 +81,32 @@ if __name__ == "__main__":
     # Setting up admin's password and enabling security
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
     pass_upd = True
-    try:
-        command = ['service', 'mongod', 'start']
-        subprocess.call(command, shell=False)
-        time.sleep(5)
-        client.dlabdb.add_user('admin', mongo_passwd, roles=[{'role':'userAdminAnyDatabase','db':'admin'}])
-        client.dlabdb.command('grantRolesToUser', "admin", roles=["readWrite"])
-        set_mongo_parameters(client, mongo_parameters)
-        with open(args.dlab_path + 'tmp/mongo_roles.json', 'r') as data:
-            json_data = json.load(data)
-        for i in json_data:
-            client.dlabdb.roles.insert_one(i)
-        client.dlabdb.security.create_index("expireAt", expireAfterSeconds=7200)
-        if add_2_yml_config(path,'security','authorization','enabled'):
-            command = ['service', 'mongod', 'restart']
+    if args.k8s:
+        local("cd {}sources/infrastructure-provisioning/src/; docker build --build-arg CLOUD_PROVIDER={} --file ssn/files/os/mongo_Dockerfile -t docker.dlab-mongo ."
+             .format(args.dlab_path, args.cloud_provider))
+        local("mkdir -p /opt/mongo_vol")
+        local("docker run --name dlab-mongo -p 27017:27017 -v /opt/mongo_vol:/data/db -d docker.dlab-mongo --smallfiles")
+        local("sleep 10; docker exec dlab-mongo sh -c 'mongo < /root/create_db.js'")
+        local("docker exec dlab-mongo sh -c 'mongoimport --jsonArray --db dlabdb --collection roles --file /root/mongo_roles.json'")
+    else:
+        try:
+            command = ['service', 'mongod', 'start']
             subprocess.call(command, shell=False)
-    except:
-        print("Looks like MongoDB have already been secured")
-        pass_upd = False
+            time.sleep(5)
+            client.dlabdb.add_user('admin', mongo_passwd, roles=[{'role':'userAdminAnyDatabase','db':'admin'}])
+            client.dlabdb.command('grantRolesToUser', "admin", roles=["readWrite"])
+            set_mongo_parameters(client, mongo_parameters)
+            with open(args.dlab_path + 'tmp/mongo_roles.json', 'r') as data:
+                json_data = json.load(data)
+            for i in json_data:
+                client.dlabdb.roles.insert_one(i)
+            client.dlabdb.security.create_index("expireAt", expireAfterSeconds=7200)
+            if add_2_yml_config(path,'security','authorization','enabled'):
+                command = ['service', 'mongod', 'restart']
+                subprocess.call(command, shell=False)
+        except:
+            print("Looks like MongoDB have already been secured")
+            pass_upd = False
 
     # Generating output config
     add_2_yml_config(outfile, 'network', 'ip', mongo_ip)

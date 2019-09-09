@@ -175,7 +175,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              locale, region_info, ldap_login, tenant_id,
              application_id, hostname, data_lake_name, subscription_id,
              validate_permission_scope, dlab_id, usage_date, product,
-             usage_type, usage, cost, resource_id, tags, report_path=''):
+             usage_type, usage, cost, resource_id, tags, report_path='', k8s=False):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
@@ -190,17 +190,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
             sudo('mv /tmp/proxy_location_webapp_template.conf ' + os.environ['ssn_dlab_path'] + 'tmp/')
-            with open('/root/templates/supervisor_svc.conf', 'r') as f:
-                text = f.read()
-            text = text.replace('WEB_CONF', dlab_conf_dir).replace('OS_USR', os_user)
-            with open('/root/templates/supervisor_svc.conf', 'w') as f:
-                f.write(text)
-            put('/root/templates/supervisor_svc.conf', '/tmp/supervisor_svc.conf')
-            sudo('mv /tmp/supervisor_svc.conf ' + os.environ['ssn_dlab_path'] + 'tmp/')
-            sudo('cp ' + os.environ['ssn_dlab_path'] +
-                 'tmp/proxy_location_webapp_template.conf /etc/nginx/locations/proxy_location_webapp.conf')
-            sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/supervisor_svc.conf {}'.format(supervisor_conf))
-            sudo('sed -i \'s=WEB_APP_DIR={}=\' {}'.format(web_path, supervisor_conf))
             try:
                 sudo('mkdir -p /var/log/application')
                 run('mkdir -p /tmp/yml_tmp/')
@@ -294,15 +283,46 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)
-            sudo('service supervisor start')
-            sudo('service nginx restart')
-            sudo('service supervisor restart')
-            sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/ss_started')
+            if k8s:
+                try:
+                    dlab_source_dir = '{}sources/infrastructure-provisioning/src/'.format(dlab_path)
+                    k8s_dir = '{}tmp-kuber/'.format(dlab_source_dir)
+                    sudo("mkdir {}".format(k8s_dir))
+                    sudo("cp -r {0}conf/ {1}".format(dlab_path))
+                    sudo("cp -r {0}webapp/self-service/lib/*.jar {1}".format(dlab_path, k8s_dir))
+                    sudo("cp -r {0}webapp/security-service/lib/*.jar {1}".format(dlab_path, k8s_dir))
+                    sudo("cp -r {0}webapp/provisioning-service/lib/*.jar {1}".format(dlab_path, k8s_dir))
+                    sudo("cp -r {0}webapp/billing/lib/*.jar {1}".format(dlab_path, k8s_dir))
+                    sudo('sed -i "s|ssn.yml|/root/ssn.yml|g" {}self-service.yml'.format(k8s_dir))
+                    sudo("cd {}; docker build --file ssn/files/os/webui_Dockerfile -t docker.dlab-ui ."
+                            .format(dlab_source_dir))
+                    sudo("cd {}; docker build --file ssn/files/os/billing_Dockerfile -t docker.dlab-billing ."
+                            .format(dlab_source_dir))
+                    sudo("rm -rf {}".format(k8s_dir))
+                except Exception as err:
+                    traceback.print_exc()
+                    print('Failed to build images for services: ', str(err))
+                    sys.exit(1)
+            else:
+                with open('/root/templates/supervisor_svc.conf', 'r') as f:
+                    text = f.read()
+                text = text.replace('WEB_CONF', dlab_conf_dir).replace('OS_USR', os_user)
+                with open('/root/templates/supervisor_svc.conf', 'w') as f:
+                    f.write(text)
+                put('/root/templates/supervisor_svc.conf', '/tmp/supervisor_svc.conf')
+                sudo('mv /tmp/supervisor_svc.conf ' + os.environ['ssn_dlab_path'] + 'tmp/')
+                sudo('cp ' + os.environ['ssn_dlab_path'] +
+                     'tmp/proxy_location_webapp_template.conf /etc/nginx/locations/proxy_location_webapp.conf')
+                sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/supervisor_svc.conf {}'.format(supervisor_conf))
+                sudo('sed -i \'s=WEB_APP_DIR={}=\' {}'.format(web_path, supervisor_conf))
+                sudo('service supervisor start')
+                sudo('service nginx restart')
+                sudo('service supervisor restart')
+                sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/ss_started')
     except Exception as err:
         traceback.print_exc()
         print('Failed to start Self-service: ', str(err))
         sys.exit(1)
-
 
 def install_build_dep():
     try:
