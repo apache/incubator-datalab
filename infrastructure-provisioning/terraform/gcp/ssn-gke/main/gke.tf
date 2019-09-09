@@ -37,7 +37,7 @@ resource "google_container_cluster" "ssn_k8s_gke_cluster" {
     name                              = local.gke_name
     "${local.additional_tag[0]}"      = local.additional_tag[1]
     # "${var.tag_resource_id}"          = "${var.service_base_name}:${local.gke_name}"
-    "${var.service_base_name}-Tag"    = local.gke_name
+    "${var.service_base_name}-tag"    = local.gke_name
   }
 
   master_auth {
