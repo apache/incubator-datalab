@@ -46,7 +46,7 @@ resource "google_project_iam_member" "metric_writer" {
 resource "google_project_iam_member" "monitoring_viewer" {
   project = var.project_id
   # role    = "projects/${var.project_id}/roles/${local.role_name}"
-  role = "monitoring.viewer"
+  role = "roles/monitoring.viewer"
   member  = "serviceAccount:${google_service_account.ssn_k8s_sa.email}"
 }
 

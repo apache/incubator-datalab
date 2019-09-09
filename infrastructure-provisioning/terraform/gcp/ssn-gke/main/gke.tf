@@ -48,6 +48,8 @@ resource "google_container_cluster" "ssn_k8s_gke_cluster" {
       issue_client_certificate = false
     }
   }
+  depends_on = [google_project_iam_member.log_writer, google_project_iam_member.metric_writer,
+    google_project_iam_member.monitoring_viewer]
 }
 
 resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
