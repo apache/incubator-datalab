@@ -34,7 +34,7 @@ resource "google_container_cluster" "ssn_k8s_gke_cluster" {
   network = data.google_compute_network.ssn_gke_vpc_data.self_link
   subnetwork = data.google_compute_subnetwork.ssn_gke_subnet_data.self_link
   resource_labels = {
-    Name                              = local.gke_name
+    name                              = local.gke_name
     "${local.additional_tag[0]}"      = local.additional_tag[1]
     # "${var.tag_resource_id}"          = "${var.service_base_name}:${local.gke_name}"
     "${var.service_base_name}-Tag"    = local.gke_name
