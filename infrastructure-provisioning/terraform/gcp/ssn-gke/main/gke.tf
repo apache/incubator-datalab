@@ -55,7 +55,7 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
   location   = var.region
   cluster    = google_container_cluster.ssn_k8s_gke_cluster.name
   node_count = var.ssn_k8s_workers_count
-  version = var.gke_cluster_version
+  version    = var.gke_cluster_version
 
   node_config {
     machine_type = var.ssn_k8s_workers_shape
