@@ -172,7 +172,7 @@ public class SchedulerJobDAO extends BaseDAO {
 
 	private FindIterable<Document> computationalResourcesWithScheduler(UserInstanceStatus exploratoryStatus) {
 		final Bson computationalSchedulerCondition = Filters.elemMatch(COMPUTATIONAL_RESOURCES,
-				and(schedulerNotNullCondition(), eq(CHECK_INACTIVITY_FLAG, false)));
+				and(schedulerNotNullCondition()));
 		return find(USER_INSTANCES,
 				and(eq(STATUS, exploratoryStatus.toString()), computationalSchedulerCondition),
 				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
