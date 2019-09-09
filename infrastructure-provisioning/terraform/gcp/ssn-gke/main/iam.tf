@@ -29,25 +29,18 @@ resource "google_service_account" "ssn_k8s_sa" {
   display_name = local.service_account_name
 }
 
-resource "google_project_iam_member" "log_writer" {
-  project = var.project_id
-  # role    = "projects/${var.project_id}/roles/${local.role_name}"
-  role = "roles/logging.logWriter"
+resource "google_project_iam_member" "iam" {
+  count   = length(var.service_account_iam_roles)
   member  = "serviceAccount:${google_service_account.ssn_k8s_sa.email}"
+  project = var.project_id
+  role    = var.service_account_iam_roles[count.index]
 }
 
-resource "google_project_iam_member" "metric_writer" {
-  project = var.project_id
-  # role    = "projects/${var.project_id}/roles/${local.role_name}"
-  role = "roles/monitoring.metricWriter"
-  member  = "serviceAccount:${google_service_account.ssn_k8s_sa.email}"
-}
 
-resource "google_project_iam_member" "monitoring_viewer" {
-  project = var.project_id
-  # role    = "projects/${var.project_id}/roles/${local.role_name}"
-  role = "roles/monitoring.viewer"
-  member  = "serviceAccount:${google_service_account.ssn_k8s_sa.email}"
+
+resource "google_service_account_key" "nodes_sa_key" {
+  depends_on         = [google_project_iam_member.iam]
+  service_account_id = google_service_account.ssn_k8s_sa.name
 }
 
 //resource "google_project_iam_custom_role" "ssn_k8s_role" {

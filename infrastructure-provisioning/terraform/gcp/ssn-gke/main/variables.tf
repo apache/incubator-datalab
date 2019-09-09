@@ -71,3 +71,13 @@ variable "gke_cluster_version" {
 variable "ssn_k8s_workers_shape" {
   default = "n1-standard-1"
 }
+
+variable "service_account_iam_roles" {
+  default = [
+    "roles/logging.logWriter",
+    "roles/monitoring.metricWriter",
+    "roles/monitoring.viewer",
+    "roles/storage.objectViewer",
+    "roles/iam.serviceAccountTokenCreator",
+  ]
+}

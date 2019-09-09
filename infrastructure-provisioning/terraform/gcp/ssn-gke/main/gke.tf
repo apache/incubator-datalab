@@ -48,8 +48,7 @@ resource "google_container_cluster" "ssn_k8s_gke_cluster" {
       issue_client_certificate = false
     }
   }
-  depends_on = [google_project_iam_member.log_writer, google_project_iam_member.metric_writer,
-    google_project_iam_member.monitoring_viewer]
+  depends_on = [google_project_iam_member.iam]
 }
 
 resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
@@ -62,6 +61,11 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
   node_config {
     machine_type = var.ssn_k8s_workers_shape
     service_account = google_service_account.ssn_k8s_sa.name
+    labels = {
+      name                              = local.gke_node_pool_name
+      "${local.additional_tag[0]}"      = local.additional_tag[1]
+      "${var.service_base_name}-tag"    = local.gke_node_pool_name
+    }
 
     metadata = {
       disable-legacy-endpoints = "true"
