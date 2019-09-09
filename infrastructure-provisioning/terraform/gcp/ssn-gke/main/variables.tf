@@ -63,9 +63,10 @@ variable "gke_cluster_version" {
   default = "1.12.8-gke.10"
 }
 
-variable "tag_resource_id" {
-  default = "user:tag"
-}
+// Couldn't assign in GCP
+//variable "tag_resource_id" {
+//  default = "user:tag"
+//}
 
 variable "ssn_k8s_workers_shape" {
   default = "n1-standard-1"
