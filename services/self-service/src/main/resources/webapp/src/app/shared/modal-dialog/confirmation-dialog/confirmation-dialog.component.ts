@@ -74,7 +74,7 @@ export class ConfirmationDialogComponent implements OnInit {
 
     if (!this.confirmationType) this.filterResourcesByType(this.notebook.resources);
     this.isAliveResources = this.model.isAliveResources(this.notebook.resources);
-    this.onlyKilled = this.notebook.resources ? !this.notebook.resources.some(el => el.status !== 'terminated') : false;
+    this.onlyKilled = this.notebook.resources ? !this.notebook.resources.some(el => el.status !== 'terminated' && el.status !== 'failed') : false;
   }
 
   public confirm() {
@@ -83,10 +83,11 @@ export class ConfirmationDialogComponent implements OnInit {
 
   private filterResourcesByType(resources) {
     resources
-    .filter(resource =>
-      (resource.status !== 'failed' && resource.status !== 'terminated'
-      && resource.status !== 'terminating' && resource.status !== 'stopped'))
-    .forEach(resource => {
-      (resource.image === 'docker.dlab-dataengine') ? this.dataengines.push(resource) : this.dataengineServices.push(resource); });
+      .filter(resource =>
+        (resource.status !== 'failed' && resource.status !== 'terminated'
+          && resource.status !== 'terminating' && resource.status !== 'stopped'))
+      .forEach(resource => {
+        (resource.image === 'docker.dlab-dataengine') ? this.dataengines.push(resource) : this.dataengineServices.push(resource);
+      });
   }
 }

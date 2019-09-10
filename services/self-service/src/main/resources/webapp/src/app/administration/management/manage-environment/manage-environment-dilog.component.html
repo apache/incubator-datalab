@@ -35,7 +35,9 @@
             <div class="scrolling-content" id="scrolling" formArrayName="projects">
               <mat-list-item *ngFor="let item of usersEnvironments.controls; let i=index" [formGroupName]="i"
                 class="list-item">
-                <div class="username ellipsis">{{ manageUsersForm.controls['projects'].controls[i].value['project'] }}
+                <div class="username ellipsis"
+                  matTooltip="{{ manageUsersForm.controls['projects'].controls[i].value['project'] }}"
+                  matTooltipPosition="above">{{ manageUsersForm.controls['projects'].controls[i].value['project'] }}
                 </div>
                 <div class="quotes" *ngIf="DICTIONARY.cloud_provider !== 'gcp'">
                   <input type="number" (keypress)="CheckUtils.isNumberKey($event)" min="0"

@@ -262,9 +262,7 @@ export class ResourcesGridComponent implements OnInit {
   updateUserPreferences(filterConfiguration: FilterConfigurationModel): void {
     this.userResourceService.updateUserPreferences(filterConfiguration)
       .subscribe((result) => { },
-        (error) => {
-          console.log('UPDATE USER PREFERENCES ERROR ', error);
-        });
+        (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
   }
 
   printDetailEnvironmentModal(data): void {
