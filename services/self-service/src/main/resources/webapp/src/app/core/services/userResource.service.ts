@@ -143,8 +143,8 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getUserImages(image): Observable<{}> {
-    const body = `?docker_image=${image}`;
+  public getUserImages(image, project): Observable<{}> {
+    const body = `?docker_image=${image}&project=${project}`;
     return this.applicationServiceFacade
       .buildGetUserImages(body)
       .pipe(
