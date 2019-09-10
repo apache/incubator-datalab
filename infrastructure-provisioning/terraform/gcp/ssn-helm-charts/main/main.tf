@@ -46,28 +46,28 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(var.k8s_gke_cluster_ca)
 }
 
-resource "kubernetes_service_account" "example" {
-  metadata {
-    name = "tiller"
-    namespace = "kube-system"
-  }
-}
-
-resource "kubernetes_role_binding" "example" {
-  metadata {
-    name      = "tiller"
-    namespace = "kube-system"
-  }
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = "cluster-admin"
-  }
-  subject {
-    kind      = "ServiceAccount"
-    name      = "tiller"
-    namespace = "kube-system"
-  }
+//resource "kubernetes_service_account" "example" {
+//  metadata {
+//    name = "tiller"
+//    namespace = "kube-system"
+//  }
+//}
+//
+//resource "kubernetes_role_binding" "example" {
+//  metadata {
+//    name      = "tiller"
+//    namespace = "kube-system"
+//  }
+//  role_ref {
+//    api_group = "rbac.authorization.k8s.io"
+//    kind      = "ClusterRole"
+//    name      = "cluster-admin"
+//  }
+//  subject {
+//    kind      = "ServiceAccount"
+//    name      = "tiller"
+//    namespace = "kube-system"
+//  }
 }
 
 data "google_client_config" "current" {}
