@@ -30,7 +30,7 @@ ui:
   bucketName: ${ssn_bucket_name}
   image:
     repository: epamdlab/ui
-    tag: '0.1-aws'
+    tag: '0.1-gcp'
     pullPolicy: Always
   service:
     type: NodePort

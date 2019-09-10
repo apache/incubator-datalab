@@ -19,60 +19,58 @@
 #
 # ******************************************************************************
 
-# Default values for dlab-ui.
+# Default values for dlab-billing.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
+
+image:
+  repository: epamdlab/billing
+  tag: '0.1-gcp'
+  # pullPolicy: IfNotPresent
+  pullPolicy: Always
+
+#imagePullSecrets: []
+#nameOverride: ""
+#fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 58334
+
+ingress:
+  enabled: false
+  host: ""
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # kubernetes.io/tls-acme: "true"
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
 labels: {}
 
-ui:
-  bucketName: ${ssn_bucket_name}
-  image:
-    repository: epamdlab/ui
-    tag: '0.1-aws'
-    pullPolicy: Always
-  service:
-    type: NodePort
-    #  port: 58443
-    http_port: 58080
-    https_port: 58443
-  ingress:
-    enabled: true
-    host: ${ssn_k8s_alb_dns_name}
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/ssl-redirect: "false"
-
-    tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
+billing:
   mongo:
     host: ${mongo_service_name}
     port: ${mongo_port}
     username: ${mongo_user}
     db_name: ${mongo_db_name}
-  provisionService:
-    host: ${provision_service_host}
-  keycloak:
-    auth_server_url: http://${ssn_k8s_alb_dns_name}/auth
-
-  cloud_properties:
-    env_os: ${env_os}
-    service_base_name: ${service_base_name}
-    edge_instanse_shape: "t2.medium"
-    subnet_id: ${subnet_id}
-    region: ${region}
-    zone: ${zone}
-    tag_resource_id: "user:tag"
-    security_group_ids: ${security_group_ids}
-    ssn_instance_shape: ${ssn_instance_shape}
-    vpc_id: ${vpc_id}
-    key_dir: "/root/keys/"
-    ldap:
-      host: ${ldap_host}
-      dn: ${ldap_dn}
-      ou: ${ldap_ou}
-      user: ${ldap_user}
-      password: ${ldap_password}
+  service_base_name: ${service_base_name}
+  tag_resource_id: ${tag_resource_id}
+  bucket: ${billing_bucket}
+  path: ${billing_bucket_path}
+  aws_job_enabled: ${billing_aws_job_enabled}
+  account_id: ${billing_aws_account_id}
+  tag: ${billing_tag}
+  dlab_id: ${billing_dlab_id}
+  usage_date: ${billing_usage_date}
+  product: ${billing_product}
+  usage_type: ${billing_usage_type}
+  usage: ${billing_usage}
+  cost: ${billing_cost}
+  resource_id: ${billing_resource_id}
+  tags: ${billing_tags}
