@@ -293,13 +293,6 @@ span.mat-slide-toggle-content {
   }
 
   .mat-reset {
-    .mat-form-field-type-mat-select:not(.mat-form-field-disabled) {
-      .mat-form-field-flex {
-        // line-height: 1;
-        // padding-top: 2px;
-      }
-    }
-
     .mat-form-field {
       .mat-form-field-wrapper {
         overflow: hidden;
@@ -574,16 +567,16 @@ mat-horizontal-stepper {
   .mat-cell {
     word-break: break-all;
     vertical-align: top;
-    padding: 10px 5px;
+    padding: 15px 5px 10px 5px;
+
+    td {
+      vertical-align: baseline;
+    }
   }
 
   tr.mat-footer-row {
     font-weight: bold;
   }
-
-  // .mat-table-sticky {
-  //   border-top: 1px solid #e0e0e0;
-  // }
 }
 
 mat-tab-group.mat-tab-group {
