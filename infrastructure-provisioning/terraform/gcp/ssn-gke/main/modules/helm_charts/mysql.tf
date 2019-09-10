@@ -20,7 +20,7 @@
 # ******************************************************************************
 
 data "template_file" "mysql_values" {
-  template = file("./files/mysql_values.yaml")
+  template = file("./modules/helm_charts/files/mysql_values.yaml")
   vars = {
     mysql_root_password = random_string.mysql_root_password.result
     mysql_user          = var.mysql_user

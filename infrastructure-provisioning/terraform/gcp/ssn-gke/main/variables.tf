@@ -180,3 +180,11 @@ variable "mongo_service_name" {
 variable "env_os" {
   default = "debian"
 }
+
+variable "ssn_keystore_password" {
+  default = ""
+}
+
+variable "endpoint_keystore_password" {
+  default = ""
+}

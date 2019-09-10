@@ -20,7 +20,7 @@
 # ******************************************************************************
 
 data "template_file" "configure_keycloak" {
-  template = file("./files/configure_keycloak.sh")
+  template = file("./modules/helm_charts/files/configure_keycloak.sh")
   vars     = {
     ssn_k8s_alb_dns_name   = var.ssn_k8s_alb_dns_name
     keycloak_user          = var.keycloak_user
@@ -38,7 +38,7 @@ data "template_file" "configure_keycloak" {
 }
 
 data "template_file" "keycloak_values" {
-  template = file("./files/keycloak_values.yaml")
+  template = file("./modules/helm_charts/files/keycloak_values.yaml")
   vars = {
     keycloak_user           = var.keycloak_user
     keycloak_password       = random_string.keycloak_password.result

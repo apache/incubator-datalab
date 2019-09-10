@@ -20,7 +20,7 @@
 # ******************************************************************************
 
 data "template_file" "mongo_values" {
-  template = file("./files/mongo_values.yaml")
+  template = file("./modules/helm_charts/files/mongo_values.yaml")
   vars     = {
       mongo_root_pwd      = random_string.mongo_root_password.result
       mongo_db_username   = var.mongo_db_username
