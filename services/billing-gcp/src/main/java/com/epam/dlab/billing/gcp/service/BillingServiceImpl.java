@@ -106,6 +106,8 @@ public class BillingServiceImpl implements BillingService {
 				updateExploratoryCost(billingDataList);
 			});
 
+			log.info("Finished updating billing data");
+
 
 		} catch (Exception e) {
 			log.error("Can not update billing due to: {}", e.getMessage(), e);
