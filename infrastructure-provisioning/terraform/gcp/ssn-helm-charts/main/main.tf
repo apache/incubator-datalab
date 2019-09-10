@@ -22,10 +22,10 @@ provider "helm" {
 
   kubernetes {
     host                   = var.k8s_gke_endpoint
-    token                  = var.k8s_gke_client_access_token
-    client_certificate     = var.k8s_gke_clinet_cert
-    client_key             = var.k8s_gke_client_key
-    cluster_ca_certificate = var.k8s_gke_cluster_ca
+    token                  = base64decode(var.k8s_gke_client_access_token)
+    client_certificate     = base64decode(var.k8s_gke_clinet_cert)
+    client_key             = base64decode(var.k8s_gke_client_key)
+    cluster_ca_certificate = base64decode(var.k8s_gke_cluster_ca)
   }
   install_tiller = true
 }

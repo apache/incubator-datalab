@@ -26,7 +26,7 @@ data "template_file" "dlab_ui_values" {
       mongo_user             = var.mongo_db_username
       mongo_port             = var.mongo_service_port
       mongo_service_name     = var.mongo_service_name
-      ssn_k8s_alb_dns_name   = var.k8s_gke_endpoint # var.ssn_k8s_alb_dns_name
+      ssn_k8s_alb_dns_name   = var.ssn_k8s_alb_dns_name
       provision_service_host = "127.0.0.1" # var.endpoint_eip_address
       env_os                 = var.env_os
       service_base_name      = var.service_base_name

@@ -25,3 +25,21 @@ provider "google" {
   region      = var.region
   zone        = var.zone
 }
+
+resource "random_string" "ssn_keystore_password" {
+  length = 16
+  special = false
+}
+
+resource "random_string" "endpoint_keystore_password" {
+  length = 16
+  special = false
+}
+
+output "ssn_keystore_password" {
+  value = random_string.ssn_keystore_password.result
+}
+
+output "endpoint_keystore_password" {
+  value = random_string.endpoint_keystore_password.result
+}
