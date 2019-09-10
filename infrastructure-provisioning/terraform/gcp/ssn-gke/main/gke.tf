@@ -85,6 +85,7 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
 data "google_container_cluster" "ssn_k8s_gke_cluster" {
   name       = local.gke_name
   location   = var.region
+  depends_on = [google_container_cluster.ssn_k8s_gke_cluster]
 }
 
 output "cluster_username" {
