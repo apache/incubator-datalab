@@ -68,7 +68,7 @@ provider "kubernetes" {
 //    name      = "tiller"
 //    namespace = "kube-system"
 //  }
-}
+//}
 
 data "google_client_config" "current" {}
 
