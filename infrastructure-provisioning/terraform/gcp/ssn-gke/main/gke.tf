@@ -39,6 +39,7 @@ resource "google_container_cluster" "ssn_k8s_gke_cluster" {
     # "${var.tag_resource_id}"          = "${var.service_base_name}:${local.gke_name}"
     "${var.service_base_name}-tag"    = local.gke_name
   }
+  enable_legacy_abac = true
 
   master_auth {
     username = ""
@@ -58,7 +59,6 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
   node_count = var.ssn_k8s_workers_count
   version    = var.gke_cluster_version
   depends_on = [google_container_cluster.ssn_k8s_gke_cluster]
-  enable_legacy_abac = true
 
   node_config {
     machine_type = var.ssn_k8s_workers_shape
