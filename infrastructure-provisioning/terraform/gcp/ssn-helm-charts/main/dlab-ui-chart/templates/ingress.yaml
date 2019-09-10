@@ -36,19 +36,19 @@ metadata:
 {{ toYaml . | indent 4 }}
   {{- end }}
 spec:
-{{- if .Values.ui.ingress.tls }}
-  tls:
-  {{- range .Values.ui.ingress.tls }}
-    - hosts:
-      {{- range .hosts }}
-        - {{ . | quote }}
-      {{- end }}
-      secretName: {{ .secretName }}
-  {{- end }}
-{{- end }}
-  rules:
-    backend:
-      serviceName: {{ $fullName }}
-      servicePort: {{ $servicePort }}
-    path: /
+#{{- if .Values.ui.ingress.tls }}
+#  tls:
+#  {{- range .Values.ui.ingress.tls }}
+#    - hosts:
+#      {{- range .hosts }}
+#        - {{ . | quote }}
+#      {{- end }}
+#      secretName: {{ .secretName }}
+#  {{- end }}
+#{{- end }}
+#  rules:
+  backend:
+    serviceName: {{ $fullName }}
+    servicePort: {{ $servicePort }}
+  path: /
 {{- end }}

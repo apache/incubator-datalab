@@ -26,7 +26,6 @@ data "template_file" "mysql_values" {
     mysql_user          = var.mysql_user
     mysql_user_password = random_string.mysql_user_password.result
     mysql_db_name       = var.mysql_db_name
-    # mysql_volume_claim  = kubernetes_persistent_volume_claim.example.metadata.0.name
   }
 }
 
