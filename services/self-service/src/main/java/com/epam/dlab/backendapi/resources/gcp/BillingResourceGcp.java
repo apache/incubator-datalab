@@ -31,7 +31,9 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/billing")
 public class BillingResourceGcp {
@@ -51,6 +53,24 @@ public class BillingResourceGcp {
     @SuppressWarnings("unchecked")
     public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull GcpBillingFilter formDTO) {
         return billingService.getBillingReport(userInfo, formDTO);
+    }
+
+    /**
+     * Returns the billing report in csv file.
+     *
+     * @param userInfo user info.
+     * @param formDTO  filter for report data.
+     */
+
+    @POST
+    @Path("/report/download")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @SuppressWarnings("unchecked")
+    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull GcpBillingFilter formDTO) {
+        return Response.ok(billingService.downloadReport(userInfo, formDTO))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + billingService.getReportFileName(userInfo, formDTO) + "\"")
+                .build();
     }
 
 }
