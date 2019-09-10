@@ -44,8 +44,6 @@ keycloak:
       nginx.ingress.kubernetes.io/ssl-redirect: "false"
       nginx.ingress.kubernetes.io/rewrite-target: /auth
     path: /auth
-    hosts:
-      - ${ssn_k8s_alb_dns_name}
 
   startupScripts:
     mystartup.sh: |
