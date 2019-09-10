@@ -27,16 +27,9 @@ data "template_file" "dlab_ui_values" {
       mongo_port             = var.mongo_service_port
       mongo_service_name     = var.mongo_service_name
       ssn_k8s_alb_dns_name   = var.k8s_gke_endpoint # var.ssn_k8s_alb_dns_name
-      ssn_bucket_name        = var.ssn_bucket_name
-      provision_service_host = var.endpoint_eip_address
+      provision_service_host = "127.0.0.1" # var.endpoint_eip_address
       env_os                 = var.env_os
       service_base_name      = var.service_base_name
-      subnet_id              = var.ssn_subnet
-      region                 = var.region
-      zone                   = var.zone
-      security_group_ids     = var.ssn_k8s_sg_id
-      ssn_instance_shape     = var.ssn_k8s_masters_shape
-      vpc_id                 = var.ssn_vpc_id
       ldap_host              = var.ldap_host
       ldap_dn                = var.ldap_dn
       ldap_ou                = var.ldap_users_group
