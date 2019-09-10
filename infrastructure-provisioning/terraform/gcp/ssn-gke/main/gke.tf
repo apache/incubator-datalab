@@ -110,13 +110,19 @@ output "ca" {
 
 data "google_client_config" "current" {}
 
-//provider "helm" {
-//
-//  kubernetes {
-//    host                   = "${google_container_cluster.ssn_k8s_gke_cluster.endpoint}"
-//    token                  = "${data.google_client_config.current.access_token}"
-//    client_certificate     = "${base64decode(google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate)}"
-//    client_key             = "${base64decode(google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key)}"
-//    cluster_ca_certificate = "${base64decode(google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate)}"
-//  }
-//}
+provider "helm" {
+
+  kubernetes {
+    host                   = "${google_container_cluster.ssn_k8s_gke_cluster.endpoint}"
+    token                  = "${data.google_client_config.current.access_token}"
+    client_certificate     = "${base64decode(google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate)}"
+    client_key             = "${base64decode(google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key)}"
+    cluster_ca_certificate = "${base64decode(google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate)}"
+  }
+  install_tiller = true
+}
+
+resource "helm_release" "nginx" {
+    name      = "nginx-ingress"
+    chart     = "stable/nginx-ingress"
+}
