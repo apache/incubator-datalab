@@ -71,7 +71,7 @@ if __name__ == "__main__":
     notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
+    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                   os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
 

@@ -64,7 +64,7 @@ if __name__ == "__main__":
     notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
+    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                   os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']

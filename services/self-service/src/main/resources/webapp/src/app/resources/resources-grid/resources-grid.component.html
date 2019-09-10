@@ -22,9 +22,11 @@
     class="data-grid resources mat-elevation-z6">
 
     <ng-container matColumnDef="project">
-      <td mat-cell *matCellDef="let element" [attr.colspan]="6" class="highlight"> {{ element.project }} </td>
+      <td mat-cell *matCellDef="let element" [attr.colspan]="8" class="highlight"> {{ element.project }} </td>
     </ng-container>
-    <ng-container *ngFor="let column of filteringColumns; let i = index" matColumnDef="{{ column.name }}">
+
+    <!-- <ng-container *ngFor="let column of filteringColumns; let i = index" matColumnDef="{{ column.name }}"
+      [attr.sticky]="column.name === 'name' ? true : null">
       <th mat-header-cell *matHeaderCellDef ngClass="{{ column.class }}">
         <span class="label">{{ column.title }}</span>
         <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
@@ -34,10 +36,71 @@
           </i>
         </button>
       </th>
+    </ng-container> -->
+
+    <ng-container matColumnDef="name" sticky>
+      <th mat-header-cell *matHeaderCellDef class="name-col">
+        <span class="label">Environment name</span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.name.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.name.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button>
+      </th>
     </ng-container>
+    <ng-container matColumnDef="statuses">
+      <th mat-header-cell *matHeaderCellDef class="status-col">
+        <span class="label"> Status </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="shapes">
+      <th mat-header-cell *matHeaderCellDef class="shape-col">
+        <span class="label"> {{ DICTIONARY.instance_size }} </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="tag">
+      <th mat-header-cell *matHeaderCellDef class="tag-col">
+        <span class="label"> Tags </span>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="resources">
+      <th mat-header-cell *matHeaderCellDef class="resources-col">
+        <span class="label"> {{ DICTIONARY.computational_resource }} </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="cost">
+      <th mat-header-cell *matHeaderCellDef class="cost-col">
+        <span class="label"> Cost </span>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="actions" stickyEnd>
+      <th mat-header-cell *matHeaderCellDef class="actions-col"></th>
+    </ng-container>
+
+    <!-- ----------------------------------------------------- -->
+
     <ng-container matColumnDef="expandedDetail">
-      <td mat-cell *matCellDef="let element" class="exploratory" [attr.colspan]="6"
-        [@detailExpand]="element == expandedElement || forse ? 'expanded' : 'collapsed'">
+      <td mat-cell *matCellDef="let element" class="exploratory" [attr.colspan]="8"
+        [@detailExpand]="element == expandedElement || forse ? 'expanded' : 'collapsed'" sticky>
 
         <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
           <td class="name-col" (click)="printDetailEnvironmentModal(element)">{{ element.name }}</td>
@@ -45,6 +108,16 @@
             {{element.status | underscoreless }}
           </td>
           <td class="shape-col">{{ element.shape }}</td>
+
+          <td class="tag-col selection">
+            <mat-chip-list aria-label="Tags">
+              <mat-chip matTooltip="Endpoint tag" matTooltipPosition="above">{{ element.tags.endpoint_tag }}</mat-chip>
+              <mat-chip *ngIf="element.tags.custom_tag" matTooltip="Custom tag" matTooltipPosition="above">
+                {{ element.tags.custom_tag }}</mat-chip>
+              <mat-chip matTooltip="User tag" matTooltipPosition="above">{{ element.tags.user_tag }}</mat-chip>
+              <mat-chip matTooltip="Project tag" matTooltipPosition="above">{{ element.tags.project_tag }}</mat-chip>
+            </mat-chip-list>
+          </td>
 
           <td class="resources-col">
             <computational-resources-list [resources]="element.resources" [environment]="element"
@@ -151,6 +224,11 @@
         <multi-select-dropdown (selectionChange)="onUpdate($event)"
           [type]="DICTIONARY.cloud_provider === 'aws' ? 'shapes': 'sizes'" [items]="filterConfiguration.shapes"
           [model]="filterForm.shapes"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="tag-filter">
+      <th mat-header-cell *matHeaderCellDef class="tag-col">
+
       </th>
     </ng-container>
     <ng-container matColumnDef="resource-filter">

@@ -70,16 +70,16 @@ public class UserRoles {
 		LOGGER.trace("Loading roles from database...");
 		if (userRoles == null) {
 			userRoles = new UserRoles();
-			userRoles.load(dao, defaultAccess);
-			LOGGER.trace("New roles are	: {}", getRoles());
 		}
+		userRoles.load(dao, defaultAccess);
+		LOGGER.trace("New roles are	: {}", getRoles());
 	}
 
 	/**
 	 * Return the list of roles for all users.
 	 */
 	public static List<UserRole> getRoles() {
-		return (userRoles == null ? null : userRoles.roles);
+		return (userRoles == null ? null : userRoles.roles());
 	}
 
 	/**
@@ -97,12 +97,8 @@ public class UserRoles {
 
 	public static boolean isAdmin(UserInfo userInfo) {
 		final List<UserRole> roles = UserRoles.getRoles();
-		if (roles == null || roles.isEmpty()) {
-			System.out.println("=============EMPTY==========");
-		}
-		final boolean b = roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equals(r.getId()) &&
+		return roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equals(r.getId()) &&
 				(userRoles.hasAccessByGroup(userInfo, r, userInfo.getRoles()) || userRoles.hasAccessByUserName(userInfo, r)));
-		return b;
 	}
 
 	/**
@@ -147,6 +143,10 @@ public class UserRoles {
 		} catch (Exception e) {
 			throw new DlabException("Cannot load roles from database. " + e.getLocalizedMessage(), e);
 		}
+	}
+
+	private synchronized List<UserRole> roles() {
+		return roles;
 	}
 
 	/**
@@ -293,4 +293,6 @@ public class UserRoles {
 				.addValue(roles)
 				.toString();
 	}
+
+
 }

@@ -44,7 +44,7 @@ if __name__ == "__main__":
         edge_conf['vpc_name'] = os.environ['azure_vpc_name']
         edge_conf['region'] = os.environ['azure_region']
         edge_conf['subnet_name'] = os.environ['azure_subnet_name']
-        edge_conf['project_name'] = os.environ['project_name'].replace('_', '-')
+        edge_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
         edge_conf['user_keyname'] = os.environ['project_name']
         edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + edge_conf['project_name'] + '-subnet'
         edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + '-edge'
@@ -338,6 +338,7 @@ if __name__ == "__main__":
                        "instance_id": edge_conf['instance_name'],
                        "full_edge_conf": edge_conf,
                        "project_name": os.environ['project_name'],
+                       "@class": "com.epam.dlab.dto.azure.edge.EdgeInfoAzure",
                        "Action": "Create new EDGE server"}
             else:
                 res = {"hostname": edge_conf['instance_dns_name'],
@@ -361,6 +362,7 @@ if __name__ == "__main__":
                        "instance_id": edge_conf['instance_name'],
                        "full_edge_conf": edge_conf,
                        "project_name": os.environ['project_name'],
+                       "@class": "com.epam.dlab.dto.azure.edge.EdgeInfoAzure",
                        "Action": "Create new EDGE server"}
             print(json.dumps(res))
             result.write(json.dumps(res))

@@ -66,7 +66,7 @@ if __name__ == "__main__":
     notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
+    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                   os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
-    edge_instance_name = conf_service_base_name + "-" + os.environ['project_name'] + '-edge'
+    edge_instance_name = notebook_config['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
     edge_instance_private_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     if notebook_config['network_type'] == 'private':

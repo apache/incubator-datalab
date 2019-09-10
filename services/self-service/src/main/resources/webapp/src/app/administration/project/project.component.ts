@@ -69,12 +69,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   createProject() {
-    console.log('create');
-
     if (this.projectList.length)
       this.dialog.open(EditProjectComponent, { data: { action: 'create', item: null }, panelClass: 'modal-xl-s' })
         .afterClosed().subscribe(() => {
           console.log('Create project');
+          this.getEnvironmentHealthStatus();
         });
   }
 
@@ -108,7 +107,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   private toggleStatusRequest(data, action) {
-    this.projectService.toggleProjectStatus(data, action).subscribe(res => this.refreshGrid());
+    this.projectService.toggleProjectStatus(data, action).subscribe(() => this.refreshGrid(),
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 
   private getEnvironmentHealthStatus() {

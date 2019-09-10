@@ -50,15 +50,19 @@ if __name__ == "__main__":
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['user_keyname'] = os.environ['project_name']
-        notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        notebook_config['project_name'] = os.environ['project_name'].replace('_', '-')
-        notebook_config['project_tag'] = os.environ['project_name'].replace('_', '-')
+        notebook_config['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
+        notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['endpoint_tag'] = os.environ['endpoint_name'].replace('_', '-')
         notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
-                                                                notebook_config['user_name'],
+                                                                notebook_config['project_name'],
                                                                 notebook_config['exploratory_name'])
-        notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
-                                                                               os.environ['application'])
+        notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+            notebook_config['service_base_name'],
+            notebook_config['endpoint_name'],
+            notebook_config['project_name'],
+            os.environ['application'])
         notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
         notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                       notebook_config['project_name'])
@@ -173,7 +177,7 @@ if __name__ == "__main__":
                  "--zeppelin_version {10} --scala_version {11} " \
                  "--livy_version {12} --multiple_clusters {13} " \
                  "--r_mirror {14} --endpoint_url {15} " \
-                 "--ip_adress {16} --exploratory_name {17} --edge_ip" \
+                 "--ip_adress {16} --exploratory_name {17} --edge_ip {18} " \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['azure_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_private_hostname, '3128',

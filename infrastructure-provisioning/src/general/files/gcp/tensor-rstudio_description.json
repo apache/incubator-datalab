@@ -1,14 +1,31 @@
+/*
 {
-  "exploratory_environment_shapes" :
-  {
+  "exploratory_environment_shapes": {
     "GPU optimized": [
-      {"Size": "S", "Description": "n1-standard-2", "Type": "n1-standard-2","Ram": "7.50 GB","Cpu": "2"},
-      {"Size": "M", "Description": "n1-highcpu-8", "Type": "n1-highcpu-8","Ram": "7.20 GB","Cpu": "8"},
-      {"Size": "L", "Description": "n1-highmem-32", "Type": "n1-highmem-32","Ram": "208 GB","Cpu": "32"}
+      {
+        "Size": "S",
+        "Description": "n1-standard-2",
+        "Type": "n1-standard-2",
+        "Ram": "7.50 GB",
+        "Cpu": "2"
+      },
+      {
+        "Size": "M",
+        "Description": "n1-highcpu-8",
+        "Type": "n1-highcpu-8",
+        "Ram": "7.20 GB",
+        "Cpu": "8"
+      },
+      {
+        "Size": "L",
+        "Description": "n1-highmem-32",
+        "Type": "n1-highmem-32",
+        "Ram": "208 GB",
+        "Cpu": "32"
+      }
     ]
   },
-  "exploratory_environment_versions" :
-  [
+  "exploratory_environment_versions": [
     {
       "template_name": "RStudio with TensorFlow 1.8.0",
       "description": "Base image with TensorFlow and RStudio node creation routines",
@@ -18,3 +35,4 @@
     }
   ]
 }
+*/

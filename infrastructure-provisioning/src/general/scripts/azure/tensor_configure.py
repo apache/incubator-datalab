@@ -50,16 +50,20 @@ if __name__ == "__main__":
         notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
-        notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        notebook_config['project_name'] = os.environ['project_name'].replace('_', '-')
-        notebook_config['project_tag'] = os.environ['project_name'].replace('_', '-')
-        notebook_config['endpoint_tag'] = os.environ['endpoint_name'].replace('_', '-')
+        notebook_config['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
+        notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
+        notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         notebook_config['user_keyname'] = os.environ['project_name']
         notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
                                                                 notebook_config['project_name'],
                                                                 notebook_config['exploratory_name'])
-        notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
-                                                                               os.environ['application'])
+        notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+            notebook_config['service_base_name'],
+            notebook_config['endpoint_name'],
+            notebook_config['project_name'],
+            os.environ['application'])
         notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
         notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                       notebook_config['project_name'])

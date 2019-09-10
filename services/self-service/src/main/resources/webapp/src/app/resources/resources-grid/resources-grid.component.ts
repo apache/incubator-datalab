@@ -72,6 +72,7 @@ export class ResourcesGridComponent implements OnInit {
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
     { title: 'Status', name: 'statuses', class: 'status-col', filter_class: 'status-filter', filtering: true },
     { title: DICTIONARY.instance_size, name: 'shapes', class: 'shape-col', filter_class: 'shape-filter', filtering: true },
+    { title: 'Tags', name: 'tag', class: 'tag-col', filter_class: 'tag-filter', filtering: false },
     { title: DICTIONARY.computational_resource, name: 'resources', class: 'resources-col', filter_class: 'resource-filter', filtering: true },
     { title: 'Cost', name: 'cost', class: 'cost-col', filter_class: 'cost-filter', filtering: false },
     { title: '', name: 'actions', class: 'actions-col', filter_class: 'action-filter', filtering: false }
@@ -79,13 +80,6 @@ export class ResourcesGridComponent implements OnInit {
 
   public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
   public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
-
-
-
-
-
-
-
 
 
 
@@ -130,6 +124,16 @@ export class ResourcesGridComponent implements OnInit {
       return this.environments
         .filter(project => project.exploratory
           .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name))).length > 0;
+  }
+
+  public isResourcesInProgress(notebook) {
+    const env = this.getEnvironmentsListCopy().map(env => env.exploratory.find(el => el.name === notebook.name))[0];
+
+    if (env && env.resources.length) {
+      return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
+        && item.status !== 'running' && item.status !== 'stopped')).length > 0;
+    }
+    return false;
   }
 
 
@@ -201,21 +205,6 @@ export class ResourcesGridComponent implements OnInit {
 
 
 
-
-
-  isResourcesInProgress(notebook) {
-    // const filteredEnv = this.environments.find(env => env.exploratory.find(el => el.name === notebook.name));
-
-    // if (filteredEnv && filteredEnv.resources.length) {
-    //   return filteredEnv.resources.filter(resource => (
-    //     resource.status !== 'failed'
-    //     && resource.status !== 'terminated'
-    //     && resource.status !== 'running'
-    //     && resource.status !== 'stopped')).length > 0;
-    // }
-    return false;
-  }
-
   filterActiveInstances(): FilterConfigurationModel {
     const filteredData = (<any>Object).assign({}, this.filterConfiguration);
     for (const index in filteredData) {
@@ -225,7 +214,6 @@ export class ResourcesGridComponent implements OnInit {
         });
       if (index === 'shapes') { filteredData[index] = []; }
     }
-
     filteredData.type = 'active';
 
     return filteredData;
@@ -236,7 +224,6 @@ export class ResourcesGridComponent implements OnInit {
       if (сonfig[index] && сonfig[index] instanceof Array)
         сonfig[index] = сonfig[index].filter(item => this.filterConfiguration[index].includes(item));
     }
-
     return сonfig;
   }
 
@@ -275,9 +262,7 @@ export class ResourcesGridComponent implements OnInit {
   updateUserPreferences(filterConfiguration: FilterConfigurationModel): void {
     this.userResourceService.updateUserPreferences(filterConfiguration)
       .subscribe((result) => { },
-        (error) => {
-          console.log('UPDATE USER PREFERENCES ERROR ', error);
-        });
+        (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
   }
 
   printDetailEnvironmentModal(data): void {

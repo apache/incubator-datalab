@@ -43,10 +43,10 @@ if __name__ == "__main__":
     # generating variables dictionary
     try:
         notebook_config = dict()
-        notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        notebook_config['project_name'] = os.environ['project_name'].replace('_', '-')
-        notebook_config['project_tag'] = os.environ['project_name'].replace('_', '-')
-        notebook_config['endpoint_tag'] = os.environ['endpoint_name'].replace('_', '-')
+        notebook_config['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
+        notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
+        notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         
         print('Generating infrastructure names and tags')
         try:
@@ -93,12 +93,7 @@ if __name__ == "__main__":
             os.environ['endpoint_name'],
             os.environ['project_name'],
             os.environ['application'])
-        notebook_config['notebook_image_name'] = (
-            lambda x: '{0}-{1}-{2}-{3}'.format(notebook_config['service_base_name'],
-                                               os.environ['project_name'],
-                                               os.environ['application'],
-                                               os.environ['notebook_image_name'].lower().replace('_', '-')) if (
-                        x != 'None' and x != '')
+        notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'].lower().replace('_', '-') if (x != 'None' and x != '')
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
