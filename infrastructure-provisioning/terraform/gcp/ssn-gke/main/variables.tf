@@ -177,4 +177,6 @@ variable "mongo_service_name" {
 
 # variable "endpoint_eip_address" {}
 
-variable "env_os" {}
+variable "env_os" {
+  default = "debian"
+}
