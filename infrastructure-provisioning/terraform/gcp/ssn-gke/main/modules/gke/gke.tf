@@ -25,6 +25,16 @@ locals {
   gke_node_pool_name = "${var.service_base_name}-node-pool"
 }
 
+resource "random_string" "ssn_keystore_password" {
+  length = 16
+  special = false
+}
+
+resource "random_string" "endpoint_keystore_password" {
+  length = 16
+  special = false
+}
+
 resource "google_container_cluster" "ssn_k8s_gke_cluster" {
   name     = local.gke_name
   location = var.region
@@ -87,26 +97,6 @@ data "google_container_cluster" "ssn_k8s_gke_cluster" {
   name       = local.gke_name
   location   = var.region
   depends_on = [google_container_cluster.ssn_k8s_gke_cluster]
-}
-
-output "k8s_gke_endpoint" {
-  value = data.google_container_cluster.ssn_k8s_gke_cluster.endpoint
-}
-
-output "k8s_gke_client_access_token" {
-  value = data.google_client_config.current.access_token
-}
-
-output "k8s_gke_clinet_cert" {
-  value = google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate
-}
-
-output "k8s_gke_client_key" {
-  value = google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key
-}
-
-output "k8s_gke_cluster_ca" {
-  value = google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate
 }
 
 data "google_client_config" "current" {}
