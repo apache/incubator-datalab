@@ -28,6 +28,7 @@ provider "helm" {
     cluster_ca_certificate = base64decode(var.k8s_gke_cluster_ca)
   }
   install_tiller = true
+  service_account = "tiller"
 }
 
 provider "google" {
@@ -35,6 +36,38 @@ provider "google" {
   project     = var.project_id
   region      = var.region
   zone        = var.zone
+}
+
+provider "kubernetes" {
+  host = var.k8s_gke_endpoint
+
+  client_certificate     = base64decode(var.k8s_gke_clinet_cert)
+  client_key             = base64decode(var.k8s_gke_client_key)
+  cluster_ca_certificate = base64decode(var.k8s_gke_cluster_ca)
+}
+
+resource "kubernetes_service_account" "example" {
+  metadata {
+    name = "tiller"
+    namespace = "kube-system"
+  }
+}
+
+resource "kubernetes_role_binding" "example" {
+  metadata {
+    name      = "tiller"
+    namespace = "kube-system"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "cluster-admin"
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "tiller"
+    namespace = "kube-system"
+  }
 }
 
 data "google_client_config" "current" {}

@@ -40,8 +40,6 @@ resource "helm_release" "keycloak-mysql" {
   depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_user_password_secret]
 }
 
-provider "kubernetes" {}
-
 resource "kubernetes_persistent_volume" "example" {
   metadata {
     name = "mysql-keycloak-pv2"
