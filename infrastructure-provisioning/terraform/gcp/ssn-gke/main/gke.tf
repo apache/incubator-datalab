@@ -88,22 +88,35 @@ data "google_container_cluster" "ssn_k8s_gke_cluster" {
   depends_on = [google_container_cluster.ssn_k8s_gke_cluster]
 }
 
-output "cluster_username" {
-  value = "${data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.username}"
-}
-
-output "cluster_password" {
-  value = "${data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.password}"
-}
-
 output "endpoint" {
   value = "${data.google_container_cluster.ssn_k8s_gke_cluster.endpoint}"
 }
 
-output "instance_group_urls" {
-  value = "${data.google_container_cluster.ssn_k8s_gke_cluster.instance_group_urls}"
+output "access_token" {
+  value = data.google_client_config.current.access_token
 }
 
-output "node_config" {
-  value = "${data.google_container_cluster.ssn_k8s_gke_cluster.node_config}"
+output "clinet_cert" {
+  value = google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate
 }
+
+output "client_key" {
+  value = google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key
+}
+
+output "ca" {
+  value = google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate
+}
+
+data "google_client_config" "current" {}
+
+//provider "helm" {
+//
+//  kubernetes {
+//    host                   = "${google_container_cluster.ssn_k8s_gke_cluster.endpoint}"
+//    token                  = "${data.google_client_config.current.access_token}"
+//    client_certificate     = "${base64decode(google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate)}"
+//    client_key             = "${base64decode(google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key)}"
+//    cluster_ca_certificate = "${base64decode(google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate)}"
+//  }
+//}
