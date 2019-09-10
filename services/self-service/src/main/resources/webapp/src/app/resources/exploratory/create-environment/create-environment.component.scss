@@ -67,3 +67,9 @@
   max-height: 560px;
   overflow-y: auto;
 }
+
+@-moz-document url-prefix() {
+  form {
+    padding-bottom: 30px;
+  }
+}
