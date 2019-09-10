@@ -17,10 +17,16 @@
  * under the License.
  */
 
-package com.epam.dlab.billing.gcp.repository;
+package com.epam.dlab.billing.gcp.documents;
 
-import com.epam.dlab.billing.gcp.documents.Edge;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-public interface EdgeRepository extends MongoRepository<Edge, String> {
+@Document(collection = "Projects")
+@Data
+public class Project {
+
+    @JsonProperty("name")
+    private String name;
 }

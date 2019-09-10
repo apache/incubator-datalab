@@ -36,15 +36,14 @@ public class BillingUtils {
     private static final String VOLUME_SECONDARY = "Volume secondary";
     private static final String SHARED_RESOURCE = "Shared resource";
 
-    public static Stream<BillingData> edgeBillingDataStream(String user, String sbn) {
-        final String adjustedUserName = adjustUserName(10, user);
-        final String userEdgeId = String.format(EDGE_FORMAT, sbn, adjustedUserName);
-        final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, adjustedUserName);
-        final String edgeBucketId = String.format(EDGE_BUCKET_FORMAT, sbn, adjustedUserName);
+    public static Stream<BillingData> edgeBillingDataStream(String project, String sbn) {
+        final String userEdgeId = String.format(EDGE_FORMAT, sbn, project);
+        final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project);
+        final String edgeBucketId = String.format(EDGE_BUCKET_FORMAT, sbn, project);
         return Stream.of(
-                BillingData.builder().displayName("EDGE node").user(user).dlabId(userEdgeId).resourceType(BillingData.ResourceType.EDGE).build(),
-                BillingData.builder().displayName("EDGE volume").user(user).dlabId(edgeVolumeId).resourceType(BillingData.ResourceType.VOLUME).build(),
-                BillingData.builder().displayName("EDGE bucket").user(user).dlabId(edgeBucketId).resourceType(BillingData.ResourceType.EDGE_BUCKET).build()
+                BillingData.builder().displayName("EDGE node").user(SHARED_RESOURCE).dlabId(userEdgeId).resourceType(BillingData.ResourceType.EDGE).build(),
+                BillingData.builder().displayName("EDGE volume").user(SHARED_RESOURCE).dlabId(edgeVolumeId).resourceType(BillingData.ResourceType.VOLUME).build(),
+                BillingData.builder().displayName("EDGE bucket").user(SHARED_RESOURCE).dlabId(edgeBucketId).resourceType(BillingData.ResourceType.EDGE_BUCKET).build()
         );
     }
 

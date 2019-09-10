@@ -8,7 +8,7 @@ spring:
       host: localhost
 dlab:
   sbn: <CONF_SERVICE_BASE_NAME>
-  bigQueryDataset: <DATASET_NAME>
+  bigQueryDataset: <BILLING_DATASET_NAME>
   cron: 0 * * * * *
 
 logging:

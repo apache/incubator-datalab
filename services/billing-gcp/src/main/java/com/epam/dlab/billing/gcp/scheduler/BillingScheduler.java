@@ -20,25 +20,23 @@
 package com.epam.dlab.billing.gcp.scheduler;
 
 import com.epam.dlab.billing.gcp.service.BillingService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j
 public class BillingScheduler {
 
-    private final BillingService billingService;
+	private final BillingService billingService;
 
-    @Autowired
-    public BillingScheduler(BillingService billingService) {
-        this.billingService = billingService;
-    }
+	@Autowired
+	public BillingScheduler(BillingService billingService) {
+		this.billingService = billingService;
+	}
 
 
-    @Scheduled(cron = "${dlab.cron}")
-    public void getBillingReport() {
-        billingService.updateBillingData();
-    }
+	@Scheduled(cron = "${dlab.cron}")
+	public void getBillingReport() {
+		billingService.updateBillingData();
+	}
 }

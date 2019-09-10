@@ -40,7 +40,7 @@ public class UserInstance {
     @Field("exploratory_id")
     private String exploratoryId;
     private List<BillingData> billing;
-    private Double cost;
+    private String cost;
     @Field("computational_resources")
     private List<ComputationalResource> computationalResources;
 

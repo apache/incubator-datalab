@@ -25,5 +25,5 @@ import java.util.List;
 
 public interface BillingDAO {
 
-    List<GcpBillingData> getBillingData(String ssnBaseName) throws InterruptedException;
+    List<GcpBillingData> getBillingData() throws InterruptedException;
 }
