@@ -39,6 +39,7 @@ public class UserInstance {
     private String exploratoryName;
     @Field("exploratory_id")
     private String exploratoryId;
+    private String project;
     private List<BillingData> billing;
     private String cost;
     @Field("computational_resources")

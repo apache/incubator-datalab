@@ -48,6 +48,7 @@ public class BillingData {
     private Double cost;
     @Field("currency_code")
     private String currency;
+    private String project;
     private String exploratoryName;
     private String computationalName;
     @Field("dlab_id")

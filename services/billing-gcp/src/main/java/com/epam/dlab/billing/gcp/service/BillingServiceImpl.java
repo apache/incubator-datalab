@@ -159,6 +159,7 @@ public class BillingServiceImpl implements BillingService {
 				.cost(bd.getCost().doubleValue())
 				.currency(bd.getCurrency())
 				.product(bd.getProduct())
+				.project(billableResource.getProject())
 				.usageDateTo(bd.getUsageDateTo())
 				.usageDateFrom(bd.getUsageDateFrom())
 				.usageDate(bd.getUsageDateFrom().format((DateTimeFormatter.ofPattern(DATE_FORMAT))))
