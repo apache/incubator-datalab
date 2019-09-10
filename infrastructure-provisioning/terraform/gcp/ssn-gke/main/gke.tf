@@ -81,3 +81,28 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
     ]
   }
 }
+
+data "google_container_cluster" "ssn_k8s_gke_cluster" {
+  name       = local.gke_name
+  location   = var.region
+}
+
+output "cluster_username" {
+  value = "${data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.username}"
+}
+
+output "cluster_password" {
+  value = "${data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.password}"
+}
+
+output "endpoint" {
+  value = "${data.google_container_cluster.ssn_k8s_gke_cluster.endpoint}"
+}
+
+output "instance_group_urls" {
+  value = "${data.google_container_cluster.ssn_k8s_gke_cluster.instance_group_urls}"
+}
+
+output "node_config" {
+  value = "${data.google_container_cluster.ssn_k8s_gke_cluster.node_config}"
+}
