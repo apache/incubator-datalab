@@ -125,6 +125,14 @@ variable "endpoint_keystore_password" {}
 variable "service_base_name" {}
 
 variable "env_os" {}
+
+variable "credentials_file_path" {}
+
+variable "project_id" {}
+
+variable "region" {}
+
+variable "zone" {}
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"
