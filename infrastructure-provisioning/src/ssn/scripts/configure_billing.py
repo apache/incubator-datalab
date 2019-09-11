@@ -57,6 +57,7 @@ parser.add_argument('--usage', type=str, default='', help='Column name in report
 parser.add_argument('--cost', type=str, default='', help='Column name in report file that contains cost tag')
 parser.add_argument('--resource_id', type=str, default='', help='Column name in report file that contains dlab resource id tag')
 parser.add_argument('--tags', type=str, default='', help='Column name in report file that contains tags')
+parser.add_argument('--billing_dataset_name', type=str, default='', help='Name of gcp billing dataset (in big query service')
 args = parser.parse_args()
 
 

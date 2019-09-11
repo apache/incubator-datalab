@@ -175,7 +175,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              locale, region_info, ldap_login, tenant_id,
              application_id, hostname, data_lake_name, subscription_id,
              validate_permission_scope, dlab_id, usage_date, product,
-             usage_type, usage, cost, resource_id, tags, report_path=''):
+             usage_type, usage, cost, resource_id, tags, billing_dataset_name, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
@@ -247,7 +247,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 append_result("Unable to upload webapp jars")
                 sys.exit(1)
             if billing_enabled:
-                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile, host_string))
+                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
+                                                                                                         host_string))
                 params = '--cloud_provider {} ' \
                          '--infrastructure_tag {} ' \
                          '--tag_resource_id {} ' \
@@ -270,7 +271,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '--usage {} ' \
                          '--cost {} ' \
                          '--resource_id {} ' \
-                         '--tags {}'.\
+                         '--tags {} ' \
+                         '--billing_dataset_name {}'.\
                             format(cloud_provider,
                                    service_base_name,
                                    tag_resource_id,
@@ -293,7 +295,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                                    usage,
                                    cost,
                                    resource_id,
-                                   tags)
+                                   tags,
+                                   billing_dataset_name)
                 sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
                 sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
