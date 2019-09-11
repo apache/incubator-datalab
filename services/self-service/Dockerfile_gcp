@@ -25,5 +25,7 @@ FROM openjdk:8-alpine
 USER root
 
 COPY self-service-2.1.jar /root/
+COPY entrypoint_aws.sh /
+RUN chmod 755 /entrypoint_aws.sh
 
-CMD /usr/bin/java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 -DDLAB_CONF_DIR=/root/ /root/self-service-2.1.jar server /root/self-service.yml
+ENTRYPOINT ["/entrypoint_aws.sh"]
