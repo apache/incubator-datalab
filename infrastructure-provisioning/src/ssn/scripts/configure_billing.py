@@ -97,6 +97,10 @@ def yml_billing(path):
             config_orig = config_orig.replace('<LOCALE>', args.locale)
             config_orig = config_orig.replace('<REGION_INFO>', args.region_info)
             config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
+        elif args.cloud_provider == 'gcp':
+            config_orig = config_orig.replace('<CONF_SERVICE_BASE_NAME>', args.infrastructure_tag)
+            config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
+            config_orig = config_orig.replace('<BILLING_DATASET_NAME>', args.billing_dataset_name)
         f = open(path, 'w')
         f.write(config_orig)
         f.close()
