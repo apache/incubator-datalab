@@ -92,7 +92,7 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
     ]
   }
   provisioner "local-exec" {
-    command = "sleep 600"
+    command = "sleep 300"
   }
 }
 

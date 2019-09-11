@@ -26,6 +26,27 @@ provider "google" {
   zone        = var.zone
 }
 
+provider "helm" {
+
+  kubernetes {
+    host                   = module.gke_cluster.k8s_gke_endpoint
+    token                  = module.gke_cluster.k8s_gke_client_access_token
+    client_certificate     = base64decode(module.gke_cluster.k8s_gke_clinet_cert)
+    client_key             = base64decode(module.gke_cluster.k8s_gke_client_key)
+    cluster_ca_certificate = base64decode(module.gke_cluster.k8s_gke_cluster_ca)
+  }
+  install_tiller = true
+  service_account = "tiller"
+}
+
+provider "kubernetes" {
+  host = module.gke_cluster.k8s_gke_endpoint
+
+  client_certificate     = base64decode(module.gke_cluster.k8s_gke_clinet_cert)
+  client_key             = base64decode(module.gke_cluster.k8s_gke_client_key)
+  cluster_ca_certificate = base64decode(module.gke_cluster.k8s_gke_cluster_ca)
+}
+
 module "gke_cluster" {
   source = "./modules/gke"
   additional_tag = var.additional_tag
