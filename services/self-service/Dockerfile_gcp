@@ -25,7 +25,7 @@ FROM openjdk:8-alpine
 USER root
 
 COPY self-service-2.1.jar /root/
-COPY entrypoint_aws.sh /
+COPY entrypoint_gcp.sh /
 RUN chmod 755 /entrypoint_gcp.sh
 
 ENTRYPOINT ["/entrypoint_gcp.sh"]
