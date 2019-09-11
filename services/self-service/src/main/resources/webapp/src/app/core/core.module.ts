@@ -39,6 +39,7 @@ import { DataengineConfigurationService } from './services/dataengineConfigurati
 import { StorageService } from './services/storage.service';
 import { ProjectService } from './services/project.service';
 import { EndpointService } from './services/endpoint.service';
+import { UserAccessKeyService } from './services/userAccessKey.service';
 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
@@ -75,6 +76,7 @@ export class CoreModule {
         StorageService,
         ProjectService,
         EndpointService,
+        UserAccessKeyService,
 
         { provide: MatDialogRef, useValue: {} },
         { provide: MAT_DIALOG_DATA, useValue: [] }
@@ -82,7 +84,7 @@ export class CoreModule {
     };
   }
 
-  constructor (@Optional() @SkipSelf() parentModule: CoreModule) {
+  constructor(@Optional() @SkipSelf() parentModule: CoreModule) {
     if (parentModule)
       throw new Error('CoreModule is already loaded. Import it in the AppModule only');
   }
