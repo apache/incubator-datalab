@@ -25,6 +25,6 @@ resource "helm_release" "nginx" {
     wait = true
 
     values = [
-        file("files/nginx_values.yaml")
+        file("./modules/helm_charts/files/nginx_values.yaml")
     ]
 }
