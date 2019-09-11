@@ -19,29 +19,29 @@
 #
 # ******************************************************************************
 
-//resource "kubernetes_service_account" "example" {
-//  metadata {
-//    name = "tiller"
-//    namespace = "kube-system"
-//  }
-//}
-//
-//resource "kubernetes_role_binding" "example" {
-//  metadata {
-//    name      = "tiller"
-//    namespace = "kube-system"
-//  }
-//  role_ref {
-//    api_group = "rbac.authorization.k8s.io"
-//    kind      = "ClusterRole"
-//    name      = "cluster-admin"
-//  }
-//  subject {
-//    kind      = "ServiceAccount"
-//    name      = "tiller"
-//    namespace = "kube-system"
-//  }
-//}
+resource "kubernetes_service_account" "example" {
+  metadata {
+    name = "tiller"
+    namespace = "kube-system"
+  }
+}
+
+resource "kubernetes_role_binding" "example" {
+  metadata {
+    name      = "tiller"
+    namespace = "kube-system"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "cluster-admin"
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "tiller"
+    namespace = "kube-system"
+  }
+}
 
 output "keycloak_client_secret" {
     value = random_uuid.keycloak_client_secret.result
