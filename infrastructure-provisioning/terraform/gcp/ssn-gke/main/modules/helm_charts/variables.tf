@@ -70,6 +70,16 @@ variable "mongo_node_port" {}
 variable "ssn_keystore_password" {}
 
 variable "endpoint_keystore_password" {}
+
+variable "k8s_gke_endpoint" {}
+
+variable "k8s_gke_clinet_cert" {}
+
+variable "k8s_gke_client_key" {}
+
+variable "k8s_gke_cluster_ca" {}
+
+variable "access_token" {}
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

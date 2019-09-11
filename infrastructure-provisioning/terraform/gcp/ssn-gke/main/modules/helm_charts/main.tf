@@ -23,20 +23,13 @@ provider "helm" {
 
   kubernetes {
     host                   = var.k8s_gke_endpoint
-    token                  = data.google_client_config.current.access_token
+    token                  = var.access_token
     client_certificate     = base64decode(var.k8s_gke_clinet_cert)
     client_key             = base64decode(var.k8s_gke_client_key)
     cluster_ca_certificate = base64decode(var.k8s_gke_cluster_ca)
   }
   install_tiller = true
   service_account = "tiller"
-}
-
-provider "google" {
-  credentials = file(var.credentials_file_path)
-  project     = var.project_id
-  region      = var.region
-  zone        = var.zone
 }
 
 provider "kubernetes" {
@@ -70,8 +63,6 @@ provider "kubernetes" {
 //    namespace = "kube-system"
 //  }
 //}
-
-data "google_client_config" "current" {}
 
 output "keycloak_client_secret" {
     value = random_uuid.keycloak_client_secret.result
