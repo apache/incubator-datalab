@@ -91,9 +91,9 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
       "https://www.googleapis.com/auth/monitoring",
     ]
   }
-  provisioner "local-exec" {
-    command = "sleep 300"
-  }
+  # provisioner "local-exec" {
+  #   command = "sleep 300"
+  # }
 }
 
 data "google_container_cluster" "ssn_k8s_gke_cluster" {
