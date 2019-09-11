@@ -37,3 +37,4 @@ output "k8s_gke_client_key" {
 
 output "k8s_gke_cluster_ca" {
   value = module.gke_cluster.k8s_gke_cluster_ca
+}
