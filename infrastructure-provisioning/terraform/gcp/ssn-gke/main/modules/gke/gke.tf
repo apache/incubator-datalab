@@ -99,4 +99,6 @@ data "google_container_cluster" "ssn_k8s_gke_cluster" {
   depends_on = [google_container_cluster.ssn_k8s_gke_cluster]
 }
 
-data "google_client_config" "current" {}
+data "google_client_config" "current" {
+  depends_on = [google_container_node_pool.ssn_k8s_gke_node_pool]
+}
