@@ -72,6 +72,11 @@ resource "helm_release" "keycloak" {
 resource "kubernetes_ingress" "keycloak_ingress" {
   metadata {
     name = "keycloak"
+    annotations = {
+      "kubernetes.io/ingress.class": "nginx"
+      "nginx.ingress.kubernetes.io/ssl-redirect": "false"
+      "nginx.ingress.kubernetes.io/rewrite-target": "/auth"
+    }
   }
 
   spec {
