@@ -96,8 +96,13 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								@Valid ProjectActionFormDTO startProjectDto) {
-		projectService.stop(userInfo, startProjectDto.getProjectName());
+								@Valid ProjectActionFormDTO startProjectDto,
+								@DefaultValue("false") @QueryParam("with_resources") boolean withResources) {
+		if (withResources) {
+			projectService.stopProjectWithRelatedResources(userInfo, startProjectDto.getProjectName());
+		} else {
+			projectService.stop(userInfo, startProjectDto.getProjectName());
+		}
 		return Response
 				.accepted()
 				.build();
@@ -135,10 +140,9 @@ public class ProjectResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response getProjects(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								@Parameter(description = "Project name")
-								@PathParam("name") String name) {
+								@DefaultValue("false") @QueryParam("with_resources") boolean withResources) {
 		return Response
-				.ok(projectService.getProjects())
+				.ok(withResources ? projectService.getProjectsForManaging() : projectService.getProjects())
 				.build();
 	}
 

@@ -49,7 +49,8 @@
                 </div>
                 <div class="action">
                   <span matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)"
-                    *ngIf="manageUsersForm.controls['projects'].controls[i].value['status'] === 'ACTIVE'; else not_active"><i
+                    *ngIf="manageUsersForm.controls['projects'].controls[i].value['status'] === 'ACTIVE' || 
+                    manageUsersForm.controls['projects'].controls[i].value['canBeStoppedOrTerminated']; else not_active"><i
                       class="material-icons">pause_circle_outline</i></span>
 
                   <ng-template #not_active>

@@ -526,6 +526,12 @@ export class ApplicationServiceFacade {
       null);
   }
 
+  public buildGetProjectsListWithResources(param): Observable<any> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
+      null);
+  }
+
   public buildGetUserProjectsList(): Observable<any> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.USER_PROJECT),

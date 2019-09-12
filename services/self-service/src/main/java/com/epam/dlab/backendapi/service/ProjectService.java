@@ -2,12 +2,15 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectManagingDTO;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 
 import java.util.List;
 
 public interface ProjectService {
 	List<ProjectDTO> getProjects();
+
+	List<ProjectManagingDTO> getProjectsForManaging();
 
 	List<ProjectDTO> getUserProjects(UserInfo userInfo);
 
@@ -22,6 +25,8 @@ public interface ProjectService {
 	void start(UserInfo userInfo, String name);
 
 	void stop(UserInfo userInfo, String name);
+
+	void stopProjectWithRelatedResources(UserInfo userInfo, String name);
 
 	void update(UpdateProjectDTO projectDTO);
 

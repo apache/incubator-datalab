@@ -52,6 +52,14 @@ export class ProjectService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+  public getProjectsListWithResources(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetProjectsListWithResources('?with_resources=true')
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public getUserProjectsList(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetUserProjectsList()
