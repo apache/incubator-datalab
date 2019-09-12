@@ -28,3 +28,10 @@ resource "helm_release" "nginx" {
         file("./modules/helm_charts/files/nginx_values.yaml")
     ]
 }
+
+data "kubernetes_service" "nginx_service" {
+    metadata {
+    name = "${helm_release.nginx.name}-controller"
+    }
+    depends_on = [helm_release.nginx]
+}
