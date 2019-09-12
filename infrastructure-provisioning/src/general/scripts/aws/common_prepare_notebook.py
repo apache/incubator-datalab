@@ -118,7 +118,8 @@ if __name__ == "__main__":
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --instance_class {} --instance_disk_size {} --primary_disk_size {}" \
             .format(notebook_config['instance_name'], notebook_config['ami_id'], notebook_config['instance_type'],
                     notebook_config['key_name'], get_security_group_by_name(notebook_config['security_group_name']),
-                    get_subnet_by_cidr(notebook_config['subnet_cidr']), notebook_config['role_profile_name'],
+                    get_subnet_by_cidr(notebook_config['subnet_cidr'], os.environ['aws_notebook_vpc_id']),
+                    notebook_config['role_profile_name'],
                     notebook_config['tag_name'], notebook_config['instance_name'], instance_class,
                     os.environ['notebook_disk_size'], notebook_config['primary_disk_size'])
         try:
