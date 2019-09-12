@@ -57,6 +57,7 @@ parser.add_argument('--usage', type=str, default='', help='Column name in report
 parser.add_argument('--cost', type=str, default='', help='Column name in report file that contains cost tag')
 parser.add_argument('--resource_id', type=str, default='', help='Column name in report file that contains dlab resource id tag')
 parser.add_argument('--tags', type=str, default='', help='Column name in report file that contains tags')
+parser.add_argument('--billing_dataset_name', type=str, default='', help='Name of gcp billing dataset (in big query service')
 args = parser.parse_args()
 
 
@@ -97,6 +98,10 @@ def yml_billing(path):
             config_orig = config_orig.replace('<LOCALE>', args.locale)
             config_orig = config_orig.replace('<REGION_INFO>', args.region_info)
             config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
+        elif args.cloud_provider == 'gcp':
+            config_orig = config_orig.replace('<CONF_SERVICE_BASE_NAME>', args.infrastructure_tag)
+            config_orig = config_orig.replace('<MONGO_PASSWORD>', args.mongo_password)
+            config_orig = config_orig.replace('<BILLING_DATASET_NAME>', args.billing_dataset_name)
         f = open(path, 'w')
         f.write(config_orig)
         f.close()

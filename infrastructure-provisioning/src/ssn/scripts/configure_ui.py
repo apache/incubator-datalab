@@ -43,6 +43,7 @@ parser.add_argument('--os_family', type=str, default='')
 parser.add_argument('--request_id', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
+parser.add_argument('--billing_dataset_name', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default=None)
 parser.add_argument('--billing_tag', type=str, default=None)
 parser.add_argument('--account_id', type=str, default=None)
@@ -150,7 +151,7 @@ def build_ui():
             sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
 
         sudo('mkdir -p {}/webapp/'.format(args.dlab_path))
-        for service in ['self-service', 'security-service', 'provisioning-service']:
+        for service in ['self-service', 'security-service', 'provisioning-service', 'billing']:
             sudo('mkdir -p {}/webapp/{}/lib/'.format(args.dlab_path, service))
             sudo('mkdir -p {}/webapp/{}/conf/'.format(args.dlab_path, service))
         sudo('cp {0}/sources/services/self-service/self-service.yml {0}/webapp/self-service/conf/'.format(
@@ -185,6 +186,11 @@ def build_ui():
             sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
             sudo(
                 'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/webapp/billing/lib/'.format(
+                    args.dlab_path))
+        elif args.cloud_provider == 'gcp':
+            sudo('cp {0}/sources/services/billing-gcp/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
+            sudo(
+                'cp {0}/sources/services/billing-gcp/target/billing-gcp*.jar {0}/webapp/billing/lib/'.format(
                     args.dlab_path))
     except Exception as err:
         traceback.print_exc()
@@ -235,4 +241,4 @@ if __name__ == "__main__":
              args.region_info, args.ldap_login, args.tenant_id, args.application_id,
              args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
              args.dlab_id, args.usage_date, args.product, args.usage_type,
-             args.usage, args.cost, args.resource_id, args.tags)
+             args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name)
