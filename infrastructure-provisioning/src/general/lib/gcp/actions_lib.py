@@ -265,10 +265,10 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size,
+    def create_instance(self, instance_name, cluster_name, region, zone, vpc_name, subnet_name, instance_size,
                         ssh_key_path,
-                        initial_user, image_name, secondary_image_name, service_account_name, instance_class, network_tag,
-                        labels, static_ip='',
+                        initial_user, image_name, secondary_image_name, service_account_name, instance_class,
+                        network_tag, labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30',
                         gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
@@ -312,6 +312,19 @@ class GCPActions:
                                                                                   instance_name)
                 }
             ]
+        elif instance_class == 'dataengine':
+            disks = [{
+                "name": cluster_name,
+                "tag_name": cluster_name + '-volume-primary',
+                "deviceName": cluster_name + '-primary',
+                "autoDelete": 'true',
+                "initializeParams": {
+                    "diskSizeGb": primary_disk_size,
+                    "sourceImage": image_name
+                },
+                "boot": 'true',
+                "mode": "READ_WRITE"
+            }]
         else:
             disks = [{
                 "name": instance_name,

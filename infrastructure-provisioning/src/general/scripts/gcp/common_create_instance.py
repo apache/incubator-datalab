@@ -47,6 +47,7 @@ parser.add_argument('--static_ip', type=str, default='')
 parser.add_argument('--labels', type=str, default='{"empty":"string"}')
 parser.add_argument('--gpu_accelerator_type', type=str, default='None')
 parser.add_argument('--network_tag', type=str, default='')
+parser.add_argument('--cluster_name', type=str, default='')
 args = parser.parse_args()
 
 
@@ -56,7 +57,8 @@ if __name__ == "__main__":
             print("REQUESTED INSTANCE {} ALREADY EXISTS".format(args.instance_name))
         else:
             print("Creating Instance {}".format(args.instance_name))
-            GCPActions().create_instance(args.instance_name, args.region, args.zone, args.vpc_name, args.subnet_name,
+            GCPActions().create_instance(args.instance_name, args.cluster_name, args.region, args.zone,
+                                         args.vpc_name, args.subnet_name,
                                          args.instance_size, args.ssh_key_path, args.initial_user, args.image_name,
                                          args.secondary_image_name, args.service_account_name, args.instance_class,
                                          args.network_tag, json.loads(args.labels), args.static_ip,
