@@ -867,13 +867,13 @@ class GCPActions:
                     slave_instances = cluster.get('config').get('workerConfig').get('instanceNames')
                     for instance in master_instances:
                         param = {}
-                        param['name'] = instance
-                        param['tag_name'] = instance + '-volume-primary'
+                        param['name'] = clusteName
+                        param['tag_name'] = clusteName + '-volume-primary'
                         dataproc_instances.append(param)
                     for instance in slave_instances:
                         param = {}
-                        param['name'] = instance
-                        param['tag_name'] = instance + '-volume-primary'
+                        param['name'] = clusteName
+                        param['tag_name'] = clusteName + '-volume-primary'
                         dataproc_instances.append(param)
             GCPActions().set_disks_tag(dataproc_instances, zone, labels)
         except Exception as err:
