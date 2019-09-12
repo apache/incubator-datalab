@@ -68,3 +68,30 @@ resource "helm_release" "keycloak" {
   ]
   depends_on = [helm_release.keycloak-mysql, kubernetes_secret.keycloak_password_secret]
 }
+
+resource "kubernetes_ingress" "keycloak_ingress" {
+  metadata {
+    name = "keycloak"
+  }
+
+  spec {
+    backend {
+      service_name = "${helm_release.keycloak.name}-http"
+      service_port = 80
+    }
+
+    rule {
+      http {
+        path {
+          backend {
+            service_name = "${helm_release.keycloak.name}-http"
+            service_port = 80
+          }
+
+          path = "/auth"
+        }
+      }
+    }
+  }
+  depends_on = [helm_release.keycloak]
+}
