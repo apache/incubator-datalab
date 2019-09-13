@@ -19,22 +19,3 @@
 #
 # ******************************************************************************
 
-output "k8s_gke_endpoint" {
-  value = module.gke_cluster.k8s_gke_endpoint
-}
-
-output "k8s_gke_client_access_token" {
-  value = module.gke_cluster.k8s_gke_client_access_token
-}
-
-output "k8s_gke_clinet_cert" {
-  value = module.gke_cluster.k8s_gke_clinet_cert
-}
-
-output "k8s_gke_client_key" {
-  value = module.gke_cluster.k8s_gke_client_key
-}
-
-output "k8s_gke_cluster_ca" {
-  value = module.gke_cluster.k8s_gke_cluster_ca
-}
