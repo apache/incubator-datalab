@@ -17,19 +17,14 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.service.azure;
+package com.epam.dlab.backendapi.service.gcp;
 
-import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BaseBillingDAO;
-import com.epam.dlab.backendapi.dao.BillingDAO;
-import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
-import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
+import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
+import com.epam.dlab.backendapi.resources.dto.gcp.GcpBillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import lombok.extern.slf4j.Slf4j;
+import com.epam.dlab.model.aws.ReportLine;
 import org.bson.Document;
 
 import java.text.ParseException;
@@ -37,30 +32,19 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
-@Singleton
-public class AzureBillingService extends BillingService<AzureBillingFilter> {
-
-    @Inject
-    private BillingDAO billingDAO;
-
-    @Override
-    public String getReportFileName(UserInfo userInfo, AzureBillingFilter filter) {
-        return "azure-billing-report.csv";
-    }
-
+public class GcpBillingService extends BillingService<GcpBillingFilter> {
     @Override
     public String getFirstLine(Document document) throws ParseException {
         SimpleDateFormat from = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat to = new SimpleDateFormat("MMM dd, yyyy");
 
-        return String.format("Service base name: %s  " +
-                        "Available reporting period from: %s to: %s",
-                document.get(BaseBillingDAO.SERVICE_BASE_NAME),
-                to.format(from.parse((String) document.get(MongoKeyWords.USAGE_FROM))),
-                to.format(from.parse((String) document.get(MongoKeyWords.USAGE_TO))));
+        return String.format("Service base name: %s Available reporting period from: %s to: %s",
+                document.get(AwsBillingDAO.SERVICE_BASE_NAME),
+                to.format(from.parse((String) document.get("from"))),
+                to.format(from.parse((String) document.get("to"))));
     }
 
+    @Override
     public List<String> getHeadersList(boolean full) {
         List<String> headers = new ArrayList<>();
 
@@ -70,8 +54,8 @@ public class AzureBillingService extends BillingService<AzureBillingFilter> {
 
         headers.add("ENVIRONMENT NAME");
         headers.add("RESOURCE TYPE");
-        headers.add("INSTANCE SIZE");
-        headers.add("CATEGORY");
+        headers.add("SHAPE");
+        headers.add("SERVICE");
         headers.add("SERVICE CHARGES");
 
         return headers;
@@ -82,16 +66,16 @@ public class AzureBillingService extends BillingService<AzureBillingFilter> {
         List<String> items = new ArrayList<>();
 
         if (full) {
-            items.add(getValueOrEmpty(document, MongoKeyWords.DLAB_USER));
+            items.add(getValueOrEmpty(document, ReportLine.FIELD_USER_ID));
         }
 
-        items.add(getValueOrEmpty(document, MongoKeyWords.DLAB_ID));
-        items.add(getValueOrEmpty(document, MongoKeyWords.RESOURCE_TYPE));
-        items.add(getValueOrEmpty(document, AzureBillingDAO.SIZE).replace(System.lineSeparator(), " "));
-        items.add(getValueOrEmpty(document, MongoKeyWords.METER_CATEGORY));
+        items.add(getValueOrEmpty(document, ReportLine.FIELD_DLAB_ID));
+        items.add(getValueOrEmpty(document, AwsBillingDAO.DLAB_RESOURCE_TYPE));
+        items.add(getValueOrEmpty(document, AwsBillingDAO.SHAPE).replace(System.lineSeparator(), " "));
+        items.add(getValueOrEmpty(document, ReportLine.FIELD_PRODUCT));
 
-        items.add(getValueOrEmpty(document, MongoKeyWords.COST_STRING)
-                + " " + getValueOrEmpty(document, MongoKeyWords.CURRENCY_CODE));
+        items.add(getValueOrEmpty(document, ReportLine.FIELD_COST)
+                + " " + getValueOrEmpty(document, ReportLine.FIELD_CURRENCY_CODE));
 
         return CSVFormatter.formatLine(items, CSVFormatter.SEPARATOR);
     }
@@ -105,9 +89,14 @@ public class AzureBillingService extends BillingService<AzureBillingFilter> {
             items.add("");
         }
 
-        items.add(String.format("Total: %s %s", getValueOrEmpty(document, MongoKeyWords.COST_STRING),
-                getValueOrEmpty(document, MongoKeyWords.CURRENCY_CODE)));
+        items.add(String.format("Total: %s %s", getValueOrEmpty(document, AwsBillingDAO.COST_TOTAL),
+                getValueOrEmpty(document, ReportLine.FIELD_CURRENCY_CODE)));
 
         return CSVFormatter.formatLine(items, CSVFormatter.SEPARATOR);
+    }
+
+    @Override
+    public String getReportFileName(UserInfo userInfo, GcpBillingFilter filter) {
+        return "gcp-billing-report.csv";
     }
 }

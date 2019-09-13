@@ -17,29 +17,26 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.resources.dto;
+package com.epam.dlab.billing.gcp.scheduler;
 
-import com.epam.dlab.dto.UserInstanceStatus;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import com.epam.dlab.billing.gcp.service.BillingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
+@Component
+public class BillingScheduler {
 
-@Data
-public abstract class BillingFilter {
-	@JsonProperty
-	protected List<String> user;
-	@JsonProperty("dlab_id")
-	protected String dlabId;
-	@JsonProperty("resource_type")
-	protected List<String> resourceType;
-	@JsonProperty("date_start")
-	protected String dateStart;
-	@JsonProperty("date_end")
-	protected String dateEnd;
-	@JsonProperty("status")
-	protected List<UserInstanceStatus> statuses = Collections.emptyList();
+	private final BillingService billingService;
 
-	public abstract List<String> getShapes();
+	@Autowired
+	public BillingScheduler(BillingService billingService) {
+		this.billingService = billingService;
+	}
+
+
+	@Scheduled(cron = "${dlab.cron}")
+	public void getBillingReport() {
+		billingService.updateBillingData();
+	}
 }

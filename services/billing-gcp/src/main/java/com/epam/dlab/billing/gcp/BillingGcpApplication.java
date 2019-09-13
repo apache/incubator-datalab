@@ -17,29 +17,22 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.resources.dto;
+package com.epam.dlab.billing.gcp;
 
-import com.epam.dlab.dto.UserInstanceStatus;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.util.Collections;
-import java.util.List;
+@SpringBootApplication
+@EnableScheduling
+@EnableMongoRepositories
+@EnableConfigurationProperties
+public class BillingGcpApplication {
 
-@Data
-public abstract class BillingFilter {
-	@JsonProperty
-	protected List<String> user;
-	@JsonProperty("dlab_id")
-	protected String dlabId;
-	@JsonProperty("resource_type")
-	protected List<String> resourceType;
-	@JsonProperty("date_start")
-	protected String dateStart;
-	@JsonProperty("date_end")
-	protected String dateEnd;
-	@JsonProperty("status")
-	protected List<UserInstanceStatus> statuses = Collections.emptyList();
+    public static void main(String[] args) {
+        SpringApplication.run(BillingGcpApplication.class, args);
+    }
 
-	public abstract List<String> getShapes();
 }

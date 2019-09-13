@@ -17,29 +17,14 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.resources.dto;
+package com.epam.dlab.billing.gcp.repository;
 
-import com.epam.dlab.dto.UserInstanceStatus;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import com.epam.dlab.billing.gcp.documents.UserInstance;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 
-@Data
-public abstract class BillingFilter {
-	@JsonProperty
-	protected List<String> user;
-	@JsonProperty("dlab_id")
-	protected String dlabId;
-	@JsonProperty("resource_type")
-	protected List<String> resourceType;
-	@JsonProperty("date_start")
-	protected String dateStart;
-	@JsonProperty("date_end")
-	protected String dateEnd;
-	@JsonProperty("status")
-	protected List<UserInstanceStatus> statuses = Collections.emptyList();
+public interface UserInstanceRepository extends MongoRepository<UserInstance, String> {
 
-	public abstract List<String> getShapes();
+    Optional<UserInstance> findByUserAndExploratoryName(String user, String exploratoryName);
 }

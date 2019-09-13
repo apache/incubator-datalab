@@ -1,16 +1,14 @@
-server:
-  port: 8088
 spring:
   data:
     mongodb:
       username: admin
-      password: <MONGO_PASSWORD>
-      database: dlabdb
+      password: admin
+      database: <MONGO_PASSWORD>
       port: 27017
       host: localhost
 dlab:
   sbn: <CONF_SERVICE_BASE_NAME>
-  bigQueryDataset: <BILLING_DATASET_NAME>
+  bigQueryDataset: <DATASET_NAME>
   cron: 0 * * * * *
 
 logging:

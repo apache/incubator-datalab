@@ -38,14 +38,14 @@ export const NAMING_CONVENTION = {
     'billing': {
         'resourceName': 'resourceName',
         'cost': 'costString',
-        'costTotal': 'costString',
+        'costTotal': 'cost_total',
         'currencyCode': 'currencyCode',
         'dateFrom': 'from',
         'dateTo': 'to',
         'service': 'meterCategory',
         'service_filter_key': 'category',
         'type': '',
-        'resourceType': 'resourceType',
+        'resourceType': 'resource_type',
         'instance_size': 'size',
         'dlabId': 'dlabId'
     },
