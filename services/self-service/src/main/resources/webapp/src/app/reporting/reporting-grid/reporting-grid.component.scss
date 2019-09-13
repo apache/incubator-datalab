@@ -65,7 +65,7 @@
   }
 
   .th_type {
-    width: 8%;
+    width: 12%;
   }
 
   .th_status {
@@ -80,6 +80,15 @@
 
   .mat-column-charge {
     text-align: right;
+  }
+
+  .header-row {
+    .label {
+      display: inline-block;
+      padding-top: 10px;
+      vertical-align: super !important;
+      padding-left: 5px;
+    }
   }
 
   .filter-row {
