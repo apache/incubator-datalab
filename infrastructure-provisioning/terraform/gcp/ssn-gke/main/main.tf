@@ -69,4 +69,5 @@ module "helm_charts" {
   mongo_node_port = var.mongo_node_port
   ssn_keystore_password = var.ssn_keystore_password
   endpoint_keystore_password = var.endpoint_keystore_password
+  gke_cluster_name = module.gke_cluster.gke_cluster_name
 }

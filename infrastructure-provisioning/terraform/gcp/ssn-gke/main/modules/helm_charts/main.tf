@@ -19,13 +19,10 @@
 #
 # ******************************************************************************
 
-locals {
-  gke_name = "${var.service_base_name}-cluster"
-}
-
 data "google_container_cluster" "ssn_k8s_gke_cluster" {
-  name       = local.gke_name
+  name       = var.gke_cluster_name
   location   = var.region
+  depends_on = []
 }
 
 data "google_client_config" "current" {}

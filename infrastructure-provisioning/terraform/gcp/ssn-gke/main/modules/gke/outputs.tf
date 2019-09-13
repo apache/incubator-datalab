@@ -26,3 +26,7 @@ output "ssn_keystore_password" {
 output "endpoint_keystore_password" {
   value = random_string.endpoint_keystore_password.result
 }
+
+output "gke_cluster_name" {
+  value = google_container_cluster.ssn_k8s_gke_cluster.name
+}
