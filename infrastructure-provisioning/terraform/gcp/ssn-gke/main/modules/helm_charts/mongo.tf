@@ -37,6 +37,7 @@ resource "helm_release" "mongodb" {
     name   = "mongo-ha"
     chart  = "stable/mongodb"
     wait   = true
+    timeout = 600
     values = [
         data.template_file.mongo_values.rendered
     ]
