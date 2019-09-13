@@ -74,8 +74,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
   public setEndpoints(project) {
     this.endpoints = project.endpoints
-    .filter(e => e.status === 'RUNNING')
-    .map(e => e.name);
+      .filter(e => e.status === 'RUNNING')
+      .map(e => e.name);
   }
 
   public getTemplates(project, endpoint) {

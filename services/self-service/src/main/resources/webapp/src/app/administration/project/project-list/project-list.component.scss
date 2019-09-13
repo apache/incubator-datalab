@@ -20,6 +20,10 @@
 table {
   width: 100%;
 
+  td {
+    vertical-align: initial;
+  }
+
   .name {
     width: 25%;
   }
@@ -42,6 +46,8 @@ table {
     color: #607d8b;
     width: 10%;
     text-align: right;
+    vertical-align: top;
+    padding-top: 16px;
 
     span {
       transition: all .5s ease-in-out;

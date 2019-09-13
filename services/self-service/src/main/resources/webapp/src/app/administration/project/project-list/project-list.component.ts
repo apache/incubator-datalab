@@ -29,7 +29,7 @@ import { Project } from '../project.component';
 @Component({
   selector: 'project-list',
   templateUrl: './project-list.component.html',
-  styleUrls: ['./project-list.component.scss']
+  styleUrls: ['./project-list.component.scss', '../../../resources/computational/computational-resources-list/computational-resources-list.component.scss']
 })
 export class ProjectListComponent implements OnInit, OnDestroy {
 
@@ -58,8 +58,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  public toggleProjectStatus(project, action) {
-    this.toggleStatus.emit({ project, action });
+  public toggleEndpointAction(project, action, endpoint) {
+    this.toggleStatus.emit({ project, endpoint, action });
   }
 
   public editProject(item: Project[]) {
