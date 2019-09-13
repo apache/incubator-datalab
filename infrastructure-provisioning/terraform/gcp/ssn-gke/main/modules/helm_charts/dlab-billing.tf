@@ -20,7 +20,7 @@
 # ******************************************************************************
 
 data "template_file" "dlab_billing_values" {
-  template = file("./dlab-billing-chart/values.yaml")
+  template = file("./modules/helm_charts/dlab-billing-chart/values.yaml")
   vars = {
     mongo_db_name           = var.mongo_dbname
     mongo_user              = var.mongo_db_username
