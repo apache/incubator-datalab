@@ -147,11 +147,10 @@ export class RolesComponent implements OnInit {
             this.getGroupsData();
           }, () => this.toastr.error('Failed users deleting!', 'Oops!'));
         } else if ($event.type === 'group') {
-          console.log('delete group');
           this.rolesService.removeGroupById($event.value).subscribe(res => {
             this.toastr.success('Group was successfully deleted!', 'Success!');
             this.getGroupsData();
-          }, () => this.toastr.error('Failed group deleting!', 'Oops!'));
+          }, (error) => this.toastr.error(error.message, 'Oops!'));
         }
         break;
       default:

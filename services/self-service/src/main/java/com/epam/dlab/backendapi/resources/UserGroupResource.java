@@ -121,8 +121,9 @@ public class UserGroupResource {
 
 	@DELETE
 	@Path("{id}")
-	@ApiOperation("Removes user group from roles that are assigned to it")
+	@ApiOperation("Removes user group from roles and projects that are assigned to it")
 	@ApiResponses({
+			@ApiResponse(code = 409, message = "Group can not be removed"),
 			@ApiResponse(code = 400, message = "Validation exception occurred"),
 			@ApiResponse(code = 200, message = "Group successfully removed")}
 	)

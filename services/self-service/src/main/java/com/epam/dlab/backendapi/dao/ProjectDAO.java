@@ -14,6 +14,8 @@ public interface ProjectDAO {
 
 	List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status);
 
+	List<ProjectDTO> getProjectsWithStatusNotIn(ProjectDTO.Status... statuses);
+
 	List<ProjectDTO> getUserProjectsWithStatus(UserInfo userInfo, ProjectDTO.Status status);
 
 	void create(ProjectDTO projectDTO);
@@ -27,6 +29,8 @@ public interface ProjectDAO {
 	boolean update(UpdateProjectDTO projectDTO);
 
 	void remove(String name);
+
+	void removeGroupInProjects(String groupName);
 
 	Optional<Integer> getAllowedBudget(String project);
 
