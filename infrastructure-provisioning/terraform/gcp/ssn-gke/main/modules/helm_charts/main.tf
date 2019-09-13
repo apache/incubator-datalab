@@ -32,9 +32,9 @@ provider "helm" {
   kubernetes {
     host                   = data.google_container_cluster.ssn_k8s_gke_cluster.endpoint
     token                  = data.google_client_config.current.access_token
-    client_certificate     = data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate
-    client_key             = data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key
-    cluster_ca_certificate = data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate
+    client_certificate     = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate)
+    client_key             = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key)
+    cluster_ca_certificate = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate)
   }
   install_tiller = true
   service_account = "tiller"
@@ -43,9 +43,9 @@ provider "helm" {
 provider "kubernetes" {
   host = data.google_container_cluster.ssn_k8s_gke_cluster.endpoint
 
-  client_certificate     = data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate
-  client_key             = data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key
-  cluster_ca_certificate = data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate
+  client_certificate     = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate)
+  client_key             = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key)
+  cluster_ca_certificate = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate)
 }
 
 resource "kubernetes_service_account" "example" {
