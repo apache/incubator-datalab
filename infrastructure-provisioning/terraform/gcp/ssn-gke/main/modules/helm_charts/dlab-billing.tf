@@ -33,7 +33,7 @@ data "template_file" "dlab_billing_values" {
 
 resource "helm_release" "dlab-billing" {
     name      = "dlab-billing"
-    chart     = "./dlab-billing-chart"
+    chart     = "./modules/helm_charts/dlab-billing-chart"
     depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret]
     wait = true
 
