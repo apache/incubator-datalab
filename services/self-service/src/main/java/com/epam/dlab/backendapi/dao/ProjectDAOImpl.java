@@ -96,11 +96,6 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public void removeGroupInProjects(String groupName) {
-		updateMany(PROJECTS_COLLECTION, in(GROUPS, groupName), pull(GROUPS, groupName));
-	}
-
-	@Override
 	public Optional<Integer> getAllowedBudget(String project) {
 		return get(project).map(ProjectDTO::getBudget);
 	}

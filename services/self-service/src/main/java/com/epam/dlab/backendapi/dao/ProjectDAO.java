@@ -30,8 +30,6 @@ public interface ProjectDAO {
 
 	void remove(String name);
 
-	void removeGroupInProjects(String groupName);
-
 	Optional<Integer> getAllowedBudget(String project);
 
 	void updateBudget(String project, Integer budget);
