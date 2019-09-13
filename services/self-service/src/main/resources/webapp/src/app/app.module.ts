@@ -37,8 +37,7 @@ import { LoginModule } from './login/login.module';
 import { LayoutModule } from './layout/layout.module'
 
 import { GuidesModule } from './help';
-import { NotFoundModule } from './not-found/not-found.module';
-import { AccessDeniedModule } from './access-denied/access-denied.module';
+import { ServicePagesModule } from './service-pages/service-pages.module';
 import { ResourcesModule } from './resources/resources.module';
 
 import { ReportingModule } from './reporting/reporting.module';
@@ -58,8 +57,7 @@ import { CoreModule } from './core/core.module';
     LayoutModule,
     ResourcesModule,
     GuidesModule,
-    NotFoundModule,
-    AccessDeniedModule,
+    ServicePagesModule,
     ReportingModule,
     AdministrationModule,
     WebterminalModule,
@@ -69,22 +67,22 @@ import { CoreModule } from './core/core.module';
     ToastrModule.forRoot({ timeOut: 10000 })
   ],
   providers: [{
-      provide: LocationStrategy,
-      useClass: HashLocationStrategy,
-      useValue: '/'
-    }, {
-      provide: HTTP_INTERCEPTORS,
-      useClass: HttpTokenInterceptor,
-      multi: true
-    }, {
-      provide: HTTP_INTERCEPTORS,
-      useClass: NoCacheInterceptor,
-      multi: true,
-    }, {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ErrorInterceptor,
-      multi: true,
-    }
+    provide: LocationStrategy,
+    useClass: HashLocationStrategy,
+    useValue: '/'
+  }, {
+    provide: HTTP_INTERCEPTORS,
+    useClass: HttpTokenInterceptor,
+    multi: true
+  }, {
+    provide: HTTP_INTERCEPTORS,
+    useClass: NoCacheInterceptor,
+    multi: true,
+  }, {
+    provide: HTTP_INTERCEPTORS,
+    useClass: ErrorInterceptor,
+    multi: true,
+  }
   ],
   bootstrap: [AppComponent]
 })
