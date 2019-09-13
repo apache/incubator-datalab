@@ -26,23 +26,3 @@ output "ssn_keystore_password" {
 output "endpoint_keystore_password" {
   value = random_string.endpoint_keystore_password.result
 }
-
-output "k8s_gke_endpoint" {
-  value = data.google_container_cluster.ssn_k8s_gke_cluster.endpoint
-}
-
-output "k8s_gke_client_access_token" {
-  value = data.google_client_config.current.access_token
-}
-
-output "k8s_gke_clinet_cert" {
-  value = google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_certificate
-}
-
-output "k8s_gke_client_key" {
-  value = google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.client_key
-}
-
-output "k8s_gke_cluster_ca" {
-  value = google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate
-}
