@@ -62,9 +62,9 @@
         <module>services/dlab-utils</module>
         <module>services/dlab-webapp-common</module>
         <module>services/dlab-mongo-migration</module>
-        <module>services/security-azure</module>
-        <module>services/security-gcp</module>
-        <module>services/security-aws</module>
+        <module>services/billing-azure</module>
+        <module>services/billing-gcp</module>
+        <module>services/billing-aws</module>
     </modules>
 
     <properties>
