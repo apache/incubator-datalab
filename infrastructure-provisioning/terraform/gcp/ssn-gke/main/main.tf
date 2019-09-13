@@ -70,4 +70,5 @@ module "helm_charts" {
   ssn_keystore_password = var.ssn_keystore_password
   endpoint_keystore_password = var.endpoint_keystore_password
   gke_cluster_name = module.gke_cluster.gke_cluster_name
+  big_query_dataset = var.big_query_dataset
 }

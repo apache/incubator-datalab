@@ -72,6 +72,9 @@ variable "ssn_keystore_password" {}
 variable "endpoint_keystore_password" {}
 
 variable "gke_cluster_name" {}
+
+variable "big_query_dataset" {}
+
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

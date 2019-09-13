@@ -188,3 +188,7 @@ variable "ssn_keystore_password" {
 variable "endpoint_keystore_password" {
   default = ""
 }
+
+variable "big_query_dataset" {
+  default = ""
+}
