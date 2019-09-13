@@ -34,7 +34,7 @@ persistence:
   enabled: false
 
 service:
-  type: loadBalancerIP
+  type: LoadBalancer
   port: ${mongo_service_port}
   #nodePort: ${mongo_node_port}
   loadBalancerIP: ${load_balancer_ip}
