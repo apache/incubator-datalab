@@ -53,7 +53,8 @@
           <div class="resource-actions">
             <a class="start-stop-action">
               <i class="material-icons" (click)="toggleEndpointAction(element, 'stop', endpoint)"
-                *ngIf="endpoint.status === 'RUNNING'">pause_circle_outline</i>
+                *ngIf="endpoint.status === 'RUNNING' || endpoint.status === 'STOPPING'"
+                [ngClass]="{'not-active' : endpoint.status === 'STOPPING'}">pause_circle_outline</i>
             </a>
             <a class="start-stop-action">
               <i class="material-icons" (click)="toggleEndpointAction(element, 'start', endpoint)"
@@ -83,7 +84,7 @@
       <span>
         <!-- [ngClass]="{'not-active' : element.status !== 'ACTIVE' && element.status !== 'NOT_ACTIVE' && element.status !== 'FAILED' }" -->
         <!-- [ngClass]="{'not-allowed' : element.status !== 'ACTIVE' && element.status !== 'NOT_ACTIVE' && element.status !== 'FAILED' }" -->
-        <a (click)="deleteProject(element)">
+        <a (click)="deleteProject(element)" [ngClass]="{'not-allowed' : isInProgress(element)}">
           <mat-icon>delete_forever</mat-icon>
         </a>
       </span>

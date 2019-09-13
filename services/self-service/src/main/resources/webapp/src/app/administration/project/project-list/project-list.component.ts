@@ -69,4 +69,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   public deleteProject(item: Project[]) {
     this.deleteItem.emit(item);
   }
+
+  public isInProgress(project) {
+    if (project)
+      return project.endpoints.some(e => e.status !== 'RUNNING' && e.status !== 'STOPPED' && e.status !== 'TERMINATED' && e.status !== 'FAILED')
+  }
 }

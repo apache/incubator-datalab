@@ -94,20 +94,17 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   public toggleStatus($event) {
-    // project, endpoint, action
-    const data = { 'project_name': $event.project.name };
+    const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.name };
 
-    if ($event.action === 'stop' || $event.action === 'terminated') {
+    if ($event.action === 'stop' || $event.action === 'terminate') {
       this.dialog.open(NotificationDialogComponent, {
         data: {
           type: 'confirmation',
-          item: $event.project, action: $event.action === 'stop' ? 'stopped' : 'terminated'
+          item: $event.endpoint, action: $event.action === 'stop' ? 'stopped' : 'terminated'
         }, panelClass: 'modal-sm'
       })
         .afterClosed().subscribe(result => {
-          // result && this.toggleStatusRequest(data, $event.action);
-
-          debugger;
+          result && this.toggleStatusRequest(data, $event.action);
         }, error => this.toastr.error(error.message, 'Oops!'));
     } else {
       this.toggleStatusRequest(data, $event.action);
@@ -115,11 +112,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   private toggleStatusRequest(data, action) {
-    // this.projectService.toggleProjectStatus(data, action).subscribe(() => this.refreshGrid(),
-    //   error => this.toastr.error(error.message, 'Oops!'));
-
-
-    debugger;
+    this.projectService.toggleProjectStatus(data, action).subscribe(() => this.refreshGrid(),
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 
   private getEnvironmentHealthStatus() {
