@@ -17,14 +17,16 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
 	private final String callbackUri;
 	private final String projectName;
 	private final Class<? extends EdgeInfo> clazz;
+	private final String endpointName;
 
 	public ProjectCallbackHandler(SystemUserInfoService systemUserInfoService, RESTService selfService, String user,
 								  String uuid, DockerAction action, String callbackUri, String projectName,
-								  Class<? extends EdgeInfo> clazz) {
+								  Class<? extends EdgeInfo> clazz, String endpointName) {
 		super(systemUserInfoService, selfService, user, uuid, action);
 		this.callbackUri = callbackUri;
 		this.projectName = projectName;
 		this.clazz = clazz;
+		this.endpointName = endpointName;
 	}
 
 	@Override
@@ -35,6 +37,7 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
 	@Override
 	protected ProjectResult parseOutResponse(JsonNode resultNode, ProjectResult baseStatus) {
 		baseStatus.setProjectName(projectName);
+		baseStatus.setEndpointName(endpointName);
 		if (resultNode != null && getAction() == DockerAction.CREATE
 				&& UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
 			try {

@@ -39,32 +39,34 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public String create(UserInfo userInfo, ProjectCreateDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.CREATE, dto.getName(), "project", PROJECT_IMAGE);
+		return executeDocker(userInfo, dto, DockerAction.CREATE, dto.getName(), "project", PROJECT_IMAGE,
+				dto.getEndpoint());
 	}
 
 	@Override
 	public String terminate(UserInfo userInfo, ProjectActionDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.TERMINATE, dto.getName(), "project", PROJECT_IMAGE);
+		return executeDocker(userInfo, dto, DockerAction.TERMINATE, dto.getName(), "project", PROJECT_IMAGE,
+				dto.getEndpoint());
 	}
 
 	@Override
 	public String start(UserInfo userInfo, ProjectActionDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.START, dto.getName(), "edge", EDGE_IMAGE);
+		return executeDocker(userInfo, dto, DockerAction.START, dto.getName(), "edge", EDGE_IMAGE, dto.getEndpoint());
 	}
 
 	@Override
 	public String stop(UserInfo userInfo, ProjectActionDTO dto) {
-		return executeDocker(userInfo, dto, DockerAction.STOP, dto.getName(), "edge", EDGE_IMAGE);
+		return executeDocker(userInfo, dto, DockerAction.STOP, dto.getName(), "edge", EDGE_IMAGE, dto.getEndpoint());
 	}
 
 	private String executeDocker(UserInfo userInfo, ResourceBaseDTO dto, DockerAction action, String projectName,
-								 String resourceType, String image) {
+								 String resourceType, String image, String endpoint) {
 		String uuid = DockerCommands.generateUUID();
 
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
 				new ProjectCallbackHandler(systemUserInfoService, selfService, userInfo.getName(), uuid,
-						action, CALLBACK_URI, projectName, getEdgeClass()));
+						action, CALLBACK_URI, projectName, getEdgeClass(), endpoint));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()

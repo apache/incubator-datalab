@@ -1,12 +1,12 @@
 package com.epam.dlab.backendapi.domain;
 
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -15,8 +15,6 @@ public class ProjectDTO {
 	@NotNull
 	private final String name;
 	@NotNull
-	private final Set<String> endpoints;
-	@NotNull
 	private final Set<String> groups;
 	@NotNull
 	@Pattern(regexp = "^ssh-.*", message = "Wrong key format. Key should be in openSSH format")
@@ -24,8 +22,7 @@ public class ProjectDTO {
 	@NotNull
 	private final String tag;
 	private final Integer budget;
-	private final Status status = Status.CREATING;
-	private EdgeInfo edgeInfo;
+	private final List<ProjectEndpointDTO> endpoints;
 
 
 	public enum Status {

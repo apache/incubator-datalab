@@ -76,14 +76,14 @@ public class InfrastructureTemplateServiceBaseTest {
 						"someRam2", 6)));
 		emDto2.setExploratoryEnvironmentShapes(shapes2);
 		List<ExploratoryMetadataDTO> expectedEmdDtoList = Arrays.asList(emDto1, emDto2);
-		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				Collections.singleton("project"), null, null, null)));
+		/*when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
+				Collections.singleton("project"), null, null, null)));*/
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedEmdDtoList.toArray());
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		List<ExploratoryMetadataDTO> actualEmdDtoList =
-				infrastructureTemplateServiceBaseChild.getExploratoryTemplates(userInfo, "project");
+				infrastructureTemplateServiceBaseChild.getExploratoryTemplates(userInfo, "project", "endpoint");
 		assertNotNull(actualEmdDtoList);
 		assertEquals(expectedEmdDtoList, actualEmdDtoList);
 
@@ -99,7 +99,7 @@ public class InfrastructureTemplateServiceBaseTest {
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
-			infrastructureTemplateServiceBaseChild.getExploratoryTemplates(userInfo, "project");
+			infrastructureTemplateServiceBaseChild.getExploratoryTemplates(userInfo, "project", "endpoint");
 		} catch (DlabException e) {
 			assertEquals("Could not load list of exploratory templates for user", e.getMessage());
 		}
@@ -115,8 +115,8 @@ public class InfrastructureTemplateServiceBaseTest {
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(
 				computationalMetadataDTO
 		);
-		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				Collections.singleton("project"), null, null, null)));
+		/*when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
+				Collections.singleton("project"), null, null, null)));*/
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
@@ -125,7 +125,7 @@ public class InfrastructureTemplateServiceBaseTest {
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		List<FullComputationalTemplate> actualFullCmdDtoList =
-				infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo, "project");
+				infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo, "project", "endpoint");
 		assertNotNull(actualFullCmdDtoList);
 		assertEquals(expectedFullCmdDtoList.size(), actualFullCmdDtoList.size());
 		for (int i = 0; i < expectedFullCmdDtoList.size(); i++) {
@@ -143,7 +143,7 @@ public class InfrastructureTemplateServiceBaseTest {
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
-			infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo, "project");
+			infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo, "project", "endpoint");
 		} catch (DlabException e) {
 			assertEquals("Could not load list of computational templates for user", e.getMessage());
 		}
@@ -157,12 +157,12 @@ public class InfrastructureTemplateServiceBaseTest {
 		computationalMetadataDTO.setComputationResourceShapes(Collections.emptyMap());
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(computationalMetadataDTO);
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
-		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				Collections.singleton("project"), null, null,null)));
+		/*when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
+				Collections.singleton("project"), null, null,null)));*/
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
-			infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo, "project");
+			infrastructureTemplateServiceBaseChild.getComputationalTemplates(userInfo, "project", "endpoint");
 		} catch (IllegalArgumentException e) {
 			assertEquals("Unknown data engine null", e.getMessage());
 		}

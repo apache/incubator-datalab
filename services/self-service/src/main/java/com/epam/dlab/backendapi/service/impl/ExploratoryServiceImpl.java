@@ -27,6 +27,7 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.TagService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -76,6 +77,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private RequestId requestId;
 	@Inject
 	private TagService tagService;
+	@Inject
+	private EndpointService endpointService;
 
 	@BudgetLimited
 	@Override
@@ -103,9 +106,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			isAdded = true;
 			final ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
 			log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
-			final String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(),
-					requestBuilder.newExploratoryCreate(exploratory, userInfo, gitCreds, userInstanceDTO.getTags()),
-					String.class);
+			final String uuid =
+					provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + EXPLORATORY_CREATE,
+							userInfo.getAccessToken(),
+							requestBuilder.newExploratoryCreate(exploratory, userInfo, gitCreds,
+									userInstanceDTO.getTags()),
+							String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} catch (Exception t) {
@@ -169,7 +175,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				exploratoryName);
 		final ExploratoryReconfigureSparkClusterActionDTO updateClusterConfigDTO =
 				requestBuilder.newClusterConfigUpdate(userInfo, userInstanceDTO, config);
-		final String uuid = provisioningService.post(EXPLORATORY_RECONFIGURE_SPARK, token, updateClusterConfigDTO,
+		final String uuid = provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + EXPLORATORY_RECONFIGURE_SPARK, token, updateClusterConfigDTO,
 				String.class);
 		requestId.put(userName, uuid);
 		exploratoryDAO.updateExploratoryFields(new ExploratoryStatusDTO()
@@ -234,7 +240,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			updateExploratoryStatus(exploratoryName, status, userInfo.getName());
 
 			UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
-			final String uuid = provisioningService.post(action, userInfo.getAccessToken(),
+			final String uuid = provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + action,
+					userInfo.getAccessToken(),
 					getExploratoryActionDto(userInfo, status, userInstance), String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;

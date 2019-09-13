@@ -37,10 +37,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.ACTIVE;
@@ -128,9 +125,9 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		checkProjectResourceConditions(project, "stop");
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(project)
 				.forEach(this::stopNotebook);
-		if (projectService.get(project).getStatus() == ProjectDTO.Status.ACTIVE) {
+		/*if (projectService.get(project).getStatus() == ProjectDTO.Status.ACTIVE) {
 			projectService.stop(systemUserInfoService.create("admin"), project);
-		}
+		}*/
 	}
 
 	@Override
@@ -226,16 +223,19 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
 		final Stream<UserResourceInfo> userResources = allInstances.stream()
 				.filter(instance -> instance.getProject().equals(projectDTO.getName())).map(this::toUserResourceInfo);
-		if (projectDTO.getEdgeInfo() != null) {
-			UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-					.withResourceStatus(ProjectDTO.Status.from(projectDTO.getStatus()).toString())
-					.withProject(projectDTO.getName())
-					.withIp(projectDTO.getEdgeInfo().getPublicIp());
+		/*if (projectDTO.getEndpointEdgeInfo() != null) {
+			final Stream<UserResourceInfo> edges = projectDTO.getEndpointEdgeInfo().values()
+					.stream()
+					.map(ei -> new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
+							.withResourceStatus(ProjectDTO.Status.from(projectDTO.getStatus()).toString())
+							.withProject(projectDTO.getName())
+							.withIp(ei.getPublicIp()));
 			return Stream.concat(Stream.of(edgeResource), userResources)
 					.collect(toList());
 		} else {
 			return userResources.collect(toList());
-		}
+		}*/
+		return Collections.emptyList();
 	}
 
 	private UserResourceInfo toUserResourceInfo(UserInstanceDTO userInstance) {

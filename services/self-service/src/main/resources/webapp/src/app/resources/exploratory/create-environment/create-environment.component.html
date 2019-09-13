@@ -31,7 +31,7 @@
             <mat-form-field>
               <mat-label>Select project</mat-label>
               <mat-select formControlName="project" disableOptionCentering>
-                <mat-option *ngFor="let project of projects" [value]="project.name" (click)="getTemplates(project)">
+                <mat-option *ngFor="let project of projects" [value]="project.name" (click)="setEndpoints(project)">
                   {{ project.name }}</mat-option>
                 <mat-option *ngIf="!projects.length" class="multiple-select ml-10" disabled>Projects list is empty
                 </mat-option>
@@ -49,7 +49,7 @@
             <mat-form-field>
               <mat-label>Select endpoint</mat-label>
               <mat-select formControlName="endpoint" disableOptionCentering [disabled]="!endpoints.length">
-                <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">{{ endpoint }}</mat-option>
+                <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint" (click)="getTemplates(createExploratoryForm?.controls['project'].value, endpoint)">{{ endpoint }}</mat-option>
                 <mat-option *ngIf="!endpoints.length" class="multiple-select ml-10" disabled>Endpoints list is empty
                 </mat-option>
               </mat-select>

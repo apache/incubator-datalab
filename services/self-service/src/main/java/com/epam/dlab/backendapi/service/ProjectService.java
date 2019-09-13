@@ -19,9 +19,9 @@ public interface ProjectService {
 
 	void terminate(UserInfo userInfo, String name);
 
-	void start(UserInfo userInfo, String name);
+	void start(UserInfo userInfo, String endpoint, String name);
 
-	void stop(UserInfo userInfo, String name);
+	void stop(UserInfo userInfo, String endpoint, String name);
 
 	void update(UpdateProjectDTO projectDTO);
 

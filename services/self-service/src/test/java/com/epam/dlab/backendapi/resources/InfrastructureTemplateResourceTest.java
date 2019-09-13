@@ -60,10 +60,10 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 	public void getComputationalTemplates() {
 		FullComputationalTemplate fullComputationalTemplate =
 				new FullComputationalTemplate(new ComputationalMetadataDTO());
-		when(infrastructureTemplateService.getComputationalTemplates(any(UserInfo.class), anyString()))
+		when(infrastructureTemplateService.getComputationalTemplates(any(UserInfo.class), anyString(), anyString()))
 				.thenReturn(Collections.singletonList(fullComputationalTemplate));
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_templates/test/computational_templates")
+				.target("/infrastructure_templates/test/endpoint/computational_templates")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -71,7 +71,7 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getComputationalTemplates(getUserInfo(), "test");
+		verify(infrastructureTemplateService).getComputationalTemplates(getUserInfo(), "test", "endpoint");
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 
@@ -80,10 +80,10 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 		authFailSetup();
 		FullComputationalTemplate fullComputationalTemplate =
 				new FullComputationalTemplate(new ComputationalMetadataDTO());
-		when(infrastructureTemplateService.getComputationalTemplates(any(UserInfo.class), anyString()))
+		when(infrastructureTemplateService.getComputationalTemplates(any(UserInfo.class), anyString(), anyString()))
 				.thenReturn(Collections.singletonList(fullComputationalTemplate));
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_templates/test/computational_templates")
+				.target("/infrastructure_templates/test/endpoint/computational_templates")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -91,16 +91,16 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getComputationalTemplates(getUserInfo(), "test");
+		verify(infrastructureTemplateService).getComputationalTemplates(getUserInfo(), "test", "endpoint");
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 
 	@Test
 	public void getComputationalTemplatesWithException() {
 		doThrow(new DlabException("Could not load list of computational templates for user"))
-				.when(infrastructureTemplateService).getComputationalTemplates(any(UserInfo.class), anyString());
+				.when(infrastructureTemplateService).getComputationalTemplates(any(UserInfo.class), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_templates/test/computational_templates")
+				.target("/infrastructure_templates/test/endpoint/computational_templates")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -108,7 +108,7 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getComputationalTemplates(getUserInfo(), "test");
+		verify(infrastructureTemplateService).getComputationalTemplates(getUserInfo(), "test", "endpoint");
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 
@@ -116,10 +116,10 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 	public void getExploratoryTemplates() {
 		ExploratoryMetadataDTO exploratoryMetadataDTO =
 				new ExploratoryMetadataDTO("someImageName");
-		when(infrastructureTemplateService.getExploratoryTemplates(any(UserInfo.class), anyString()))
+		when(infrastructureTemplateService.getExploratoryTemplates(any(UserInfo.class), anyString(), anyString()))
 				.thenReturn(Collections.singletonList(exploratoryMetadataDTO));
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_templates/test/exploratory_templates")
+				.target("/infrastructure_templates/test/endpoint/exploratory_templates")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -130,7 +130,7 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 				}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getExploratoryTemplates(getUserInfo(), "test");
+		verify(infrastructureTemplateService).getExploratoryTemplates(getUserInfo(), "test", "endpoint");
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 
@@ -139,10 +139,10 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 		authFailSetup();
 		ExploratoryMetadataDTO exploratoryMetadataDTO =
 				new ExploratoryMetadataDTO("someImageName");
-		when(infrastructureTemplateService.getExploratoryTemplates(any(UserInfo.class), anyString()))
+		when(infrastructureTemplateService.getExploratoryTemplates(any(UserInfo.class), anyString(), anyString()))
 				.thenReturn(Collections.singletonList(exploratoryMetadataDTO));
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_templates/test/exploratory_templates")
+				.target("/infrastructure_templates/test/endpoint/exploratory_templates")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -153,7 +153,7 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 				}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getExploratoryTemplates(getUserInfo(), "test");
+		verify(infrastructureTemplateService).getExploratoryTemplates(getUserInfo(), "test", "endpoint");
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 
@@ -161,9 +161,9 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 	@Test
 	public void getExploratoryTemplatesWithException() {
 		doThrow(new DlabException("Could not load list of exploratory templates for user"))
-				.when(infrastructureTemplateService).getExploratoryTemplates(any(UserInfo.class), anyString());
+				.when(infrastructureTemplateService).getExploratoryTemplates(any(UserInfo.class), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_templates/test/exploratory_templates")
+				.target("/infrastructure_templates/test/endpoint/exploratory_templates")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -171,7 +171,7 @@ public class InfrastructureTemplateResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureTemplateService).getExploratoryTemplates(getUserInfo(), "test");
+		verify(infrastructureTemplateService).getExploratoryTemplates(getUserInfo(), "test", "endpoint");
 		verifyNoMoreInteractions(infrastructureTemplateService);
 	}
 }
