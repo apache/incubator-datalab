@@ -1,0 +1,5 @@
+{
+  "insecure-registries": ["REPOSITORY"],
+  "disable-legacy-registry": true,
+  "dns": ["8.8.8.8", "8.8.4.4"]
+}
