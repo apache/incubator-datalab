@@ -111,14 +111,6 @@ tr.detail-row {
   height: 0;
 }
 
-tr.element-row:not(.expanded-row):hover {
-  // background: #777;
-}
-
-tr.element-row:not(.expanded-row):active {
-  // background: #efefef;
-}
-
 .element-row td {
   border-bottom-width: 0;
 }
@@ -209,7 +201,7 @@ tr.element-row:not(.expanded-row):active {
 }
 
 .filter-row .actions {
-  text-align: center;
+  text-align: right;
 }
 
 .filter-row .actions button {
@@ -278,6 +270,9 @@ tr.element-row:not(.expanded-row):active {
   text-align: center;
   /* margin-top: 2px; */
   cursor: pointer;
+  position: absolute;
+  top: 5px;
+  right: 15px;
 }
 
 .data-grid .list-menu li {

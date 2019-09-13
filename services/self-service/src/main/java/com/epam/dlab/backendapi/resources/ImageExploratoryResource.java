@@ -80,9 +80,11 @@ public class ImageExploratoryResource {
 	@ApiResponses(@ApiResponse(code = 200, message = "Machine images were fetched successfully"))
 	public Response getImages(@ApiParam(hidden = true) @Auth UserInfo ui,
 							  @ApiParam(value = "Docker image", required = true)
-							  @QueryParam("docker_image") String dockerImage) {
-		log.debug("Getting images for user " + ui.getName());
-		final List<ImageInfoRecord> images = imageExploratoryService.getNotFailedImages(ui.getName(), dockerImage);
+							  @QueryParam("docker_image") String dockerImage,
+							  @ApiParam(value = "Project's name", required = true)
+							  @QueryParam("project") String project) {
+		log.debug("Getting images for user {}, project {}", ui.getName(), project);
+		final List<ImageInfoRecord> images = imageExploratoryService.getNotFailedImages(ui.getName(), dockerImage, project);
 		return Response.ok(images).build();
 	}
 

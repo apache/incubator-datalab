@@ -17,11 +17,19 @@
  * under the License.
  */
 
-package com.epam.dlab.billing.gcp;
+package com.epam.dlab.billing.gcp.conf;
 
-public class BillingApplicationGcp {
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-	public static void main(String[] args) {
+@Configuration
+@ConfigurationProperties("dlab")
+@Data
+public class DlabConfiguration {
 
-	}
+    private String sbn;
+    private String bigQueryDataset;
+    private String bigQueryTable;
+    private String cron;
 }

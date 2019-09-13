@@ -130,6 +130,8 @@ parser.add_argument('--keycloak_client_name', type=str, default='dlab', help='Ke
 parser.add_argument('--keycloak_client_secret', type=str, default='dlab', help='Keycloak client secret')
 parser.add_argument('--tags', type=str, default='line_item_operation,line_item_line_item_description', help='Column name in report file that '
                                                                                   'contains tags')
+parser.add_argument('--billing_dataset_name', type=str, default='', help='Name of GCP dataset (BigQuery service)'
+                                                                         ' for billing')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()

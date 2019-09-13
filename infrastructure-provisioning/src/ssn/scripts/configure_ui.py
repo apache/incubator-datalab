@@ -43,6 +43,7 @@ parser.add_argument('--os_family', type=str, default='')
 parser.add_argument('--request_id', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
+parser.add_argument('--billing_dataset_name', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default=None)
 parser.add_argument('--billing_tag', type=str, default=None)
 parser.add_argument('--account_id', type=str, default=None)
@@ -224,4 +225,4 @@ if __name__ == "__main__":
              args.region_info, args.ldap_login, args.tenant_id, args.application_id,
              args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
              args.dlab_id, args.usage_date, args.product, args.usage_type,
-             args.usage, args.cost, args.resource_id, args.tags)
+             args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name)

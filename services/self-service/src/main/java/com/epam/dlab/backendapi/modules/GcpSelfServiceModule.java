@@ -27,10 +27,13 @@ import com.epam.dlab.backendapi.dao.gcp.GcpBillingDao;
 import com.epam.dlab.backendapi.dao.gcp.GcpKeyDao;
 import com.epam.dlab.backendapi.resources.callback.gcp.EdgeCallbackGcp;
 import com.epam.dlab.backendapi.resources.callback.gcp.KeyUploaderCallbackGcp;
+import com.epam.dlab.backendapi.resources.gcp.BillingResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.GcpOauthResource;
+import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
+import com.epam.dlab.backendapi.service.gcp.GcpBillingService;
 import com.epam.dlab.backendapi.service.gcp.GcpInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.gcp.GcpInfrastructureTemplateService;
 import com.epam.dlab.cloud.CloudModule;
@@ -46,42 +49,44 @@ import org.quartz.impl.StdSchedulerFactory;
 
 public class GcpSelfServiceModule extends CloudModule {
 
-	private static final String MONGO_URI_FORMAT = "mongodb://%s:%s@%s:%d/%s";
-	private static final String QUARTZ_MONGO_URI_PROPERTY = "org.quartz.jobStore.mongoUri";
-	private static final String QUARTZ_DB_NAME = "org.quartz.jobStore.dbName";
+    private static final String MONGO_URI_FORMAT = "mongodb://%s:%s@%s:%d/%s";
+    private static final String QUARTZ_MONGO_URI_PROPERTY = "org.quartz.jobStore.mongoUri";
+    private static final String QUARTZ_DB_NAME = "org.quartz.jobStore.dbName";
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public void init(Environment environment, Injector injector) {
+    @Override
+    @SuppressWarnings("unchecked")
+    public void init(Environment environment, Injector injector) {
 
 		environment.jersey().register(injector.getInstance(EdgeCallbackGcp.class));
 		environment.jersey().register(injector.getInstance(KeyUploaderCallbackGcp.class));
 		environment.jersey().register(injector.getInstance(ComputationalResourceGcp.class));
+		environment.jersey().register(injector.getInstance(BillingResourceGcp.class));
 		if (injector.getInstance(SelfServiceApplicationConfiguration.class).isGcpOuauth2AuthenticationEnabled()) {
 			environment.jersey().register(injector.getInstance(GcpOauthResource.class));
 		}
 
-	}
+    }
 
-	@Override
-	protected void configure() {
-		bind((KeyDAO.class)).to(GcpKeyDao.class);
-		bind(InfrastructureInfoService.class).to(GcpInfrastructureInfoService.class);
-		bind(InfrastructureTemplateService.class).to(GcpInfrastructureTemplateService.class);
-		bind(SchedulerConfiguration.class).toInstance(
-				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
-		bind(BillingDAO.class).toInstance(new GcpBillingDao());
-	}
+    @Override
+    protected void configure() {
+        bind(BillingService.class).to(GcpBillingService.class);
+        bind((KeyDAO.class)).to(GcpKeyDao.class);
+        bind(InfrastructureInfoService.class).to(GcpInfrastructureInfoService.class);
+        bind(InfrastructureTemplateService.class).to(GcpInfrastructureTemplateService.class);
+        bind(BillingDAO.class).to(GcpBillingDao.class);
+        bind(SchedulerConfiguration.class).toInstance(
+                new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
+    }
 
-	@Provides
-	@Singleton
-	Scheduler provideScheduler(SelfServiceApplicationConfiguration configuration) throws SchedulerException {
-		final MongoServiceFactory mongoFactory = configuration.getMongoFactory();
-		final String database = mongoFactory.getDatabase();
-		final String mongoUri = String.format(MONGO_URI_FORMAT, mongoFactory.getUsername(), mongoFactory.getPassword(),
-				mongoFactory.getHost(), mongoFactory.getPort(), database);
-		System.setProperty(QUARTZ_MONGO_URI_PROPERTY, mongoUri);
-		System.setProperty(QUARTZ_DB_NAME, database);
-		return StdSchedulerFactory.getDefaultScheduler();
-	}
+    @Provides
+    @Singleton
+    Scheduler provideScheduler(SelfServiceApplicationConfiguration configuration) throws SchedulerException {
+        final MongoServiceFactory mongoFactory = configuration.getMongoFactory();
+        final String database = mongoFactory.getDatabase();
+        final String mongoUri = String.format(MONGO_URI_FORMAT, mongoFactory.getUsername(), mongoFactory.getPassword(),
+                mongoFactory.getHost(), mongoFactory.getPort(), database);
+        System.setProperty(QUARTZ_MONGO_URI_PROPERTY, mongoUri);
+        System.setProperty(QUARTZ_DB_NAME, database);
+        return StdSchedulerFactory.getDefaultScheduler();
+    }
 }

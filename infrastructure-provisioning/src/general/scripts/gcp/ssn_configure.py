@@ -44,7 +44,7 @@ if __name__ == "__main__":
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_firewall = False
-        billing_enabled = False
+        billing_enabled = True
 
         ssn_conf = dict()
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
@@ -371,10 +371,10 @@ if __name__ == "__main__":
                 'value': ''
             }
         ]
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --billing_enabled --request_id {} --billing_dataset_name {} \
                  --resource {} --service_base_name {} --cloud_provider {} --cloud_params '{}'". \
             format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
-                   os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
+                   os.environ['conf_os_family'], billing_enabled, os.environ['request_id'], os.environ['billing_dataset_name'], os.environ['conf_resource'],
                    ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],  json.dumps(cloud_params))
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
