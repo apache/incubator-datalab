@@ -29,6 +29,7 @@ data "template_file" "mongo_values" {
       mongo_image_tag     = var.mongo_image_tag
       mongo_service_port  = var.mongo_service_port
       mongo_node_port     = var.mongo_node_port
+      load_balancer_ip    = data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
   }
 }
 
