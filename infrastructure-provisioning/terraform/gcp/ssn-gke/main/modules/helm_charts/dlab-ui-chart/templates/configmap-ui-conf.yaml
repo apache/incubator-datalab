@@ -66,9 +66,6 @@ data:
         connectionTimeout: 20s
 
     provisioningService:
-      protocol: https
-      host: {{ .Values.ui.provisionService.host }}
-      port: 8084
       jerseyClient:
         timeout: 3s
         connectionTimeout: 3s

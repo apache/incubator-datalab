@@ -25,4 +25,4 @@ USER root
 
 COPY billing-gcp-2.1.jar /root/
 
-CMD java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 /root/billing-gcp-2.1.jar  --spring.config.location=/root/billing.yml
+CMD java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Dcom.sun.net.ssl.checkRevocation=false /root/billing-gcp-2.1.jar  --spring.config.location=/root/billing.yml

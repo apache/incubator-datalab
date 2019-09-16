@@ -58,9 +58,6 @@ securityService:
     connectionTimeout: 20s
 
 provisioningService:
-  protocol: https
-  host: localhost
-  port: 8084
   jerseyClient:
     timeout: 3s
     connectionTimeout: 3s
