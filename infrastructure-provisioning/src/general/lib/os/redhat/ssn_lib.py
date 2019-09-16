@@ -303,7 +303,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '--cost {} ' \
                          '--resource_id {} ' \
                          '--tags {} ' \
-                         '--billing_dataset_name {}'.\
+                         '--billing_dataset_name "{}" '.\
                             format(cloud_provider,
                                    service_base_name,
                                    tag_resource_id,
