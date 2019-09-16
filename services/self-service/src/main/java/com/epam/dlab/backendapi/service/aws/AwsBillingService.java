@@ -41,20 +41,6 @@ import java.util.List;
 @Singleton
 public class AwsBillingService extends BillingService<AwsBillingFilter> {
 
-	@Inject
-	private BillingDAO billingDAO;
-
-	@Override
-	protected Document getReport(UserInfo userInfo, AwsBillingFilter filter) {
-		log.trace("Get billing report for user {} with filter {}", userInfo.getName(), filter);
-		try {
-			return billingDAO.getReport(userInfo, filter);
-		} catch (RuntimeException t) {
-			log.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), filter, t);
-			throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);
-		}
-	}
-
 	@Override
 	public String getReportFileName(UserInfo userInfo, AwsBillingFilter filter) {
 		return "aws-billing-report.csv";
