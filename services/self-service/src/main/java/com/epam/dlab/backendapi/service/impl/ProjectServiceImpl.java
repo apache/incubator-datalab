@@ -105,7 +105,7 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	public void start(UserInfo userInfo, String endpoint, @Project String name) {
 		projectActionOnCloud(userInfo, name, START_PRJ_API, endpoint);
-		projectDAO.updateStatus(name, ProjectDTO.Status.ACTIVATING);
+		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STARTING);
 	}
 
 	@Override
