@@ -22,13 +22,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
-
-import { HttpTokenInterceptor } from './core/interceptors/http.token.interceptor';
-import { NoCacheInterceptor } from './core/interceptors/nocache.interceptor';
-import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
@@ -69,22 +65,10 @@ import { CoreModule } from './core/core.module';
     ToastrModule.forRoot({ timeOut: 10000 })
   ],
   providers: [{
-      provide: LocationStrategy,
-      useClass: HashLocationStrategy,
-      useValue: '/'
-    }, {
-      provide: HTTP_INTERCEPTORS,
-      useClass: HttpTokenInterceptor,
-      multi: true
-    }, {
-      provide: HTTP_INTERCEPTORS,
-      useClass: NoCacheInterceptor,
-      multi: true,
-    }, {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ErrorInterceptor,
-      multi: true,
-    }
+    provide: LocationStrategy,
+    useClass: HashLocationStrategy,
+    useValue: '/'
+  }
   ],
   bootstrap: [AppComponent]
 })

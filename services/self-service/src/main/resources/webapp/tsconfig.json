@@ -16,5 +16,6 @@
   "angularCompilerOptions": {
     // "fullTemplateTypeCheck": true,
     // "preserveWhitespaces": true
-  }
+  },
+  "skipLibCheck": true
 }
