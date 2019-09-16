@@ -641,12 +641,12 @@ public class RequestBuilder {
 		return dto;
 	}
 
-	public ProjectCreateDTO newProjectCreate(UserInfo userInfo, ProjectDTO projectDTO) {
+	public ProjectCreateDTO newProjectCreate(UserInfo userInfo, ProjectDTO projectDTO, String endpoint) {
 		return ProjectCreateDTO.builder()
 				.key(projectDTO.getKey())
 				.name(projectDTO.getName())
 				.tag(projectDTO.getTag())
-				.endpoint(projectDTO.getEndpoints().iterator().next()) //TODO figure out how to deal with endpoints
+				.endpoint(endpoint)
 				.build()
 				.withCloudSettings(cloudSettings(userInfo));
 	}

@@ -127,9 +127,9 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		checkProjectResourceConditions(project, "stop");
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(project)
 				.forEach(this::stopNotebook);
-		if (projectService.get(project).getStatus() == ProjectDTO.Status.ACTIVE) {
-			projectService.stop(securityService.getUserInfoOffline("admin"), project);
-		}
+		/*if (projectService.get(project).getStatus() == ProjectDTO.Status.ACTIVE) {
+			projectService.stop(systemUserInfoService.create("admin"), project);
+		}*/
 	}
 
 	@Override
@@ -225,12 +225,14 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
 		final Stream<UserResourceInfo> userResources = allInstances.stream()
 				.filter(instance -> instance.getProject().equals(projectDTO.getName())).map(this::toUserResourceInfo);
-		if (projectDTO.getEdgeInfo() != null) {
-			UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-					.withResourceStatus(ProjectDTO.Status.from(projectDTO.getStatus()).toString())
-					.withProject(projectDTO.getName())
-					.withIp(projectDTO.getEdgeInfo().getPublicIp());
-			return Stream.concat(Stream.of(edgeResource), userResources)
+		if (projectDTO.getEndpoints() != null) {
+			final Stream<UserResourceInfo> edges = projectDTO.getEndpoints()
+					.stream()
+					.map(e -> new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
+							.withResourceStatus(e.getStatus().toString())
+							.withProject(projectDTO.getName())
+							.withIp(e.getEdgeInfo() != null ? e.getEdgeInfo().getIp() : null));
+			return Stream.concat(edges, userResources)
 					.collect(toList());
 		} else {
 			return userResources.collect(toList());

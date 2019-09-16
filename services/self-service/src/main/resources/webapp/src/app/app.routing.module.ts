@@ -77,7 +77,7 @@ const routes: Routes = [{
     }
   ]
 }, {
-  path: 'terminal/:id',
+  path: 'terminal/:id/:endpoint',
   component: WebterminalComponent
 }, {
   path: '403',

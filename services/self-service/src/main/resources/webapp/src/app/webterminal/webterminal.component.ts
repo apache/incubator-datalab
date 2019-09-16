@@ -31,6 +31,7 @@ import { StorageService } from '../core/services';
 })
 export class WebterminalComponent implements OnInit {
   public id: string;
+  public endpoint: string;
   @ViewChild('terminal', { read: ViewContainerRef }) terminal: ViewContainerRef;
 
   constructor(
@@ -41,11 +42,12 @@ export class WebterminalComponent implements OnInit {
 
   ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id');
+    this.endpoint = this.route.snapshot.paramMap.get('endpoint');
     console.log(this.id);
-    this.open(this.id);
+    this.open(this.id, this.endpoint);
   }
 
-  public open(id_parameter: string) {
+  public open(id_parameter: string, endpoint_parameter: string) {
     const tunnel = new Guacamole.HTTPTunnel(
       `${window.location.origin}/api/tunnel`, false,
       { 'Authorization': `Bearer ${this.storageService.getToken()}` }
@@ -57,7 +59,7 @@ export class WebterminalComponent implements OnInit {
     display.appendChild(guac.getDisplay().getElement());
     const guacDisplay = guac.getDisplay();
     const layer = guacDisplay.getDefaultLayer();
-    guac.connect(id_parameter);
+    guac.connect("{\"host\" : \""+ id_parameter + "\", \"endpoint\" : \"" + endpoint_parameter + "\"}");
 
     // Error handler
     guac.onerror = (error) => console.log(error.message);

@@ -77,7 +77,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.resourcesList = this.data.full_list;
     this.initFormModel();
 
-    this.getTemplates(this.notebook_instance.project);
+    this.getTemplates(this.notebook_instance.project, this.notebook_instance.endpoint);
   }
 
   public selectImage($event) {
@@ -237,8 +237,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       return control.value.length <= 10 ? null : { valid: false };
   }
 
-  private getTemplates(project) {
-    this.userResourceService.getComputationalTemplates(project).subscribe(
+  private getTemplates(project, endpoint) {
+    this.userResourceService.getComputationalTemplates(project, endpoint).subscribe(
       clusterTypes => {
         this.clusterTypes = clusterTypes;
         this.selectedImage = clusterTypes[0];

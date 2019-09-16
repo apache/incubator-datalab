@@ -12,5 +12,7 @@ public class ProjectResult extends StatusBaseDTO<ProjectResult> {
 	private EdgeInfo edgeInfo;
 	@JsonProperty("project_name")
 	private String projectName;
+	@JsonProperty("endpoint_name")
+	private String endpointName;
 
 }

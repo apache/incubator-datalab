@@ -1,7 +1,6 @@
 package com.epam.dlab.backendapi.resources.callback;
 
 import com.epam.dlab.backendapi.dao.ProjectDAO;
-import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -39,17 +38,17 @@ public class ProjectCallback {
 		final String projectName = projectResult.getProjectName();
 		final UserInstanceStatus status = UserInstanceStatus.of(projectResult.getStatus());
 		if (UserInstanceStatus.RUNNING == status && Objects.nonNull(projectResult.getEdgeInfo())) {
-			projectDAO.updateEdgeInfoAndStatus(projectName, projectResult.getEdgeInfo(), ProjectDTO.Status.ACTIVE);
+			projectDAO.updateEdgeInfo(projectName, projectResult.getEndpointName(), projectResult.getEdgeInfo());
 		} else {
-			updateExploratoriesStatusIfNeeded(status, projectResult.getProjectName());
-			projectDAO.updateStatus(projectName, ProjectDTO.Status.from(status));
+			updateExploratoriesStatusIfNeeded(status, projectResult.getProjectName(), projectResult.getEndpointName());
+			projectDAO.updateEdgeStatus(projectName, projectResult.getEndpointName(), status);
 		}
 		return Response.ok().build();
 	}
 
-	private void updateExploratoriesStatusIfNeeded(UserInstanceStatus status, String projectName) {
+	private void updateExploratoriesStatusIfNeeded(UserInstanceStatus status, String projectName, String endpoint) {
 		if (UserInstanceStatus.TERMINATED == status) {
-			exploratoryService.updateProjectExploratoryStatuses(projectName, UserInstanceStatus.TERMINATED);
+			exploratoryService.updateProjectExploratoryStatuses(projectName, endpoint, UserInstanceStatus.TERMINATED);
 		}
 	}
 }
