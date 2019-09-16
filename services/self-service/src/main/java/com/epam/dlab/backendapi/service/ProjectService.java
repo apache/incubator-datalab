@@ -17,13 +17,13 @@ public interface ProjectService {
 
 	ProjectDTO get(String name);
 
-	void terminate(UserInfo userInfo, String name);
+	void terminateEndpoint(UserInfo userInfo, String endpoint, String name);
 
 	void start(UserInfo userInfo, String endpoint, String name);
 
 	void stop(UserInfo userInfo, String endpoint, String name);
 
-	void update(UpdateProjectDTO projectDTO);
+	void update(UserInfo userInfo, UpdateProjectDTO projectDTO);
 
 	void updateBudget(String project, Integer budget);
 

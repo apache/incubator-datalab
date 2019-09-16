@@ -132,8 +132,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	@Override
-	public void updateProjectExploratoryStatuses(String project, UserInstanceStatus status) {
-		exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(project, TERMINATED, FAILED)
+	public void updateProjectExploratoryStatuses(String project, String endpoint, UserInstanceStatus status) {
+		exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(project, endpoint, TERMINATED, FAILED)
 				.forEach(ui -> updateExploratoryStatus(ui.getExploratoryName(), status, ui.getUser()));
 	}
 
@@ -175,8 +175,9 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				exploratoryName);
 		final ExploratoryReconfigureSparkClusterActionDTO updateClusterConfigDTO =
 				requestBuilder.newClusterConfigUpdate(userInfo, userInstanceDTO, config);
-		final String uuid = provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + EXPLORATORY_RECONFIGURE_SPARK, token, updateClusterConfigDTO,
-				String.class);
+		final String uuid =
+				provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + EXPLORATORY_RECONFIGURE_SPARK, token, updateClusterConfigDTO,
+						String.class);
 		requestId.put(userName, uuid);
 		exploratoryDAO.updateExploratoryFields(new ExploratoryStatusDTO()
 				.withUser(userName)
@@ -240,9 +241,10 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			updateExploratoryStatus(exploratoryName, status, userInfo.getName());
 
 			UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
-			final String uuid = provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + action,
-					userInfo.getAccessToken(),
-					getExploratoryActionDto(userInfo, status, userInstance), String.class);
+			final String uuid =
+					provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + action,
+							userInfo.getAccessToken(),
+							getExploratoryActionDto(userInfo, status, userInstance), String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} catch (Exception t) {

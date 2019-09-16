@@ -22,7 +22,9 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
@@ -56,6 +58,8 @@ public class GitCredentialServiceImplTest {
 	private RequestBuilder requestBuilder;
 	@Mock
 	private RequestId requestId;
+	@Mock
+	private EndpointService endpointService;
 
 	@InjectMocks
 	private GitCredentialServiceImpl gitCredentialService;
@@ -65,6 +69,7 @@ public class GitCredentialServiceImplTest {
 		String token = "token";
 		UserInfo userInfo = new UserInfo(USER, token);
 		doNothing().when(gitCredsDAO).updateGitCreds(anyString(), any(ExploratoryGitCredsDTO.class));
+		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 
 		String exploratoryName = "explName";
 		UserInstanceDTO uiDto = new UserInstanceDTO().withExploratoryName(exploratoryName).withUser(USER);
@@ -85,7 +90,8 @@ public class GitCredentialServiceImplTest {
 		verify(gitCredsDAO).updateGitCreds(USER, egcDto);
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
 		verify(requestBuilder).newGitCredentialsUpdate(userInfo, uiDto, egcDto);
-		verify(provisioningService).post("exploratory/git_creds", token, egcuDto, String.class);
+		verify(provisioningService).post(endpointDTO().getUrl() + "exploratory/git_creds", token, egcuDto,
+				String.class);
 		verify(requestId).put(USER, uuid);
 		verifyNoMoreInteractions(gitCredsDAO, exploratoryDAO, requestBuilder, provisioningService, requestId);
 	}
@@ -159,5 +165,9 @@ public class GitCredentialServiceImplTest {
 		}
 		verify(gitCredsDAO).findGitCreds(USER, true);
 		verifyNoMoreInteractions(gitCredsDAO);
+	}
+
+	private EndpointDTO endpointDTO() {
+		return new EndpointDTO("test", "url", "", null);
 	}
 }

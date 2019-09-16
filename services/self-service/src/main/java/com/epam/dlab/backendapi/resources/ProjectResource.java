@@ -174,7 +174,7 @@ public class ProjectResource {
 	@PUT
 	@RolesAllowed("/api/project")
 	public Response updateProject(@Parameter(hidden = true) @Auth UserInfo userInfo, UpdateProjectDTO projectDTO) {
-		projectService.update(projectDTO);
+		projectService.update(userInfo, projectDTO);
 		return Response.ok().build();
 	}
 
@@ -185,14 +185,13 @@ public class ProjectResource {
 					content = @Content(mediaType = MediaType.APPLICATION_JSON,
 							schema = @Schema(implementation = ErrorDTO.class)))
 	})
-	@DELETE
-	@Path("{name}")
+	@POST
+	@Path("terminate")
 	@RolesAllowed("/api/project")
-	public Response removeProject(
+	public Response removeProjectEndpoint(
 			@Parameter(hidden = true) @Auth UserInfo userInfo,
-			@Parameter(description = "Project name")
-			@PathParam("name") String name) {
-		projectService.terminate(userInfo, name);
+			ProjectActionFormDTO projectActionDTO) {
+		projectService.terminateEndpoint(userInfo, projectActionDTO.getEndpoint(), projectActionDTO.getProjectName());
 		return Response.ok().build();
 	}
 

@@ -216,7 +216,7 @@ public class EdgeServiceImplTest {
 		try {
 			edgeService.terminate(userInfo);
 		} catch (DlabException e) {
-			assertEquals("Could not terminate EDGE node: Could not infrastructure/edge/terminate EDGE node : " +
+			assertEquals("Could not terminate EDGE node: " +
 					"Cannot create instance of resource class ", e.getMessage());
 		}
 		verify(keyDAO).getEdgeStatus(USER);

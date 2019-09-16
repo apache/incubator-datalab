@@ -42,15 +42,15 @@ public class ProjectCallback {
 		if (UserInstanceStatus.RUNNING == status && Objects.nonNull(projectResult.getEdgeInfo())) {
 			projectDAO.updateEdgeInfo(projectName, projectResult.getEndpointName(), projectResult.getEdgeInfo());
 		} else {
-			updateExploratoriesStatusIfNeeded(status, projectResult.getProjectName());
+			updateExploratoriesStatusIfNeeded(status, projectResult.getProjectName(), projectResult.getEndpointName());
 			projectDAO.updateEdgeStatus(projectName, projectResult.getEndpointName(), status);
 		}
 		return Response.ok().build();
 	}
 
-	private void updateExploratoriesStatusIfNeeded(UserInstanceStatus status, String projectName) {
+	private void updateExploratoriesStatusIfNeeded(UserInstanceStatus status, String projectName, String endpoint) {
 		if (UserInstanceStatus.TERMINATED == status) {
-			exploratoryService.updateProjectExploratoryStatuses(projectName, UserInstanceStatus.TERMINATED);
+			exploratoryService.updateProjectExploratoryStatuses(projectName, endpoint, UserInstanceStatus.TERMINATED);
 		}
 	}
 }

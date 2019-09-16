@@ -204,12 +204,13 @@ public class ExploratoryDAO extends BaseDAO {
 				false);
 	}
 
-	public List<UserInstanceDTO> fetchProjectExploratoriesWhereStatusNotIn(String project,
+	public List<UserInstanceDTO> fetchProjectExploratoriesWhereStatusNotIn(String project, String endpoint,
 																		   UserInstanceStatus... statuses) {
 		final List<String> statusList = statusList(statuses);
 		return getUserInstances(
 				and(
 						eq(PROJECT, project),
+						eq("endpoint", endpoint),
 						not(in(STATUS, statusList))
 				),
 				false);

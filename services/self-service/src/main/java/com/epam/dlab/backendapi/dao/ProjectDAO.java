@@ -2,7 +2,6 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
-import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 
@@ -20,13 +19,14 @@ public interface ProjectDAO {
 	void create(ProjectDTO projectDTO);
 
 	void updateStatus(String projectName, ProjectDTO.Status status);
+
 	void updateEdgeStatus(String projectName, String endpoint, UserInstanceStatus status);
 
 	void updateEdgeInfo(String projectName, String endpointName, EdgeInfo edgeInfo);
 
 	Optional<ProjectDTO> get(String name);
 
-	boolean update(UpdateProjectDTO projectDTO);
+	boolean update(ProjectDTO projectDTO);
 
 	void remove(String name);
 

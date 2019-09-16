@@ -2,7 +2,6 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
-import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.google.common.collect.Iterables;
@@ -16,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.*;
 
@@ -86,10 +86,11 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public boolean update(UpdateProjectDTO projectDTO) {
+	public boolean update(ProjectDTO projectDTO) {
 		BasicDBObject updateProject = new BasicDBObject();
 		updateProject.put(GROUPS, projectDTO.getGroups());
-		updateProject.put(ENDPOINTS, projectDTO.getEndpoints());
+		updateProject.put(ENDPOINTS,
+				projectDTO.getEndpoints().stream().map(this::convertToBson).collect(Collectors.toList()));
 		return updateOne(PROJECTS_COLLECTION, projectCondition(projectDTO.getName()),
 				new Document(SET, updateProject)).getMatchedCount() > 0L;
 	}

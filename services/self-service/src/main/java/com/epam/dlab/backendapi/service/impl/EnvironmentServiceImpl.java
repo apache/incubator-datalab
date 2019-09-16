@@ -37,7 +37,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.ACTIVE;
@@ -223,19 +226,18 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
 		final Stream<UserResourceInfo> userResources = allInstances.stream()
 				.filter(instance -> instance.getProject().equals(projectDTO.getName())).map(this::toUserResourceInfo);
-		/*if (projectDTO.getEndpointEdgeInfo() != null) {
-			final Stream<UserResourceInfo> edges = projectDTO.getEndpointEdgeInfo().values()
+		if (projectDTO.getEndpoints() != null) {
+			final Stream<UserResourceInfo> edges = projectDTO.getEndpoints()
 					.stream()
-					.map(ei -> new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-							.withResourceStatus(ProjectDTO.Status.from(projectDTO.getStatus()).toString())
+					.map(e -> new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
+							.withResourceStatus(e.getStatus().toString())
 							.withProject(projectDTO.getName())
-							.withIp(ei.getPublicIp()));
-			return Stream.concat(Stream.of(edgeResource), userResources)
+							.withIp(e.getEdgeInfo() != null ? e.getEdgeInfo().getIp() : null));
+			return Stream.concat(edges, userResources)
 					.collect(toList());
 		} else {
 			return userResources.collect(toList());
-		}*/
-		return Collections.emptyList();
+		}
 	}
 
 	private UserResourceInfo toUserResourceInfo(UserInstanceDTO userInstance) {
