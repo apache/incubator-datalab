@@ -85,7 +85,8 @@ export const NAMING_CONVENTION = {
 export class ReportingConfigModel {
 
     static getDefault(): ReportingConfigModel {
-        return new ReportingConfigModel([], [], [], [], [], '', '', '');
+        debugger;
+        return new ReportingConfigModel([], [], [], [], [], '', '', '', []);
     }
 
     constructor(
@@ -109,6 +110,6 @@ export class ReportingConfigModel {
         this.date_start = '';
         this.date_end = '';
         this.dlab_id = '';
-        // this.project = [];
+        this.project = [];
     }
 }

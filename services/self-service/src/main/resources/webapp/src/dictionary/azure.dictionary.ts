@@ -86,7 +86,7 @@ export const NAMING_CONVENTION = {
 export class ReportingConfigModel {
 
     static getDefault(): ReportingConfigModel {
-        return new ReportingConfigModel([], [], [], [], [], '', '', '');
+        return new ReportingConfigModel([], [], [], [], [], '', '', '', []);
     }
 
     constructor(
