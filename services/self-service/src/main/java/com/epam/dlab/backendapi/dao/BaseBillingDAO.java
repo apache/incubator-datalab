@@ -322,6 +322,9 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
 			searchCriteria.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
 		}
+		if (filter.getProjects() != null && !filter.getProjects().isEmpty()){
+			searchCriteria.add(in(PROJECT, filter.getProjects()));
+		}
 
 		searchCriteria.addAll(cloudMatchCriteria((T) filter));
 		return searchCriteria;

@@ -41,5 +41,8 @@ public abstract class BillingFilter {
 	@JsonProperty("status")
 	protected List<UserInstanceStatus> statuses = Collections.emptyList();
 
+	@JsonProperty("project")
+	protected List<String> projects;
+
 	public abstract List<String> getShapes();
 }
