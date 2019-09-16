@@ -234,16 +234,16 @@ public class ImageExploratoryServiceImplTest {
 	public void getCreatedImages() {
 		ImageInfoRecord imageInfoRecord = getImageInfoRecord();
 		List<ImageInfoRecord> expectedRecordList = Collections.singletonList(imageInfoRecord);
-		when(imageExploratoryDao.getImages(anyString(), anyString(), anyVararg()))
+		when(imageExploratoryDao.getImages(anyString(), anyString(), anyString(), anyVararg()))
 				.thenReturn(expectedRecordList);
 
 		List<ImageInfoRecord> actualRecordList = imageExploratoryService.getNotFailedImages(USER,
-				"someImage");
+				"someImage", "someProject");
 		assertNotNull(actualRecordList);
 		assertEquals(1, actualRecordList.size());
 		assertEquals(expectedRecordList, actualRecordList);
 
-		verify(imageExploratoryDao).getImages(USER, "someImage", ImageStatus.CREATED, ImageStatus.CREATING);
+		verify(imageExploratoryDao).getImages(USER, "someImage", "someProject", ImageStatus.CREATED, ImageStatus.CREATING);
 		verifyNoMoreInteractions(imageExploratoryDao);
 	}
 
@@ -270,7 +270,7 @@ public class ImageExploratoryServiceImplTest {
 	}
 
 	private ImageInfoRecord getImageInfoRecord() {
-		return new ImageInfoRecord("someName", "someDescription", "someApp",
+		return new ImageInfoRecord("someName", "someDescription", "someProject", "someApp",
 				"someFullName", ImageStatus.CREATED);
 	}
 

@@ -19,6 +19,7 @@
 
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { MatStepper } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 
@@ -46,7 +47,7 @@ export class ProjectFormComponent implements OnInit {
 
   @Input() item: any;
   @Output() update: EventEmitter<{}> = new EventEmitter();
-  @ViewChild('stepper') stepper;
+  @ViewChild('stepper', { static: false }) stepper: MatStepper;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -69,6 +70,8 @@ export class ProjectFormComponent implements OnInit {
       if (value) this.projectList = value;
     }));
     if (this.item) {
+
+      debugger;
       this.editSpecificProject(this.item);
       this.stepper.selectedIndex = 1;
     }

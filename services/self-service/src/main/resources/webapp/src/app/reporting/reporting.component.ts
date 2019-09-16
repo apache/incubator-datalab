@@ -59,8 +59,8 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 export class ReportingComponent implements OnInit, OnDestroy {
   readonly DICTIONARY = DICTIONARY;
 
-  @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
-  @ViewChild(ToolbarComponent) reportingToolbar: ToolbarComponent;
+  @ViewChild(ReportingGridComponent, { static: false }) reportingGrid: ReportingGridComponent;
+  @ViewChild(ToolbarComponent, { static: true }) reportingToolbar: ToolbarComponent;
 
   reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();

@@ -44,7 +44,7 @@ export class ManageUngitComponent implements OnInit {
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
 
-  @ViewChild('tabGroupGit') tabGroupGit;
+  @ViewChild('tabGroupGit', { static: false }) tabGroupGit;
 
   constructor(
     public toastr: ToastrService,

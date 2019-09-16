@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Data
-public class BillingFilter {
+public abstract class BillingFilter {
 	@JsonProperty
 	protected List<String> user;
 	@JsonProperty("dlab_id")
@@ -40,4 +40,6 @@ public class BillingFilter {
 	protected String dateEnd;
 	@JsonProperty("status")
 	protected List<UserInstanceStatus> statuses = Collections.emptyList();
+
+	public abstract List<String> getShapes();
 }

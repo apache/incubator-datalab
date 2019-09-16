@@ -38,7 +38,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   resource: any;
   environment: any;
-  @ViewChild('configurationNode') configuration;
+  @ViewChild('configurationNode', { static: false }) configuration;
 
   upTimeInHours: number;
   upTimeSince: string = '';

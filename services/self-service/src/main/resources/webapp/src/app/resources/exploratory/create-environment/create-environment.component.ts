@@ -46,7 +46,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   resourceGrid: any;
   images: Array<any>;
 
-  @ViewChild('configurationNode') configuration;
+  @ViewChild('configurationNode', { static: false }) configuration;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

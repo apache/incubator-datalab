@@ -17,18 +17,19 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+package com.epam.dlab.billing.gcp.conf;
 
-import { UploadKeyDialogComponent } from './key-upload-dialog.component';
-import { MaterialModule } from '../../material.module';
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-export * from './key-upload-dialog.component';
+@Configuration
+@ConfigurationProperties("dlab")
+@Data
+public class DlabConfiguration {
 
-@NgModule({
-  imports: [CommonModule, MaterialModule],
-  declarations: [UploadKeyDialogComponent],
-  entryComponents: [UploadKeyDialogComponent],
-  exports: [UploadKeyDialogComponent]
-})
-export class UploadKeyDialogModule {}
+    private String sbn;
+    private String bigQueryDataset;
+    private String bigQueryTable;
+    private String cron;
+}

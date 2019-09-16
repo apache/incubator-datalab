@@ -14,6 +14,8 @@ public interface ProjectDAO {
 
 	List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status);
 
+	List<ProjectDTO> getProjectsWithStatusNotIn(ProjectDTO.Status... statuses);
+
 	List<ProjectDTO> getUserProjectsWithStatus(UserInfo userInfo, ProjectDTO.Status status);
 
 	void create(ProjectDTO projectDTO);

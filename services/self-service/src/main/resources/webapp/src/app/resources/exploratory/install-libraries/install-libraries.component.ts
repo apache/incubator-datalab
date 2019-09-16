@@ -68,8 +68,8 @@ export class InstallLibrariesComponent implements OnInit {
   private clear: number;
   private clearCheckInstalling = undefined;
 
-  @ViewChild('groupSelect') group_select;
-  @ViewChild('resourceSelect') resource_select;
+  @ViewChild('groupSelect', { static: false }) group_select;
+  @ViewChild('resourceSelect', { static: false }) resource_select;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

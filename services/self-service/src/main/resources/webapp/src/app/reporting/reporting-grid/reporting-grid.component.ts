@@ -38,7 +38,7 @@ export class ReportingGridComponent implements OnInit {
   fullReport: Array<any>;
   isFiltered: boolean = false;
 
-  @ViewChild('nameFilter') filter;
+  @ViewChild('nameFilter', { static: false }) filter;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
