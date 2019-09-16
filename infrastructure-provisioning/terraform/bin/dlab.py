@@ -33,10 +33,6 @@ class TerraformOutputBase:
     def extract(self):
         pass
 
-    @abstractmethod
-    def remove_keys(self, keys):
-        pass
-
 
 class LocalStorageOutputProcessor(TerraformOutputBase):
     output_path = None
@@ -45,6 +41,9 @@ class LocalStorageOutputProcessor(TerraformOutputBase):
         self.output_path = path
 
     def write(self, obj):
+        """Write json string to local file
+        :param obj: json string
+        """
         existed_data = {}
         if os.path.isfile(self.output_path):
             with open(self.output_path, 'r') as fp:
@@ -58,18 +57,14 @@ class LocalStorageOutputProcessor(TerraformOutputBase):
         pass
 
     def extract(self):
+        """Extract data from local file
+        :return: dict
+        """
         if os.path.isfile(self.output_path):
             with open(self.output_path, 'r') as fp:
                 output = fp.read()
                 if len(output):
                     return json.loads(output)
-
-    def remove_keys(self, keys):
-        output = self.extract()
-        updated = {key: value for key, value in output.items()
-                   if key not in keys}
-        with open(self.output_path, 'w') as fp:
-            json.dump(updated, fp)
 
 
 def extract_args(cli_args):
@@ -192,12 +187,13 @@ class Console:
         attempt = 0
         while attempt < 12:
             logging.info('connection attempt {}'.format(attempt))
-            connection = Connection(host=ip,
-                                    user=name,
-                                    connect_kwargs={'key_filename': pkey,
-                                                    'allow_agent': False,
-                                                    'look_for_keys': False,
-                                                    })
+            connection = Connection(
+                host=ip,
+                user=name,
+                connect_kwargs={'key_filename': pkey,
+                                'allow_agent': False,
+                                'look_for_keys': False,
+                                })
             try:
                 connection.run('ls')
                 return connection
@@ -392,14 +388,17 @@ class AbstractDeployBuilder:
         return False
 
     def apply(self):
+        """Apply terraform"""
         terraform = TerraformProvider(self.no_color)
         terraform.apply(self.tf_params, self.terraform_args)
 
     def destroy(self):
+        """Destory terraform"""
         terraform = TerraformProvider(self.no_color)
         terraform.destroy(self.tf_params, self.terraform_args)
 
     def store_output_to_file(self):
+        """Extract terraform output and store to file"""
         terraform = TerraformProvider(self.no_color)
         output = terraform.output(self.tf_params, '-json')
         output = {key: value.get('value')
@@ -408,14 +407,15 @@ class AbstractDeployBuilder:
         output_writer.write(output)
 
     def update_extracted_file_data(self, obj):
-        '''
+        """
         :param obj:
         :return:
-        Override method if you need to modufy extracted from file data
-        '''
+        Override method if you need to modify extracted from file data
+        """
         pass
 
     def fill_sys_argv_from_file(self):
+        """Extract data from file and fill sys args"""
         output_processor = LocalStorageOutputProcessor(self.tf_output)
         output = output_processor.extract()
         if output:
@@ -764,8 +764,10 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         args_str = get_var_args_string(terraform_args)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             with conn.cd('terraform/ssn-helm-charts/main'):
-                conn.run('terraform init')
-                conn.run('terraform validate')
+                init = conn.run('terraform init').stdout.lower()
+                validate = conn.run('terraform validate').stdout.lower()
+                if 'success' not in init or 'success' not in validate:
+                    raise TerraformProviderError
                 command = ('terraform apply -auto-approve {} '
                            '-var \'ssn_k8s_alb_dns_name={}\''
                            .format(args_str, dns_name))
@@ -965,17 +967,6 @@ class DeployDirector:
 
         except Exception as ex:
             print(ex)
-
-
-def get_status(self):
-    """ Get execution status
-
-    Returns:
-        int: Execution error status (0 if success)
-    """
-
-    return 0
-
 
 def deploy():
     actions = {'deploy', 'destroy'}
