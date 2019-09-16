@@ -43,7 +43,7 @@ export class DetailDialogComponent implements OnInit {
 
   public configurationForm: FormGroup;
 
-  @ViewChild('configurationNode') configuration;
+  @ViewChild('configurationNode', { static: false }) configuration;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -60,7 +60,7 @@ export class DetailDialogComponent implements OnInit {
 
     if (this.notebook) {
       this.tooltip = false;
-  
+
       this.upTimeInHours = (this.notebook.time) ? DateUtils.diffBetweenDatesInHours(this.notebook.time) : 0;
       this.upTimeSince = (this.notebook.time) ? new Date(this.notebook.time).toString() : '';
       this.initFormModel();
@@ -98,7 +98,7 @@ export class DetailDialogComponent implements OnInit {
       .subscribe(result => {
         this.dialogRef.close();
       },
-      error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
+        error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
   }
 
   public resetDialog() {

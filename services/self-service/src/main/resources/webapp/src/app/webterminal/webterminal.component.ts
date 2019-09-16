@@ -31,7 +31,9 @@ import { StorageService } from '../core/services';
 })
 export class WebterminalComponent implements OnInit {
   public id: string;
-  @ViewChild('terminal', { read: ViewContainerRef }) terminal: ViewContainerRef;
+  public endpoint: string;
+  @ViewChild('terminal', { read: ViewContainerRef, static: false }) terminal: ViewContainerRef;
+
 
   constructor(
     private route: ActivatedRoute,
@@ -57,6 +59,7 @@ export class WebterminalComponent implements OnInit {
     display.appendChild(guac.getDisplay().getElement());
     const guacDisplay = guac.getDisplay();
     const layer = guacDisplay.getDefaultLayer();
+
     guac.connect(id_parameter);
 
     // Error handler

@@ -38,7 +38,7 @@ export class ResourcesComponent implements OnInit {
   public exploratoryEnvironments: Exploratory[] = [];
   public healthStatus: any;
 
-  @ViewChild(ResourcesGridComponent) resourcesGrid: ResourcesGridComponent;
+  @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
 
   constructor(
     public toastr: ToastrService,
