@@ -68,8 +68,7 @@ import { CoreModule } from './core/core.module';
     provide: LocationStrategy,
     useClass: HashLocationStrategy,
     useValue: '/'
-  }
-  ],
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
