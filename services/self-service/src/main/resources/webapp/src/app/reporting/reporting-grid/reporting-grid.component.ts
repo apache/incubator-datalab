@@ -32,8 +32,8 @@ export class ReportingGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   filterConfiguration: ReportingConfigModel;
-  filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '');
-  collapseFilterRow: boolean = false;
+  filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
+  collapseFilterRow: boolean = true;
   reportData: Array<any> = [];
   fullReport: Array<any>;
   isFiltered: boolean = false;

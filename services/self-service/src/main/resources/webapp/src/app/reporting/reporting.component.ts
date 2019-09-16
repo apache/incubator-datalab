@@ -125,7 +125,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getDefaultFilterConfiguration(data): void {
-    const users = [], types = [], shapes = [], services = [], statuses = [];
+    const users = [], types = [], shapes = [], services = [], statuses = [], projects = [];
 
     data.lines.forEach((item: any) => {
       if (item.user && users.indexOf(item.user) === -1)
@@ -133,6 +133,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
       if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1)
         statuses.push(item.status.toLowerCase());
+
+      if (item.project && projects.indexOf(item.project) === -1)
+        projects.push(item.project);
 
       if (item[DICTIONARY.billing.resourceType] && types.indexOf(item[DICTIONARY.billing.resourceType]) === -1)
         types.push(item[DICTIONARY.billing.resourceType]);
@@ -161,7 +164,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
     });
 
     if (!this.reportingGrid.filterConfiguration || !localStorage.getItem('report_config')) {
-      this.filterConfiguration = new ReportingConfigModel(users, services, types, statuses, shapes, '', '', '');
+      this.filterConfiguration = new ReportingConfigModel(users, services, types, statuses, shapes, '', '', '', projects);
       this.reportingGrid.setConfiguration(this.filterConfiguration);
       localStorage.setItem('report_config', JSON.stringify(this.filterConfiguration));
     }
