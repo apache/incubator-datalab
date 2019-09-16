@@ -25,6 +25,16 @@ locals {
   gke_node_pool_name = "${var.service_base_name}-node-pool"
 }
 
+resource "random_string" "ssn_keystore_password" {
+  length = 16
+  special = false
+}
+
+resource "random_string" "endpoint_keystore_password" {
+  length = 16
+  special = false
+}
+
 resource "google_container_cluster" "ssn_k8s_gke_cluster" {
   name     = local.gke_name
   location = var.region
@@ -39,15 +49,17 @@ resource "google_container_cluster" "ssn_k8s_gke_cluster" {
     # "${var.tag_resource_id}"          = "${var.service_base_name}:${local.gke_name}"
     "${var.service_base_name}-tag"    = local.gke_name
   }
+  enable_legacy_abac = true
 
   master_auth {
     username = ""
     password = ""
 
     client_certificate_config {
-      issue_client_certificate = false
+      issue_client_certificate = true
     }
   }
+  depends_on = [google_project_iam_member.iam]
 }
 
 resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
@@ -56,18 +68,38 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
   cluster    = google_container_cluster.ssn_k8s_gke_cluster.name
   node_count = var.ssn_k8s_workers_count
   version    = var.gke_cluster_version
+  depends_on = [google_container_cluster.ssn_k8s_gke_cluster]
 
   node_config {
     machine_type = var.ssn_k8s_workers_shape
-    service_account = google_service_account.ssn_k8s_sa.name
+    service_account = google_service_account.ssn_k8s_sa.email
+    labels = {
+      name                              = local.gke_node_pool_name
+      "${local.additional_tag[0]}"      = local.additional_tag[1]
+      "${var.service_base_name}-tag"    = local.gke_node_pool_name
+    }
 
     metadata = {
       disable-legacy-endpoints = "true"
     }
 
     oauth_scopes = [
+      "https://www.googleapis.com/auth/compute",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/cloud-platform",
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
   }
+  # provisioner "local-exec" {
+  #   command = "sleep 300"
+  # }
 }
+
+data "google_container_cluster" "ssn_k8s_gke_cluster" {
+  name       = local.gke_name
+  location   = var.region
+  depends_on = [google_container_cluster.ssn_k8s_gke_cluster, google_container_node_pool.ssn_k8s_gke_node_pool]
+}
+
+data "google_client_config" "current" {}

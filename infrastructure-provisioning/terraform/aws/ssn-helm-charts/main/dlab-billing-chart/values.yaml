@@ -27,7 +27,7 @@ replicaCount: 1
 
 image:
   repository: epamdlab/billing
-  tag: '0.1'
+  tag: '0.1-aws'
   # pullPolicy: IfNotPresent
   pullPolicy: Always
 

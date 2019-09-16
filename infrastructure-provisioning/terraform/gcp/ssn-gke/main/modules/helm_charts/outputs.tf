@@ -18,23 +18,3 @@
 # under the License.
 #
 # ******************************************************************************
-
-FROM openjdk:8-alpine
-
-
-USER root
-
-RUN apk add --update \
-    python \
-    python-dev \
-    py-pip \
-    build-base \
-    && pip install awscli --upgrade \
-    && apk --purge -v del py-pip \
-    && rm -rf /var/cache/apk/*
-
-COPY self-service-2.1.jar /root/
-COPY entrypoint.sh /
-RUN chmod 755 /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]

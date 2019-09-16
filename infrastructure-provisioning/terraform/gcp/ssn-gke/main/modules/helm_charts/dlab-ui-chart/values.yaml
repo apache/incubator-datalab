@@ -27,13 +27,12 @@ replicaCount: 1
 labels: {}
 
 ui:
-  bucketName: ${ssn_bucket_name}
   image:
     repository: epamdlab/ui
-    tag: '0.1-aws'
+    tag: '0.1-gcp'
     pullPolicy: Always
   service:
-    type: NodePort
+    type: ClusterIP
     #  port: 58443
     http_port: 58080
     https_port: 58443
@@ -61,14 +60,6 @@ ui:
   cloud_properties:
     env_os: ${env_os}
     service_base_name: ${service_base_name}
-    edge_instanse_shape: "t2.medium"
-    subnet_id: ${subnet_id}
-    region: ${region}
-    zone: ${zone}
-    tag_resource_id: "user:tag"
-    security_group_ids: ${security_group_ids}
-    ssn_instance_shape: ${ssn_instance_shape}
-    vpc_id: ${vpc_id}
     key_dir: "/root/keys/"
     ldap:
       host: ${ldap_host}
