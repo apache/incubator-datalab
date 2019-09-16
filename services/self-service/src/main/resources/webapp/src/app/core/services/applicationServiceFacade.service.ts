@@ -24,6 +24,11 @@ import { HttpClient } from '@angular/common/http';
 
 import { Dictionary } from '../collections';
 
+import { environment } from '../../../environments/environment';
+
+// we can now access environment.apiUrl
+const API_URL = environment.apiUrl;
+
 @Injectable()
 export class ApplicationServiceFacade {
 
@@ -648,7 +653,10 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.USER_PROJECT, '/api/project/me');
   }
 
-  private buildRequest(method: RequestMethod, url: string, body: any, opt?) {
+  private buildRequest(method: RequestMethod, url_path: string, body: any, opt?) {
+    // added to simplify development process
+    const url = (environment.production) ? url_path : API_URL + url_path;
+
     if (method === RequestMethod.Post) {
       return this.http.post(url, body, opt);
     } else if (method === RequestMethod.Delete) {

@@ -1,4 +1,4 @@
-/*
+/*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-// The file contents for the current environment will overwrite these during build.
-// The build system defaults to the dev environment which uses `environment.ts`, but if you do
-// `ng build --env=prod` then `environment.prod.ts` will be used instead.
-// The list of which env maps to which file can be found in `.angular-cli.json`.
 
-export const environment = {
-  production: false,
-  apiUrl: 'https://localhost:8443'
-};
+.app-loading {
+  .logo {
+    width: 100px;
+    height: 100px;
+    // background: url(../img/logo.png);
+    background-size: cover;
+  }
+}
