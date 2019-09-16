@@ -9,4 +9,4 @@ mkdir -p /root/keys
 
 /usr/bin/keytool -importcert -trustcacerts -alias dlab -file /root/keys/ssn.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
 
-/usr/bin/java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Dcom.sun.net.ssl.checkRevocation=false -DDLAB_CONF_DIR=/root/ /root/self-service-2.1.jar server /root/self-service.yml
+/usr/bin/java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 -DDLAB_CONF_DIR=/root/ /root/self-service-2.1.jar server /root/self-service.yml
