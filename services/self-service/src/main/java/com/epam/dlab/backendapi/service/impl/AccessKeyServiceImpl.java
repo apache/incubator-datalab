@@ -41,6 +41,8 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -124,6 +126,21 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 			pair.writePrivateKey(privateKeyOut);
 			uploadKey(userInfo, new String(publicKeyOut.toByteArray()), createEdge);
 			return new String(privateKeyOut.toByteArray());
+		} catch (JSchException | IOException e) {
+			log.error("Can not generate private/public key pair due to: {}", e.getMessage());
+			throw new DlabException("Can not generate private/public key pair due to: " + e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public Pair<byte[], byte[]> generateKeys(UserInfo userInfo) {
+		log.debug("Generating new key pair for user {}", userInfo.getName());
+		try (ByteArrayOutputStream publicKeyOut = new ByteArrayOutputStream();
+			 ByteArrayOutputStream privateKeyOut = new ByteArrayOutputStream()) {
+			KeyPair pair = KeyPair.genKeyPair(new JSch(), KeyPair.RSA, configuration.getPrivateKeySize());
+			pair.writePublicKey(publicKeyOut, userInfo.getName());
+			pair.writePrivateKey(privateKeyOut);
+			return new ImmutablePair<>(publicKeyOut.toByteArray(), privateKeyOut.toByteArray());
 		} catch (JSchException | IOException e) {
 			log.error("Can not generate private/public key pair due to: {}", e.getMessage());
 			throw new DlabException("Can not generate private/public key pair due to: " + e.getMessage(), e);

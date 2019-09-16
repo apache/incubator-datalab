@@ -5,6 +5,7 @@ import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.UpdateProjectBudgetDTO;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
+import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.Inject;
@@ -31,12 +32,14 @@ import java.util.stream.Collectors;
 @Path("project")
 public class ProjectResource {
 	private final ProjectService projectService;
+	private final AccessKeyService keyService;
 	@Context
 	private UriInfo uriInfo;
 
 	@Inject
-	public ProjectResource(ProjectService projectService) {
+	public ProjectResource(ProjectService projectService, AccessKeyService keyService) {
 		this.projectService = projectService;
+		this.keyService = keyService;
 	}
 
 
@@ -213,5 +216,19 @@ public class ProjectResource {
 				.collect(Collectors.toList());
 		projectService.updateBudget(projects);
 		return Response.ok().build();
+	}
+
+	@Operation(summary = "Generate keys for project", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "202", description = "Keys are successfully generated")
+	})
+	@POST
+	@Path("/generateKeys")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@RolesAllowed("/api/project")
+	public Response generate(@Parameter(hidden = true) @Auth UserInfo userInfo) {
+		return Response
+				.accepted(keyService.generateKeys(userInfo))
+				.build();
 	}
 }
