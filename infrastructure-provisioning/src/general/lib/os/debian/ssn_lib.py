@@ -247,8 +247,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 append_result("Unable to upload webapp jars")
                 sys.exit(1)
             if billing_enabled:
-                if cloud_provider != "gcp":
-                    billing_dataset_name = ""
                 local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
                                                                                                          host_string))
                 params = '--cloud_provider {} ' \
@@ -274,7 +272,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '--cost {} ' \
                          '--resource_id {} ' \
                          '--tags {} ' \
-                         '--billing_dataset_name {}'.\
+                         '--billing_dataset_name "{}" '.\
                             format(cloud_provider,
                                    service_base_name,
                                    tag_resource_id,
