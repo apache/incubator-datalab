@@ -176,7 +176,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              locale, region_info, ldap_login, tenant_id,
              application_id, hostname, data_lake_name, subscription_id,
              validate_permission_scope, dlab_id, usage_date, product,
-             usage_type, usage, cost, resource_id, tags, billing_dataset_name='', report_path=''):
+             usage_type, usage, cost, resource_id, tags, billing_dataset_name, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
@@ -283,7 +283,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '--cost {} ' \
                          '--resource_id {} ' \
                          '--tags {} ' \
-                         '--billing_dataset_name "{}"'.\
+                         '--billing_dataset_name "{}" '.\
                             format(cloud_provider,
                                    service_base_name,
                                    tag_resource_id,
