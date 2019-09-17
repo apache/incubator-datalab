@@ -27,8 +27,8 @@ import lombok.*;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class AwsCloudSettings extends CloudSettings {
 
@@ -66,6 +66,8 @@ public class AwsCloudSettings extends CloudSettings {
 	protected String cloud;
 	@JsonProperty("conf_service_base_name")
 	protected String sbn;
+	@JsonProperty("conf_key_dir")
+	protected String confKeyDir;
 
 	@Override
 	@JsonIgnore

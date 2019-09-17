@@ -107,6 +107,7 @@ public class RequestBuilder {
 						.sbn(settingsDAO.getServiceBaseName())
 						.cloud(configuration.getCloudProvider().getName())
 						.os(settingsDAO.getConfOsFamily())
+						.confKeyDir(settingsDAO.getConfKeyDir())
 						.build();
 			case AZURE:
 				return AzureCloudSettings.builder()
@@ -115,9 +116,20 @@ public class RequestBuilder {
 						.azureSecurityGroupName(settingsDAO.getAzureSecurityGroupName())
 						.azureSubnetName(settingsDAO.getAzureSubnetName())
 						.azureVpcName(settingsDAO.getAzureVpcName())
+						.confKeyDir(settingsDAO.getConfKeyDir())
 						.azureIamUser(userInfo.getName()).build();
 			case GCP:
-				return GcpCloudSettings.builder().gcpIamUser(userInfo.getName()).build();
+				return GcpCloudSettings.builder()
+						.ldapDn(settingsDAO.getLdapDn())
+						.ldapHost(settingsDAO.getLdapHost())
+						.ldapOu(settingsDAO.getLdapOu())
+						.ldapUser(settingsDAO.getLdapUser())
+						.ldapPassword(settingsDAO.getLdapPassword())
+						.sbn(settingsDAO.getServiceBaseName())
+						.cloud(configuration.getCloudProvider().getName())
+						.os(settingsDAO.getConfOsFamily())
+						.confKeyDir(settingsDAO.getConfKeyDir())
+						.gcpIamUser(userInfo.getName()).build();
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
 		}
