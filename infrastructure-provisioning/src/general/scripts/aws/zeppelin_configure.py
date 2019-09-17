@@ -321,12 +321,12 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Apache Zeppelin",
-                    "url": zeppelin_notebook_acces_url},
-                   {"description": "Ungit",
-                    "url": zeppelin_ungit_acces_url},
-                   {"description": "Apache Zeppelin (via tunnel)",
-                    "url": zeppelin_ip_url},
-                   {"description": "Ungit (via tunnel)",
-                    "url": ungit_ip_url}
+                    "url": zeppelin_notebook_acces_url}#,
+                   #{"description": "Ungit",
+                   # "url": zeppelin_ungit_acces_url},
+                   #{"description": "Apache Zeppelin (via tunnel)",
+                   # "url": zeppelin_ip_url},
+                   #{"description": "Ungit (via tunnel)",
+                   # "url": ungit_ip_url}
                ]}
         result.write(json.dumps(res))

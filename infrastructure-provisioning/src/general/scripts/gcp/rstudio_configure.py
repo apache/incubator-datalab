@@ -282,11 +282,11 @@ if __name__ == "__main__":
                    {"description": "RStudio",
                     "url": rstudio_notebook_acces_url},
                    {"description": "Ungit",
-                    "url": rstudio_ungit_acces_url},
-                   {"description": "RStudio (via tunnel)",
-                    "url": rstudio_ip_url},
-                   {"description": "Ungit (via tunnel)",
-                    "url": ungit_ip_url}
+                    "url": rstudio_ungit_acces_url}#,
+                   #{"description": "RStudio (via tunnel)",
+                   # "url": rstudio_ip_url},
+                   #{"description": "Ungit (via tunnel)",
+                   # "url": ungit_ip_url}
                ],
                "exploratory_user": notebook_config['dlab_ssh_user'],
                "exploratory_pass": notebook_config['rstudio_pass']}
