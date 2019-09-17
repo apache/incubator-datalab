@@ -314,7 +314,7 @@ class GCPActions:
             ]
         elif instance_class == 'dataengine':
             disks = [{
-                "name": cluster_name,
+                "name": instance_name,
                 "tag_name": cluster_name + '-volume-primary',
                 "deviceName": cluster_name + '-primary',
                 "autoDelete": 'true',
