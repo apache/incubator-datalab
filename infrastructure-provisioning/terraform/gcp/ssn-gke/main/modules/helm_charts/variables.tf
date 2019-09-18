@@ -29,8 +29,6 @@ variable "mongo_service_name" {}
 
 variable "ssn_k8s_alb_dns_name" {}
 
-variable "env_os" {}
-
 variable "service_base_name" {}
 
 variable "ldap_host" {}
@@ -55,13 +53,7 @@ variable "mysql_db_name" {}
 
 variable "mysql_user" {}
 
-variable "credentials_file_path" {}
-
-variable "project_id" {}
-
 variable "region" {}
-
-variable "zone" {}
 
 variable "mongo_image_tag" {}
 
@@ -74,10 +66,6 @@ variable "endpoint_keystore_password" {}
 variable "gke_cluster_name" {}
 
 variable "big_query_dataset" {}
-
-variable "vpc_name" {}
-
-variable "subnet_name" {}
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

@@ -48,7 +48,6 @@ module "helm_charts" {
   mongo_service_port = var.mongo_service_port
   mongo_service_name = var.mongo_service_name
   ssn_k8s_alb_dns_name = var.ssn_k8s_alb_dns_name
-  env_os = var.env_os
   service_base_name = var.service_base_name
   ldap_host = var.ldap_host
   ldap_dn = var.ldap_dn
@@ -61,16 +60,11 @@ module "helm_charts" {
   ldap_uuidAttr = var.ldap_uuidAttr
   mysql_db_name = var.mysql_db_name
   mysql_user = var.mysql_user
-  credentials_file_path = var.credentials_file_path
-  project_id = var.project_id
   region = var.region
-  zone = var.zone
   mongo_image_tag = var.mongo_image_tag
   mongo_node_port = var.mongo_node_port
   ssn_keystore_password = var.ssn_keystore_password
   endpoint_keystore_password = var.endpoint_keystore_password
   gke_cluster_name = module.gke_cluster.gke_cluster_name
   big_query_dataset = var.big_query_dataset
-  vpc_name = module.gke_cluster.vpc_name
-  subnet_name = module.gke_cluster.subnet_name
 }
