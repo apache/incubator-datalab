@@ -221,7 +221,8 @@ def create_rt(vpc_id, infra_tag_name, infra_tag_value, secondary):
             ec2.create_route(DestinationCidrBlock='0.0.0.0/0', RouteTableId=rt_id, GatewayId=ig_id)
         return rt_id
     except Exception as err:
-        logging.info("Unable to create Route Table: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        logging.info(
+            "Unable to create Route Table: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to create Route Table",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
@@ -248,7 +249,8 @@ def create_security_group(security_group_name, vpc_id, security_group_rules, egr
     try:
         ec2 = boto3.resource('ec2')
         tag_name = {"Key": "Name", "Value": security_group_name}
-        group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
+        group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name',
+                                          VpcId=vpc_id)
         time.sleep(10)
         create_tag(group.id, tag)
         create_tag(group.id, tag_name)
@@ -266,7 +268,8 @@ def create_security_group(security_group_name, vpc_id, security_group_rules, egr
             group.authorize_egress(IpPermissions=[rule])
         return group.id
     except Exception as err:
-        logging.info("Unable to create security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        logging.info(
+            "Unable to create security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to create security group",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
@@ -292,9 +295,9 @@ def create_route_by_id(subnet_id, vpc_id, peering_id, another_cidr):
                     routeExists = True
             if not routeExists:
                 client.create_route(
-                    DestinationCidrBlock = another_cidr,
-                    VpcPeeringConnectionId = peering_id,
-                    RouteTableId = final_id)
+                    DestinationCidrBlock=another_cidr,
+                    VpcPeeringConnectionId=peering_id,
+                    RouteTableId=final_id)
     except Exception as err:
         logging.info("Unable to create route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to create route",
@@ -313,9 +316,9 @@ def create_peer_routes(peering_id, service_base_name):
                 service_base_name)]}]).get('RouteTables')
         for table in route_tables:
             routes = table.get('Routes')
-            routeExists=False
+            routeExists = False
             for route in routes:
-                if route.get('DestinationCidrBlock')==os.environ['conf_vpc2_cidr'].replace("'", ""):
+                if route.get('DestinationCidrBlock') == os.environ['conf_vpc2_cidr'].replace("'", ""):
                     routeExists = True
             if not routeExists:
                 client.create_route(
@@ -324,9 +327,9 @@ def create_peer_routes(peering_id, service_base_name):
                     RouteTableId=table.get('RouteTableId'))
         for table in route_tables2:
             routes = table.get('Routes')
-            routeExists=False
+            routeExists = False
             for route in routes:
-                if route.get('DestinationCidrBlock')==os.environ['conf_vpc_cidr'].replace("'", ""):
+                if route.get('DestinationCidrBlock') == os.environ['conf_vpc_cidr'].replace("'", ""):
                     routeExists = True
             if not routeExists:
                 client.create_route(
@@ -523,7 +526,7 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
+def create_iam_role(role_name, role_profile, region, service='ec2', tag=None, user_tag=None):
     conn = boto3.client('iam')
     try:
         if region == 'cn-north-1':
@@ -540,12 +543,17 @@ def create_iam_role(role_name, role_profile, region, service='ec2', tag=None):
         if tag:
             conn.tag_role(RoleName=role_name, Tags=[tag])
             conn.tag_role(RoleName=role_name, Tags=[{"Key": "Name", "Value": role_name}])
+            if user_tag:
+                conn.tag_role(RoleName=role_name, Tags=[user_tag])
             if 'conf_billing_tag_key' in os.environ and 'conf_billing_tag_value' in os.environ:
                 conn.tag_role(RoleName=role_name, Tags=[{'Key': os.environ['conf_billing_tag_key'],
                                                          'Value': os.environ['conf_billing_tag_value']}])
             if 'project_name' in os.environ:
                 conn.tag_role(RoleName=role_name, Tags=[{'Key': "project_tag",
                                                          'Value': os.environ['project_name']}])
+            if 'endpoint_name' in os.environ:
+                conn.tag_role(RoleName=role_name, Tags=[{'Key': "endpoint_tag",
+                                                         'Value': os.environ['endpoint_name']}])
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print("IAM role already exists. Reusing...")
@@ -863,7 +871,7 @@ def remove_detach_iam_policies(role_name, action=''):
         logging.info("Unable to remove/detach IAM policy: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))
         append_result(str({"error": "Unable to remove/detach IAM policy",
-                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -879,7 +887,7 @@ def remove_roles_and_profiles(role_name, role_profile_name):
         logging.info("Unable to remove IAM role/profile: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))
         append_result(str({"error": "Unable to remove IAM role/profile",
-                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -1079,7 +1087,7 @@ def remove_peering(tag_value):
     try:
         client = boto3.client('ec2')
         tag_name = os.environ['conf_service_base_name'] + '-Tag'
-        if os.environ['conf_duo_vpc_enable']=='true':
+        if os.environ['conf_duo_vpc_enable'] == 'true':
             peering_id = client.describe_vpc_peering_connections(Filters=[
                 {'Name': 'tag-key', 'Values': [tag_name]},
                 {'Name': 'tag-value', 'Values': [tag_value]},
@@ -1098,6 +1106,7 @@ def remove_peering(tag_value):
         append_result(str({"error": "Unable to remove peering connection",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
 
 def remove_sgroups(tag_value):
     try:
@@ -1163,8 +1172,8 @@ def deregister_image(image_name='*'):
         client = boto3.client('ec2')
         for image in resource.images.filter(
                 Filters=[{'Name': 'name', 'Values': ['{}-*'.format(os.environ['conf_service_base_name'])]},
-                        {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]},
-                        {'Name': 'tag-value', 'Values': [image_name]}]):
+                         {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]},
+                         {'Name': 'tag-value', 'Values': [image_name]}]):
             client.deregister_image(ImageId=image.id)
             for device in image.block_device_mappings:
                 if device.get('Ebs'):
@@ -1285,7 +1294,7 @@ def remove_route_tables(tag_name, ssn=False):
         logging.info("Unable to remove route table: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))
         append_result(str({"error": "Unable to remove route table",
-                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -1299,7 +1308,7 @@ def remove_internet_gateways(vpc_id, tag_name, tag_value):
                 {'Name': 'tag-value', 'Values': [tag_value]}]).get('InternetGateways')
         for i in response:
             ig_id = i.get('InternetGatewayId')
-        client.detach_internet_gateway(InternetGatewayId=ig_id,VpcId=vpc_id)
+        client.detach_internet_gateway(InternetGatewayId=ig_id, VpcId=vpc_id)
         print("Internet gateway {0} has been detached from VPC {1}".format(ig_id, vpc_id.format))
         client.delete_internet_gateway(InternetGatewayId=ig_id)
         print("Internet gateway {} has been deleted successfully".format(ig_id))
@@ -1307,7 +1316,7 @@ def remove_internet_gateways(vpc_id, tag_name, tag_value):
         logging.info("Unable to remove internet gateway: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))
         append_result(str({"error": "Unable to remove internet gateway",
-                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -1322,7 +1331,7 @@ def remove_vpc_endpoints(vpc_id):
         logging.info("Unable to remove VPC Endpoint: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))
         append_result(str({"error": "Unable to remove VPC Endpoint",
-                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -1443,8 +1452,8 @@ def get_gitlab_cert(bucket, certfile):
 def create_aws_config_files(generate_full_config=False):
     try:
         aws_user_dir = os.environ['AWS_DIR']
-        logging.info(local("rm -rf " + aws_user_dir+" 2>&1", capture=True))
-        logging.info(local("mkdir -p " + aws_user_dir+" 2>&1", capture=True))
+        logging.info(local("rm -rf " + aws_user_dir + " 2>&1", capture=True))
+        logging.info(local("mkdir -p " + aws_user_dir + " 2>&1", capture=True))
 
         with open(aws_user_dir + '/config', 'w') as aws_file:
             aws_file.write("[default]\n")
@@ -1456,8 +1465,8 @@ def create_aws_config_files(generate_full_config=False):
                 aws_file.write("aws_access_key_id = {}\n".format(os.environ['aws_access_key']))
                 aws_file.write("aws_secret_access_key = {}\n".format(os.environ['aws_secret_access_key']))
 
-        logging.info(local("chmod 600 " + aws_user_dir + "/*"+" 2>&1", capture=True))
-        logging.info(local("chmod 550 " + aws_user_dir+" 2>&1", capture=True))
+        logging.info(local("chmod 600 " + aws_user_dir + "/*" + " 2>&1", capture=True))
+        logging.info(local("chmod 550 " + aws_user_dir + " 2>&1", capture=True))
 
         return True
     except Exception as err:
@@ -1472,7 +1481,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
     python_version = python_version[0:5]
     if not os.path.exists('/opt/python/python' + python_version):
         local('wget https://www.python.org/ftp/python/' + python_version +
-              '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz' )
+              '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz')
         local('tar zxvf /tmp/Python-' + python_version + '.tgz -C /tmp/')
         with lcd('/tmp/Python-' + python_version):
             local('./configure --prefix=/opt/python/python' + python_version +
@@ -1536,7 +1545,8 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                       ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl '
                       '--no-cache-dir'.format(python_without_dots[:2]))
         local('sudo rm -rf /usr/bin/python{}-dp'.format(python_version[0:3]))
-        local('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'.format(python_version, python_version[0:3]))
+        local('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}-dp'.format(python_version,
+                                                                                             python_version[0:3]))
 
 
 def spark_defaults(args):
@@ -1547,8 +1557,9 @@ def spark_defaults(args):
     local(""" sudo bash -c " sed -i '/^\s*$/d' """ + spark_def_path + """ " """)
     local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/,/spark.driver.extraLibraryPath/s|"""
           """/usr|/opt/DATAENGINE-SERVICE_VERSION/jars/usr|g' """ + spark_def_path + """ " """)
-    local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/DATAENGINE-SERVICE_VERSION\/CLUSTER\/conf/g' """
-          + spark_def_path + """ " """)
+    local(
+        """ sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/DATAENGINE-SERVICE_VERSION\/CLUSTER\/conf/g' """
+        + spark_def_path + """ " """)
     template_file = spark_def_path
     with open(template_file, 'r') as f:
         text = f.read()
@@ -1639,7 +1650,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
-    
+
 
 def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_dir, os_user, yarn_dir, bucket,
                                        user_name, endpoint_url, multiple_emrs):
@@ -1657,8 +1668,8 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                      "/hadoop-aws*.jar /opt/" + \
                      "{0}/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-s3-*.jar /opt/{0}" + \
                      "/jars/usr/lib/hadoop-lzo/lib/hadoop-lzo-*.jar".format(emr_version)
-        #fix due to: Multiple py4j files found under ..../spark/python/lib
-        #py4j-0.10.7-src.zip still in folder. Versions may varies.
+        # fix due to: Multiple py4j files found under ..../spark/python/lib
+        # py4j-0.10.7-src.zip still in folder. Versions may varies.
         local('rm /opt/{0}/{1}/spark/python/lib/py4j-src.zip'.format(emr_version, cluster_name))
 
         local('echo \"Configuring emr path for Zeppelin\"')
@@ -1776,7 +1787,7 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
         additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
                                             '/tmp/{0}/notebook_spark-defaults_local.conf '
                                             '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
-                                             cluster_name, cluster_dir), capture=True)
+            cluster_name, cluster_dir), capture=True)
         for property in additional_spark_properties.split('\n'):
             local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
     local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,

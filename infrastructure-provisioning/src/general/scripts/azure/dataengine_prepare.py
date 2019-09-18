@@ -44,10 +44,11 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     try:
         data_engine = dict()
-        data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        data_engine['project_name'] = os.environ['project_name'].replace('_', '-')
-        data_engine['project_tag'] = os.environ['project_name'].replace('_', '-')
-        data_engine['endpoint_tag'] = os.environ['endpoint_name'].replace('_', '-')
+        data_engine['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
+        data_engine['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        data_engine['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        data_engine['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
+        data_engine['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         print('Generating infrastructure names and tags')
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -103,8 +104,11 @@ if __name__ == "__main__":
                                       os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         data_engine['primary_disk_size'] = '32'
         data_engine['image_type'] = 'default'
-        data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(data_engine['service_base_name'],
-                                                                           os.environ['application'])
+        data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+            data_engine['service_base_name'],
+            data_engine['endpoint_name'],
+            data_engine['project_name'],
+            os.environ['application'])
         data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
                     else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
 

@@ -69,7 +69,7 @@ if __name__ == "__main__":
                                                                  os.environ['project_name'])
     project_conf['edge_policy_name'] = '{}-{}-edge-Policy'.format(project_conf['service_base_name'].lower().replace('-', '_'),
                                                           os.environ['project_name'])
-    project_conf['edge_security_group_name'] = '{}-SG'.format(project_conf['edge_instance_name'])
+    project_conf['edge_security_group_name'] = '{}-sg'.format(project_conf['edge_instance_name'])
     project_conf['notebook_instance_name'] = '{}-{}-nb'.format(project_conf['service_base_name'],
                                                             os.environ['project_name'])
     project_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
     project_conf['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    project_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(project_conf['service_base_name'],
+    project_conf['notebook_security_group_name'] = '{}-{}-nb-sg'.format(project_conf['service_base_name'],
                                                                      os.environ['project_name'])
     project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
     project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'],
@@ -121,12 +121,13 @@ if __name__ == "__main__":
           format(json.dumps(project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(project_conf))
 
-    try:
+    if 'conf_additional_tags' in os.environ:
         os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(project_conf['project_tag'], project_conf['endpoint_tag'])
-    except KeyError:
+    else:
         os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'], project_conf['endpoint_tag'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
+    # attach project_tag and endpoint_tag to endpoint
     try:
         endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
         print("Endpoint id: " + endpoint_id)
@@ -174,11 +175,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE EDGE ROLES]')
         print('[CREATE EDGE ROLES]')
+        user_tag = "{0}:{0}-{1}-edge-Role".format(project_conf['service_base_name'], project_conf['project_name'])
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
-                 "--infra_tag_value {}" \
+                 "--infra_tag_value {} --user_tag_value {}" \
                  .format(project_conf['edge_role_name'], project_conf['edge_role_profile_name'],
                          project_conf['edge_policy_name'], os.environ['aws_region'], project_conf['tag_name'],
-                         project_conf['service_base_name'])
+                         project_conf['service_base_name'], user_tag)
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -192,11 +194,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
         print('[CREATE BACKEND (NOTEBOOK) ROLES]')
+        user_tag = "{0}:{0}-{1}-nb-de-Role".format(project_conf['service_base_name'], project_conf['project_name'])
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
-                 "--infra_tag_value {}" \
+                 "--infra_tag_value {} --user_tag_value {}" \
                  .format(project_conf['notebook_dataengine_role_name'], project_conf['notebook_dataengine_role_profile_name'],
                          project_conf['notebook_dataengine_policy_name'], os.environ['aws_region'], project_conf['tag_name'],
-                         project_conf['service_base_name'])
+                         project_conf['service_base_name'], user_tag)
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:

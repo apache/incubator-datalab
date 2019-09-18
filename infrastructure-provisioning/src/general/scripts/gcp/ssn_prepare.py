@@ -69,6 +69,10 @@ if __name__ == "__main__":
                                    os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
     ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
+    if GCPMeta().get_instance(ssn_conf['instance_name']):
+        print("Service base name should be unique and less or equal 12 symbols. Please try again.")
+        sys.exit(1)
+
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError

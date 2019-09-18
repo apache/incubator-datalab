@@ -306,15 +306,6 @@ def build_emr_cluster(args):
                      'Value': '{}:{}'.format(args.service_base_name, args.name)})
         tags.append({'Key': os.environ['conf_billing_tag_key'],
                      'Value': os.environ['conf_billing_tag_value']})
-        if 'conf_additional_tags' in os.environ:
-            for tag in os.environ['conf_additional_tags'].split(';'):
-                tags.append(
-                    {
-                        'Key': tag.split(':')[0],
-                        'Value': tag.split(':')[1]
-                    }
-                )
-    
         prefix = "jars/" + args.release_label + "/lib/"
         jars_exist = get_object_count(args.s3_bucket, prefix)
     

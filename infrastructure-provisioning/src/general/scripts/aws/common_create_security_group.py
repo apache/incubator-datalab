@@ -51,7 +51,7 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         sys.exit(1)
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
-    nb_sg_id = get_security_group_by_name(args.nb_sg_name + '-SG')
+    nb_sg_id = get_security_group_by_name(args.nb_sg_name + '-sg')
     if args.name != '':
         try:
             security_group_id = get_security_group_by_name(args.name)

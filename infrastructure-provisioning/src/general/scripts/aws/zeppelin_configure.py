@@ -66,7 +66,7 @@ if __name__ == "__main__":
     notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
+    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                   os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -321,12 +321,12 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Apache Zeppelin",
-                    "url": zeppelin_notebook_acces_url},
-                   {"description": "Ungit",
-                    "url": zeppelin_ungit_acces_url},
-                   {"description": "Apache Zeppelin (via tunnel)",
-                    "url": zeppelin_ip_url},
-                   {"description": "Ungit (via tunnel)",
-                    "url": ungit_ip_url}
+                    "url": zeppelin_notebook_acces_url}#,
+                   #{"description": "Ungit",
+                   # "url": zeppelin_ungit_acces_url},
+                   #{"description": "Apache Zeppelin (via tunnel)",
+                   # "url": zeppelin_ip_url},
+                   #{"description": "Ungit (via tunnel)",
+                   # "url": ungit_ip_url}
                ]}
         result.write(json.dumps(res))

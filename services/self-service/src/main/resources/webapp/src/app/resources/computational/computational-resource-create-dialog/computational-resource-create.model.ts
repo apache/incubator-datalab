@@ -43,7 +43,7 @@ export class ComputationalResourceModel {
         image: image.image,
         template_name: image.template_name,
         emr_slave_instance_spot: spot,
-        emr_slave_instance_spot_pct_price: parameters.emr_slave_instance_price,
+        emr_slave_instance_spot_pct_price: parameters.instance_price,
         config: config,
         project: env.project,
         custom_tag: parameters.custom_tag

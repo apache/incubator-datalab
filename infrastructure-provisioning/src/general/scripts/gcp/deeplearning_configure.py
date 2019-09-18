@@ -48,6 +48,8 @@ if __name__ == "__main__":
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    notebook_config['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
+    notebook_config['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                notebook_config['project_name'],
                                                                notebook_config['exploratory_name'])
@@ -64,6 +66,10 @@ if __name__ == "__main__":
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    notebook_config['image_labels'] = {"sbn": notebook_config['service_base_name'],
+                                       "project_tag": notebook_config['project_tag'],
+                                       "endpoint_tag": notebook_config['endpoint_tag'],
+                                       "product": "dlab"}
     try:
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -132,7 +138,7 @@ if __name__ == "__main__":
                  "--os_user {} --jupyter_version {} " \
                  "--scala_version {} --spark_version {} " \
                  "--hadoop_version {} --region {} " \
-                 "--r_mirror {} --exploratory_name {} --edge_ip" \
+                 "--r_mirror {} --exploratory_name {} --edge_ip {}" \
                  .format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
@@ -192,7 +198,7 @@ if __name__ == "__main__":
                 print("Looks like it's first time we configure notebook server. Creating images.")
                 image_id_list = GCPActions().create_image_from_instance_disks(
                     notebook_config['expected_primary_image_name'], notebook_config['expected_secondary_image_name'],
-                    notebook_config['instance_name'], notebook_config['zone'])
+                    notebook_config['instance_name'], notebook_config['zone'], notebook_config['image_labels'])
                 if image_id_list and image_id_list[0] != '':
                     print("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
                 else:
@@ -276,12 +282,12 @@ if __name__ == "__main__":
                    {"description": "TensorBoard",
                     "url": tensorboard_acces_url},
                    {"description": "Ungit",
-                    "url": jupyter_ungit_acces_url},
-                   {"description": "Jupyter (via tunnel)",
-                    "url": jupyter_ip_url},
-                   {"description": "TensorBoard (via tunnel)",
-                    "url": tensorboard_url},
-                   {"description": "Ungit (via tunnel)",
-                    "url": ungit_ip_url}
+                    "url": jupyter_ungit_acces_url}#,
+                   #{"description": "Jupyter (via tunnel)",
+                   # "url": jupyter_ip_url},
+                   #{"description": "TensorBoard (via tunnel)",
+                   # "url": tensorboard_url},
+                   #{"description": "Ungit (via tunnel)",
+                   # "url": ungit_ip_url}
                ]}
         result.write(json.dumps(res))

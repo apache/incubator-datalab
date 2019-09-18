@@ -57,7 +57,7 @@ if __name__ == "__main__":
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
         vpc2_cidr = os.environ['conf_vpc2_cidr']
-        sg_name = instance_name + '-SG'
+        sg_name = instance_name + '-sg'
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_sg = False

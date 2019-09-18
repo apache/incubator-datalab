@@ -63,8 +63,8 @@ if __name__ == "__main__":
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
     data_engine['zone'] = os.environ['gcp_zone']
-    data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-    data_engine['project_name'] = os.environ['project_name'].replace('_', '-')
+    data_engine['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
+    data_engine['project_name'] = os.environ['project_name'].lower().replace('_', '-')
     data_engine['cluster_name'] = \
         data_engine['service_base_name'] + '-' + data_engine['project_name'] + '-de-' + \
         data_engine['exploratory_name'] + '-' + data_engine['computational_name']

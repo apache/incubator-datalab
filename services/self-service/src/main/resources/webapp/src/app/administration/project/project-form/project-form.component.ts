@@ -128,9 +128,9 @@ export class ProjectFormComponent implements OnInit {
   private initFormModel(): void {
     this.projectForm = this._fb.group({
       'key': ['', Validators.required],
-      'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this), this.providerMaxLength.bind(this)])],
+      'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.projectName), this.checkDuplication.bind(this), this.providerMaxLength.bind(this)])],
       'endpoints': [[], Validators.required],
-      'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
+      'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.projectName)])],
       'groups': [[], Validators.required]
     });
   }
