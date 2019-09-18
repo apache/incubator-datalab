@@ -35,6 +35,7 @@ parser.add_argument('--policy_file_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--infra_tag_name', type=str, default='')
 parser.add_argument('--infra_tag_value', type=str, default='')
+parser.add_argument('--user_tag_value', type=str, default='')
 args = parser.parse_args()
 
 
@@ -44,8 +45,9 @@ if __name__ == "__main__":
             role_name = get_role_by_name(args.role_name)
             if role_name == '':
                 tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
+                user_tag = {"Key": "user:tag", "Value": args.user_tag_value}
                 print("Creating role {0}, profile name {1}".format(args.role_name, args.role_profile_name))
-                create_iam_role(args.role_name, args.role_profile_name, args.region, tag=tag)
+                create_iam_role(args.role_name, args.role_profile_name, args.region, tag=tag, user_tag=user_tag)
             else:
                 print("ROLE AND ROLE PROFILE ARE ALREADY CREATED")
             print("ROLE {} created. IAM group {} created".format(args.role_name, args.role_profile_name))

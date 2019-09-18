@@ -67,6 +67,7 @@ if __name__ == "__main__":
         shared_bucket_name = shared_bucket_name_tag.lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         tag2_name = service_base_name + '-secondary-Tag'
+        user_tag = "{}:{}-ssn-Role"
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
         zone_full = os.environ['aws_region'] + os.environ['aws_zone']
@@ -291,9 +292,9 @@ if __name__ == "__main__":
         logging.info('[CREATE ROLES]')
         print('[CREATE ROLES]')
         params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {} " \
-                 "--infra_tag_name {} --infra_tag_value {}".\
+                 "--infra_tag_name {} --infra_tag_value {} --user_tag_value {}".\
             format(role_name, role_profile_name, policy_name, policy_path, os.environ['aws_region'], tag_name,
-                   service_base_name)
+                   service_base_name, user_tag)
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
