@@ -30,7 +30,7 @@ data "template_file" "dlab_ui_values" {
       vpc_name               = var.vpc_name
       subnet_name            = var.subnet_name
       region                 = var.region
-      zone                   = var.zone
+      zone                   = "${var.region}-${var.zone}"
       project_id             = var.project_id
       provision_service_host = "127.0.0.1" # var.endpoint_eip_address
       env_os                 = var.env_os
