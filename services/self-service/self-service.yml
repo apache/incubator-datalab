@@ -213,6 +213,7 @@ cloudProperties:
   sharedStorageAccountTagName: AZURE_SHARED_STORAGE_ACCOUNT_TAG
   datalakeTagName: AZURE_DATALAKE_TAG
   azureClientId: AZURE_CLIENT_ID
+  gcpProjectId: GCP_PROJECT_ID
   ldap:
     host: LDAP_HOST
     dn: LDAP_DN

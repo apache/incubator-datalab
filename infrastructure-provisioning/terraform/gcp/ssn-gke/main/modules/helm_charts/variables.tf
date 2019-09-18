@@ -75,6 +75,9 @@ variable "gke_cluster_name" {}
 
 variable "big_query_dataset" {}
 
+variable "vpc_name" {}
+
+variable "subnet_name" {}
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

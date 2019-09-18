@@ -247,22 +247,23 @@ data:
       os: {{ .Values.ui.cloud_properties.env_os }}
       serviceBaseName: {{ .Values.ui.cloud_properties.service_base_name }}
       edgeInstanceSize:
-      subnetId:
-      region:
-      zone:
+      subnetId: {{ .Values.ui.cloud_properties.subnet_name }}
+      region: {{ .Values.ui.cloud_properties.region }}
+      zone: {{ .Values.ui.cloud_properties.zone }}
       confTagResourceId:
       securityGroupIds:
       ssnInstanceSize:
       notebookVpcId:
       notebookSubnetId:
       confKeyDir: {{ .Values.ui.cloud_properties.key_dir }}
-      vpcId:
+      vpcId: {{ .Values.ui.cloud_properties.vpc_name }}
       peeringId:
       azureResourceGroupName:
       ssnStorageAccountTagName:
       sharedStorageAccountTagName:
       datalakeTagName:
       azureClientId:
+      gcpProjectId: {{ .Values.ui.cloud_properties.project_id }}
       ldap:
         host: {{ .Values.ui.cloud_properties.ldap.host }}
         dn: {{ .Values.ui.cloud_properties.ldap.dn }}

@@ -263,6 +263,7 @@ data:
       sharedStorageAccountTagName:
       datalakeTagName:
       azureClientId:
+      gcpProjectId:
       ldap:
         host: {{ .Values.ui.cloud_properties.ldap.host }}
         dn: {{ .Values.ui.cloud_properties.ldap.dn }}

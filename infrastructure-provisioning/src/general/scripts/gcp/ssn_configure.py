@@ -288,15 +288,15 @@ if __name__ == "__main__":
             },
             {
                 'key': 'SUBNET_ID',
-                'value': ''
+                'value': ssn_conf['subnet_name']
             },
             {
                 'key': 'REGION',
-                'value': ''
+                'value': ssn_conf['region']
             },
             {
                 'key': 'ZONE',
-                'value': ''
+                'value': ssn_conf['zone']
             },
             {
                 'key': 'TAG_RESOURCE_ID',
@@ -312,7 +312,7 @@ if __name__ == "__main__":
             },
             {
                 'key': 'VPC_ID',
-                'value': ''
+                'value': ssn_conf['vpc_name']
             },
             {
                 'key': 'CONF_KEY_DIR',
@@ -353,6 +353,10 @@ if __name__ == "__main__":
             {
                 'key': 'AZURE_DATALAKE_TAG',
                 'value': ''
+            },
+            {
+                'key': 'GCP_PROJECT_ID',
+                'value': os.environ['gcp_project_id']
             },
             {
                 'key': 'AZURE_CLIENT_ID',

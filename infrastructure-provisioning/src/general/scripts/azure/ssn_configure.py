@@ -288,6 +288,10 @@ if __name__ == "__main__":
                 'value': ssn_conf['shared_storage_account_name']
             },
             {
+                'key': 'GCP_PROJECT_ID',
+                'value': ''
+            },
+            {
                 'key': 'SUBNET2_ID',
                 'value': ''
             },

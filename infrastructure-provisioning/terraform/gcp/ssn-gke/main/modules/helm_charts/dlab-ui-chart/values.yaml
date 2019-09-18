@@ -61,6 +61,11 @@ ui:
     env_os: ${env_os}
     service_base_name: ${service_base_name}
     key_dir: "/root/keys/"
+    vpc_name: ${vpc_name}
+    subnet_name: ${subnet_name}
+    region: ${region}
+    zone: ${zone}
+    project_id: ${project_id}
     ldap:
       host: ${ldap_host}
       dn: ${ldap_dn}

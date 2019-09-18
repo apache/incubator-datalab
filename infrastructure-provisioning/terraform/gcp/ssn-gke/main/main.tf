@@ -71,4 +71,6 @@ module "helm_charts" {
   endpoint_keystore_password = var.endpoint_keystore_password
   gke_cluster_name = module.gke_cluster.gke_cluster_name
   big_query_dataset = var.big_query_dataset
+  vpc_name = module.gke_cluster.vpc_name
+  subnet_name = module.gke_cluster.subnet_name
 }

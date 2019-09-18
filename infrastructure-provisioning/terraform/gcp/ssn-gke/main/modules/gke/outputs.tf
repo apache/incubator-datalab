@@ -30,3 +30,11 @@ output "endpoint_keystore_password" {
 output "gke_cluster_name" {
   value = google_container_cluster.ssn_k8s_gke_cluster.name
 }
+
+output "vpc_name" {
+  value = data.google_compute_network.ssn_gke_vpc_data.name
+}
+
+output "subnet_name" {
+  value = data.google_compute_subnetwork.ssn_gke_subnet_data.name
+}

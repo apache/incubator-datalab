@@ -27,6 +27,11 @@ data "template_file" "dlab_ui_values" {
       mongo_port             = var.mongo_service_port
       mongo_service_name     = var.mongo_service_name
       ssn_k8s_alb_dns_name   = data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
+      vpc_name               = var.vpc_name
+      subnet_name            = var.subnet_name
+      region                 = var.region
+      zone                   = var.zone
+      project_id             = var.project_id
       provision_service_host = "127.0.0.1" # var.endpoint_eip_address
       env_os                 = var.env_os
       service_base_name      = var.service_base_name

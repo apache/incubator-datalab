@@ -435,6 +435,10 @@ if __name__ == "__main__":
                 'value': ''
             },
             {
+                'key': 'GCP_PROJECT_ID',
+                'value': ''
+            },
+            {
                 'key': 'AZURE_CLIENT_ID',
                 'value': ''
             }
