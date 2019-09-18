@@ -56,19 +56,3 @@ ui:
     host: ${provision_service_host}
   keycloak:
     auth_server_url: http://${ssn_k8s_alb_dns_name}/auth
-
-  cloud_properties:
-    env_os: ${env_os}
-    service_base_name: ${service_base_name}
-    key_dir: "/root/keys/"
-    vpc_name: ${vpc_name}
-    subnet_name: ${subnet_name}
-    region: ${region}
-    zone: ${zone}
-    project_id: ${project_id}
-    ldap:
-      host: ${ldap_host}
-      dn: ${ldap_dn}
-      ou: ${ldap_ou}
-      user: ${ldap_user}
-      password: ${ldap_password}
