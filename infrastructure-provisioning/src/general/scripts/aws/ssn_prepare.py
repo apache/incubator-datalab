@@ -67,7 +67,7 @@ if __name__ == "__main__":
         shared_bucket_name = shared_bucket_name_tag.lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         tag2_name = service_base_name + '-secondary-Tag'
-        user_tag = "{}:{}-ssn-Role"
+        user_tag = "{0}:{0}-ssn-Role".format(service_base_name)
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
         zone_full = os.environ['aws_region'] + os.environ['aws_zone']
