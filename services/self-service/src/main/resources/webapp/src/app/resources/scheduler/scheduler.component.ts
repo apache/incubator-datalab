@@ -256,7 +256,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   private setScheduleByInactivity() {
-    const data = { check_inactivity_required: this.enableIdleTime, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
+    const data = {sync_start_required : this.parentInherit, check_inactivity_required: this.enableIdleTime, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
     (this.destination.type === 'СOMPUTATIONAL')
       ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
       : this.setInactivity(this.notebook.name, { ...data, consider_inactivity: this.considerInactivity });
