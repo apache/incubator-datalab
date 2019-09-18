@@ -1,11 +1,9 @@
 package com.epam.dlab.backendapi.dropwizard.listeners;
 
-import com.epam.dlab.backendapi.conf.CloudConfiguration;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
-import com.epam.dlab.cloud.CloudProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -40,51 +38,6 @@ public class MongoStartupListener implements ServerLifecycleListener {
 	@Override
 	public void serverStarted(Server server) {
 		insertRoles();
-		insertCloudSettings();
-	}
-
-	private void insertCloudSettings() {
-		log.debug("Populating DLab cloud properties into database");
-		final CloudConfiguration cloudConfiguration = configuration.getCloudConfiguration();
-		settingsDAO.setServiceBaseName(cloudConfiguration.getServiceBaseName());
-		settingsDAO.setConfKeyDir(cloudConfiguration.getConfKeyDir());
-		settingsDAO.setConfOsFamily(cloudConfiguration.getOs());
-		settingsDAO.setConfTagResourceId(cloudConfiguration.getConfTagResourceId());
-		final CloudConfiguration.LdapConfig ldapConfig = cloudConfiguration.getLdapConfig();
-		settingsDAO.setLdapDn(ldapConfig.getDn());
-		settingsDAO.setLdapHost(ldapConfig.getHost());
-		settingsDAO.setLdapOu(ldapConfig.getOu());
-		settingsDAO.setLdapUser(ldapConfig.getUser());
-		settingsDAO.setLdapPassword(ldapConfig.getPassword());
-		settingsDAO.setSsnStorageAccountTagName(cloudConfiguration.getSsnStorageAccountTagName());
-		settingsDAO.setPeeringId(cloudConfiguration.getPeeringId());
-
-		final CloudProvider cloudProvider = configuration.getCloudProvider();
-		if (cloudProvider == CloudProvider.AWS) {
-			settingsDAO.setAwsZone(cloudConfiguration.getZone());
-			settingsDAO.setAwsRegion(cloudConfiguration.getRegion());
-			settingsDAO.setAwsVpcId(cloudConfiguration.getVpcId());
-			settingsDAO.setAwsSubnetId(cloudConfiguration.getSubnetId());
-			settingsDAO.setAwsNotebookVpcId(cloudConfiguration.getNotebookVpcId());
-			settingsDAO.setAwsNotebookSubnetId(cloudConfiguration.getNotebookSubnetId());
-			settingsDAO.setAwsSecurityGroups(cloudConfiguration.getSecurityGroupIds());
-		} else if (cloudProvider == CloudProvider.AZURE) {
-			settingsDAO.setAzureRegion(cloudConfiguration.getRegion());
-			settingsDAO.setAzureVpcName(cloudConfiguration.getVpcId());
-			settingsDAO.setAzureSubnetName(cloudConfiguration.getSubnetId());
-			settingsDAO.setAzureDataLakeClientId(cloudConfiguration.getAzureClientId());
-			settingsDAO.setAzureResourceGroupName(cloudConfiguration.getAzureResourceGroupName());
-			settingsDAO.setAzureSecurityGroupName(cloudConfiguration.getSecurityGroupIds());
-			settingsDAO.setAzureDataLakeNameTag(cloudConfiguration.getDatalakeTagName());
-			settingsDAO.setSsnStorageAccountTagName(cloudConfiguration.getSsnStorageAccountTagName());
-			settingsDAO.setSharedStorageAccountTagName(cloudConfiguration.getSharedStorageAccountTagName());
-		} else if (cloudProvider == CloudProvider.GCP) {
-			settingsDAO.setGcpProjectId(cloudConfiguration.getGcpProjectId());
-			settingsDAO.setGcpRegion(cloudConfiguration.getRegion());
-			settingsDAO.setGcpZone(cloudConfiguration.getZone());
-			settingsDAO.setGcpSubnetName(cloudConfiguration.getSubnetId());
-			settingsDAO.setGcpVpcName(cloudConfiguration.getVpcId());
-		}
 	}
 
 	private void insertRoles() {

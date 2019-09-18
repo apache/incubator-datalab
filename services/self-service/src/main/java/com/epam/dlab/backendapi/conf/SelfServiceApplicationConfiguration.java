@@ -129,9 +129,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@NotNull
 	private Map<String, String> guacamole;
 
-	@JsonProperty("cloudProperties")
-	private CloudConfiguration cloudConfiguration;
-
 	private KeycloakConfiguration keycloakConfiguration = new KeycloakConfiguration();
 
 	public Map<String, String> getGuacamole() {
@@ -259,10 +256,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public boolean isMongoMigrationEnabled() {
 		return mongoMigrationEnabled;
-	}
-
-	public CloudConfiguration getCloudConfiguration() {
-		return cloudConfiguration;
 	}
 
 	@NotNull

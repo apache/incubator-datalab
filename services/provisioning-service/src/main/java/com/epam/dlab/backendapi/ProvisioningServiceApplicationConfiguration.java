@@ -96,6 +96,9 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 
 	private KeycloakConfiguration keycloakConfiguration = new KeycloakConfiguration();
 
+	@JsonProperty("cloudProperties")
+	private CloudConfiguration cloudConfiguration;
+
 	public boolean isHandlersPersistenceEnabled() {
 		return handlersPersistenceEnabled;
 	}
@@ -185,5 +188,9 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 
 	public KeycloakConfiguration getKeycloakConfiguration() {
 		return keycloakConfiguration;
+	}
+
+	public CloudConfiguration getCloudConfiguration() {
+		return cloudConfiguration;
 	}
 }
