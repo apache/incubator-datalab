@@ -298,20 +298,40 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(GCP_REGION);
 	}
 
+	public void setGcpRegion(String region) {
+		setSetting(GCP_REGION, region);
+	}
+
 	public String getGcpZone() {
 		return getSetting(GCP_ZONE);
+	}
+
+	public void setGcpZone(String zone) {
+		setSetting(GCP_ZONE, zone);
 	}
 
 	public String getGcpSubnetName() {
 		return getSetting(GCP_SUBNET_NAME);
 	}
 
+	public void setGcpSubnetName(String subnet) {
+		setSetting(GCP_SUBNET_NAME, subnet);
+	}
+
 	public String getGcpProjectId() {
 		return getSetting(GCP_PROJECT_ID);
 	}
 
+	public void setGcpProjectId(String projectId) {
+		setSetting(GCP_PROJECT_ID, projectId);
+	}
+
 	public String getGcpVpcName() {
 		return getSetting(GCP_VPC_NAME);
+	}
+
+	public void setGcpVpcName(String vpcName) {
+		setSetting(GCP_VPC_NAME, vpcName);
 	}
 
 	public void setMaxBudget(Long budget) {

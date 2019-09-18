@@ -52,6 +52,16 @@ public class GcpCloudSettings extends CloudSettings {
 	protected String sbn;
 	@JsonProperty("conf_key_dir")
 	protected String confKeyDir;
+	@JsonProperty("gcp_project_id")
+	protected String projectId;
+	@JsonProperty("gcp_vpc_name")
+	protected String vpcName;
+	@JsonProperty("gcp_subnet_name")
+	protected String subnetName;
+	@JsonProperty("gcp_zone")
+	protected String zone;
+	@JsonProperty("gcp_region")
+	protected String region;
 
 	@Override
 	@JsonIgnore

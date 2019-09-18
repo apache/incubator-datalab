@@ -120,6 +120,11 @@ public class RequestBuilder {
 						.azureIamUser(userInfo.getName()).build();
 			case GCP:
 				return GcpCloudSettings.builder()
+						.projectId(settingsDAO.getGcpProjectId())
+						.vpcName(settingsDAO.getGcpVpcName())
+						.subnetName(settingsDAO.getGcpSubnetName())
+						.zone(settingsDAO.getGcpZone())
+						.region(settingsDAO.getGcpRegion())
 						.ldapDn(settingsDAO.getLdapDn())
 						.ldapHost(settingsDAO.getLdapHost())
 						.ldapOu(settingsDAO.getLdapOu())

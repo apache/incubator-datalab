@@ -27,6 +27,7 @@ public class CloudConfiguration {
 	private final String datalakeTagName;
 	private final String azureClientId;
 	private final String peeringId;
+	private final String gcpProjectId;
 	@JsonProperty("ldap")
 	private final LdapConfig ldapConfig;
 
