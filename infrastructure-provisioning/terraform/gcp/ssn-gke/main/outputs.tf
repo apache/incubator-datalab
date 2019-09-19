@@ -19,3 +19,30 @@
 #
 # ******************************************************************************
 
+output "service_base_name" {
+  value = var.service_base_name
+}
+
+output "vpc_name" {
+  value = module.gke_cluster.vpc_name
+}
+
+output "subnet_name" {
+  value = module.gke_cluster.subnet_name
+}
+
+output "mongo_host" {
+  value = module.helm_charts.mongo_host
+}
+
+output "self_service_host" {
+  value = module.helm_charts.self_service_host
+}
+
+output "ui_host" {
+  value = module.helm_charts.ui_host
+}
+
+output "keycloak_client_secret" {
+    value = module.helm_charts.keycloak_client_secret
+}

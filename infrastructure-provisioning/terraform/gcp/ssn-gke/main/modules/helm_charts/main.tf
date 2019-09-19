@@ -71,7 +71,3 @@ resource "kubernetes_role_binding" "example" {
     namespace = "kube-system"
   }
 }
-
-output "keycloak_client_secret" {
-    value = random_uuid.keycloak_client_secret.result
-}

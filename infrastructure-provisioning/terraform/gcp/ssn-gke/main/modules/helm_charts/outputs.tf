@@ -18,3 +18,19 @@
 # under the License.
 #
 # ******************************************************************************
+
+output "mongo_host" {
+  value = data.kubernetes_service.mongo_service.load_balancer_ingress.0.ip
+}
+
+output "self_service_host" {
+  value = data.kubernetes_service.ui_service.load_balancer_ingress.0.ip
+}
+
+output "ui_host" {
+  value = data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
+}
+
+output "keycloak_client_secret" {
+    value = random_uuid.keycloak_client_secret.result
+}

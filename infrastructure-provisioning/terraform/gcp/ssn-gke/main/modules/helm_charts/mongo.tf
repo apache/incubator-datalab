@@ -43,3 +43,10 @@ resource "helm_release" "mongodb" {
     depends_on = [helm_release.nginx, kubernetes_secret.mongo_db_password_secret,
                   kubernetes_secret.mongo_root_password_secret]
 }
+
+data "kubernetes_service" "mongo_service" {
+    metadata {
+    name = "${helm_release.mongodb.name}-mongodb"
+    }
+    depends_on = [helm_release.mongodb]
+}

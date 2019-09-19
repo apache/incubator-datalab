@@ -43,3 +43,10 @@ resource "helm_release" "dlab_ui" {
         data.template_file.dlab_ui_values.rendered
     ]
 }
+
+data "kubernetes_service" "ui_service" {
+    metadata {
+    name = helm_release.dlab_ui.name
+    }
+    depends_on = [helm_release.dlab_ui]
+}
