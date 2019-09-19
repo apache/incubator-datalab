@@ -90,50 +90,13 @@ public class RequestBuilder {
 		switch (cloudProvider()) {
 			case AWS:
 				return AwsCloudSettings.builder()
-						.awsRegion(settingsDAO.getAwsRegion())
-						.awsSecurityGroupIds(settingsDAO.getAwsSecurityGroups())
-						.awsSubnetId(settingsDAO.getAwsSubnetId())
-						.awsVpcId(settingsDAO.getAwsVpcId())
-						.confTagResourceId(settingsDAO.getConfTagResourceId())
-						.awsNotebookSubnetId(settingsDAO.getAwsNotebookSubnetId())
-						.awsNotebookVpcId(settingsDAO.getAwsNotebookVpcId())
 						.awsIamUser(userInfo.getName())
-						.zone(settingsDAO.getAwsZone())
-						.ldapDn(settingsDAO.getLdapDn())
-						.ldapHost(settingsDAO.getLdapHost())
-						.ldapOu(settingsDAO.getLdapOu())
-						.ldapUser(settingsDAO.getLdapUser())
-						.ldapPassword(settingsDAO.getLdapPassword())
-						.sbn(settingsDAO.getServiceBaseName())
-						.cloud(configuration.getCloudProvider().getName())
-						.os(settingsDAO.getConfOsFamily())
-						.confKeyDir(settingsDAO.getConfKeyDir())
 						.build();
 			case AZURE:
 				return AzureCloudSettings.builder()
-						.azureRegion(settingsDAO.getAzureRegion())
-						.azureResourceGroupName(settingsDAO.getAzureResourceGroupName())
-						.azureSecurityGroupName(settingsDAO.getAzureSecurityGroupName())
-						.azureSubnetName(settingsDAO.getAzureSubnetName())
-						.azureVpcName(settingsDAO.getAzureVpcName())
-						.confKeyDir(settingsDAO.getConfKeyDir())
 						.azureIamUser(userInfo.getName()).build();
 			case GCP:
 				return GcpCloudSettings.builder()
-						.projectId(settingsDAO.getGcpProjectId())
-						.vpcName(settingsDAO.getGcpVpcName())
-						.subnetName(settingsDAO.getGcpSubnetName())
-						.zone(settingsDAO.getGcpZone())
-						.region(settingsDAO.getGcpRegion())
-						.ldapDn(settingsDAO.getLdapDn())
-						.ldapHost(settingsDAO.getLdapHost())
-						.ldapOu(settingsDAO.getLdapOu())
-						.ldapUser(settingsDAO.getLdapUser())
-						.ldapPassword(settingsDAO.getLdapPassword())
-						.sbn(settingsDAO.getServiceBaseName())
-						.cloud(configuration.getCloudProvider().getName())
-						.os(settingsDAO.getConfOsFamily())
-						.confKeyDir(settingsDAO.getConfKeyDir())
 						.gcpIamUser(userInfo.getName()).build();
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
@@ -172,10 +135,7 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	private <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) {
-		T resource = newResourceBaseDTO(userInfo, resourceClass);
-		return (T) resource
-				.withServiceBaseName(settingsDAO.getServiceBaseName())
-				.withConfOsFamily(settingsDAO.getConfOsFamily());
+		return newResourceBaseDTO(userInfo, resourceClass);
 	}
 
 	@SuppressWarnings("unchecked")

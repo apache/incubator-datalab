@@ -39,8 +39,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
@@ -128,6 +126,8 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@Valid
 	@NotNull
 	private Map<String, String> guacamole;
+
+	private String serviceBaseName;
 
 	private KeycloakConfiguration keycloakConfiguration = new KeycloakConfiguration();
 
@@ -267,7 +267,7 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 		return keycloakConfiguration;
 	}
 
-	public static void main(String[] args) throws NoSuchAlgorithmException {
-		KeyFactory kf = KeyFactory.getInstance("ECDSA");
+	public String getServiceBaseName() {
+		return serviceBaseName;
 	}
 }

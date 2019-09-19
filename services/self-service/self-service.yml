@@ -66,6 +66,7 @@ azureUseLdap: <LOGIN_USE_LDAP>
 maxSessionDurabilityMilliseconds: 288000000
 </#if>
 
+serviceBaseName: SERVICE_BASE_NAME
 server:
   gzip:
     enabled: true

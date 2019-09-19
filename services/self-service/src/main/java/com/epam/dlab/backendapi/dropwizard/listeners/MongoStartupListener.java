@@ -24,20 +24,21 @@ public class MongoStartupListener implements ServerLifecycleListener {
 	private static final String ROLES_FILE_FORMAT = "/mongo/%s/mongo_roles.json";
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 	private final UserRoleDao userRoleDao;
-	private final SettingsDAO settingsDAO;
 	private final SelfServiceApplicationConfiguration configuration;
+	private final SettingsDAO settingsDAO;
 
 	@Inject
-	public MongoStartupListener(UserRoleDao userRoleDao, SettingsDAO settingsDAO,
-								SelfServiceApplicationConfiguration configuration) {
+	public MongoStartupListener(UserRoleDao userRoleDao,
+								SelfServiceApplicationConfiguration configuration, SettingsDAO settingsDAO) {
 		this.userRoleDao = userRoleDao;
-		this.settingsDAO = settingsDAO;
 		this.configuration = configuration;
+		this.settingsDAO = settingsDAO;
 	}
 
 	@Override
 	public void serverStarted(Server server) {
 		insertRoles();
+		settingsDAO.setServiceBaseName(configuration.getServiceBaseName());
 	}
 
 	private void insertRoles() {

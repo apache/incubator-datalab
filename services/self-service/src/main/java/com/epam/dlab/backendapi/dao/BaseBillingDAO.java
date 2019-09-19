@@ -49,7 +49,8 @@ import java.util.function.Supplier;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_ID;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_ID;
-import static com.epam.dlab.backendapi.dao.MongoCollections.*;
+import static com.epam.dlab.backendapi.dao.MongoCollections.BILLING;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.epam.dlab.model.aws.ReportLine.FIELD_RESOURCE_TYPE;
 import static com.epam.dlab.model.aws.ReportLine.FIELD_USAGE_DATE;
 import static com.mongodb.client.model.Accumulators.sum;
@@ -401,23 +402,12 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
 			String serviceBaseName = getServiceBaseName();
 			shapes.put(serviceBaseName + "-ssn", new ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
-			FindIterable<Document> docs = getCollection(USER_EDGE)
-					.find()
-					.projection(fields(include(ID, EDGE_STATUS)));
-			for (Document d : docs) {
-				shapes.put(edgeId(d),
-						new ShapeInfo(getEdgeSize(), UserInstanceStatus.of(d.getString(EDGE_STATUS))));
-			}
 		}
 	}
 
 	protected String getServiceBaseName() {
 		return settings.getServiceBaseName();
 	}
-
-	protected abstract String getEdgeSize();
-
-	protected abstract String edgeId(Document d);
 
 	protected abstract String getSsnShape();
 
