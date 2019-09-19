@@ -122,6 +122,7 @@ data:
     </#if>
 
     serviceBaseName: {{ .Values.ui.service_base_name }}
+    os: {{ .Values.ui.os }}
     server:
       requestLog:
         appenders:

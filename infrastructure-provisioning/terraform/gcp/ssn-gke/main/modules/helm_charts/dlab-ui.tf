@@ -29,6 +29,7 @@ data "template_file" "dlab_ui_values" {
       ssn_k8s_alb_dns_name   = data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
       provision_service_host = "127.0.0.1" # var.endpoint_eip_address
       service_base_name      = var.service_base_name
+      os                     = var.env_os
   }
 }
 
