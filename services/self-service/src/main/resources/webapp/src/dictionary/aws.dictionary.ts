@@ -85,7 +85,6 @@ export const NAMING_CONVENTION = {
 export class ReportingConfigModel {
 
     static getDefault(): ReportingConfigModel {
-        debugger;
         return new ReportingConfigModel([], [], [], [], [], '', '', '', []);
     }
 
