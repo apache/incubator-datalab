@@ -22,6 +22,7 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'dlab-layout',
   templateUrl: './layout.component.html',
+  styles: [`main { height: 100%;}`]
 })
 export class LayoutComponent implements OnInit {
   constructor() { }
