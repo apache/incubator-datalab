@@ -121,6 +121,7 @@ data:
     maxSessionDurabilityMilliseconds: 288000000
     </#if>
 
+    serviceBaseName: {{ .Values.ui.service_base_name }}
     server:
       requestLog:
         appenders:

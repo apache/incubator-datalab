@@ -27,6 +27,7 @@ replicaCount: 1
 labels: {}
 
 ui:
+  service_base_name: ${service_base_name}
   image:
     repository: epamdlab/ui
     tag: '0.1-gcp'
