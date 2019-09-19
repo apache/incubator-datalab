@@ -67,6 +67,7 @@ maxSessionDurabilityMilliseconds: 288000000
 </#if>
 
 serviceBaseName: SERVICE_BASE_NAME
+os: OPERATION_SYSTEM
 server:
   gzip:
     enabled: true
