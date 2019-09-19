@@ -39,6 +39,7 @@ public class MongoStartupListener implements ServerLifecycleListener {
 	public void serverStarted(Server server) {
 		insertRoles();
 		settingsDAO.setServiceBaseName(configuration.getServiceBaseName());
+		settingsDAO.setConfOsFamily(configuration.getOs());
 	}
 
 	private void insertRoles() {

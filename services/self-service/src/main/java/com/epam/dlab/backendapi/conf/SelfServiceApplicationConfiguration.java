@@ -128,6 +128,7 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private Map<String, String> guacamole;
 
 	private String serviceBaseName;
+	private String os;
 
 	private KeycloakConfiguration keycloakConfiguration = new KeycloakConfiguration();
 
@@ -269,5 +270,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public String getServiceBaseName() {
 		return serviceBaseName;
+	}
+
+	public String getOs() {
+		return os;
 	}
 }
