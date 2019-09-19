@@ -49,11 +49,10 @@ data "google_compute_subnetwork" "endpoint_subnet_data" {
 }
 
 resource "google_compute_firewall" "firewall-ingress" {
-  count   = var.vpc_name == "" ? 1 : 0
   name    = local.firewall_ingress_name
   network = data.google_compute_network.endpoint_vpc_data.name
   allow {
-    protocol = "all"
+    protocol = "tcp"
     ports    = ["22", "8084", "8085"]
   }
   target_tags   = ["${var.service_base_name}-${var.endpoint_id}-endpoint"]
@@ -62,7 +61,6 @@ resource "google_compute_firewall" "firewall-ingress" {
 }
 
 resource "google_compute_firewall" "firewall-egress" {
-  count     = var.vpc_name == "" ? 1 : 0
   name      = local.firewall_egress_name
   network   = data.google_compute_network.endpoint_vpc_data.name
   direction = "EGRESS"

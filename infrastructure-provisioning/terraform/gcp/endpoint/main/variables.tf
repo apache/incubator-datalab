@@ -18,11 +18,11 @@
 # under the License.
 #
 # ******************************************************************************
-# id of gcp project
+
 variable "project_name" {
   default = ""
 }
-# path to .json file with creds
+
 variable "creds_file" {
   default = ""
 }
@@ -30,11 +30,11 @@ variable "creds_file" {
 variable "endpoint_shape" {
   default = "n1-standard-2"
 }
-# for example <us-west1>
+
 variable "region" {
   default = ""
 }
-# for example <us-west1-a>
+
 variable "zone" {
   default = ""
 }
@@ -66,13 +66,9 @@ variable "endpoint_volume_size" {
 variable "subnet_cidr" {
   default = "172.31.0.0/24"
 }
-# TEMPORARY
+
 variable "firewall_ing_cidr_range" {
   default = "0.0.0.0/0"
-}
-# created by ssn (bcs of certs)
-variable "endpoint_eip" {
-  default = ""
 }
 
 variable "firewall_eg_cidr_range" {
@@ -134,7 +130,7 @@ variable "endpoint_roles" {
     "roles/bigquery.jobUser"
   ]
 }
-# path for public key to connect to instance
+
 variable "path_to_pub_key" {
   default = ""
 }
