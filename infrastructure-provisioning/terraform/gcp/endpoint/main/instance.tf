@@ -21,6 +21,7 @@
 
 locals {
   endpoint_instance_name = "${var.service_base_name}-${var.endpoint_id}-endpoint"
+  endpoint_instance_ip   = "${var.service_base_name}-${var.endpoint_id}-static-ip"
 }
 
 resource "google_compute_instance" "endpoint" {
@@ -28,9 +29,10 @@ resource "google_compute_instance" "endpoint" {
   machine_type = var.endpoint_shape
   tags         = ["${replace("${local.endpoint_instance_name}", "_", "-")}"]
   labels       = {
-    name    = "${local.endpoint_instance_name}"
-    sbn     = "${var.service_base_name}"
-    product = "${var.product}"
+    name        = "${local.endpoint_instance_name}"
+    sbn         = "${var.service_base_name}"
+    product     = "${var.product}"
+    endpoint_id = "${var.endpoint_id}"
   }
   zone         = var.zone
 
@@ -54,7 +56,11 @@ resource "google_compute_instance" "endpoint" {
     network    = data.google_compute_network.endpoint_vpc_data.name
     subnetwork = data.google_compute_subnetwork.endpoint_subnet_data.name
     access_config {
-      nat_ip = var.endpoint_eip
+      nat_ip = google_compute_address.static.address
     }
   }
+}
+
+resource "google_compute_address" "static" {
+  name = local.endpoint_instance_ip
 }

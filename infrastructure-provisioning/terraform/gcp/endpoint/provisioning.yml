@@ -36,23 +36,23 @@ devMode: ${DEV_MODE}
 
 
 mongo:
-  host: SSN_HOST
-  port: 27017
+  host: MONGO_HOST
+  port: MONGO_PORT
   username: admin
   password: MONGO_PASSWORD
   database: dlabdb
 
 selfService:
   protocol: https
-  host: SSN_HOST
-  port: 8443
+  host: SS_HOST
+  port: SS_PORT
   jerseyClient:
     timeout: 3s
     connectionTimeout: 3s
 
 securityService:
   protocol: https
-  host: SSN_HOST
+  host: DOESNT_MATTER
   port: 8090
   jerseyClient:
     timeout: 20s
@@ -104,25 +104,25 @@ server:
         archivedLogFilenamePattern: ${LOG_ROOT_DIR}/provisioning/request-provisioning-%d{yyyy-MM-dd}.log.gz
         archivedFileCount: 10
   applicationConnectors:
-#    - type: http
-    - type: https
+    - type: http
+#    - type: https
       port: 8084
-      certAlias: dlab
-      validateCerts: true
-      keyStorePath: ${KEY_STORE_PATH}
-      keyStorePassword: ${KEY_STORE_PASSWORD}
-      trustStorePath: ${TRUST_STORE_PATH}
-      trustStorePassword: ${TRUST_STORE_PASSWORD}
+#      certAlias: dlab
+#      validateCerts: true
+#      keyStorePath: ${KEY_STORE_PATH}
+#      keyStorePassword: ${KEY_STORE_PASSWORD}
+#      trustStorePath: ${TRUST_STORE_PATH}
+#      trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-#    - type: http
-    - type: https
+    - type: http
+#    - type: https
       port: 8085
-      certAlias: dlab
-      validateCerts: true
-      keyStorePath: ${KEY_STORE_PATH}
-      keyStorePassword: ${KEY_STORE_PASSWORD}
-      trustStorePath: ${TRUST_STORE_PATH}
-      trustStorePassword: ${TRUST_STORE_PASSWORD}
+#      certAlias: dlab
+#      validateCerts: true
+#      keyStorePath: ${KEY_STORE_PATH}
+#      keyStorePassword: ${KEY_STORE_PASSWORD}
+#      trustStorePath: ${TRUST_STORE_PATH}
+#      trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 logging:
   level: INFO
@@ -142,7 +142,7 @@ logging:
 keycloakConfiguration:
   realm: dlab
   bearer-only: true
-  auth-server-url: http://SSN_ALB/auth
+  auth-server-url: http://KEYCLOACK_HOST/auth
   ssl-required: none
   register-node-at-startup: true
   register-node-period: 600
@@ -177,4 +177,3 @@ cloudProperties:
     ou: LDAP_OU
     user: LDAP_USER_NAME
     password: LDAP_USER_PASSWORD
-
