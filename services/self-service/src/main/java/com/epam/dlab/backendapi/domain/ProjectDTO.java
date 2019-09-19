@@ -26,6 +26,7 @@ public class ProjectDTO {
 	private final Integer budget;
 	private final Status status = Status.CREATING;
 	private EdgeInfo edgeInfo;
+	private boolean useSharedImage;
 
 
 	public enum Status {
