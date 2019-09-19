@@ -71,7 +71,6 @@ export class ProjectFormComponent implements OnInit {
     }));
     if (this.item) {
 
-      debugger;
       this.editSpecificProject(this.item);
       this.stepper.selectedIndex = 1;
     }
