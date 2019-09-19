@@ -220,15 +220,16 @@ public class ProjectResource {
 
 	@Operation(summary = "Generate keys for project", tags = "project")
 	@ApiResponses({
-			@ApiResponse(responseCode = "202", description = "Keys are successfully generated")
+			@ApiResponse(responseCode = "200", description = "Keys are successfully generated")
 	})
 	@POST
-	@Path("/generateKeys")
+	@Path("/keys")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response generate(@Parameter(hidden = true) @Auth UserInfo userInfo) {
 		return Response
-				.accepted(keyService.generateKeys(userInfo))
+				.ok(keyService.generateKeys(userInfo))
 				.build();
 	}
 }

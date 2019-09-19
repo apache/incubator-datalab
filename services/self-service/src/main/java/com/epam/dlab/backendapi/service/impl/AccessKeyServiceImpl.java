@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.resources.dto.KeysDTO;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -41,8 +42,6 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -133,14 +132,15 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 	}
 
 	@Override
-	public Pair<byte[], byte[]> generateKeys(UserInfo userInfo) {
+	public KeysDTO generateKeys(UserInfo userInfo) {
 		log.debug("Generating new key pair for user {}", userInfo.getName());
 		try (ByteArrayOutputStream publicKeyOut = new ByteArrayOutputStream();
 			 ByteArrayOutputStream privateKeyOut = new ByteArrayOutputStream()) {
 			KeyPair pair = KeyPair.genKeyPair(new JSch(), KeyPair.RSA, configuration.getPrivateKeySize());
 			pair.writePublicKey(publicKeyOut, userInfo.getName());
 			pair.writePrivateKey(privateKeyOut);
-			return new ImmutablePair<>(publicKeyOut.toByteArray(), privateKeyOut.toByteArray());
+			return new KeysDTO(new String(publicKeyOut.toByteArray()),
+					new String(privateKeyOut.toByteArray()));
 		} catch (JSchException | IOException e) {
 			log.error("Can not generate private/public key pair due to: {}", e.getMessage());
 			throw new DlabException("Can not generate private/public key pair due to: " + e.getMessage(), e);
