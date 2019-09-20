@@ -23,9 +23,9 @@ import { MatStepper } from '@angular/material';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 
-import { ProjectService, RolesGroupsService, EndpointService } from '../../../core/services';
+import { ProjectService, RolesGroupsService, EndpointService, UserAccessKeyService } from '../../../core/services';
 import { ProjectDataService } from '../project-data.service';
-import { CheckUtils, PATTERNS } from '../../../core/util';
+import { CheckUtils, FileUtils, PATTERNS } from '../../../core/util';
 import { Project } from '../project.component';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
@@ -58,6 +58,7 @@ export class ProjectFormComponent implements OnInit {
     private projectDataService: ProjectDataService,
     private rolesService: RolesGroupsService,
     private endpointService: EndpointService,
+    private userAccessKeyService: UserAccessKeyService,
     private cd: ChangeDetectorRef
   ) { }
 
@@ -120,6 +121,14 @@ export class ProjectFormComponent implements OnInit {
         this.cd.markForCheck();
       };
     }
+  }
+
+  public generateUserAccessKey() {
+    this.userAccessKeyService.generateAccessKey().subscribe(data => {
+      FileUtils.downloadFile(data);
+      this.keyLabel = 'Key is generated';
+      this.accessKeyValid = true;
+    });
   }
 
   public selectOptions(list, key, select?) {

@@ -41,6 +41,7 @@ import { DataengineConfigurationService } from './services/dataengineConfigurati
 import { StorageService } from './services/storage.service';
 import { ProjectService } from './services/project.service';
 import { EndpointService } from './services/endpoint.service';
+import { UserAccessKeyService } from './services/userAccessKey.service';
 
 import { HttpTokenInterceptor } from './interceptors/http.token.interceptor';
 import { NoCacheInterceptor } from './interceptors/nocache.interceptor';
@@ -81,6 +82,7 @@ export class CoreModule {
         StorageService,
         ProjectService,
         EndpointService,
+        UserAccessKeyService,
 
         { provide: MatDialogRef, useValue: {} },
         { provide: MAT_DIALOG_DATA, useValue: [] },
