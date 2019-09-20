@@ -128,10 +128,11 @@ export class ProjectFormComponent implements OnInit {
   public generateUserAccessKey() {
     this.userAccessKeyService.generateAccessKey().subscribe((data: any) => {
       const parsedData = JSON.parse(data.body);
-      FileUtils.downloadFile(data, parsedData.privateKey, 'private');
+      const keyName = `${parsedData.username}.pem`;
+      FileUtils.downloadFile(data, parsedData.privateKey, keyName);
 
       this.projectForm.controls.key.setValue(parsedData.publicKey);
-      this.keyLabel = 'Key is generated';
+      this.keyLabel = keyName;
       this.accessKeyValid = true;
     });
   }
