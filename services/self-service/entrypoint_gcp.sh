@@ -8,7 +8,7 @@
 #  -keystore /root/keys/ssn.keystore.jks
 
 /usr/bin/keytool -importcert -trustcacerts -alias dlab -file /root/keys/ssn.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
-/usr/bin/keytool -importcert -trustcacerts -alias endpoint1 -file /root/keys/enpoint1.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
-/usr/bin/keytool -importcert -trustcacerts -alias endpoint2 -file /root/keys/enpoint2.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
+/usr/bin/keytool -importcert -trustcacerts -alias endpoint1 -file /root/keys/endpoint1.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
+/usr/bin/keytool -importcert -trustcacerts -alias endpoint2 -file /root/keys/endpoint2.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
 
 /usr/bin/java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 -DDLAB_CONF_DIR=/root/ /root/self-service-2.1.jar server /root/self-service.yml
