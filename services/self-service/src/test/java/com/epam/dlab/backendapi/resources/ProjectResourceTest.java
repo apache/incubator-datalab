@@ -38,7 +38,8 @@ public class ProjectResourceTest extends TestBase {
 
     @Test
     public void generate() {
-        when(keyService.generateKeys(any(UserInfo.class))).thenReturn(new KeysDTO("somePublicKey", "somePrivateKey"));
+        when(keyService.generateKeys(any(UserInfo.class))).thenReturn(new KeysDTO("somePublicKey", "somePrivateKey",
+                "user"));
 
         final Response response = resources.getJerseyTest()
                 .target("/project/keys")

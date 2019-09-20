@@ -8,4 +8,5 @@ import lombok.Data;
 public class KeysDTO {
     private String publicKey;
     private String privateKey;
+    private String username;
 }
