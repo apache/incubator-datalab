@@ -140,7 +140,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 			pair.writePublicKey(publicKeyOut, userInfo.getName());
 			pair.writePrivateKey(privateKeyOut);
 			return new KeysDTO(new String(publicKeyOut.toByteArray()),
-					new String(privateKeyOut.toByteArray()));
+					new String(privateKeyOut.toByteArray()), userInfo.getName());
 		} catch (JSchException | IOException e) {
 			log.error("Can not generate private/public key pair due to: {}", e.getMessage());
 			throw new DlabException("Can not generate private/public key pair due to: " + e.getMessage(), e);
