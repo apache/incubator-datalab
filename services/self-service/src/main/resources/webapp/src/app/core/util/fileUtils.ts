@@ -18,20 +18,21 @@
  */
 
 export class FileUtils {
-  public static downloadFile(data: any) {
-    const fileName = data.headers.get('content-disposition').match(/filename="(.+)"/)[1];
-    const blob = new Blob([ data.body]);
+  public static downloadFile(data: any, options?: string, name?: string) {
+    const fileName = name || data.headers.get('content-disposition').match(/filename="(.+)"/)[1];
+    const body = options || data.body;
+    const blob = new Blob([body]);
     const url = window.URL.createObjectURL(blob);
 
     if (navigator.msSaveOrOpenBlob) {
-        navigator.msSaveBlob(blob, fileName);
+      navigator.msSaveBlob(blob, fileName);
     } else {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
     window.URL.revokeObjectURL(url);
   }

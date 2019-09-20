@@ -29,6 +29,8 @@ import { CheckUtils, FileUtils, PATTERNS } from '../../../core/util';
 import { Project } from '../project.component';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
+export interface GenerateKey { privateKey: string, publicKey: string };
+
 @Component({
   selector: 'project-form',
   templateUrl: './project-form.component.html',
@@ -124,8 +126,11 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public generateUserAccessKey() {
-    this.userAccessKeyService.generateAccessKey().subscribe(data => {
-      FileUtils.downloadFile(data);
+    this.userAccessKeyService.generateAccessKey().subscribe((data: any) => {
+      const parsedData = JSON.parse(data.body);
+      FileUtils.downloadFile(data, parsedData.privateKey, 'private');
+
+      this.projectForm.controls.key.setValue(parsedData.publicKey);
       this.keyLabel = 'Key is generated';
       this.accessKeyValid = true;
     });
