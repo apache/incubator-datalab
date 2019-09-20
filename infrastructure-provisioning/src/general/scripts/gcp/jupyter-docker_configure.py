@@ -214,7 +214,7 @@ if __name__ == "__main__":
                 print("Looks like it's first time we configure notebook server. Creating images.")
                 image_id_list = GCPActions().create_image_from_instance_disks(
                     notebook_config['expected_primary_image_name'], notebook_config['expected_secondary_image_name'],
-                    notebook_config['instance_name'], notebook_config['zone'])
+                    notebook_config['instance_name'], notebook_config['zone'], notebook_config['image_labels'])
                 if image_id_list and image_id_list[0] != '':
                     print("Image of primary disk was successfully created. It's ID is {}".format(image_id_list[0]))
                 else:
@@ -242,7 +242,7 @@ if __name__ == "__main__":
                  "--type {} " \
                  "--exploratory_name {} " \
                  "--additional_info '{}'"\
-            .format(edge_instance_hostname,
+            .format(edge_instance_private_ip,
                     notebook_config['ssh_key_path'],
                     notebook_config['dlab_ssh_user'],
                     'jupyter',
