@@ -24,9 +24,11 @@ FROM openjdk:8-alpine
 
 USER root
 
-RUN apk add --update python curl which bash
-
-RUN curl -sSL https://sdk.cloud.google.com | bash
+RUN mkdir -p /root/keys/
+COPY endpoint1.crt /root/keys/
+COPY endpoint2.crt /root/keys/
+COPY ssn.crt /root/keys/
+COPY ssn.keystore.jks /root/keys/
 
 COPY self-service-2.1.jar /root/
 COPY entrypoint_gcp.sh /

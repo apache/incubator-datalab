@@ -1,15 +1,11 @@
 #!/bin/sh
 
-mkdir -p /root/keys
-/usr/bin/keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass password \
-  -keypass password -keystore /root/keys/ssn.keystore.jks \
-  -keysize 2048 -dname "CN=35.237.224.151" -ext SAN=dns:localhost,ip:35.237.224.151
-/usr/bin/keytool -exportcert -alias dlab -storepass password -file /root/keys/ssn.crt \
-  -keystore /root/keys/ssn.keystore.jks
-
-/root/google-cloud-sdk/bin/gsutil cp /root/keys/ssn.crt gs://eqfx-dlab-ssn-bucket/
-/root/google-cloud-sdk/bin/gsutil cp gs://eqfx-dlab-ssn-bucket/enpoint1.crt /root/keys/
-/root/google-cloud-sdk/bin/gsutil cp gs://eqfx-dlab-ssn-bucket/enpoint2.crt /root/keys/
+#mkdir -p /root/keys
+#/usr/bin/keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass password \
+#  -keypass password -keystore /root/keys/ssn.keystore.jks \
+#  -keysize 2048 -dname "CN=35.237.224.151" -ext SAN=dns:localhost,ip:35.237.224.151
+#/usr/bin/keytool -exportcert -alias dlab -storepass password -file /root/keys/ssn.crt \
+#  -keystore /root/keys/ssn.keystore.jks
 
 /usr/bin/keytool -importcert -trustcacerts -alias dlab -file /root/keys/ssn.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
 /usr/bin/keytool -importcert -trustcacerts -alias endpoint1 -file /root/keys/enpoint1.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
