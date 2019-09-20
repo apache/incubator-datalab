@@ -655,7 +655,7 @@ export class ApplicationServiceFacade {
 
   private buildRequest(method: RequestMethod, url_path: string, body: any, opt?) {
     // added to simplify development process
-    const url = (environment.production) ? url_path : API_URL + url_path;
+    const url = environment.production ? url_path : API_URL + url_path;
 
     if (method === RequestMethod.Post) {
       return this.http.post(url, body, opt);
