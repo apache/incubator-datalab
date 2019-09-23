@@ -177,6 +177,7 @@ guacamole:
   username: dlab-user
 
 keycloakConfiguration:
+  redirectUri: REDIRECT_URI
   realm: KEYCLOAK_REALM_NAME
   bearer-only: true
   auth-server-url: KEYCLOAK_AUTH_SERVER_URL
