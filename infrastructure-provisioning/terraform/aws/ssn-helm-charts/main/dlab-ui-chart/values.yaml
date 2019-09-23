@@ -57,6 +57,7 @@ ui:
     host: ${provision_service_host}
   keycloak:
     auth_server_url: http://${ssn_k8s_alb_dns_name}/auth
+    redirect_uri: http://${ssn_k8s_alb_dns_name}/
 
   cloud_properties:
     env_os: ${env_os}

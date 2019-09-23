@@ -225,6 +225,7 @@ data:
       username: dlab-user
 
     keycloakConfiguration:
+      redirectUri: {{ .Values.ui.keycloak.redirect_uri }}
       realm: dlab
       bearer-only: true
       auth-server-url: ${KEYCLOAK_AUTH_URL}
