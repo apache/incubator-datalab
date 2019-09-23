@@ -44,4 +44,8 @@ export class AppRoutingService {
   redirectToAzure(): void {
     window.location.href = `${window.location.origin}/api/user/azure/init`;
   }
+
+  redirectToUrl(url: string): void {
+    window.location.href = url;
+  }
 }

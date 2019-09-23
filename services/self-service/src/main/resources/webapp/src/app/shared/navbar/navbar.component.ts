@@ -89,8 +89,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   logout_btnClick(): void {
     this.healthStatusService.resetStatusValue();
     this.applicationSecurityService.logout().subscribe(
-      () => {
-        this.appRoutingService.redirectToLoginPage();
+      (response: any) => {
+        const redirect_parameter = response.headers.get('Location');
+        redirect_parameter ? this.appRoutingService.redirectToUrl(redirect_parameter) : this.appRoutingService.redirectToLoginPage();
         this.subscriptions.unsubscribe();
       },
       error => console.error(error));

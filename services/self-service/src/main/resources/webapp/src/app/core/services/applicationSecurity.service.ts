@@ -86,8 +86,7 @@ export class ApplicationSecurityService {
             this.storage.destroyToken();
             this.storage.setBillingQuoteUsed('');
             this._loggedInStatus.next(false);
-
-            return response.status === HTTP_STATUS_CODES.OK;
+            return response;
           }, this));
     }
 
