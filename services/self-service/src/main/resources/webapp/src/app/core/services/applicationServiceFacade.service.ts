@@ -85,7 +85,7 @@ export class ApplicationServiceFacade {
   }
 
   public buildLogoutRequest(): Observable<any> {
-    return this.buildRequest(RequestMethod.Post,
+    return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.LOGOUT),
       '',
       { observe: 'response' });
@@ -581,7 +581,7 @@ export class ApplicationServiceFacade {
 
     // Security
     this.requestRegistry.Add(ApplicationServiceFacade.LOGIN, '/api/user/login');
-    this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
+    this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/oauth/logout');
     this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/oauth/authorize');
     this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user');
     this.requestRegistry.Add(ApplicationServiceFacade.FULL_ACTIVE_LIST, '/api/environment/all');
