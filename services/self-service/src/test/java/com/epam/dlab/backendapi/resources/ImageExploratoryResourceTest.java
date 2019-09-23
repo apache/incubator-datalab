@@ -123,12 +123,13 @@ public class ImageExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void getImages() {
-		when(imageExploratoryService.getNotFailedImages(anyString(), anyString(), anyString()))
+		when(imageExploratoryService.getNotFailedImages(anyString(), anyString(), anyString(), anyString()))
 				.thenReturn(getImageList());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image")
 				.queryParam("docker_image", "someDockerImage")
 				.queryParam("project", "someProject")
+				.queryParam("endpoint", "someEndpoint")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -138,19 +139,20 @@ public class ImageExploratoryResourceTest extends TestBase {
 		}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage", "someProject");
+		verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage", "someProject", "someEndpoint");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 
 	@Test
 	public void getImagesWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(imageExploratoryService.getNotFailedImages(anyString(), anyString(), anyString()))
+		when(imageExploratoryService.getNotFailedImages(anyString(), anyString(), anyString(), anyString()))
 				.thenReturn(getImageList());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image")
 				.queryParam("docker_image", "someDockerImage")
 				.queryParam("project", "someProject")
+				.queryParam("endpoint", "someEndpoint")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -160,7 +162,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 		}));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage", "someProject");
+		verify(imageExploratoryService).getNotFailedImages(USER.toLowerCase(), "someDockerImage", "someProject", "someEndpoint");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 
@@ -225,7 +227,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 	}
 
 	private List<ImageInfoRecord> getImageList() {
-		ImageInfoRecord imageInfoRecord = new ImageInfoRecord("someName", "someDescription", "someProject", "someApp",
+		ImageInfoRecord imageInfoRecord = new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someApp",
 				"someFullName", ImageStatus.CREATED);
 		return Collections.singletonList(imageInfoRecord);
 	}
