@@ -19,15 +19,17 @@
 
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatStepper } from '@angular/material';
+import { MatStepper } from '@angular/material/stepper';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 
-import { ProjectService, RolesGroupsService, EndpointService } from '../../../core/services';
+import { ProjectService, RolesGroupsService, EndpointService, UserAccessKeyService } from '../../../core/services';
 import { ProjectDataService } from '../project-data.service';
-import { CheckUtils, PATTERNS } from '../../../core/util';
+import { CheckUtils, FileUtils, PATTERNS } from '../../../core/util';
 import { Project } from '../project.component';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+
+export interface GenerateKey { privateKey: string, publicKey: string };
 
 @Component({
   selector: 'project-form',
@@ -58,6 +60,7 @@ export class ProjectFormComponent implements OnInit {
     private projectDataService: ProjectDataService,
     private rolesService: RolesGroupsService,
     private endpointService: EndpointService,
+    private userAccessKeyService: UserAccessKeyService,
     private cd: ChangeDetectorRef
   ) { }
 
@@ -120,6 +123,18 @@ export class ProjectFormComponent implements OnInit {
         this.cd.markForCheck();
       };
     }
+  }
+
+  public generateUserAccessKey() {
+    this.userAccessKeyService.generateAccessKey().subscribe((data: any) => {
+      const parsedData = JSON.parse(data.body);
+      const keyName = `${parsedData.username}.pem`;
+      FileUtils.downloadFile(data, parsedData.privateKey, keyName);
+
+      this.projectForm.controls.key.setValue(parsedData.publicKey);
+      this.keyLabel = keyName;
+      this.accessKeyValid = true;
+    });
   }
 
   public selectOptions(list, key, select?) {

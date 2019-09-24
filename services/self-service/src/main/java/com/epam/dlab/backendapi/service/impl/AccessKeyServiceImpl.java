@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.resources.dto.KeysDTO;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -124,6 +125,22 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 			pair.writePrivateKey(privateKeyOut);
 			uploadKey(userInfo, new String(publicKeyOut.toByteArray()), createEdge);
 			return new String(privateKeyOut.toByteArray());
+		} catch (JSchException | IOException e) {
+			log.error("Can not generate private/public key pair due to: {}", e.getMessage());
+			throw new DlabException("Can not generate private/public key pair due to: " + e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public KeysDTO generateKeys(UserInfo userInfo) {
+		log.debug("Generating new key pair for user {}", userInfo.getName());
+		try (ByteArrayOutputStream publicKeyOut = new ByteArrayOutputStream();
+			 ByteArrayOutputStream privateKeyOut = new ByteArrayOutputStream()) {
+			KeyPair pair = KeyPair.genKeyPair(new JSch(), KeyPair.RSA, configuration.getPrivateKeySize());
+			pair.writePublicKey(publicKeyOut, userInfo.getName());
+			pair.writePrivateKey(privateKeyOut);
+			return new KeysDTO(new String(publicKeyOut.toByteArray()),
+					new String(privateKeyOut.toByteArray()), userInfo.getName());
 		} catch (JSchException | IOException e) {
 			log.error("Can not generate private/public key pair due to: {}", e.getMessage());
 			throw new DlabException("Can not generate private/public key pair due to: " + e.getMessage(), e);

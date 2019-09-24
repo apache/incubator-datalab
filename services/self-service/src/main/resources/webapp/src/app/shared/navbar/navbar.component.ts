@@ -18,7 +18,7 @@
  */
 
 import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Subscription, timer, interval } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { RouterOutlet } from '@angular/router';

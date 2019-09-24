@@ -20,7 +20,7 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';

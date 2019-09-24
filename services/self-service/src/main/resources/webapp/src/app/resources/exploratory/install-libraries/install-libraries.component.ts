@@ -19,7 +19,7 @@
 
 
 import { Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime } from 'rxjs/operators';
