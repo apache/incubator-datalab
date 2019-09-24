@@ -73,3 +73,30 @@ export interface GeneralEnvironmentStatus {
   status: string;
   projectAssigned: boolean;
 }
+
+
+export class ManagementConfigModel {
+
+  static getDefault(): ManagementConfigModel {
+    return new ManagementConfigModel([], '', [], [], [], []);
+  }
+
+  constructor(
+    public users: Array<string>,
+    public type: string,
+    public projects: Array<string>,
+    public shapes: Array<string>,
+    public statuses: Array<string>,
+    public resources: Array<string>,
+
+  ) { }
+
+  defaultConfigurations(): void {
+    this.users = [];
+    this.type = '';
+    this.projects = [];
+    this.shapes = [];
+    this.statuses = [];
+    this.resources = [];
+  }
+}

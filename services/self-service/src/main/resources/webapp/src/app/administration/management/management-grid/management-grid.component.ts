@@ -22,10 +22,11 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { ToastrService } from 'ngx-toastr';
 
 import { HealthStatusService } from '../../../core/services';
+import { SortUtils } from '../../../core/util';
 import { ConfirmationDialogType } from '../../../shared';
 import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog';
 import { EnvironmentsDataService } from '../management-data.service';
-import { EnvironmentModel } from '../management.model';
+import { EnvironmentModel, ManagementConfigModel } from '../management.model';
 
 export interface ManageAction {
   action: string;
@@ -45,6 +46,9 @@ export interface ManageAction {
 export class ManagementGridComponent implements OnInit {
   allEnvironmentData: Array<any>;
   loading: boolean = false;
+  filterConfiguration: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
+  filterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
+  filtering: boolean = false;
 
   @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
@@ -54,6 +58,7 @@ export class ManagementGridComponent implements OnInit {
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
   displayedColumns: string[] = ['user', 'type', 'project', 'shape', 'status', 'resources', 'actions'];
+  displayedFilterColumns: string[] = ['user-filter', 'type-filter', 'project-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -63,11 +68,28 @@ export class ManagementGridComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.environmentsDataService._data.subscribe(data => this.allEnvironmentData = EnvironmentModel.loadEnvironments(data));
+    this.environmentsDataService._data.subscribe(data => {
+      this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);
+      this.getDefaultFilterConfiguration(data);
+    });
   }
 
   buildGrid(): void {
     this.refreshGrid.emit();
+  }
+
+  public onUpdate($event): void {
+    this.filterForm[$event.type] = $event.model;
+  }
+
+  public resetFilterConfigurations(): void {
+    this.filterForm.defaultConfigurations();
+    this.applyFilter(this.filterForm);
+    this.buildGrid();
+  }
+
+  public applyFilter(form) {
+    debugger;
   }
 
   toggleResourceAction(environment: any, action: string, resource?): void {
@@ -124,6 +146,24 @@ export class ManagementGridComponent implements OnInit {
       && resource.status !== 'terminated'
       && resource.status !== 'running'
       && resource.status !== 'stopped')).length > 0;
+  }
+
+  private getDefaultFilterConfiguration(data): void {
+    const users = [], projects = [], shapes = [], statuses = [], resources = [];
+
+    data && data.forEach((item: any) => {
+      if (item.user && users.indexOf(item.user) === -1) users.push(item.user);
+      if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1) statuses.push(item.status.toLowerCase());
+      if (item.project && projects.indexOf(item.project) === -1) projects.push(item.project);
+      if (item.shape && shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
+
+      item.computational_resources.map((resource: any) => {
+        if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
+        resources.sort(SortUtils.statusSort);
+      });
+    });
+
+    this.filterConfiguration = new ManagementConfigModel(users, '', projects, shapes, statuses, resources);
   }
 }
 
