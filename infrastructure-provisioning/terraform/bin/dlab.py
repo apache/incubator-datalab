@@ -554,14 +554,14 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   default=["0.0.0.0/0"], action='append', group='k8s')
          .add_str('--ami', 'ID of EC2 AMI.', required=True, group='k8s')
          .add_str('--env_os', 'OS type.', default='debian',
-                  choices=['debian', 'redhat'], group=('k8s', 'helm_charts'))
+                  choices=['debian', 'redhat'], group=('k8s'))
          .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
                   group='k8s')
          .add_str('--os_user', 'Name of DLab service user.',
                   default='dlab-user', group='k8s')
          .add_str('--pkey', 'path to key', required=True, group='service')
          .add_str('--region', 'Name of AWS region.', default='us-west-2',
-                  group=('k8s', 'helm_charts'))
+                  group=('k8s'))
          .add_str('--secret_access_key', 'AWS Secret Access Key',
                   required=True,
                   group='k8s')
@@ -575,7 +575,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_int('--ssn_k8s_workers_count', 'Count of K8S workers', default=2,
                   group=('k8s', 'helm_charts'))
          .add_str('--ssn_k8s_masters_shape', 'Shape for SSN K8S masters.',
-                  default='t2.medium', group=('k8s', 'helm_charts'))
+                  default='t2.medium', group=('k8s'))
          .add_str('--ssn_k8s_workers_shape', 'Shape for SSN K8S workers.',
                   default='t2.medium', group='k8s')
          .add_int('--ssn_root_volume_size', 'Size of root volume in GB.',
@@ -603,7 +603,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--vpc_id', 'ID of AWS VPC if you already have VPC created.',
                   group='k8s')
          .add_str('--zone', 'Name of AWS zone', default='a',
-                  group=('k8s', 'helm_charts'))
+                  group=('k8s'))
          .add_str('--ssn_keystore_password', 'ssn_keystore_password',
                   group='helm_charts')
          .add_str('--endpoint_keystore_password', 'endpoint_keystore_password',
@@ -622,9 +622,6 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--ldap_users_group', 'ldap users group', required=True,
                   group='helm_charts')
-         .add_str('--ssn_subnet', 'ssn subnet id', group='helm_charts')
-         .add_str('--ssn_k8s_sg_id', 'ssn sg ids', group='helm_charts')
-         .add_str('--ssn_vpc_id', 'ssn vpc id', group='helm_charts')
          .add_str('--tag_resource_id', 'Tag resource ID.',
                   default='user:tag', group=('k8s', 'helm_charts'))
          .add_str('--additional_tag', 'Additional tag.',
