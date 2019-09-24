@@ -342,13 +342,13 @@ if __name__ == "__main__":
                        {"description": "TensorBoard",
                         "url": tensorboard_acces_url},
                        {"description": "Ungit",
-                        "url": jupyter_ungit_acces_url},
-                       {"description": "Jupyter (via tunnel)",
-                        "url": jupyter_ip_url},
-                       {"description": "TensorBoard (via tunnel)",
-                        "url": tensorboard_url},
-                       {"description": "Ungit (via tunnel)",
-                        "url": ungit_ip_url}
+                        "url": jupyter_ungit_acces_url}#,
+                       #{"description": "Jupyter (via tunnel)",
+                       # "url": jupyter_ip_url},
+                       #{"description": "TensorBoard (via tunnel)",
+                       # "url": tensorboard_url},
+                       #{"description": "Ungit (via tunnel)",
+                       # "url": ungit_ip_url}
                    ]}
             result.write(json.dumps(res))
     except Exception as err:

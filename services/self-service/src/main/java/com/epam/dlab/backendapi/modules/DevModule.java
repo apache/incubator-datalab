@@ -38,10 +38,15 @@ import io.dropwizard.auth.Authorizer;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
 import org.glassfish.jersey.logging.LoggingFeature;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.ws.rs.client.Client;
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.EnumSet;
+import java.util.Optional;
 
 /**
  * Mock class for an application configuration of SelfService for developer mode.
@@ -65,6 +70,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 
 	@Override
 	protected void configure() {
+		configureCors(environment);
 		final Client httpClient =
 				new JerseyClientBuilder(environment)
 						.using(configuration.getJerseyClientConfiguration())
@@ -121,6 +127,20 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		userInfo.addRole("test");
 		userInfo.addRole("dev");
 		return userInfo;
+	}
+
+	private void configureCors(Environment environment) {
+		final FilterRegistration.Dynamic cors =
+				environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+
+		cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
+		cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin," +
+				"Authorization");
+		cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "OPTIONS,GET,PUT,POST,DELETE,HEAD");
+		cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "true");
+
+		cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+
 	}
 
 	/**

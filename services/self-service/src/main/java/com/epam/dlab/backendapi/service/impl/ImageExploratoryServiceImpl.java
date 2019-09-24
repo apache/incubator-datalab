@@ -92,6 +92,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 				.dockerImage(userInstance.getImageName())
 				.exploratoryId(userInstance.getId())
 				.project(userInstance.getProject())
+				.endpoint(userInstance.getEndpoint())
 				.build());
 
 		exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
@@ -121,8 +122,8 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	}
 
 	@Override
-	public List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project) {
-		return imageExploratoryDao.getImages(user, dockerImage, project, ImageStatus.CREATED, ImageStatus.CREATING);
+	public List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project, String endpoint) {
+		return imageExploratoryDao.getImages(user, dockerImage, project, endpoint, ImageStatus.CREATED, ImageStatus.CREATING);
 	}
 
 	@Override

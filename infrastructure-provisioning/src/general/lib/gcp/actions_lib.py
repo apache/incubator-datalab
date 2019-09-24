@@ -314,7 +314,7 @@ class GCPActions:
             ]
         elif instance_class == 'dataengine':
             disks = [{
-                "name": cluster_name,
+                "name": instance_name,
                 "tag_name": cluster_name + '-volume-primary',
                 "deviceName": cluster_name + '-primary',
                 "autoDelete": 'true',
@@ -867,12 +867,12 @@ class GCPActions:
                     slave_instances = cluster.get('config').get('workerConfig').get('instanceNames')
                     for instance in master_instances:
                         param = {}
-                        param['name'] = clusteName
+                        param['name'] = instance
                         param['tag_name'] = clusteName + '-volume-primary'
                         dataproc_instances.append(param)
                     for instance in slave_instances:
                         param = {}
-                        param['name'] = clusteName
+                        param['name'] = instance
                         param['tag_name'] = clusteName + '-volume-primary'
                         dataproc_instances.append(param)
             GCPActions().set_disks_tag(dataproc_instances, zone, labels)

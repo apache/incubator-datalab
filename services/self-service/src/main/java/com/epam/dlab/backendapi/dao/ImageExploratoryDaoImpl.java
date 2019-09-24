@@ -46,6 +46,7 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 	private static final String EXTERNAL_NAME = "externalName";
 	private static final String DOCKER_IMAGE = "dockerImage";
 	private static final String PROJECT = "project";
+	private static final String ENDPOINT = "endpoint";
 
 	@Override
 	public boolean exist(String user, String name) {
@@ -65,9 +66,9 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 	}
 
 	@Override
-	public List<ImageInfoRecord> getImages(String user, String dockerImage, String project, ImageStatus... statuses) {
+	public List<ImageInfoRecord> getImages(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses) {
 		return find(MongoCollections.IMAGES,
-				userImagesCondition(user, dockerImage, project, statuses),
+				userImagesCondition(user, dockerImage, project, endpoint, statuses),
 				ImageInfoRecord.class);
 	}
 
@@ -102,8 +103,8 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 				elemMatch(LIBRARIES, eq(STATUS, status.name())));
 	}
 
-	private Bson userImagesCondition(String user, String dockerImage, String project, ImageStatus... statuses) {
-		final Bson userImagesCondition = userImagesCondition(user, project, statuses);
+	private Bson userImagesCondition(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses) {
+		final Bson userImagesCondition = userImagesCondition(user, project, endpoint, statuses);
 		if (Objects.nonNull(dockerImage)) {
 			return and(userImagesCondition, eq(DOCKER_IMAGE, dockerImage));
 		} else {
@@ -112,13 +113,13 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 
 	}
 
-	private Bson userImagesCondition(String user, String project, ImageStatus... statuses) {
+	private Bson userImagesCondition(String user, String project, String endpoint, ImageStatus... statuses) {
 
 		final List<String> statusList = Arrays
 				.stream(statuses)
 				.map(ImageStatus::name)
 				.collect(Collectors.toList());
-		return and(eq(USER, user), in(STATUS, statusList), eq(PROJECT, project));
+		return and(eq(USER, user), in(STATUS, statusList), eq(PROJECT, project), eq(ENDPOINT, endpoint));
 	}
 
 

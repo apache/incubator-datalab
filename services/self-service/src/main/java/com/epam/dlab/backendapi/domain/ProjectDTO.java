@@ -23,6 +23,7 @@ public class ProjectDTO {
 	private final String tag;
 	private final Integer budget;
 	private final List<ProjectEndpointDTO> endpoints;
+	private boolean useSharedImage;
 
 
 	public enum Status {

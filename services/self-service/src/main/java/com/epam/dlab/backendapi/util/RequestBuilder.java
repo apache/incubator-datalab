@@ -624,6 +624,7 @@ public class RequestBuilder {
 				.name(projectDTO.getName())
 				.tag(projectDTO.getTag())
 				.endpoint(endpoint)
+				.useSharedImage(projectDTO.isUseSharedImage())
 				.build()
 				.withCloudSettings(cloudSettings(userInfo));
 	}
