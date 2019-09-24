@@ -19,9 +19,12 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
+import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import org.junit.Rule;
@@ -49,6 +52,8 @@ public class UserGroupServiceImplTest {
 	private UserRoleDao userRoleDao;
 	@Mock
 	private UserGroupDao userGroupDao;
+	@Mock
+	private ProjectDAO projectDAO;
 	@InjectMocks
 	private UserGroupServiceImpl userGroupService;
 
@@ -151,6 +156,10 @@ public class UserGroupServiceImplTest {
 	public void removeGroup() {
 
 		when(userRoleDao.removeGroup(anyString())).thenReturn(true);
+		final ProjectDTO projectDTO = new ProjectDTO(
+				"name", Collections.emptySet(), "", "", null, Collections.emptyList());
+		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList(projectDTO));
 		doNothing().when(userGroupDao).removeGroup(anyString());
 
 		userGroupService.removeGroup(GROUP);
@@ -161,8 +170,31 @@ public class UserGroupServiceImplTest {
 	}
 
 	@Test
+	public void removeGroupWhenItIsUsedInProject() {
+
+		when(userRoleDao.removeGroup(anyString())).thenReturn(true);
+		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.TERMINATING)).thenReturn(Collections.emptyList());
+		doNothing().when(userGroupDao).removeGroup(anyString());
+
+		try {
+			userGroupService.removeGroup(GROUP);
+		} catch (Exception e){
+			assertEquals("Group can not be removed because it is used in some project", e.getMessage());
+		}
+
+		verify(userRoleDao, never()).removeGroup(GROUP);
+		verify(userGroupDao, never()).removeGroup(GROUP);
+		verifyNoMoreInteractions(userGroupDao, userRoleDao);
+	}
+
+	@Test
 	public void removeGroupWhenGroupNotExist() {
 
+		final ProjectDTO projectDTO = new ProjectDTO(
+				"name", Collections.emptySet(), "", "", null, Collections.emptyList());
+		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList(projectDTO));
 		when(userRoleDao.removeGroup(anyString())).thenReturn(false);
 		doNothing().when(userGroupDao).removeGroup(anyString());
 
@@ -175,6 +207,10 @@ public class UserGroupServiceImplTest {
 
 	@Test
 	public void removeGroupWithException() {
+		final ProjectDTO projectDTO = new ProjectDTO(
+				"name", Collections.emptySet(), "", "", null, Collections.emptyList());
+		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList(projectDTO));
 		when(userRoleDao.removeGroup(anyString())).thenThrow(new DlabException("Exception"));
 
 		expectedException.expectMessage("Exception");

@@ -8,7 +8,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -45,9 +44,11 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public List<ProjectDTO> getProjectsWithStatusNotIn(ProjectDTO.Status... statuses) {
-		List<String> statusList = Arrays.stream(statuses).map(ProjectDTO.Status::toString).collect(Collectors.toList());
-		return find(PROJECTS_COLLECTION, not(in(STATUS_FIELD, statusList)), ProjectDTO.class);
+	public List<ProjectDTO> getProjectsWithEndpointStatusNotIn(UserInstanceStatus... statuses) {
+		final List<String> statusList =
+				Arrays.stream(statuses).map(UserInstanceStatus::name).collect(Collectors.toList());
+
+		return find(PROJECTS_COLLECTION, not(in("endpoints." + STATUS_FIELD, statusList)), ProjectDTO.class);
 	}
 
 	@Override
