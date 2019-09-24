@@ -187,14 +187,14 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
             sudo('sed -i "s|KEYNAME|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
                  format(os.environ['conf_key_name'], dlab_path))
-            sudo('sed -i "s|KEYCLOAK_REALM_NAME|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
-                 format(os.environ['keycloak_realm_name'], dlab_path))
-            sudo('sed -i "s|KEYCLOAK_AUTH_SERVER_URL|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
-                 format(os.environ['keycloak_auth_server_url'], dlab_path))
-            sudo('sed -i "s|KEYCLOAK_CLIENT_NAME|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
-                 format(os.environ['keycloak_client_name'], dlab_path))
-            sudo('sed -i "s|KEYCLOAK_CLIENT_SECRET|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
-                 format(os.environ['keycloak_client_secret'], dlab_path))
+            # sudo('sed -i "s|KEYCLOAK_REALM_NAME|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
+            #      format(os.environ['keycloak_realm_name'], dlab_path))
+            # sudo('sed -i "s|KEYCLOAK_AUTH_SERVER_URL|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
+            #      format(os.environ['keycloak_auth_server_url'], dlab_path))
+            # sudo('sed -i "s|KEYCLOAK_CLIENT_NAME|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
+            #      format(os.environ['keycloak_client_name'], dlab_path))
+            # sudo('sed -i "s|KEYCLOAK_CLIENT_SECRET|{}|g" {}/webapp/provisioning-service/conf/provisioning.yml'.
+            #      format(os.environ['keycloak_client_secret'], dlab_path))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
@@ -233,7 +233,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     if "KEYCLOAK_" in item['key']:
                         sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/self-service.yml'.format(
                             item['key'], item['value']))
-                    sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/provisioning-service.yml'.format(
+                    sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/provisioning.yml'.format(
                         item['key'], item['value']))
 
                 if cloud_provider == 'azure':
