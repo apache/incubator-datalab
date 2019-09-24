@@ -47,6 +47,8 @@ if __name__ == "__main__":
         notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        notebook_config['application'] = os.environ['application'].lower().replace('_', '-')
         
         print('Generating infrastructure names and tags')
         try:
@@ -90,9 +92,9 @@ if __name__ == "__main__":
 
         notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
             notebook_config['service_base_name'],
-            os.environ['endpoint_name'].lower().replace('_', '-'),
-            os.environ['project_name'].lower().replace('_', '-'),
-            os.environ['application'].lower().replace('_', '-'))
+            notebook_config['endpoint_name'],
+            notebook_config['project_name'],
+            notebook_config['application'])
         notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'].lower().replace('_', '-') if (x != 'None' and x != '')
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
