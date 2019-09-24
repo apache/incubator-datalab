@@ -29,19 +29,6 @@ data "template_file" "dlab_ui_values" {
       ssn_k8s_alb_dns_name   = var.ssn_k8s_alb_dns_name
       ssn_bucket_name        = var.ssn_bucket_name
       provision_service_host = var.endpoint_eip_address
-      env_os                 = var.env_os
-      service_base_name      = var.service_base_name
-      subnet_id              = var.ssn_subnet
-      region                 = var.region
-      zone                   = var.zone
-      security_group_ids     = var.ssn_k8s_sg_id
-      ssn_instance_shape     = var.ssn_k8s_masters_shape
-      vpc_id                 = var.ssn_vpc_id
-      ldap_host              = var.ldap_host
-      ldap_dn                = var.ldap_dn
-      ldap_ou                = var.ldap_users_group
-      ldap_user              = var.ldap_user
-      ldap_password          = var.ldap_bind_creds
   }
 }
 

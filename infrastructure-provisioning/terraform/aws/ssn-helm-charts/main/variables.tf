@@ -104,21 +104,7 @@ variable "ssn_bucket_name" {}
 
 variable "endpoint_eip_address" {}
 
-variable "region" {}
-
-variable "zone" {}
-
-variable "ssn_vpc_id" {}
-
-variable "ssn_subnet" {}
-
 variable "service_base_name" {}
-
-variable "ssn_k8s_sg_id" {}
-
-variable "env_os" {}
-
-variable "ssn_k8s_masters_shape" {}
 
 variable "tag_resource_id" {}
 
