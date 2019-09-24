@@ -256,7 +256,10 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     sudo('cp {0}/webapp/{1}/conf/*.yml /tmp/yml_tmp/'.format(dlab_path, service))
                 # Replacing Keycloak and cloud parameters
                 for item in json.loads(cloud_params):
-                    sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/self-service.yml'.format(
+                    if "KEYCLOAK_" in item['key']:
+                        sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/self-service.yml'.format(
+                            item['key'], item['value']))
+                    sudo('sed -i "s|{0}|{1}|g" /tmp/yml_tmp/provisioning-service.yml'.format(
                         item['key'], item['value']))
                 if os.environ['conf_cloud_provider'] == 'azure':
                     sudo('sed -i "s|<LOGIN_USE_LDAP>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(ldap_login))

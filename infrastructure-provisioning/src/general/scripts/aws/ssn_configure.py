@@ -339,6 +339,10 @@ if __name__ == "__main__":
         # mongo_parameters.update(secondary_parameters)
         cloud_params = [
             {
+                'key': 'KEYCLOAK_REDIRECT_URI',
+                'value': "http://{0}/".format(get_instance_hostname(tag_name, instance_name))
+            },
+            {
                 'key': 'KEYCLOAK_REALM_NAME',
                 'value': os.environ['keycloak_realm_name']
             },

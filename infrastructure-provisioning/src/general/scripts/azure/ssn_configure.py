@@ -196,6 +196,10 @@ if __name__ == "__main__":
 
         cloud_params = [
             {
+                'key': 'KEYCLOAK_REDIRECT_URI',
+                'value': "http://{0}/".format(ssn_conf['instnace_ip'])
+            },
+            {
                 'key': 'KEYCLOAK_REALM_NAME',
                 'value': os.environ['keycloak_realm_name']
             },
