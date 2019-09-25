@@ -50,24 +50,28 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         - name: {{ .Chart.Name }}
-            image: "{{ .Values.guacamole.image.repository }}:{{ .Values.guacamole.image.tag }}"
-            imagePullPolicy: {{ .Values.guacamole.image.pullPolicy }}
-            env:
-              - name: MYSQL_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: mysql-guacamole-user-password
-                    key: password
-              - name: MYSQL_DATABASE
-                value: {{ .Values.guacamole.mysql.database }}
-              - name: MYSQL_USER
-                value: {{ .Values.guacamole.mysql.user }}
-            ports:
-              - name: tcp
-                containerPort: 8080
-                protocol: TCP
-            resources:
-              {{- toYaml .Values.resources | nindent 12 }}
+          image: "{{ .Values.guacamole.image.repository }}:{{ .Values.guacamole.image.tag }}"
+          imagePullPolicy: {{ .Values.guacamole.image.pullPolicy }}
+          env:
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-guacamole-user-password
+                  key: password
+            - name: MYSQL_DATABASE
+              value: {{ .Values.guacamole.mysql.database }}
+            - name: MYSQL_USER
+              value: {{ .Values.guacamole.mysql.user }}
+            - name: GUACD_HOSTNAME
+              value: guacamole
+            - name: MYSQL_HOSTNAME
+              value: guacamole-mysql
+          ports:
+            - name: tcp
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
