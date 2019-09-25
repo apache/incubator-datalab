@@ -31,8 +31,8 @@
         <span class="label">{{ column.title }}</span>
         <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapsedFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapsedFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">more_vert</span>
           </i>
         </button>
       </th>
@@ -43,8 +43,8 @@
         <span class="label">Environment name</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm.name.length > 0 && !collapsedFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm.name.length > 0 && !collapsedFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm.name.length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.name.length > 0 && !collapseFilterRow">more_vert</span>
           </i>
         </button>
       </th>
@@ -54,8 +54,8 @@
         <span class="label"> Status </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm.statuses.length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.statuses.length > 0 && !collapseFilterRow">more_vert</span>
           </i>
         </button>
       </th>
@@ -65,8 +65,8 @@
         <span class="label"> {{ DICTIONARY.instance_size }} </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm.shapes.length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.shapes.length > 0 && !collapseFilterRow">more_vert</span>
           </i>
         </button>
       </th>
@@ -81,8 +81,8 @@
         <span class="label"> {{ DICTIONARY.computational_resource }} </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm.resources.length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.resources.length > 0 && !collapseFilterRow">more_vert</span>
           </i>
         </button>
       </th>
