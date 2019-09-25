@@ -17,25 +17,32 @@
  * under the License.
  */
 
-.dashboard_table {
+.data-grid {
+  &.management {
 
-  .th_user,
-  .th_name {
-    width: 20%;
-  }
+    .user,
+    .name,
+    .project {
+      width: 15%;
 
-  .th_shape,
-  .th_status {
-    width: 12% !important;
-  }
+      .list-menu li {
+        text-transform: inherit;
+      }
+    }
 
-  .th_resources {
-    width: 33%;
-  }
+    .shape,
+    .status {
+      width: 12% !important;
+    }
 
-  .dashboard_table_body {
-    td:first-child {
-      cursor: default;
+    .resources {
+      width: 25%;
+    }
+
+    .dashboard_table_body {
+      td:first-child {
+        cursor: default;
+      }
     }
   }
 }
@@ -50,4 +57,5 @@ table {
   .actions {
     text-align: right;
   }
+
 }

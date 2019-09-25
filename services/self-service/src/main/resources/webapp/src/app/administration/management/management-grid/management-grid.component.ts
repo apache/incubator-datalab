@@ -88,8 +88,42 @@ export class ManagementGridComponent implements OnInit {
     this.buildGrid();
   }
 
-  public applyFilter(form) {
+  public applyFilter(config) {
     debugger;
+
+    let filteredData = this.allEnvironmentData;
+
+    const containsStatus = (list, selectedItems) => {
+      return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
+    };
+
+    if (filteredData.length) this.filtering = true;
+    if (config) {
+      filteredData = filteredData.filter(item => {
+
+        // const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
+        const isName = 1;
+        const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
+        const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+
+        const modifiedResources = containsStatus(item.resources, config.resources);
+        let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
+
+        if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
+
+        if (config.resources.length === 0 && config.type === 'active' ||
+          modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
+          item.resources = modifiedResources;
+          isResources = true;
+        }
+
+        return isName && isStatus && isShape && isResources;
+
+      });
+
+    }
+
+    this.allEnvironmentData = filteredData;
   }
 
   toggleResourceAction(environment: any, action: string, resource?): void {
