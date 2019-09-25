@@ -89,8 +89,6 @@ export class ManagementGridComponent implements OnInit {
   }
 
   public applyFilter(config) {
-    debugger;
-
     let filteredData = this.allEnvironmentData;
 
     const containsStatus = (list, selectedItems) => {
@@ -101,10 +99,11 @@ export class ManagementGridComponent implements OnInit {
     if (config) {
       filteredData = filteredData.filter(item => {
 
-        // const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
-        const isName = 1;
+        const isUser = config.users.length > 0 ? (config.users.indexOf(item.user) !== -1) : true;
+        const isType = item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
         const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
         const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+        const isProject = config.projects.length > 0 ? (config.projects.indexOf(item.project) !== -1) : true;
 
         const modifiedResources = containsStatus(item.resources, config.resources);
         let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
@@ -117,12 +116,9 @@ export class ManagementGridComponent implements OnInit {
           isResources = true;
         }
 
-        return isName && isStatus && isShape && isResources;
-
+        return isUser && isType && isStatus && isShape && isProject && isResources;
       });
-
     }
-
     this.allEnvironmentData = filteredData;
   }
 
