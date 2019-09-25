@@ -167,6 +167,10 @@ variable "billing_resource_id" {
 variable "billing_tags" {
     default = "line_item_operation,line_item_line_item_description"
 }
+
+variable "env_os" {
+    default = "debian"
+}
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"
