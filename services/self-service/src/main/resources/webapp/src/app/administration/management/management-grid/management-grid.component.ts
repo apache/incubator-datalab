@@ -45,6 +45,7 @@ export interface ManageAction {
 })
 export class ManagementGridComponent implements OnInit {
   allEnvironmentData: Array<any>;
+  allFilteredEnvironmentData: Array<any>;
   loading: boolean = false;
   filterConfiguration: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
   filterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
@@ -69,13 +70,17 @@ export class ManagementGridComponent implements OnInit {
 
   ngOnInit() {
     this.environmentsDataService._data.subscribe(data => {
-      this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);
-      this.getDefaultFilterConfiguration(data);
+      if (data) {
+        this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);
+        this.getDefaultFilterConfiguration(data);
+        this.applyFilter(this.filterForm);
+      }
     });
   }
 
   buildGrid(): void {
     this.refreshGrid.emit();
+    this.filtering = false;
   }
 
   public onUpdate($event): void {
@@ -89,7 +94,7 @@ export class ManagementGridComponent implements OnInit {
   }
 
   public applyFilter(config) {
-    let filteredData = this.allEnvironmentData;
+    let filteredData = this.getEnvironmentDataCopy();
 
     const containsStatus = (list, selectedItems) => {
       return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
@@ -119,7 +124,11 @@ export class ManagementGridComponent implements OnInit {
         return isUser && isType && isStatus && isShape && isProject && isResources;
       });
     }
-    this.allEnvironmentData = filteredData;
+    this.allFilteredEnvironmentData = filteredData;
+  }
+
+  getEnvironmentDataCopy() {
+    return this.allEnvironmentData;
   }
 
   toggleResourceAction(environment: any, action: string, resource?): void {
