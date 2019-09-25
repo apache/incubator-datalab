@@ -219,7 +219,7 @@ data:
 
     guacamole:
       connectionProtocol: ssh
-      serverHost: localhost
+      serverHost: guacamole
       serverPort: 4822
       port: 22
       username: dlab-user

@@ -27,12 +27,20 @@ variable "keycloak_user" {
     default = "dlab-admin"
 }
 
-variable "mysql_user" {
+variable "mysql_keycloak_user" {
     default = "keycloak"
 }
 
-variable "mysql_db_name" {
+variable "mysql_keycloak_db_name" {
     default = "keycloak"
+}
+
+variable "mysql_guacamole_user" {
+    default = "guacamole"
+}
+
+variable "mysql_guacamole_db_name" {
+    default = "guacamole"
 }
 
 variable "ldap_usernameAttr" {

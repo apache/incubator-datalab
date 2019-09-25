@@ -19,14 +19,14 @@
 #
 # ******************************************************************************
 
-data "template_file" "mysql_values" {
+data "template_file" "keycloak-mysql-values" {
   template = file("./files/mysql_values.yaml")
   vars = {
     mysql_root_password = random_string.mysql_root_password.result
-    mysql_user          = var.mysql_user
-    mysql_user_password = random_string.mysql_user_password.result
-    mysql_db_name       = var.mysql_db_name
-    mysql_volume_claim  = kubernetes_persistent_volume_claim.example.metadata.0.name
+    mysql_user          = var.mysql_keycloak_user
+    mysql_user_password = random_string.mysql_keycloak_user_password.result
+    mysql_db_name       = var.mysql_keycloak_db_name
+    mysql_volume_claim  = kubernetes_persistent_volume_claim.mysql-keycloak-pvc.metadata.0.name
   }
 }
 
@@ -35,16 +35,16 @@ resource "helm_release" "keycloak-mysql" {
   chart  = "stable/mysql"
   wait   = true
   values = [
-    data.template_file.mysql_values.rendered
+    data.template_file.keycloak-mysql-values.rendered
   ]
-  depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_user_password_secret]
+  depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_keycloak_user_password_secret]
 }
 
 provider "kubernetes" {}
 
-resource "kubernetes_persistent_volume" "example" {
+resource "kubernetes_persistent_volume" "mysql-keycloak-pv" {
   metadata {
-    name = "mysql-keycloak-pv2"
+    name = "mysql-keycloak-pv"
   }
   spec {
     capacity = {
@@ -53,15 +53,15 @@ resource "kubernetes_persistent_volume" "example" {
     access_modes = ["ReadWriteMany"]
     persistent_volume_source {
       host_path {
-        path = "/home/dlab-user/keycloak-pv2"
+        path = "/home/dlab-user/keycloak-pv"
       }
     }
   }
 }
 
-resource "kubernetes_persistent_volume_claim" "example" {
+resource "kubernetes_persistent_volume_claim" "mysql-keycloak-pvc" {
   metadata {
-    name = "mysql-keycloak-pvc2"
+    name = "mysql-keycloak-pvc"
   }
   spec {
     access_modes = ["ReadWriteMany"]
@@ -70,7 +70,60 @@ resource "kubernetes_persistent_volume_claim" "example" {
         storage = "5Gi"
       }
     }
-    volume_name = kubernetes_persistent_volume.example.metadata.0.name
+    volume_name = kubernetes_persistent_volume.mysql-keycloak-pv.metadata.0.name
+  }
+}
+
+data "template_file" "guacamole-mysql-values" {
+  template = file("./files/mysql_values.yaml")
+  vars = {
+    mysql_root_password = random_string.mysql_root_password.result
+    mysql_user          = var.mysql_guacamole_user
+    mysql_user_password = random_string.mysql_guacamole_user_password.result
+    mysql_db_name       = var.mysql_guacamole_db_name
+    mysql_volume_claim  = kubernetes_persistent_volume_claim.mysql-guacamole-pvc.metadata.0.name
+  }
+}
+
+resource "helm_release" "guacamole-mysql" {
+  name   = "guacamole-mysql"
+  chart  = "stable/mysql"
+  wait   = true
+  values = [
+    data.template_file.guacamole-mysql-values.rendered
+  ]
+  depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_guacamole_user_password_secret]
+}
+
+resource "kubernetes_persistent_volume" "mysql-guacamole-pv" {
+  metadata {
+    name = "mysql-guacamole-pv"
+  }
+  spec {
+    capacity = {
+      storage = "8Gi"
+    }
+    access_modes = ["ReadWriteMany"]
+    persistent_volume_source {
+      host_path {
+        path = "/home/dlab-user/guacamole-pv"
+      }
+    }
+  }
+}
+
+resource "kubernetes_persistent_volume_claim" "mysql-guacamole-pvc" {
+  metadata {
+    name = "mysql-guacamole-pvc"
+  }
+  spec {
+    access_modes = ["ReadWriteMany"]
+    resources {
+      requests = {
+        storage = "5Gi"
+      }
+    }
+    volume_name = kubernetes_persistent_volume.mysql-guacamole-pv.metadata.0.name
   }
 }
 
