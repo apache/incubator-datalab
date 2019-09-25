@@ -52,7 +52,7 @@ selfService:
 
 securityService:
   protocol: https
-  host: DOESNT_MATTER
+  host: localhost
   port: 8090
   jerseyClient:
     timeout: 20s
