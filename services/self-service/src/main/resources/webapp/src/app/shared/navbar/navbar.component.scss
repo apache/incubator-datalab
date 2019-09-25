@@ -105,6 +105,7 @@
       border: 0;
       border-radius: 0;
       font-size: 14px;
+      cursor: pointer;
 
       .user-name {
         color: #36afd5;
@@ -112,6 +113,10 @@
 
       &:hover .user-name {
         color: #3392b0;
+      }
+
+      &:hover {
+        background: #323030;
       }
     }
   }
