@@ -32,7 +32,11 @@
 
     .shape,
     .status {
-      width: 12% !important;
+      width: 16% !important;
+    }
+
+    .type {
+      width: 18%;
     }
 
     .resources {
@@ -53,6 +57,16 @@
 
 table {
   width: 100%;
+
+  .header-row {
+    .label {
+      display: inline-block;
+      padding-top: 10px;
+      vertical-align: super !important;
+      padding-left: 5px;
+      font-size: 11px;
+    }
+  }
 
   .actions {
     text-align: right;

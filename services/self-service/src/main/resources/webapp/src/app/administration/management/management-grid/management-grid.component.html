@@ -20,33 +20,76 @@
 <div class="ani">
   <table mat-table [dataSource]="allFilteredEnvironmentData" class="data-grid management mat-elevation-z6">
     <ng-container matColumnDef="user">
-      <th mat-header-cell *matHeaderCellDef class="user"> User </th>
+      <th mat-header-cell *matHeaderCellDef class="user">
+        <span class="label">User</span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.users.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.users.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button> </th>
       <td mat-cell *matCellDef="let element">{{ element.user }}</td>
     </ng-container>
 
     <ng-container matColumnDef="project">
-      <th mat-header-cell *matHeaderCellDef class="project"> Project </th>
+      <th mat-header-cell *matHeaderCellDef class="project">
+        <span class="label">Project</span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.projects.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.projects.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button> </th>
       <td mat-cell *matCellDef="let element">{{ element.project }}</td>
     </ng-container>
 
     <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef class="type"> Type </th>
+      <th mat-header-cell *matHeaderCellDef class="type">
+        <span class="label">Type</span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.type.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.type.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button> </th>
       <td mat-cell *matCellDef="let element">{{ element.name || element.type }}</td>
     </ng-container>
 
     <ng-container matColumnDef="shape">
-      <th mat-header-cell *matHeaderCellDef class="shape"> Shape / Resource id </th>
+      <th mat-header-cell *matHeaderCellDef class="shape">
+        <span class="label">Shape / Resource id</span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button> </th>
       <td mat-cell *matCellDef="let element" class="shape">{{ element.shape || element.ip }}</td>
     </ng-container>
 
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef class="status"> Status </th>
+      <th mat-header-cell *matHeaderCellDef class="status">
+        <span class="label">Status</span>
+
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button> </th>
       <td mat-cell *matCellDef="let element" class="ani status" ngClass="{{element.status || ''}}">{{ element.status }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="resources">
-      <th mat-header-cell *matHeaderCellDef class="resources"> Computational resources </th>
+      <th mat-header-cell *matHeaderCellDef class="resources">
+        <span class="label">Computational resources</span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">more_vert</span>
+          </i>
+        </button> </th>
       <td mat-cell *matCellDef="let element" class="ani resources">
         <div class="source" *ngIf="element.resources">
           <div *ngIf="!element.resources?.length">
@@ -180,9 +223,9 @@
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <!-- [hidden]="!collapseFilterRow" -->
-    <tr mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true" class="filter-row"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></tr>
+    <tr [hidden]="!collapsedFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
+      class="filter-row"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
 

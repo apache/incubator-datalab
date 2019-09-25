@@ -50,6 +50,7 @@ export class ManagementGridComponent implements OnInit {
   filterConfiguration: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
   filterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
   filtering: boolean = false;
+  collapsedFilterRow: boolean = false;
 
   @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
@@ -85,6 +86,10 @@ export class ManagementGridComponent implements OnInit {
 
   public onUpdate($event): void {
     this.filterForm[$event.type] = $event.model;
+  }
+
+  public toggleFilterRow(): void {
+    this.collapsedFilterRow = !this.collapsedFilterRow;
   }
 
   public resetFilterConfigurations(): void {
