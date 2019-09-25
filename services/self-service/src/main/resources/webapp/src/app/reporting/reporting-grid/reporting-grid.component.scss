@@ -33,9 +33,8 @@
 
   tr {
     th {
-      font-size: 11px;
       padding-right: 5px;
-      z-index: 0 !important;
+      z-index: 2 !important;
     }
 
     td {
@@ -45,12 +44,19 @@
     &.filter-row {
       th {
         padding: 5px;
+        font-size: 13px;
       }
 
       .filter-field {
         font-size: 13px;
       }
 
+    }
+
+    &.header-row {
+      th {
+        font-size: 11px;
+      }
     }
   }
 
@@ -64,6 +70,10 @@
     width: 15%;
     overflow: hidden;
     word-wrap: break-word;
+  }
+
+  .env_name {
+    width: 16%;
   }
 
   .th_type {
