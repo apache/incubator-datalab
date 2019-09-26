@@ -121,8 +121,8 @@ data:
     maxSessionDurabilityMilliseconds: 288000000
     </#if>
 
-    serviceBaseName: {{ .Values.ui.service.http_port }}
-    os: OPERATION_SYSTEM
+    serviceBaseName: {{ .Values.ui.service_base_name }}
+    os: {{ .Values.ui.os }}
     server:
       requestLog:
         appenders:
