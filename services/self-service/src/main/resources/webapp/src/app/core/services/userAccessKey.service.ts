@@ -42,10 +42,10 @@ export class UserAccessKeyService {
   public initialUserAccessKeyCheck() {
     this.checkUserAccessKey().subscribe(
       response => {
-      this._accessKeyEmitter.next(response);
-    }, error => {
-      this._accessKeyEmitter.next(error);
-    });
+        this._accessKeyEmitter.next(response);
+      }, error => {
+        this._accessKeyEmitter.next(error);
+      });
   }
 
   public checkUserAccessKey(): Observable<{}> {

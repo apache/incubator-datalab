@@ -153,6 +153,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 					.append(STATUS, statusString)
 					.append(FIELD_RESOURCE_TYPE, resourceType(id))
 					.append(productFieldName(), id.getString(productFieldName()))
+					.append(PROJECT, id.getString(PROJECT))
 					.append(MongoKeyWords.COST, d.getDouble(MongoKeyWords.COST))
 					.append(costFieldName(), BillingCalculationUtils.formatDouble(d.getDouble(MongoKeyWords
 							.COST)))
@@ -322,6 +323,9 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		}
 		if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
 			searchCriteria.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
+		}
+		if (filter.getProjects() != null && !filter.getProjects().isEmpty()){
+			searchCriteria.add(in(PROJECT, filter.getProjects()));
 		}
 
 		searchCriteria.addAll(cloudMatchCriteria((T) filter));

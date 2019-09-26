@@ -19,7 +19,7 @@
 
 import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { MatTableDataSource } from '@angular/material';
+import { MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
 
 import { ProjectDataService } from '../project-data.service';

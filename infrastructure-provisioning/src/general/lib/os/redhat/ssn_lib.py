@@ -360,7 +360,7 @@ def install_build_dep():
                     maven_version.split('.')[0], maven_version))
                 sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
-            sudo('bash -c "curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -"')
+            sudo('bash -c "curl --silent --location https://rpm.nodesource.com/setup_12.x | bash -"')
             sudo('yum install -y nodejs')
             sudo('npm config set unsafe-perm=true')
             sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path']))

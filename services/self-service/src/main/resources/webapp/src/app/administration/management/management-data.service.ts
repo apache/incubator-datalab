@@ -35,6 +35,10 @@ export class EnvironmentsDataService {
     this.getAllEnvironmentData();
   }
 
+  public getEnvironmentDataDirect() {
+    return this.manageEnvironmentsService.getAllEnvironmentData().subscribe(response => response);
+  }
+
   private getAllEnvironmentData() {
     this.manageEnvironmentsService.getAllEnvironmentData().subscribe(
       (response) => this._data.next(response));

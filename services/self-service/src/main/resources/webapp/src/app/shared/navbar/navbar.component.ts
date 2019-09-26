@@ -18,20 +18,58 @@
  */
 
 import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Subscription, timer, interval } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { RouterOutlet } from '@angular/router';
 
 import { ApplicationSecurityService, HealthStatusService, AppRoutingService, SchedulerService, StorageService } from '../../core/services';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import { FileUtils } from '../../core/util';
 import { NotificationDialogComponent } from '../modal-dialog/notification-dialog';
+import {
+  trigger,
+  animate,
+  transition,
+  style,
+  query, group,
+  sequence,
+  animateChild,
+  state
+} from '@angular/animations';
 
 @Component({
   selector: 'dlab-navbar',
   templateUrl: 'navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
+  animations: [trigger('fadeAnimation', [
+    transition('* <=> *', [
+      query(':enter,:leave', [
+        style({ overflow: 'hidden' })
+      ], { optional: true }),
+      group([
+        query(':leave', [
+          animate('.3s ease-in-out',
+            style({
+              opacity: 0,
+            })
+          )
+        ], { optional: true }),
+        query(':enter', [
+          style({
+            opacity: 0,
+          }),
+          animate('.3s .25s ease-in-out',
+            style({
+              opacity: 1
+            })
+          )
+        ], { optional: true }),
+      ])
+    ])
+
+  ])],
   encapsulation: ViewEncapsulation.None
 })
 export class NavbarComponent implements OnInit, OnDestroy {
@@ -80,6 +118,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  public getRouterOutletState(routerOutlet: RouterOutlet) {
+    return routerOutlet.isActivated ? routerOutlet.activatedRoute : '';
   }
 
   getUserName(): string {

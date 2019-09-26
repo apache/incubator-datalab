@@ -20,7 +20,7 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';
@@ -38,7 +38,7 @@ export class ResourcesComponent implements OnInit {
   public exploratoryEnvironments: Exploratory[] = [];
   public healthStatus: any;
 
-  @ViewChild(ResourcesGridComponent) resourcesGrid: ResourcesGridComponent;
+  @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
 
   constructor(
     public toastr: ToastrService,

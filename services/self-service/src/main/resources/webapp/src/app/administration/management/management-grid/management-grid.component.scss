@@ -17,25 +17,40 @@
  * under the License.
  */
 
-.dashboard_table {
+.data-grid {
+  &.management {
 
-  .th_user,
-  .th_name {
-    width: 20%;
-  }
+    .user,
+    .name,
+    .project {
+      width: 15%;
 
-  .th_shape,
-  .th_status {
-    width: 12% !important;
-  }
+      .list-menu li {
+        text-transform: inherit;
+      }
+    }
 
-  .th_resources {
-    width: 33%;
-  }
+    .shape {
+      width: 16% !important;
+    }
 
-  .dashboard_table_body {
-    td:first-child {
-      cursor: default;
+    .status {
+      width: 16% !important;
+    }
+
+    .type {
+      width: 18%;
+    }
+
+    .resources {
+      width: 25%;
+      padding: 5px;
+    }
+
+    .dashboard_table_body {
+      td:first-child {
+        cursor: default;
+      }
     }
   }
 }
@@ -47,7 +62,18 @@
 table {
   width: 100%;
 
+  .header-row {
+    .label {
+      display: inline-block;
+      padding-top: 10px;
+      vertical-align: super !important;
+      padding-left: 5px;
+      font-size: 11px;
+    }
+  }
+
   .actions {
     text-align: right;
   }
+
 }

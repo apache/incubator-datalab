@@ -32,7 +32,8 @@ import { StorageService } from '../core/services';
 export class WebterminalComponent implements OnInit {
   public id: string;
   public endpoint: string;
-  @ViewChild('terminal', { read: ViewContainerRef }) terminal: ViewContainerRef;
+  @ViewChild('terminal', { read: ViewContainerRef, static: false }) terminal: ViewContainerRef;
+
 
   constructor(
     private route: ActivatedRoute,
