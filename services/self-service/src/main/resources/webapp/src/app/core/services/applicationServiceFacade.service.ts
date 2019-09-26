@@ -90,7 +90,7 @@ export class ApplicationServiceFacade {
   }
 
   public buildLogoutRequest(): Observable<any> {
-    return this.buildRequest(HTTPMethod.Get,
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.LOGOUT),
       '',
       { observe: 'response' });
@@ -108,7 +108,7 @@ export class ApplicationServiceFacade {
   }
 
   public buildLocationCheck(): Observable<any> {
-    return this.buildRequest(RequestMethod.Get,
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.OAUTH),
       null,
       { observe: 'response' });
@@ -116,8 +116,8 @@ export class ApplicationServiceFacade {
 
   public buildGetAuthToken(body: any): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
-      this.requestRegistry.Item(ApplicationServiceFacade.OAUTH),
-      body,
+      this.requestRegistry.Item(ApplicationServiceFacade.OAUTH) + body,
+      null,
       { observe: 'response' });
   }
 
