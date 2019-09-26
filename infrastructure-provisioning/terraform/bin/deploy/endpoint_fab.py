@@ -222,6 +222,14 @@ def configure_supervisor_endpoint():
             web_path = '{}/webapp'.format(args.dlab_path)
             if not exists(conn, web_path):
                 conn.run('mkdir -p {}'.format(web_path))
+            if args.cloud_provider == 'aws':
+                interface = sudo('curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
+                args.vpc_id = sudo('curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/{}/'
+                                   'vpc-id'.format(interface))
+                args.subnet_id = sudo('curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/{}/'
+                                      'subnet-id'.format(interface))
+                args.vpc2_id = args.vpc_id
+                args.subnet2_id = args.subnet_id
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
                       .format(args.os_user, args.dlab_path))
             conn.sudo('sed -i "s|WEB_CONF|{}|g" {}/tmp/supervisor_svc.conf'
@@ -257,7 +265,7 @@ def configure_supervisor_endpoint():
             # conn.sudo('sed -i "s|MONGO_PASSWORD|{}|g" {}provisioning.yml'
             #           .format(args.mongo_password, dlab_conf_dir))
             conn.sudo('sed -i "s|CONF_OS|{}|g" {}provisioning.yml'
-                      .format(args.conf_os, dlab_conf_dir))
+                      .format(args.env_os, dlab_conf_dir))
             conn.sudo('sed -i "s|SERVICE_BASE_NAME|{}|g" {}provisioning.yml'
                       .format(args.service_base_name, dlab_conf_dir))
             conn.sudo('sed -i "s|EDGE_INSTANCE_SIZE|{}|g" {}provisioning.yml'
@@ -271,7 +279,7 @@ def configure_supervisor_endpoint():
             conn.sudo('sed -i "s|TAG_RESOURCE_ID|{}|g" {}provisioning.yml'
                       .format(args.tag_resource_id, dlab_conf_dir))
             conn.sudo('sed -i "s|SG_IDS|{}|g" {}provisioning.yml'
-                      .format(args.sg_ids, dlab_conf_dir))
+                      .format(args.ssn_k8s_sg_id, dlab_conf_dir))
             conn.sudo('sed -i "s|SSN_INSTANCE_SIZE|{}|g" {}provisioning.yml'
                       .format(args.ssn_instance_size, dlab_conf_dir))
             conn.sudo('sed -i "s|VPC2_ID|{}|g" {}provisioning.yml'
@@ -301,11 +309,11 @@ def configure_supervisor_endpoint():
             conn.sudo('sed -i "s|LDAP_DN|{}|g" {}provisioning.yml'
                       .format(args.ldap_dn, dlab_conf_dir))
             conn.sudo('sed -i "s|LDAP_OU|{}|g" {}provisioning.yml'
-                      .format(args.ldap_ou, dlab_conf_dir))
+                      .format(args.ldap_users_group, dlab_conf_dir))
             conn.sudo('sed -i "s|LDAP_USER_NAME|{}|g" {}provisioning.yml'
-                      .format(args.ldap_user_name, dlab_conf_dir))
+                      .format(args.ldap_user, dlab_conf_dir))
             conn.sudo('sed -i "s|LDAP_USER_PASSWORD|{}|g" {}provisioning.yml'
-                      .format(args.ldap_user_password, dlab_conf_dir))
+                      .format(args.ldap_bind_creds, dlab_conf_dir))
             conn.sudo('touch /home/{}/.ensure_dir/configure_supervisor_ensured'
                       .format(args.os_user))
     except Exception as err:
@@ -479,15 +487,15 @@ def init_args():
     parser.add_argument('--endpoint_keystore_password', type=str, default='')
     parser.add_argument('--keycloak_client_secret', type=str, default='')
     parser.add_argument('--branch_name', type=str, default='DLAB-terraform')  # change default
-    parser.add_argument('--conf_os', type=str, default='debian')
+    parser.add_argument('--env_os', type=str, default='debian')
     parser.add_argument('--service_base_name', type=str, default='')
-    parser.add_argument('--edge_instence_size', type=str, default='')
+    parser.add_argument('--edge_instence_size', type=str, default='t2.medium')
     parser.add_argument('--subnet_id', type=str, default='')
     parser.add_argument('--region', type=str, default='')
     parser.add_argument('--zone', type=str, default='')
-    parser.add_argument('--tag_resource_id', type=str, default='')
-    parser.add_argument('--sg_ids', type=str, default='')
-    parser.add_argument('--ssn_instance_size', type=str, default='')
+    parser.add_argument('--tag_resource_id', type=str, default='user:tag')
+    parser.add_argument('--ssn_k8s_sg_id', type=str, default='')
+    parser.add_argument('--ssn_instance_size', type=str, default='t2.large')
     parser.add_argument('--vpc2_id', type=str, default='')
     parser.add_argument('--subnet2_id', type=str, default='')
     parser.add_argument('--conf_key_dir', type=str, default='/root/keys/', help='Should end by symbol /')
@@ -501,9 +509,9 @@ def init_args():
     parser.add_argument('--gcp_project_id', type=str, default='')
     parser.add_argument('--ldap_host', type=str, default='')
     parser.add_argument('--ldap_dn', type=str, default='')
-    parser.add_argument('--ldap_ou', type=str, default='')
-    parser.add_argument('--ldap_user_name', type=str, default='')
-    parser.add_argument('--ldap_user_password', type=str, default='')
+    parser.add_argument('--ldap_users_group', type=str, default='')
+    parser.add_argument('--ldap_user', type=str, default='')
+    parser.add_argument('--ldap_bind_creds', type=str, default='')
     print(parser.parse_known_args())
     args = parser.parse_known_args()[0]
 
