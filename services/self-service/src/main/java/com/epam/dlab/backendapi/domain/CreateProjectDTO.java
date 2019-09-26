@@ -14,7 +14,7 @@ public class CreateProjectDTO {
 	private final Set<String> groups;
 	@NotNull final Set<String> endpoints;
 	@NotNull
-	@Pattern(regexp = "^ssh-.*\\n", message = "Wrong key format. Key should be in openSSH format")
+	@Pattern(regexp = "^ssh-.*\\n?", message = "Wrong key format. Key should be in openSSH format")
 	private final String key;
 	@NotNull
 	private final String tag;
