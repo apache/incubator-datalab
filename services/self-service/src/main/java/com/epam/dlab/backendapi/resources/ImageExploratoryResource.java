@@ -82,9 +82,11 @@ public class ImageExploratoryResource {
 							  @ApiParam(value = "Docker image", required = true)
 							  @QueryParam("docker_image") String dockerImage,
 							  @ApiParam(value = "Project's name", required = true)
-							  @QueryParam("project") String project) {
+							  @QueryParam("project") String project,
+							  @ApiParam(value = "Endpoint's name", required = true)
+							  @QueryParam("endpoint") String endpoint) {
 		log.debug("Getting images for user {}, project {}", ui.getName(), project);
-		final List<ImageInfoRecord> images = imageExploratoryService.getNotFailedImages(ui.getName(), dockerImage, project);
+		final List<ImageInfoRecord> images = imageExploratoryService.getNotFailedImages(ui.getName(), dockerImage, project, endpoint);
 		return Response.ok(images).build();
 	}
 
