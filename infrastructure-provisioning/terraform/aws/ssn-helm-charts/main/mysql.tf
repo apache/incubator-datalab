@@ -20,7 +20,7 @@
 # ******************************************************************************
 
 data "template_file" "keycloak-mysql-values" {
-  template = file("./files/mysql_values.yaml")
+  template = file("./files/mysql_keycloak_values.yaml")
   vars = {
     mysql_root_password = random_string.mysql_root_password.result
     mysql_user          = var.mysql_keycloak_user
@@ -75,7 +75,7 @@ resource "kubernetes_persistent_volume_claim" "mysql-keycloak-pvc" {
 }
 
 data "template_file" "guacamole-mysql-values" {
-  template = file("./files/mysql_values.yaml")
+  template = file("./files/mysql_guacamole_values.yaml")
   vars = {
     mysql_root_password = random_string.mysql_root_password.result
     mysql_user          = var.mysql_guacamole_user
