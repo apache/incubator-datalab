@@ -158,7 +158,7 @@ public class BillingServiceImpl implements BillingService {
 
 		return BillingData.builder()
 				.displayName(billableResource.getDisplayName())
-				.cost(bd.getCost().doubleValue())
+				.cost(bd.getCost().setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
 				.currency(bd.getCurrency())
 				.product(bd.getProduct())
 				.project(billableResource.getProject())
