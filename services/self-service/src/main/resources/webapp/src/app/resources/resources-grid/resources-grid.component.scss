@@ -36,13 +36,29 @@ table {
   .exploratory {
     padding: 0;
 
-    tbody {
-      width: 100%;
-      display: inline-table;
+    .element-row {
+      display: flex;
+      min-height: 48px;
+      height: initial;
 
-      tr:not(:last-child) {
-        border-bottom: 1px solid #d9d9d9;
+      td {
+        padding: 5px;
+
+        &.name-col {
+          padding-right: 5px;
+          padding-left: 24px;
+        }
       }
+    }
+
+    tr:not(:last-child) {
+      border-bottom: 1px solid #d9d9d9;
+    }
+  }
+
+  .element-row {
+    td {
+      border-bottom-width: 0;
     }
   }
 
@@ -50,6 +66,8 @@ table {
     height: 0 !important;
 
     th {
+      padding: 5px;
+
       &:last-child {
         padding-right: 6px;
       }
@@ -58,23 +76,23 @@ table {
 
   .name-col {
     width: 18%;
-    padding-left: 24px;
     padding-right: 5px;
+    padding-left: 24px;
   }
 
   .status-col {
     width: 14%;
-    padding: 5px;
+    // padding: 5px;
   }
 
   .shape-col {
     width: 14%;
-    padding: 5px;
+    // padding: 5px;
   }
 
   .tag-col {
     width: 10%;
-    padding: 5px;
+    // padding: 5px;
 
     mat-chip {
       min-height: 20px;
@@ -91,7 +109,7 @@ table {
 
   .resources-col {
     width: 28%;
-    padding: 5px;
+    // padding: 5px;
   }
 
   .cost-col {
@@ -109,10 +127,6 @@ table {
 
 tr.detail-row {
   height: 0;
-}
-
-.element-row td {
-  border-bottom-width: 0;
 }
 
 
@@ -268,10 +282,8 @@ tr.detail-row {
   height: 16px;
   display: inline-block;
   text-align: center;
-  /* margin-top: 2px; */
   cursor: pointer;
   position: absolute;
-  top: 5px;
   right: 15px;
 }
 

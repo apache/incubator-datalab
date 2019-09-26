@@ -142,7 +142,7 @@ def build_ui():
                 sudo('sed -i "s|\'use_ldap\': true|{}|g" src/dictionary/azure.dictionary.ts'.format(
                      '\'use_ldap\': false'))
 
-            sudo('npm install')
+            sudo('echo "N" | npm install')
             sudo('npm run build.prod')
             sudo('sudo chown -R {} {}/*'.format(args.os_user, args.dlab_path))
 

@@ -32,18 +32,18 @@ export class ReportingGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   filterConfiguration: ReportingConfigModel;
-  filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '');
-  collapseFilterRow: boolean = false;
+  filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
+  collapseFilterRow: boolean = true;
   reportData: Array<any> = [];
   fullReport: Array<any>;
   isFiltered: boolean = false;
 
-  @ViewChild('nameFilter') filter;
+  @ViewChild('nameFilter', { static: false }) filter;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
-  displayedColumns: string[] = ['name', 'user', 'type', 'status', 'shape', 'service', 'charge'];
-  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
+  displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'charge'];
+  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
 
   ngOnInit() { }
 

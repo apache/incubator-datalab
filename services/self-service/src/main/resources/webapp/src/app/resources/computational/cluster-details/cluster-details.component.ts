@@ -18,7 +18,7 @@
  */
 
 import { Component, ViewChild, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
@@ -38,7 +38,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   resource: any;
   environment: any;
-  @ViewChild('configurationNode') configuration;
+  @ViewChild('configurationNode', { static: false }) configuration;
 
   upTimeInHours: number;
   upTimeSince: string = '';

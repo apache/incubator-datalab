@@ -19,11 +19,12 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NotFoundComponent } from './not-found.component';
+import { NotFoundComponent } from './not-found/not-found.component';
+import { AccessDeniedComponent } from './access-denied/access-denied.component';
 
 @NgModule({
   imports: [CommonModule],
-  declarations: [NotFoundComponent],
-  exports: [NotFoundComponent]
+  declarations: [NotFoundComponent, AccessDeniedComponent],
+  exports: [NotFoundComponent, AccessDeniedComponent]
 })
-export class NotFoundModule {}
+export class ServicePagesModule { }

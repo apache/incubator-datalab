@@ -19,7 +19,7 @@
 
 import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
@@ -46,7 +46,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   resourceGrid: any;
   images: Array<any>;
 
-  @ViewChild('configurationNode') configuration;
+  @ViewChild('configurationNode', { static: false }) configuration;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

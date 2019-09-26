@@ -19,7 +19,7 @@
 
 import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
@@ -44,7 +44,7 @@ export class ManageUngitComponent implements OnInit {
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
 
-  @ViewChild('tabGroupGit') tabGroupGit;
+  @ViewChild('tabGroupGit', { static: false }) tabGroupGit;
 
   constructor(
     public toastr: ToastrService,

@@ -19,7 +19,7 @@
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import * as _moment from 'moment';
@@ -60,7 +60,7 @@ export class SchedulerComponent implements OnInit {
   public schedulerForm: FormGroup;
   public destination: any;
   public zones: Array<any> = [];
-  public tzOffset: string =  _moment().format('Z');
+  public tzOffset: string = _moment().format('Z');
   public startTime = { hour: 9, minute: 0, meridiem: 'AM' };
   public endTime = { hour: 8, minute: 0, meridiem: 'PM' };
   public terminateTime = null;
@@ -69,7 +69,7 @@ export class SchedulerComponent implements OnInit {
   public integerRegex: string = '^[0-9]*$';
 
   // @ViewChild('bindDialog') bindDialog;
-  @ViewChild('resourceSelect') resource_select;
+  @ViewChild('resourceSelect', { static: false }) resource_select;
   // @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
@@ -79,7 +79,7 @@ export class SchedulerComponent implements OnInit {
     private formBuilder: FormBuilder,
     private schedulerService: SchedulerService,
     private changeDetector: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit() {
     // this.bindDialog.onClosing = () => {
@@ -96,35 +96,35 @@ export class SchedulerComponent implements OnInit {
       .filter((item, pos, ar) => ar.indexOf(item) === pos)
       .sort();
 
-      this.model = new SchedulerModel(
-        response => {
-          if (response.status === HTTP_STATUS_CODES.OK) {
-            this.toastr.success('Schedule data were successfully saved', 'Success!');
-            this.dialogRef.close();
-          }
-        },
-        error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!'),
-        () => {
-          this.formInit();
-          this.changeDetector.detectChanges();
-          this.destination = (type === 'EXPLORATORY') ? this.notebook : resource;
-          this.destination.type = type;
-          this.selectedStartWeekDays.reset();
-          this.selectedStopWeekDays.reset();
-          this.allowInheritView = false;
+    this.model = new SchedulerModel(
+      response => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.toastr.success('Schedule data were successfully saved', 'Success!');
+          this.dialogRef.close();
+        }
+      },
+      error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!'),
+      () => {
+        this.formInit();
+        this.changeDetector.detectChanges();
+        this.destination = (type === 'EXPLORATORY') ? this.notebook : resource;
+        this.destination.type = type;
+        this.selectedStartWeekDays.reset();
+        this.selectedStopWeekDays.reset();
+        this.allowInheritView = false;
 
-          if (this.destination.type === 'СOMPUTATIONAL') {
-            this.allowInheritView = true;
-            this.getExploratorySchedule(this.notebook.name, this.destination.computational_name);
-            this.checkParentInherit();
-          } else if (this.destination.type === 'EXPLORATORY') {
-            this.allowInheritView = this.checkIsActiveSpark();
-            this.getExploratorySchedule(this.notebook.name);
-          }
-          // this.bindDialog.open(param);
-        },
-        this.schedulerService
-      );
+        if (this.destination.type === 'СOMPUTATIONAL') {
+          this.allowInheritView = true;
+          this.getExploratorySchedule(this.notebook.name, this.destination.computational_name);
+          this.checkParentInherit();
+        } else if (this.destination.type === 'EXPLORATORY') {
+          this.allowInheritView = this.checkIsActiveSpark();
+          this.getExploratorySchedule(this.notebook.name);
+        }
+        // this.bindDialog.open(param);
+      },
+      this.schedulerService
+    );
   }
 
   public onDaySelect($event, day, action) {
@@ -151,7 +151,7 @@ export class SchedulerComponent implements OnInit {
     this.timeReqiered = false;
     this.allowInheritView = this.destination.type === 'СOMPUTATIONAL' || this.checkIsActiveSpark();
 
-    this.enableSchedule && this.enableIdleTime && this.toggleIdleTimes({checked: false});
+    this.enableSchedule && this.enableIdleTime && this.toggleIdleTimes({ checked: false });
     (this.enableSchedule && !(this.destination.type === 'СOMPUTATIONAL' && this.inherit))
       ? this.schedulerForm.get('startDate').enable()
       : this.schedulerForm.get('startDate').disable();
@@ -166,7 +166,7 @@ export class SchedulerComponent implements OnInit {
     const control = this.schedulerForm.controls.inactivityTime;
 
     this.enableIdleTime = $event.checked;
-    this.enableIdleTime && this.enableSchedule && this.toggleSchedule({checked: false});
+    this.enableIdleTime && this.enableSchedule && this.toggleSchedule({ checked: false });
     this.allowInheritView = false;
 
     if (!this.enableIdleTime) {
@@ -180,11 +180,11 @@ export class SchedulerComponent implements OnInit {
 
   public setInactivity(...params) {
     this.model.setInactivityTime(params).subscribe((response: any) => {
-        if (response.status === HTTP_STATUS_CODES.OK) {
-          this.toastr.success('Schedule data were successfully saved', 'Success!');
-          this.dialogRef.close();
-        }
-      },
+      if (response.status === HTTP_STATUS_CODES.OK) {
+        this.toastr.success('Schedule data were successfully saved', 'Success!');
+        this.dialogRef.close();
+      }
+    },
       error => this.toastr.error(error.message || 'Scheduler configuration failed!', 'Oops!'));
   }
 
@@ -259,7 +259,7 @@ export class SchedulerComponent implements OnInit {
     const data = {sync_start_required : this.parentInherit, check_inactivity_required: this.enableIdleTime, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
     (this.destination.type === 'СOMPUTATIONAL')
       ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
-      : this.setInactivity(this.notebook.name, {...data, consider_inactivity: this.considerInactivity});
+      : this.setInactivity(this.notebook.name, { ...data, consider_inactivity: this.considerInactivity });
   }
 
   // public close(): void {
@@ -276,7 +276,7 @@ export class SchedulerComponent implements OnInit {
       finishDate: { disabled: false, value: end ? _moment(end).format() : null },
       terminateDate: { disabled: false, value: terminate ? _moment(terminate).format() : null },
       inactivityTime: [this.inactivityLimits.min,
-                      [Validators.compose([Validators.pattern(this.integerRegex), this.validInactivityRange.bind(this)])]]
+      [Validators.compose([Validators.pattern(this.integerRegex), this.validInactivityRange.bind(this)])]]
     });
   }
 
@@ -298,12 +298,12 @@ export class SchedulerComponent implements OnInit {
           if (params.terminate_datetime) {
             const terminate_datetime = params.terminate_datetime.split(' ');
             this.schedulerForm.controls.terminateDate.setValue(terminate_datetime[0]);
-            this.terminateTime =  SchedulerCalculations.convertTimeFormat(terminate_datetime[1]);
+            this.terminateTime = SchedulerCalculations.convertTimeFormat(terminate_datetime[1]);
           }
 
           (this.enableIdleTime && params.max_inactivity)
-            ? this.toggleIdleTimes({checked: true})
-            : this.toggleSchedule({checked: true});
+            ? this.toggleIdleTimes({ checked: true })
+            : this.toggleSchedule({ checked: true });
         }
       },
       error => this.resetDialog());
@@ -317,10 +317,10 @@ export class SchedulerComponent implements OnInit {
   private validInactivityRange(control) {
     if (control)
       return this.enableIdleTime
-          ? (control.value
-            && control.value >= this.inactivityLimits.min
-            && control.value <= this.inactivityLimits.max ? null : { valid: false })
-          : control.value;
+        ? (control.value
+          && control.value >= this.inactivityLimits.min
+          && control.value <= this.inactivityLimits.max ? null : { valid: false })
+        : control.value;
   }
 
   private checkIsActiveSpark() {
