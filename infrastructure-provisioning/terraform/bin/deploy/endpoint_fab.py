@@ -137,7 +137,7 @@ def ensure_docker_endpoint():
                                            "| grep 'DNS Servers:' "
                                            "| awk '{print $3}'")
                                   .stdout.rstrip("\n\r"))
-                conn.sudo('sed -i "s|DNS_IP_RESOLVE|\"dns\": [{0}],|g" {1}/tmp/daemon.json'
+                conn.sudo("sed -i 's|DNS_IP_RESOLVE|\"dns\": [\"{0}\"],|g' {1}/tmp/daemon.json"
                           .format(dns_ip_resolve, args.dlab_path))
             elif args.cloud_provider == "gcp":
                 dns_ip_resolve = ""
