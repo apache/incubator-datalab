@@ -23,7 +23,7 @@
     .user,
     .name,
     .project {
-      width: 15%;
+      width: 14%;
 
       .list-menu li {
         text-transform: inherit;
@@ -31,20 +31,24 @@
     }
 
     .shape {
-      width: 16% !important;
+      width: 15% !important;
     }
 
     .status {
-      width: 16% !important;
+      width: 15% !important;
     }
 
     .type {
-      width: 18%;
+      width: 14%;
     }
 
     .resources {
-      width: 25%;
+      width: 20%;
       padding: 5px;
+    }
+
+    .actions {
+      width: 10%;
     }
 
     .dashboard_table_body {
@@ -69,6 +73,10 @@ table {
       vertical-align: super !important;
       padding-left: 5px;
       font-size: 11px;
+    }
+
+    button {
+      padding-right: 5px;
     }
   }
 
