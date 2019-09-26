@@ -67,7 +67,7 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
+	public List<ProjectDTO> getUserActiveProjects(UserInfo userInfo) {
 		userInfo.getRoles().add(ANY_USER_ROLE);
 		return projectDAO.getUserProjects(userInfo);
 	}
@@ -99,6 +99,14 @@ public class ProjectServiceImpl implements ProjectService {
 		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
 		exploratoryService.updateProjectExploratoryStatuses(name, endpoint, UserInstanceStatus.TERMINATING);
+	}
+
+	@Override
+	public void terminateProject(UserInfo userInfo, String name) {
+		get(name).getEndpoints()
+				.stream()
+				.map(ProjectEndpointDTO::getName)
+				.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
 	}
 
 	@BudgetLimited

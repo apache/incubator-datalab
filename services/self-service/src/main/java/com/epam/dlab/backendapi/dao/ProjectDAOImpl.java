@@ -22,6 +22,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String GROUPS = "groups";
 	private static final String ENDPOINTS = "endpoints";
 	private static final String STATUS_FIELD = "status";
+	private static final String ENDPOINT_STATUS_FIELD = "endpoints." + STATUS_FIELD;
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
 	private static final String ENDPOINT_FIELD = "endpoints.$.";
 
@@ -48,13 +49,14 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 		final List<String> statusList =
 				Arrays.stream(statuses).map(UserInstanceStatus::name).collect(Collectors.toList());
 
-		return find(PROJECTS_COLLECTION, not(in("endpoints." + STATUS_FIELD, statusList)), ProjectDTO.class);
+		return find(PROJECTS_COLLECTION, not(in(ENDPOINT_STATUS_FIELD, statusList)), ProjectDTO.class);
 	}
 
 	@Override
 	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
 		return find(PROJECTS_COLLECTION, and(in(GROUPS, Sets.union(userGroupDao.getUserGroups(userInfo.getName()),
-				userInfo.getRoles()))), ProjectDTO.class);
+				userInfo.getRoles())), eq(ENDPOINT_STATUS_FIELD, UserInstanceStatus.RUNNING.name())),
+				ProjectDTO.class);
 	}
 
 	@Override
