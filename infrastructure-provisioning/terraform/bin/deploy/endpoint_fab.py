@@ -224,13 +224,10 @@ def configure_supervisor_endpoint():
                 conn.run('mkdir -p {}'.format(web_path))
             if args.cloud_provider == 'aws':
                 interface = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
-                print("=============")
-                print(interface)
-                print("=============")
                 args.vpc_id = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/{}/'
-                                        'vpc-id'.format(interface))
+                                        'vpc-id'.format(interface.stdout))
                 args.subnet_id = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/{}/'
-                                           'subnet-id'.format(interface))
+                                           'subnet-id'.format(interface.stdout))
                 args.vpc2_id = args.vpc_id
                 args.subnet2_id = args.subnet_id
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
