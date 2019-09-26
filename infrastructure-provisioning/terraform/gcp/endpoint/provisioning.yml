@@ -104,25 +104,25 @@ server:
         archivedLogFilenamePattern: ${LOG_ROOT_DIR}/provisioning/request-provisioning-%d{yyyy-MM-dd}.log.gz
         archivedFileCount: 10
   applicationConnectors:
-    - type: http
-#    - type: https
+#    - type: http
+    - type: https
       port: 8084
-#      certAlias: dlab
-#      validateCerts: true
-#      keyStorePath: ${KEY_STORE_PATH}
-#      keyStorePassword: ${KEY_STORE_PASSWORD}
-#      trustStorePath: ${TRUST_STORE_PATH}
-#      trustStorePassword: ${TRUST_STORE_PASSWORD}
+      certAlias: dlab
+      validateCerts: true
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-    - type: http
-#    - type: https
+#    - type: http
+    - type: https
       port: 8085
-#      certAlias: dlab
-#      validateCerts: true
-#      keyStorePath: ${KEY_STORE_PATH}
-#      keyStorePassword: ${KEY_STORE_PASSWORD}
-#      trustStorePath: ${TRUST_STORE_PATH}
-#      trustStorePassword: ${TRUST_STORE_PASSWORD}
+      certAlias: dlab
+      validateCerts: true
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 logging:
   level: INFO

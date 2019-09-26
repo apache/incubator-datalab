@@ -19,7 +19,7 @@
 
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { ValidatorFn, FormControl } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { RolesGroupsService, HealthStatusService } from '../../core/services';

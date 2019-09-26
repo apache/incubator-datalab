@@ -19,7 +19,7 @@
 
 import { Component, OnInit, ViewChild, Inject, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
@@ -57,9 +57,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
 
-  @ViewChild('spotInstancesCheck') spotInstancesSelect;
-  @ViewChild('preemptibleNode') preemptible;
-  @ViewChild('configurationNode') configuration;
+  @ViewChild('spotInstancesCheck', { static: false }) spotInstancesSelect;
+  @ViewChild('preemptibleNode', { static: false }) preemptible;
+  @ViewChild('configurationNode', { static: false }) configuration;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

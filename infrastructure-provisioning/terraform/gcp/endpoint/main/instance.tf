@@ -48,7 +48,7 @@ resource "google_compute_instance" "endpoint" {
   }
 
   service_account {
-    email  = google_service_account.endpoint_sa.email #"${var.project_name_var}-ssn-sa@${var.project_var}.iam.gserviceaccount.com"
+    email  = google_service_account.endpoint_sa.email
     scopes = ["https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/compute"]
   }
 
@@ -63,4 +63,5 @@ resource "google_compute_instance" "endpoint" {
 
 resource "google_compute_address" "static" {
   name = local.endpoint_instance_ip
+  count = var.static_ip == "" ? 1 : 0
 }

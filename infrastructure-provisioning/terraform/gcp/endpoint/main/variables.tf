@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-variable "project_name" {
+variable "project_id" {
   default = ""
 }
 
@@ -137,4 +137,8 @@ variable "path_to_pub_key" {
 
 variable "product" {
   default = "dlab"
+}
+
+variable "static_ip" {
+  default = ""
 }

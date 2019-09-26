@@ -33,7 +33,8 @@
 
   tr {
     th {
-      font-size: 11px;
+      padding-right: 5px;
+      z-index: 2 !important;
     }
 
     td {
@@ -43,12 +44,19 @@
     &.filter-row {
       th {
         padding: 5px;
+        font-size: 13px;
       }
 
       .filter-field {
         font-size: 13px;
       }
 
+    }
+
+    &.header-row {
+      th {
+        font-size: 11px;
+      }
     }
   }
 
@@ -64,8 +72,12 @@
     word-wrap: break-word;
   }
 
+  .env_name {
+    width: 16%;
+  }
+
   .th_type {
-    width: 8%;
+    width: 12%;
   }
 
   .th_status {
@@ -80,6 +92,15 @@
 
   .mat-column-charge {
     text-align: right;
+  }
+
+  .header-row {
+    .label {
+      display: inline-block;
+      padding-top: 10px;
+      vertical-align: super !important;
+      padding-left: 5px;
+    }
   }
 
   .filter-row {
@@ -102,8 +123,6 @@
     }
   }
 }
-
-.no-data {}
 
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {

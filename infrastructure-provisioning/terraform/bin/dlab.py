@@ -908,6 +908,7 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          .add_str('--ssn_subnet',
                   'ID of AWS Subnet if you already have subnet created.',
                   group='endpoint')
+         .add_str('--ssn_k8s_sg_id', 'ID of SSN SG.', group='endpoint')
          .add_str('--subnet_cidr',
                   'CIDR for Subnet creation. Conflicts with subnet_id.',
                   default='172.31.0.0/24', group='endpoint')
@@ -934,6 +935,16 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   group='endpoint')
          .add_str('--additional_tag', 'Additional tag.',
                   default='product:dlab', group='endpoint')
+         .add_str('--ldap_host', 'ldap host', required=True,
+                  group='endpoint')
+         .add_str('--ldap_dn', 'ldap dn', required=True,
+                  group='endpoint')
+         .add_str('--ldap_user', 'ldap user', required=True,
+                  group='endpoint')
+         .add_str('--ldap_bind_creds', 'ldap bind creds', required=True,
+                  group='endpoint')
+         .add_str('--ldap_users_group', 'ldap users group', required=True,
+                  group='endpoint')
          )
         return params.build()
 

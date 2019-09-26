@@ -20,15 +20,11 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BrowserModule } from '@angular/platform-browser';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
-
-import { HttpTokenInterceptor } from './core/interceptors/http.token.interceptor';
-import { NoCacheInterceptor } from './core/interceptors/nocache.interceptor';
-import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
@@ -37,8 +33,7 @@ import { LoginModule } from './login/login.module';
 import { LayoutModule } from './layout/layout.module'
 
 import { GuidesModule } from './help';
-import { NotFoundModule } from './not-found/not-found.module';
-import { AccessDeniedModule } from './access-denied/access-denied.module';
+import { ServicePagesModule } from './service-pages/service-pages.module';
 import { ResourcesModule } from './resources/resources.module';
 
 import { ReportingModule } from './reporting/reporting.module';
@@ -58,8 +53,7 @@ import { CoreModule } from './core/core.module';
     LayoutModule,
     ResourcesModule,
     GuidesModule,
-    NotFoundModule,
-    AccessDeniedModule,
+    ServicePagesModule,
     ReportingModule,
     AdministrationModule,
     WebterminalModule,
@@ -69,23 +63,10 @@ import { CoreModule } from './core/core.module';
     ToastrModule.forRoot({ timeOut: 10000 })
   ],
   providers: [{
-      provide: LocationStrategy,
-      useClass: HashLocationStrategy,
-      useValue: '/'
-    }, {
-      provide: HTTP_INTERCEPTORS,
-      useClass: HttpTokenInterceptor,
-      multi: true
-    }, {
-      provide: HTTP_INTERCEPTORS,
-      useClass: NoCacheInterceptor,
-      multi: true,
-    }, {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ErrorInterceptor,
-      multi: true,
-    }
-  ],
+    provide: LocationStrategy,
+    useClass: HashLocationStrategy,
+    useValue: '/'
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

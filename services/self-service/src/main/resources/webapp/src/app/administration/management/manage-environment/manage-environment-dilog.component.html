@@ -50,27 +50,12 @@
                     quotes cannot be greater than total budget</span>
                 </div>
                 <div class="action">
-                  <span matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)"
-                    *ngIf="manageUsersForm.controls['projects'].controls[i].value['status'] === 'ACTIVE'; else not_active"><i
-                      class="material-icons">pause_circle_outline</i></span>
-
-                  <ng-template #not_active>
-                    <span class="disabled" matTooltip="Project is not active" matTooltipPosition="above">
-                      <i class="material-icons">pause_circle_outline</i>
-                    </span>
-                  </ng-template>
-
-
-                  <span matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)"
-                    *ngIf="manageUsersForm.controls['projects'].controls[i].value['status'] !== 'DELETED'
-                      && manageUsersForm.controls['projects'].controls[i].value['status'] !== 'DELETING'; else deleted">
+                  <span matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)"><i
+                      class="material-icons">pause_circle_outline</i>
+                  </span>
+                  <span matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)">
                     <i class="material-icons">phonelink_off</i>
                   </span>
-                  <ng-template #deleted>
-                    <span class="disabled" matTooltip="Project is deleted" matTooltipPosition="above">
-                      <i class="material-icons">phonelink_off</i>
-                    </span>
-                  </ng-template>
                 </div>
               </mat-list-item>
             </div>

@@ -19,7 +19,7 @@
 
 
 import { Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime } from 'rxjs/operators';
@@ -68,8 +68,8 @@ export class InstallLibrariesComponent implements OnInit {
   private clear: number;
   private clearCheckInstalling = undefined;
 
-  @ViewChild('groupSelect') group_select;
-  @ViewChild('resourceSelect') resource_select;
+  @ViewChild('groupSelect', { static: false }) group_select;
+  @ViewChild('resourceSelect', { static: false }) resource_select;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

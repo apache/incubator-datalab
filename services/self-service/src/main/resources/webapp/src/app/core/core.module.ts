@@ -18,6 +18,8 @@
  */
 
 import { NgModule, Optional, SkipSelf, ModuleWithProviders } from '@angular/core';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+
 import { CommonModule } from '@angular/common';
 import { ApplicationServiceFacade } from './services/applicationServiceFacade.service';
 import { AppRoutingService } from './services/appRouting.service';
@@ -39,8 +41,13 @@ import { DataengineConfigurationService } from './services/dataengineConfigurati
 import { StorageService } from './services/storage.service';
 import { ProjectService } from './services/project.service';
 import { EndpointService } from './services/endpoint.service';
+import { UserAccessKeyService } from './services/userAccessKey.service';
 
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { HttpTokenInterceptor } from './interceptors/http.token.interceptor';
+import { NoCacheInterceptor } from './interceptors/nocache.interceptor';
+import { ErrorInterceptor } from './interceptors/error.interceptor';
+
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @NgModule({
   imports: [CommonModule],
@@ -75,9 +82,24 @@ export class CoreModule {
         StorageService,
         ProjectService,
         EndpointService,
+        UserAccessKeyService,
 
         { provide: MatDialogRef, useValue: {} },
-        { provide: MAT_DIALOG_DATA, useValue: [] }
+        { provide: MAT_DIALOG_DATA, useValue: [] },
+
+        {
+          provide: HTTP_INTERCEPTORS,
+          useClass: HttpTokenInterceptor,
+          multi: true
+        }, {
+          provide: HTTP_INTERCEPTORS,
+          useClass: NoCacheInterceptor,
+          multi: true,
+        }, {
+          provide: HTTP_INTERCEPTORS,
+          useClass: ErrorInterceptor,
+          multi: true,
+        }
       ]
     };
   }

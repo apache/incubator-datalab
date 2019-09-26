@@ -22,8 +22,7 @@ def create_user():
                 conn.sudo('useradd -m -G {1} -s /bin/bash {0}'
                           .format(args.os_user, sudo_group))
                 conn.sudo(
-                    'bash -c \'echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers\''
-                        .format(args.os_user, initial_user))
+                    'bash -c \'echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers\''.format(args.os_user, initial_user))
                 conn.sudo('mkdir /home/{}/.ssh'.format(args.os_user))
                 conn.sudo('chown -R {0}:{0} /home/{1}/.ssh/'
                           .format(initial_user, args.os_user))
@@ -44,12 +43,10 @@ def create_user():
 
 def copy_keys():
     try:
-        conn.put(args.pkey, '/tmp/')
-        conn.sudo('mv /tmp/{0}.pem /home/{1}/keys/'
-                  .format(args.key_name, args.os_user))
+        conn.put(args.pkey, '/home/{0}/keys/'.format(args.os_user))
         conn.sudo('chown -R {0}:{0} /home/{0}/keys'.format(args.os_user))
     except Exception as err:
-        logging.error('Failed to copy keys ', str(err))
+        logging.error('Failed to copy admin key: ', str(err))
         traceback.print_exc()
         sys.exit(1)
 
@@ -88,8 +85,7 @@ def ensure_logs_endpoint():
 
 def ensure_jre_jdk_endpoint():
     try:
-        if not exists(conn, '/home/{}/.ensure_dir/jre_jdk_ensured'
-                .format(args.os_user)):
+        if not exists(conn, '/home/{}/.ensure_dir/jre_jdk_ensured'.format(args.os_user)):
             conn.sudo('apt-get install -y openjdk-8-jre-headless')
             conn.sudo('apt-get install -y openjdk-8-jdk-headless')
             conn.sudo('touch /home/{}/.ensure_dir/jre_jdk_ensured'
@@ -102,8 +98,7 @@ def ensure_jre_jdk_endpoint():
 
 def ensure_supervisor_endpoint():
     try:
-        if not exists(conn, '/home/{}/.ensure_dir/superv_ensured'
-                .format(args.os_user)):
+        if not exists(conn, '/home/{}/.ensure_dir/superv_ensured'.format(args.os_user)):
             conn.sudo('apt-get -y install supervisor')
             conn.sudo('update-rc.d supervisor defaults')
             conn.sudo('update-rc.d supervisor enable')
@@ -117,8 +112,7 @@ def ensure_supervisor_endpoint():
 
 def ensure_docker_endpoint():
     try:
-        if not exists(conn, '/home/{}/.ensure_dir/docker_ensured'
-                .format(args.os_user)):
+        if not exists(conn, '/home/{}/.ensure_dir/docker_ensured'.format(args.os_user)):
             conn.sudo("bash -c "
                       "'curl -fsSL https://download.docker.com/linux/ubuntu/gpg"
                       " | apt-key add -'")
@@ -129,11 +123,6 @@ def ensure_docker_endpoint():
             conn.sudo('apt-cache policy docker-ce')
             conn.sudo('apt-get install -y docker-ce={}'
                       .format(args.docker_version))
-            dns_ip_resolve = (conn.run("systemd-resolve --status "
-                                       "| grep -A 5 'Current Scopes: DNS' "
-                                       "| grep 'DNS Servers:' "
-                                       "| awk '{print $3}'")
-                              .stdout.rstrip("\n\r"))
             if not exists(conn, '{}/tmp'.format(args.dlab_path)):
                 conn.run('mkdir -p {}/tmp'.format(args.dlab_path))
             conn.put('./daemon.json',
@@ -142,8 +131,18 @@ def ensure_docker_endpoint():
                       .format(args.repository_address,
                               args.repository_port,
                               args.dlab_path))
-            conn.sudo('sed -i "s|DNS_IP_RESOLVE|{}|g" {}/tmp/daemon.json'
-                      .format(dns_ip_resolve, args.dlab_path))
+            if args.cloud_provider == "aws":
+                dns_ip_resolve = (conn.run("systemd-resolve --status "
+                                           "| grep -A 5 'Current Scopes: DNS' "
+                                           "| grep 'DNS Servers:' "
+                                           "| awk '{print $3}'")
+                                  .stdout.rstrip("\n\r"))
+                conn.sudo('sed -i "s|DNS_IP_RESOLVE|\"dns\": [{0}],|g" {1}/tmp/daemon.json'
+                          .format(dns_ip_resolve, args.dlab_path))
+            elif args.cloud_provider == "gcp":
+                dns_ip_resolve = ""
+                conn.sudo('sed -i "s|DNS_IP_RESOLVE||g" {1}/tmp/daemon.json'
+                          .format(dns_ip_resolve, args.dlab_path))
             conn.sudo('mv {}/tmp/daemon.json /etc/docker'
                       .format(args.dlab_path))
             conn.sudo('usermod -a -G docker ' + args.os_user)
@@ -170,24 +169,38 @@ def create_key_dir_endpoint():
 
 def configure_keystore_endpoint(os_user):
     try:
-        conn.sudo('apt-get install -y awscli')
-        if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
-            conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
-                      '/home/{1}/keys/endpoint.keystore.jks'
-                      .format(args.ssn_bucket_name, args.os_user))
-        if not exists(conn, '/home/' + args.os_user + '/keys/dlab.crt'):
-            conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.crt'
-                      ' /home/{1}/keys/endpoint.crt'.format(args.ssn_bucket_name, args.os_user))
-        if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
-            conn.sudo('aws s3 cp '
-                      's3://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/ssn.crt'
-                      .format(args.ssn_bucket_name, args.os_user))
+        if args.cloud_provider == "aws":
+            conn.sudo('apt-get install -y awscli')
+            if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
+                conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
+                          '/home/{1}/keys/endpoint.keystore.jks'
+                          .format(args.ssn_bucket_name, args.os_user))
+            if not exists(conn, '/home/' + args.os_user + '/keys/dlab.crt'):
+                conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.crt'
+                          ' /home/{1}/keys/endpoint.crt'.format(args.ssn_bucket_name, args.os_user))
+            if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
+                conn.sudo('aws s3 cp '
+                          's3://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/ssn.crt'
+                          .format(args.ssn_bucket_name, args.os_user))
+        elif args.cloud_provider == "gcp":
+            if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
+                conn.sudo('gsutil -m cp -r gs://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
+                          '/home/{1}/keys/'
+                          .format(args.ssn_bucket_name, args.os_user))
+            if not exists(conn, '/home/' + args.os_user + '/keys/dlab.crt'):
+                conn.sudo('gsutil -m cp -r gs://{0}/dlab/certs/endpoint/endpoint.crt'
+                          ' /home/{1}/keys/'.format(args.ssn_bucket_name, args.os_user))
+            if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
+                conn.sudo('gsutil -m cp -r '
+                          'gs://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/'
+                          .format(args.ssn_bucket_name, args.os_user))
         if not exists(conn, '/home/' + args.os_user + '/.ensure_dir/cert_imported'):
             conn.sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/endpoint.crt -noprompt \
                  -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
             conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/ssn.crt -noprompt \
                  -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
             conn.sudo('touch /home/' + args.os_user + '/.ensure_dir/cert_imported')
+        print("Certificates are imported.")
     except Exception as err:
         print('Failed to configure Keystore certificates: ', str(err))
         traceback.print_exc()
@@ -197,8 +210,7 @@ def configure_keystore_endpoint(os_user):
 def configure_supervisor_endpoint():
     try:
         if not exists(conn,
-                      '/home/{}/.ensure_dir/configure_supervisor_ensured'
-                              .format(args.os_user)):
+                      '/home/{}/.ensure_dir/configure_supervisor_ensured'.format(args.os_user)):
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
             if not exists(conn, '{}/tmp'.format(args.dlab_path)):
                 conn.run('mkdir -p {}/tmp'.format(args.dlab_path))
@@ -210,6 +222,14 @@ def configure_supervisor_endpoint():
             web_path = '{}/webapp'.format(args.dlab_path)
             if not exists(conn, web_path):
                 conn.run('mkdir -p {}'.format(web_path))
+            if args.cloud_provider == 'aws':
+                interface = sudo('curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
+                args.vpc_id = sudo('curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/{}/'
+                                   'vpc-id'.format(interface))
+                args.subnet_id = sudo('curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/{}/'
+                                      'subnet-id'.format(interface))
+                args.vpc2_id = args.vpc_id
+                args.subnet2_id = args.subnet_id
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
                       .format(args.os_user, args.dlab_path))
             conn.sudo('sed -i "s|WEB_CONF|{}|g" {}/tmp/supervisor_svc.conf'
@@ -228,14 +248,72 @@ def configure_supervisor_endpoint():
                       .format(java_home, dlab_conf_dir))
             conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" {}provisioning.yml'
                       .format(args.cloud_provider, dlab_conf_dir))
-            conn.sudo('sed -i "s|SSN_NLB|{}|g" {}provisioning.yml'
-                      .format(args.ssn_k8s_nlb_dns_name, dlab_conf_dir))
-            conn.sudo('sed -i "s|SSN_ALB|{}|g" {}provisioning.yml'
-                      .format(args.ssn_k8s_alb_dns_name, dlab_conf_dir))
+
+            conn.sudo('sed -i "s|MONGO_HOST|{}|g" {}provisioning.yml'
+                      .format(args.mongo_host, dlab_conf_dir))
+            conn.sudo('sed -i "s|MONGO_PORT|{}|g" {}provisioning.yml'
+                      .format(args.mongo_port, dlab_conf_dir))
+            conn.sudo('sed -i "s|SS_HOST|{}|g" {}provisioning.yml'
+                      .format(args.ss_host, dlab_conf_dir))
+            conn.sudo('sed -i "s|SS_PORT|{}|g" {}provisioning.yml'
+                      .format(args.ss_port, dlab_conf_dir))
+            conn.sudo('sed -i "s|KEYCLOACK_HOST|{}|g" {}provisioning.yml'
+                      .format(args.keycloack_host, dlab_conf_dir))
+
             conn.sudo('sed -i "s|CLIENT_SECRET|{}|g" {}provisioning.yml'
                       .format(args.keycloak_client_secret, dlab_conf_dir))
             # conn.sudo('sed -i "s|MONGO_PASSWORD|{}|g" {}provisioning.yml'
             #           .format(args.mongo_password, dlab_conf_dir))
+            conn.sudo('sed -i "s|CONF_OS|{}|g" {}provisioning.yml'
+                      .format(args.env_os, dlab_conf_dir))
+            conn.sudo('sed -i "s|SERVICE_BASE_NAME|{}|g" {}provisioning.yml'
+                      .format(args.service_base_name, dlab_conf_dir))
+            conn.sudo('sed -i "s|EDGE_INSTANCE_SIZE|{}|g" {}provisioning.yml'
+                      .format(args.edge_instence_size, dlab_conf_dir))
+            conn.sudo('sed -i "s|SUBNET_ID|{}|g" {}provisioning.yml'
+                      .format(args.subnet_id, dlab_conf_dir))
+            conn.sudo('sed -i "s|REGION|{}|g" {}provisioning.yml'
+                      .format(args.region, dlab_conf_dir))
+            conn.sudo('sed -i "s|ZONE|{}|g" {}provisioning.yml'
+                      .format(args.zone, dlab_conf_dir))
+            conn.sudo('sed -i "s|TAG_RESOURCE_ID|{}|g" {}provisioning.yml'
+                      .format(args.tag_resource_id, dlab_conf_dir))
+            conn.sudo('sed -i "s|SG_IDS|{}|g" {}provisioning.yml'
+                      .format(args.ssn_k8s_sg_id, dlab_conf_dir))
+            conn.sudo('sed -i "s|SSN_INSTANCE_SIZE|{}|g" {}provisioning.yml'
+                      .format(args.ssn_instance_size, dlab_conf_dir))
+            conn.sudo('sed -i "s|VPC2_ID|{}|g" {}provisioning.yml'
+                      .format(args.vpc2_id, dlab_conf_dir))
+            conn.sudo('sed -i "s|SUBNET2_ID|{}|g" {}provisioning.yml'
+                      .format(args.subnet2_id, dlab_conf_dir))
+            conn.sudo('sed -i "s|CONF_KEY_DIR|{}|g" {}provisioning.yml'
+                      .format(args.conf_key_dir, dlab_conf_dir))
+            conn.sudo('sed -i "s|VPC_ID|{}|g" {}provisioning.yml'
+                      .format(args.vpc_id, dlab_conf_dir))
+            conn.sudo('sed -i "s|PEERING_ID|{}|g" {}provisioning.yml'
+                      .format(args.peering_id, dlab_conf_dir))
+            conn.sudo('sed -i "s|AZURE_RESOURCE_GROUP_NAME|{}|g" {}provisioning.yml'
+                      .format(args.azure_resource_group_name, dlab_conf_dir))
+            conn.sudo('sed -i "s|AZURE_SSN_STORAGE_ACCOUNT_TAG|{}|g" {}provisioning.yml'
+                      .format(args.azure_ssn_storage_account_tag, dlab_conf_dir))
+            conn.sudo('sed -i "s|AZURE_SHARED_STORAGE_ACCOUNT_TAG|{}|g" {}provisioning.yml'
+                      .format(args.azure_shared_storage_account_tag, dlab_conf_dir))
+            conn.sudo('sed -i "s|AZURE_DATALAKE_TAG|{}|g" {}provisioning.yml'
+                      .format(args.azure_datalake_tag, dlab_conf_dir))
+            conn.sudo('sed -i "s|AZURE_CLIENT_ID|{}|g" {}provisioning.yml'
+                      .format(args.azure_client_id, dlab_conf_dir))
+            conn.sudo('sed -i "s|GCP_PROJECT_ID|{}|g" {}provisioning.yml'
+                      .format(args.gcp_project_id, dlab_conf_dir))
+            conn.sudo('sed -i "s|LDAP_HOST|{}|g" {}provisioning.yml'
+                      .format(args.ldap_host, dlab_conf_dir))
+            conn.sudo('sed -i "s|LDAP_DN|{}|g" {}provisioning.yml'
+                      .format(args.ldap_dn, dlab_conf_dir))
+            conn.sudo('sed -i "s|LDAP_OU|{}|g" {}provisioning.yml'
+                      .format(args.ldap_users_group, dlab_conf_dir))
+            conn.sudo('sed -i "s|LDAP_USER_NAME|{}|g" {}provisioning.yml'
+                      .format(args.ldap_user, dlab_conf_dir))
+            conn.sudo('sed -i "s|LDAP_USER_PASSWORD|{}|g" {}provisioning.yml'
+                      .format(args.ldap_bind_creds, dlab_conf_dir))
             conn.sudo('touch /home/{}/.ensure_dir/configure_supervisor_ensured'
                       .format(args.os_user))
     except Exception as err:
@@ -252,12 +330,18 @@ def ensure_jar_endpoint():
             web_path = '{}/webapp'.format(args.dlab_path)
             if not exists(conn, web_path):
                 conn.run('mkdir -p {}'.format(web_path))
-
-            conn.run('wget -P {}  --user={} --password={} '
-                     'https://{}/repository/packages/provisioning-service-'
-                     '2.1.jar --no-check-certificate'
-                     .format(web_path, args.repository_user,
-                             args.repository_pass, args.repository_address))
+            if args.cloud_provider == "aws":
+                conn.run('wget -P {}  --user={} --password={} '
+                         'https://{}/repository/packages/aws/provisioning-service-'
+                         '2.1.jar --no-check-certificate'
+                         .format(web_path, args.repository_user,
+                                 args.repository_pass, args.repository_address))
+            elif args.cloud_provider == "gcp":
+                conn.run('wget -P {}  --user={} --password={} '
+                         'https://{}/repository/packages/gcp/provisioning-service-'
+                         '2.1.jar --no-check-certificate'
+                         .format(web_path, args.repository_user,
+                                 args.repository_pass, args.repository_address))
             conn.run('mv {0}/*.jar {0}/provisioning-service.jar'
                      .format(web_path))
             conn.sudo('touch {}'.format(ensure_file))
@@ -276,6 +360,17 @@ def start_supervisor_endpoint():
         sys.exit(1)
 
 
+def get_sources():
+    try:
+        conn.run("git clone https://github.com/apache/incubator-dlab.git {0}/sources".format(args.dlab_path))
+        if args.branch_name != "":
+            conn.run("cd {0}/sources && git checkout {1} && cd".format(args.dlab_path, args.branch_name))
+    except Exception as err:
+        logging.error('Failed to download sources: ', str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
+
 def pull_docker_images():
     try:
         ensure_file = ('/home/{}/.ensure_dir/docker_images_pulled'
@@ -286,77 +381,77 @@ def pull_docker_images():
                               args.repository_pass,
                               args.repository_address,
                               args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-base'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-edge'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-project'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-jupyter'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-rstudio'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-zeppelin'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-tensor'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-tensor-rstudio'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-deeplearning'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-dataengine-service'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-dataengine'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-base docker.dlab-base'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-edge docker.dlab-edge'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-project docker.dlab-project'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-jupyter docker.dlab-jupyter'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-rstudio docker.dlab-rstudio'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-zeppelin '
+            conn.sudo('docker pull {}:{}/docker.dlab-base-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.dlab-edge-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.dlab-project-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.dlab-jupyter-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.dlab-rstudio-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.dlab-zeppelin-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.dlab-tensor-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.dlab-tensor-rstudio-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.dlab-deeplearning-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.dlab-dataengine-service-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker pull {}:{}/docker.dlab-dataengine-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-base-{} docker.dlab-base'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-edge-{} docker.dlab-edge'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-project-{} docker.dlab-project'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-jupyter-{} docker.dlab-jupyter'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-rstudio-{} docker.dlab-rstudio'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-zeppelin-{} '
                       'docker.dlab-zeppelin'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-tensor docker.dlab-tensor'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-tensor-rstudio '
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-tensor-{} docker.dlab-tensor'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-tensor-rstudio-{} '
                       'docker.dlab-tensor-rstudio'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-deeplearning '
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-deeplearning-{} '
                       'docker.dlab-deeplearning'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-dataengine-service '
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-dataengine-service-{} '
                       'docker.dlab-dataengine-service'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker tag {}:{}/docker.dlab-dataengine '
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker tag {}:{}/docker.dlab-dataengine-{} '
                       'docker.dlab-dataengine'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-base'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-edge'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-project'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-jupyter'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-rstudio'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-zeppelin'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-tensor'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-tensor-rstudio'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-deeplearning'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-service'
-                      .format(args.repository_address, args.repository_port))
-            conn.sudo('docker rmi {}:{}/docker.dlab-dataengine'
-                      .format(args.repository_address, args.repository_port))
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-base-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-edge-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-project-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-jupyter-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-rstudio-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-zeppelin-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-tensor-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-tensor-rstudio-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-deeplearning-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-service-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-{}'
+                      .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('chown -R {0}:docker /home/{0}/.docker/'
                       .format(args.os_user))
             conn.sudo('touch {}'.format(ensure_file))
@@ -369,15 +464,18 @@ def pull_docker_images():
 def init_args():
     global args
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dlab_path', type=str, default='')
-    parser.add_argument('--key_name', type=str, default='')
+    parser.add_argument('--dlab_path', type=str, default='/opt/dlab')
+    parser.add_argument('--key_name', type=str, default='', help='Name of admin key without .pem extension')
     parser.add_argument('--endpoint_eip_address', type=str)
     parser.add_argument('--pkey', type=str, default='')
     parser.add_argument('--hostname', type=str, default='')
     parser.add_argument('--os_user', type=str, default='dlab-user')
     parser.add_argument('--cloud_provider', type=str, default='')
-    parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
-    parser.add_argument('--ssn_k8s_alb_dns_name', type=str, default='')
+    parser.add_argument('--mongo_host', type=str, default='MONGO_HOST')
+    parser.add_argument('--mongo_port', type=str, default='27017')
+    parser.add_argument('--ss_host', type=str, default='')
+    parser.add_argument('--ss_port', type=str, default='8443')
+    parser.add_argument('--keycloack_host', type=str, default='')
     # parser.add_argument('--mongo_password', type=str, default='')
     parser.add_argument('--repository_address', type=str, default='')
     parser.add_argument('--repository_port', type=str, default='')
@@ -388,6 +486,32 @@ def init_args():
     parser.add_argument('--ssn_bucket_name', type=str, default='')
     parser.add_argument('--endpoint_keystore_password', type=str, default='')
     parser.add_argument('--keycloak_client_secret', type=str, default='')
+    parser.add_argument('--branch_name', type=str, default='DLAB-terraform')  # change default
+    parser.add_argument('--env_os', type=str, default='debian')
+    parser.add_argument('--service_base_name', type=str, default='')
+    parser.add_argument('--edge_instence_size', type=str, default='t2.medium')
+    parser.add_argument('--subnet_id', type=str, default='')
+    parser.add_argument('--region', type=str, default='')
+    parser.add_argument('--zone', type=str, default='')
+    parser.add_argument('--tag_resource_id', type=str, default='user:tag')
+    parser.add_argument('--ssn_k8s_sg_id', type=str, default='')
+    parser.add_argument('--ssn_instance_size', type=str, default='t2.large')
+    parser.add_argument('--vpc2_id', type=str, default='')
+    parser.add_argument('--subnet2_id', type=str, default='')
+    parser.add_argument('--conf_key_dir', type=str, default='/root/keys/', help='Should end by symbol /')
+    parser.add_argument('--vpc_id', type=str, default='')
+    parser.add_argument('--peering_id', type=str, default='')
+    parser.add_argument('--azure_resource_group_name', type=str, default='')
+    parser.add_argument('--azure_ssn_storage_account_tag', type=str, default='')
+    parser.add_argument('--azure_shared_storage_account_tag', type=str, default='')
+    parser.add_argument('--azure_datalake_tag', type=str, default='')
+    parser.add_argument('--azure_client_id', type=str, default='')
+    parser.add_argument('--gcp_project_id', type=str, default='')
+    parser.add_argument('--ldap_host', type=str, default='')
+    parser.add_argument('--ldap_dn', type=str, default='')
+    parser.add_argument('--ldap_users_group', type=str, default='')
+    parser.add_argument('--ldap_user', type=str, default='')
+    parser.add_argument('--ldap_bind_creds', type=str, default='')
     print(parser.parse_known_args())
     args = parser.parse_known_args()[0]
 
@@ -473,6 +597,9 @@ def start_deploy():
 
     logging.info("Ensure jar")
     ensure_jar_endpoint()
+
+    logging.info("Downloading sources")
+    get_sources()
 
     logging.info("Pulling docker images")
     pull_docker_images()

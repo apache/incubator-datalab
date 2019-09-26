@@ -16,19 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { Component, OnInit } from '@angular/core';
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+@Component({
+  selector: 'dlab-access-denied',
+  template: `
+    <div class="no-access-page">
+      <div class="content">
+        <a class="logo" href="#/resources_list">
+          <img src="assets/img/security-screen.png" alt="">
+        </a>
 
-import { UploadKeyDialogComponent } from './key-upload-dialog.component';
-import { MaterialModule } from '../../material.module';
-
-export * from './key-upload-dialog.component';
-
-@NgModule({
-  imports: [CommonModule, MaterialModule],
-  declarations: [UploadKeyDialogComponent],
-  entryComponents: [UploadKeyDialogComponent],
-  exports: [UploadKeyDialogComponent]
+        <div class="message-block">
+          <h3>Access Denied!</h3>
+          <p>The page you were trying to reach has restricted access.
+            <a href="#/resources_list">Go to the Homepage?</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  `,
+  styleUrls: ['./access-denied.component.scss']
 })
-export class UploadKeyDialogModule {}
+export class AccessDeniedComponent implements OnInit {
+  constructor() { }
+  ngOnInit() { }
+}

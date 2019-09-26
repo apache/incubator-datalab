@@ -42,6 +42,7 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
     public static final String USAGE_DATE_START = "usage_date_start";
     public static final String USAGE_DATE_END = "usage_date_end";
     public static final String TAG_RESOURCE_ID = "tag_resource_id";
+    private static final String FIELD_PROJECT = "project";
 
     @Override
     protected Bson sortCriteria() {
@@ -54,7 +55,7 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
     @Override
     protected Bson groupCriteria() {
         return group(getGroupingFields(USER, FIELD_DLAB_ID, DLAB_RESOURCE_TYPE, FIELD_PRODUCT, FIELD_RESOURCE_TYPE,
-                FIELD_CURRENCY_CODE),
+                FIELD_CURRENCY_CODE, FIELD_PROJECT),
                 sum(FIELD_COST, "$" + FIELD_COST),
                 min(MongoKeyWords.USAGE_FROM, "$" + FIELD_USAGE_DATE),
                 max(MongoKeyWords.USAGE_TO, "$" + FIELD_USAGE_DATE));

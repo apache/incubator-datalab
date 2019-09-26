@@ -19,7 +19,7 @@
 
 import { Component, OnInit, Inject, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { UserResourceService, HealthStatusService, ManageEnvironmentsService } from '../../../core/services';
