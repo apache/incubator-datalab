@@ -21,28 +21,52 @@
 
 variable "project_name" {}
 
-variable "sbn" {}
+variable "credentials" {}
 
-variable "project_tag" {}
-
-variable "endpoint_tag" {}
-
-variable "user_tag" {}
-
-variable "custom_tag" {}
-
-variable "notebook_name" {}
+variable "edge_shape" {}
 
 variable "region" {}
 
 variable "zone" {}
 
+variable "service_base_name" {}
+
+variable "project_tag" {}
+
+variable "endpoint_tag" {}
+
+variable "vpc_name" {}
+
+variable "ssn_subnet_name" {}
+
+variable "ami" {}
+
+variable "edge_volume_size" {}
+
+variable "ps_cidr" {}
+
+variable "ssn_subnet_cidr" {}
+
+variable "edge_policies" {
+  type = "list"
+  default = []
+}
+
+variable "edge_roles" {
+  type = "list"
+  default = []
+}
+
+variable "nb_policies" {
+  type = "list"
+  default = []
+}
+
+variable "nb_roles" {
+  type = "list"
+  default = []
+}
+
+variable "path_to_pub_key" {} # Format the file before deploy
+
 variable "product" {}
-
-variable "vpc" {}
-
-variable "cidr_range" {}
-
-variable "traefik_cidr" {}
-
-variable "instance_type" {}

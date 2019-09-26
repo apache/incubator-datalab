@@ -5,23 +5,6 @@ provider "google" {
   zone        = "${var.zone_var}"
 }
 
-module "common" {
-  source            = "../modules/common"
-  project_tag       = "${var.project_tag}"
-  endpoint_tag      = "${var.endpoint_tag}"
-  user_tag          = "${var.user_tag}"
-  custom_tag        = "${var.custom_tag}"
-  product           = "${var.product_name}"
-  region            = "${var.region_var}"
-  vpc_name          = "${var.vpc_name}"
-  fw_ingress        = "${var.fw_ingress}"
-  fw_egress_public  = "${var.fw_egress_public}"
-  fw_egress_private = "${var.fw_egress_private}"
-  network_tag       = "${var.network_tag}"
-  cidr_range        = "${var.cidr_range}"
-  traefik_cidr      = "${var.traefik_cidr}"
-}
-
 module "notebook" {
   source          = "../modules/notebook"
   project_tag     = "${var.project_tag}"

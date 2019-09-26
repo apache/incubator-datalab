@@ -4,24 +4,6 @@ provider "aws" {
   region     = var.region
 }
 
-module "common" {
-  source        = "../modules/common"
-  sbn           = var.service_base_name
-  project_name  = var.project_name
-  project_tag   = var.project_tag
-  endpoint_tag  = var.endpoint_tag
-  user_tag      = var.user_tag
-  custom_tag    = var.custom_tag
-  notebook_name = var.notebook_name
-  region        = var.region
-  zone          = var.zone
-  product       = var.product_name
-  vpc           = var.vpc_id
-  cidr_range    = var.cidr_range
-  traefik_cidr  = var.traefik_cidr
-  instance_type = var.instance_type
-}
-
 module "notebook" {
   source           = "../modules/notebook"
   sbn              = var.service_base_name
