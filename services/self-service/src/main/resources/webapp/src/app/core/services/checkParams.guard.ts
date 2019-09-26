@@ -51,7 +51,7 @@ export class CheckParamsGuard implements CanActivate {
             .toPromise();
         }
         if (!authState)
-          this.applicationSecurityService.locationCheck().subscribe(location => window.location.href = location.headers.get('Location'));
+          this.applicationSecurityService.locationCheck().subscribe(location => window.location.href = location);
         return !!authState;
       }));
   }

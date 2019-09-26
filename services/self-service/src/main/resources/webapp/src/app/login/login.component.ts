@@ -81,7 +81,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   loginWithKeyClock() {
-    this.applicationSecurityService.locationCheck().subscribe(location => window.location.href = location.headers.get('Location'));
+    this.applicationSecurityService.locationCheck().subscribe(location => window.location.href = location);
   }
 
   checkHealthStatusAndRedirect(isLoggedIn) {

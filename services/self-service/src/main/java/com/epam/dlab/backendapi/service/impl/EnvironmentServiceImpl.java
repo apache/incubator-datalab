@@ -231,7 +231,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 					.map(e -> new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
 							.withResourceStatus(e.getStatus().toString())
 							.withProject(projectDTO.getName())
-							.withIp(e.getEdgeInfo() != null ? e.getEdgeInfo().getIp() : null));
+							.withIp(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null));
 			return Stream.concat(edges, userResources)
 					.collect(toList());
 		} else {

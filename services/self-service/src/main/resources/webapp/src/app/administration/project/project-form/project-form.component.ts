@@ -49,7 +49,7 @@ export class ProjectFormComponent implements OnInit {
 
   @Input() item: any;
   @Output() update: EventEmitter<{}> = new EventEmitter();
-  @ViewChild('stepper', { static: false }) stepper: MatStepper;
+  @ViewChild('stepper', { static: true }) stepper: MatStepper;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -73,7 +73,6 @@ export class ProjectFormComponent implements OnInit {
       if (value) this.projectList = value;
     }));
     if (this.item) {
-
       this.editSpecificProject(this.item);
       this.stepper.selectedIndex = 1;
     }
@@ -157,7 +156,7 @@ export class ProjectFormComponent implements OnInit {
     this.projectForm = this._fb.group({
       'key': [''],
       'name': [item.name, Validators.required],
-      'endpoints': [item.endpoints],
+      'endpoints': [item.endpoints.map((item: any) => item.name)],
       'tag': [item.tag, Validators.required],
       'groups': [item.groups, Validators.required]
     });

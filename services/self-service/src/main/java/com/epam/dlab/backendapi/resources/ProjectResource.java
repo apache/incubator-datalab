@@ -160,7 +160,7 @@ public class ProjectResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo) {
 		return Response
-				.ok(projectService.getUserProjects(userInfo))
+				.ok(projectService.getUserActiveProjects(userInfo))
 				.build();
 	}
 
@@ -195,6 +195,16 @@ public class ProjectResource {
 			@Parameter(hidden = true) @Auth UserInfo userInfo,
 			ProjectActionFormDTO projectActionDTO) {
 		projectService.terminateEndpoint(userInfo, projectActionDTO.getEndpoint(), projectActionDTO.getProjectName());
+		return Response.ok().build();
+	}
+
+	@DELETE
+	@Path("{name}")
+	@RolesAllowed("/api/project")
+	public Response removeProject(
+			@Parameter(hidden = true) @Auth UserInfo userInfo,
+			@PathParam("name") String name) {
+		projectService.terminateProject(userInfo, name);
 		return Response.ok().build();
 	}
 

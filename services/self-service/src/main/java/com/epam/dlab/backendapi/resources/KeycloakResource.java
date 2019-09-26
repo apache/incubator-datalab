@@ -44,9 +44,9 @@ public class KeycloakResource {
 	}
 
 	@GET
-	public Response getLoginUri() throws URISyntaxException {
-		return Response.noContent()
-				.location(new URI(loginUri))
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response getLoginUri() {
+		return Response.ok(loginUri)
 				.build();
 	}
 

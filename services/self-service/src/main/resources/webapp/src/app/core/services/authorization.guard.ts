@@ -34,7 +34,7 @@ export class AuthorizationGuard implements CanActivate {
     return this.applicationSecurityService.isLoggedIn().pipe(
       map(authState => {
         if (!authState)
-          this.applicationSecurityService.locationCheck().subscribe(location => window.location.href = location.headers.get('Location'));
+          this.applicationSecurityService.locationCheck().subscribe(location => window.location.href = location);
         return !!authState;
       })
     );

@@ -50,7 +50,7 @@ export class ApplicationSecurityService {
     return this.serviceFacade.buildLocationCheck()
       .pipe(
         map(response => response),
-        catchError(ErrorUtils.handleServiceError));
+        catchError(error => error));
   }
 
   public login(loginModel: LoginModel): Observable<boolean | {}> {

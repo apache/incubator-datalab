@@ -512,6 +512,12 @@ def init_args():
     parser.add_argument('--ldap_users_group', type=str, default='')
     parser.add_argument('--ldap_user', type=str, default='')
     parser.add_argument('--ldap_bind_creds', type=str, default='')
+
+    # TEMPORARY
+    parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
+    parser.add_argument('--ssn_k8s_alb_dns_name', type=str, default='')
+    # TEMPORARY
+
     print(parser.parse_known_args())
     args = parser.parse_known_args()[0]
 
@@ -558,6 +564,11 @@ def start_deploy():
 
     print("Start provisioning of Endpoint.")
     time.sleep(40)
+
+# TEMPORARY!!!
+    args.keycloack_host = args.ssn_k8s_alb_dns_name
+    args.ss_host = args.ssn_k8s_nlb_dns_name
+# TEMPORARY!!!
 
     print(args)
     logging.info("Creating dlab-user")
