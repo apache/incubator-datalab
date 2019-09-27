@@ -19,30 +19,9 @@
 #
 # ******************************************************************************
 
-variable "project_name" {}
-
-variable "sbn" {}
-
-variable "project_tag" {}
-
-variable "endpoint_tag" {}
-
-variable "user_tag" {}
-
-variable "custom_tag" {}
-
-variable "notebook_name" {}
-
-variable "region" {}
-
-variable "product" {}
-
-variable "vpc" {}
-
-variable "cidr_range" {}
-
-variable "traefik_cidr" {}
-
-variable "instance_type" {}
-
-variable "resource_group" {}
+provider "azurerm" {
+  subscription_id = var.subscription_id
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  tenant_id       = var.tenant_id
+}
