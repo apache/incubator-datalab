@@ -20,11 +20,9 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.contract.SecurityAPI;
-import com.epam.dlab.auth.dto.UserCredentialDTO;
-import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.*;
 import com.epam.dlab.backendapi.service.*;
 import com.epam.dlab.backendapi.service.impl.*;
@@ -32,21 +30,17 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
-import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.name.Names;
 import io.dropwizard.auth.Authorizer;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
-import org.glassfish.jersey.logging.LoggingFeature;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.glassfish.jersey.logging.LoggingFeature;
 
-import javax.ws.rs.client.Client;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.client.Client;
 import java.util.EnumSet;
-import java.util.Optional;
 
 /**
  * Mock class for an application configuration of SelfService for developer mode.
@@ -54,9 +48,6 @@ import java.util.Optional;
 public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> implements SecurityAPI, DockerAPI {
 
 	public static final String TOKEN = "token123";
-	private static final String LOGIN_NAME = "test";
-	private static final String OPERATION_IS_NOT_SUPPORTED = "Operation is not supported";
-	private static final String LOGOUT = "logout";
 
 	/**
 	 * Instantiates an application configuration of SelfService for developer mode.
@@ -119,16 +110,6 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(ProjectDAO.class).to(ProjectDAOImpl.class);
 	}
 
-	/**
-	 * Create and return UserInfo object.
-	 */
-	private UserInfo getUserInfo() {
-		UserInfo userInfo = new UserInfo(LOGIN_NAME, TOKEN);
-		userInfo.addRole("test");
-		userInfo.addRole("dev");
-		return userInfo;
-	}
-
 	private void configureCors(Environment environment) {
 		final FilterRegistration.Dynamic cors =
 				environment.servlets().addFilter("CORS", CrossOriginFilter.class);
@@ -141,59 +122,5 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 
 		cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
-	}
-
-	/**
-	 * Creates and returns the mock object for authentication service.
-	 */
-	private RESTService createAuthenticationService() {
-		return new RESTService() {
-			@Override
-			@SuppressWarnings("unchecked")
-			public <T> T post(String path, Object parameter, Class<T> clazz) {
-				if (LOGIN.equals(path)) {
-					return authorize((UserCredentialDTO) parameter);
-				} else if (GET_USER_INFO.equals(path) && TOKEN.equals(parameter) && clazz.equals(UserInfo.class)) {
-					return (T) getUserInfo();
-				} else if (GET_USER_INFO.equals(path) && !TOKEN.equals(parameter) && clazz.equals(UserInfo.class)) {
-					return null;
-				} else if (LOGOUT.equals(path)) {
-					return (T) Response.ok().build();
-				}
-				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
-			}
-
-			@SuppressWarnings("unchecked")
-			private <T> T authorize(UserCredentialDTO credential) {
-				if (LOGIN_NAME.equals(credential.getUsername())) {
-					return (T) Response.ok(TOKEN).build();
-				} else {
-					return (T) unauthorized();
-				}
-			}
-
-			private Response unauthorized() {
-				return Response.status(Response.Status.UNAUTHORIZED)
-						.entity(new ErrorDTO(Response.Status.UNAUTHORIZED.getStatusCode(), "Username or password" +
-								" is invalid"))
-						.type(MediaType.APPLICATION_JSON_TYPE)
-						.build();
-			}
-
-			@Override
-			public <T> T get(String path, Class<T> clazz) {
-				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
-			}
-
-			@Override
-			public <T> T get(String path, String accessToken, Class<T> clazz) {
-				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
-			}
-
-			@Override
-			public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz) {
-				throw new UnsupportedOperationException(OPERATION_IS_NOT_SUPPORTED);
-			}
-		};
 	}
 }

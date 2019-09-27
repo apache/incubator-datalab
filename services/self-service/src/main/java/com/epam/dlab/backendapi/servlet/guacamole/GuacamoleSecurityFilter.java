@@ -1,7 +1,7 @@
 package com.epam.dlab.backendapi.servlet.guacamole;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.auth.UserInfoDAO;
+import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,11 +17,11 @@ import java.util.Optional;
 public class GuacamoleSecurityFilter implements Filter {
 	private static final String AUTH_HEADER_PREFIX = "Bearer ";
 
-	private final UserInfoDAO userInfoDAO;
+	private final SecurityDAO securityDAO;
 
 	@Inject
-	public GuacamoleSecurityFilter(UserInfoDAO userInfoDAO) {
-		this.userInfoDAO = userInfoDAO;
+	public GuacamoleSecurityFilter(SecurityDAO securityDAO) {
+		this.securityDAO = securityDAO;
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class GuacamoleSecurityFilter implements Filter {
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 		final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
 		final String credentials = StringUtils.substringAfter(authorization, AUTH_HEADER_PREFIX);
-		final Optional<UserInfo> user = userInfoDAO.getUserInfoByAccessToken(credentials);
+		final Optional<UserInfo> user = securityDAO.getUser(credentials);
 		if (user.isPresent()) {
 			request.setAttribute(GuacamoleServlet.USER_ATTRIBUTE, user.get());
 			filterChain.doFilter(servletRequest, servletResponse);

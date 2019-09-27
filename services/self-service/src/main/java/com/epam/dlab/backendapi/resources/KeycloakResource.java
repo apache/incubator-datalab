@@ -3,6 +3,8 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.KeycloakConfiguration;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.SecurityDAO;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.SecurityService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -22,12 +24,17 @@ public class KeycloakResource {
 	private static final String KEYCLOAK_LOGOUT_URI_FORMAT = "%s/realms/%s/protocol/openid-connect/logout" +
 			"?redirect_uri=";
 	private final SecurityService securityService;
+	private final SecurityDAO securityDAO;
 	private final String loginUri;
 	private final String logoutUri;
 	private final String redirectUri;
+	private final boolean defaultAccess;
 
 	@Inject
-	public KeycloakResource(SecurityService securityService, SelfServiceApplicationConfiguration configuration) {
+	public KeycloakResource(SecurityService securityService, SelfServiceApplicationConfiguration configuration,
+							SecurityDAO securityDAO) {
+		this.securityDAO = securityDAO;
+		this.defaultAccess = configuration.getRoleDefaultAccess();
 		final KeycloakConfiguration keycloakConfiguration = configuration.getKeycloakConfiguration();
 		this.redirectUri = keycloakConfiguration.getRedirectUri();
 		this.securityService = securityService;
@@ -59,6 +66,7 @@ public class KeycloakResource {
 	@POST
 	@Path("/authorize")
 	public Response authorize(@Auth UserInfo userInfo) {
+		UserRoles.initialize(securityDAO, defaultAccess);
 		return Response.ok().build();
 	}
 
