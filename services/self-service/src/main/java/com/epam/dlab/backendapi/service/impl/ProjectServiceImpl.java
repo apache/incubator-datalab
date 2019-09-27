@@ -135,7 +135,8 @@ public class ProjectServiceImpl implements ProjectService {
 				.map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
 				.collect(Collectors.toList());
 		project.getEndpoints().addAll(endpointsToBeCreated);
-		projectDAO.update(project);
+		projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
+				project.getTag(), project.getBudget(), project.getEndpoints()));
 		endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, project, e.getName()));
 	}
 

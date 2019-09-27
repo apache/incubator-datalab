@@ -183,8 +183,8 @@ public class UserGroupServiceImplTest {
 			assertEquals("Group can not be removed because it is used in some project", e.getMessage());
 		}
 
-		verify(userRoleDao, never()).removeGroup(GROUP);
-		verify(userGroupDao, never()).removeGroup(GROUP);
+		verify(userRoleDao).removeGroup(GROUP);
+		verify(userGroupDao).removeGroup(GROUP);
 		verifyNoMoreInteractions(userGroupDao, userRoleDao);
 	}
 
