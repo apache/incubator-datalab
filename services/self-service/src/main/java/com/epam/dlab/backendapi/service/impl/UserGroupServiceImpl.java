@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.service.UserGroupService;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -88,12 +89,17 @@ public class UserGroupServiceImpl implements UserGroupService {
 
 	@Override
 	public void removeGroup(String groupId) {
-		projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING)
-				.stream()
-				.filter(p -> !p.getGroups().contains(groupId))
-				.findAny()
-				.orElseThrow(() -> new ResourceConflictException("Group can not be removed because it is used in some " +
-						"project"));
+		final List<ProjectDTO> notTerminatedProjects =
+				projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
+						UserInstanceStatus.TERMINATING);
+		if (!notTerminatedProjects.isEmpty()){
+			notTerminatedProjects
+					.stream()
+					.filter(p -> !p.getGroups().contains(groupId))
+					.findAny()
+					.orElseThrow(() -> new ResourceConflictException("Group can not be removed because it is used in some " +
+							"project"));
+		}
 		if (userRoleDao.removeGroup(groupId)) {
 			userGroupDao.removeGroup(groupId);
 		}
