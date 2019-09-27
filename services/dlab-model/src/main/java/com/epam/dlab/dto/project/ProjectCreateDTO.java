@@ -15,5 +15,6 @@ public class ProjectCreateDTO extends ResourceBaseDTO<ProjectCreateDTO> {
 	private final String tag;
 	@JsonProperty("endpoint_name")
 	private final String endpoint;
+	@JsonProperty("use_shared_image")
 	private boolean useSharedImage;
 }
