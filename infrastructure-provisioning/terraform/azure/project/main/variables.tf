@@ -43,25 +43,19 @@ variable "custom_tag" {}
 
 variable "os_env" {}
 
-variable "notebook_name" {}
-
 variable "region" {}
 
-variable "product_name" {}
+variable "product" {}
 
 variable "vpc_id" {}
 
 variable "subnet_id" {}
 
-variable "nb-sg_id" {}
+variable "ps_cidr" {}
 
-variable "cidr_range" {}
+variable "edge_cidr" {}
 
-variable "traefik_cidr" {}
-
-variable "ami" {}
-
-variable "custom_ami" {}
+variable "edge_private_ip" {}
 
 variable "instance_type" {}
 
@@ -69,12 +63,38 @@ variable "ssh_key" {}
 
 variable "initial_user" {}
 
-variable "cluster_name" {}
+variable "ami_publisher" {
+  type = "map"
+  default = {
+    debian = "Canonical"
+    redhat = "RedHat"
+    custom = ""
+  }
+}
 
-variable "slave_count" {}
+variable "ami_offer" {
+  type = "map"
+  default = {
+    debian = "UbuntuServer"
+    redhat = "RHEL"
+    custom = ""
+  }
+}
 
-variable "master_shape" {}
+variable "ami_sku" {
+  type = "map"
+  default = {
+    debian = "16.04-LTS"
+    redhat = "7.3"
+    custom = ""
+  }
+}
 
-variable "slave_shape" {}
-
-variable "source_instance_id" {}
+variable "ami_version" {
+  type = "map"
+  default = {
+    debian = "16.04.201907290"
+    redhat = "7.3.2017090800"
+    custom = ""
+  }
+}
