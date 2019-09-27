@@ -59,7 +59,7 @@ public class RESTService {
 
 	public <T> T get(URI path, Class<T> clazz) {
 		log.debug("REST get {}", path);
-		return getWebTarget(path.toString())
+		return client.target(URI.create(url + path.toString()))
 				.request()
 				.get(clazz);
 	}
