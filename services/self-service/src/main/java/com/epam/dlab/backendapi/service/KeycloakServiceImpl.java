@@ -20,11 +20,13 @@ public class KeycloakServiceImpl implements KeycloakService {
 	private static final String URI = "/realms/%s/protocol/openid-connect/token";
 	private final Client httpClient;
 	private final KeycloakConfiguration conf;
+	private final String redirectUri;
 
 	@Inject
 	public KeycloakServiceImpl(Client httpClient, SelfServiceApplicationConfiguration conf) {
 		this.httpClient = httpClient;
 		this.conf = conf.getKeycloakConfiguration();
+		this.redirectUri = conf.getKeycloakConfiguration().getRedirectUri();
 	}
 
 	@Override
@@ -55,7 +57,8 @@ public class KeycloakServiceImpl implements KeycloakService {
 	private Form accessTokenRequestForm(String code) {
 		return new Form()
 				.param("grant_type", "authorization_code")
-				.param("code", code);
+				.param("code", code)
+				.param("redirect_uri", redirectUri);
 	}
 
 	private Form refreshTokenRequestForm(String refreshToken) {

@@ -31,7 +31,7 @@
     }
 
     .shape {
-      width: 15% !important;
+      width: 16% !important;
     }
 
     .status {
@@ -47,7 +47,7 @@
       padding: 5px;
     }
 
-    .actions {
+    .actions-col {
       width: 10%;
     }
 
@@ -65,6 +65,10 @@
 
 table {
   width: 100%;
+
+  td {
+    padding: 5px;
+  }
 
   .header-row {
     .label {

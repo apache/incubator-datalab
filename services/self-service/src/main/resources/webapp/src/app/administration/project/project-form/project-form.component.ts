@@ -152,18 +152,22 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public editSpecificProject(item: Project) {
+    let endpoints = item.endpoints.map((item: any) => item.name);
 
     this.projectForm = this._fb.group({
       'key': [''],
       'name': [item.name, Validators.required],
-      'endpoints': [item.endpoints.map((item: any) => item.name)],
+      'endpoints': [endpoints],
       'tag': [item.tag, Validators.required],
       'groups': [item.groups, Validators.required]
     });
   }
 
   isDisabled(endpoint: any): boolean {
-    return this.item && this.item.endpoints.includes(endpoint);
+    if (this.item) {
+      const endpoints = this.item.endpoints.map((item: any) => item.name);
+      return endpoints.includes(endpoint);
+    }
   }
 
   private getLabel(file: File): string {

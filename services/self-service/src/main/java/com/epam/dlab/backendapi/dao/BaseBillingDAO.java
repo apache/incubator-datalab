@@ -104,7 +104,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		pipeline.add(sortCriteria());
 		final Map<String, ShapeInfo> shapes = getShapes(filter.getShapes());
 		return prepareReport(filter.getStatuses(), !filter.getShapes().isEmpty(),
-				getCollection(BILLING).aggregate(pipeline), shapes, isFullReport); //TODO add shapes
+				getCollection(BILLING).aggregate(pipeline), shapes, isFullReport);
 	}
 
 	private Document prepareReport(List<UserInstanceStatus> statuses, boolean filterByShape,
