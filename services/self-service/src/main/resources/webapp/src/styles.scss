@@ -106,19 +106,23 @@ mat-chip.mat-chip strong {
 .starting,
 .installed,
 .active,
-.activating {
+.activating,
+.connected {
   color: #49af38;
 }
 
 .stopped,
 .stopping,
 .deactivating,
-.not_active {
+.not_active,
+.disconnecting,
+.disconnected {
   color: #f7b500;
 }
 
 .creating,
 .configuring,
+.connecting,
 .reconfiguring,
 .installing,
 .reuploading,
