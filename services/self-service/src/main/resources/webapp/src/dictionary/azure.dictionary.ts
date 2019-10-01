@@ -35,6 +35,7 @@ export const NAMING_CONVENTION = {
 
     'spot_instance': 'Low-priority virtual machines',
     'cluster_version': '',
+    'max_cluster_name_length': 10,
     'billing': {
         'resourceName': 'resourceName',
         'cost': 'costString',
