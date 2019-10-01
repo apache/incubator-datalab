@@ -19,7 +19,7 @@ import static java.lang.String.format;
 
 @Path("/oauth")
 public class KeycloakResource {
-	private static final String LOGIN_URI_FORMAT = "%s/realms/%s/protocol/openid-connect/auth?client_id=%s" +
+	private static final String LOGIN_URI_FORMAT = "%s/realms/%s/protocol/openid-connect/auth?client_id=%s&redirect_uri=%s" +
 			"&response_type=code";
 	private static final String KEYCLOAK_LOGOUT_URI_FORMAT = "%s/realms/%s/protocol/openid-connect/logout" +
 			"?redirect_uri=";
@@ -43,7 +43,8 @@ public class KeycloakResource {
 				format(LOGIN_URI_FORMAT,
 						keycloakConfiguration.getAuthServerUrl(),
 						keycloakConfiguration.getRealm(),
-						keycloakConfiguration.getResource());
+						keycloakConfiguration.getResource(),
+						redirectUri);
 		logoutUri =
 				format(KEYCLOAK_LOGOUT_URI_FORMAT,
 						keycloakConfiguration.getAuthServerUrl(),
@@ -52,8 +53,8 @@ public class KeycloakResource {
 
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response getLoginUri() {
-		return Response.ok(loginUri)
+	public Response getLoginUri() throws URISyntaxException {
+		return Response.ok(new URI(loginUri).toString())
 				.build();
 	}
 
