@@ -42,7 +42,6 @@ public class GuacamoleSecurityFilter implements Filter {
 		} else {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		}
-		filterChain.doFilter(servletRequest, servletResponse);
 
 	}
 
