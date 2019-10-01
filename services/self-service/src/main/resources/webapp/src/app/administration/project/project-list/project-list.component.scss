@@ -31,7 +31,12 @@ table {
 
   .endpoints {
     width: 25%;
-    padding: 10px 0;
+    padding: 15px 0;
+
+    .label-1 {
+      display: inline-block;
+      width: 50%;
+    }
   }
 
   .groups {
