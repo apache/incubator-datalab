@@ -107,21 +107,6 @@ resource "kubernetes_secret" "mysql_keycloak_user_password_secret" {
   }
 }
 
-resource "random_string" "mysql_guacamole_user_password" {
-  length = 16
-  special = false
-}
-
-resource "kubernetes_secret" "mysql_guacamole_user_password_secret" {
-  metadata {
-    name = "mysql-guacamole-user-password"
-  }
-
-  data = {
-    password = random_string.mysql_guacamole_user_password.result
-  }
-}
-
 resource "kubernetes_secret" "ssn_keystore_password" {
   metadata {
     name = "ssn-keystore-password"

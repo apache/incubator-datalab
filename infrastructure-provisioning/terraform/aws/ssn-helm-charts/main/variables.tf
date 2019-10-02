@@ -35,14 +35,6 @@ variable "mysql_keycloak_db_name" {
     default = "keycloak"
 }
 
-variable "mysql_guacamole_user" {
-    default = "guacamole"
-}
-
-variable "mysql_guacamole_db_name" {
-    default = "guacamole"
-}
-
 variable "ldap_usernameAttr" {
     default = "uid"
 }
