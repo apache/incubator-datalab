@@ -54,8 +54,8 @@
           <button mat-raised-button matStepperPrevious class="butt"><i
               class="material-icons">keyboard_arrow_left</i>Back</button>
           <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
-          <button mat-raised-button (click)="manageAction('create', 'group')" class="butt butt-success"
-            [disabled]="!setupGroup || setupGroupName.errors?.patterns || setupGroupName.errors?.duplicate || !setupRoles.length > 0">Create</button>
+          <button mat-raised-button matStepperNext class="butt">Next<i
+              class="material-icons">keyboard_arrow_right</i></button>
         </div>
       </mat-step>
       <mat-step>
@@ -87,8 +87,8 @@
           <button mat-raised-button matStepperPrevious class="butt"><i
               class="material-icons">keyboard_arrow_left</i>Back</button>
           <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
-          <button mat-raised-button matStepperNext class="butt">Next<i
-              class="material-icons">keyboard_arrow_right</i></button>
+          <button mat-raised-button (click)="manageAction('create', 'group')" class="butt butt-success"
+            [disabled]="!setupGroup || setupGroupName.errors?.patterns || setupGroupName.errors?.duplicate || !setupRoles.length > 0">Create</button>
         </div>
       </mat-step>
     </mat-horizontal-stepper>
