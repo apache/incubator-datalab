@@ -1529,7 +1529,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 local('sudo rm -rf /opt/python/python{}/'.format(python_version))
                 sys.exit(1)
         else:
-            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3 --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3')
             local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={}'.format(numpy_version))
