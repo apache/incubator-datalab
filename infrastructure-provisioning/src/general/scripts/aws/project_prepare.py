@@ -55,8 +55,8 @@ if __name__ == "__main__":
     project_conf['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
     project_conf['instance_size'] = os.environ['aws_edge_instance_size']
     project_conf['sg_ids'] = os.environ['aws_security_groups_ids']
-    project_conf['edge_instance_name'] = '{}-{}-edge'.format(project_conf['service_base_name'],
-                                                             os.environ['project_name'])
+    project_conf['edge_instance_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
+                                                                os.environ['project_name'], os.environ['endpoint_name'])
     project_conf['tag_name'] = '{}-Tag'.format(project_conf['service_base_name'])
     project_conf['bucket_name_tag'] = '{}-{}-bucket'.format(project_conf['service_base_name'],
                                                      os.environ['project_name'])
