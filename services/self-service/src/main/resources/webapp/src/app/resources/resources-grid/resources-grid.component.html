@@ -140,7 +140,7 @@
             </span>
           </td>
 
-          <td class="actions-col settings">
+          <td class="settings">
             <span #settings (click)="actions.toggle($event, settings)" class="actions"
               [ngClass]="{ 'disabled': element.status.toLowerCase() === 'creating' }">
             </span>
@@ -202,7 +202,7 @@
                   <span>Manage libraries</span>
                 </li>
                 <li *ngIf="element.status === 'running'">
-                  <a target="_blank" [attr.href]="'/#/terminal/' + element.private_ip" class="navigate">
+                  <a target="_blank" [attr.href]="'/#/terminal/' + element.private_ip + '/' + element.endpoint" class="navigate">
                     <i class="material-icons">laptop</i>
                     <span>Open terminal</span>
                   </a>

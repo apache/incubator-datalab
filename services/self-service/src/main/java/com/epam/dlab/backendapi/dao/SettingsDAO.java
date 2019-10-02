@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.model.UpdateOptions;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
 import java.util.Map;
@@ -45,11 +46,19 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(SERIVICE_BASE_NAME);
 	}
 
+	public void setServiceBaseName(String sbn) {
+		setSetting(SERIVICE_BASE_NAME, sbn);
+	}
+
 	/**
 	 * Returns the name of OS family.
 	 */
 	public String getConfOsFamily() {
 		return getSetting(CONF_OS_FAMILY);
+	}
+
+	public void setConfOsFamily(String osFamily) {
+		setSetting(CONF_OS_FAMILY, osFamily);
 	}
 
 	/**
@@ -59,6 +68,10 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(CONF_KEY_DIRECTORY);
 	}
 
+	public void setConfKeyDir(String confKeyDir) {
+		setSetting(CONF_KEY_DIRECTORY, confKeyDir);
+	}
+
 	/**
 	 * Returns the name of tag for resource id.
 	 */
@@ -66,10 +79,62 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(CONF_TAG_RESOURCE_ID);
 	}
 
+	public void setConfTagResourceId(String confTagResourceId) {
+		setSetting(CONF_TAG_RESOURCE_ID, confTagResourceId);
+	}
+
 	public Optional<Integer> getMaxBudget() {
 		return getOptionalSetting(CONF_MAX_BUDGET)
 				.map(Integer::valueOf);
 
+	}
+
+	public String getAwsZone() {
+		return getSetting(AWS_ZONE);
+	}
+
+	public void setAwsZone(String awsZone) {
+		setSetting(AWS_ZONE, awsZone);
+	}
+
+	public String getLdapHost() {
+		return getSetting(LDAP_HOSTNAME);
+	}
+
+	public void setLdapHost(String ldapHost) {
+		setSetting(LDAP_HOSTNAME, ldapHost);
+	}
+
+	public String getLdapOu() {
+		return getSetting(LDAP_OU);
+	}
+
+	public void setLdapOu(String ldapOu) {
+		setSetting(LDAP_OU, ldapOu);
+	}
+
+	public String getLdapDn() {
+		return getSetting(LDAP_DN);
+	}
+
+	public void setLdapDn(String ldapDn) {
+		setSetting(LDAP_DN, ldapDn);
+	}
+
+	public String getLdapUser() {
+		return getSetting(LDAP_USER);
+	}
+
+	public void setLdapUser(String user) {
+		setSetting(LDAP_USER, user);
+	}
+
+	public String getLdapPassword() {
+		return getSetting(LDAP_PASSWORD);
+	}
+
+	public void setLdapPassword(String ldapPassword) {
+		setSetting(LDAP_PASSWORD, ldapPassword);
 	}
 
 	/**
@@ -79,11 +144,19 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AWS_REGION);
 	}
 
+	public void setAwsRegion(String awsRegion) {
+		setSetting(AWS_REGION, awsRegion);
+	}
+
 	/**
 	 * Returns the id of security group.
 	 */
 	public String getAwsSecurityGroups() {
 		return getSetting(AWS_SECURITY_GROUPS);
+	}
+
+	public void setAwsSecurityGroups(String awsSecurityGroups) {
+		setSetting(AWS_SECURITY_GROUPS, awsSecurityGroups);
 	}
 
 	/**
@@ -93,9 +166,17 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AWS_VPC_ID);
 	}
 
+	public void setAwsVpcId(String awsVpcId) {
+		setSetting(AWS_VPC_ID, awsVpcId);
+	}
+
 	/**
 	 * Returns the id of virtual private cloud subnet for AWS account.
 	 */
+	public void setAwsSubnetId(String awsSubnetId) {
+		setSetting(AWS_SUBNET_ID, awsSubnetId);
+	}
+
 	public String getAwsSubnetId() {
 		return getSetting(AWS_SUBNET_ID);
 	}
@@ -104,8 +185,36 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AWS_NOTEBOOK_VPC_ID);
 	}
 
+	public void setSsnStorageAccountTagName(String ssnStorageAccountTagName) {
+		setSetting(SSN_STORAGE_ACCOUNT_TAG_NAME, ssnStorageAccountTagName);
+	}
+
+	public String getSsnStorageAccountTagName() {
+		return getSetting(SSN_STORAGE_ACCOUNT_TAG_NAME);
+	}
+
+	public void setSharedStorageAccountTagName(String sharedStorageAccountTagName) {
+		setSetting(SHARED_STORAGE_ACCOUNT_TAG_NAME, sharedStorageAccountTagName);
+	}
+
+	public String getSharedStorageAccountTagName() {
+		return getSetting(SHARED_STORAGE_ACCOUNT_TAG_NAME);
+	}
+
+	public void setPeeringId(String peeringId) {
+		setSetting(PEERING_ID, peeringId);
+	}
+
+	public void setAwsNotebookVpcId(String awsNotebookVpcId) {
+		setSetting(AWS_NOTEBOOK_VPC_ID, awsNotebookVpcId);
+	}
+
 	public String getAwsNotebookSubnetId() {
 		return getSetting(AWS_NOTEBOOK_SUBNET_ID);
+	}
+
+	public void setAwsNotebookSubnetId(String awsNotebookSubnetId) {
+		setSetting(AWS_NOTEBOOK_SUBNET_ID, awsNotebookSubnetId);
 	}
 
 	public String getAzureRegion() {
@@ -149,24 +258,80 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AZURE_DATA_LAKE_CLIENT_ID);
 	}
 
+	public void setAzureRegion(String region) {
+		setSetting(AZURE_REGION, region);
+	}
+
+	public void setAzureResourceGroupName(String resourceGroupName) {
+		setSetting(AZURE_RESOURCE_GROUP_NAME, resourceGroupName);
+	}
+
+	public void setAzureSubnetName(String subnetName) {
+		setSetting(AZURE_SUBNET_NAME, subnetName);
+	}
+
+	public void setAzureVpcName(String vpcName) {
+		setSetting(AZURE_VPC_NAME, vpcName);
+	}
+
+	public void setAzureSecurityGroupName(String securityGroupName) {
+		setSetting(AZURE_SECURITY_GROUP_NAME, securityGroupName);
+	}
+
+	public void setAzureEdgeInstanceSize(String azureEdgeInstanceSize) {
+		setSetting(AZURE_EDGE_INSTANCE_SIZE, azureEdgeInstanceSize);
+	}
+
+	public void setAzureSsnInstanceSize(String ssnInstanceSize) {
+		setSetting(AZURE_SSN_INSTANCE_SIZE, ssnInstanceSize);
+	}
+
+	public void setAzureDataLakeNameTag(String dataLakeNameTag) {
+		setSetting(AZURE_DATA_LAKE_NAME_TAG, dataLakeNameTag);
+	}
+
+	public void setAzureDataLakeClientId(String dataLakeClientId) {
+		setSetting(AZURE_DATA_LAKE_CLIENT_ID, dataLakeClientId);
+	}
+
 	public String getGcpRegion() {
 		return getSetting(GCP_REGION);
+	}
+
+	public void setGcpRegion(String region) {
+		setSetting(GCP_REGION, region);
 	}
 
 	public String getGcpZone() {
 		return getSetting(GCP_ZONE);
 	}
 
+	public void setGcpZone(String zone) {
+		setSetting(GCP_ZONE, zone);
+	}
+
 	public String getGcpSubnetName() {
 		return getSetting(GCP_SUBNET_NAME);
+	}
+
+	public void setGcpSubnetName(String subnet) {
+		setSetting(GCP_SUBNET_NAME, subnet);
 	}
 
 	public String getGcpProjectId() {
 		return getSetting(GCP_PROJECT_ID);
 	}
 
+	public void setGcpProjectId(String projectId) {
+		setSetting(GCP_PROJECT_ID, projectId);
+	}
+
 	public String getGcpVpcName() {
 		return getSetting(GCP_VPC_NAME);
+	}
+
+	public void setGcpVpcName(String vpcName) {
+		setSetting(GCP_VPC_NAME, vpcName);
 	}
 
 	public void setMaxBudget(Long budget) {
@@ -208,9 +373,11 @@ public class SettingsDAO extends BaseDAO {
 	}
 
 	private void setSetting(MongoSetting mongoSetting, String value) {
-		mongoService.getCollection(SETTINGS)
-				.updateOne(eq(ID, mongoSetting.getId()), new Document("$set", new Document(VALUE, value)),
-						new UpdateOptions().upsert(true));
+		if (StringUtils.isNotEmpty(value)) {
+			mongoService.getCollection(SETTINGS)
+					.updateOne(eq(ID, mongoSetting.getId()), new Document("$set", new Document(VALUE, value)),
+							new UpdateOptions().upsert(true));
+		}
 	}
 
 

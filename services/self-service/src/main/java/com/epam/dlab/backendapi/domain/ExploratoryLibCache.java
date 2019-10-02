@@ -21,10 +21,11 @@
 package com.epam.dlab.backendapi.domain;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.LibListComputationalDTO;
-import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
@@ -59,6 +60,8 @@ public class ExploratoryLibCache implements Managed, Runnable {
 
 	@Inject
 	private RequestId requestId;
+	@Inject
+	private EndpointService endpointService;
 
 	/**
 	 * Instance of cache.
@@ -222,12 +225,16 @@ public class ExploratoryLibCache implements Managed, Runnable {
 				UserComputationalResource userComputationalResource = userInstance.getResources().get(0);
 				LibListComputationalDTO dto = requestBuilder.newLibComputationalList(userInfo, userInstance,
 						userComputationalResource);
-				uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_LIST, userInfo.getAccessToken(),
+				uuid = provisioningService.post(endpointService
+								.get(userInstance.getEndpoint()).getUrl() + ComputationalAPI.COMPUTATIONAL_LIB_LIST,
+						userInfo.getAccessToken(),
 						dto, String.class);
 			} else {
 				ExploratoryActionDTO<?> dto = requestBuilder.newLibExploratoryList(userInfo, userInstance);
-				uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_LIST, userInfo.getAccessToken(), dto,
-						String.class);
+				uuid =
+						provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ExploratoryAPI.EXPLORATORY_LIB_LIST,
+								userInfo.getAccessToken(), dto,
+								String.class);
 			}
 
 			requestId.put(userInfo.getName(), uuid);

@@ -59,7 +59,7 @@ public class KeyUploaderCallbackAzure {
      */
     @POST
     @Path("/callback")
-	public Response loadKeyResponse(@Auth UserInfo ui, UploadFileResult<EdgeInfoAzure> dto) {
+	public Response loadKeyResponse(UploadFileResult<EdgeInfoAzure> dto) {
         log.debug("Upload the key result and EDGE node info for user {}: {}", dto.getUser(), dto);
 		requestId.checkAndRemove(dto.getRequestId());
         keyUploaderCallback.handleCallback(dto.getStatus(), dto.getUser(), dto.getEdgeInfo());

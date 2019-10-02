@@ -39,7 +39,7 @@ const routes: Routes = [{
   component: LoginComponent
 }, {
   path: '',
-  canActivate: [AuthorizationGuard],
+  canActivate: [CheckParamsGuard],
   component: LayoutComponent,
   children: [
     {
@@ -77,7 +77,7 @@ const routes: Routes = [{
     }
   ]
 }, {
-  path: 'terminal/:id',
+  path: 'terminal/:id/:endpoint',
   component: WebterminalComponent
 }, {
   path: '403',

@@ -19,12 +19,14 @@
 
 package com.epam.dlab.backendapi;
 
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.dropwizard.bundles.DlabKeycloakBundle;
+import com.epam.dlab.backendapi.dropwizard.listeners.MongoStartupListener;
+import com.epam.dlab.backendapi.dropwizard.listeners.RestoreHandlerStartupListener;
 import com.epam.dlab.backendapi.healthcheck.MongoHealthCheck;
-import com.epam.dlab.backendapi.healthcheck.ProvisioningServiceHealthCheck;
-import com.epam.dlab.backendapi.listeners.RestoreHandlerStartupListener;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
@@ -98,13 +100,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
 		));
 
-		/*bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
-			@Override
-			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(SelfServiceApplicationConfiguration
-			configuration) {
-				return configuration.getSwaggerConfiguration();
-			}
-		});*/
+		bootstrap.addBundle(new DlabKeycloakBundle());
 	}
 
 	@Override
@@ -118,6 +114,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		if (configuration.isMongoMigrationEnabled()) {
 			environment.lifecycle().addServerLifecycleListener(server -> applyMongoMigration(configuration));
 		}
+		environment.lifecycle().addServerLifecycleListener(injector.getInstance(MongoStartupListener.class));
 		final RestoreHandlerStartupListener restoreHandlerStartupListener =
 				new RestoreHandlerStartupListener(injector.getInstance(Key.get(RESTService.class,
 						Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))));
@@ -128,8 +125,6 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
 		environment.lifecycle().manage(injector.getInstance(ManagedScheduler.class));
 		environment.healthChecks().register(ServiceConsts.MONGO_NAME, injector.getInstance(MongoHealthCheck.class));
-		environment.healthChecks().register(
-				ServiceConsts.PROVISIONING_SERVICE_NAME, injector.getInstance(ProvisioningServiceHealthCheck.class));
 
 		final String guacamoleServletName = "GuacamoleServlet";
 		environment.servlets().addServlet(guacamoleServletName, injector.getInstance(GuacamoleServlet.class))
@@ -140,6 +135,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 
 
 		JerseyEnvironment jersey = environment.jersey();
+
 		jersey.register(new RuntimeExceptionMapper());
 		jersey.register(new JsonProcessingExceptionMapper());
 		jersey.register(new ResourceConflictExceptionMapper());
@@ -180,6 +176,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(UserGroupResource.class));
 		jersey.register(injector.getInstance(UserRoleResource.class));
 		jersey.register(injector.getInstance(ApplicationSettingResource.class));
+		jersey.register(injector.getInstance(KeycloakResource.class));
 		jersey.register(injector.getInstance(EndpointResource.class));
 		jersey.register(injector.getInstance(ProjectResource.class));
 		jersey.register(injector.getInstance(ProjectCallback.class));

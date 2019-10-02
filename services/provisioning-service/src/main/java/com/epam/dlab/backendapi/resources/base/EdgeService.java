@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.resources.base;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
@@ -40,8 +39,6 @@ public abstract class EdgeService implements DockerCommands {
 
 	@Inject
 	protected RESTService selfService;
-	@Inject
-	protected SystemUserInfoService systemUserInfoService;
 	@Inject
 	private ProvisioningServiceApplicationConfiguration configuration;
 	@Inject

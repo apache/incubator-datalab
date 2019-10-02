@@ -19,13 +19,11 @@
 
 package com.epam.dlab.backendapi.resources.callback.aws;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.callback.base.KeyUploaderCallback;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.google.inject.Inject;
-import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -40,29 +38,29 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class KeyUploaderCallbackAws {
-    @Inject
-    private KeyUploaderCallback keyUploaderCallback;
+	@Inject
+	private KeyUploaderCallback keyUploaderCallback;
 	@Inject
 	private RequestId requestId;
 
-    public KeyUploaderCallbackAws() {
-        log.info("{} is initialized", getClass().getSimpleName());
-    }
+	public KeyUploaderCallbackAws() {
+		log.info("{} is initialized", getClass().getSimpleName());
+	}
 
-    /**
-     * Stores the result of the upload the user key.
-     *
-     * @param dto result of the upload the user key.
-     * @return 200 OK
-     */
-    @POST
-    @Path("/callback")
-	public Response loadKeyResponse(@Auth UserInfo ui, UploadFileResult<EdgeInfoAws> dto) {
-        log.debug("Upload the key result and EDGE node info for user {}: {}", dto.getUser(), dto);
+	/**
+	 * Stores the result of the upload the user key.
+	 *
+	 * @param dto result of the upload the user key.
+	 * @return 200 OK
+	 */
+	@POST
+	@Path("/callback")
+	public Response loadKeyResponse(UploadFileResult<EdgeInfoAws> dto) {
+		log.debug("Upload the key result and EDGE node info for user {}: {}", dto.getUser(), dto);
 		requestId.checkAndRemove(dto.getRequestId());
-        keyUploaderCallback.handleCallback(dto.getStatus(), dto.getUser(), dto.getEdgeInfo());
+		keyUploaderCallback.handleCallback(dto.getStatus(), dto.getUser(), dto.getEdgeInfo());
 
-        return Response.ok().build();
+		return Response.ok().build();
 
-    }
+	}
 }

@@ -1,12 +1,11 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.domain.ProjectDTO;
-import com.epam.dlab.backendapi.domain.UpdateProjectBudgetDTO;
-import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
+import com.epam.dlab.backendapi.domain.*;
 import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -59,8 +58,13 @@ public class ProjectResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
-	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo, @Valid ProjectDTO projectDTO) {
-		projectService.create(userInfo, projectDTO);
+	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
+								  @Valid CreateProjectDTO projectDTO) {
+
+		projectService.create(userInfo, new ProjectDTO(projectDTO.getName(), projectDTO.getGroups(),
+				projectDTO.getKey(), projectDTO.getTag(), null,
+				projectDTO.getEndpoints().stream().map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING,
+						null)).collect(Collectors.toList())));
 		final URI uri = uriInfo.getRequestUriBuilder().path(projectDTO.getName()).build();
 		return Response
 				.ok()
@@ -81,7 +85,7 @@ public class ProjectResource {
 	@RolesAllowed("/api/project")
 	public Response startProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								 @Valid ProjectActionFormDTO startProjectDto) {
-		projectService.start(userInfo, startProjectDto.getProjectName());
+		projectService.start(userInfo, startProjectDto.getEndpoint(), startProjectDto.getProjectName());
 		return Response
 				.accepted()
 				.build();
@@ -99,8 +103,8 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								@Valid ProjectActionFormDTO startProjectDto) {
-		projectService.stop(userInfo, startProjectDto.getProjectName());
+								@Valid ProjectActionFormDTO stopProjectDTO) {
+		projectService.stop(userInfo, stopProjectDTO.getEndpoint(), stopProjectDTO.getProjectName());
 		return Response
 				.accepted()
 				.build();
@@ -156,7 +160,7 @@ public class ProjectResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo) {
 		return Response
-				.ok(projectService.getUserProjects(userInfo))
+				.ok(projectService.getUserActiveProjects(userInfo))
 				.build();
 	}
 
@@ -173,7 +177,7 @@ public class ProjectResource {
 	@PUT
 	@RolesAllowed("/api/project")
 	public Response updateProject(@Parameter(hidden = true) @Auth UserInfo userInfo, UpdateProjectDTO projectDTO) {
-		projectService.update(projectDTO);
+		projectService.update(userInfo, projectDTO);
 		return Response.ok().build();
 	}
 
@@ -184,14 +188,23 @@ public class ProjectResource {
 					content = @Content(mediaType = MediaType.APPLICATION_JSON,
 							schema = @Schema(implementation = ErrorDTO.class)))
 	})
+	@POST
+	@Path("terminate")
+	@RolesAllowed("/api/project")
+	public Response removeProjectEndpoint(
+			@Parameter(hidden = true) @Auth UserInfo userInfo,
+			ProjectActionFormDTO projectActionDTO) {
+		projectService.terminateEndpoint(userInfo, projectActionDTO.getEndpoint(), projectActionDTO.getProjectName());
+		return Response.ok().build();
+	}
+
 	@DELETE
 	@Path("{name}")
 	@RolesAllowed("/api/project")
 	public Response removeProject(
 			@Parameter(hidden = true) @Auth UserInfo userInfo,
-			@Parameter(description = "Project name")
 			@PathParam("name") String name) {
-		projectService.terminate(userInfo, name);
+		projectService.terminateProject(userInfo, name);
 		return Response.ok().build();
 	}
 
@@ -212,7 +225,7 @@ public class ProjectResource {
 					List<UpdateProjectBudgetDTO> dtos) {
 		final List<ProjectDTO> projects = dtos
 				.stream()
-				.map(dto -> new ProjectDTO(dto.getProject(), null, null, null, null, dto.getBudget()))
+				.map(dto -> new ProjectDTO(dto.getProject(), null, null, null, dto.getBudget(), null))
 				.collect(Collectors.toList());
 		projectService.updateBudget(projects);
 		return Response.ok().build();

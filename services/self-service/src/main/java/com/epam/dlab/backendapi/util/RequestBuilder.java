@@ -20,7 +20,7 @@
 package com.epam.dlab.backendapi.util;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
@@ -90,24 +90,14 @@ public class RequestBuilder {
 		switch (cloudProvider()) {
 			case AWS:
 				return AwsCloudSettings.builder()
-						.awsRegion(settingsDAO.getAwsRegion())
-						.awsSecurityGroupIds(settingsDAO.getAwsSecurityGroups())
-						.awsSubnetId(settingsDAO.getAwsSubnetId())
-						.awsVpcId(settingsDAO.getAwsVpcId())
-						.confTagResourceId(settingsDAO.getConfTagResourceId())
-						.awsNotebookSubnetId(settingsDAO.getAwsNotebookSubnetId())
-						.awsNotebookVpcId(settingsDAO.getAwsNotebookVpcId())
-						.awsIamUser(userInfo.getName()).build();
+						.awsIamUser(userInfo.getName())
+						.build();
 			case AZURE:
 				return AzureCloudSettings.builder()
-						.azureRegion(settingsDAO.getAzureRegion())
-						.azureResourceGroupName(settingsDAO.getAzureResourceGroupName())
-						.azureSecurityGroupName(settingsDAO.getAzureSecurityGroupName())
-						.azureSubnetName(settingsDAO.getAzureSubnetName())
-						.azureVpcName(settingsDAO.getAzureVpcName())
 						.azureIamUser(userInfo.getName()).build();
 			case GCP:
-				return GcpCloudSettings.builder().gcpIamUser(userInfo.getName()).build();
+				return GcpCloudSettings.builder()
+						.gcpIamUser(userInfo.getName()).build();
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
 		}
@@ -145,10 +135,7 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	private <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) {
-		T resource = newResourceBaseDTO(userInfo, resourceClass);
-		return (T) resource
-				.withServiceBaseName(settingsDAO.getServiceBaseName())
-				.withConfOsFamily(settingsDAO.getConfOsFamily());
+		return newResourceBaseDTO(userInfo, resourceClass);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -631,13 +618,13 @@ public class RequestBuilder {
 		return dto;
 	}
 
-	public ProjectCreateDTO newProjectCreate(UserInfo userInfo, ProjectDTO projectDTO) {
+	public ProjectCreateDTO newProjectCreate(UserInfo userInfo, ProjectDTO projectDTO, String endpoint) {
 		return ProjectCreateDTO.builder()
 				.key(projectDTO.getKey())
 				.name(projectDTO.getName())
 				.tag(projectDTO.getTag())
-				.endpoint(projectDTO.getEndpoints().iterator().next()) //TODO figure out how to deal with endpoints
-				.useSharedImage(projectDTO.isUseSharedImage())
+				.endpoint(endpoint)
+				.useSharedImage(String.valueOf(projectDTO.isUseSharedImage()))
 				.build()
 				.withCloudSettings(cloudSettings(userInfo));
 	}

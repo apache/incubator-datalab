@@ -103,7 +103,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.subscriptions.closed = false;
 
       this.isLoggedIn = response;
-
       if (this.isLoggedIn) {
         this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
           this.healthStatus = result;
@@ -132,8 +131,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   logout_btnClick(): void {
     this.healthStatusService.resetStatusValue();
     this.applicationSecurityService.logout().subscribe(
-      () => {
-        this.appRoutingService.redirectToLoginPage();
+      (response: any) => {
+        const redirect_parameter = response.headers.get('Location');
+        redirect_parameter ? this.appRoutingService.redirectToUrl(redirect_parameter) : this.appRoutingService.redirectToLoginPage();
         this.subscriptions.unsubscribe();
       },
       error => console.error(error));

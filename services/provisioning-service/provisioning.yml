@@ -86,3 +86,42 @@ logging:
       archive: true
       archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/provisioning-%d{yyyy-MM-dd}.log.gz
       archivedFileCount: 10
+
+keycloakConfiguration:
+  realm: KEYCLOAK_REALM_NAME
+  bearer-only: true
+  auth-server-url: KEYCLOAK_AUTH_SERVER_URL
+  ssl-required: none
+  register-node-at-startup: true
+  register-node-period: 600
+  resource: KEYCLOAK_CLIENT_NAME
+  credentials:
+    secret: KEYCLOAK_CLIENT_SECRET
+
+cloudProperties:
+  os: CONF_OS
+  serviceBaseName: SERVICE_BASE_NAME
+  edgeInstanceSize: EDGE_INSTANCE_SIZE
+  subnetId: SUBNET_ID
+  region: REGION
+  zone: ZONE
+  confTagResourceId: TAG_RESOURCE_ID
+  securityGroupIds: SG_IDS
+  ssnInstanceSize: SSN_INSTANCE_SIZE
+  notebookVpcId: VPC2_ID
+  notebookSubnetId: SUBNET2_ID
+  confKeyDir: CONF_KEY_DIR
+  vpcId: VPC_ID
+  peeringId: PEERING_ID
+  azureResourceGroupName: AZURE_RESOURCE_GROUP_NAME
+  ssnStorageAccountTagName: AZURE_SSN_STORAGE_ACCOUNT_TAG
+  sharedStorageAccountTagName: AZURE_SHARED_STORAGE_ACCOUNT_TAG
+  datalakeTagName: AZURE_DATALAKE_TAG
+  azureClientId: AZURE_CLIENT_ID
+  gcpProjectId: GCP_PROJECT_ID
+  ldap:
+    host: LDAP_HOST
+    dn: LDAP_DN
+    ou: LDAP_OU
+    user: LDAP_USER_NAME
+    password: LDAP_USER_PASSWORD

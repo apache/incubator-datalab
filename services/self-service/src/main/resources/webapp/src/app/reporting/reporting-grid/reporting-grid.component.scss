@@ -39,6 +39,10 @@
 
     td {
       font-size: 13px;
+
+      &.info {
+        z-index: 1 !important;
+      }
     }
 
     &.filter-row {

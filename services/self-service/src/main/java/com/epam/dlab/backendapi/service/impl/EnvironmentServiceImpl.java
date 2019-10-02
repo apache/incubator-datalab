@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -62,7 +61,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@Inject
 	private ComputationalService computationalService;
 	@Inject
-	private SystemUserInfoService systemUserInfoService;
+	private SecurityService securityService;
 	@Inject
 	private KeyDAO keyDAO;
 	@Inject
@@ -128,15 +127,15 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		checkProjectResourceConditions(project, "stop");
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(project)
 				.forEach(this::stopNotebook);
-		if (projectService.get(project).getStatus() == ProjectDTO.Status.ACTIVE) {
+		/*if (projectService.get(project).getStatus() == ProjectDTO.Status.ACTIVE) {
 			projectService.stop(systemUserInfoService.create("admin"), project);
-		}
+		}*/
 	}
 
 	@Override
 	public void stopEdge(String user) {
 		if (UserInstanceStatus.RUNNING.toString().equals(keyDAO.getEdgeStatus(user))) {
-			edgeService.stop(systemUserInfoService.create(user));
+			edgeService.stop(securityService.getUserInfoOffline(user));
 		}
 	}
 
@@ -195,43 +194,45 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private void stopNotebook(UserInstanceDTO instance) {
-		final UserInfo userInfo = systemUserInfoService.create(instance.getUser());
+		final UserInfo userInfo = securityService.getUserInfoOffline(instance.getUser());
 		exploratoryService.stop(userInfo, instance.getExploratoryName());
 	}
 
 	private void stopDataengine(String user, String exploratoryName, String computationalName) {
-		final UserInfo userInfo = systemUserInfoService.create(user);
+		final UserInfo userInfo = securityService.getUserInfoOffline(user);
 		computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
 	}
 
 	private boolean terminateEdge(String user) {
 		final boolean nodeExists = keyDAO.edgeNodeExist(user);
 		if (nodeExists) {
-			edgeService.terminate(systemUserInfoService.create(user));
+			edgeService.terminate(securityService.getUserInfoOffline(user));
 			exploratoryService.updateExploratoryStatuses(user, UserInstanceStatus.TERMINATING);
 		}
 		return nodeExists;
 	}
 
 	private void terminateNotebook(UserInstanceDTO instance) {
-		final UserInfo userInfo = systemUserInfoService.create(instance.getUser());
+		final UserInfo userInfo = securityService.getUserInfoOffline(instance.getUser());
 		exploratoryService.terminate(userInfo, instance.getExploratoryName());
 	}
 
 	private void terminateCluster(String user, String exploratoryName, String computationalName) {
-		final UserInfo userInfo = systemUserInfoService.create(user);
+		final UserInfo userInfo = securityService.getUserInfoOffline(user);
 		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
 	}
 
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
 		final Stream<UserResourceInfo> userResources = allInstances.stream()
 				.filter(instance -> instance.getProject().equals(projectDTO.getName())).map(this::toUserResourceInfo);
-		if (projectDTO.getEdgeInfo() != null) {
-			UserResourceInfo edgeResource = new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-					.withResourceStatus(ProjectDTO.Status.from(projectDTO.getStatus()).toString())
-					.withProject(projectDTO.getName())
-					.withIp(projectDTO.getEdgeInfo().getPublicIp());
-			return Stream.concat(Stream.of(edgeResource), userResources)
+		if (projectDTO.getEndpoints() != null) {
+			final Stream<UserResourceInfo> edges = projectDTO.getEndpoints()
+					.stream()
+					.map(e -> new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
+							.withResourceStatus(e.getStatus().toString())
+							.withProject(projectDTO.getName())
+							.withIp(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null));
+			return Stream.concat(edges, userResources)
 					.collect(toList());
 		} else {
 			return userResources.collect(toList());

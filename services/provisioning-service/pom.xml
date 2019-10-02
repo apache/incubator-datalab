@@ -35,6 +35,11 @@
             <artifactId>common</artifactId>
         </dependency>
         <dependency>
+            <groupId>de.ahus1.keycloak.dropwizard</groupId>
+            <artifactId>keycloak-dropwizard</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
             <groupId>de.thomaskrille</groupId>
             <artifactId>dropwizard-template-config</artifactId>
         </dependency>
@@ -42,11 +47,6 @@
             <groupId>com.epam.dlab</groupId>
             <artifactId>dlab-model</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>${org.mongodb.version}</version>
         </dependency>
         <dependency>
             <groupId>com.epam.dlab</groupId>
@@ -84,6 +84,16 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer

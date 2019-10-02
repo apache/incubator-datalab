@@ -193,21 +193,133 @@ if __name__ == "__main__":
         print('[CONFIGURE SSN INSTANCE UI]')
         azure_auth_path = '/home/{}/keys/azure_auth.json'.format(ssn_conf['dlab_ssh_user'])
         ldap_login = 'false'
-        if os.environ['azure_datalake_enable'] == 'false':
-            mongo_parameters = {
-                "azure_resource_group_name": ssn_conf['resource_group_name'],
-                "azure_region": ssn_conf['region'],
-                "azure_vpc_name": ssn_conf['vpc_name'],
-                "azure_subnet_name": ssn_conf['subnet_name'],
-                "conf_service_base_name": ssn_conf['service_base_name'],
-                "azure_security_group_name": ssn_conf['security_group_name'],
-                "conf_os_family": os.environ['conf_os_family'],
-                "conf_key_dir": os.environ['conf_key_dir'],
-                "ssn_instance_size": os.environ['azure_ssn_instance_size'],
-                "edge_instance_size": os.environ['azure_edge_instance_size'],
-                "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
-                "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name']
+
+        cloud_params = [
+            {
+                'key': 'KEYCLOAK_REDIRECT_URI',
+                'value': "http://{0}/".format(ssn_conf['instnace_ip'])
+            },
+            {
+                'key': 'KEYCLOAK_REALM_NAME',
+                'value': os.environ['keycloak_realm_name']
+            },
+            {
+                'key': 'KEYCLOAK_AUTH_SERVER_URL',
+                'value': os.environ['keycloak_auth_server_url']
+            },
+            {
+                'key': 'KEYCLOAK_CLIENT_NAME',
+                'value': os.environ['keycloak_client_name']
+            },
+            {
+                'key': 'KEYCLOAK_CLIENT_SECRET',
+                'value': os.environ['keycloak_client_secret']
+            },
+            {
+                'key': 'CONF_OS',
+                'value': os.environ['conf_os_family']
+            },
+            {
+                'key': 'SERVICE_BASE_NAME',
+                'value': ssn_conf['service_base_name']
+            },
+            {
+                'key': 'EDGE_INSTANCE_SIZE',
+                'value': os.environ['azure_edge_instance_size']
+            },
+            {
+                'key': 'SUBNET_ID',
+                'value': ssn_conf['subnet_name']
+            },
+            {
+                'key': 'REGION',
+                'value': ssn_conf['region']
+            },
+            {
+                'key': 'ZONE',
+                'value': ''
+            },
+            {
+                'key': 'TAG_RESOURCE_ID',
+                'value': ''
+            },
+            {
+                'key': 'SG_IDS',
+                'value': ssn_conf['security_group_name']
+            },
+            {
+                'key': 'SSN_INSTANCE_SIZE',
+                'value': os.environ['azure_ssn_instance_size']
+            },
+            {
+                'key': 'VPC_ID',
+                'value': ssn_conf['vpc_name']
+            },
+            {
+                'key': 'CONF_KEY_DIR',
+                'value': os.environ['conf_key_dir']
+            },
+            {
+                'key': 'LDAP_HOST',
+                'value': os.environ['ldap_hostname']
+            },
+            {
+                'key': 'LDAP_DN',
+                'value': os.environ['ldap_dn']
+            },
+            {
+                'key': 'LDAP_OU',
+                'value': os.environ['ldap_ou']
+            },
+            {
+                'key': 'LDAP_USER_NAME',
+                'value': os.environ['ldap_service_username']
+            },
+            {
+                'key': 'LDAP_USER_PASSWORD',
+                'value': os.environ['ldap_service_password']
+            },
+            {
+                'key': 'AZURE_RESOURCE_GROUP_NAME',
+                'value': ssn_conf['resource_group_name']
+            },
+            {
+                'key': 'AZURE_SSN_STORAGE_ACCOUNT_TAG',
+                'value': ssn_conf['ssn_storage_account_name']
+            },
+            {
+                'key': 'AZURE_SHARED_STORAGE_ACCOUNT_TAG',
+                'value': ssn_conf['shared_storage_account_name']
+            },
+            {
+                'key': 'GCP_PROJECT_ID',
+                'value': ''
+            },
+            {
+                'key': 'SUBNET2_ID',
+                'value': ''
+            },
+            {
+                'key': 'VPC2_ID',
+                'value': ''
+            },
+            {
+                'key': 'PEERING_ID',
+                'value': ''
             }
+        ]
+
+        if os.environ['azure_datalake_enable'] == 'false':
+            cloud_params.append(
+                {
+                    'key': 'AZURE_DATALAKE_TAG',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'AZURE_CLIENT_ID',
+                    'value': ''
+                })
             if os.environ['azure_oauth2_enabled'] == 'false':
                 ldap_login = 'true'
             tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
@@ -215,22 +327,16 @@ if __name__ == "__main__":
             datalake_application_id = os.environ['azure_application_id']
             datalake_store_name = None
         else:
-            mongo_parameters = {
-                "azure_resource_group_name": ssn_conf['resource_group_name'],
-                "azure_region": ssn_conf['region'],
-                "azure_vpc_name": ssn_conf['vpc_name'],
-                "azure_subnet_name": ssn_conf['subnet_name'],
-                "conf_service_base_name": ssn_conf['service_base_name'],
-                "azure_security_group_name": ssn_conf['security_group_name'],
-                "conf_os_family": os.environ['conf_os_family'],
-                "conf_key_dir": os.environ['conf_key_dir'],
-                "ssn_instance_size": os.environ['azure_ssn_instance_size'],
-                "edge_instance_size": os.environ['azure_edge_instance_size'],
-                "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
-                "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name'],
-                "datalake_tag_name": ssn_conf['datalake_store_name'],
-                "azure_client_id": os.environ['azure_application_id']
-            }
+            cloud_params.append(
+                {
+                    'key': 'AZURE_DATALAKE_TAG',
+                    'value': ssn_conf['datalake_store_name']
+                })
+            cloud_params.append(
+                {
+                    'key': 'AZURE_CLIENT_ID',
+                    'value': os.environ['azure_application_id']
+                })
             tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
             subscription_id = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')
             datalake_application_id = os.environ['azure_application_id']
@@ -240,14 +346,14 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
                  --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} \
                  --offer_number {} --currency {} --locale {} --region_info {}  --ldap_login {} --tenant_id {} \
-                 --application_id {} --datalake_store_name {} --mongo_parameters '{}' --subscription_id {}  \
+                 --application_id {} --datalake_store_name {} --cloud_params '{}' --subscription_id {}  \
                  --validate_permission_scope {}". \
             format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
                    ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
                    os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
                    billing_enabled, azure_auth_path, os.environ['azure_offer_number'],
                    os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
-                   ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(mongo_parameters),
+                   ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(cloud_params),
                    subscription_id, os.environ['azure_validate_permission_scope'])
         local("~/scripts/{}.py {}".format('configure_ui', params))
     except Exception as err:

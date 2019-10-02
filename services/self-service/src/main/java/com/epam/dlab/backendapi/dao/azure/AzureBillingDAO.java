@@ -78,16 +78,6 @@ public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
     }
 
     @Override
-    protected String getEdgeSize() {
-        return settings.getAzureEdgeInstanceSize();
-    }
-
-    @Override
-    protected String edgeId(Document d) {
-        return d.getString(INSTANCE_ID);
-    }
-
-    @Override
     protected String getSsnShape() {
         return settings.getAzureSsnInstanceSize();
     }

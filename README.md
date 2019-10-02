@@ -210,12 +210,28 @@ For each cloud provider, prerequisites are different.
 
 Prerequisites:
 
- - SSH key for EC2 instances. This key could be created through Amazon Console.
- - IAM user
- - AWS access key ID and secret access key
- - VPC ID
- - Subnet ID
- - The following permissions should be assigned for IAM user:
+DLab can be deployed using the following two methods:
+ - IAM user: DLab deployment script is executed on local machine and uses IAM user permissions to create resources in AWS.
+ - EC2 instance: DLab deployment script is executed on EC2 instance prepared in advance and with attached IAM role. Deployment script uses the attached IAM role to create resources in AWS.
+
+**'IAM user' method prerequisites:**  
+ 
+ - IAM user with created AWS access key ID and secret access key. These keys are provided as arguments for the deployment script and are used to create resources in AWS.
+ - Amazon EC2 Key Pair. This key is system and is used for configuring DLab instances.
+ - The following IAM [policy](#AWS_SSN_policy) should be attached to the IAM user in order to deploy DLab.
+ 
+ **'EC2 instance' method prerequisites:**
+ 
+ - Amazon EC2 Key Pair. This key is system and is used for configuring DLab instances.
+ - EC2 instance where DLab deployment script is executed. 
+ - IAM role with the following IAM [policy](#AWS_SSN_policy) should be attached to the EC2 instance. 
+ 
+ **Optional prerequisites for both methods:**
+  
+  - VPC ID. If VPC where DLab should be deployed is already in place, then "VPC ID" should be provided for deployment script. DLab instances are deployed in this VPC.
+  - Subnet ID. If Subnet where DLab should be deployed is already in place, then "Subnet ID" should be provided for deployment script. DLab SSN node and users' Edge nodes are deployed in this Subnet. 
+ 
+ DLab IAM Policy
  <a name="AWS_SSN_policy"></a>
 ```
 {

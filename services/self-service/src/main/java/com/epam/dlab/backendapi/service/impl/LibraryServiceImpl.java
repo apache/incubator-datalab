@@ -27,6 +27,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
 import com.epam.dlab.backendapi.resources.dto.LibKey;
 import com.epam.dlab.backendapi.resources.dto.LibraryStatus;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.LibraryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
@@ -72,6 +73,8 @@ public class LibraryServiceImpl implements LibraryService {
 
 	@Inject
 	private RequestId requestId;
+	@Inject
+	private EndpointService endpointService;
 
 
 	@Override
@@ -124,9 +127,11 @@ public class LibraryServiceImpl implements LibraryService {
 										   List<LibInstallDTO> libs) {
 
 		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(ui.getName(), expName, compName);
-		final String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_INSTALL,
-				ui.getAccessToken(), toComputationalLibraryInstallDto(ui, expName, compName, libs, userInstance),
-				String.class);
+		final String uuid =
+				provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ComputationalAPI.COMPUTATIONAL_LIB_INSTALL,
+						ui.getAccessToken(), toComputationalLibraryInstallDto(ui, expName, compName, libs,
+								userInstance),
+						String.class);
 		requestId.put(ui.getName(), uuid);
 		return uuid;
 	}
@@ -134,7 +139,8 @@ public class LibraryServiceImpl implements LibraryService {
 	@Override
 	public String installExploratoryLibs(UserInfo ui, String expName, List<LibInstallDTO> libs) {
 		final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), expName);
-		final String uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_INSTALL, ui.getAccessToken(),
+		final String uuid =
+				provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ExploratoryAPI.EXPLORATORY_LIB_INSTALL, ui.getAccessToken(),
 				toExploratoryLibraryInstallDto(ui, expName, libs, userInstance), String.class);
 		requestId.put(ui.getName(), uuid);
 		return uuid;

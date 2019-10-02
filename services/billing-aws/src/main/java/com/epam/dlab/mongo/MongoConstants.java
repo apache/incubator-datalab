@@ -53,7 +53,7 @@ public interface MongoConstants {
 
     /** Collection billingTotal. */
 	String COLLECTION_BILLING_TOTAL = "billingTotal";
-	String FIELD_USAGE_DATE_START = "usage_date_start";
-	String FIELD_USAGE_DATE_END = "usage_date_end";
+	String FIELD_USAGE_DATE_START = "from";
+	String FIELD_USAGE_DATE_END = "to";
 	String BILLING_DATA_COLLECTION = "BillingData";
 }

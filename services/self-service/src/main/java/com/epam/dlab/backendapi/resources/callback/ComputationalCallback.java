@@ -19,12 +19,12 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
+import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
@@ -32,7 +32,6 @@ import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
-import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -56,7 +55,7 @@ public class ComputationalCallback {
 	@Inject
 	private RequestId requestId;
 	@Inject
-	private SystemUserInfoService systemUserService;
+	private SecurityService securityService;
 	@Inject
 	private ReuploadKeyService reuploadKeyService;
 	@Inject
@@ -70,7 +69,7 @@ public class ComputationalCallback {
 	 */
 	@POST
 	@Path(ApiCallbacks.STATUS_URI)
-	public Response status(@Auth UserInfo ui, ComputationalStatusDTO dto) {
+	public Response status(ComputationalStatusDTO dto) {
 		log.debug("Updating status for computational resource {} for user {}: {}",
 				dto.getComputationalName(), dto.getUser(), dto);
 		String uuid = dto.getRequestId();
@@ -97,7 +96,7 @@ public class ComputationalCallback {
 		} else if (UserInstanceStatus.of(dto.getStatus()) == RUNNING && compResource.isReuploadKeyRequired()) {
 			ResourceData resourceData = ResourceData.computationalResource(compResource.getComputationalId(),
 					dto.getExploratoryName(), dto.getComputationalName());
-			UserInfo userInfo = systemUserService.create(dto.getUser());
+			UserInfo userInfo = securityService.getUserInfoOffline(dto.getUser());
 			reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
 		}
 		return Response.ok().build();

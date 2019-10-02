@@ -85,6 +85,7 @@ public class BillingServiceImpl implements BillingService {
 			final Stream<BillingData> billableEdges = projectRepository.findAll()
 					.stream()
 					.map(Project::getName)
+					.map(String::toLowerCase)
 					.flatMap(project -> edgeBillingDataStream(project, sbn));
 
 			final Map<String, BillingData> billableResources = Stream.of(billableUserInstances, billableEdges,

@@ -5,6 +5,6 @@ import org.apache.guacamole.net.GuacamoleTunnel;
 
 public interface GuacamoleService {
 
-	GuacamoleTunnel getTunnel(UserInfo userInfo, String host);
+	GuacamoleTunnel getTunnel(UserInfo userInfo, String host, String endpoint);
 
 }

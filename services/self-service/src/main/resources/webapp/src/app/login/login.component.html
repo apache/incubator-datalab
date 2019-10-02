@@ -23,7 +23,7 @@
       <img src="assets/img/logo.png" alt="">
     </a>
     <form name="form" class="form-wrap" #f="ngForm" novalidate>
-
+      <!-- 
       <div class="input-icon-group">
         <span class="input-icon"><span class="login-icon icon-username"></span></span>
         <input type="text" class="input-with-icon" name="username" [(ngModel)]="model.username" [pattern]="userPattern" #username="ngModel" placeholder="Username" required />
@@ -34,7 +34,7 @@
         <input type="password" class="input-with-icon" placeholder="Password" name="password" [(ngModel)]="model.password" #password="ngModel" required />
       </div>
 
-      <div *ngIf="error" class="warning-alert"><span class="material-icons">priority_high</span>{{ error }}</div>
+      
       <div class="form-group" [ngClass]="{'flex': DICTIONARY.cloud_provider === 'azure'}">
         <button mat-raised-button [disabled]="loading || !username.valid || !password.valid"
                 (click)="login_btnClick();"
@@ -55,7 +55,13 @@
                 mat-raised-button (click)="loginWithAzure_btnClick();">
           Login with Azure
         </button>
-      </div>
-  </form>
+      </div>-->
+
+      <button class="butt butt-login" mat-raised-button (click)="loginWithKeyClock();">
+        Login with KeyClock
+      </button>
+    </form>
+
+    <div *ngIf="error" class="warning-alert"><span class="material-icons">priority_high</span>{{ error }}</div>
   </div>
 </div>

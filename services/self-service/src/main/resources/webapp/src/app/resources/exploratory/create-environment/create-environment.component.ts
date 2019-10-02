@@ -72,9 +72,14 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     this.projectService.getUserProjectsList().subscribe((projects: any) => this.projects = projects);
   }
 
-  public getTemplates(project) {
-    this.endpoints = project.endpoints;
-    this.userResourceService.getExploratoryTemplates(project.name).subscribe(templates => this.templates = templates);
+  public setEndpoints(project) {
+    this.endpoints = project.endpoints
+      .filter(e => e.status === 'RUNNING')
+      .map(e => e.name);
+  }
+
+  public getTemplates(project, endpoint) {
+    this.userResourceService.getExploratoryTemplates(project, endpoint).subscribe(templates => this.templates = templates);
   }
 
   public getShapes(template) {

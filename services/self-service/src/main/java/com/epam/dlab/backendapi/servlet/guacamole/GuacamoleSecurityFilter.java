@@ -1,9 +1,8 @@
 package com.epam.dlab.backendapi.servlet.guacamole;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
+import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.google.inject.Inject;
-import io.dropwizard.auth.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,11 +16,12 @@ import java.util.Optional;
 @Slf4j
 public class GuacamoleSecurityFilter implements Filter {
 	private static final String AUTH_HEADER_PREFIX = "Bearer ";
-	private final SelfServiceSecurityAuthenticator authenticator;
+
+	private final SecurityDAO securityDAO;
 
 	@Inject
-	public GuacamoleSecurityFilter(SelfServiceSecurityAuthenticator authenticator) {
-		this.authenticator = authenticator;
+	public GuacamoleSecurityFilter(SecurityDAO securityDAO) {
+		this.securityDAO = securityDAO;
 	}
 
 	@Override
@@ -34,17 +34,13 @@ public class GuacamoleSecurityFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 		final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-		try {
-			final String credentials = StringUtils.substringAfter(authorization, AUTH_HEADER_PREFIX);
-			final Optional<UserInfo> user = authenticator.authenticate(credentials);
-			if (user.isPresent()) {
-				request.setAttribute(GuacamoleServlet.USER_ATTRIBUTE, user.get());
-				filterChain.doFilter(servletRequest, servletResponse);
-			} else {
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-			}
-		} catch (AuthenticationException e) {
-			log.error("Authentication error occurred: {}", e.getMessage());
+		final String credentials = StringUtils.substringAfter(authorization, AUTH_HEADER_PREFIX);
+		final Optional<UserInfo> user = securityDAO.getUser(credentials);
+		if (user.isPresent()) {
+			request.setAttribute(GuacamoleServlet.USER_ATTRIBUTE, user.get());
+			filterChain.doFilter(servletRequest, servletResponse);
+		} else {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 
 	}
