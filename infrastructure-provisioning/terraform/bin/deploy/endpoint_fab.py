@@ -502,7 +502,8 @@ def configure_guacamole():
                   """ --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' """
                   """-e MYSQL_PASSWORD='{}' -d -p 8080:8080 guacamole/guacamole" >> """
                   """/opt/dlab/cron/mysql.sh""".format(mysql_pass))
-        conn.sudo('(crontab -l 2>/dev/null; echo "@reboot sh /opt/dlab/cron/mysql.sh") | crontab -')
+        conn.sudo('''/bin/bash -c '(crontab -l 2>/dev/null; echo "@reboot sh /opt/dlab/cron/mysql.sh") |''' 
+                  ''' crontab - ' ''')
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure guacamole: ', str(err))
