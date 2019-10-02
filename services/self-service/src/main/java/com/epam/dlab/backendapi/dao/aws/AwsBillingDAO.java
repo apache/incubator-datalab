@@ -42,7 +42,6 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
     public static final String USAGE_DATE_START = "usage_date_start";
     public static final String USAGE_DATE_END = "usage_date_end";
     public static final String TAG_RESOURCE_ID = "tag_resource_id";
-    private static final String FIELD_PROJECT = "project";
 
     @Override
     protected Bson sortCriteria() {

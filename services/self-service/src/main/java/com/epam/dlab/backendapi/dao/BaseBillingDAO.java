@@ -82,6 +82,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	private static final String TOTAL_FIELD_NAME = "total";
 	private static final String COST_FIELD = "$cost";
 	public static final String SHARED_RESOURCE_NAME = "Shared resource";
+	protected static final String FIELD_PROJECT = "project";
 
 	@Inject
 	protected SettingsDAO settings;

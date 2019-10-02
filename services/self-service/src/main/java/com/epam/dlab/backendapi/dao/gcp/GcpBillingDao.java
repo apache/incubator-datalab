@@ -46,7 +46,7 @@ public class GcpBillingDao extends BaseBillingDAO<GcpBillingFilter> {
     @Override
     protected Bson groupCriteria() {
         return group(getGroupingFields(USER, FIELD_DLAB_ID, DLAB_RESOURCE_TYPE, FIELD_PRODUCT,
-                currencyCodeFieldName()),
+                currencyCodeFieldName(), FIELD_PROJECT),
                 sum(FIELD_COST, "$" + FIELD_COST),
                 min(USAGE_FROM, "$" + FIELD_USAGE_DATE),
                 max(USAGE_TO, "$" + FIELD_USAGE_DATE)
