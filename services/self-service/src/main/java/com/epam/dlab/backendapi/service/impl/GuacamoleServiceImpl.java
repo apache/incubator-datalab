@@ -28,6 +28,7 @@ public class GuacamoleServiceImpl implements GuacamoleService {
 	private static final String PRIVATE_KEY_PARAM_NAME = "private-key";
 	private static final String HOSTNAME_PARAM = "hostname";
 	private static final String CONNECTION_PROTOCOL_PARAM = "connectionProtocol";
+	private static final String SERVER_HOST_PARAM = "serverHost";
 	private final SelfServiceApplicationConfiguration conf;
 	private final RESTService provisioningService;
 	private final EndpointService endpointService;
@@ -50,7 +51,7 @@ public class GuacamoleServiceImpl implements GuacamoleService {
 			final String guacamoleServerHost = new URI(url).getHost();
 			InetGuacamoleSocket socket = new InetGuacamoleSocket(guacamoleServerHost, conf.getGuacamolePort());
 			final Map<String, String> guacamoleConf = conf.getGuacamole();
-			guacamoleConf.put("serverHost", guacamoleServerHost);
+			guacamoleConf.put(SERVER_HOST_PARAM, guacamoleServerHost);
 			GuacamoleConfiguration guacamoleConfig = getGuacamoleConfig(key, guacamoleConf, host);
 			return new SimpleGuacamoleTunnel(new ConfiguredGuacamoleSocket(socket, guacamoleConfig));
 		} catch (Exception e) {
