@@ -18,6 +18,7 @@ import org.apache.guacamole.protocol.ConfiguredGuacamoleSocket;
 import org.apache.guacamole.protocol.GuacamoleConfiguration;
 
 import javax.inject.Named;
+import java.net.URI;
 import java.util.Map;
 
 @Slf4j
@@ -43,9 +44,10 @@ public class GuacamoleServiceImpl implements GuacamoleService {
 	@Override
 	public GuacamoleTunnel getTunnel(UserInfo userInfo, String host, String endpoint) {
 		try {
-			String key = provisioningService.get(endpointService.get(endpoint).getUrl() + KeyAPI.GET_ADMIN_KEY,
+			final String url = endpointService.get(endpoint).getUrl();
+			String key = provisioningService.get(url + KeyAPI.GET_ADMIN_KEY,
 					userInfo.getAccessToken(), String.class);
-			InetGuacamoleSocket socket = new InetGuacamoleSocket(conf.getGuacamoleHost(), conf.getGuacamolePort());
+			InetGuacamoleSocket socket = new InetGuacamoleSocket(new URI(url).getHost(), conf.getGuacamolePort());
 			GuacamoleConfiguration guacamoleConfig = getGuacamoleConfig(key, conf.getGuacamole(), host);
 			return new SimpleGuacamoleTunnel(new ConfiguredGuacamoleSocket(socket, guacamoleConfig));
 		} catch (Exception e) {
