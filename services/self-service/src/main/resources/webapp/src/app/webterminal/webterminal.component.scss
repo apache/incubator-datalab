@@ -16,13 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 #terminal {
-  height: 100vh;
+  // height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-attachment: red;
 }
+
 @media screen and (min-width: 1281px) {
   #terminal {
     justify-content: center;

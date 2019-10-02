@@ -22,6 +22,11 @@ import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import Guacamole from 'guacamole-common-js';
 
+import { environment } from '../../environments/environment';
+
+// we can now access environment.apiUrl
+const API_URL = environment.apiUrl;
+
 import { StorageService } from '../core/services';
 
 @Component({
@@ -32,7 +37,9 @@ import { StorageService } from '../core/services';
 export class WebterminalComponent implements OnInit {
   public id: string;
   public endpoint: string;
+  public state: string = '';
   @ViewChild('terminal', { read: ViewContainerRef, static: false }) terminal: ViewContainerRef;
+  @ViewChild('clip', { static: true }) clip;
 
 
   constructor(
@@ -47,32 +54,88 @@ export class WebterminalComponent implements OnInit {
     this.open(this.id);
   }
 
+  // public open(id_parameter: string) {
+  //   // added to simplify development process
+  //   const url = environment.production ? window.location.origin : API_URL;
+  //   const tunnel = new Guacamole.HTTPTunnel(
+  //     `${url}/api/tunnel`, false,
+  //     { 'Authorization': `Bearer ${this.storageService.getToken()}` }
+  //   );
+
+  //   const guac = new Guacamole.Client(tunnel);
+  //   const display = document.getElementById('display');
+
+  //   display.appendChild(guac.getDisplay().getElement());
+  //   const guacDisplay = guac.getDisplay();
+  //   const layer = guacDisplay.getDefaultLayer();
+
+  //   guac.connect(id_parameter);
+
+  //   // Error handler
+  //   guac.onerror = (error) => console.log(error.message);
+  //   window.onunload = () => guac.disconnect();
+
+  //   // Mouse
+  //   const mouse = new Guacamole.Mouse(guac.getDisplay().getElement());
+  //   mouse.onmousemove = (mouseState) => guac.sendMouseState(mouseState);
+
+  //   const keyboard = new Guacamole.Keyboard(document);
+  //   keyboard.onkeydown = (keysym) => guac.sendKeyEvent(1, keysym);
+  //   keyboard.onkeyup = (keysym) => guac.sendKeyEvent(0, keysym);
+  // }
+
   public open(id_parameter: string) {
+    // added to simplify development process
+    const url = environment.production ? window.location.origin : API_URL;
     const tunnel = new Guacamole.HTTPTunnel(
-      `${window.location.origin}/api/tunnel`, false,
+      `${url}/api/tunnel`, false,
       { 'Authorization': `Bearer ${this.storageService.getToken()}` }
     );
 
-    const guac = new Guacamole.Client(tunnel);
-    const display = document.getElementById('display');
+    var display = document.getElementById('display');
+    var menu = document.getElementById('menu');
+    var clipboardElement = document.getElementById('clipboard');
+
+    var guac = new Guacamole.Client(tunnel);
 
     display.appendChild(guac.getDisplay().getElement());
-    const guacDisplay = guac.getDisplay();
-    const layer = guacDisplay.getDefaultLayer();
+    // const guacDisplay = guac.getDisplay();
 
-    guac.connect(id_parameter);
-
-    // Error handler
-    guac.onerror = (error) => console.log(error.message);
-    window.onunload = () => guac.disconnect();
-
-    // Mouse
-    const mouse = new Guacamole.Mouse(guac.getDisplay().getElement());
-    mouse.onmousemove = (mouseState) => guac.sendMouseState(mouseState);
-
-    // Keyboard
     const keyboard = new Guacamole.Keyboard(document);
     keyboard.onkeydown = (keysym) => guac.sendKeyEvent(1, keysym);
     keyboard.onkeyup = (keysym) => guac.sendKeyEvent(0, keysym);
+
+    const mouse = new Guacamole.Mouse(guac.getDisplay().getElement());
+    mouse.onmousedown =
+      mouse.onmouseup =
+      mouse.onmousemove = function (mouseState) {
+        guac.sendMouseState(mouseState);
+      };
+
+
+    guac.onclipboard = (stream, mimetype) => {
+      var f;
+      if (/^text\//.exec(mimetype)) {
+        f = new Guacamole.StringReader(stream);
+        var e = "";
+        f.ontext = (a) => {
+          e += a
+        };
+        f.onend = () => {
+          debugger
+          this.clip.nativeElement.value = decodeUnicode(e);
+        }
+      }
+    }
+
+    function decodeUnicode(str) {
+      str = str.replace(/\\/g, "%");
+      return unescape(str);
+    }
+
+    guac.connect(id_parameter);
   }
+
+
+
 }

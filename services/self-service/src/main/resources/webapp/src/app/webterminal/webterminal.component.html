@@ -17,4 +17,44 @@
   ~ under the License.
 -->
 
-<div id="display" #display></div>
+<!-- Main UI - hidden until login succeeds -->
+<div id="main-guacamole-ui">
+
+  <div id="menu">
+
+    <!-- Clipboard -->
+    <button id="showClipboard">Show Clipboard</button>
+    <div id="clipboardDiv">
+      <h2>Clipboard</h2>
+      <!-- <p>
+        Text copied/cut within Guacamole will appear here. Changes to the text will affect the remote clipboard, and
+        will be pastable within the remote desktop. Use the textbox below as an interface between the client and server
+        clipboards.
+      </p> -->
+      <textarea #clip rows="10" cols="40" id="clipboard"></textarea>
+    </div>
+
+    <button id="showKeyboard">Show Keyboard</button>
+    <button id="ctrlAltDelete">Ctrl-Alt-Delete</button>
+  </div>
+
+  <div id="state"> {{ state }} </div>
+
+  <!-- Display -->
+  <div id="display" class="guac-display guac-loading">
+    <!-- On-screen keyboard -->
+    <div id="keyboardContainer"></div>
+  </div>
+
+
+  <!-- Error Dialog-->
+  <div id="errorDialog" class="errorDialogOuter">
+    <div class="errorDialogMiddle">
+      <div class="errorDialog">
+        <p id="errorText"></p>
+        <div class="buttons"><button id="reconnect">Reconnect</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- <div id="display" class="text-center" #display></div> -->
