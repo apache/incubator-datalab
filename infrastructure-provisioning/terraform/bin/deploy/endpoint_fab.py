@@ -494,6 +494,7 @@ def configure_guacamole():
         conn.sudo('mkdir -p /opt/dlab/cron')
         conn.sudo('touch /opt/dlab/cron/mysql.sh')
         conn.sudo('chmod 755 /opt/dlab/cron/mysql.sh')
+        conn.sudo('chown {0}:{0} //opt/dlab/cron/mysql.sh'.format(args.os_user))
         conn.sudo('echo "docker start guacd" >> /opt/dlab/cron/mysql.sh')
         conn.sudo('echo "docker start guac-mysql" >> /opt/dlab/cron/mysql.sh')
         conn.sudo('echo "docker rm guacamole" >> /opt/dlab/cron/mysql.sh')
