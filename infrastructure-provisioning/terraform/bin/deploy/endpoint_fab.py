@@ -479,6 +479,7 @@ def configure_guacamole():
                   ' -v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
         time.sleep(180)
         conn.sudo('touch /opt/mysql/dock-query.sql')
+        conn.sudo('chown {0}:{0} /opt/mysql/dock-query.sql'.format(args.os_user))
         conn.sudo("""echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}';"""
                   """ GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole.* TO 'guacamole';" > /opt/mysql/dock-query.sql"""
                   .format(mysql_pass))
