@@ -69,15 +69,13 @@ maxSessionDurabilityMilliseconds: 288000000
 serviceBaseName: SERVICE_BASE_NAME
 os: OPERATION_SYSTEM
 server:
-  gzip:
-    enabled: true
   requestLog:
     appenders:
-      - type: file
-        currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
-        archive: true
-        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
-        archivedFileCount: 10
+    - type: file
+      currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
+      archive: true
+      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
+      archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
   #    - type: http
@@ -111,7 +109,7 @@ logging:
     org.apache.guacamole: DEBUG
     com.novemberain: ERROR
   appenders:
- <#if DEV_MODE == "true">
+<#if DEV_MODE == "true">
   - type: console
  </#if>
   - type: file
@@ -171,7 +169,6 @@ schedulers:
 
 guacamole:
   connectionProtocol: ssh
-  serverHost: localhost
   serverPort: 4822
   port: 22
   username: dlab-user
