@@ -89,19 +89,15 @@ public class UserGroupServiceImpl implements UserGroupService {
 
 	@Override
 	public void removeGroup(String groupId) {
-		final List<ProjectDTO> notTerminatedProjects =
-				projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
-						UserInstanceStatus.TERMINATING);
-		if (!notTerminatedProjects.isEmpty()){
-			notTerminatedProjects
-					.stream()
-					.filter(p -> !p.getGroups().contains(groupId))
-					.findAny()
-					.orElseThrow(() -> new ResourceConflictException("Group can not be removed because it is used in some " +
-							"project"));
-		}
-		if (userRoleDao.removeGroup(groupId)) {
+		if (projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.TERMINATING)
+				.stream()
+				.map(ProjectDTO::getGroups)
+				.noneMatch(groups -> groups.contains(groupId))) {
+			userRoleDao.removeGroup(groupId);
 			userGroupDao.removeGroup(groupId);
+		} else {
+			throw new ResourceConflictException("Group can not be removed because it is used in some project");
 		}
 	}
 
