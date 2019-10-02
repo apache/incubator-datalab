@@ -37,15 +37,14 @@ public class MongoStartupListener implements ServerLifecycleListener {
 
 	@Override
 	public void serverStarted(Server server) {
-		insertRoles();
 		settingsDAO.setServiceBaseName(configuration.getServiceBaseName());
 		settingsDAO.setConfOsFamily(configuration.getOs());
-	}
-
-	private void insertRoles() {
-		log.debug("Populating DLab roles into database");
-		userRoleDao.removeAll();
-		userRoleDao.insert(getRoles());
+		if (userRoleDao.findAll().isEmpty()) {
+			log.debug("Populating DLab roles into database");
+			userRoleDao.insert(getRoles());
+		} else {
+			log.info("Roles already populated. Do nothing ...");
+		}
 	}
 
 	private List<UserRoleDto> getRoles() {
