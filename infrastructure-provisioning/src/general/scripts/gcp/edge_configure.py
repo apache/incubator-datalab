@@ -41,6 +41,7 @@ if __name__ == "__main__":
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['user_keyname'] = os.environ['project_name']
     edge_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    edge_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
@@ -62,7 +63,8 @@ if __name__ == "__main__":
                                                              edge_conf['project_name'])
     edge_conf['ps_role_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
                                                   edge_conf['project_name'])
-    edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['project_name'])
+    edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
+                                                           edge_conf['project_name'], edge_conf['endpoint_name'])
     edge_conf['firewall_name'] = edge_conf['instance_name'] + '{}-firewall'.format(edge_conf['instance_name'])
     edge_conf['notebook_firewall_name'] = '{0}-{1}-nb-firewall'.format(edge_conf['service_base_name'],
                                                                        edge_conf['project_name'])
