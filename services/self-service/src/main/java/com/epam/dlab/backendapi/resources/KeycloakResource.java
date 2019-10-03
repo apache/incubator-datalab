@@ -5,9 +5,13 @@ import com.epam.dlab.backendapi.conf.KeycloakConfiguration;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.backendapi.service.KeycloakService;
 import com.epam.dlab.backendapi.service.SecurityService;
+import com.epam.dlab.exceptions.DlabException;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
+import org.keycloak.representations.AccessTokenResponse;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,11 +23,12 @@ import static java.lang.String.format;
 
 @Path("/oauth")
 public class KeycloakResource {
-	private static final String LOGIN_URI_FORMAT = "%s/realms/%s/protocol/openid-connect/auth?client_id=%s&redirect_uri=%s" +
-			"&response_type=code";
+	private static final String LOGIN_URI_FORMAT = "%s/realms/%s/protocol/openid-connect/auth?client_id=%s" +
+			"&redirect_uri=%s&response_type=code";
 	private static final String KEYCLOAK_LOGOUT_URI_FORMAT = "%s/realms/%s/protocol/openid-connect/logout" +
-			"?redirect_uri=";
+			"?redirect_uri=%s";
 	private final SecurityService securityService;
+	private final KeycloakService keycloakService;
 	private final SecurityDAO securityDAO;
 	private final String loginUri;
 	private final String logoutUri;
@@ -32,12 +37,13 @@ public class KeycloakResource {
 
 	@Inject
 	public KeycloakResource(SecurityService securityService, SelfServiceApplicationConfiguration configuration,
-							SecurityDAO securityDAO) {
+							SecurityDAO securityDAO, KeycloakService keycloakService) {
 		this.securityDAO = securityDAO;
 		this.defaultAccess = configuration.getRoleDefaultAccess();
 		final KeycloakConfiguration keycloakConfiguration = configuration.getKeycloakConfiguration();
 		this.redirectUri = keycloakConfiguration.getRedirectUri();
 		this.securityService = securityService;
+		this.keycloakService = keycloakService;
 
 		loginUri =
 				format(LOGIN_URI_FORMAT,
@@ -48,7 +54,8 @@ public class KeycloakResource {
 		logoutUri =
 				format(KEYCLOAK_LOGOUT_URI_FORMAT,
 						keycloakConfiguration.getAuthServerUrl(),
-						keycloakConfiguration.getRealm());
+						keycloakConfiguration.getRealm(),
+						redirectUri);
 	}
 
 	@GET
@@ -75,7 +82,34 @@ public class KeycloakResource {
 	@Path("/logout")
 	public Response getLogoutUrl() throws URISyntaxException {
 		return Response.noContent()
-				.location(new URI(logoutUri + redirectUri))
+				.location(new URI(logoutUri))
 				.build();
+	}
+
+	@POST
+	@Path("/refresh/{refresh_token}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response refreshAccessToken(@PathParam("refresh_token") String refreshToken) throws URISyntaxException {
+		AccessTokenResponse tokenResponse;
+		try {
+			tokenResponse = keycloakService.refreshToken(refreshToken);
+		} catch (DlabException e) {
+			return Response.status(Response.Status.BAD_REQUEST)
+					.location(new URI(logoutUri))
+					.build();
+		}
+		return Response.ok(new TokenInfo(tokenResponse.getToken(), tokenResponse.getRefreshToken())).build();
+	}
+
+	class TokenInfo {
+		@JsonProperty("access_token")
+		private final String accessToken;
+		@JsonProperty("refresh_token")
+		private final String refreshToken;
+
+		TokenInfo(String accessToken, String refreshToken) {
+			this.accessToken = accessToken;
+			this.refreshToken = refreshToken;
+		}
 	}
 }
