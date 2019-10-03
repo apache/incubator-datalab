@@ -110,6 +110,26 @@ public class ProjectResource {
 				.build();
 	}
 
+	@Operation(summary = "Stop project on Manage environment popup", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "202", description = "Project is stopping"),
+			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
+					MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = ErrorDTO.class)))
+	})
+	@Path("managing/stop/{name}")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@RolesAllowed("/api/project")
+	public Response stopProjectWithResources(@Parameter(hidden = true) @Auth UserInfo userInfo,
+											 @Parameter(description = "Project name")
+											 @PathParam("name") String name) {
+		projectService.stopWithResources(userInfo, name);
+		return Response
+				.accepted()
+				.build();
+	}
+
 
 	@Operation(summary = "Get project info", tags = "project")
 	@ApiResponses({
@@ -146,6 +166,22 @@ public class ProjectResource {
 								@PathParam("name") String name) {
 		return Response
 				.ok(projectService.getProjects())
+				.build();
+	}
+
+	@Operation(summary = "Get available projects for managing", tags = "project")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Return information about projects",
+					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+					@Schema(implementation = ProjectManagingDTO.class))),
+	})
+	@GET
+	@Path("managing")
+	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed("/api/project")
+	public Response getProjectsForManaging(@Parameter(hidden = true) @Auth UserInfo userInfo) {
+		return Response
+				.ok(projectService.getProjectsForManaging())
 				.build();
 	}
 
