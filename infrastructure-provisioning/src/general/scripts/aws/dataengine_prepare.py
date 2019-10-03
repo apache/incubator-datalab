@@ -48,8 +48,9 @@ if __name__ == "__main__":
         data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].lower()[:12], '-', True)
         edge_status = get_instance_status(data_engine['service_base_name'] + '-Tag',
-                                          data_engine['service_base_name'] + '-' + os.environ[
-                                              'project_name'] + '-edge')
+                                          '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                                    os.environ['project_name'],
+                                                                    os.environ['endpoint_name']))
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')

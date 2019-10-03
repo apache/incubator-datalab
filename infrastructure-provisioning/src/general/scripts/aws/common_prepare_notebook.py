@@ -48,8 +48,9 @@ if __name__ == "__main__":
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    edge_status = get_instance_status(notebook_config['service_base_name'] + '-Tag',
-        notebook_config['service_base_name'] + '-' + os.environ['project_name'] + '-edge')
+    notebook_config['edge_name'] = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
+                                                          os.environ['project_name'], os.environ['endpoint_name'])
+    edge_status = get_instance_status(notebook_config['service_base_name'] + '-Tag', notebook_config['edge_name'])
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
