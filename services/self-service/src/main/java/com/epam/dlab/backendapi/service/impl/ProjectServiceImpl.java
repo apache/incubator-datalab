@@ -225,14 +225,15 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private void checkProjectRelatedResourcesInProgress(String projectName, String action) {
-		exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(projectName, Arrays.asList(UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE), UserInstanceStatus.CREATING,
+		List<UserInstanceDTO> userInstanceDTOs = exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(projectName,
+				Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING,
+						UserInstanceStatus.CREATING_IMAGE), UserInstanceStatus.CREATING,
 				UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING, UserInstanceStatus.RECONFIGURING,
-				UserInstanceStatus.CREATING_IMAGE)
-				.stream()
-				.findAny()
-				.orElseThrow(() -> new ResourceConflictException((String.format("Can not %s environment because on " +
-						"of user resource is in status CREATING or STARTING", action))));
+				UserInstanceStatus.CREATING_IMAGE);
+		if (!userInstanceDTOs.isEmpty()) {
+			throw new ResourceConflictException((String.format("Can not %s environment because on of user resource " +
+					"is in status CREATING or STARTING", action)));
+		}
 	}
 
 	private void stopNotebook(UserInstanceDTO instance) {
