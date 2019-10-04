@@ -47,8 +47,8 @@ parser.add_argument('--aws_zone', type=str, default='', help='AWS zone')
 parser.add_argument('--azure_region', type=str, default='', help='Azure region')
 parser.add_argument('--gcp_region', type=str, default='', help='GCP region')
 parser.add_argument('--gcp_zone', type=str, default='', help='GCP zone')
-parser.add_argument('--image_creation', type=str, default='', help='Enable or Disable creating image at first time')
-parser.add_argument('--shared_image_enabled', type=str, default='', help='Enable or Disable shared images')
+parser.add_argument('--image_creation', type=str, default='true', help='Enable or Disable creating image at first time')
+parser.add_argument('--shared_image_enabled', type=str, default='true', help='Enable or Disable shared images')
 parser.add_argument('--conf_os_family', type=str, default='',
                     help='Operating system type. Available options: debian, redhat')
 parser.add_argument('--conf_cloud_provider', type=str, default='',
