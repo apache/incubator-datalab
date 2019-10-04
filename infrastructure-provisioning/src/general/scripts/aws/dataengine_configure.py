@@ -210,7 +210,10 @@ if __name__ == "__main__":
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
         data_engine['user_keyname'] = os.environ['project_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        edge_instance_name = data_engine['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
+        data_engine['project_name'] = os.environ['project_name']
+        data_engine['endpoint_name'] = os.environ['endpoint_name']
+        edge_instance_name = '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                       data_engine['project_name'], data_engine['endpoint_name'])
         edge_instance_hostname = get_instance_hostname(data_engine['tag_name'], edge_instance_name)
         edge_instance_private_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Private')
         if data_engine['network_type'] == 'private':
