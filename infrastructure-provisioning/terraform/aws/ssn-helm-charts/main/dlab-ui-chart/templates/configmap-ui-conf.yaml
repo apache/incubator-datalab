@@ -121,6 +121,8 @@ data:
     maxSessionDurabilityMilliseconds: 288000000
     </#if>
 
+    serviceBaseName: {{ .Values.ui.service_base_name }}
+    os: {{ .Values.ui.os }}
     server:
       requestLog:
         appenders:
@@ -219,7 +221,6 @@ data:
 
     guacamole:
       connectionProtocol: ssh
-      serverHost: localhost
       serverPort: 4822
       port: 22
       username: dlab-user

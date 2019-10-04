@@ -56,6 +56,18 @@ variable "endpoint_eip_allocation_id" {}
 
 variable "endpoint_id" {}
 
+variable "ssn_k8s_sg_id" {}
+
+variable "ldap_host" {}
+
+variable "ldap_dn" {}
+
+variable "ldap_user" {}
+
+variable "ldap_bind_creds" {}
+
+variable "ldap_users_group" {}
+
 variable "additional_tag" {
   default = "product:dlab"
 }

@@ -92,18 +92,18 @@ resource "kubernetes_secret" "mysql_root_password_secret" {
   }
 }
 
-resource "random_string" "mysql_user_password" {
+resource "random_string" "mysql_keycloak_user_password" {
   length = 16
   special = false
 }
 
-resource "kubernetes_secret" "mysql_user_password_secret" {
+resource "kubernetes_secret" "mysql_keycloak_user_password_secret" {
   metadata {
-    name = "mysql-user-password"
+    name = "mysql-keycloak-user-password"
   }
 
   data = {
-    password = random_string.mysql_user_password.result
+    password = random_string.mysql_keycloak_user_password.result
   }
 }
 
