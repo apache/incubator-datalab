@@ -208,8 +208,8 @@ if __name__ == "__main__":
         data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
                                                          data_engine['project_name'])
         master_node_hostname = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
-        edge_instance_name = '{0}-{1}-edge'.format(data_engine['service_base_name'],
-                                                   data_engine['project_name'])
+        edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
+                                                       notebook_config['project_name'], notebook_config['endpoint_tag'])
         edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
         edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']

@@ -70,7 +70,8 @@ if __name__ == "__main__":
                                                   project_conf['project_name'])
     project_conf['ps_policy_path'] = '/root/files/ps_policy.json'
     project_conf['ps_roles_path'] = '/root/files/ps_roles.json'
-    project_conf['instance_name'] = '{0}-{1}-edge'.format(project_conf['service_base_name'], project_conf['project_name'])
+    project_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(project_conf['service_base_name'],
+                                                          project_conf['project_name'], project_conf['endpoint_tag'])
     project_conf['ssn_instance_name'] = '{}-ssn'.format(project_conf['service_base_name'])
     project_conf['bucket_name'] = '{0}-{1}-bucket'.format(project_conf['service_base_name'], project_conf['project_name'])
     project_conf['shared_bucket_name'] = '{}-shared-bucket'.format(project_conf['service_base_name'])
