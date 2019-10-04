@@ -51,8 +51,8 @@
               {{ endpoint.name }}
             </a>
           </div>
-          <span ngClass="{{endpoint.status.toLowerCase() || ''}}"
-            class="status resource-status">{{ endpoint.status.toLowerCase() }}</span>
+          <span ngClass="{{toEndpointStatus(endpoint.status).toLowerCase() || ''}}"
+            class="status resource-status">{{ toEndpointStatus(endpoint.status).toLowerCase() }}</span>
           <div class="resource-actions">
             <a class="start-stop-action">
               <i class="material-icons" (click)="toggleEndpointAction(element, 'stop', endpoint)"
