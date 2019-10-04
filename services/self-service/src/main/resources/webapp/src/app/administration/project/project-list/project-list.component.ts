@@ -78,15 +78,15 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   private toEndpointStatus(status) {
     if (status === 'CREATING') {
       return 'CONNECTING';
-  } else if (status === 'STARTING') {
+    } else if (status === 'STARTING') {
       return 'CONNECTING';
-  } else if (status === 'RUNNING') {
+    } else if (status === 'RUNNING') {
       return 'CONNECTED';
-  } else if (status === 'STOPPING') {
+    } else if (status === 'STOPPING') {
       return 'DISCONNECTING';
-  } else if (status === 'STOPPED') {
+    } else if (status === 'STOPPED') {
       return 'DISCONNECTED';
-  } else {
+    } else {
       return status;
     }
   }
