@@ -137,6 +137,7 @@ if __name__ == "__main__":
     dataproc_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     dataproc_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     dataproc_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     dataproc_conf['key_name'] = os.environ['conf_key_name']
     dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     dataproc_conf['region'] = os.environ['gcp_region']
@@ -158,8 +159,9 @@ if __name__ == "__main__":
     service_account_email = "{}@{}.iam.gserviceaccount.com".format(dataproc_conf['dataproc_service_account_name'],
                                                                    os.environ['gcp_project_id'])
 
-    dataproc_conf['edge_instance_name'] = '{0}-{1}-edge'.format(dataproc_conf['service_base_name'],
-                                                                dataproc_conf['project_name'])
+    dataproc_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
+                                                                    dataproc_conf['project_name'],
+                                                                    dataproc_conf['endpoint_name'])
     dataproc_conf['edge_instance_hostname'] = GCPMeta().get_instance_public_ip_by_name(
         dataproc_conf['edge_instance_name'])
     dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
