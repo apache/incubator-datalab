@@ -69,7 +69,21 @@ if __name__ == "__main__":
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    notebook_config['image_creation'] = os.environ['conf_image_creation']
     notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
+    notebook_config['shared_image_tags'] = {"Name": ""os.environ['full_image_name'],
+                               "SBN": os.environ['conf_service_base_name'],
+                               "Endpoint":
+                               "Project": os.environ['project_name'],
+                               "Image": os.environ['image_name'],
+                               "FIN": os.environ['full_image_name'],
+                               os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+    notebook_config['tags'] = {"Name": image_conf['full_image_name'],
+                              "SBN": image_conf['service_base_name'],
+                              "Project": image_conf['project_name'],
+                              "Image": image_conf['image_name'],
+                              "FIN": image_conf['full_image_name'],
+                              os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
@@ -265,16 +279,22 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    if notebook_config['shared_image_enabled'] == 'true':
+    if notebook_config['image_creation'] == 'true':
         try:
             print('[CREATING AMI]')
             ami_id = get_ami_id_by_name(notebook_config['expected_image_name'])
-            if ami_id == '':
+            if ami_id == '' && notebook_config['shared_image_enabled']:
                 print("Looks like it's first time we configure notebook server. Creating image.")
                 try:
                     os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(os.environ['project_name'], os.environ['endpoint_name'])
                 except KeyError:
                     os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(os.environ['project_name'], os.environ['endpoint_name'])
+                image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
+                                                      instance_name=notebook_config['instance_name'],
+                                                      image_name=notebook_config['expected_image_name'])
+                if image_id != '':
+                    print("Image was successfully created. It's ID is {}".format(image_id))
+            else:
                 image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
                                                       instance_name=notebook_config['instance_name'],
                                                       image_name=notebook_config['expected_image_name'])
