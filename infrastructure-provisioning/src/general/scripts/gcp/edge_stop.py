@@ -39,7 +39,9 @@ if __name__ == "__main__":
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['project_name'])
+    edge_conf['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
+    edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
+                                                           edge_conf['project_name'], edge_conf['endpoint_name'])
 
     logging.info('[STOP EDGE]')
     print('[STOP EDGE]')

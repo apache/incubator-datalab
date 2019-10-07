@@ -44,9 +44,9 @@ data "template_file" "keycloak_values" {
     keycloak_password       = random_string.keycloak_password.result
     ssn_k8s_alb_dns_name    = var.ssn_k8s_alb_dns_name
     configure_keycloak_file = data.template_file.configure_keycloak.rendered
-    mysql_db_name           = var.mysql_db_name
-    mysql_user              = var.mysql_user
-    mysql_user_password     = random_string.mysql_user_password.result
+    mysql_db_name           = var.mysql_keycloak_db_name
+    mysql_user              = var.mysql_keycloak_user
+    mysql_user_password     = random_string.mysql_keycloak_user_password.result
     # replicas_count          = var.ssn_k8s_workers_count > 3 ? 3 : var.ssn_k8s_workers_count
   }
 }
