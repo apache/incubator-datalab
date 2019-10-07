@@ -17,22 +17,32 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewEncapsulation, ViewContainerRef, ViewChild, Inject } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewEncapsulation, ViewContainerRef, ViewChild, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import Guacamole from 'guacamole-common-js';
 
+import { environment } from '../../environments/environment';
+
+// we can now access environment.apiUrl
+const API_URL = environment.apiUrl;
+
 import { StorageService } from '../core/services';
+import { FileUtils } from '../core/util';
 
 @Component({
   selector: 'dlab-webterminal',
   templateUrl: './webterminal.component.html',
-  styleUrls: ['./webterminal.component.scss']
+  styleUrls: ['./webterminal.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class WebterminalComponent implements OnInit {
   public id: string;
   public endpoint: string;
-  @ViewChild('terminal', { read: ViewContainerRef, static: false }) terminal: ViewContainerRef;
+  public state: string = '';
+  public layer;
+  @ViewChild('terminal', { read: ElementRef, static: false }) terminal: ElementRef;
+  @ViewChild('clip', { static: true }) clip;
 
 
   constructor(
@@ -44,13 +54,14 @@ export class WebterminalComponent implements OnInit {
   ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id');
     this.endpoint = this.route.snapshot.paramMap.get('endpoint');
-    console.log(this.id);
     this.open(this.id, this.endpoint);
   }
 
   public open(id_parameter: string, endpoint_parameter: string) {
+    // added to simplify development process
+    const url = environment.production ? window.location.origin : API_URL;
     const tunnel = new Guacamole.HTTPTunnel(
-      `${window.location.origin}/api/tunnel`, false,
+      `${url}/api/tunnel`, false,
       { 'Authorization': `Bearer ${this.storageService.getToken()}` }
     );
 
@@ -58,9 +69,9 @@ export class WebterminalComponent implements OnInit {
     const display = document.getElementById('display');
 
     display.appendChild(guac.getDisplay().getElement());
-    const guacDisplay = guac.getDisplay();
-    const layer = guacDisplay.getDefaultLayer();
-    guac.connect("{\"host\" : \""+ id_parameter + "\", \"endpoint\" : \"" + endpoint_parameter + "\"}");
+    this.layer = guac.getDisplay().getDefaultLayer();
+
+    guac.connect(`{"host" : "${id_parameter}", "endpoint" : "${endpoint_parameter}"}`);
 
     // Error handler
     guac.onerror = (error) => console.log(error.message);
@@ -68,9 +79,12 @@ export class WebterminalComponent implements OnInit {
 
     // Mouse
     const mouse = new Guacamole.Mouse(guac.getDisplay().getElement());
-    mouse.onmousemove = (mouseState) => guac.sendMouseState(mouseState);
+    mouse.onmousemove = (mouseState) => {
+      mouseState.x = mouseState.x + 95;
+      mouseState.y = mouseState.y + 45;
+      guac.sendMouseState(mouseState);
+    }
 
-    // Keyboard
     const keyboard = new Guacamole.Keyboard(document);
     keyboard.onkeydown = (keysym) => guac.sendKeyEvent(1, keysym);
     keyboard.onkeyup = (keysym) => guac.sendKeyEvent(0, keysym);
