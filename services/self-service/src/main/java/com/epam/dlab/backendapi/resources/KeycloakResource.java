@@ -7,6 +7,7 @@ import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.KeycloakService;
 import com.epam.dlab.backendapi.service.SecurityService;
+import com.epam.dlab.backendapi.util.KeycloakUtil;
 import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.inject.Inject;
@@ -93,6 +94,8 @@ public class KeycloakResource {
 		AccessTokenResponse tokenResponse;
 		try {
 			tokenResponse = keycloakService.refreshToken(refreshToken);
+			final String username = KeycloakUtil.parseToken(tokenResponse.getToken()).getPreferredUsername();
+			securityDAO.updateUser(username, tokenResponse);
 		} catch (DlabException e) {
 			return Response.status(Response.Status.BAD_REQUEST)
 					.location(new URI(logoutUri))
