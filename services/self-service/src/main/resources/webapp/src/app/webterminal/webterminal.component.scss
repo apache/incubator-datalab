@@ -34,9 +34,9 @@
 .guac-display {
   display: flex;
   justify-content: center;
-
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
   zoom: .85 !important;
-  -moz-transform: scale(.85);
-
-  margin-top: 10px
+  // -moz-transform: scale(.85);
 }

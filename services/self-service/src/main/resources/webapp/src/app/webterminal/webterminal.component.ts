@@ -80,8 +80,10 @@ export class WebterminalComponent implements OnInit {
     // Mouse
     const mouse = new Guacamole.Mouse(guac.getDisplay().getElement());
     mouse.onmousemove = (mouseState) => {
-      mouseState.x = mouseState.x + 95;
-      mouseState.y = mouseState.y + 45;
+      if (navigator.userAgent.indexOf('Firefox') === -1) {
+        mouseState.x = mouseState.x + 125;
+        mouseState.y = mouseState.y + 65;
+      }
       guac.sendMouseState(mouseState);
     }
 
