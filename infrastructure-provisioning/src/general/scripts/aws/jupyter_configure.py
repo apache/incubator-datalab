@@ -71,13 +71,6 @@ if __name__ == "__main__":
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
     notebook_config['image_creation'] = os.environ['conf_image_creation']
     notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
-    notebook_config['shared_image_tags'] = {"Name": ""os.environ['full_image_name'],
-                               "SBN": os.environ['conf_service_base_name'],
-                               "Endpoint":
-                               "Project": os.environ['project_name'],
-                               "Image": os.environ['image_name'],
-                               "FIN": os.environ['full_image_name'],
-                               os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
     notebook_config['tags'] = {"Name": image_conf['full_image_name'],
                               "SBN": image_conf['service_base_name'],
                               "Project": image_conf['project_name'],
