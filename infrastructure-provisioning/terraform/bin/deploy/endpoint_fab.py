@@ -261,7 +261,8 @@ def configure_supervisor_endpoint():
                       .format(args.ss_port, dlab_conf_dir))
             conn.sudo('sed -i "s|KEYCLOACK_HOST|{}|g" {}provisioning.yml'
                       .format(args.keycloack_host, dlab_conf_dir))
-
+            conn.sudo('sed -i "s|CLIENT_ID|{}|g" {}provisioning.yml'
+                      .format(args.keycloak_client_id, dlab_conf_dir))
             conn.sudo('sed -i "s|CLIENT_SECRET|{}|g" {}provisioning.yml'
                       .format(args.keycloak_client_secret, dlab_conf_dir))
             # conn.sudo('sed -i "s|MONGO_PASSWORD|{}|g" {}provisioning.yml'
@@ -534,6 +535,7 @@ def init_args():
                         default='18.06.3~ce~3-0~ubuntu')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
     parser.add_argument('--endpoint_keystore_password', type=str, default='')
+    parser.add_argument('--keycloak_client_id', type=str, default='')
     parser.add_argument('--keycloak_client_secret', type=str, default='')
     parser.add_argument('--branch_name', type=str, default='DLAB-terraform')  # change default
     parser.add_argument('--env_os', type=str, default='debian')
