@@ -620,7 +620,7 @@ public class RequestBuilder {
 
 	public ProjectCreateDTO newProjectCreate(UserInfo userInfo, ProjectDTO projectDTO, String endpoint) {
 		return ProjectCreateDTO.builder()
-				.key(projectDTO.getKey())
+				.key(projectDTO.getKey().replace("\n", ""))
 				.name(projectDTO.getName())
 				.tag(projectDTO.getTag())
 				.endpoint(endpoint)
