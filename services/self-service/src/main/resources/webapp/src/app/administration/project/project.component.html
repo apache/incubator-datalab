@@ -26,6 +26,14 @@
       </button>
     </div>
     <div>
+      <button mat-raised-button class="butt butt-tool mr-10" (click)="toggleFiltering()">
+        <span *ngIf="!activeFiltering">
+          <i class="material-icons">visibility_off</i> Show active
+        </span>
+        <span *ngIf="activeFiltering">
+          <i class="material-icons">visibility</i> Show all
+        </span>
+      </button>
       <button mat-raised-button class="butt" (click)="refreshGrid()" [hidden]="!projectList.length">
         <i class="material-icons">autorenew</i>Refresh
       </button>

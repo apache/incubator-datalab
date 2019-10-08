@@ -43,4 +43,9 @@ export class CheckUtils {
   public static delimitersFiltering(resource): string {
     return resource.replace(RegExp(PATTERNS.delimitersRegex, 'g'), '').toString().toLowerCase();
   }
+
+  public static decodeUnicode(str) {
+    str = str.replace(/\\/g, "%");
+    return unescape(str);
+  }
 }
