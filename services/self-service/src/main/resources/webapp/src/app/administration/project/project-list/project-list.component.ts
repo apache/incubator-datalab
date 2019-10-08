@@ -25,6 +25,7 @@ import { Subscription } from 'rxjs';
 import { ProjectDataService } from '../project-data.service';
 import { ProjectService } from '../../../core/services';
 import { Project, Endpoint } from '../project.component';
+import { CheckUtils } from '../../../core/util';
 
 @Component({
   selector: 'project-list',
@@ -88,19 +89,14 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       return project.endpoints.some(e => e.status !== 'RUNNING' && e.status !== 'STOPPED' && e.status !== 'TERMINATED' && e.status !== 'FAILED')
   }
 
-  private toEndpointStatus(status) {
-    if (status === 'CREATING') {
-      return 'CONNECTING';
-    } else if (status === 'STARTING') {
-      return 'CONNECTING';
-    } else if (status === 'RUNNING') {
-      return 'CONNECTED';
-    } else if (status === 'STOPPING') {
-      return 'DISCONNECTING';
-    } else if (status === 'STOPPED') {
-      return 'DISCONNECTED';
-    } else {
-      return status;
+  public isActiveEndpoint(project) {
+    if (project) {
+      return project.endpoints.some(e => e.status !== 'TERMINATED')
+      console.log('all dead');
     }
+  }
+
+  public toEndpointStatus(status) {
+    return CheckUtils.endpointStatus[status] || status;
   }
 }

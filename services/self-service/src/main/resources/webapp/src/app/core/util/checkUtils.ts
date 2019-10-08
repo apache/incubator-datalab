@@ -48,4 +48,12 @@ export class CheckUtils {
     str = str.replace(/\\/g, "%");
     return unescape(str);
   }
+
+  public static endpointStatus = {
+    CREATING: 'CONNECTING',
+    STARTING: 'CONNECTING',
+    RUNNING: 'CONNECTED',
+    STOPPING: 'DISCONNECTING',
+    STOPPED: 'DISCONNECTED'
+  }
 }
