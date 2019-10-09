@@ -25,6 +25,7 @@ locals {
   ssn_k8s_launch_conf_workers_name = "${var.service_base_name}-ssn-launch-conf-workers"
   ssn_k8s_ag_masters_name          = "${var.service_base_name}-ssn-masters"
   ssn_k8s_ag_workers_name          = "${var.service_base_name}-ssn-workers"
+  cluster_name                     = "${var.service_base_name}-k8s-cluster"
 }
 
 resource "random_string" "ssn_keystore_password" {
@@ -50,6 +51,7 @@ data "template_file" "ssn_k8s_masters_user_data" {
     endpoint_keystore_password = random_string.endpoint_keystore_password.result
     endpoint_elastic_ip        = aws_eip.k8s-endpoint-eip.public_ip
     kubernetes_version         = var.kubernetes_version
+    cluster_name               = local.cluster_name
   }
 }
 
@@ -134,6 +136,11 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
       key                 = "${var.service_base_name}-Tag"
       value               = local.ssn_k8s_ag_masters_name
       propagate_at_launch = true
+    },
+    {
+      key                 = "kubernetes.io/cluster/${local.cluster_name}"
+      value               = "owned"
+      propagate_at_launch = true
     }
   ]
 }
@@ -168,6 +175,11 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_workers" {
     {
       key                 = "${var.service_base_name}-Tag"
       value               = local.ssn_k8s_ag_workers_name
+      propagate_at_launch = true
+    },
+    {
+      key                 = "kubernetes.io/cluster/${local.cluster_name}"
+      value               = "owned"
       propagate_at_launch = true
     }
   ]

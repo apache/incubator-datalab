@@ -33,10 +33,11 @@ resource "aws_lb" "ssn_k8s_nlb" {
   subnets            = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id,
                                 local.subnet_c_id])
   tags               = {
-    Name                           = local.ssn_nlb_name
-    "${local.additional_tag[0]}"      = local.additional_tag[1]
-    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_nlb_name}"
-    "${var.service_base_name}-Tag" = local.ssn_nlb_name
+    Name                                          = local.ssn_nlb_name
+    "${local.additional_tag[0]}"                  = local.additional_tag[1]
+    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.ssn_nlb_name}"
+    "${var.service_base_name}-Tag"                = local.ssn_nlb_name
+    "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }
 
@@ -49,10 +50,11 @@ resource "aws_lb" "ssn_k8s_alb" {
                                 local.subnet_c_id])
 
   tags               = {
-    Name                           = local.ssn_alb_name
-    "${local.additional_tag[0]}"      = local.additional_tag[1]
-    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_alb_name}"
-    "${var.service_base_name}-Tag" = local.ssn_alb_name
+    Name                                          = local.ssn_alb_name
+    "${local.additional_tag[0]}"                  = local.additional_tag[1]
+    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.ssn_alb_name}"
+    "${var.service_base_name}-Tag"                = local.ssn_alb_name
+    "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }
 
@@ -62,10 +64,11 @@ resource "aws_lb_target_group" "ssn_k8s_nlb_api_target_group" {
   protocol = "TCP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
   tags     = {
-    Name                           = local.ssn_k8s_nlb_api_tg_name
-    "${local.additional_tag[0]}"      = local.additional_tag[1]
-    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_k8s_nlb_api_tg_name}"
-    "${var.service_base_name}-Tag" = local.ssn_k8s_nlb_api_tg_name
+    Name                                          = local.ssn_k8s_nlb_api_tg_name
+    "${local.additional_tag[0]}"                  = local.additional_tag[1]
+    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.ssn_k8s_nlb_api_tg_name}"
+    "${var.service_base_name}-Tag"                = local.ssn_k8s_nlb_api_tg_name
+    "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }
 
@@ -75,10 +78,11 @@ resource "aws_lb_target_group" "ssn_k8s_nlb_ss_target_group" {
   protocol = "TCP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
   tags     = {
-    Name                           = local.ssn_k8s_nlb_ss_tg_name
-    "${local.additional_tag[0]}"      = local.additional_tag[1]
-    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_k8s_nlb_ss_tg_name}"
-    "${var.service_base_name}-Tag" = local.ssn_k8s_nlb_ss_tg_name
+    Name                                          = local.ssn_k8s_nlb_ss_tg_name
+    "${local.additional_tag[0]}"                  = local.additional_tag[1]
+    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.ssn_k8s_nlb_ss_tg_name}"
+    "${var.service_base_name}-Tag"                = local.ssn_k8s_nlb_ss_tg_name
+    "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }
 
@@ -88,10 +92,11 @@ resource "aws_lb_target_group" "ssn_k8s_alb_target_group" {
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
   tags = {
-    Name                           = local.ssn_k8s_alb_tg_name
-    "${local.additional_tag[0]}"      = local.additional_tag[1]
-    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_k8s_alb_tg_name}"
-    "${var.service_base_name}-Tag" = local.ssn_k8s_alb_tg_name
+    Name                                          = local.ssn_k8s_alb_tg_name
+    "${local.additional_tag[0]}"                  = local.additional_tag[1]
+    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.ssn_k8s_alb_tg_name}"
+    "${var.service_base_name}-Tag"                = local.ssn_k8s_alb_tg_name
+    "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }
 

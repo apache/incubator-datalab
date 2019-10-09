@@ -85,6 +85,7 @@ controllerManager:
     cloud-provider: aws
     configure-cloud-routes: "false"
 controlPlaneEndpoint: "${k8s-nlb-dns-name}:6443"
+clusterName: "${cluster_name}"
 ---
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: InitConfiguration
