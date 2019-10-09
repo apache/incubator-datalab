@@ -185,13 +185,18 @@ export class ManagementGridComponent implements OnInit {
     return false;
   }
 
-  inProgress(resources) {
+  public inProgress(resources) {
     return resources.filter(resource => (
       resource.status !== 'failed'
       && resource.status !== 'terminated'
       && resource.status !== 'running'
       && resource.status !== 'stopped')).length > 0;
   }
+
+  public isActiveResources(item) {
+    if (item.resources.length) return item.resources.some(e => e.status !== 'terminated');
+  }
+
 
   private getDefaultFilterConfiguration(data): void {
     const users = [], projects = [], shapes = [], statuses = [], resources = [];

@@ -90,10 +90,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   public isActiveEndpoint(project) {
-    if (project) {
+    if (project)
       return project.endpoints.some(e => e.status !== 'TERMINATED')
-      console.log('all dead');
-    }
   }
 
   public toEndpointStatus(status) {
