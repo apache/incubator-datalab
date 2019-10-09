@@ -56,7 +56,7 @@ resource "google_compute_instance" "endpoint" {
     network    = data.google_compute_network.endpoint_vpc_data.name
     subnetwork = data.google_compute_subnetwork.endpoint_subnet_data.name
     access_config {
-      nat_ip = google_compute_address.static.address
+      nat_ip = google_compute_address.static.0.address
     }
   }
 }
