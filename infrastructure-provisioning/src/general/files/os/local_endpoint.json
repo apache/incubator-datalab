@@ -1,6 +1,6 @@
 {
-    "name" : "local",
+    "name" : "DEF_ENDPOINT_NAME",
     "url" : "https://localhost:8084/",
-    "account" : "local",
-    "endpoint_tag" : "local"
+    "account" : "DEF_ENDPOINT_NAME",
+    "endpoint_tag" : "DEF_ENDPOINT_NAME"
 }
