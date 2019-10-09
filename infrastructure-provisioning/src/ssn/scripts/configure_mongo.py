@@ -88,7 +88,7 @@ if __name__ == "__main__":
         with open(args.dlab_path + 'tmp/local_endpoint.json', 'r') as data:
             json_data = json.load(data)
         for i in json_data:
-            client.dlabdb.roles.insert_one(i)
+            client.dlabdb.endpoints.insert_one(i)
         # client.dlabdb.security.create_index("expireAt", expireAfterSeconds=7200)
         if add_2_yml_config(path,'security','authorization','enabled'):
             command = ['service', 'mongod', 'restart']
