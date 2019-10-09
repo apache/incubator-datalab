@@ -106,6 +106,7 @@ variable "endpoint_policies" {
     "compute.images.get",
     "compute.images.list",
     "compute.images.setLabels",
+    "compute.networks.get",
     "compute.networks.create",
     "compute.networks.delete",
     "compute.networks.updatePolicy",
