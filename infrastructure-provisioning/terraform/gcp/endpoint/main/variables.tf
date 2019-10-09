@@ -142,3 +142,7 @@ variable "product" {
 variable "static_ip" {
   default = ""
 }
+
+variable "bucket_region" {
+  default = "US" # Allowed US, EU, ASIA
+}
