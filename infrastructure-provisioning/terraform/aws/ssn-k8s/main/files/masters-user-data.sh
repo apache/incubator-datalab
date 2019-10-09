@@ -75,9 +75,22 @@ cat <<EOF > /tmp/kubeadm-config.yaml
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 kubernetesVersion: stable
-apiServerCertSANs:
+apiServer:
+  certSANs:
   - ${k8s-nlb-dns-name}
+  extraArgs:
+    cloud-provider: aws
+controllerManager:
+  extraArgs:
+    cloud-provider: aws
+    configure-cloud-routes: "false"
 controlPlaneEndpoint: "${k8s-nlb-dns-name}:6443"
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+nodeRegistration:
+  kubeletExtraArgs:
+    cloud-provider: aws
 EOF
 sudo kubeadm init --config=/tmp/kubeadm-config.yaml --upload-certs
 while check_elb_status
