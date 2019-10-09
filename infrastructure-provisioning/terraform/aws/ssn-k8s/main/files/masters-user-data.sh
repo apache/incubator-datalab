@@ -51,6 +51,7 @@ sudo pip install -U pip
 sudo pip install awscli
 
 local_ip=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
+full_hostname=$(curl http://169.254.169.254/latest/meta-data/hostname)
 first_master_ip=$(aws autoscaling describe-auto-scaling-instances --region ${k8s-region} --output text --query \
                  "AutoScalingInstances[?AutoScalingGroupName=='${k8s-asg}'].InstanceId" | xargs -n1 aws ec2 \
                  describe-instances --instance-ids $ID --region ${k8s-region} --query \
@@ -93,7 +94,7 @@ nodeRegistration:
   kubeletExtraArgs:
     cloud-provider: aws
 EOF
-sudo kubeadm init --config=/tmp/kubeadm-config.yaml --upload-certs
+sudo kubeadm init --config=/tmp/kubeadm-config.yaml --upload-certs --node-name $full_hostname
 while check_elb_status
 do
     if [[ $RUN == "false" ]];
@@ -173,7 +174,7 @@ aws s3 cp s3://${k8s-bucket-name}/k8s/masters/join_command /tmp/join_command
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/cert_key /tmp/cert_key
 join_command=$(cat /tmp/join_command)
 cert_key=$(cat /tmp/cert_key)
-sudo $join_command --control-plane --certificate-key "$cert_key"
+sudo $join_command --control-plane --certificate-key "$cert_key" --node-name $full_hostname
 sudo mkdir -p /home/${k8s_os_user}/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/${k8s_os_user}/.kube/config
 sudo chown -R ${k8s_os_user}:${k8s_os_user} /home/${k8s_os_user}/.kube
