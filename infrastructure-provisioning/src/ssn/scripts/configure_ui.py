@@ -123,7 +123,7 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
         local('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                           args.cloud_provider,
                                                                                           env.host_string))
-        local('scp -i {} /root/files/{}/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
+        local('scp -i {} /root/files/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
                                                                                                 args.cloud_provider,
                                                                                                 env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
