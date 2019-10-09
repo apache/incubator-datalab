@@ -150,8 +150,9 @@ if __name__ == "__main__":
                                                                  dataproc_conf['computational_name'])
     dataproc_conf['cluster_tag'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
                                                        dataproc_conf['project_name'])
-    dataproc_conf['bucket_name'] = '{}-{}-bucket'.format(dataproc_conf['service_base_name'],
-                                                         dataproc_conf['project_name'])
+    dataproc_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(dataproc_conf['service_base_name'],
+                                                               dataproc_conf['project_name'],
+                                                               dataproc_conf['endpoint_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
