@@ -1,0 +1,6 @@
+{
+    "name" : "local",
+    "url" : "https://localhost:8084/",
+    "account" : "local",
+    "endpoint_tag" : "local"
+}

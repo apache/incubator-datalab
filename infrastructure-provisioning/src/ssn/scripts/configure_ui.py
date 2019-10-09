@@ -122,7 +122,11 @@ def configure_mongo(mongo_passwd):
         local('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                           args.cloud_provider,
                                                                                           env.host_string))
+        local('scp -i {} /root/files/{}/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
+                                                                                                args.cloud_provider,
+                                                                                                env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
+        sudo('mv /tmp/local_endpoint.json ' + args.dlab_path + 'tmp/')
         sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} ".format(
             args.dlab_path))
     except Exception as err:
