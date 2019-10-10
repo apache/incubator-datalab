@@ -31,7 +31,7 @@ public class KeycloakResourceTest extends TestBase {
 
     @Test
     public void refreshAccessToken() {
-        when(keycloakService.refreshToken(anyString())).thenReturn(mock(AccessTokenResponse.class));
+        when(keycloakService.generateAccessToken(anyString())).thenReturn(mock(AccessTokenResponse.class));
 
         final Response response = resources.getJerseyTest()
                 .target("oauth/refresh/" + "refresh_token")
@@ -41,7 +41,7 @@ public class KeycloakResourceTest extends TestBase {
 
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-        verify(keycloakService).refreshToken(anyString());
+        verify(keycloakService).generateAccessToken(anyString());
         verifyNoMoreInteractions(keycloakService);
     }
 }
