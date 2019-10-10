@@ -68,12 +68,22 @@ cat <<EOF > /tmp/node.yaml
 ---
 apiVersion: kubeadm.k8s.io/v1beta1
 kind: JoinConfiguration
+discovery:
+  bootstrapToken:
+    token: TOKEN
+    apiServerEndpoint: "${k8s-nlb-dns-name}:6443"
+    caCertHashes:
+      - "HASHES"
 nodeRegistration:
+  name: NODE_NAME
   kubeletExtraArgs:
     cloud-provider: aws
 EOF
-
-full_hostname=$(curl http://169.254.169.254/latest/meta-data/hostname)
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/join_command /tmp/join_command
-join_command=$(cat /tmp/join_command)
-sudo $join_command --node-name $full_hostname --config /tmp/node.yaml
+token=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "token ")
+hashes=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "discovery-token-ca-cert-hash" | awk '{print $2}')
+full_hostname=$(curl http://169.254.169.254/latest/meta-data/hostname)
+sed -i "s/NODE_NAME/$full_hostname/g" /tmp/node.yaml
+sed -i "s/TOKEN/$token/g" /tmp/node.yaml
+sed -i "s/HASHES/$hashes/g" /tmp/node.yaml
+sudo kubeadm join --config /tmp/node.yaml
