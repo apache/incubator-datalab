@@ -193,7 +193,7 @@ EOF
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/join_command /tmp/join_command
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/cert_key /tmp/cert_key
 cert_key=$(cat /tmp/cert_key)
-token=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "token ")
+token=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "token " | awk '{print $2}')
 hashes=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "discovery-token-ca-cert-hash" | awk '{print $2}')
 sed -i "s/NODE_NAME/$full_hostname/g" /tmp/node.yaml
 sed -i "s/TOKEN/$token/g" /tmp/node.yaml

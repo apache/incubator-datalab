@@ -81,7 +81,7 @@ nodeRegistration:
   name: NODE_NAME
 EOF
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/join_command /tmp/join_command
-token=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "token ")
+token=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "token " | awk '{print $2}')
 hashes=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "discovery-token-ca-cert-hash" | awk '{print $2}')
 full_hostname=$(curl http://169.254.169.254/latest/meta-data/hostname)
 sed -i "s/NODE_NAME/$full_hostname/g" /tmp/node.yaml
