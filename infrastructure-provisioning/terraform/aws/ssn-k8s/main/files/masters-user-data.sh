@@ -172,29 +172,35 @@ do
 done
 cat <<EOF > /tmp/node.yaml
 ---
-apiVersion: kubeadm.k8s.io/v1beta1
-kind: JoinConfiguration
+apiVersion: kubeadm.k8s.io/v1beta2
+controlPlane:
+  localAPIEndpoint:
+    advertiseAddress: LOCAL_IP
+  certificateKey: "CERT_KEY"
 discovery:
   bootstrapToken:
-    token: TOKEN
-    apiServerEndpoint: "${k8s-nlb-dns-name}:6443"
+    apiServerEndpoint: ${k8s-nlb-dns-name}:6443
     caCertHashes:
-      - "HASHES"
+    - 'HASHES'
+    token: TOKEN
+  tlsBootstrapToken: TOKEN
+kind: JoinConfiguration
 nodeRegistration:
-  name: NODE_NAME
   kubeletExtraArgs:
     cloud-provider: aws
+  name: NODE_NAME
 EOF
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/join_command /tmp/join_command
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/cert_key /tmp/cert_key
-join_command=$(cat /tmp/join_command)
 cert_key=$(cat /tmp/cert_key)
 token=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "token ")
 hashes=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "discovery-token-ca-cert-hash" | awk '{print $2}')
 sed -i "s/NODE_NAME/$full_hostname/g" /tmp/node.yaml
 sed -i "s/TOKEN/$token/g" /tmp/node.yaml
 sed -i "s/HASHES/$hashes/g" /tmp/node.yaml
-sudo kubeadm join --config /tmp/node.yaml --control-plane --certificate-key "$cert_key"
+sed -i "s/CERT_KEY/$cert_key/g" /tmp/node.yaml
+sed -i "s/LOCAL_IP/$local_ip/g" /tmp/node.yaml
+sudo kubeadm join --config /tmp/node.yaml
 sudo mkdir -p /home/${k8s_os_user}/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/${k8s_os_user}/.kube/config
 sudo chown -R ${k8s_os_user}:${k8s_os_user} /home/${k8s_os_user}/.kube
