@@ -77,9 +77,8 @@ if __name__ == "__main__":
     project_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(project_conf['service_base_name'],
                                                               project_conf['project_name'],
                                                               project_conf['endpoint_name'])
-    project_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
     project_conf['shared_bucket_name'] = '{0}-{1}-shared-bucket'.format(project_conf['service_base_name'],
-                                                                        project_conf['default_endpoint_name'])
+                                                                        project_conf['endpoint_name'])
     project_conf['instance_size'] = os.environ['gcp_edge_instance_size']
     project_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     project_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
