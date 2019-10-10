@@ -128,6 +128,7 @@ variable "endpoint_roles" {
     "roles/iam.roleAdmin",
     "roles/compute.instanceAdmin",
     "roles/bigquery.dataViewer",
+    "roles/compute.networkUser",
     "roles/bigquery.jobUser"
   ]
 }
