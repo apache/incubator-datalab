@@ -25,6 +25,8 @@ resource "helm_release" "nginx" {
     namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
     wait       = true
 
+    depends_on = [null_resource.step_ca_delay]
+
     values     = [
         file("files/nginx_values.yaml")
     ]

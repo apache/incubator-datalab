@@ -36,10 +36,19 @@ resource "helm_release" "step_ca" {
   repository = data.helm_repository.smallstep.metadata.0.name
   chart      = "smallstep/step-certificates"
   namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-  # wait       = true
+  wait       = false
   timeout    = 600
 
   values     = [
     data.template_file.step_ca_values.rendered
   ]
+}
+
+resource "null_resource" "step_ca_delay" {
+  provisioner "local-exec" {
+    command = "sleep 120"
+  }
+  triggers = {
+    "before" = helm_release.step_ca.name
+  }
 }
