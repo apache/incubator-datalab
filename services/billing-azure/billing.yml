@@ -53,6 +53,10 @@ aggregationOutputMongoDataSource:
     password: <MONGODB_PASSWORD>
     database: dlabdb
 
+ssnStorageAccountTagName: AZURE_SSN_STORAGE_ACCOUNT_TAG
+sharedStorageAccountTagName: AZURE_SHARED_STORAGE_ACCOUNT_TAG
+datalakeTagName: AZURE_DATALAKE_TAG
+
 # Logging configuration.
 logging:
   # Default logging level
