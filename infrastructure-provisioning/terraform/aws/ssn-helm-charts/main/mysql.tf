@@ -26,7 +26,7 @@ data "template_file" "keycloak-mysql-values" {
     mysql_user          = var.mysql_keycloak_user
     mysql_user_password = random_string.mysql_keycloak_user_password.result
     mysql_db_name       = var.mysql_keycloak_db_name
-    storage_class       = kubernetes_storage_class.dlab-storage-class.metadata.name
+    storage_class       = kubernetes_storage_class.dlab-storage-class.metadata[0].name
     mysql_disk_size     = var.mysql_disk_size
   }
 }

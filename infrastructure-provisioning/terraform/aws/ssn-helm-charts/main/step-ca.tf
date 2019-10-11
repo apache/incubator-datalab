@@ -27,7 +27,7 @@ data "helm_repository" "smallstep" {
 data "template_file" "step_ca_values" {
   template = file("./files/step_ca_values.yaml")
   vars = {
-    storage_class_name = kubernetes_storage_class.dlab-storage-class.metadata.name
+    storage_class_name = kubernetes_storage_class.dlab-storage-class.metadata[0].name
   }
 }
 
@@ -35,7 +35,7 @@ resource "helm_release" "step_ca" {
   name       = "dlab-step-ca"
   repository = data.helm_repository.smallstep.metadata.0.name
   chart      = "smallstep/step-certificates"
-  namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   wait       = true
   timeout    = 600
 

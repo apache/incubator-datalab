@@ -47,7 +47,7 @@ data "template_file" "dlab_billing_values" {
 resource "helm_release" "dlab-billing" {
   name       = "dlab-billing"
   chart      = "./dlab-billing-chart"
-  namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret]
   wait = true
 

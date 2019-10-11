@@ -24,7 +24,7 @@ resource "random_uuid" "keycloak_client_secret" {}
 resource "kubernetes_secret" "keycloak_client_secret" {
   metadata {
     name       = "keycloak-client-secret"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -41,7 +41,7 @@ resource "random_string" "keycloak_password" {
 resource "kubernetes_secret" "keycloak_password_secret" {
   metadata {
     name       = "keycloak-password"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -57,7 +57,7 @@ resource "random_string" "mongo_root_password" {
 resource "kubernetes_secret" "mongo_root_password_secret" {
   metadata {
     name       = "mongo-root-password"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -73,7 +73,7 @@ resource "random_string" "mongo_db_password" {
 resource "kubernetes_secret" "mongo_db_password_secret" {
   metadata {
     name       = "mongo-db-password"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -89,7 +89,7 @@ resource "random_string" "mysql_root_password" {
 resource "kubernetes_secret" "mysql_root_password_secret" {
   metadata {
     name       = "mysql-root-password"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -105,7 +105,7 @@ resource "random_string" "mysql_keycloak_user_password" {
 resource "kubernetes_secret" "mysql_keycloak_user_password_secret" {
   metadata {
     name       = "mysql-keycloak-user-password"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -116,7 +116,7 @@ resource "kubernetes_secret" "mysql_keycloak_user_password_secret" {
 resource "kubernetes_secret" "ssn_keystore_password" {
   metadata {
     name       = "ssn-keystore-password"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -127,7 +127,7 @@ resource "kubernetes_secret" "ssn_keystore_password" {
 resource "kubernetes_secret" "endpoint_keystore_password" {
   metadata {
     name       = "endpoint-keystore-password"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
