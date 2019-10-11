@@ -1083,8 +1083,9 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             except:
                 spark_jars_paths = None
         user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['project_name'].lower().replace('_', '-')).\
-            replace('_', '-') + '-storage'
-        shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
+            replace('_', '-') + '-' + os.environ['endpoint_name'].lower().replace('_', '-') + '-storage'
+        shared_storage_account_tag = '{0}-{1}-shared-storage'.format(os.environ['conf_service_base_name'],
+                                                                     os.environ['endpoint_name'])
         for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if user_storage_account_tag == storage_account.tags["Name"]:
                 user_storage_account_name = storage_account.name
