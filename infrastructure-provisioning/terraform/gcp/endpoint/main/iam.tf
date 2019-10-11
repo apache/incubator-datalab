@@ -22,7 +22,7 @@
 locals {
   endpoint_policy_name      = "${var.service_base_name}-${var.endpoint_id}-endpoint-policy"
   endpoint_role_name        = "${var.service_base_name}-${var.endpoint_id}-endpoint_role"
-  service_account_name      = "${var.service_base_name}-${var.endpoint_id}-et"
+  service_account_name      = "${var.service_base_name}-${var.endpoint_id}-endt"
 }
 
 resource "google_service_account" "endpoint_sa" {
