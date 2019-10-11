@@ -38,7 +38,7 @@ parser.add_argument('--conf_user_subnets_range', type=str, default='', help='Ran
                                                                             '10.10.0.0/24 - 10.10.10.0/24')
 parser.add_argument('--conf_additional_tags', type=str, default='', help='Additional tags in format '
                                                                          '"Key1:Value1;Key2:Value2"')
-parser.add_argument('--conf_image_creation', type=str, default='', help='Enable or Disable creating image at first time')
+parser.add_argument('--conf_image_enabled', type=str, default='', help='Enable or Disable creating image at first time')#image_enabled
 parser.add_argument('--conf_shared_image_enabled', type=str, default='', help='Enable or Disable shared images')
 parser.add_argument('--aws_user_predefined_s3_policies', type=str, default='', help='Predefined policies for users '
                                                                                     'instances')

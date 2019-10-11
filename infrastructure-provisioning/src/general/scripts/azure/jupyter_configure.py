@@ -56,11 +56,30 @@ if __name__ == "__main__":
         notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
                                                                 notebook_config['project_name'],
                                                                 notebook_config['exploratory_name'])
-        notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+        if notebook_config['shared_image_enabled'] == 'false':
+            notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
             notebook_config['service_base_name'],
             notebook_config['endpoint_name'],
             notebook_config['project_name'],
             os.environ['application'])
+            notebook_config['image_tags'] = {"Name": notebook_config['instance_name'],
+                                       "SBN": notebook_config['service_base_name'],
+                                       "User": notebook_config['user_name'],
+                                       "project_tag": notebook_config['project_tag'],
+                                       "endpoint_tag": notebook_config['endpoint_tag'],
+                                       "Exploratory": notebook_config['exploratory_name'],
+                                       os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+        else:
+            notebook_config['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(
+                notebook_config['service_base_name'],
+                notebook_config['endpoint_name'],
+                os.environ['application'])
+            notebook_config['image_tags'] = {"Name": notebook_config['instance_name'],
+                                       "SBN": notebook_config['service_base_name'],
+                                       "User": notebook_config['user_name'],
+                                       "endpoint_tag": notebook_config['endpoint_tag'],
+                                       "Exploratory": notebook_config['exploratory_name'],
+                                       os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
         notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                       notebook_config['project_name'])
@@ -72,6 +91,7 @@ if __name__ == "__main__":
                                    "endpoint_tag": notebook_config['endpoint_tag'],
                                    "Exploratory": notebook_config['exploratory_name'],
                                    os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+        notebook_config['image_creation'] = os.environ['conf_image_creation']
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
         notebook_config['ip_address'] = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                         notebook_config['instance_name'])
@@ -239,7 +259,7 @@ if __name__ == "__main__":
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    if notebook_config['shared_image_enabled'] == 'true':
+    if notebook_config['image_creation'] == 'true':
         try:
             print('[CREATING IMAGE]')
             image = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name'])
@@ -250,7 +270,7 @@ if __name__ == "__main__":
                                                           notebook_config['instance_name'],
                                                           os.environ['azure_region'],
                                                           notebook_config['expected_image_name'],
-                                                          json.dumps(notebook_config['tags']))
+                                                          json.dumps(notebook_config['image_tags']))
                 print("Image was successfully created.")
                 local("~/scripts/{}.py".format('common_prepare_notebook'))
                 instance_running = False
