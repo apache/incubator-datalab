@@ -63,8 +63,8 @@ if __name__ == "__main__":
     project_conf['bucket_name'] = project_conf['bucket_name_tag'].lower().replace('_', '-')
     project_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(
         project_conf['service_base_name']).lower().replace('_', '-')
-    project_conf['shared_bucket_name'] = '{}-shared-bucket'.format(
-        project_conf['service_base_name']).lower().replace('_', '-')
+    project_conf['shared_bucket_name'] = '{0}-{1}-shared-bucket'.format(
+        project_conf['service_base_name'], project_conf['endpoint_tag']).lower().replace('_', '-')
     project_conf['edge_role_name'] = '{}-{}-edge-Role'.format(
         project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
     project_conf['edge_role_profile_name'] = '{}-{}-edge-Profile'.format(
