@@ -36,7 +36,7 @@ resource "helm_release" "step_ca" {
   repository = data.helm_repository.smallstep.metadata.0.name
   chart      = "smallstep/step-certificates"
   namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-  wait       = true
+  # wait       = true
   timeout    = 600
 
   values     = [

@@ -32,10 +32,11 @@ data "template_file" "keycloak-mysql-values" {
 }
 
 resource "helm_release" "keycloak-mysql" {
-  name   = "keycloak-mysql"
-  chart  = "stable/mysql"
-  wait   = true
-  values = [
+  name       = "keycloak-mysql"
+  chart      = "stable/mysql"
+  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+  wait       = true
+  values     = [
     data.template_file.keycloak-mysql-values.rendered
   ]
   depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_keycloak_user_password_secret]
