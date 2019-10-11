@@ -19,27 +19,27 @@
 #
 # ******************************************************************************
 
-data "template_file" "mongo_values" {
-  template = file("./files/mongo_values.yaml")
-  vars     = {
-      mongo_root_pwd      = random_string.mongo_root_password.result
-      mongo_db_username   = var.mongo_db_username
-      mongo_dbname        = var.mongo_dbname
-      mongo_db_pwd        = random_string.mongo_db_password.result
-      mongo_image_tag     = var.mongo_image_tag
-      mongo_service_port  = var.mongo_service_port
-      mongo_node_port     = var.mongo_node_port
+data "helm_repository" "smallstep" {
+  name = "smallstep"
+  url  = "https://smallstep.github.io/helm-charts/"
+}
+
+data "template_file" "step_ca_values" {
+  template = file("./files/step_ca_values.yaml")
+  vars = {
+    storage_class_name = kubernetes_storage_class.dlab-storage-class.metadata.name
   }
 }
 
-resource "helm_release" "mongodb" {
-  name       = "mongo-ha"
-  chart      = "stable/mongodb"
+resource "helm_release" "step_ca" {
+  name       = "dlab-step-ca"
+  repository = data.helm_repository.smallstep.metadata.0.name
+  chart      = "smallstep/step-certificates"
   namespace  = kubernetes_namespace.dlab-namespace.metadata.name
   wait       = true
+  timeout    = 600
+
   values     = [
-      data.template_file.mongo_values.rendered
+    data.template_file.step_ca_values.rendered
   ]
-  depends_on = [helm_release.nginx, kubernetes_secret.mongo_db_password_secret,
-                kubernetes_secret.mongo_root_password_secret]
 }

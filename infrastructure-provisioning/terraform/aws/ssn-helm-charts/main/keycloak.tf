@@ -52,14 +52,15 @@ data "template_file" "keycloak_values" {
 }
 
 data "helm_repository" "codecentric" {
-    name = "codecentric"
-    url  = "https://codecentric.github.io/helm-charts"
+  name = "codecentric"
+  url  = "https://codecentric.github.io/helm-charts"
 }
 
 resource "helm_release" "keycloak" {
   name       = "keycloak"
   repository = data.helm_repository.codecentric.metadata.0.name
   chart      = "codecentric/keycloak"
+  namespace  = kubernetes_namespace.dlab-namespace.metadata.name
   wait       = true
   timeout    = 600
 

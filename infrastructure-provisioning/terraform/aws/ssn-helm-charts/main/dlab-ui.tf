@@ -37,6 +37,7 @@ data "template_file" "dlab_ui_values" {
 resource "helm_release" "dlab_ui" {
     name       = "dlab-ui"
     chart      = "./dlab-ui-chart"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata.name
     depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret]
     wait       = true
 

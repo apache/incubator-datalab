@@ -19,6 +19,10 @@
 #
 # ******************************************************************************
 
+variable "namespace_name" {
+    default = "dlab"
+}
+
 variable "ssn_k8s_alb_dns_name" {
     default = ""
 }
@@ -33,6 +37,10 @@ variable "mysql_keycloak_user" {
 
 variable "mysql_keycloak_db_name" {
     default = "keycloak"
+}
+
+variable "mysql_disk_size" {
+    default = "10"
 }
 
 variable "ldap_usernameAttr" {

@@ -20,11 +20,12 @@
 # ******************************************************************************
 
 resource "helm_release" "nginx" {
-    name      = "nginx-ingress"
-    chart     = "stable/nginx-ingress"
-    wait = true
+    name       = "nginx-ingress"
+    chart      = "stable/nginx-ingress"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata.name
+    wait       = true
 
-    values = [
+    values     = [
         file("files/nginx_values.yaml")
     ]
 }

@@ -24,4 +24,6 @@ mysqlUser: ${mysql_user}
 mysqlPassword: "${mysql_user_password}"
 mysqlDatabase: ${mysql_db_name}
 persistence:
-  existingClaim: ${mysql_volume_claim}
+  enabled: true
+  size: ${mysql_disk_size}Gi
+  storageClass: ${storage_class}
