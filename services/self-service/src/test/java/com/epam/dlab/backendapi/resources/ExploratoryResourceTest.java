@@ -81,23 +81,6 @@ public class ExploratoryResourceTest extends TestBase {
 	}
 
 	@Test
-	public void createWithFailedAuth() throws AuthenticationException {
-		authFailSetup();
-		when(exploratoryService.create(any(UserInfo.class), any(Exploratory.class), anyString())).thenReturn(
-				"someUuid");
-		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.put(Entity.json(getExploratoryCreateFormDTO()));
-
-		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verifyZeroInteractions(exploratoryService);
-	}
-
-	@Test
 	public void createWithException() {
 		doThrow(new DlabException("Could not create exploratory environment"))
 				.when(exploratoryService).create(any(UserInfo.class), any(Exploratory.class), anyString());

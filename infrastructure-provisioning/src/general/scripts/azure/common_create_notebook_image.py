@@ -34,24 +34,31 @@ if __name__ == "__main__":
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
         image_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         image_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+        image_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        image_conf['project_tag'] = os.environ['project_name'].replace('_', '-')
+        image_conf['endpoint_tag'] = os.environ['project_name'].replace('_', '-')
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['application'] = os.environ['application']
         image_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         image_conf['image_name'] = os.environ['notebook_image_name'].lower().replace('_', '-')
         image_conf['full_image_name'] = '{}-{}-{}-{}'.format(image_conf['service_base_name'],
-                                                             image_conf['user_name'],
+                                                             image_conf['project_name'],
                                                              image_conf['application'],
                                                              image_conf['image_name']).lower()
         image_conf['tags'] = {"Name": image_conf['service_base_name'],
                               "SBN": image_conf['service_base_name'],
                               "User": image_conf['user_name'],
+                              "project_tag": image_conf['project_tag'],
+                              "endpoint_tag": image_conf['endpoint_tag'],
                               "Image": image_conf['image_name'],
                               "FIN": image_conf['full_image_name'],
                               os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
 
         instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                image_conf['instance_name'])
-        edge_instance_name = '{}-{}-edge'.format(image_conf['service_base_name'], image_conf['user_name'])
+        edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
+                                                       notebook_config['project_name'],
+                                                       notebook_config['endpoint_name'])
         edge_instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                     edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
@@ -100,6 +107,7 @@ if __name__ == "__main__":
                        "ip": instance_hostname,
                        "full_image_name": image_conf['full_image_name'],
                        "user_name": image_conf['user_name'],
+                       "project_name": image_conf['project_name'],
                        "application": image_conf['application'],
                        "status": "created",
                        "Action": "Create image from notebook"}

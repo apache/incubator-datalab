@@ -19,7 +19,7 @@
 package com.epam.dlab.rest.contracts;
 
 public final class InfrasctructureAPI {
-	public static final String INFRASTRUCTURE = "/infrastructure";
+	public static final String INFRASTRUCTURE = "infrastructure";
 	public static final String INFRASTRUCTURE_STATUS = INFRASTRUCTURE + "/status";
 	public static final String EXPLORATORY_CHECK_INACTIVITY = INFRASTRUCTURE + "/exploratory/check_inactivity";
 	public static final String COMPUTATIONAL_CHECK_INACTIVITY = INFRASTRUCTURE + "/computational/check_inactivity";

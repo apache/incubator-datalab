@@ -23,37 +23,37 @@ package com.epam.dlab.mongo;
  */
 public interface MongoConstants {
 	/** Name of ID field. */
-	public static final String FIELD_ID = "_id";
+	String FIELD_ID = "_id";
     
 	/** Collection environment settings. */
-    public static final String COLLECTION_SETTINGS = "settings";
-    public static final String FIELD_SERIVICE_BASE_NAME = "conf_service_base_name";
+    String COLLECTION_SETTINGS = "settings";
+    String FIELD_SERIVICE_BASE_NAME = "conf_service_base_name";
 
     /** Collection user AWS credentials. */
-    public static final String COLLECTION_USER_EDGE = "userCloudCredentials";
-    public static final String FIELD_EDGE_BUCKET = "user_own_bicket_name";
+    String COLLECTION_USER_EDGE = "userCloudCredentials";
 
     /** Collection user instances. */
-    public static final String COLLECTION_USER_INSTANCES = "userInstances";
-    public static final String FIELD_EXPLORATORY_NAME = "exploratory_name";
-    public static final String FIELD_USER = "user";
-	public static final String FIELD_IMAGE = "image";
-    public static final String FIELD_EXPLORATORY_ID = "exploratory_id";
-    public static final String FIELD_CURRENCY_CODE = "currency_code";
-    public static final String FIELD_COMPUTATIONAL_RESOURCES = "computational_resources";
-    public static final String FIELD_COMPUTATIONAL_ID = "computational_id";
-    public static final String FIELD_COMPUTATIONAL_NAME = "computational_name";
+    String COLLECTION_USER_INSTANCES = "userInstances";
+    String FIELD_EXPLORATORY_NAME = "exploratory_name";
+    String FIELD_USER = "user";
+	String FIELD_IMAGE = "image";
+    String FIELD_EXPLORATORY_ID = "exploratory_id";
+    String FIELD_CURRENCY_CODE = "currency_code";
+    String FIELD_COMPUTATIONAL_RESOURCES = "computational_resources";
+    String FIELD_COMPUTATIONAL_ID = "computational_id";
+    String FIELD_COMPUTATIONAL_NAME = "computational_name";
 	String FIELD_DATAENGINE_INSTANCE_COUNT = "dataengine_instance_count";
 
     /** Collection billing. */
-    public static final String COLLECTION_BILLING = "billing";
-	public static final String FIELD_DLAB_RESOURCE_ID = "dlab_resource_id";
-	public static final String FIELD_RESOURCE_NAME = "resource_name";
-	public static final String FIELD_DLAB_RESOURCE_TYPE = "dlab_resource_type";
+    String COLLECTION_BILLING = "billing";
+	String FIELD_DLAB_RESOURCE_ID = "dlab_resource_id";
+	String FIELD_RESOURCE_NAME = "resource_name";
+	String FIELD_PROJECT = "project";
+	String FIELD_DLAB_RESOURCE_TYPE = "dlab_resource_type";
 
     /** Collection billingTotal. */
-	public static final String COLLECTION_BILLING_TOTAL = "billingTotal";
-	public static final String FIELD_USAGE_DATE_START = "usage_date_start";
-	public static final String FIELD_USAGE_DATE_END = "usage_date_end";
+	String COLLECTION_BILLING_TOTAL = "billingTotal";
+	String FIELD_USAGE_DATE_START = "from";
+	String FIELD_USAGE_DATE_END = "to";
 	String BILLING_DATA_COLLECTION = "BillingData";
 }

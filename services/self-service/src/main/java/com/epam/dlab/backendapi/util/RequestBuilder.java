@@ -20,9 +20,10 @@
 package com.epam.dlab.backendapi.util;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
@@ -59,6 +60,8 @@ import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
+import com.epam.dlab.dto.project.ProjectActionDTO;
+import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
@@ -87,24 +90,14 @@ public class RequestBuilder {
 		switch (cloudProvider()) {
 			case AWS:
 				return AwsCloudSettings.builder()
-						.awsRegion(settingsDAO.getAwsRegion())
-						.awsSecurityGroupIds(settingsDAO.getAwsSecurityGroups())
-						.awsSubnetId(settingsDAO.getAwsSubnetId())
-						.awsVpcId(settingsDAO.getAwsVpcId())
-						.confTagResourceId(settingsDAO.getConfTagResourceId())
-						.awsNotebookSubnetId(settingsDAO.getAwsNotebookSubnetId())
-						.awsNotebookVpcId(settingsDAO.getAwsNotebookVpcId())
-						.awsIamUser(userInfo.getName()).build();
+						.awsIamUser(userInfo.getName())
+						.build();
 			case AZURE:
 				return AzureCloudSettings.builder()
-						.azureRegion(settingsDAO.getAzureRegion())
-						.azureResourceGroupName(settingsDAO.getAzureResourceGroupName())
-						.azureSecurityGroupName(settingsDAO.getAzureSecurityGroupName())
-						.azureSubnetName(settingsDAO.getAzureSubnetName())
-						.azureVpcName(settingsDAO.getAzureVpcName())
 						.azureIamUser(userInfo.getName()).build();
 			case GCP:
-				return GcpCloudSettings.builder().gcpIamUser(userInfo.getName()).build();
+				return GcpCloudSettings.builder()
+						.gcpIamUser(userInfo.getName()).build();
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
 		}
@@ -142,10 +135,7 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	private <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) {
-		T resource = newResourceBaseDTO(userInfo, resourceClass);
-		return (T) resource
-				.withServiceBaseName(settingsDAO.getServiceBaseName())
-				.withConfOsFamily(settingsDAO.getConfOsFamily());
+		return newResourceBaseDTO(userInfo, resourceClass);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -410,7 +400,8 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withProject(userInstance.getProject())
-				.withTags(userInstance.getTags());
+				.withTags(userInstance.getTags())
+				.withEndpoint(userInstance.getEndpoint());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -461,7 +452,8 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withProject(userInstance.getProject())
-				.withTags(userInstance.getTags());
+				.withTags(userInstance.getTags())
+				.withEndpoint(userInstance.getEndpoint());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -540,6 +532,7 @@ public class RequestBuilder {
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookImage(userInstance.getImageName())
 				.withImageName(imageName)
+				.withEndpoint(userInstance.getEndpoint())
 				.withTags(userInstance.getTags());
 	}
 
@@ -581,7 +574,8 @@ public class RequestBuilder {
 				.withExploratoryName(userInstanceDTO.getExploratoryName())
 				.withNotebookInstanceName(userInstanceDTO.getExploratoryId())
 				.withComputationalName(compRes.getComputationalName())
-				.withApplicationName(compRes.getImageName());
+				.withApplicationName(compRes.getImageName())
+				.withProject(userInstanceDTO.getProject());
 		clusterConfigDTO.setCopmutationalId(compRes.getComputationalId());
 		clusterConfigDTO.setConfig(config);
 		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
@@ -601,7 +595,8 @@ public class RequestBuilder {
 						.withExploratoryName(userInstance.getExploratoryName())
 						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 						.withNotebookImage(userInstance.getImageName())
-						.withConfig(config);
+						.withConfig(config)
+						.withProject(userInstance.getProject());
 		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
 			dto.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
 		}
@@ -621,6 +616,22 @@ public class RequestBuilder {
 				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
 				.withProject(userInstance.getProject());
 		return dto;
+	}
+
+	public ProjectCreateDTO newProjectCreate(UserInfo userInfo, ProjectDTO projectDTO, String endpoint) {
+		return ProjectCreateDTO.builder()
+				.key(projectDTO.getKey().replace("\n", ""))
+				.name(projectDTO.getName())
+				.tag(projectDTO.getTag())
+				.endpoint(endpoint)
+				.useSharedImage(String.valueOf(projectDTO.isUseSharedImage()))
+				.build()
+				.withCloudSettings(cloudSettings(userInfo));
+	}
+
+	public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, String endpoint) {
+		return new ProjectActionDTO(project, endpoint)
+				.withCloudSettings(cloudSettings(userInfo));
 	}
 
 	private CloudProvider cloudProvider() {

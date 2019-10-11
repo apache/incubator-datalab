@@ -58,12 +58,13 @@ public class InfrastructureTemplateResource implements DockerAPI {
 	 * @param userInfo user info.
 	 */
 	@GET
-	@Path("/{project}/computational_templates")
+	@Path("/{project}/{endpoint}/computational_templates")
 	@ApiOperation("Returns list of cluster's templates")
 	public Iterable<FullComputationalTemplate> getComputationalTemplates(@ApiParam(hidden = true)
 																		 @Auth UserInfo userInfo,
-																		 @PathParam("project") String project) {
-		return infrastructureTemplateService.getComputationalTemplates(userInfo, project);
+																		 @PathParam("project") String project,
+																		 @PathParam("endpoint") String endpoint) {
+		return infrastructureTemplateService.getComputationalTemplates(userInfo, project, endpoint);
 	}
 
 	/**
@@ -72,11 +73,12 @@ public class InfrastructureTemplateResource implements DockerAPI {
 	 * @param userInfo user info.
 	 */
 	@GET
-	@Path("/{project}/exploratory_templates")
+	@Path("/{project}/{endpoint}/exploratory_templates")
 	@ApiOperation("Returns list of notebook's templates")
 	public Iterable<ExploratoryMetadataDTO> getExploratoryTemplates(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-																	@PathParam("project") String project) {
-		return infrastructureTemplateService.getExploratoryTemplates(userInfo, project);
+																	@PathParam("project") String project,
+																	@PathParam("endpoint") String endpoint) {
+		return infrastructureTemplateService.getExploratoryTemplates(userInfo, project, endpoint);
 	}
 }
 

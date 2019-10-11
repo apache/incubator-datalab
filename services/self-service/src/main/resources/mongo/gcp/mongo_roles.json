@@ -1,0 +1,238 @@
+[
+  {
+    "_id": "nbShapes_n1-highcpu-2_fetching",
+    "description": "Use n1-highcpu-2 instance shape for notebook",
+    "exploratory_shapes": [
+      "n1-highcpu-2"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highcpu-8_fetching",
+    "description": "Use n1-highcpu-8 instance shape for notebook",
+    "exploratory_shapes": [
+      "n1-highcpu-8"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highcpu-32_fetching",
+    "description": "Use n1-highcpu-32 instance shape for notebook",
+    "exploratory_shapes": [
+      "n1-highcpu-32"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highmem-4_fetching",
+    "description": "Use n1-highmem-4 instance shape for notebook",
+    "exploratory_shapes": [
+      "n1-highmem-4"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highmem-16_fetching",
+    "description": "Use n1-highmem-16 instance shape for notebook",
+    "exploratory_shapes": [
+      "n1-highmem-16"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-highmem-32_fetching",
+    "description": "Use n1-highmem-32 instance shape for notebook",
+    "exploratory_shapes": [
+      "n1-highmem-32"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_n1-standard-2_fetching",
+    "description": "Use n1-standard-2 instance shape for notebook",
+    "exploratory_shapes": [
+      "n1-standard-2"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateDeeplearning",
+    "description": "Create Notebook Deep Learning",
+    "exploratories": [
+      "docker.dlab-deeplearning"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateJupyter",
+    "description": "Create Notebook Jupyter",
+    "exploratories": [
+      "docker.dlab-jupyter"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateRstudio",
+    "description": "Create Notebook RStudio",
+    "exploratories": [
+      "docker.dlab-rstudio"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateTensor",
+    "description": "Create Notebook Jupyter with TensorFlow",
+    "exploratories": [
+      "docker.dlab-tensor"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateTensorRstudio",
+    "description": "Create Notebook RStudio with TensorFlow",
+    "exploratories": [
+      "docker.dlab-tensor-rstudio"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateZeppelin",
+    "description": "Create Notebook Apache Zeppelin",
+    "exploratories": [
+      "docker.dlab-zeppelin"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateDataEngine",
+    "description": "Create Data Engine",
+    "computationals": [
+      "docker.dlab-dataengine"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateDataEngineService",
+    "description": "Create Data Engine Service",
+    "computationals": [
+      "docker.dlab-dataengine-service"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_n1-standard-2_fetching",
+    "description": "Use n1-standard-2 instance shape for cluster",
+    "computational_shapes": [
+      "n1-standard-2"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_n1-highmem-4_fetching",
+    "description": "Use n1-highmem-4 instance shape for cluster",
+    "computational_shapes": [
+      "n1-highmem-4"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_n1-highmem-16_fetching",
+    "description": "Use n1-highmem-16 instance shape for cluster",
+    "computational_shapes": [
+      "n1-highmem-16"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_n1-highmem-32_fetching",
+    "description": "Use n1-highmem-32 instance shape for cluster",
+    "computational_shapes": [
+      "n1-highmem-32"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_n1-highcpu-8_fetching",
+    "description": "Use n1-highcpu-8 instance shape for cluster",
+    "computational_shapes": [
+      "n1-highcpu-8"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_n1-highcpu-2_fetching",
+    "description": "Use n1-highcpu-2 instance shape for cluster",
+    "computational_shapes": [
+      "n1-highcpu-2"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_n1-highcpu-32_fetching",
+    "description": "Use n1-highcpu-32 instance shape for cluster",
+    "computational_shapes": [
+      "n1-highcpu-32"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "admin",
+    "description": "Allow to execute administration operation",
+    "pages": [
+      "environment/*",
+      "/api/infrastructure/backup",
+      "/roleManagement",
+      "/api/settings",
+      "/user/settings",
+      "/api/project",
+      "/api/endpoint"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  }
+]

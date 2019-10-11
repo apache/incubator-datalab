@@ -19,7 +19,7 @@
 
 import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { EndpointService } from '../../../core/services';
@@ -54,6 +54,10 @@ export class EndpointsComponent implements OnInit {
   ngOnInit() {
     this.initFormModel();
     this.getEndpointList();
+  }
+
+  public generateEndpointTag($event) {
+    this.createEndpointForm.controls.endpoint_tag.setValue($event.target.value.toLowerCase());
   }
 
   public assignChanges(data) {

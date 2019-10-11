@@ -19,13 +19,22 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.billing.BillingCalculationUtils;
+import com.epam.dlab.billing.DlabResourceType;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
+import com.epam.dlab.model.aws.ReportLine;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Filters;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -42,10 +51,12 @@ import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCE
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_ID;
 import static com.epam.dlab.backendapi.dao.MongoCollections.BILLING;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_RESOURCE_TYPE;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_USAGE_DATE;
 import static com.mongodb.client.model.Accumulators.sum;
 import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Aggregates.match;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static java.util.Collections.singletonList;
 
@@ -71,6 +82,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	private static final String TOTAL_FIELD_NAME = "total";
 	private static final String COST_FIELD = "$cost";
 	public static final String SHARED_RESOURCE_NAME = "Shared resource";
+	protected static final String FIELD_PROJECT = "project";
 
 	@Inject
 	protected SettingsDAO settings;
@@ -78,6 +90,130 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	private UserSettingsDAO userSettingsDAO;
 	@Inject
 	private ProjectDAO projectDAO;
+
+	@Override
+	public Document getReport(UserInfo userInfo, T filter) {
+		boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing",
+				userInfo.getRoles());
+		setUserFilter(userInfo, filter, isFullReport);
+		List<Bson> matchCriteria = matchCriteria(filter);
+		List<Bson> pipeline = new ArrayList<>();
+		if (!matchCriteria.isEmpty()) {
+			pipeline.add(Aggregates.match(Filters.and(matchCriteria)));
+		}
+		pipeline.add(groupCriteria());
+		pipeline.add(sortCriteria());
+		final Map<String, ShapeInfo> shapes = getShapes(filter.getShapes());
+		return prepareReport(filter.getStatuses(), !filter.getShapes().isEmpty(),
+				getCollection(BILLING).aggregate(pipeline), shapes, isFullReport);
+	}
+
+	private Document prepareReport(List<UserInstanceStatus> statuses, boolean filterByShape,
+								   AggregateIterable<Document> agg,
+								   Map<String, ShapeInfo> shapes, boolean fullReport) {
+
+		List<Document> reportItems = new ArrayList<>();
+
+		String usageDateStart = null;
+		String usageDateEnd = null;
+		double costTotal = 0D;
+
+		for (Document d : agg) {
+			Document id = (Document) d.get(MongoKeyWords.MONGO_ID);
+			String resourceId = id.getString(dlabIdFieldName());
+			ShapeInfo shape = shapes.get(resourceId);
+			final UserInstanceStatus status = Optional.ofNullable(shape).map(ShapeInfo::getStatus).orElse(null);
+			if ((filterByShape && shape == null) ||
+					(!statuses.isEmpty() && statuses.stream().noneMatch(s -> s.equals(status)))) {
+				continue;
+			}
+
+
+			String dateStart = d.getString(MongoKeyWords.USAGE_FROM);
+			if (StringUtils.compare(usageDateStart, dateStart, false) > 0) {
+				usageDateStart = dateStart;
+			}
+			String dateEnd = d.getString(MongoKeyWords.USAGE_TO);
+			if (StringUtils.compare(usageDateEnd, dateEnd) < 0) {
+				usageDateEnd = dateEnd;
+			}
+
+
+			costTotal += d.getDouble(MongoKeyWords.COST);
+
+			final String statusString = Optional
+					.ofNullable(status)
+					.map(UserInstanceStatus::toString)
+					.orElse(StringUtils.EMPTY);
+			Document item = new Document()
+					.append(MongoKeyWords.DLAB_USER, getUserOrDefault(id.getString(USER)))
+					.append(dlabIdFieldName(), resourceId)
+					.append(shapeFieldName(), generateShapeName(shape))
+					.append("dlab_resource_type", DlabResourceType.getResourceTypeName(id.getString(
+							"dlab_resource_type"))) //todo check on azure!!!
+					.append(STATUS, statusString)
+					.append(FIELD_RESOURCE_TYPE, resourceType(id))
+					.append(productFieldName(), id.getString(productFieldName()))
+					.append(PROJECT, id.getString(PROJECT))
+					.append(MongoKeyWords.COST, d.getDouble(MongoKeyWords.COST))
+					.append(costFieldName(), BillingCalculationUtils.formatDouble(d.getDouble(MongoKeyWords
+							.COST)))
+					.append(currencyCodeFieldName(), id.getString(currencyCodeFieldName()))
+					.append(usageDateFromFieldName(), dateStart)
+					.append(usageDateToFieldName(), dateEnd);
+
+
+			reportItems.add(item);
+		}
+
+		return new Document()
+				.append(SERVICE_BASE_NAME, settings.getServiceBaseName())
+				.append(usageDateFromFieldName(), usageDateStart)
+				.append(usageDateToFieldName(), usageDateEnd)
+				.append(ITEMS, reportItems)
+				.append(COST_TOTAL, BillingCalculationUtils.formatDouble(BillingCalculationUtils.round
+						(costTotal, 2)))
+				.append(currencyCodeFieldName(), (reportItems.isEmpty() ? null :
+						reportItems.get(0).getString(currencyCodeFieldName())))
+				.append(FULL_REPORT, fullReport);
+
+	}
+
+	protected String resourceType(Document id) {
+		return id.getString(FIELD_RESOURCE_TYPE);
+	}
+
+	protected String currencyCodeFieldName() {
+		return "currency_code";
+	}
+
+	protected String usageDateToFieldName() {
+		return MongoKeyWords.USAGE_TO;
+	}
+
+	protected String costFieldName() {
+		return MongoKeyWords.COST;
+	}
+
+	protected String productFieldName() {
+		return ReportLine.FIELD_PRODUCT;
+	}
+
+	protected String usageDateFromFieldName() {
+		return MongoKeyWords.USAGE_FROM;
+	}
+
+	protected String dlabIdFieldName() {
+		return ReportLine.FIELD_DLAB_ID;
+	}
+
+	protected String shapeFieldName() {
+		return SHAPE;
+	}
+
+	protected abstract Bson sortCriteria();
+
+	protected abstract Bson groupCriteria();
 
 	protected Map<String, ShapeInfo> getShapes(List<String> shapeNames) {
 		FindIterable<Document> userInstances = getUserInstances();
@@ -141,12 +277,18 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 				.isPresent();
 	}
 
+
 	@Override
 	public boolean isProjectQuoteReached(String project) {
 		final Double projectCost = getProjectCost(project);
 		return projectDAO.getAllowedBudget(project)
 				.filter(allowedBudget -> projectCost.intValue() != 0 && allowedBudget <= projectCost)
 				.isPresent();
+	}
+
+	@Override
+	public int getBillingProjectQuoteUsed(String project) {
+		return toPercentage(() -> projectDAO.getAllowedBudget(project), getProjectCost(project));
 	}
 
 	protected String getUserOrDefault(String user) {
@@ -159,6 +301,39 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 				.map(Double::intValue)
 				.orElse(BigDecimal.ZERO.intValue());
 	}
+
+	private List<Bson> matchCriteria(BillingFilter filter) {
+
+		List<Bson> searchCriteria = new ArrayList<>();
+
+		if (filter.getUser() != null && !filter.getUser().isEmpty()) {
+			searchCriteria.add(Filters.in(MongoKeyWords.DLAB_USER, filter.getUser()));
+		}
+
+		if (filter.getResourceType() != null && !filter.getResourceType().isEmpty()) {
+			searchCriteria.add(Filters.in("dlab_resource_type",
+					DlabResourceType.getResourceTypeIds(filter.getResourceType())));
+		}
+
+		if (filter.getDlabId() != null && !filter.getDlabId().isEmpty()) {
+			searchCriteria.add(regex(dlabIdFieldName(), filter.getDlabId(), "i"));
+		}
+
+		if (filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
+			searchCriteria.add(gte(FIELD_USAGE_DATE, filter.getDateStart()));
+		}
+		if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
+			searchCriteria.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
+		}
+		if (filter.getProjects() != null && !filter.getProjects().isEmpty()){
+			searchCriteria.add(in(PROJECT, filter.getProjects()));
+		}
+
+		searchCriteria.addAll(cloudMatchCriteria((T) filter));
+		return searchCriteria;
+	}
+
+	protected abstract List<Bson> cloudMatchCriteria(T filter);
 
 
 	private Optional<ShapeInfo> getComputationalShape(List<String> shapeNames, Document c) {
@@ -227,7 +402,20 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		return shapeNames == null || shapeNames.isEmpty() || Arrays.stream(shapes).anyMatch(shapeNames::contains);
 	}
 
-	protected abstract void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes);
+	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes) {
+		final String ssnShape = getSsnShape();
+		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
+			String serviceBaseName = getServiceBaseName();
+			shapes.put(serviceBaseName + "-ssn", new ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
+		}
+	}
+
+	protected String getServiceBaseName() {
+		return settings.getServiceBaseName();
+	}
+
+	protected abstract String getSsnShape();
+
 
 	protected String generateShapeName(ShapeInfo shape) {
 		return Optional.ofNullable(shape).map(ShapeInfo::getName).orElse(StringUtils.EMPTY);

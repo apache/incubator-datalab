@@ -19,12 +19,10 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.BackupService;
 import com.epam.dlab.dto.backup.EnvBackupStatusDTO;
 import com.google.inject.Inject;
-import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -51,7 +49,7 @@ public class BackupCallback {
 
 	@POST
 	@Path("/status")
-	public Response status(@Auth UserInfo ui, EnvBackupStatusDTO dto) {
+	public Response status(EnvBackupStatusDTO dto) {
 		requestId.remove(dto.getRequestId());
 		log.debug("Updating status of backup status to {}", dto);
 		backupService.updateStatus(dto.getEnvBackupDTO(), dto.getUser(),

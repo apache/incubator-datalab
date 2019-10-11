@@ -44,20 +44,24 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     try:
         create_aws_config_files()
-        edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
-                                          os.environ['conf_service_base_name'] + '-' + os.environ[
-                                              'project_name'] + '-edge')
+        data_engine = dict()
+        data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
+        edge_status = get_instance_status(data_engine['service_base_name'] + '-Tag',
+                                          '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                                    os.environ['project_name'],
+                                                                    os.environ['endpoint_name']))
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag',
-                                                 os.environ['conf_service_base_name'] + '-ssn')
+            ssn_hostname = get_instance_hostname(data_engine['service_base_name'] + '-Tag',
+                                                 data_engine['service_base_name'] + '-ssn')
             put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                 ssn_hostname)
             append_result("Edge node is unavailable")
             sys.exit(1)
         print('Generating infrastructure names and tags')
-        data_engine = dict()
+
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name']
         except:
@@ -66,7 +70,7 @@ if __name__ == "__main__":
             data_engine['computational_name'] = os.environ['computational_name']
         except:
             data_engine['computational_name'] = ''
-        data_engine['service_base_name'] = os.environ['conf_service_base_name']
+
         data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
@@ -98,9 +102,16 @@ if __name__ == "__main__":
         data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
 
-        data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(os.environ['conf_service_base_name'],
+        data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(data_engine['service_base_name'],
+                                                                           os.environ['endpoint_name'],
+                                                                           os.environ['project_name'],
                                                                            os.environ['application'])
-        data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+        data_engine['notebook_image_name'] = (
+            lambda x: '{0}-{1}-{2}-{3}'.format(data_engine['service_base_name'],
+                                               os.environ['project_name'],
+                                               os.environ['application'],
+                                               os.environ['notebook_image_name'].lower().replace('_', '-')) if (
+                    x != 'None' and x != '')
             else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         data_engine['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
@@ -122,9 +133,9 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     try:
-        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(os.environ['project_name'], os.environ['endpoint_name'])
     except KeyError:
-        os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+        os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(os.environ['project_name'], os.environ['endpoint_name'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
     try:

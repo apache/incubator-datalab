@@ -24,7 +24,7 @@ export * from './healthStatus.service';
 export * from './userAccessKey.service';
 export * from './userResource.service';
 export * from './authorization.guard';
-export * from './admin.quard';
+export * from './admin.guard';
 export * from './cloudProvider.guard';
 export * from './checkParams.guard';
 export * from './librariesInstallation.service';

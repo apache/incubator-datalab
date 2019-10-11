@@ -21,7 +21,7 @@
 import { Component, OnInit } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
 import { UserResourceService } from '../../core/services';
 
@@ -59,8 +59,10 @@ export class ResourcesGridComponent implements OnInit {
   environments: Exploratory[];
   forse: boolean = true;
 
-  collapsedFilterRow: boolean = false;
-
+  collapseFilterRow: boolean = false;
+  filtering: boolean = false;
+  activeFiltering: boolean = false;
+  healthStatus: GeneralEnvironmentStatus;
 
   filteredEnvironments: Exploratory[] = [];
   filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
@@ -70,6 +72,7 @@ export class ResourcesGridComponent implements OnInit {
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
     { title: 'Status', name: 'statuses', class: 'status-col', filter_class: 'status-filter', filtering: true },
     { title: DICTIONARY.instance_size, name: 'shapes', class: 'shape-col', filter_class: 'shape-filter', filtering: true },
+    { title: 'Tags', name: 'tag', class: 'tag-col', filter_class: 'tag-filter', filtering: false },
     { title: DICTIONARY.computational_resource, name: 'resources', class: 'resources-col', filter_class: 'resource-filter', filtering: true },
     { title: 'Cost', name: 'cost', class: 'cost-col', filter_class: 'cost-filter', filtering: false },
     { title: '', name: 'actions', class: 'actions-col', filter_class: 'action-filter', filtering: false }
@@ -77,19 +80,6 @@ export class ResourcesGridComponent implements OnInit {
 
   public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
   public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
-
-
-
-
-
-  isOutscreenDropdown: boolean;
-
-  filtering: boolean = false;
-  activeFiltering: boolean = false;
-  healthStatus: GeneralEnvironmentStatus;
-
-
-
 
 
 
@@ -111,14 +101,40 @@ export class ResourcesGridComponent implements OnInit {
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
 
-        !this.healthStatus.billingEnabled && this.modifyGrid();
+        this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
       });
   }
 
   public toggleFilterRow(): void {
-    this.collapsedFilterRow = !this.collapsedFilterRow;
+    this.collapseFilterRow = !this.collapseFilterRow;
   }
 
+  public onUpdate($event) {
+    this.filterForm[$event.type] = $event.model;
+  }
+
+  public showActiveInstances(): void {
+    this.filterForm = this.loadUserPreferences(this.filterActiveInstances());
+    this.applyFilter_btnClick(this.filterForm);
+    this.buildGrid();
+  }
+
+  public containsNotebook(notebook_name: string): boolean {
+    if (notebook_name)
+      return this.environments
+        .filter(project => project.exploratory
+          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name))).length > 0;
+  }
+
+  public isResourcesInProgress(notebook) {
+    const env = this.getEnvironmentsListCopy().map(env => env.exploratory.find(el => el.name === notebook.name))[0];
+
+    if (env && env.resources.length) {
+      return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
+        && item.status !== 'running' && item.status !== 'stopped')).length > 0;
+    }
+    return false;
+  }
 
 
   // PRIVATE
@@ -189,25 +205,6 @@ export class ResourcesGridComponent implements OnInit {
 
 
 
-  showActiveInstances(): void {
-    this.filterForm = this.loadUserPreferences(this.filterActiveInstances());
-    this.applyFilter_btnClick(this.filterForm);
-    this.buildGrid();
-  }
-
-  isResourcesInProgress(notebook) {
-    // const filteredEnv = this.environments.find(env => env.exploratory.find(el => el.name === notebook.name));
-
-    // if (filteredEnv && filteredEnv.resources.length) {
-    //   return filteredEnv.resources.filter(resource => (
-    //     resource.status !== 'failed'
-    //     && resource.status !== 'terminated'
-    //     && resource.status !== 'running'
-    //     && resource.status !== 'stopped')).length > 0;
-    // }
-    return false;
-  }
-
   filterActiveInstances(): FilterConfigurationModel {
     const filteredData = (<any>Object).assign({}, this.filterConfiguration);
     for (const index in filteredData) {
@@ -217,7 +214,6 @@ export class ResourcesGridComponent implements OnInit {
         });
       if (index === 'shapes') { filteredData[index] = []; }
     }
-
     filteredData.type = 'active';
 
     return filteredData;
@@ -228,7 +224,6 @@ export class ResourcesGridComponent implements OnInit {
       if (сonfig[index] && сonfig[index] instanceof Array)
         сonfig[index] = сonfig[index].filter(item => this.filterConfiguration[index].includes(item));
     }
-
     return сonfig;
   }
 
@@ -240,9 +235,7 @@ export class ResourcesGridComponent implements OnInit {
         this.activeFiltering = true;
   }
 
-  onUpdate($event) {
-    this.filterForm[$event.type] = $event.model;
-  }
+
 
   resetFilterConfigurations(): void {
     this.filterForm.resetConfigurations();
@@ -250,16 +243,6 @@ export class ResourcesGridComponent implements OnInit {
     this.buildGrid();
   }
 
-
-
-  containsNotebook(notebook_name: string): boolean {
-    // if (notebook_name)
-    //   for (let index = 0; index < this.environments.length; index++)
-    //     if (CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(this.environments[index].name))
-    //       return true;
-
-    return false;
-  }
 
   getUserPreferences(): void {
     this.userResourceService.getUserPreferences()
@@ -279,9 +262,7 @@ export class ResourcesGridComponent implements OnInit {
   updateUserPreferences(filterConfiguration: FilterConfigurationModel): void {
     this.userResourceService.updateUserPreferences(filterConfiguration)
       .subscribe((result) => { },
-        (error) => {
-          console.log('UPDATE USER PREFERENCES ERROR ', error);
-        });
+        (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
   }
 
   printDetailEnvironmentModal(data): void {

@@ -17,29 +17,75 @@
   ~ under the License.
   -->
 
-<section class="table-wrapper" *ngIf="reportData?.lines">
-  <table mat-table [dataSource]="reportData.lines" class="data-grid reporting mat-elevation-z6">
+<section class="table-wrapper">
+  <table mat-table [dataSource]="reportData" class="data-grid reporting mat-elevation-z6">
 
     <ng-container matColumnDef="name" sticky>
-      <th mat-header-cell *matHeaderCellDef class="env_name"> Environment name </th>
+      <th mat-header-cell *matHeaderCellDef class="env_name">
+        <span class="label"> Environment name </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filteredReportData.dlab_id.length > 0; else dlab_id_filtered">filter_list</span>
+            <ng-template #dlab_id_filtered>more_vert</ng-template>
+          </i>
+        </button>
+      </th>
       <td mat-cell *matCellDef="let element"> {{element[DICTIONARY.billing.dlabId]}} </td>
       <td mat-footer-cell *matFooterCellDef> Total </td>
     </ng-container>
 
     <ng-container matColumnDef="user">
-      <th mat-header-cell *matHeaderCellDef class="th_user"> User </th>
-      <td mat-cell *matCellDef="let element"> {{element.user}} </td>
+      <th mat-header-cell *matHeaderCellDef class="th_user">
+        <span class="label"> User </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filteredReportData.user.length > 0; else user_filtered">filter_list</span>
+            <ng-template #user_filtered>more_vert</ng-template>
+          </i>
+        </button>
+      </th>
+      <td mat-cell *matCellDef=" let element"> {{element.user}} </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="project">
+      <th mat-header-cell *matHeaderCellDef class="th_project">
+        <span class="label">Project</span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filteredReportData.project.length > 0; else project_filtered">filter_list</span>
+            <ng-template #project_filtered>more_vert</ng-template>
+          </i>
+        </button>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.project}} </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef class="th_type"> Resource Type </th>
+      <th mat-header-cell *matHeaderCellDef class="th_type">
+        <span class="label"> Resource Type </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filteredReportData.resource_type.length > 0; else type_filtered">filter_list</span>
+            <ng-template #type_filtered>more_vert</ng-template>
+          </i>
+        </button>
+      </th>
       <td mat-cell *matCellDef="let element"> {{element[DICTIONARY.billing.resourceType]}} </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef class="th_status"> Status </th>
+      <th mat-header-cell *matHeaderCellDef class="th_status">
+        <span class="label"> Status </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filteredReportData.status.length > 0; else status_filtered">filter_list</span>
+            <ng-template #status_filtered>more_vert</ng-template>
+          </i>
+        </button>
+      </th>
       <td mat-cell *matCellDef="let element">
         <span class="status" ngClass="{{ element.status.toLowerCase() || '' }}"
           *ngIf="element.status">{{ element.status.toLowerCase() }}</span>
@@ -49,7 +95,15 @@
     </ng-container>
 
     <ng-container matColumnDef="shape">
-      <th mat-header-cell *matHeaderCellDef class="th_shape"> {{ DICTIONARY.instance_size}} </th>
+      <th mat-header-cell *matHeaderCellDef class="th_shape">
+        <span class="label"> {{ DICTIONARY.instance_size}} </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filteredReportData.shape.length > 0; else shape_filtered">filter_list</span>
+            <ng-template #shape_filtered>more_vert</ng-template>
+          </i>
+        </button>
+      </th>
       <td mat-cell *matCellDef="let element">
         <span [outerHTML]="element[DICTIONARY.billing.instance_size] | lineBreak"></span>
       </td>
@@ -57,7 +111,16 @@
     </ng-container>
 
     <ng-container matColumnDef="service">
-      <th mat-header-cell *matHeaderCellDef class="service">{{ DICTIONARY.service}}</th>
+      <th mat-header-cell *matHeaderCellDef class="service">
+        <span class="label"> {{ DICTIONARY.service}} </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span
+              *ngIf="filteredReportData[DICTIONARY.billing.instance_size].length > 0; else service_filtered">filter_list</span>
+            <ng-template #service_filtered>more_vert</ng-template>
+          </i>
+        </button>
+      </th>
       <td mat-cell *matCellDef="let element">
         {{ element[DICTIONARY.billing.service] }}
         <span *ngIf="element.resource_type">({{ element.resource_type }})</span>
@@ -66,28 +129,36 @@
     </ng-container>
 
     <ng-container matColumnDef="charge" stickyEnd>
-      <th mat-header-cell *matHeaderCellDef class="th_charges"> Service Charges </th>
+      <th mat-header-cell *matHeaderCellDef class="th_charges">
+        <span class="label"> Service Charges </span>
+      </th>
 
       <td mat-cell *matCellDef="let element">
         {{ element[DICTIONARY.billing.cost] }} {{ element[DICTIONARY.billing.currencyCode] }}
       </td>
       <td mat-footer-cell *matFooterCellDef>
-        <span *ngIf="reportData">{{ reportData[DICTIONARY.billing.costTotal] }}
-          {{ reportData[DICTIONARY.billing.currencyCode] }}</span>
+        <span *ngIf="reportData?.length">{{ fullReport[DICTIONARY.billing.costTotal] }}
+          {{ fullReport[DICTIONARY.billing.currencyCode] }}</span>
       </td>
     </ng-container>
 
     <!-- ----------------FILTER -->
     <ng-container matColumnDef="name-filter" sticky>
       <th mat-header-cell *matHeaderCellDef>
-        <input type="text" placeholder="Filter by environment name" class="form-control filter-field"
-          [value]="filteredReportData.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
+        <input #nameFilter type="text" placeholder="Filter by environment name" class="form-control filter-field"
+          [value]="filtered?.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
       </th>
     </ng-container>
     <ng-container matColumnDef="user-filter">
       <th mat-header-cell *matHeaderCellDef>
         <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'user'"
           [items]="filterConfiguration.user" [model]="filteredReportData.user"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="project-filter">
+      <th mat-header-cell *matHeaderCellDef>
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'project'"
+          [items]="filterConfiguration.project" [model]="filteredReportData.project"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="type-filter">
@@ -133,19 +204,19 @@
     </ng-container>
     <ng-container matColumnDef="placeholder">
       <td mat-footer-cell *matFooterCellDef colspan="7" class="info">
-        To start working, please, create new environment
+        No data available
       </td>
     </ng-container>
 
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
 
-    <ng-container *ngIf="reportData?.lines.length">
-      <tr mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true" class="filter-row"></tr>
+    <tr [hidden]="!collapseFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
+      class="filter-row"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="DATA"></tr>
 
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      <tr mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></tr>
-    </ng-container>
-    <tr [hidden]="reportData?.lines.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
+    <tr [hidden]="!reportData?.length" mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"
+      class="header-row"></tr>
+    <tr [hidden]="reportData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
   </table>
 </section>

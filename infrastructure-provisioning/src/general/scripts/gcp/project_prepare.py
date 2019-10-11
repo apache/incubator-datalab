@@ -43,7 +43,8 @@ if __name__ == "__main__":
     project_conf['key_name'] = os.environ['conf_key_name']
     project_conf['user_keyname'] = os.environ['project_name']
     project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    project_conf['project_tag'] = (os.environ['project_tag'])
+    project_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
+    project_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
@@ -69,7 +70,8 @@ if __name__ == "__main__":
                                                   project_conf['project_name'])
     project_conf['ps_policy_path'] = '/root/files/ps_policy.json'
     project_conf['ps_roles_path'] = '/root/files/ps_roles.json'
-    project_conf['instance_name'] = '{0}-{1}-edge'.format(project_conf['service_base_name'], project_conf['project_name'])
+    project_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(project_conf['service_base_name'],
+                                                          project_conf['project_name'], project_conf['endpoint_tag'])
     project_conf['ssn_instance_name'] = '{}-ssn'.format(project_conf['service_base_name'])
     project_conf['bucket_name'] = '{0}-{1}-bucket'.format(project_conf['service_base_name'], project_conf['project_name'])
     project_conf['shared_bucket_name'] = '{}-shared-bucket'.format(project_conf['service_base_name'])
@@ -90,8 +92,8 @@ if __name__ == "__main__":
     project_conf['network_tag'] = project_conf['instance_name']
     project_conf['instance_labels'] = {"name": project_conf['instance_name'],
                                     "sbn": project_conf['service_base_name'],
-                                    "project_name": project_conf['project_name'],
                                     "project_tag": project_conf['project_tag'],
+                                    "endpoint_tag": project_conf['endpoint_tag'],
                                     "product": "dlab"}
     project_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
@@ -99,7 +101,7 @@ if __name__ == "__main__":
     try:
         project_conf['user_key'] = os.environ['key']
         try:
-            local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'], project_conf['project_name']))
+            local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'], os.environ['project_name']))
         except:
             print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
     except KeyError:

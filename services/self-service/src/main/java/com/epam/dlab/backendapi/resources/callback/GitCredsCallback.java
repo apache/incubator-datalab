@@ -52,7 +52,7 @@ public class GitCredsCallback {
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
-    public Response status(@Auth UserInfo userInfo, ExploratoryStatusDTO dto) {
+    public Response status(ExploratoryStatusDTO dto) {
         if (UserInstanceStatus.CREATED != UserInstanceStatus.of(dto.getStatus())) {
             //TODO Handle error status?
             log.error("Git creds has not been updated for exploratory environment {} for user {}, status is {}",

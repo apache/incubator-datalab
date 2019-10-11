@@ -19,7 +19,7 @@
 
 package com.epam.dlab.backendapi.modules;
 
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.AbstractModule;
 import io.dropwizard.setup.Environment;

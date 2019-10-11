@@ -16,6 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+// :host {
+//   display: block;
+// }
 
 .nav-bar {
   min-height: 48px;
@@ -27,19 +30,23 @@
   justify-content: space-between;
   margin-bottom: 0;
   border-radius: 0;
+
   .menu-area {
     display: flex;
     align-items: center;
+
     .navbar-logo {
       width: 65px;
       align-self: center;
       margin-left: 10px;
+
       img {
         display: block;
         width: 100%;
       }
     }
   }
+
   .control-area {
     @extend .menu-area;
 
@@ -51,35 +58,45 @@
       justify-content: center;
       color: #f9fafb;
       cursor: pointer;
+
       span {
         align-self: center;
         font-size: 18px;
       }
+
       .ok {
         color: #81b44a;
+
         &:hover {
           color: #618738;
         }
       }
+
       .warning {
         color: #f7b500;
+
         &:hover {
           color: #bd8d0a;
         }
       }
+
       .error {
         color: #ef5c4b;
+
         &:hover {
           color: #bd4146;
         }
       }
+
       .meta {
         color: #c7d4d6;
+
         &:hover {
           color: #fff;
         }
       }
     }
+
     .btn-logout {
       height: 46px;
       padding: 0 28px;
@@ -88,17 +105,26 @@
       border: 0;
       border-radius: 0;
       font-size: 14px;
+      cursor: pointer;
+
       .user-name {
         color: #36afd5;
       }
+
       &:hover .user-name {
         color: #3392b0;
+      }
+
+      &:hover {
+        background: #323030;
       }
     }
   }
 }
+
 .app-info {
   padding: 15px;
+
   p {
     strong {
       color: #455c74;
@@ -107,22 +133,27 @@
       width: 120px;
       display: inline-block;
     }
+
     .helper_instruction {
       font-size: 14px;
+
       i {
         vertical-align: bottom;
       }
     }
+
     span {
       width: 180px;
       display: inline-block;
       vertical-align: bottom;
     }
   }
+
   .commit {
     cursor: pointer;
   }
 }
+
 a.nav-item {
   display: block;
   position: relative;
@@ -136,15 +167,18 @@ a.nav-item {
   overflow: hidden;
   color: #577289 !important;
   outline: none;
+
   i {
     vertical-align: middle;
     padding-left: 8px;
   }
+
   &:not(.has-children):hover i,
   &:not(.has-children):hover span {
     background: none !important;
     color: #36afd5 !important;
   }
+
   &:not(:last-child)::after {
     content: ' ';
     position: absolute;
@@ -155,23 +189,29 @@ a.nav-item {
     display: block;
     background: #edf1f5;
   }
+
   &.active {
     color: #36afd5 !important;
   }
+
   &.has-children {
     height: auto;
   }
+
   .sub-nav-item {
     display: block;
     transition: all .45s ease-in-out;
+
     i {
       vertical-align: middle;
       padding-left: 8px;
     }
+
     &:hover {
       background: none !important;
       color: #36afd5 !important;
     }
+
     &.active {
       color: #36afd5 !important;
     }
@@ -196,6 +236,7 @@ a.nav-item {
   cursor: pointer;
   border-radius: 0;
   transition: all .45s ease-in-out;
+
   .line {
     width: 22px;
     height: 2px;
@@ -206,19 +247,23 @@ a.nav-item {
     -webkit-transition: all .35s ease-in-out;
     -o-transition: all .35s ease-in-out;
     transition: all .35s ease-in-out;
+
     &:nth-child(2) {
       -webkit-transition-delay: 0.3s;
       -o-transition-delay: 0.3s;
       transition-delay: 0.3s;
     }
   }
+
   &:hover {
     background: #36afd5;
   }
+
   &:hover .line:nth-child(1),
   &:hover .line:nth-child(3) {
     width: 18px;
   }
+
   &:hover .line:nth-child(2) {
     -webkit-transition: none;
     -o-transition: none;
@@ -244,5 +289,12 @@ a.nav-item {
 mat-sidenav-content {
   &.mat-drawer-content {
     transition: all 0.35s ease-out;
+
+  }
+
+  .fade-animation {
+    display: block;
+    height: 100%;
+    max-height: 100%;
   }
 }

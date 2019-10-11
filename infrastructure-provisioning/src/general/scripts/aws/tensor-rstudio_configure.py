@@ -50,7 +50,8 @@ if __name__ == "__main__":
         notebook_config['exploratory_name'] = os.environ['exploratory_name']
     except:
         notebook_config['exploratory_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
     notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['user_keyname'] = os.environ['project_name']
@@ -58,12 +59,14 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
                                                                os.environ['project_name'],
                                                                notebook_config['exploratory_name'], args.uuid)
-    notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
-                                                                           os.environ['application'])
+    notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(notebook_config['service_base_name'],
+                                                                                     os.environ['endpoint_name'],
+                                                                                     os.environ['project_name'],
+                                                                                     os.environ['application'])
     notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
+    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                   os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -77,7 +80,8 @@ if __name__ == "__main__":
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
-    edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['project_name'] + '-edge'
+    edge_instance_name = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
+                                                os.environ['project_name'], os.environ['endpoint_name'])
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
     edge_instance_private_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     if notebook_config['network_type'] == 'private':
@@ -252,9 +256,9 @@ if __name__ == "__main__":
             if ami_id == '':
                 print("Looks like it's first time we configure notebook server. Creating image.")
                 try:
-                    os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+                    os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(os.environ['project_name'], os.environ['endpoint_name'])
                 except KeyError:
-                    os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+                    os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(os.environ['project_name'], os.environ['endpoint_name'])
                 image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
                                                       instance_name=notebook_config['instance_name'],
                                                       image_name=notebook_config['expected_image_name'])
@@ -313,13 +317,13 @@ if __name__ == "__main__":
                    {"description": "TensorBoard",
                     "url": tensorboard_acces_url},
                    {"description": "Ungit",
-                    "url": rstudio_ungit_acces_url},
-                   {"description": "RStudio (via tunnel)",
-                    "url": rstudio_ip_url},
-                   {"description": "TensorBoard (via tunnel)",
-                    "url": tensorboard_url},
-                   {"description": "Ungit (via tunnel)",
-                    "url": ungit_ip_url}
+                    "url": rstudio_ungit_acces_url}#,
+                   #{"description": "RStudio (via tunnel)",
+                   # "url": rstudio_ip_url},
+                   #{"description": "TensorBoard (via tunnel)",
+                   # "url": tensorboard_url},
+                   #{"description": "Ungit (via tunnel)",
+                   # "url": ungit_ip_url}
                ],
                "exploratory_user": notebook_config['dlab_ssh_user'],
                "exploratory_pass": notebook_config['rstudio_pass']}

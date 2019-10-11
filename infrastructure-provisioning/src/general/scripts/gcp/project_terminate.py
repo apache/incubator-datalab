@@ -33,7 +33,7 @@ def terminate_edge_node(project_name, service_base_name, region, zone):
     try:
         labels = [
             {'sbn': service_base_name},
-            {'project_name': project_name}
+            {'project_tag': project_name}
         ]
         clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
         if clusters_list:
@@ -54,7 +54,7 @@ def terminate_edge_node(project_name, service_base_name, region, zone):
         instances = GCPMeta().get_list_instances(zone, base)
         if 'items' in instances:
             for i in instances['items']:
-                if 'project_name' in i['labels'] and project_name == i['labels']['project_name']:
+                if 'project_tag' in i['labels'] and project_name == i['labels']['project_tag']:
                     GCPActions().remove_instance(i['name'], zone)
     except Exception as err:
         print('Error: {0}'.format(err))
@@ -97,10 +97,12 @@ def terminate_edge_node(project_name, service_base_name, region, zone):
     try:
         list_service_accounts = GCPMeta().get_list_service_accounts()
         for service_account in (set(targets) & set(list_service_accounts)):
-            GCPActions().remove_service_account(service_account)
+            if service_account.startswith(service_base_name):
+                GCPActions().remove_service_account(service_account)
         list_roles_names = GCPMeta().get_list_roles()
         for role in (set(targets) & set(list_roles_names)):
-            GCPActions().remove_role(role)
+            if role.startswith(service_base_name):
+                GCPActions().remove_role(role)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -132,6 +134,7 @@ if __name__ == "__main__":
     project_conf = dict()
     project_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    project_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     project_conf['region'] = os.environ['gcp_region']
     project_conf['zone'] = os.environ['gcp_zone']
 

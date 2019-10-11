@@ -56,7 +56,7 @@ public class EnvironmentStatusCallback {
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
-    public Response status(@Auth UserInfo userInfo, EnvStatusDTO dto) {
+    public Response status(EnvStatusDTO dto) {
         log.trace("Updating the status of resources for user {}: {}", dto.getUser(), dto);
 		requestId.checkAndRemove(dto.getRequestId());
         try {

@@ -20,11 +20,12 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
@@ -77,9 +78,16 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 					.collect(Collectors.groupingBy(d -> d.getString("project")))
 					.entrySet()
 					.stream()
-					.map(e -> new ProjectInfrastructureInfo(e.getKey(),
-							getSharedInfo(projectService.get(e.getKey()).getEdgeInfo()),
-							e.getValue()))
+					.map(e -> {
+
+						final Map<String, Map<String, String>> projectEdges =
+								projectService.get(e.getKey()).getEndpoints().stream()
+										.collect(Collectors.toMap(ProjectEndpointDTO::getName,
+												endpointDTO -> getSharedInfo(endpointDTO.getEdgeInfo())));
+						return new ProjectInfrastructureInfo(e.getKey(),
+								billingDAO.getBillingProjectQuoteUsed(e.getKey()),
+								projectEdges, e.getValue());
+					})
 					.collect(Collectors.toList());
 		} catch (Exception e) {
 			log.error("Could not load list of provisioned resources for user: {}", user, e);

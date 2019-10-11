@@ -18,7 +18,6 @@
  */
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
@@ -27,6 +26,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.InactivityService;
+import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
@@ -62,7 +62,7 @@ public class InactivityServiceImpl implements InactivityService {
 	@Inject
 	private ExploratoryService exploratoryService;
 	@Inject
-	private SystemUserInfoService systemUserInfoService;
+	private SecurityService securityService;
 
 	@Override
 	public void updateRunningResourcesLastActivity() {
@@ -84,12 +84,12 @@ public class InactivityServiceImpl implements InactivityService {
 
 	private void updateLastActivity(UserInstanceDTO ui) {
 		if (UserInstanceStatus.RUNNING.toString().equals(ui.getStatus())) {
-			updateExploratoryLastActivity(systemUserInfoService.create(ui.getUser()), ui);
+			updateExploratoryLastActivity(securityService.getUserInfoOffline(ui.getUser()), ui);
 		}
 		ui.getResources()
 				.stream()
 				.filter(comp -> UserInstanceStatus.RUNNING.toString().equals(comp.getStatus()))
-				.forEach(cr -> updateComputationalLastActivity(systemUserInfoService.create(ui.getUser()), ui, cr));
+				.forEach(cr -> updateComputationalLastActivity(securityService.getUserInfoOffline(ui.getUser()), ui, cr));
 	}
 
 	private void updateComputationalLastActivity(UserInfo userInfo, UserInstanceDTO ui, UserComputationalResource cr) {

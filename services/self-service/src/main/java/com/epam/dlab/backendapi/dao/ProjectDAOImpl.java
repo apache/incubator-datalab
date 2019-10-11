@@ -2,17 +2,17 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
-import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.*;
 
@@ -22,7 +22,9 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String GROUPS = "groups";
 	private static final String ENDPOINTS = "endpoints";
 	private static final String STATUS_FIELD = "status";
+	private static final String ENDPOINT_STATUS_FIELD = "endpoints." + STATUS_FIELD;
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
+	private static final String ENDPOINT_FIELD = "endpoints.$.";
 
 	private final UserGroupDao userGroupDao;
 
@@ -43,9 +45,18 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public List<ProjectDTO> getUserProjectsWithStatus(UserInfo userInfo, ProjectDTO.Status status) {
+	public List<ProjectDTO> getProjectsWithEndpointStatusNotIn(UserInstanceStatus... statuses) {
+		final List<String> statusList =
+				Arrays.stream(statuses).map(UserInstanceStatus::name).collect(Collectors.toList());
+
+		return find(PROJECTS_COLLECTION, not(in(ENDPOINT_STATUS_FIELD, statusList)), ProjectDTO.class);
+	}
+
+	@Override
+	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
 		return find(PROJECTS_COLLECTION, and(in(GROUPS, Sets.union(userGroupDao.getUserGroups(userInfo.getName()),
-				userInfo.getRoles())), eq(STATUS_FIELD, status.toString())), ProjectDTO.class);
+				userInfo.getRoles())), eq(ENDPOINT_STATUS_FIELD, UserInstanceStatus.RUNNING.name())),
+				ProjectDTO.class);
 	}
 
 	@Override
@@ -60,13 +71,20 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public void updateEdgeInfoAndStatus(String projectName, EdgeInfo edgeInfo, ProjectDTO.Status status) {
+	public void updateEdgeStatus(String projectName, String endpoint, UserInstanceStatus status) {
 		BasicDBObject dbObject = new BasicDBObject();
-		dbObject.put(STATUS_FIELD, status.toString());
-		dbObject.put(EDGE_INFO_FIELD, convertToBson(edgeInfo));
-		final UpdateResult updateResult = updateOne(PROJECTS_COLLECTION, projectCondition(projectName),
-				new Document(SET, dbObject));
-		System.out.println(updateResult);
+		dbObject.put(ENDPOINT_FIELD + STATUS_FIELD, status.name());
+		updateOne(PROJECTS_COLLECTION, projectAndEndpointCondition(projectName,
+				endpoint), new Document(SET, dbObject));
+	}
+
+	@Override
+	public void updateEdgeInfo(String projectName, String endpointName, EdgeInfo edgeInfo) {
+		BasicDBObject dbObject = new BasicDBObject();
+		dbObject.put(ENDPOINT_FIELD + STATUS_FIELD, UserInstanceStatus.RUNNING.name());
+		dbObject.put(ENDPOINT_FIELD + EDGE_INFO_FIELD, convertToBson(edgeInfo));
+		updateOne(PROJECTS_COLLECTION, projectAndEndpointCondition(projectName, endpointName), new Document(SET,
+				dbObject));
 	}
 
 	@Override
@@ -75,10 +93,11 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public boolean update(UpdateProjectDTO projectDTO) {
+	public boolean update(ProjectDTO projectDTO) {
 		BasicDBObject updateProject = new BasicDBObject();
 		updateProject.put(GROUPS, projectDTO.getGroups());
-		updateProject.put(ENDPOINTS, projectDTO.getEndpoints());
+		updateProject.put(ENDPOINTS,
+				projectDTO.getEndpoints().stream().map(this::convertToBson).collect(Collectors.toList()));
 		return updateOne(PROJECTS_COLLECTION, projectCondition(projectDTO.getName()),
 				new Document(SET, updateProject)).getMatchedCount() > 0L;
 	}
@@ -106,5 +125,9 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	private Bson projectCondition(String name) {
 		return eq("name", name);
+	}
+
+	private Bson projectAndEndpointCondition(String projectName, String endpointName) {
+		return and(eq("name", projectName), eq("endpoints.name", endpointName));
 	}
 }

@@ -39,7 +39,8 @@ if __name__ == "__main__":
     try:
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
-        service_base_name = os.environ['conf_service_base_name']
+        service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
@@ -56,7 +57,7 @@ if __name__ == "__main__":
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
         vpc2_cidr = os.environ['conf_vpc2_cidr']
-        sg_name = instance_name + '-SG'
+        sg_name = instance_name + '-sg'
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_sg = False
@@ -312,30 +313,172 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        mongo_parameters = {
-            "aws_region": os.environ['aws_region'],
-            "aws_vpc_id": os.environ['aws_vpc_id'],
-            "aws_subnet_id": os.environ['aws_subnet_id'],
-            "conf_service_base_name": os.environ['conf_service_base_name'],
-            "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
-            "conf_os_family": os.environ['conf_os_family'],
-            "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
-            "conf_key_dir": os.environ['conf_key_dir'],
-            "ssn_instance_size": os.environ['aws_ssn_instance_size'],
-            "edge_instance_size": os.environ['aws_edge_instance_size']
-        }
+        # mongo_parameters = {
+        #     "aws_region": os.environ['aws_region'],
+        #     "aws_vpc_id": os.environ['aws_vpc_id'],
+        #     "aws_subnet_id": os.environ['aws_subnet_id'],
+        #     "conf_service_base_name": service_base_name,
+        #     "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
+        #     "conf_os_family": os.environ['conf_os_family'],
+        #     "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
+        #     "conf_key_dir": os.environ['conf_key_dir'],
+        #     "ssn_instance_size": os.environ['aws_ssn_instance_size'],
+        #     "edge_instance_size": os.environ['aws_edge_instance_size']
+        # }
+        # if os.environ['conf_duo_vpc_enable'] == 'true':
+        #     secondary_parameters = {
+        #         "aws_notebook_vpc_id": os.environ['aws_vpc2_id'],
+        #         "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
+        #         "aws_peering_id": os.environ['aws_peering_id']
+        #     }
+        # else:
+        #     secondary_parameters = {
+        #         "aws_notebook_vpc_id": os.environ['aws_vpc_id'],
+        #         "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
+        #     }
+        # mongo_parameters.update(secondary_parameters)
+        cloud_params = [
+            {
+                'key': 'KEYCLOAK_REDIRECT_URI',
+                'value': "http://{0}/".format(get_instance_hostname(tag_name, instance_name))
+            },
+            {
+                'key': 'KEYCLOAK_REALM_NAME',
+                'value': os.environ['keycloak_realm_name']
+            },
+            {
+                'key': 'KEYCLOAK_AUTH_SERVER_URL',
+                'value': os.environ['keycloak_auth_server_url']
+            },
+            {
+                'key': 'KEYCLOAK_CLIENT_NAME',
+                'value': os.environ['keycloak_client_name']
+            },
+            {
+                'key': 'KEYCLOAK_CLIENT_SECRET',
+                'value': os.environ['keycloak_client_secret']
+            },
+            {
+                'key': 'CONF_OS',
+                'value': os.environ['conf_os_family']
+            },
+            {
+                'key': 'SERVICE_BASE_NAME',
+                'value': os.environ['conf_service_base_name']
+            },
+            {
+                'key': 'EDGE_INSTANCE_SIZE',
+                'value': os.environ['aws_edge_instance_size']
+            },
+            {
+                'key': 'SUBNET_ID',
+                'value': os.environ['aws_subnet_id']
+            },
+            {
+                'key': 'REGION',
+                'value': os.environ['aws_region']
+            },
+            {
+                'key': 'ZONE',
+                'value': os.environ['aws_zone']
+            },
+            {
+                'key': 'TAG_RESOURCE_ID',
+                'value': os.environ['conf_tag_resource_id']
+            },
+            {
+                'key': 'SG_IDS',
+                'value': os.environ['aws_security_groups_ids']
+            },
+            {
+                'key': 'SSN_INSTANCE_SIZE',
+                'value': os.environ['aws_ssn_instance_size']
+            },
+            {
+                'key': 'VPC_ID',
+                'value': os.environ['aws_vpc_id']
+            },
+            {
+                'key': 'CONF_KEY_DIR',
+                'value': os.environ['conf_key_dir']
+            },
+            {
+                'key': 'LDAP_HOST',
+                'value': os.environ['ldap_hostname']
+            },
+            {
+                'key': 'LDAP_DN',
+                'value': os.environ['ldap_dn']
+            },
+            {
+                'key': 'LDAP_OU',
+                'value': os.environ['ldap_ou']
+            },
+            {
+                'key': 'LDAP_USER_NAME',
+                'value': os.environ['ldap_service_username']
+            },
+            {
+                'key': 'LDAP_USER_PASSWORD',
+                'value': os.environ['ldap_service_password']
+            },
+            {
+                'key': 'AZURE_RESOURCE_GROUP_NAME',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_SSN_STORAGE_ACCOUNT_TAG',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_SHARED_STORAGE_ACCOUNT_TAG',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_DATALAKE_TAG',
+                'value': ''
+            },
+            {
+                'key': 'GCP_PROJECT_ID',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_CLIENT_ID',
+                'value': ''
+            }
+        ]
         if os.environ['conf_duo_vpc_enable'] == 'true':
-            secondary_parameters = {
-                "aws_notebook_vpc_id": os.environ['aws_vpc2_id'],
-                "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
-                "aws_peering_id": os.environ['aws_peering_id']
-            }
+            cloud_params.append(
+                {
+                    'key': 'SUBNET2_ID',
+                    'value': os.environ['aws_subnet_id']
+                })
+            cloud_params.append(
+                {
+                    'key': 'VPC2_ID',
+                    'value': os.environ['aws_vpc2_id']
+                })
+            cloud_params.append(
+                {
+                    'key': 'PEERING_ID',
+                    'value': os.environ['aws_peering_id']
+                })
         else:
-            secondary_parameters = {
-                "aws_notebook_vpc_id": os.environ['aws_vpc_id'],
-                "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
-            }
-        mongo_parameters.update(secondary_parameters)
+            cloud_params.append(
+                {
+                    'key': 'SUBNET2_ID',
+                    'value': os.environ['aws_subnet_id']
+                })
+            cloud_params.append(
+                {
+                    'key': 'VPC2_ID',
+                    'value': os.environ['aws_vpc_id']
+                })
+            cloud_params.append(
+                {
+                    'key': 'PEERING_ID',
+                    'value': ''
+                })
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
         params = "--hostname {} " \
@@ -354,7 +497,7 @@ if __name__ == "__main__":
                  "--aws_job_enabled {} " \
                  "--report_path '{}' " \
                  "--billing_enabled {} " \
-                 "--mongo_parameters '{}' " \
+                 "--cloud_params '{}' " \
                  "--dlab_id '{}' " \
                  "--usage_date {} " \
                  "--product {} " \
@@ -370,7 +513,7 @@ if __name__ == "__main__":
                    os.environ['conf_os_family'],
                    os.environ['request_id'],
                    os.environ['conf_resource'],
-                   os.environ['conf_service_base_name'],
+                   service_base_name,
                    os.environ['conf_tag_resource_id'],
                    os.environ['conf_billing_tag'],
                    os.environ['conf_cloud_provider'],
@@ -379,7 +522,7 @@ if __name__ == "__main__":
                    os.environ['aws_job_enabled'],
                    os.environ['aws_report_path'],
                    billing_enabled,
-                   json.dumps(mongo_parameters),
+                   json.dumps(cloud_params),
                    os.environ['dlab_id'],
                    os.environ['usage_date'],
                    os.environ['product'],

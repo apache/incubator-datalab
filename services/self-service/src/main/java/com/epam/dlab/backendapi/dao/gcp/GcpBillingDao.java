@@ -19,54 +19,48 @@
 
 package com.epam.dlab.backendapi.dao.gcp;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BillingDAO;
-import com.epam.dlab.backendapi.resources.dto.BillingFilter;
+import com.epam.dlab.backendapi.dao.BaseBillingDAO;
+import com.epam.dlab.backendapi.resources.dto.gcp.GcpBillingFilter;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
-public class GcpBillingDao implements BillingDAO<BillingFilter> {
-	@Override
-	public Double getTotalCost() {
-		return null;
-	}
+import java.util.Collections;
+import java.util.List;
 
-	@Override
-	public Double getUserCost(String user) {
-		return null;
-	}
+import static com.epam.dlab.MongoKeyWords.USAGE_FROM;
+import static com.epam.dlab.MongoKeyWords.USAGE_TO;
+import static com.epam.dlab.backendapi.dao.aws.AwsBillingDAO.DLAB_RESOURCE_TYPE;
+import static com.epam.dlab.model.aws.ReportLine.*;
+import static com.mongodb.client.model.Accumulators.*;
+import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Aggregates.sort;
 
-	@Override
-	public Double getProjectCost(String project) {
-		return null;
-	}
+public class GcpBillingDao extends BaseBillingDAO<GcpBillingFilter> {
+    @Override
+    protected Bson sortCriteria() {
+        return sort(new Document(ID + "." + USER, 1)
+                .append(ID + "." + FIELD_DLAB_ID, 1)
+                .append(ID + "." + FIELD_PRODUCT, 1));
+    }
 
-	@Override
-	public int getBillingQuoteUsed() {
-		return 0;
-	}
+    @Override
+    protected Bson groupCriteria() {
+        return group(getGroupingFields(USER, FIELD_DLAB_ID, DLAB_RESOURCE_TYPE, FIELD_PRODUCT,
+                currencyCodeFieldName(), FIELD_PROJECT),
+                sum(FIELD_COST, "$" + FIELD_COST),
+                min(USAGE_FROM, "$" + FIELD_USAGE_DATE),
+                max(USAGE_TO, "$" + FIELD_USAGE_DATE)
+        );
+    }
 
-	@Override
-	public int getBillingUserQuoteUsed(String user) {
-		return 0;
-	}
+    @Override
+    protected List<Bson> cloudMatchCriteria(GcpBillingFilter filter) {
+        return Collections.emptyList();
+    }
 
-	@Override
-	public boolean isBillingQuoteReached() {
-		return false;
-	}
 
-	@Override
-	public boolean isUserQuoteReached(String user) {
-		return false;
-	}
-
-	@Override
-	public boolean isProjectQuoteReached(String project) {
-		return false;
-	}
-
-	@Override
-	public Document getReport(UserInfo userInfo, BillingFilter filter) {
-		return null;
-	}
+    @Override
+    protected String getSsnShape() {
+        return "t2.medium";
+    }
 }

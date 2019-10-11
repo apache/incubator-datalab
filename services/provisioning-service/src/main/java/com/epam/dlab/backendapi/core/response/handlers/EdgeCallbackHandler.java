@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
@@ -41,14 +40,13 @@ public class EdgeCallbackHandler<E extends EdgeInfo, T extends UploadFileResult<
 
 	@JsonCreator
 	public EdgeCallbackHandler(
-			@JacksonInject SystemUserInfoService systemUserInfoService,
 			@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action,
 			@JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
 			@JsonProperty("callbackURI") String callbackURI,
 			@JsonProperty("responseType") Class<E> responseType,
 			@JsonProperty("resultType") Class<T> enclosingType) {
 
-		super(systemUserInfoService, selfService, user, uuid, action, enclosingType);
+		super(selfService, user, uuid, action, enclosingType);
 		this.callbackURI = callbackURI;
 		this.responseType = responseType;
 	}

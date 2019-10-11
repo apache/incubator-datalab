@@ -141,6 +141,26 @@ def configure_slave(slave_number, data_engine):
         append_result("Failed to configure slave node.", str(err))
         sys.exit(1)
 
+    try:
+        print('[INSTALLING USERs KEY]')
+        logging.info('[INSTALLING USERs KEY]')
+        additional_config = {"user_keyname": data_engine['user_keyname'], "user_keydir": os.environ['conf_key_dir']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            slave_hostname, keyfile_name, json.dumps(additional_config), data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_user_key', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            remove_ec2(data_engine['tag_name'], slave_name)
+        append_result("Failed install users key on slave node.", str(err))
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -161,7 +181,8 @@ if __name__ == "__main__":
             data_engine['computational_name'] = os.environ['computational_name']
         except:
             data_engine['computational_name'] = ''
-        data_engine['service_base_name'] = os.environ['conf_service_base_name']
+        data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
@@ -187,8 +208,12 @@ if __name__ == "__main__":
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         master_node_hostname = get_instance_hostname(data_engine['tag_name'], data_engine['master_node_name'])
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
+        data_engine['user_keyname'] = os.environ['project_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['project_name'] + '-edge'
+        data_engine['project_name'] = os.environ['project_name']
+        data_engine['endpoint_name'] = os.environ['endpoint_name']
+        edge_instance_name = '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                       data_engine['project_name'], data_engine['endpoint_name'])
         edge_instance_hostname = get_instance_hostname(data_engine['tag_name'], edge_instance_name)
         edge_instance_private_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Private')
         if data_engine['network_type'] == 'private':
@@ -296,6 +321,26 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         append_result("Failed to install prerequisites on master.", str(err))
+        sys.exit(1)
+
+    try:
+        print('[INSTALLING USERs KEY on MASTER NODE]')
+        logging.info('[INSTALLING USERs KEY]')
+        additional_config = {"user_keyname": data_engine['user_keyname'], "user_keydir": os.environ['conf_key_dir']}
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            master_node_hostname, keyfile_name, json.dumps(additional_config), data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_user_key', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            remove_ec2(data_engine['tag_name'], slave_name)
+        append_result("Failed install users key on master node.", str(err))
         sys.exit(1)
 
     try:

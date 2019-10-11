@@ -1,0 +1,278 @@
+[
+  {
+    "_id": "nbShapes_p2.xlarge_fetching",
+    "description": "Use p2.xlarge instance shape for notebook",
+    "exploratory_shapes": [
+      "p2.xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_t2.medium_fetching",
+    "description": "Use t2.medium instance shape for notebook",
+    "exploratory_shapes": [
+      "t2.medium"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_r3.xlarge_fetching",
+    "description": "Use r3.xlarge instance shape for notebook",
+    "exploratory_shapes": [
+      "r3.xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_r4.2xlarge_fetching",
+    "description": "Use r4.2xlarge instance shape for notebook",
+    "exploratory_shapes": [
+      "r4.2xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_r3.4xlarge_fetching",
+    "description": "Use r3.4xlarge instance shape for notebook",
+    "exploratory_shapes": [
+      "r3.4xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_r3.8xlarge_fetching",
+    "description": "Use r3.8xlarge instance shape for notebook",
+    "exploratory_shapes": [
+      "r3.8xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_c4.large_fetching",
+    "description": "Use c4.large instance shape for notebook",
+    "exploratory_shapes": [
+      "c4.large"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_c4.2xlarge_fetching",
+    "description": "Use c4.2xlarge instance shape for notebook",
+    "exploratory_shapes": [
+      "c4.2xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_c4.8xlarge_fetching",
+    "description": "Use c4.8xlarge instance shape for notebook",
+    "exploratory_shapes": [
+      "c4.8xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateDeeplearning",
+    "description": "Create Notebook Deep Learning",
+    "exploratories": [
+      "docker.dlab-deeplearning"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateJupyter",
+    "description": "Create Notebook Jupyter",
+    "exploratories": [
+      "docker.dlab-jupyter"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateRstudio",
+    "description": "Create Notebook RStudio",
+    "exploratories": [
+      "docker.dlab-rstudio"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateTensor",
+    "description": "Create Notebook Jupyter with TensorFlow",
+    "exploratories": [
+      "docker.dlab-tensor"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateZeppelin",
+    "description": "Create Notebook Apache Zeppelin",
+    "exploratories": [
+      "docker.dlab-zeppelin"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateTensorRstudio",
+    "description": "Create Notebook RStudio with TensorFlow",
+    "exploratories": [
+      "docker.dlab-tensor-rstudio"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateDataEngine",
+    "description": "Create Data Engine",
+    "computationals": [
+      "docker.dlab-dataengine"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateDataEngineService",
+    "description": "Create Data Engine Service",
+    "computationals": [
+      "docker.dlab-dataengine-service"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_c4.xlarge_fetching",
+    "description": "Use c4.xlarge instance shape for cluster",
+    "computational_shapes": [
+      "c4.xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_r3.xlarge_fetching",
+    "description": "Use r3.xlarge instance shape for cluster",
+    "computational_shapes": [
+      "r3.xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_r4.2xlarge_fetching",
+    "description": "Use r4.2xlarge instance shape for cluster",
+    "computational_shapes": [
+      "r4.2xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_r3.4xlarge_fetching",
+    "description": "Use r3.4xlarge instance shape for cluster",
+    "computational_shapes": [
+      "r3.4xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_r3.8xlarge_fetching",
+    "description": "Use r3.8xlarge instance shape for cluster",
+    "computational_shapes": [
+      "r3.8xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_c4.2xlarge_fetching",
+    "description": "Use c4.2xlarge instance shape for cluster",
+    "computational_shapes": [
+      "c4.2xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_c4.8xlarge_fetching",
+    "description": "Use c4.8xlarge instance shape for cluster",
+    "computational_shapes": [
+      "c4.8xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_p2.xlarge_fetching",
+    "description": "Use p2.xlarge instance shape for cluster",
+    "computational_shapes": [
+      "p2.xlarge"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbBillingReportFull",
+    "description": "View full billing report for all users",
+    "pages": [
+      "/api/infrastructure_provision/billing"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "admin",
+    "description": "Allow to execute administration operation",
+    "pages": [
+      "environment/*",
+      "/api/infrastructure/backup",
+      "/roleManagement",
+      "/api/settings",
+      "/user/settings",
+      "/api/project",
+      "/api/endpoint"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  }
+]

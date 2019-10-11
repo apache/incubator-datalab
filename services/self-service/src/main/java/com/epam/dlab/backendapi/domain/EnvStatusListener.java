@@ -21,8 +21,9 @@
 package com.epam.dlab.backendapi.domain;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.EnvDAO;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserEnvironmentResources;
@@ -61,6 +62,8 @@ public class EnvStatusListener implements Managed {
 
 	@Inject
 	private RequestId requestId;
+	@Inject
+	private EndpointService endpointService;
 
 	@Inject
 	public EnvStatusListener(SelfServiceApplicationConfiguration configuration, EnvDAO dao,
@@ -138,26 +141,24 @@ public class EnvStatusListener implements Managed {
 		 * Sends request to docker to check the status of user environment.
 		 *
 		 * @param userInfo username
-		 * @return UUID associated with async operation
 		 */
-		private String checkStatusThroughProvisioningService(UserInfo userInfo) {
+		private void checkStatusThroughProvisioningService(UserInfo userInfo) {
 
-			String uuid = null;
-			EnvResourceList resourceList = dao.findEnvResources(userInfo.getName());
+			final Map<String, EnvResourceList> envResources = dao.findEnvResources(userInfo.getName());
 			UserEnvironmentResources dto = requestBuilder.newUserEnvironmentStatus(userInfo);
 
-			log.trace("EnvStatus listener check status for user {} with resource list {}", userInfo.getName(),
-					resourceList);
-
-			if (resourceList.getHostList() != null || resourceList.getClusterList() != null) {
+			envResources.forEach((endpoint, resourceList) -> {
+				log.trace("EnvStatus listener check status for user {} with resource list {}", userInfo.getName(),
+						resourceList);
 				dto.withResourceList(resourceList);
 				log.trace("Ask docker for the status of resources for user {}: {}", userInfo.getName(), dto);
-				uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_STATUS, userInfo.getAccessToken(),
-						dto, String.class);
+				String uuid =
+						provisioningService.post(endpointService.get(endpoint).getUrl() + InfrasctructureAPI.INFRASTRUCTURE_STATUS,
+								userInfo.getAccessToken(),
+								dto, String.class);
 				requestId.put(userInfo.getName(), uuid);
-			}
 
-			return uuid;
+			});
 		}
 	}
 }

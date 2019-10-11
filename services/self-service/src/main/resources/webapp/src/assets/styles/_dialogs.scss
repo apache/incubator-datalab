@@ -58,6 +58,7 @@ mat-dialog-container {
   &.mat-dialog-container {
     padding: 0;
     border-radius: 0;
+    overflow-x: hidden;
 
     #dialog-box {
       color: $modal-text-color;
@@ -119,11 +120,6 @@ mat-dialog-container {
 
         &>div>div {
           margin-top: 5px;
-        }
-
-        .butt-generate {
-          color: #35afd5;
-          width: 170px;
         }
       }
 

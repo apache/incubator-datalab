@@ -19,13 +19,17 @@
 
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { MatStepper } from '@angular/material/stepper';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 
-import { ProjectService, RolesGroupsService, EndpointService } from '../../../core/services';
+import { ProjectService, RolesGroupsService, EndpointService, UserAccessKeyService } from '../../../core/services';
 import { ProjectDataService } from '../project-data.service';
-import { CheckUtils, PATTERNS } from '../../../core/util';
+import { CheckUtils, FileUtils, PATTERNS } from '../../../core/util';
 import { Project } from '../project.component';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+
+export interface GenerateKey { privateKey: string, publicKey: string };
 
 @Component({
   selector: 'project-form',
@@ -33,6 +37,8 @@ import { Project } from '../project.component';
   styleUrls: ['./project-form.component.scss']
 })
 export class ProjectFormComponent implements OnInit {
+
+  readonly DICTIONARY = DICTIONARY;
 
   public projectForm: FormGroup;
   public groupsList: any = [];
@@ -43,7 +49,7 @@ export class ProjectFormComponent implements OnInit {
 
   @Input() item: any;
   @Output() update: EventEmitter<{}> = new EventEmitter();
-  @ViewChild('stepper') stepper;
+  @ViewChild('stepper', { static: true }) stepper: MatStepper;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -54,6 +60,7 @@ export class ProjectFormComponent implements OnInit {
     private projectDataService: ProjectDataService,
     private rolesService: RolesGroupsService,
     private endpointService: EndpointService,
+    private userAccessKeyService: UserAccessKeyService,
     private cd: ChangeDetectorRef
   ) { }
 
@@ -93,8 +100,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public generateProjectTag($event) {
-    let user_tag = `dlab-${$event.target.value}`;
-    this.projectForm.controls.tag.setValue(user_tag.toLowerCase());
+    this.projectForm.controls.tag.setValue($event.target.value.toLowerCase());
   }
 
   public onFileChange($event) {
@@ -118,6 +124,18 @@ export class ProjectFormComponent implements OnInit {
     }
   }
 
+  public generateUserAccessKey() {
+    this.userAccessKeyService.generateAccessKey().subscribe((data: any) => {
+      const parsedData = JSON.parse(data.body);
+      const keyName = `${parsedData.username}.pem`;
+      FileUtils.downloadFile(data, parsedData.privateKey, keyName);
+
+      this.projectForm.controls.key.setValue(parsedData.publicKey);
+      this.keyLabel = keyName;
+      this.accessKeyValid = true;
+    });
+  }
+
   public selectOptions(list, key, select?) {
     let filter = key === 'endpoints' ? list.map(el => el.name) : list;
     this.projectForm.controls[key].setValue(select ? filter : []);
@@ -126,26 +144,30 @@ export class ProjectFormComponent implements OnInit {
   private initFormModel(): void {
     this.projectForm = this._fb.group({
       'key': ['', Validators.required],
-      'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this), this.providerMaxLength.bind(this)])],
+      'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.projectName), this.checkDuplication.bind(this), this.providerMaxLength.bind(this)])],
       'endpoints': [[], Validators.required],
-      'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
+      'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.projectName)])],
       'groups': [[], Validators.required]
     });
   }
 
   public editSpecificProject(item: Project) {
+    let endpoints = item.endpoints.map((item: any) => item.name);
 
     this.projectForm = this._fb.group({
       'key': [''],
       'name': [item.name, Validators.required],
-      'endpoints': [item.endpoints],
+      'endpoints': [endpoints],
       'tag': [item.tag, Validators.required],
       'groups': [item.groups, Validators.required]
     });
   }
 
   isDisabled(endpoint: any): boolean {
-    return this.item && this.item.endpoints.includes(endpoint);
+    if (this.item) {
+      const endpoints = this.item.endpoints.map((item: any) => item.name);
+      return endpoints.includes(endpoint);
+    }
   }
 
   private getLabel(file: File): string {
@@ -178,6 +200,6 @@ export class ProjectFormComponent implements OnInit {
   }
 
   private providerMaxLength(control) {
-    return control.value.length <= 50 ? null : { limit: true };
+    return control.value.length <= DICTIONARY.max_project_name_length ? null : { limit: true };
   }
 }

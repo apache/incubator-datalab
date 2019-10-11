@@ -29,10 +29,12 @@ import java.util.Map;
 @AllArgsConstructor
 @ToString
 public class ProjectInfrastructureInfo {
-    @JsonProperty
-    private String project;
-    @JsonProperty
-    private Map<String, String> shared;
-    @JsonProperty
-    private Iterable<Document> exploratory;
+	@JsonProperty
+	private String project;
+	@JsonProperty
+	private int billingQuoteUsed;
+	@JsonProperty
+	private Map<String, Map<String, String>> shared;
+	@JsonProperty
+	private Iterable<Document> exploratory;
 }

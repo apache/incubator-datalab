@@ -18,7 +18,7 @@
  */
 
 import { Injectable, Inject, } from '@angular/core';
-import { DOCUMENT } from '@angular/platform-browser';
+import { DOCUMENT } from '@angular/common';
 
 import { BubbleComponent } from './bubble.component';
 
@@ -58,7 +58,7 @@ export class BubbleService {
 export class BubblesCollector {
   private bubbles: Array<BubbleComponent> = [];
 
-  constructor( @Inject(DOCUMENT) private document: any) {
+  constructor(@Inject(DOCUMENT) private document: any) {
     this.document.addEventListener('click', () => {
       this.bubbles.filter((component: BubbleComponent) => component.isVisible)
         .forEach((component: BubbleComponent) => component.hide());

@@ -74,10 +74,9 @@ parser.add_argument('--additional_emr_sg', type=str, default='')
 args = parser.parse_args()
 
 try:
-    os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+    os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(os.environ['project_name'], os.environ['endpoint_name'])
 except KeyError:
-    os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
-print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+    os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(os.environ['project_name'], os.environ['endpoint_name'])
 
 if args.region == 'us-east-1':
     endpoint_url = 'https://s3.amazonaws.com'
@@ -307,15 +306,6 @@ def build_emr_cluster(args):
                      'Value': '{}:{}'.format(args.service_base_name, args.name)})
         tags.append({'Key': os.environ['conf_billing_tag_key'],
                      'Value': os.environ['conf_billing_tag_value']})
-        if 'conf_additional_tags' in os.environ:
-            for tag in os.environ['conf_additional_tags'].split(';'):
-                tags.append(
-                    {
-                        'Key': tag.split(':')[0],
-                        'Value': tag.split(':')[1]
-                    }
-                )
-    
         prefix = "jars/" + args.release_label + "/lib/"
         jars_exist = get_object_count(args.s3_bucket, prefix)
     

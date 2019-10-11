@@ -19,7 +19,7 @@
 
 package com.epam.dlab.backendapi.validation;
 
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.validation.CloudConfigurationSequenceProvider;
 
 public class SelfServiceCloudConfigurationSequenceProvider

@@ -23,7 +23,7 @@
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content selection">
-    <div class="content-box mat-reset">
+    <div id="scrolling" class="content-box mat-reset scrolling-content">
       <form [formGroup]="createExploratoryForm" *ngIf="createExploratoryForm" novalidate>
         <div class="control-group">
           <label class="label">Select project</label>
@@ -31,8 +31,8 @@
             <mat-form-field>
               <mat-label>Select project</mat-label>
               <mat-select formControlName="project" disableOptionCentering>
-                <mat-option *ngFor="let project of projects" [value]="project.name"
-                  (click)="getTemplates($event, project)">{{ project.name }}</mat-option>
+                <mat-option *ngFor="let project of projects" [value]="project.name" (click)="setEndpoints(project)">
+                  {{ project.name }}</mat-option>
                 <mat-option *ngIf="!projects.length" class="multiple-select ml-10" disabled>Projects list is empty
                 </mat-option>
               </mat-select>
@@ -49,7 +49,7 @@
             <mat-form-field>
               <mat-label>Select endpoint</mat-label>
               <mat-select formControlName="endpoint" disableOptionCentering [disabled]="!endpoints.length">
-                <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">{{ endpoint }}</mat-option>
+                <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint" (click)="getTemplates(createExploratoryForm?.controls['project'].value, endpoint)">{{ endpoint }}</mat-option>
                 <mat-option *ngIf="!endpoints.length" class="multiple-select ml-10" disabled>Endpoints list is empty
                 </mat-option>
               </mat-select>
@@ -98,7 +98,7 @@
           </div>
         </div>
 
-        <div class="control-group">
+        <div class="control-group name-control">
           <label class="label">Name</label>
           <div class="control">
             <input [class.danger_field]="notebookExist || !createExploratoryForm?.controls['name'].valid
@@ -135,11 +135,14 @@
           </div>
         </div>
 
-        <div class="control-group">
+        <div class="control-group m-bott-10">
           <label class="label">Custom tag</label>
           <div class="control">
             <input type="text" class="form-control" placeholder="Enter custom tag" formControlName="custom_tag">
           </div>
+          <span class="error"
+            *ngIf="!createExploratoryForm?.controls.custom_tag.valid && createExploratoryForm?.controls.custom_tag.dirty">
+            Custom tag can only contain letters, numbers, hyphens and '_' but can not end with special characters</span>
         </div>
 
         <div *ngIf="currentTemplate">

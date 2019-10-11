@@ -1,17 +1,20 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.project.ProjectActionDTO;
-import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.client.RESTService;
@@ -19,9 +22,11 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
@@ -39,17 +44,21 @@ public class ProjectServiceImpl implements ProjectService {
 	private final UserGroupDao userGroupDao;
 	private final RESTService provisioningService;
 	private final RequestId requestId;
+	private final RequestBuilder requestBuilder;
+	private final EndpointService endpointService;
 
 	@Inject
 	public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
 							  UserGroupDao userGroupDao,
 							  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-							  RequestId requestId) {
+							  RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService) {
 		this.projectDAO = projectDAO;
 		this.exploratoryService = exploratoryService;
 		this.userGroupDao = userGroupDao;
 		this.provisioningService = provisioningService;
 		this.requestId = requestId;
+		this.requestBuilder = requestBuilder;
+		this.endpointService = endpointService;
 	}
 
 	@Override
@@ -58,9 +67,9 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
+	public List<ProjectDTO> getUserActiveProjects(UserInfo userInfo) {
 		userInfo.getRoles().add(ANY_USER_ROLE);
-		return projectDAO.getUserProjectsWithStatus(userInfo, ProjectDTO.Status.ACTIVE);
+		return projectDAO.getUserProjects(userInfo);
 	}
 
 	@Override
@@ -68,6 +77,7 @@ public class ProjectServiceImpl implements ProjectService {
 		return projectDAO.getProjectsWithStatus(status);
 	}
 
+	@BudgetLimited
 	@Override
 	public void create(UserInfo user, ProjectDTO projectDTO) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
@@ -85,29 +95,49 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public void terminate(UserInfo userInfo, String name) {
-		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API);
-		exploratoryService.updateProjectExploratoryStatuses(name, UserInstanceStatus.TERMINATING);
-		projectDAO.updateStatus(name, ProjectDTO.Status.DELETING);
+	public void terminateEndpoint(UserInfo userInfo, String endpoint, String name) {
+		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
+		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
+		exploratoryService.updateProjectExploratoryStatuses(name, endpoint, UserInstanceStatus.TERMINATING);
 	}
 
 	@Override
-	public void start(UserInfo userInfo, String name) {
-		projectActionOnCloud(userInfo, name, START_PRJ_API);
-		projectDAO.updateStatus(name, ProjectDTO.Status.ACTIVATING);
+	public void terminateProject(UserInfo userInfo, String name) {
+		get(name).getEndpoints()
+				.stream()
+				.map(ProjectEndpointDTO::getName)
+				.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
+	}
+
+	@BudgetLimited
+	@Override
+	public void start(UserInfo userInfo, String endpoint, @Project String name) {
+		projectActionOnCloud(userInfo, name, START_PRJ_API, endpoint);
+		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STARTING);
 	}
 
 	@Override
-	public void stop(UserInfo userInfo, String name) {
-		projectActionOnCloud(userInfo, name, STOP_PRJ_API);
-		projectDAO.updateStatus(name, ProjectDTO.Status.DEACTIVATING);
+	public void stop(UserInfo userInfo, String endpoint, String name) {
+		projectActionOnCloud(userInfo, name, STOP_PRJ_API, endpoint);
+		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STOPPING);
 	}
 
 	@Override
-	public void update(UpdateProjectDTO projectDTO) {
-		if (!projectDAO.update(projectDTO)) {
-			throw projectNotFound().get();
-		}
+	public void update(UserInfo userInfo, UpdateProjectDTO projectDTO) {
+		final ProjectDTO project = projectDAO.get(projectDTO.getName()).orElseThrow(projectNotFound());
+		final Set<String> endpoints = project.getEndpoints()
+				.stream()
+				.map(ProjectEndpointDTO::getName)
+				.collect(toSet());
+		final HashSet<String> newEndpoints = new HashSet<>(projectDTO.getEndpoints());
+		newEndpoints.removeAll(endpoints);
+		final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints.stream()
+				.map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
+				.collect(Collectors.toList());
+		project.getEndpoints().addAll(endpointsToBeCreated);
+		projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
+				project.getTag(), project.getBudget(), project.getEndpoints()));
+		endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, project, e.getName()));
 	}
 
 	@Override
@@ -130,24 +160,28 @@ public class ProjectServiceImpl implements ProjectService {
 
 	private void createProjectOnCloud(UserInfo user, ProjectDTO projectDTO) {
 		try {
-			final ProjectCreateDTO projectDto = ProjectCreateDTO.builder()
-					.key(projectDTO.getKey())
-					.name(projectDTO.getName())
-					.tag(projectDTO.getTag())
-					.build();
-			String uuid = provisioningService.post(CREATE_PRJ_API, user.getAccessToken(), projectDto, String.class);
-			requestId.put(user.getName(), uuid);
+			projectDTO.getEndpoints().forEach(endpoint -> createEndpoint(user, projectDTO,
+					endpoint.getName()));
 		} catch (Exception e) {
 			log.error("Can not create project due to: {}", e.getMessage());
 			projectDAO.updateStatus(projectDTO.getName(), ProjectDTO.Status.FAILED);
 		}
 	}
 
+	private void createEndpoint(UserInfo user, ProjectDTO projectDTO, String endpointName) {
+		String uuid =
+				provisioningService.post(endpointService.get(endpointName).getUrl() + CREATE_PRJ_API,
+						user.getAccessToken(),
+						requestBuilder.newProjectCreate(user, projectDTO, endpointName), String.class);
+		requestId.put(user.getName(), uuid);
+	}
 
-	private void projectActionOnCloud(UserInfo user, String projectName, String provisioningApiUri) {
+
+	private void projectActionOnCloud(UserInfo user, String projectName, String provisioningApiUri, String endpoint) {
 		try {
-			String uuid = provisioningService.post(provisioningApiUri, user.getAccessToken(),
-					new ProjectActionDTO(projectName), String.class);
+			String uuid = provisioningService.post(endpointService.get(endpoint).getUrl() + provisioningApiUri,
+					user.getAccessToken(),
+					requestBuilder.newProjectAction(user, projectName, endpoint), String.class);
 			requestId.put(user.getName(), uuid);
 		} catch (Exception e) {
 			log.error("Can not terminate project due to: {}", e.getMessage());

@@ -21,8 +21,8 @@ export const NAMING_CONVENTION = {
     'cloud_provider': 'azure',
     'use_ldap': true,
     'notebook_instance_size': 'Virtual machine size',
-    'personal_storage': 'Personal storage',
-    'collaboration_storage': 'Collaboration storage',
+    'personal_storage': 'Shared bucket',
+    'collaboration_storage': 'Shared project bucket',
     'account': 'Account:',
     'container': 'Container:',
     'data_engine': 'Deploy Spark Server / Deploy HDInsight',
@@ -35,17 +35,18 @@ export const NAMING_CONVENTION = {
 
     'spot_instance': 'Low-priority virtual machines',
     'cluster_version': '',
+    'max_cluster_name_length': 10,
     'billing': {
         'resourceName': 'resourceName',
         'cost': 'costString',
-        'costTotal': 'costString',
+        'costTotal': 'cost_total',
         'currencyCode': 'currencyCode',
         'dateFrom': 'from',
         'dateTo': 'to',
         'service': 'meterCategory',
         'service_filter_key': 'category',
         'type': '',
-        'resourceType': 'resourceType',
+        'resourceType': 'resource_type',
         'instance_size': 'size',
         'dlabId': 'dlabId'
     },
@@ -79,13 +80,14 @@ export const NAMING_CONVENTION = {
         'instance_number': 'Total node number',
         'master_node_shape': 'dataengine_instance_shape',
         'total_instance_number': 'dataengine_instance_count'
-    }
+    },
+    'max_project_name_length': 30
 };
 
 export class ReportingConfigModel {
 
     static getDefault(): ReportingConfigModel {
-        return new ReportingConfigModel([], [], [], [], [], '', '', '');
+        return new ReportingConfigModel([], [], [], [], [], '', '', '', []);
     }
 
     constructor(
@@ -96,7 +98,8 @@ export class ReportingConfigModel {
         public size: Array<string>,
         public date_start: string,
         public date_end: string,
-        public dlab_id: string
+        public dlab_id: string,
+        public project?: Array<string>
     ) { }
 
     defaultConfigurations(): void {
@@ -108,5 +111,6 @@ export class ReportingConfigModel {
         this.date_start = '';
         this.date_end = '';
         this.dlab_id = '';
+        this.project = [];
     }
 }

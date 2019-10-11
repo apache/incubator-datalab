@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
@@ -72,12 +71,11 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
 	 */
 	@JsonCreator
 	public LibInstallCallbackHandler(
-			@JacksonInject SystemUserInfoService systemUserInfoService,
 			@JacksonInject RESTService selfService,
 			@JsonProperty("action") DockerAction action,
 			@JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
 			@JsonProperty("dto") LibraryInstallDTO dto) {
-		super(systemUserInfoService, selfService, user, uuid, action);
+		super(selfService, user, uuid, action);
 		this.dto = dto;
 	}
 
@@ -100,7 +98,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
 		try {
 			final List<LibInstallDTO> libs = mapper.readValue(nodeLibs.toString(),
 					new TypeReference<List<LibInstallDTO>>() {
-			});
+					});
 			status.withLibs(libs);
 		} catch (IOException e) {
 			log.warn("Can't parse field {} for UUID {} in JSON", LIBS_ABSOLUTE_PATH, getUUID(), e);

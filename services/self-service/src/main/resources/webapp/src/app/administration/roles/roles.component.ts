@@ -19,7 +19,7 @@
 
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { ValidatorFn, FormControl } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { RolesGroupsService, HealthStatusService } from '../../core/services';
@@ -147,11 +147,10 @@ export class RolesComponent implements OnInit {
             this.getGroupsData();
           }, () => this.toastr.error('Failed users deleting!', 'Oops!'));
         } else if ($event.type === 'group') {
-          console.log('delete group');
           this.rolesService.removeGroupById($event.value).subscribe(res => {
             this.toastr.success('Group was successfully deleted!', 'Success!');
             this.getGroupsData();
-          }, () => this.toastr.error('Failed group deleting!', 'Oops!'));
+          }, (error) => this.toastr.error(error.message, 'Oops!'));
         }
         break;
       default:
@@ -174,9 +173,9 @@ export class RolesComponent implements OnInit {
   }
 
   public groupValidarion(): ValidatorFn {
-    const duplicateList: any = this.groupsData.map(item => item.group);
+    const duplicateList: any = this.groupsData.map(item => item.group.toLowerCase());
     return <ValidatorFn>((control: FormControl) => {
-      if (control.value && duplicateList.includes(CheckUtils.delimitersFiltering(control.value))) {
+      if (control.value && duplicateList.includes(CheckUtils.delimitersFiltering(control.value.toLowerCase()))) {
         return { duplicate: true };
       }
 

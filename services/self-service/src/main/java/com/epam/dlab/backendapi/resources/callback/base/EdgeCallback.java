@@ -19,11 +19,11 @@
 
 package com.epam.dlab.backendapi.resources.callback.base;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
+import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
@@ -40,7 +40,7 @@ public class EdgeCallback {
 	@Inject
 	private ExploratoryService exploratoryService;
 	@Inject
-	private SystemUserInfoService systemUserService;
+	private SecurityService securityService;
 	@Inject
 	private ReuploadKeyService reuploadKeyService;
 
@@ -69,7 +69,7 @@ public class EdgeCallback {
 		}
 		if (UserInstanceStatus.of(status) == RUNNING && edgeInfo.isReuploadKeyRequired()) {
 			ResourceData resourceData = ResourceData.edgeResource(edgeInfo.getInstanceId());
-			UserInfo userInfo = systemUserService.create(user);
+			UserInfo userInfo = securityService.getUserInfoOffline(user);
 			reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
 		}
 	}

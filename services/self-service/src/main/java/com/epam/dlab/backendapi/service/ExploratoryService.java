@@ -40,7 +40,8 @@ public interface ExploratoryService {
 	String create(UserInfo userInfo, Exploratory exploratory, String project);
 
 	void updateExploratoryStatuses(String user, UserInstanceStatus status);
-	void updateProjectExploratoryStatuses(String project, UserInstanceStatus status);
+
+	void updateProjectExploratoryStatuses(String project, String endpoint, UserInstanceStatus status);
 
 	void updateExploratoriesReuploadKeyFlag(String user, boolean reuploadKeyRequired,
 											UserInstanceStatus... exploratoryStatuses);

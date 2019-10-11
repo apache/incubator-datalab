@@ -20,6 +20,7 @@
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.dto.KeysDTO;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 
 public interface AccessKeyService {
@@ -32,4 +33,5 @@ public interface AccessKeyService {
 
 	String generateKey(UserInfo userInfo, boolean createEdge);
 
+	KeysDTO generateKeys(UserInfo userInfo);
 }

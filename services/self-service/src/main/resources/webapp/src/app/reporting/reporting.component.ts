@@ -59,8 +59,8 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 export class ReportingComponent implements OnInit, OnDestroy {
   readonly DICTIONARY = DICTIONARY;
 
-  @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
-  @ViewChild(ToolbarComponent) reportingToolbar: ToolbarComponent;
+  @ViewChild(ReportingGridComponent, { static: false }) reportingGrid: ReportingGridComponent;
+  @ViewChild(ToolbarComponent, { static: true }) reportingToolbar: ToolbarComponent;
 
   reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
@@ -72,7 +72,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
     public toastr: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.rebuildBillingReport();
@@ -87,14 +87,15 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
-        this.reportingGrid.reportData = this.data;
+        this.reportingGrid.refreshData(this.data, this.data.lines);
         this.reportingGrid.setFullReport(this.data.full_report);
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
-          localStorage.setItem('report_period' , JSON.stringify({
+          localStorage.setItem('report_period', JSON.stringify({
             start_date: this.data[DICTIONARY.billing.dateFrom],
-            end_date: this.data[DICTIONARY.billing.dateTo]}));
+            end_date: this.data[DICTIONARY.billing.dateTo]
+          }));
           this.reportingToolbar.setDateRange();
         }
 
@@ -104,7 +105,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
         } else {
           this.getDefaultFilterConfiguration(this.data);
         }
-     });
+      });
   }
 
   rebuildBillingReport($event?): void {
@@ -124,7 +125,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getDefaultFilterConfiguration(data): void {
-    const users = [], types = [], shapes = [], services = [], statuses = [];
+    const users = [], types = [], shapes = [], services = [], statuses = [], projects = [];
 
     data.lines.forEach((item: any) => {
       if (item.user && users.indexOf(item.user) === -1)
@@ -133,17 +134,20 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1)
         statuses.push(item.status.toLowerCase());
 
+      if (item.project && projects.indexOf(item.project) === -1)
+        projects.push(item.project);
+
       if (item[DICTIONARY.billing.resourceType] && types.indexOf(item[DICTIONARY.billing.resourceType]) === -1)
         types.push(item[DICTIONARY.billing.resourceType]);
 
       if (item[DICTIONARY.billing.instance_size]) {
         if (item[DICTIONARY.billing.instance_size].indexOf('Master') > -1) {
           for (let shape of item[DICTIONARY.billing.instance_size].split('\n')) {
-              shape = shape.replace('Master: ', '');
-              shape = shape.replace(/Slave:\s+\d+ x /, '');
-              shape = shape.replace(/\s+/g, '');
+            shape = shape.replace('Master: ', '');
+            shape = shape.replace(/Slave:\s+\d+ x /, '');
+            shape = shape.replace(/\s+/g, '');
 
-              shapes.indexOf(shape) === -1 && shapes.push(shape);
+            shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
         } else if (item[DICTIONARY.billing.instance_size].match(/\d x \S+/)) {
           const parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
@@ -160,9 +164,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
     });
 
     if (!this.reportingGrid.filterConfiguration || !localStorage.getItem('report_config')) {
-      this.filterConfiguration = new ReportingConfigModel(users, services, types, statuses, shapes, '', '', '');
+      this.filterConfiguration = new ReportingConfigModel(users, services, types, statuses, shapes, '', '', '', projects);
       this.reportingGrid.setConfiguration(this.filterConfiguration);
-      localStorage.setItem('report_config' , JSON.stringify(this.filterConfiguration));
+      localStorage.setItem('report_config', JSON.stringify(this.filterConfiguration));
     }
   }
 

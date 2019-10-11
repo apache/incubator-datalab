@@ -434,6 +434,9 @@ def install_ungit(os_user, notebook_name, edge_ip):
             sudo(
                 'echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(
                     edge_ip, os_user))
+            sudo(
+                'echo -e "Host gitlab.com\n   HostName gitlab.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(
+                    edge_ip, os_user))
             sudo('systemctl daemon-reload')
             sudo('systemctl enable ungit.service')
             sudo('systemctl start ungit.service')

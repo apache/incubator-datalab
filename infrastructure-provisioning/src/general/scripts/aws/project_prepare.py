@@ -41,10 +41,13 @@ if __name__ == "__main__":
     create_aws_config_files()
     print('Generating infrastructure names and tags')
     project_conf = dict()
-    project_conf['service_base_name'] = os.environ['conf_service_base_name']
-    project_conf['endpoint_name'] = '{}-endpoint'.format(os.environ['conf_service_base_name'])
+    project_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    project_conf['endpoint_name'] = '{0}-{1}-endpoint'.format(project_conf['service_base_name'],
+                                                              os.environ['endpoint_name'])
+    project_conf['endpoint_tag'] = os.environ['endpoint_name']
     project_conf['project_name'] = os.environ['project_name']
-    project_conf['project_tag'] = os.environ['project_tag']
+    project_conf['project_tag'] = os.environ['project_name']
     project_conf['key_name'] = os.environ['conf_key_name']
     project_conf['public_subnet_id'] = os.environ['aws_subnet_id']
     project_conf['vpc_id'] = os.environ['aws_vpc_id']
@@ -52,22 +55,23 @@ if __name__ == "__main__":
     project_conf['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
     project_conf['instance_size'] = os.environ['aws_edge_instance_size']
     project_conf['sg_ids'] = os.environ['aws_security_groups_ids']
-    project_conf['edge_instance_name'] = '{}-{}-edge'.format(project_conf['service_base_name'], os.environ['project_name'])
+    project_conf['edge_instance_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
+                                                                os.environ['project_name'], os.environ['endpoint_name'])
     project_conf['tag_name'] = '{}-Tag'.format(project_conf['service_base_name'])
     project_conf['bucket_name_tag'] = '{}-{}-bucket'.format(project_conf['service_base_name'],
                                                      os.environ['project_name'])
     project_conf['bucket_name'] = project_conf['bucket_name_tag'].lower().replace('_', '-')
-    project_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(project_conf['service_base_name']).lower().replace('_', '-')
-    project_conf['shared_bucket_name'] = '{}-shared-bucket'.format(project_conf['service_base_name']).lower().replace('_',
-                                                                                                                '-')
-    project_conf['edge_role_name'] = '{}-{}-edge-Role'.format(project_conf['service_base_name'].lower().replace('-', '_'),
-                                                      os.environ['project_name'])
-    project_conf['edge_role_profile_name'] = '{}-{}-edge-Profile'.format(project_conf['service_base_name'].lower().replace('-',
-                                                                                                                '_'),
-                                                                 os.environ['project_name'])
-    project_conf['edge_policy_name'] = '{}-{}-edge-Policy'.format(project_conf['service_base_name'].lower().replace('-', '_'),
-                                                          os.environ['project_name'])
-    project_conf['edge_security_group_name'] = '{}-SG'.format(project_conf['edge_instance_name'])
+    project_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(
+        project_conf['service_base_name']).lower().replace('_', '-')
+    project_conf['shared_bucket_name'] = '{}-shared-bucket'.format(
+        project_conf['service_base_name']).lower().replace('_', '-')
+    project_conf['edge_role_name'] = '{}-{}-edge-Role'.format(
+        project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
+    project_conf['edge_role_profile_name'] = '{}-{}-edge-Profile'.format(
+        project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
+    project_conf['edge_policy_name'] = '{}-{}-edge-Policy'.format(
+        project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
+    project_conf['edge_security_group_name'] = '{}-sg'.format(project_conf['edge_instance_name'])
     project_conf['notebook_instance_name'] = '{}-{}-nb'.format(project_conf['service_base_name'],
                                                             os.environ['project_name'])
     project_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
@@ -78,7 +82,7 @@ if __name__ == "__main__":
         .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
     project_conf['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    project_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(project_conf['service_base_name'],
+    project_conf['notebook_security_group_name'] = '{}-{}-nb-sg'.format(project_conf['service_base_name'],
                                                                      os.environ['project_name'])
     project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
     project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'],
@@ -95,6 +99,14 @@ if __name__ == "__main__":
     project_conf['zone'] = os.environ['aws_region'] + os.environ['aws_zone']
     project_conf['elastic_ip_name'] = '{0}-{1}-edge-EIP'.format(project_conf['service_base_name'],
                                                              os.environ['project_name'])
+    project_conf['provision_instance_ip'] = None
+    try:
+        project_conf['provision_instance_ip'] = get_instance_ip_address(
+            project_conf['tag_name'], '{0}-{1}-endpoint'.format(project_conf['service_base_name'],
+                                                                os.environ['endpoint_name'])).get('Private') + "/32"
+    except:
+        project_conf['provision_instance_ip'] = get_instance_ip_address(project_conf['tag_name'], '{0}-ssn'.format(
+            project_conf['service_base_name'])).get('Private') + "/32"
     if 'aws_user_predefined_s3_policies' not in os.environ:
         os.environ['aws_user_predefined_s3_policies'] = 'None'
 
@@ -108,7 +120,8 @@ if __name__ == "__main__":
     try:
         project_conf['user_key'] = os.environ['key']
         try:
-            local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'], project_conf['project_name']))
+            local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
+                                                    project_conf['project_name']))
         except:
             print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
     except KeyError:
@@ -119,21 +132,24 @@ if __name__ == "__main__":
           format(json.dumps(project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(project_conf))
 
-    try:
-        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};project_name:{1}'.format(
-            project_conf['project_tag'], project_conf['project_name'])
-    except KeyError:
-        os.environ['conf_additional_tags'] = 'project_tag:{0};project_name:{1}'.format(project_conf['project_tag'],
-                                                                                        project_conf['project_name'])
+    if 'conf_additional_tags' in os.environ:
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + \
+                                             ';project_tag:{0};endpoint_tag:{1};'.format(
+                                                 project_conf['project_tag'], project_conf['endpoint_tag'])
+    else:
+        os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'],
+                                                                                       project_conf['endpoint_tag'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
+    # attach project_tag and endpoint_tag to endpoint
     try:
         endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
         print("Endpoint id: " + endpoint_id)
         ec2 = boto3.client('ec2')
-        ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']}, {'Key': 'project_name', 'Value': project_conf['project_name']}])
+        ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']},
+                                                       {'Key': 'endpoint_tag', 'Value': project_conf['endpoint_tag']}])
     except Exception as err:
-        print("Failed to attach Project tag to Enpoint", str(err))
+        print("Failed to attach Project tag to Endpoint", str(err))
 #        traceback.print_exc()
 #        sys.exit(1)
 
@@ -173,11 +189,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE EDGE ROLES]')
         print('[CREATE EDGE ROLES]')
+        user_tag = "{0}:{0}-{1}-edge-Role".format(project_conf['service_base_name'], project_conf['project_name'])
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
-                 "--infra_tag_value {}" \
+                 "--infra_tag_value {} --user_tag_value {}" \
                  .format(project_conf['edge_role_name'], project_conf['edge_role_profile_name'],
                          project_conf['edge_policy_name'], os.environ['aws_region'], project_conf['tag_name'],
-                         project_conf['service_base_name'])
+                         project_conf['service_base_name'], user_tag)
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -191,11 +208,13 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
         print('[CREATE BACKEND (NOTEBOOK) ROLES]')
+        user_tag = "{0}:{0}-{1}-nb-de-Role".format(project_conf['service_base_name'], project_conf['project_name'])
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
-                 "--infra_tag_value {}" \
-                 .format(project_conf['notebook_dataengine_role_name'], project_conf['notebook_dataengine_role_profile_name'],
-                         project_conf['notebook_dataengine_policy_name'], os.environ['aws_region'], project_conf['tag_name'],
-                         project_conf['service_base_name'])
+                 "--infra_tag_value {} --user_tag_value {}" \
+                 .format(project_conf['notebook_dataengine_role_name'],
+                         project_conf['notebook_dataengine_role_profile_name'],
+                         project_conf['notebook_dataengine_policy_name'], os.environ['aws_region'],
+                         project_conf['tag_name'], project_conf['service_base_name'], user_tag)
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -236,8 +255,7 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(project_conf['tag_name'], '{}-ssn'.format(
-                    project_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": project_conf['provision_instance_ip']}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
@@ -395,8 +413,7 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(project_conf['tag_name'], '{}-ssn'.format(
-                    project_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": project_conf['provision_instance_ip']}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
@@ -411,8 +428,7 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(project_conf['tag_name'], '{}-ssn'.format(
-                    project_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": project_conf['provision_instance_ip']}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             },
@@ -435,7 +451,8 @@ if __name__ == "__main__":
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
                  "--infra_tag_value {} --force {}".format(project_conf['notebook_security_group_name'],
                                                           project_conf['vpc2_id'], json.dumps(private_sg_ingress),
-                                                          json.dumps(private_sg_egress), project_conf['service_base_name'],
+                                                          json.dumps(private_sg_egress),
+                                                          project_conf['service_base_name'],
                                                           project_conf['notebook_instance_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
@@ -461,7 +478,8 @@ if __name__ == "__main__":
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
                  "--infra_tag_value {} --force {}".format(project_conf['dataengine_master_security_group_name'],
                                                           project_conf['vpc2_id'], json.dumps(private_sg_ingress),
-                                                          json.dumps(private_sg_egress), project_conf['service_base_name'],
+                                                          json.dumps(private_sg_egress),
+                                                          project_conf['service_base_name'],
                                                           project_conf['dataengine_instances_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
@@ -483,7 +501,8 @@ if __name__ == "__main__":
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} " \
                  "--infra_tag_value {} --force {}".format(project_conf['dataengine_slave_security_group_name'],
                                                           project_conf['vpc2_id'], json.dumps(private_sg_ingress),
-                                                          json.dumps(private_sg_egress), project_conf['service_base_name'],
+                                                          json.dumps(private_sg_egress),
+                                                          project_conf['service_base_name'],
                                                           project_conf['dataengine_instances_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
@@ -526,7 +545,8 @@ if __name__ == "__main__":
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} ' \
                  '--notebook_role_name {} --service_base_name {} --region {} ' \
-                 '--user_predefined_s3_policies "{}"'.format(project_conf['bucket_name'], project_conf['ssn_bucket_name'],
+                 '--user_predefined_s3_policies "{}"'.format(project_conf['bucket_name'],
+                                                             project_conf['ssn_bucket_name'],
                                                              project_conf['shared_bucket_name'],
                                                              os.environ['project_name'], project_conf['edge_role_name'],
                                                              project_conf['notebook_dataengine_role_name'],
@@ -553,9 +573,10 @@ if __name__ == "__main__":
         print('[CREATE EDGE INSTANCE]')
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} " \
                  "--subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
-            .format(project_conf['edge_instance_name'], project_conf['ami_id'], project_conf['instance_size'], project_conf['key_name'],
-                    project_group_id, project_conf['public_subnet_id'], project_conf['edge_role_profile_name'],
-                    project_conf['tag_name'], project_conf['edge_instance_name'])
+            .format(project_conf['edge_instance_name'], project_conf['ami_id'], project_conf['instance_size'],
+                    project_conf['key_name'], project_group_id, project_conf['public_subnet_id'],
+                    project_conf['edge_role_profile_name'], project_conf['tag_name'],
+                    project_conf['edge_instance_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
             edge_instance = get_instance_by_name(project_conf['tag_name'], project_conf['edge_instance_name'])
@@ -584,7 +605,8 @@ if __name__ == "__main__":
             except:
                 project_conf['elastic_ip'] = 'None'
             params = "--elastic_ip {} --edge_id {}  --infra_tag_name {} --infra_tag_value {}".format(
-                project_conf['elastic_ip'], project_conf['edge_id'], project_conf['tag_name'], project_conf['elastic_ip_name'])
+                project_conf['elastic_ip'], project_conf['edge_id'], project_conf['tag_name'],
+                project_conf['elastic_ip_name'])
             try:
                 local("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params))
             except:

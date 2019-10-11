@@ -54,8 +54,8 @@ if __name__ == "__main__":
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']
         notebook_config['region'] = os.environ['gcp_region']
         notebook_config['zone'] = os.environ['gcp_zone']
-        notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        notebook_config['project_name'] = os.environ['project_name'].replace('_', '-')
+        notebook_config['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
+        notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + notebook_config['project_name'] + \
                                           '-de-' + notebook_config['exploratory_name'] + '-' + \
                                           notebook_config['computational_name']
@@ -111,9 +111,11 @@ if __name__ == "__main__":
         params = "--hostname {0} " \
                  "--keyfile {1} " \
                  "--os_user {2} " \
+                 "--cluster_name {3}" \
             .format(notebook_config['notebook_ip'],
                     notebook_config['key_path'],
-                    notebook_config['dlab_ssh_user'])
+                    notebook_config['dlab_ssh_user'],
+                    notebook_config['cluster_name'])
         try:
             local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
         except:

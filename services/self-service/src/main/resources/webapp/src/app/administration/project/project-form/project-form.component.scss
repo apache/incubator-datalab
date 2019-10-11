@@ -20,11 +20,30 @@
 .form-block {
   width: 600px;
 
+  .row-wrap {
+    .col {
+      &.label {
+        width: 60%;
+      }
+
+      &.action {
+        width: 40%;
+        position: relative;
+
+        .ellipsis {
+          position: absolute;
+          width: 100%;
+          right: 0;
+        }
+      }
+    }
+  }
+
   &.split {
     flex-direction: column;
     display: flex;
     justify-content: space-between;
-    height: 210px;
+    height: 240px;
   }
 
   .mat-raised-button {
@@ -38,7 +57,7 @@
   .error {
     position: absolute;
     right: 0;
-    bottom: 2px;
+    bottom: -2px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 300;
   }

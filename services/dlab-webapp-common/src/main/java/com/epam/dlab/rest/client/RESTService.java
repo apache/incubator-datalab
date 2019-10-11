@@ -46,6 +46,11 @@ public class RESTService {
 		this.userAgent = userAgent;
 	}
 
+	RESTService(Client client, String userAgent) {
+		this.client = client;
+		this.userAgent = userAgent;
+	}
+
 	public <T> T get(String path, Class<T> clazz) {
 		Invocation.Builder builder = getBuilder(path);
 		log.debug("REST get {}", path);
@@ -110,8 +115,7 @@ public class RESTService {
 	}
 
 	private WebTarget getWebTarget(String path) {
-		return client
-				.target(url)
-				.path(path);
+		return url != null ?
+				client.target(url).path(path) : client.target(path);
 	}
 }

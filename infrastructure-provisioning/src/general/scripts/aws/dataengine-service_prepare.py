@@ -9,9 +9,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -52,21 +52,27 @@ if __name__ == "__main__":
     if os.path.exists('/response/.emr_creating_{}'.format(os.environ['exploratory_name'])):
         time.sleep(30)
     create_aws_config_files()
-    edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
-        os.environ['conf_service_base_name'] + '-' + os.environ['project_name'] + '-edge')
+    emr_conf = dict()
+    emr_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+        os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    emr_conf['project_name'] = os.environ['project_name']
+    emr_conf['endpoint_name'] = os.environ['endpoint_name']
+    edge_status = get_instance_status(emr_conf['service_base_name'] + '-Tag', '{0}-{1}-{2}-edge'
+                                      .format(emr_conf['service_base_name'],
+                                              emr_conf['project_name'],
+                                              emr_conf['endpoint_name']))
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
         ssn_hostname = get_instance_hostname(
-            os.environ['conf_service_base_name'] + '-Tag',
-            os.environ['conf_service_base_name'] + '-ssn')
+            emr_conf['service_base_name'] + '-Tag',
+            emr_conf['service_base_name'] + '-ssn')
         put_resource_status('edge', 'Unavailable',
                             os.environ['ssn_dlab_path'],
                             os.environ['conf_os_user'], ssn_hostname)
         append_result("Edge node is unavailable")
         sys.exit(1)
     print('Generating infrastructure names and tags')
-    emr_conf = dict()
     try:
         emr_conf['exploratory_name'] = os.environ['exploratory_name']
     except:
@@ -76,13 +82,16 @@ if __name__ == "__main__":
     except:
         emr_conf['computational_name'] = ''
     emr_conf['apps'] = 'Hadoop Hive Hue Spark'
-    emr_conf['service_base_name'] = os.environ['conf_service_base_name']
+
     emr_conf['tag_name'] = '{0}-Tag'.format(emr_conf['service_base_name'])
     emr_conf['key_name'] = os.environ['conf_key_name']
+    emr_conf['endpoint_tag'] = os.environ['endpoint_name']
+    emr_conf['project_tag'] = os.environ['project_name']
     emr_conf['region'] = os.environ['aws_region']
     emr_conf['release_label'] = os.environ['emr_version']
-    emr_conf['edge_instance_name'] = '{0}-{1}-edge'.format(emr_conf['service_base_name'], os.environ['project_name'])
-    emr_conf['edge_security_group_name'] = '{0}-SG'.format(emr_conf['edge_instance_name'])
+    emr_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'],
+                                                               os.environ['project_name'], emr_conf['endpoint_tag'])
+    emr_conf['edge_security_group_name'] = '{0}-sg'.format(emr_conf['edge_instance_name'])
     emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
     emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
     emr_conf['instance_count'] = os.environ['emr_instance_count']
@@ -121,6 +130,14 @@ if __name__ == "__main__":
         .format(emr_conf['service_base_name'], os.environ['project_name'])
     emr_conf['vpc_id'] = os.environ['aws_vpc_id']
     emr_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
+    emr_conf['provision_instance_ip'] = None
+    try:
+        emr_conf['provision_instance_ip'] = get_instance_ip_address(
+            emr_conf['tag_name'], '{0}-{1}-endpoint'.format(emr_conf['service_base_name'],
+                                                            os.environ['endpoint_name'])).get('Private') + "/32"
+    except:
+        emr_conf['provision_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'], '{0}-ssn'.format(
+            emr_conf['service_base_name'])).get('Private') + "/32"
     if os.environ['emr_slave_instance_spot'] == 'True':
         ondemand_price = float(get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region']))
         emr_conf['slave_bid_price'] = (ondemand_price * int(os.environ['emr_slave_instance_spot_pct_price'])) / 100
@@ -145,7 +162,7 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     try:
-        emr_waiter(os.environ['notebook_instance_name'])
+        emr_waiter(emr_conf['tag_name'], os.environ['notebook_instance_name'])
         local('touch /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
         traceback.print_exc()
@@ -175,9 +192,7 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(
-                    emr_conf['tag_name'], '{}-ssn'.format(
-                    emr_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": emr_conf['provision_instance_ip']}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
@@ -191,9 +206,7 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(
-                    emr_conf['tag_name'], '{}-ssn'.format(
-                    emr_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": emr_conf['provision_instance_ip']}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             },
@@ -227,6 +240,12 @@ if __name__ == "__main__":
                    emr_conf['service_base_name'],
                    emr_conf['cluster_name'], True)
         try:
+            if 'conf_additional_tags' in os.environ:
+                os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(
+                    emr_conf['project_tag'], emr_conf['endpoint_tag'])
+            else:
+                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(emr_conf['project_tag'], emr_conf['endpoint_tag'])
+            print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
             traceback.print_exc()

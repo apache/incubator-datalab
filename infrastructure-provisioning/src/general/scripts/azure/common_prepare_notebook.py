@@ -33,7 +33,7 @@ from Crypto.PublicKey import RSA
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -43,7 +43,12 @@ if __name__ == "__main__":
     # generating variables dictionary
     try:
         notebook_config = dict()
-        notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+        notebook_config['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
+        notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
+        notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        notebook_config['application'] = os.environ['application'].lower().replace('_', '-')
         
         print('Generating infrastructure names and tags')
         try:
@@ -57,18 +62,20 @@ if __name__ == "__main__":
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
-                                                                notebook_config['user_name'],
+                                                                notebook_config['project_name'],
                                                                 notebook_config['exploratory_name'])
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
                                    "User": notebook_config['user_name'],
+                                   "project_tag": notebook_config['project_tag'],
+                                   "endpoint_tag": notebook_config['endpoint_tag'],
                                    "Exploratory": notebook_config['exploratory_name'],
                                    "product": "dlab"}
         notebook_config['network_interface_name'] = notebook_config['instance_name'] + "-nif"
         notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                      notebook_config['user_name'])
+                                                                      notebook_config['project_name'])
         notebook_config['private_subnet_name'] = '{}-{}-subnet'.format(notebook_config['service_base_name'],
-                                                                       notebook_config['user_name'])
+                                                                       notebook_config['project_name'])
         ssh_key_path = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
@@ -83,9 +90,12 @@ if __name__ == "__main__":
             sudo_group = 'wheel'
         notebook_config['image_type'] = 'default'
 
-        notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
-                                                                               os.environ['application'])
-        notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+        notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+            notebook_config['service_base_name'],
+            notebook_config['endpoint_name'],
+            notebook_config['project_name'],
+            notebook_config['application'])
+        notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'].lower().replace('_', '-') if (x != 'None' and x != '')
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
@@ -103,8 +113,10 @@ if __name__ == "__main__":
 
     try:
         edge_status = AzureMeta().get_instance_status(notebook_config['resource_group_name'],
-                                                      os.environ['conf_service_base_name'] + '-' +
-                                                      notebook_config['user_name'] + '-edge')
+                                                      '{0}-{1}-{2}-edge'.format(os.environ['conf_service_base_name'],
+                                                                                notebook_config['project_name'],
+                                                                                notebook_config['endpoint_name']))
+
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
@@ -130,14 +142,14 @@ if __name__ == "__main__":
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
             --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
             --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
-            --instance_type {} --user_name {} --instance_storage_account_type {} --image_name {} \
+            --instance_type {} --project_name {} --instance_storage_account_type {} --image_name {} \
             --image_type {} --tags '{}'". \
             format(notebook_config['instance_name'], notebook_config['instance_size'], notebook_config['region'],
                    notebook_config['vpc_name'], notebook_config['network_interface_name'],
                    notebook_config['security_group_name'], notebook_config['private_subnet_name'],
                    notebook_config['service_base_name'], notebook_config['resource_group_name'], initial_user,
                    'None', notebook_config['public_ssh_key'], notebook_config['primary_disk_size'], 'notebook',
-                   notebook_config['user_name'], notebook_config['instance_storage_account_type'],
+                   notebook_config['project_name'], notebook_config['instance_storage_account_type'],
                    notebook_config['image_name'], notebook_config['image_type'], json.dumps(notebook_config['tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))

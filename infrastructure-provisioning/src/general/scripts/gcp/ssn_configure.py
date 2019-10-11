@@ -28,6 +28,7 @@ import sys, os
 from fabric.api import *
 from dlab.ssn_lib import *
 import traceback
+import json
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
@@ -43,7 +44,7 @@ if __name__ == "__main__":
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_firewall = False
-        billing_enabled = False
+        billing_enabled = True
 
         ssn_conf = dict()
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
@@ -255,16 +256,136 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
-        mongo_parameters = {
-            "conf_service_base_name": os.environ['conf_service_base_name'],
-            "conf_os_family": os.environ['conf_os_family'],
-            "conf_key_dir": os.environ['conf_key_dir']
-        }
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
-                 --resource {} --service_base_name {} --cloud_provider {} --mongo_parameters '{}'". \
+
+        cloud_params = [
+            {
+                'key': 'KEYCLOAK_REDIRECT_URI',
+                'value': "http://{0}/".format(instance_hostname)
+            },
+            {
+                'key': 'KEYCLOAK_REALM_NAME',
+                'value': os.environ['keycloak_realm_name']
+            },
+            {
+                'key': 'KEYCLOAK_AUTH_SERVER_URL',
+                'value': os.environ['keycloak_auth_server_url']
+            },
+            {
+                'key': 'KEYCLOAK_CLIENT_NAME',
+                'value': os.environ['keycloak_client_name']
+            },
+            {
+                'key': 'KEYCLOAK_CLIENT_SECRET',
+                'value': os.environ['keycloak_client_secret']
+            },
+            {
+                'key': 'CONF_OS',
+                'value': os.environ['conf_os_family']
+            },
+            {
+                'key': 'SERVICE_BASE_NAME',
+                'value': os.environ['conf_service_base_name']
+            },
+            {
+                'key': 'EDGE_INSTANCE_SIZE',
+                'value': ''
+            },
+            {
+                'key': 'SUBNET_ID',
+                'value': ssn_conf['subnet_name']
+            },
+            {
+                'key': 'REGION',
+                'value': ssn_conf['region']
+            },
+            {
+                'key': 'ZONE',
+                'value': ssn_conf['zone']
+            },
+            {
+                'key': 'TAG_RESOURCE_ID',
+                'value': ''
+            },
+            {
+                'key': 'SG_IDS',
+                'value': ''
+            },
+            {
+                'key': 'SSN_INSTANCE_SIZE',
+                'value': ''
+            },
+            {
+                'key': 'VPC_ID',
+                'value': ssn_conf['vpc_name']
+            },
+            {
+                'key': 'CONF_KEY_DIR',
+                'value': os.environ['conf_key_dir']
+            },
+            {
+                'key': 'LDAP_HOST',
+                'value': os.environ['ldap_hostname']
+            },
+            {
+                'key': 'LDAP_DN',
+                'value': os.environ['ldap_dn']
+            },
+            {
+                'key': 'LDAP_OU',
+                'value': os.environ['ldap_ou']
+            },
+            {
+                'key': 'LDAP_USER_NAME',
+                'value': os.environ['ldap_service_username']
+            },
+            {
+                'key': 'LDAP_USER_PASSWORD',
+                'value': os.environ['ldap_service_password']
+            },
+            {
+                'key': 'AZURE_RESOURCE_GROUP_NAME',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_SSN_STORAGE_ACCOUNT_TAG',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_SHARED_STORAGE_ACCOUNT_TAG',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_DATALAKE_TAG',
+                'value': ''
+            },
+            {
+                'key': 'GCP_PROJECT_ID',
+                'value': os.environ['gcp_project_id']
+            },
+            {
+                'key': 'AZURE_CLIENT_ID',
+                'value': ''
+            },
+            {
+                'key': 'SUBNET2_ID',
+                'value': ''
+            },
+            {
+                'key': 'VPC2_ID',
+                'value': ''
+            },
+            {
+                'key': 'PEERING_ID',
+                'value': ''
+            }
+        ]
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --billing_enabled {} " \
+                 "--request_id {} --billing_dataset_name {} \
+                 --resource {} --service_base_name {} --cloud_provider {} --cloud_params '{}'". \
             format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
-                   os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
-                   ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],  json.dumps(mongo_parameters))
+                   os.environ['conf_os_family'], billing_enabled, os.environ['request_id'],
+                   os.environ['billing_dataset_name'], os.environ['conf_resource'],
+                   ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],  json.dumps(cloud_params))
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:

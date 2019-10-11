@@ -74,6 +74,15 @@
       cursor: not-allowed;
       opacity: 0.6;
     }
+
+    &.butt-generate {
+      color: #35afd5;
+      width: 170px;
+
+      &:active {
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      }
+    }
   }
 }
 
@@ -238,12 +247,12 @@ span.mat-slide-toggle-content {
 }
 
 .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb,
-.scheduler-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
+.scheduler-dialog .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
   background-color: #36afd5;
 }
 
 .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar,
-.scheduler-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
+.scheduler-dialog .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
   background-color: rgba(54, 175, 213, 0.3);
 }
 
@@ -293,13 +302,6 @@ span.mat-slide-toggle-content {
   }
 
   .mat-reset {
-    .mat-form-field-type-mat-select:not(.mat-form-field-disabled) {
-      .mat-form-field-flex {
-        // line-height: 1;
-        // padding-top: 2px;
-      }
-    }
-
     .mat-form-field {
       .mat-form-field-wrapper {
         overflow: hidden;
@@ -564,26 +566,28 @@ mat-horizontal-stepper {
 }
 
 .mat-table {
-  th.mat-header-cell {
-    font-size: 15px;
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 600;
-    color: #607D8B;
-  }
+  .header-row {
+    th.mat-header-cell {
+      font-size: 15px;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 600;
+      color: #607D8B;
+    }
 
-  .mat-cell {
-    word-break: break-all;
-    vertical-align: top;
-    padding: 10px 5px;
-  }
+    .mat-cell {
+      word-break: break-all;
+      vertical-align: top;
+      padding: 15px 5px 10px 5px;
 
-  tr.mat-footer-row {
-    font-weight: bold;
-  }
+      td {
+        vertical-align: baseline;
+      }
+    }
 
-  // .mat-table-sticky {
-  //   border-top: 1px solid #e0e0e0;
-  // }
+    tr.mat-footer-row {
+      font-weight: bold;
+    }
+  }
 }
 
 mat-tab-group.mat-tab-group {

@@ -58,8 +58,18 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	}
 
 	@Override
+	public void removeAll() {
+		mongoService.getCollection(MongoCollections.ROLES).drop();
+	}
+
+	@Override
 	public void insert(UserRoleDto dto) {
 		insertOne(MongoCollections.ROLES, dto, dto.getId());
+	}
+
+	@Override
+	public void insert(List<UserRoleDto> roles) {
+		roles.forEach(this::insert);
 	}
 
 	@Override

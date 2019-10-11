@@ -18,14 +18,15 @@
  */
 
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { HealthStatusService } from '../../../core/services';
+import { SortUtils } from '../../../core/util';
 import { ConfirmationDialogType } from '../../../shared';
 import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog';
 import { EnvironmentsDataService } from '../management-data.service';
-import { EnvironmentModel } from '../management.model';
+import { EnvironmentModel, ManagementConfigModel } from '../management.model';
 
 export interface ManageAction {
   action: string;
@@ -44,7 +45,12 @@ export interface ManageAction {
 })
 export class ManagementGridComponent implements OnInit {
   allEnvironmentData: Array<any>;
+  allFilteredEnvironmentData: Array<any>;
   loading: boolean = false;
+  filterConfiguration: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
+  filterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
+  filtering: boolean = false;
+  collapsedFilterRow: boolean = false;
 
   @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
@@ -54,6 +60,7 @@ export class ManagementGridComponent implements OnInit {
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
   displayedColumns: string[] = ['user', 'type', 'project', 'shape', 'status', 'resources', 'actions'];
+  displayedFilterColumns: string[] = ['user-filter', 'type-filter', 'project-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -63,11 +70,71 @@ export class ManagementGridComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.environmentsDataService._data.subscribe(data => this.allEnvironmentData = EnvironmentModel.loadEnvironments(data));
+    this.environmentsDataService._data.subscribe(data => {
+      if (data) {
+        this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);
+        this.getDefaultFilterConfiguration(data);
+        this.applyFilter(this.filterForm);
+      }
+    });
   }
 
   buildGrid(): void {
     this.refreshGrid.emit();
+    this.filtering = false;
+  }
+
+  public onUpdate($event): void {
+    this.filterForm[$event.type] = $event.model;
+  }
+
+  public toggleFilterRow(): void {
+    this.collapsedFilterRow = !this.collapsedFilterRow;
+  }
+
+  public resetFilterConfigurations(): void {
+    this.filterForm.defaultConfigurations();
+    this.applyFilter(this.filterForm);
+    this.buildGrid();
+  }
+
+  public applyFilter(config) {
+    let filteredData = this.getEnvironmentDataCopy();
+
+    const containsStatus = (list, selectedItems) => {
+      return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
+    };
+
+    if (filteredData.length) this.filtering = true;
+    if (config) {
+      filteredData = filteredData.filter(item => {
+
+        const isUser = config.users.length > 0 ? (config.users.indexOf(item.user) !== -1) : true;
+        const isTypeName = item.name ?
+          item.name.toLowerCase().indexOf(config.type.toLowerCase()) !== -1 : item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
+        const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
+        const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+        const isProject = config.projects.length > 0 ? (config.projects.indexOf(item.project) !== -1) : true;
+
+        const modifiedResources = containsStatus(item.resources, config.resources);
+        let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
+
+        if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
+
+        if (config.resources.length === 0 && config.type === 'active' ||
+          modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
+          item.resources = modifiedResources;
+          isResources = true;
+        }
+
+        return isUser && isTypeName && isStatus && isShape && isProject && isResources;
+      });
+    }
+    this.allFilteredEnvironmentData = filteredData;
+  }
+
+  getEnvironmentDataCopy() {
+    return this.allEnvironmentData;
   }
 
   toggleResourceAction(environment: any, action: string, resource?): void {
@@ -118,12 +185,35 @@ export class ManagementGridComponent implements OnInit {
     return false;
   }
 
-  inProgress(resources) {
+  public inProgress(resources) {
     return resources.filter(resource => (
       resource.status !== 'failed'
       && resource.status !== 'terminated'
       && resource.status !== 'running'
       && resource.status !== 'stopped')).length > 0;
+  }
+
+  public isActiveResources(item) {
+    if (item.resources.length) return item.resources.some(e => e.status !== 'terminated');
+  }
+
+
+  private getDefaultFilterConfiguration(data): void {
+    const users = [], projects = [], shapes = [], statuses = [], resources = [];
+
+    data && data.forEach((item: any) => {
+      if (item.user && users.indexOf(item.user) === -1) users.push(item.user);
+      if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1) statuses.push(item.status.toLowerCase());
+      if (item.project && projects.indexOf(item.project) === -1) projects.push(item.project);
+      if (item.shape && shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
+
+      item.computational_resources.map((resource: any) => {
+        if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
+        resources.sort(SortUtils.statusSort);
+      });
+    });
+
+    this.filterConfiguration = new ManagementConfigModel(users, '', projects, shapes, statuses, resources);
   }
 }
 

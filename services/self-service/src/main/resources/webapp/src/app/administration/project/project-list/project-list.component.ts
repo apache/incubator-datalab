@@ -19,22 +19,25 @@
 
 import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { MatTableDataSource } from '@angular/material';
+import { MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
 
 import { ProjectDataService } from '../project-data.service';
 import { ProjectService } from '../../../core/services';
-import { Project } from '../project.component';
+import { Project, Endpoint } from '../project.component';
+import { CheckUtils } from '../../../core/util';
 
 @Component({
   selector: 'project-list',
   templateUrl: './project-list.component.html',
-  styleUrls: ['./project-list.component.scss']
+  styleUrls: ['./project-list.component.scss', '../../../resources/computational/computational-resources-list/computational-resources-list.component.scss']
 })
 export class ProjectListComponent implements OnInit, OnDestroy {
 
-  displayedColumns: string[] = ['name', 'status', 'endpoints', 'groups', 'actions'];
+  displayedColumns: string[] = ['name', 'groups', 'endpoints', 'actions'];
   dataSource: Project[] | any = [];
+  projectList: Project[];
+
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
   @Output() deleteItem: EventEmitter<{}> = new EventEmitter();
   @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
@@ -50,7 +53,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
-      if (value) this.dataSource = new MatTableDataSource(value);
+      this.projectList = value;
+      if (value) this.dataSource = new MatTableDataSource(value)
     }));
   }
 
@@ -58,8 +62,18 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  public toggleProjectStatus(project, action) {
-    this.toggleStatus.emit({ project, action });
+  public showActiveInstances(): void {
+    console.log(this.projectList);
+    const filteredList = this.projectList.map(project => {
+      project.endpoints = project.endpoints.filter((endpoint: Endpoint) => endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING')
+      return project;
+    })
+
+    this.dataSource = new MatTableDataSource(filteredList);
+  }
+
+  public toggleEndpointAction(project, action, endpoint) {
+    this.toggleStatus.emit({ project, endpoint, action });
   }
 
   public editProject(item: Project[]) {
@@ -68,5 +82,19 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   public deleteProject(item: Project[]) {
     this.deleteItem.emit(item);
+  }
+
+  public isInProgress(project) {
+    if (project)
+      return project.endpoints.some(e => e.status !== 'RUNNING' && e.status !== 'STOPPED' && e.status !== 'TERMINATED' && e.status !== 'FAILED')
+  }
+
+  public isActiveEndpoint(project) {
+    if (project)
+      return project.endpoints.some(e => e.status !== 'TERMINATED')
+  }
+
+  public toEndpointStatus(status) {
+    return CheckUtils.endpointStatus[status] || status;
   }
 }

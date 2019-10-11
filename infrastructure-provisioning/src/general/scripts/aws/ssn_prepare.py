@@ -56,7 +56,8 @@ if __name__ == "__main__":
     try:
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
-        service_base_name = os.environ['conf_service_base_name']
+        service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
@@ -66,6 +67,7 @@ if __name__ == "__main__":
         shared_bucket_name = shared_bucket_name_tag.lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         tag2_name = service_base_name + '-secondary-Tag'
+        user_tag = "{0}:{0}-ssn-Role".format(service_base_name)
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
         zone_full = os.environ['aws_region'] + os.environ['aws_zone']
@@ -80,10 +82,14 @@ if __name__ == "__main__":
         allowed_ip_cidr = list()
         for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
             allowed_ip_cidr.append({"CidrIp": cidr.replace(' ','')})
-        sg_name = instance_name + '-SG'
+        sg_name = instance_name + '-sg'
         network_type = os.environ['conf_network_type']
         all_ip_cidr = '0.0.0.0/0'
-        elastic_ip_name = '{0}-ssn-EIP'.format(os.environ['conf_service_base_name'])
+        elastic_ip_name = '{0}-ssn-EIP'.format(service_base_name)
+
+        if get_instance_by_name(tag_name, instance_name):
+            print("Service base name should be unique and less or equal 12 symbols. Please try again.")
+            sys.exit(1)
 
         try:
             if not os.environ['aws_vpc_id']:
@@ -286,9 +292,9 @@ if __name__ == "__main__":
         logging.info('[CREATE ROLES]')
         print('[CREATE ROLES]')
         params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {} " \
-                 "--infra_tag_name {} --infra_tag_value {}".\
+                 "--infra_tag_name {} --infra_tag_value {} --user_tag_value {}".\
             format(role_name, role_profile_name, policy_name, policy_path, os.environ['aws_region'], tag_name,
-                   service_base_name)
+                   service_base_name, user_tag)
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:

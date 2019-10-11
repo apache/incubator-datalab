@@ -19,7 +19,7 @@
 
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { BackupOptionsModel } from '../management.model';

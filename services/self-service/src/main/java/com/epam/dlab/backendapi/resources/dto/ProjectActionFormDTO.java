@@ -7,4 +7,6 @@ import lombok.Data;
 public class ProjectActionFormDTO {
 	@JsonProperty("project_name")
 	private final String projectName;
+	@JsonProperty("endpoint")
+	private final String endpoint;
 }

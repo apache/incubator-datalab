@@ -45,22 +45,25 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
-    edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
-        os.environ['conf_service_base_name'] + '-' + os.environ['project_name'] + '-edge')
+    notebook_config = dict()
+    notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+        os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    notebook_config['edge_name'] = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
+                                                          os.environ['project_name'], os.environ['endpoint_name'])
+    edge_status = get_instance_status(notebook_config['service_base_name'] + '-Tag', notebook_config['edge_name'])
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
-        ssn_hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag', os.environ['conf_service_base_name'] + '-ssn')
+        ssn_hostname = get_instance_hostname(notebook_config['service_base_name'] + '-Tag', notebook_config['service_base_name'] + '-ssn')
         put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'], ssn_hostname)
         append_result("Edge node is unavailable")
         sys.exit(1)
     print('Generating infrastructure names and tags')
-    notebook_config = dict()
     try:
         notebook_config['exploratory_name'] = os.environ['exploratory_name']
     except:
         notebook_config['exploratory_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+
     notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
@@ -69,18 +72,18 @@ if __name__ == "__main__":
     notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
+    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                   os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
 
-    notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
-                                                                           os.environ['application'])
-
-    notebook_config['custom_image_name'] = '{0}-{1}-{2}-{3}'.format(notebook_config['service_base_name'],
-                                                                    os.environ['project_name'],
-                                                                    os.environ['application'],
-                                                                    os.environ['notebook_image_name'].lower().replace('_', '-'))
-    notebook_config['notebook_image_name'] = (lambda x: os.environ['custom_image_name'] if x != None and ''
+    notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(notebook_config['service_base_name'],
+                                                                                     os.environ['endpoint_name'],
+                                                                                     os.environ['project_name'],
+                                                                                     os.environ['application'])
+    notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}'.format(notebook_config['service_base_name'],
+                                                                                 os.environ['project_name'],
+                                                                                 os.environ['application'],
+                                                                                 os.environ['notebook_image_name'].lower().replace('_', '-')) if (x != 'None' and x != '')
         else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
     print('Searching pre-configured images')
     notebook_config['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
@@ -102,9 +105,9 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     try:
-        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "" ).replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(os.environ['project_name'], os.environ['endpoint_name'])
     except KeyError:
-        os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "" ).replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+        os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(os.environ['project_name'], os.environ['endpoint_name'])
 
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
@@ -116,7 +119,8 @@ if __name__ == "__main__":
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --instance_class {} --instance_disk_size {} --primary_disk_size {}" \
             .format(notebook_config['instance_name'], notebook_config['ami_id'], notebook_config['instance_type'],
                     notebook_config['key_name'], get_security_group_by_name(notebook_config['security_group_name']),
-                    get_subnet_by_cidr(notebook_config['subnet_cidr']), notebook_config['role_profile_name'],
+                    get_subnet_by_cidr(notebook_config['subnet_cidr'], os.environ['aws_notebook_vpc_id']),
+                    notebook_config['role_profile_name'],
                     notebook_config['tag_name'], notebook_config['instance_name'], instance_class,
                     os.environ['notebook_disk_size'], notebook_config['primary_disk_size'])
         try:

@@ -20,18 +20,28 @@
 table {
   width: 100%;
 
+  td {
+    vertical-align: top;
+  }
+
   .name {
     width: 25%;
+    padding: 10px 0 10px 24px;
   }
 
   .endpoints {
     width: 25%;
-    padding: 0 10px;
+    padding: 15px 0;
+
+    .label-1 {
+      display: inline-block;
+      width: 50%;
+    }
   }
 
   .groups {
     width: 25%;
-    padding: 0 10px;
+    padding: 10px 0;
   }
 
   .status {
@@ -42,6 +52,8 @@ table {
     color: #607d8b;
     width: 10%;
     text-align: right;
+    vertical-align: top;
+    padding: 5px 24px;
 
     span {
       transition: all .5s ease-in-out;

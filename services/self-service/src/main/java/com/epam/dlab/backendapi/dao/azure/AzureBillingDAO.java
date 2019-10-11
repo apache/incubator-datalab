@@ -20,196 +20,107 @@
 package com.epam.dlab.backendapi.dao.azure;
 
 import com.epam.dlab.MongoKeyWords;
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
-import com.epam.dlab.backendapi.roles.RoleType;
-import com.epam.dlab.backendapi.roles.UserRoles;
-import com.epam.dlab.billing.BillingCalculationUtils;
 import com.epam.dlab.billing.DlabResourceType;
-import com.epam.dlab.dto.UserInstanceStatus;
 import com.google.inject.Singleton;
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static com.epam.dlab.backendapi.dao.MongoCollections.USER_EDGE;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.fields;
-import static com.mongodb.client.model.Projections.include;
 
 @Singleton
 @Slf4j
 public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
-    public static final String SIZE = "size";
+	public static final String SIZE = "size";
 
-    public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
+	@Override
+	protected List<Bson> cloudMatchCriteria(AzureBillingFilter filter) {
+		if (!filter.getCategory().isEmpty()) {
+			return Collections.singletonList(Filters.in(MongoKeyWords.METER_CATEGORY, filter.getCategory()));
+		} else {
+			return Collections.emptyList();
+		}
+	}
 
-        boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing", userInfo.getRoles());
-        setUserFilter(userInfo, filter, isFullReport);
+	@Override
+	protected Bson groupCriteria() {
+		return Aggregates.group(getGroupingFields(
+				MongoKeyWords.DLAB_USER,
+				MongoKeyWords.DLAB_ID,
+				MongoKeyWords.RESOURCE_TYPE,
+				MongoKeyWords.METER_CATEGORY,
+				MongoKeyWords.CURRENCY_CODE,
+				FIELD_PROJECT),
+				Accumulators.sum(MongoKeyWords.COST, MongoKeyWords.prepend$(MongoKeyWords.COST)),
+				Accumulators.min(MongoKeyWords.USAGE_FROM, MongoKeyWords.prepend$(MongoKeyWords.USAGE_DAY)),
+				Accumulators.max(MongoKeyWords.USAGE_TO, MongoKeyWords.prepend$(MongoKeyWords.USAGE_DAY))
+		);
+	}
 
-        List<Bson> matchCriteria = matchCriteria(filter);
-        List<Bson> pipeline = new ArrayList<>();
-        if (!matchCriteria.isEmpty()) {
-            pipeline.add(Aggregates.match(Filters.and(matchCriteria)));
-        }
-        pipeline.add(groupCriteria());
-        pipeline.add(sortCriteria());
+	@Override
+	protected Bson sortCriteria() {
+		return Aggregates.sort(Sorts.ascending(
+				MongoKeyWords.prependId(MongoKeyWords.DLAB_USER),
+				MongoKeyWords.prependId(MongoKeyWords.DLAB_ID),
+				MongoKeyWords.prependId(MongoKeyWords.RESOURCE_TYPE),
+				MongoKeyWords.prependId(MongoKeyWords.METER_CATEGORY)));
+	}
 
-        return prepareReport(
-                filter.getStatuses(), filter.getNodeSize() != null && !filter.getNodeSize().isEmpty(),
-                getCollection(MongoKeyWords.BILLING_DETAILS).aggregate(pipeline),
-                getShapes(filter.getNodeSize()))
-                .append(FULL_REPORT, isFullReport);
-    }
+	@Override
+	protected String getServiceBaseName() {
+		return settings.getServiceBaseName().replace("_", "-").toLowerCase();
+	}
 
-    private Document prepareReport(List<UserInstanceStatus> statuses, boolean filterByShape,
-                                   AggregateIterable<Document> agg,
-                                   Map<String, ShapeInfo> shapes) {
+	@Override
+	protected String getSsnShape() {
+		return settings.getAzureSsnInstanceSize();
+	}
 
-        List<Document> reportItems = new ArrayList<>();
+	@Override
+	protected String shapeFieldName() {
+		return SIZE;
+	}
 
-        String usageDateStart = null;
-        String usageDateEnd = null;
-        double costTotal = 0D;
+	@Override
+	protected String dlabIdFieldName() {
+		return MongoKeyWords.DLAB_ID;
+	}
 
-        for (Document d : agg) {
-            Document id = (Document) d.get(MongoKeyWords.MONGO_ID);
-            String resourceId = id.getString(MongoKeyWords.DLAB_ID);
-            ShapeInfo shape = shapes.get(resourceId);
-            final UserInstanceStatus status = Optional.ofNullable(shape).map(ShapeInfo::getStatus).orElse(null);
-            if ((filterByShape && shape == null) ||
-                    (!statuses.isEmpty() && statuses.stream().noneMatch(s -> s.equals(status)))) {
-                continue;
-            }
+	@Override
+	protected String productFieldName() {
+		return MongoKeyWords.METER_CATEGORY;
+	}
 
-            String dateStart = d.getString(MongoKeyWords.USAGE_FROM);
-            if (StringUtils.compare(usageDateStart, dateStart, false) > 0) {
-                usageDateStart = dateStart;
-            }
-            String dateEnd = d.getString(MongoKeyWords.USAGE_TO);
-            if (StringUtils.compare(usageDateEnd, dateEnd) < 0) {
-                usageDateEnd = dateEnd;
-            }
+	@Override
+	protected String costFieldName() {
+		return MongoKeyWords.COST_STRING;
+	}
 
-            costTotal += d.getDouble(MongoKeyWords.COST);
+	@Override
+	protected String usageDateFromFieldName() {
+		return MongoKeyWords.USAGE_FROM;
+	}
 
-            Document item = new Document()
-                    .append(MongoKeyWords.DLAB_USER, getUserOrDefault(id.getString(USER)))
-                    .append(MongoKeyWords.DLAB_ID, resourceId)
-                    .append(SIZE, generateShapeName(shape))
-                    .append(STATUS,
-                            Optional.ofNullable(status).map(UserInstanceStatus::toString).orElse(StringUtils.EMPTY))
-                    .append(MongoKeyWords.METER_CATEGORY, id.getString(MongoKeyWords.METER_CATEGORY))
-                    .append(MongoKeyWords.RESOURCE_TYPE,
-                            DlabResourceType.getResourceTypeName(id.getString(MongoKeyWords.RESOURCE_TYPE)))
-                    .append(MongoKeyWords.COST, d.getDouble(MongoKeyWords.COST))
-                    .append(MongoKeyWords.COST_STRING, BillingCalculationUtils.formatDouble(d.getDouble(MongoKeyWords
-                            .COST)))
-                    .append(MongoKeyWords.CURRENCY_CODE, id.getString(MongoKeyWords.CURRENCY_CODE))
-                    .append(MongoKeyWords.USAGE_FROM, dateStart)
-                    .append(MongoKeyWords.USAGE_TO, dateEnd);
+	@Override
+	protected String usageDateToFieldName() {
+		return MongoKeyWords.USAGE_TO;
+	}
 
+	@Override
+	protected String currencyCodeFieldName() {
+		return MongoKeyWords.CURRENCY_CODE;
+	}
 
-            reportItems.add(item);
-        }
+	@Override
+	protected String resourceType(Document id) {
+		return DlabResourceType.getResourceTypeName(id.getString(MongoKeyWords.RESOURCE_TYPE));
+	}
 
-        return new Document()
-                .append(SERVICE_BASE_NAME, settings.getServiceBaseName())
-                .append(MongoKeyWords.USAGE_FROM, usageDateStart)
-                .append(MongoKeyWords.USAGE_TO, usageDateEnd)
-                .append(ITEMS, reportItems)
-                .append(MongoKeyWords.COST_STRING, BillingCalculationUtils.formatDouble(BillingCalculationUtils.round
-                        (costTotal, 2)))
-                .append(MongoKeyWords.CURRENCY_CODE, (reportItems.isEmpty() ? null :
-                        reportItems.get(0).getString(MongoKeyWords.CURRENCY_CODE)));
-
-    }
-
-    private List<Bson> matchCriteria(AzureBillingFilter filter) {
-
-        List<Bson> searchCriteria = new ArrayList<>();
-
-        if (filter.getUser() != null && !filter.getUser().isEmpty()) {
-            searchCriteria.add(Filters.in(MongoKeyWords.DLAB_USER, filter.getUser()));
-        }
-
-        if (filter.getCategory() != null && !filter.getCategory().isEmpty()) {
-            searchCriteria.add(Filters.in(MongoKeyWords.METER_CATEGORY, filter.getCategory()));
-        }
-
-        if (filter.getResourceType() != null && !filter.getResourceType().isEmpty()) {
-            searchCriteria.add(Filters.in(MongoKeyWords.RESOURCE_TYPE,
-                    DlabResourceType.getResourceTypeIds(filter.getResourceType())));
-        }
-
-        if (filter.getDlabId() != null && !filter.getDlabId().isEmpty()) {
-            searchCriteria.add(regex(MongoKeyWords.DLAB_ID, filter.getDlabId(), "i"));
-        }
-
-        if (filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
-            searchCriteria.add(gte(MongoKeyWords.USAGE_DAY, filter.getDateStart()));
-        }
-        if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
-            searchCriteria.add(lte(MongoKeyWords.USAGE_DAY, filter.getDateEnd()));
-        }
-
-        return searchCriteria;
-    }
-
-    private Bson groupCriteria() {
-        return Aggregates.group(getGroupingFields(
-                MongoKeyWords.DLAB_USER,
-                MongoKeyWords.DLAB_ID,
-                MongoKeyWords.RESOURCE_TYPE,
-                MongoKeyWords.METER_CATEGORY,
-                MongoKeyWords.CURRENCY_CODE),
-                Accumulators.sum(MongoKeyWords.COST, MongoKeyWords.prepend$(MongoKeyWords.COST)),
-                Accumulators.min(MongoKeyWords.USAGE_FROM, MongoKeyWords.prepend$(MongoKeyWords.USAGE_DAY)),
-                Accumulators.max(MongoKeyWords.USAGE_TO, MongoKeyWords.prepend$(MongoKeyWords.USAGE_DAY))
-        );
-    }
-
-    private Bson sortCriteria() {
-        return Aggregates.sort(Sorts.ascending(
-                MongoKeyWords.prependId(MongoKeyWords.DLAB_USER),
-                MongoKeyWords.prependId(MongoKeyWords.DLAB_ID),
-                MongoKeyWords.prependId(MongoKeyWords.RESOURCE_TYPE),
-                MongoKeyWords.prependId(MongoKeyWords.METER_CATEGORY)));
-    }
-
-    @Override
-    protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes) {
-
-        String serviceBaseName = settings.getServiceBaseName().replace("_", "-").toLowerCase();
-
-        final String ssnSize = settings.getAzureSsnInstanceSize();
-        if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnSize)) {
-            shapes.put(serviceBaseName + "-ssn", new BaseBillingDAO.ShapeInfo(ssnSize, UserInstanceStatus.RUNNING));
-        }
-
-
-        final String edgeSize = settings.getAzureEdgeInstanceSize();
-        if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(edgeSize)) {
-            FindIterable<Document> docs = getCollection(USER_EDGE)
-                    .find()
-                    .projection(fields(include(INSTANCE_ID, EDGE_STATUS)));
-            for (Document d : docs) {
-                shapes.put(d.getString(INSTANCE_ID),
-                        new BaseBillingDAO.ShapeInfo(edgeSize, UserInstanceStatus.of(d.getString(EDGE_STATUS))));
-            }
-        }
-    }
 }

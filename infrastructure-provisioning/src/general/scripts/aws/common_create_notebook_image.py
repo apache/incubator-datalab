@@ -33,8 +33,10 @@ if __name__ == "__main__":
     try:
         image_conf = dict()
         create_aws_config_files()
-        image_conf['service_base_name'] = os.environ['conf_service_base_name']
+        image_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         image_conf['project_name'] = os.environ['project_name']
+        image_conf['project_tag'] = os.environ['project_name']
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['instance_tag'] = '{}-Tag'.format(image_conf['service_base_name'])
         image_conf['application'] = os.environ['application']
@@ -43,7 +45,7 @@ if __name__ == "__main__":
                                                              image_conf['project_name'],
                                                              image_conf['application'],
                                                              image_conf['image_name']).lower()
-        image_conf['tags'] = {"Name": image_conf['service_base_name'],
+        image_conf['tags'] = {"Name": image_conf['full_image_name'],
                               "SBN": image_conf['service_base_name'],
                               "Project": image_conf['project_name'],
                               "Image": image_conf['image_name'],
@@ -53,9 +55,9 @@ if __name__ == "__main__":
         ami_id = get_ami_id_by_name(image_conf['full_image_name'])
         if ami_id == '':
             try:
-                os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+                os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(os.environ['project_name'], os.environ['endpoint_name'])
             except KeyError:
-                os.environ['conf_additional_tags'] = os.environ['tags'].replace("': u'", ":").replace("', u'", ";").replace("{u'", "").replace("'}", "") + ';project_name:{}'.format(os.environ['project_name'])
+                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(os.environ['project_name'], os.environ['endpoint_name'])
             image_id = create_image_from_instance(tag_name=image_conf['instance_tag'],
                                                   instance_name=image_conf['instance_name'],
                                                   image_name=image_conf['full_image_name'],
