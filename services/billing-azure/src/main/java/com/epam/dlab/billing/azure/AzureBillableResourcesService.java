@@ -60,7 +60,9 @@ public class AzureBillableResourcesService {
 	 * Constructs the service class
 	 *
 	 * @param mongoDbBillingClient mongodb client to retrieve all billable resources
-	 * TODO add parameters(@param)
+	 * @param sharedStorageAccountTagName shared storage account tag name
+	 * @param ssnStorageAccountTagName ssn storage account tag name
+	 * @param azureDataLakeTagName azure DataLake tag name
 	 */
 	public AzureBillableResourcesService(MongoDbBillingClient mongoDbBillingClient, String sharedStorageAccountTagName,
 										 String ssnStorageAccountTagName, String azureDataLakeTagName) {
@@ -72,7 +74,6 @@ public class AzureBillableResourcesService {
 		this.sharedStorageAccountTagName = sharedStorageAccountTagName;
 		this.ssnStorageAccountTagName = ssnStorageAccountTagName;
 		this.azureDataLakeTagName = azureDataLakeTagName;
-		log.warn("TEST_TEST " + sharedStorageAccountTagName + ssnStorageAccountTagName + azureDataLakeTagName);
 	}
 
 
