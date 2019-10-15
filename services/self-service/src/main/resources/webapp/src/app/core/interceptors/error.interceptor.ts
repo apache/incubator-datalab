@@ -50,10 +50,8 @@ import { HTTP_STATUS_CODES } from '../util';
       if (error instanceof HttpErrorResponse) {
         switch ((<HttpErrorResponse>error).status) {
           case HTTP_STATUS_CODES.UNAUTHORIZED:
-            console.log('401');
             return this.handleUnauthorized(request, next);
           case HTTP_STATUS_CODES.BAD_REQUEST:
-            console.log('400');
             return this.handleBadRequest(request, next);
           default:
             return _throw(error);
@@ -82,14 +80,9 @@ import { HTTP_STATUS_CODES } from '../util';
 
     } else {
       return this.refreshTokenSubject.pipe(
-        filter(token => {
-          debugger;
-          return token != null
-        }),
+        filter(token => token != null),
         take(1),
-        switchMap(jwt => {
-          return next.handle(this.addToken(request, jwt));
-        }));
+        switchMap(jwt => next.handle(this.addToken(request, jwt))));
     }
   }
 
@@ -98,7 +91,6 @@ import { HTTP_STATUS_CODES } from '../util';
       switchMap((response: any) => {
         const redirect_parameter = response.headers.get('Location');
         redirect_parameter ? this.routingService.redirectToUrl(redirect_parameter) : this.routingService.redirectToLoginPage();
-        debugger;
         return next.handle(request);
       })
     );
