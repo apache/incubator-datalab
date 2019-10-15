@@ -134,3 +134,35 @@ resource "kubernetes_secret" "endpoint_keystore_password" {
     password = var.endpoint_keystore_password
   }
 }
+
+resource "random_string" "step_ca_password" {
+  length = 8
+  special = false
+}
+
+resource "kubernetes_secret" "step_ca_password_secret" {
+  metadata {
+    name       = "step-ca-password"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+  }
+
+  data = {
+    password = random_string.step_ca_password.result
+  }
+}
+
+resource "random_string" "step_ca_provisioner_password" {
+  length = 8
+  special = false
+}
+
+resource "kubernetes_secret" "step_ca_provisioner_password_secret" {
+  metadata {
+    name       = "step-ca-provisioner-password"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+  }
+
+  data = {
+    password = random_string.step_ca_provisioner_password.result
+  }
+}

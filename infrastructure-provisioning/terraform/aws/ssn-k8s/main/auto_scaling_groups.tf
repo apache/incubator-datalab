@@ -112,7 +112,8 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
                                   local.subnet_c_id])
   target_group_arns    = [aws_lb_target_group.ssn_k8s_nlb_api_target_group.arn,
                           aws_lb_target_group.ssn_k8s_nlb_ss_target_group.arn,
-                          aws_lb_target_group.ssn_k8s_alb_target_group.arn]
+                          aws_lb_target_group.ssn_k8s_alb_target_group.arn,
+                          aws_lb_target_group.ssn_k8s_nlb_step_ca_target_group.arn]
 
   lifecycle {
     create_before_destroy = true

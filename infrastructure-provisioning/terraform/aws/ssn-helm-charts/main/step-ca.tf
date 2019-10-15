@@ -27,8 +27,10 @@
 data "template_file" "step_ca_values" {
   template = file("./step-ca-chart/values.yaml")
   vars = {
-    storage_class_name   = kubernetes_storage_class.dlab-storage-class.metadata[0].name
-    ssn_k8s_nlb_dns_name = var.ssn_k8s_nlb_dns_name
+    storage_class_name           = kubernetes_storage_class.dlab-storage-class.metadata[0].name
+    ssn_k8s_nlb_dns_name         = var.ssn_k8s_nlb_dns_name
+    step_ca_password             = random_string.step_ca_password.result
+    step_ca_provisioner_password = random_string.step_ca_provisioner_password.result
   }
 }
 

@@ -41,13 +41,13 @@ ca:
   # https://{{ include "step-certificates.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
   url: https://${ssn_k8s_nlb_dns_name}
   # password is the password used to encrypt the keys. Leave it empty to generate a random one.
-  password:
+  password: ${step_ca_password}
   # provisioner contains the step-certificates provisioner configuration.
   provisioner:
     # name is the new provisioner name.
     name: admin
     # password is the password used to encrypt the provisioner private key.
-    password:
+    password: ${step_ca_provisioner_password}
   # db contains the step-certificate dataabase configuration.
   db:
     # enabled defines if the database is enabled.
