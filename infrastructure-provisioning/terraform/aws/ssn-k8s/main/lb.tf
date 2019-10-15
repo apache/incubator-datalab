@@ -88,7 +88,7 @@ resource "aws_lb_target_group" "ssn_k8s_nlb_ss_target_group" {
 }
 
 resource "aws_lb_target_group" "ssn_k8s_nlb_step_ca_target_group" {
-  name     = local.ssn_k8s_nlb_ss_tg_name
+  name     = local.ssn_k8s_nlb_step_ca_tg_name
   port     = 32433
   protocol = "TCP"
   vpc_id   = data.aws_vpc.ssn_k8s_vpc_data.id
