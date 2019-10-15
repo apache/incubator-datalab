@@ -19,22 +19,23 @@
 #
 # ******************************************************************************
 
-data "helm_repository" "smallstep" {
-  name = "smallstep"
-  url  = "https://smallstep.github.io/helm-charts/"
-}
+//data "helm_repository" "smallstep" {
+//  name = "smallstep"
+//  url  = "https://smallstep.github.io/helm-charts/"
+//}
 
 data "template_file" "step_ca_values" {
-  template = file("./files/step_ca_values.yaml")
+  template = file("./step-ca-chart/values.yaml")
   vars = {
-    storage_class_name = kubernetes_storage_class.dlab-storage-class.metadata[0].name
+    storage_class_name   = kubernetes_storage_class.dlab-storage-class.metadata[0].name
+    ssn_k8s_nlb_dns_name = var.ssn_k8s_nlb_dns_name
   }
 }
 
 resource "helm_release" "step_ca" {
   name       = "dlab-step-ca"
-  repository = data.helm_repository.smallstep.metadata.0.name
-  chart      = "smallstep/step-certificates"
+  // repository = data.helm_repository.smallstep.metadata.0.name
+  chart      = "./step-ca-chart"
   namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   wait       = false
   timeout    = 600

@@ -756,6 +756,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         dns_name = json.loads(TerraformProvider(self.no_color)
                               .output(self.tf_params,
                                       '-json ssn_k8s_alb_dns_name'))
+        nlb_dns_name = json.loads(TerraformProvider(self.no_color)
+                                  .output(self.tf_params,
+                                          '-json ssn_k8s_nlb_dns_name'))
         logging.info('apply ssn-helm-charts')
         terraform_args = args.get('helm_charts')
         args_str = get_var_args_string(terraform_args)
@@ -766,8 +769,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 if 'success' not in init or 'success' not in validate:
                     raise TerraformProviderError
                 command = ('terraform apply -auto-approve {} '
-                           '-var \'ssn_k8s_alb_dns_name={}\''
-                           .format(args_str, dns_name))
+                           '-var \'ssn_k8s_alb_dns_name={}\' -var \'ssn_k8s_nlb_dns_name={}\''
+                           .format(args_str, dns_name, nlb_dns_name))
                 logging.info(command)
                 conn.run(command)
                 output = ' '.join(conn.run('terraform output -json')

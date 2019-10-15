@@ -27,6 +27,10 @@ variable "ssn_k8s_alb_dns_name" {
     default = ""
 }
 
+variable "ssn_k8s_nlb_dns_name" {
+    default = ""
+}
+
 variable "keycloak_user" {
     default = "dlab-admin"
 }
