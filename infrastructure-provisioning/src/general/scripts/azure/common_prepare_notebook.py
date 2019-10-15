@@ -90,10 +90,17 @@ if __name__ == "__main__":
             sudo_group = 'wheel'
         notebook_config['image_type'] = 'default'
 
-        notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+        notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+        if notebook_config['shared_image_enabled'] == 'false':
+            notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
             notebook_config['service_base_name'],
             notebook_config['endpoint_name'],
             notebook_config['project_name'],
+            notebook_config['application'])
+        else:
+            notebook_config['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(
+            notebook_config['service_base_name'],
+            notebook_config['endpoint_name'],
             notebook_config['application'])
         notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'].lower().replace('_', '-') if (x != 'None' and x != '')
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))

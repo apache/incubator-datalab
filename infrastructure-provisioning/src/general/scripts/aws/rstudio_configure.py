@@ -77,7 +77,7 @@ if __name__ == "__main__":
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['rstudio_pass'] = id_generator()
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-    notebook_config['image_creation'] = os.environ['conf_image_creation']
+    notebook_config['image_enabled'] = os.environ['conf_image_enabled']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
     notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
 
@@ -251,7 +251,7 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    if notebook_config['image_creation'] == 'true':
+    if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
             ami_id = get_ami_id_by_name(`notebook_config['expected_image_name']`)

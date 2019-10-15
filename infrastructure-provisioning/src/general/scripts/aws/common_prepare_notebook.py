@@ -75,7 +75,7 @@ if __name__ == "__main__":
                                                                   os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
 
-    if os.environ['conf_image_creation'] == 'true' and os.environ['conf_shared_image_enabled'] == 'false':
+    if os.environ['conf_image_enabled'] == 'true' and os.environ['conf_shared_image_enabled'] == 'false':
         notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(notebook_config['service_base_name'],
                                                                                          os.environ['endpoint_name'],
                                                                                          os.environ['project_name'],

@@ -1350,7 +1350,7 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
             while image.state != 'available':
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
-            tag = {'Key': 'Name', 'Value': image_name},
+            tag = {'Key': 'Name', 'Value': image_name}
             response = client.describe_images(ImageIds=[image.id]).get('Images')[0].get('BlockDeviceMappings')
             for ebs in response:
                 if ebs.get('Ebs'):

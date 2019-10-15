@@ -91,7 +91,7 @@ if __name__ == "__main__":
                                    "endpoint_tag": notebook_config['endpoint_tag'],
                                    "Exploratory": notebook_config['exploratory_name'],
                                    os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
-        notebook_config['image_creation'] = os.environ['conf_image_creation']
+        notebook_config['image_enabled'] = os.environ['conf_image_enabled']
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
         notebook_config['ip_address'] = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                         notebook_config['instance_name'])
@@ -259,7 +259,7 @@ if __name__ == "__main__":
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    if notebook_config['image_creation'] == 'true':
+    if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING IMAGE]')
             image = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name'])

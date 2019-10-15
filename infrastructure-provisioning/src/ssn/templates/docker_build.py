@@ -21,8 +21,8 @@
 #
 # ******************************************************************************
 
-
 from fabric.api import *
+from os.path import exists
 import sys
 import os
 import traceback
