@@ -54,10 +54,27 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                notebook_config['project_name'],
                                                                notebook_config['exploratory_name'])
-    notebook_config['expected_primary_image_name'] = '{}-{}-notebook-primary-image'.format(
-                                                        notebook_config['service_base_name'], os.environ['application'])
-    notebook_config['expected_secondary_image_name'] = '{}-{}-notebook-secondary-image'.format(
-                                                        notebook_config['service_base_name'], os.environ['application'])
+    notebook_config['image_enabled'] = os.environ['conf_image_enabled']
+    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    if notebook_config['shared_image_enabled'] == 'false':
+        notebook_config['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], notebook_config['project_name'],
+            os.environ['application'])
+        notebook_config['expected_secondary_image_name'] = '{}-{}-{}-secondary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], notebook_config['project_name'],
+            os.environ['application'])
+        notebook_config['image_labels'] = {"sbn": notebook_config['service_base_name'],
+                                           "endpoint_tag": notebook_config['endpoint_tag'],
+                                           "project_tag": notebook_config['project_tag'],
+                                           "product": "dlab"}
+    else:
+        notebook_config['expected_primary_image_name'] = '{}-{}-{}-primary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], os.environ['application'])
+        notebook_config['expected_secondary_image_name'] = '{}-{}-{}-secondary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], os.environ['application'])
+        notebook_config['image_labels'] = {"sbn": notebook_config['service_base_name'],
+                                           "endpoint_tag": notebook_config['endpoint_tag'],
+                                           "product": "dlab"}
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['project_name'])
@@ -68,11 +85,7 @@ if __name__ == "__main__":
     notebook_config['zone'] = os.environ['gcp_zone']
     notebook_config['ip_address'] = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     notebook_config['rstudio_pass'] = id_generator()
-    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
-    notebook_config['image_labels'] = {"sbn": notebook_config['service_base_name'],
-                                       "project_tag": notebook_config['project_tag'],
-                                       "endpoint_tag": notebook_config['endpoint_tag'],
-                                       "product": "dlab"}
+
     try:
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -195,7 +208,7 @@ if __name__ == "__main__":
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
         
-    if notebook_config['shared_image_enabled'] == 'true':
+    if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING IMAGE]')
             primary_image_id = GCPMeta().get_image_by_name(notebook_config['expected_primary_image_name'])

@@ -56,6 +56,8 @@ if __name__ == "__main__":
         notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
                                                                 notebook_config['project_name'],
                                                                 notebook_config['exploratory_name'])
+        notebook_config['image_enabled'] = os.environ['conf_image_enabled']
+        notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
         if notebook_config['shared_image_enabled'] == 'false':
             notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
             notebook_config['service_base_name'],
@@ -91,8 +93,6 @@ if __name__ == "__main__":
                                    "endpoint_tag": notebook_config['endpoint_tag'],
                                    "Exploratory": notebook_config['exploratory_name'],
                                    os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
-        notebook_config['image_enabled'] = os.environ['conf_image_enabled']
-        notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
         notebook_config['ip_address'] = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                         notebook_config['instance_name'])
 

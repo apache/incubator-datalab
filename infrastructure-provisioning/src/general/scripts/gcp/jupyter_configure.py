@@ -53,6 +53,8 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                notebook_config['project_name'],
                                                                notebook_config['exploratory_name'])
+    notebook_config['image_enabled'] = os.environ['conf_image_enabled']
+    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
     if notebook_config['shared_image_enabled'] == 'false':
         notebook_config['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image'.format(
                                                         notebook_config['service_base_name'], notebook_config['endpoint_tag'], notebook_config['project_name'], os.environ['application'])
@@ -77,8 +79,6 @@ if __name__ == "__main__":
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
-    notebook_config['image_enabled'] = os.environ['conf_image_enabled']
-    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
 
     try:
         if os.environ['conf_os_family'] == 'debian':

@@ -75,23 +75,19 @@ if __name__ == "__main__":
                                                                   os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
 
-    if os.environ['conf_image_enabled'] == 'true' and os.environ['conf_shared_image_enabled'] == 'false':
+    if os.environ['conf_shared_image_enabled'] == 'false':
         notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(notebook_config['service_base_name'],
                                                                                          os.environ['endpoint_name'],
                                                                                          os.environ['project_name'],
                                                                                          os.environ['application'])
-        notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}'.format(notebook_config['service_base_name'],
-                                                                                     os.environ['project_name'],
-                                                                                     os.environ['application'],
-                                                                                     os.environ['notebook_image_name'].lower().replace('_', '-')) if (x != 'None' and x != '')
-        else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
     else:
-          notebook_config['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(notebook_config['service_base_name'],
+        notebook_config['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(notebook_config['service_base_name'],
                                                                                        os.environ['endpoint_name'],
                                                                                        os.environ['application'])
-          notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}'.format(notebook_config['service_base_name'],
-                                                                                      os.environ['application'],
-                                                                                      os.environ['notebook_image_name'].lower().replace('_', '-')) if (x != 'None' and x != '')
+    notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}'.format(notebook_config['service_base_name'],
+                                                                                 os.environ['project_name'],
+                                                                                 os.environ['application'],
+                                                                                 os.environ['notebook_image_name'].lower().replace('_', '-')) if (x != 'None' and x != '')
         else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
     print('Searching pre-configured images')
     notebook_config['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
