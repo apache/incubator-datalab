@@ -78,8 +78,8 @@ server:
       archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
-  #    - type: http
-  #      port: 8080
+#    - type: http
+#      port: 8080
   - type: https
     port: 8443
     certAlias: dlab
@@ -89,8 +89,8 @@ server:
     trustStorePath: ${TRUST_STORE_PATH}
     trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-  #    - type: http
-  #      port: 8081
+#    - type: http
+#      port: 8081
   - type: https
     port: 8444
     certAlias: dlab
@@ -111,7 +111,7 @@ logging:
   appenders:
 <#if DEV_MODE == "true">
   - type: console
- </#if>
+</#if>
   - type: file
     currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
     archive: true
@@ -192,4 +192,3 @@ jerseyClient:
   gzipEnabled: true
   gzipEnabledForRequests: false
   chunkedEncodingEnabled: true
-

@@ -114,6 +114,7 @@ public class SecurityDAO extends BaseDAO {
 	@SuppressWarnings("unchecked")
 	private Set<String> toUsers(Document d) {
 		final Object users = d.get("users");
-		return users == null ? Collections.emptySet() : new HashSet<>((List<String>) users);
+		return users == null ? Collections.emptySet() :
+				new HashSet<>(((List<String>) users).stream().map(String::toLowerCase).collect(Collectors.toList()));
 	}
 }

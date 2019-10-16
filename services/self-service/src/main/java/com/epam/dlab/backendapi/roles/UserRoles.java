@@ -257,7 +257,7 @@ public class UserRoles {
 
 			final Optional<String> group = role.getGroups()
 					.stream()
-					.filter(g -> userGroups.getOrDefault(g, Collections.emptySet()).contains(userInfo.getName()))
+					.filter(g -> userGroups.getOrDefault(g, Collections.emptySet()).contains(userInfo.getName().toLowerCase()))
 					.findAny();
 			if (group.isPresent()) {
 				LOGGER.trace("Got access by local group {}", group.get());
