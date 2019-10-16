@@ -303,8 +303,9 @@ span.mat-slide-toggle-content {
 
   .mat-reset {
     .mat-form-field {
+      overflow: hidden;
+
       .mat-form-field-wrapper {
-        overflow: hidden;
 
         .mat-form-field-infix {
           width: 275px;
