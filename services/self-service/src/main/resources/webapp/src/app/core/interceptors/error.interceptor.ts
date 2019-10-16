@@ -45,21 +45,24 @@ import { HTTP_STATUS_CODES } from '../util';
   ) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(request).pipe(catchError(error => {
+    return next.handle(request).pipe(
+      catchError(error => {
 
-      if (error instanceof HttpErrorResponse) {
-        switch ((<HttpErrorResponse>error).status) {
-          case HTTP_STATUS_CODES.UNAUTHORIZED:
-            return this.handleUnauthorized(request, next);
-          case HTTP_STATUS_CODES.BAD_REQUEST:
-            return this.handleBadRequest(request, next);
-          default:
-            return _throw(error);
+        if (error instanceof HttpErrorResponse) {
+          switch ((<HttpErrorResponse>error).status) {
+            case HTTP_STATUS_CODES.UNAUTHORIZED:
+              return this.handleUnauthorized(request, next);
+            case HTTP_STATUS_CODES.BAD_REQUEST:
+              return this.handleBadRequest(request, next);
+            default:
+              return _throw(error);
+          }
+        } else {
+          this.routingService.redirectToLoginPage();
+          this.jwtService.destroyTokens();
+          return _throw(error);
         }
-      } else {
-        return _throw(error);
-      }
-    }));
+      }));
   }
 
   private addToken(request: HttpRequest<any>, token: string) {
@@ -67,8 +70,10 @@ import { HTTP_STATUS_CODES } from '../util';
   }
 
   private handleUnauthorized(request: HttpRequest<any>, next: HttpHandler) {
+
     if (!this.isRefreshing) {
       this.isRefreshing = true;
+      this.jwtService.destroyAccessToken();
       this.refreshTokenSubject.next(null);
 
       return this.auth.refreshToken().pipe(
@@ -87,12 +92,7 @@ import { HTTP_STATUS_CODES } from '../util';
   }
 
   private handleBadRequest(request: HttpRequest<any>, next: HttpHandler) {
-    return this.auth.logout().pipe(
-      switchMap((response: any) => {
-        const redirect_parameter = response.headers.get('Location');
-        redirect_parameter ? this.routingService.redirectToUrl(redirect_parameter) : this.routingService.redirectToLoginPage();
-        return next.handle(request);
-      })
-    );
+    this.routingService.redirectToLoginPage();
+    return next.handle(request);
   }
 }

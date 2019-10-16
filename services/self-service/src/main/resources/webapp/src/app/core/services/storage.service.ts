@@ -61,6 +61,10 @@ export class StorageService {
     window.localStorage.setItem(this.REFRESH_TOKEN, tokens.refresh_token);
   }
 
+  destroyAccessToken(): void {
+    window.localStorage.removeItem(this.JWT_TOKEN);
+  }
+
   destroyTokens(): void {
     window.localStorage.removeItem(this.JWT_TOKEN);
     window.localStorage.removeItem(this.REFRESH_TOKEN);

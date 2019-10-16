@@ -74,10 +74,10 @@ export class ApplicationSecurityService {
     const refreshTocken = `/${this.storage.getRefreshToken()}`;
     return this.serviceFacade.buildRefreshToken(refreshTocken)
       .pipe(
-        tap((tokens) => this.storage.storeTokens(tokens)))
+        tap((tokens) => this.storage.storeTokens(tokens)));
   }
 
-  public logout(): Observable<any> {
+  public logout(): Observable<boolean> {
     const authToken = this.storage.getToken();
 
     if (!!authToken) {
