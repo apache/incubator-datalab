@@ -314,6 +314,10 @@ span.mat-slide-toggle-content {
           font-weight: 300;
           padding-top: 10px;
 
+          .mat-select-value {
+            max-width: inherit;
+          }
+
           .mat-select-value-text {
             span {
               color: #607d8b;

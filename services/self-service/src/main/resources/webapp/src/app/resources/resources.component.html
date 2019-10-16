@@ -19,11 +19,30 @@
 
 <div class="base-retreat">
   <div class="sub-nav">
-    <div>
+    <div class="selection">
       <button mat-raised-button class="butt butt-create" (click)="createEnvironment()"
         [disabled]="!healthStatus?.projectAssigned">
         <i class="material-icons">add</i>Create new
       </button>
+
+      <div class="mat-reset">
+        <!-- *ngIf="!projects.length -->
+        <div class="control selector-wrapper">
+          <mat-form-field>
+            <mat-label>Select active project</mat-label>
+            <mat-select>
+              <mat-option *ngFor="let project of projects" [value]="project.name" (click)="setActiveProject(project)">
+                {{ project.name }}</mat-option>
+              <mat-option *ngIf="!projects.length" class="multiple-select ml-10" disabled>Projects list is empty
+              </mat-option>
+            </mat-select>
+            <button class="caret">
+              <i class="material-icons">keyboard_arrow_down</i>
+            </button>
+          </mat-form-field>
+        </div>
+      </div>
+
     </div>
     <div>
       <button mat-raised-button class="butt butt-tool" (click)="manageUngit()">
