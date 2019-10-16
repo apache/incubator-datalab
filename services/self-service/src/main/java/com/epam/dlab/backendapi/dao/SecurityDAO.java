@@ -88,6 +88,15 @@ public class SecurityDAO extends BaseDAO {
 				true);
 	}
 
+	public void updateUser(String userName, AccessTokenResponse accessTokenResponse) {
+		updateOne(SECURITY_COLLECTION, eq(ID, userName),
+				new Document(SET,
+						new Document()
+								.append(ID, userName)
+								.append("last_access", new Date())
+								.append(TOKEN_RESPONSE, convertToBson(accessTokenResponse))));
+	}
+
 	public Optional<UserInfo> getUser(String token) {
 		return Optional.ofNullable(mongoService.getCollection(SECURITY_COLLECTION)
 				.findOneAndUpdate(and(eq(TOKEN_RESPONSE + ".access_token", token), gte("last_access",
@@ -105,6 +114,7 @@ public class SecurityDAO extends BaseDAO {
 	@SuppressWarnings("unchecked")
 	private Set<String> toUsers(Document d) {
 		final Object users = d.get("users");
-		return users == null ? Collections.emptySet() : new HashSet<>((List<String>) users);
+		return users == null ? Collections.emptySet() :
+				new HashSet<>(((List<String>) users).stream().map(String::toLowerCase).collect(Collectors.toList()));
 	}
 }
