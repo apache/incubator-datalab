@@ -214,7 +214,10 @@ public class BillingSchedulerAzure {
 
 		private boolean run(BillingPeriod billingPeriod) {
 
-			AzureBillableResourcesService azureBillableResourcesService = new AzureBillableResourcesService(client);
+			AzureBillableResourcesService azureBillableResourcesService = new AzureBillableResourcesService(client,
+					billingConfigurationAzure.getSharedStorageAccountTagName(),
+					billingConfigurationAzure.getSsnStorageAccountTagName(),
+					billingConfigurationAzure.getDatalakeTagName());
 			Set<AzureDlabBillableResource> billableResources = azureBillableResourcesService.getBillableResources();
 
 			AzureInvoiceCalculationService azureInvoiceCalculationService

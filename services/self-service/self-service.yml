@@ -63,6 +63,7 @@ billingConfFile: ${DLAB_CONF_DIR}/billing.yml
 
 <#if CLOUD_TYPE == "azure">
 azureUseLdap: <LOGIN_USE_LDAP>
+ssnInstanceSize: <SSN_INSTANCE_SIZE>
 maxSessionDurabilityMilliseconds: 288000000
 </#if>
 

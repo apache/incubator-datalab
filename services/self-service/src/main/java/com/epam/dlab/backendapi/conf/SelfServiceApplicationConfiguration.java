@@ -74,6 +74,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private boolean azureUseLdap;
 
 	@JsonProperty
+	private String ssnInstanceSize;
+
+	@JsonProperty
 	private boolean rolePolicyEnabled = false;
 
 	@JsonProperty
@@ -252,6 +255,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public boolean isAzureUseLdap() {
 		return azureUseLdap;
+	}
+
+	public String getSsnInstanceSize() {
+		return ssnInstanceSize;
 	}
 
 	public boolean isMongoMigrationEnabled() {
