@@ -21,8 +21,9 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
+
 from os.path import exists
+from fabric.api import *
 import sys
 import os
 import traceback
@@ -31,6 +32,7 @@ src_path = '/opt/dlab/sources/infrastructure-provisioning/src/'
 if sys.argv[1] == 'all':
     node = [
             'edge',
+            'project',
             'jupyter',
             'rstudio',
             'zeppelin',

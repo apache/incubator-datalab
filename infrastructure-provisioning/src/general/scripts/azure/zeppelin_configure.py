@@ -101,7 +101,9 @@ if __name__ == "__main__":
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                notebook_config['instance_name'])
-        edge_instance_name = '{}-{}-edge'.format(notebook_config['service_base_name'], notebook_config['project_name'])
+        edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
+                                                       notebook_config['project_name'],
+                                                       notebook_config['endpoint_name'])
         edge_instance_private_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                             edge_instance_name)
         if os.environ['conf_network_type'] == 'private':

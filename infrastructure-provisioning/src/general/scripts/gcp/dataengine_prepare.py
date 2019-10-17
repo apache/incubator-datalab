@@ -48,9 +48,11 @@ if __name__ == "__main__":
     data_engine['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     data_engine['region'] = os.environ['gcp_region']
     data_engine['zone'] = os.environ['gcp_zone']
+    data_engine['endpoint_name'] = os.environ['endpoint_name']
 
-    edge_status = GCPMeta().get_instance_status('{0}-{1}-edge'.format(data_engine['service_base_name'],
-                                                                      data_engine['project_name']))
+    edge_status = GCPMeta().get_instance_status('{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                                          data_engine['project_name'],
+                                                                          data_engine['endpoint_name']))
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')

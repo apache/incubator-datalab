@@ -5,6 +5,8 @@ import argparse
 import sys
 import traceback
 import time
+import string
+import random
 
 conn = None
 args = None
@@ -137,7 +139,7 @@ def ensure_docker_endpoint():
                                            "| grep 'DNS Servers:' "
                                            "| awk '{print $3}'")
                                   .stdout.rstrip("\n\r"))
-                conn.sudo('sed -i "s|DNS_IP_RESOLVE|\"dns\": [{0}],|g" {1}/tmp/daemon.json'
+                conn.sudo("sed -i 's|DNS_IP_RESOLVE|\"dns\": [\"{0}\"],|g' {1}/tmp/daemon.json"
                           .format(dns_ip_resolve, args.dlab_path))
             elif args.cloud_provider == "gcp":
                 dns_ip_resolve = ""
@@ -223,11 +225,11 @@ def configure_supervisor_endpoint():
             if not exists(conn, web_path):
                 conn.run('mkdir -p {}'.format(web_path))
             if args.cloud_provider == 'aws':
-                interface = sudo('curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
-                args.vpc_id = sudo('curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/{}/'
-                                   'vpc-id'.format(interface))
-                args.subnet_id = sudo('curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/{}/'
-                                      'subnet-id'.format(interface))
+                interface = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/').stdout
+                args.vpc_id = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/{}/'
+                                        'vpc-id'.format(interface)).stdout
+                args.subnet_id = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/{}/'
+                                           'subnet-id'.format(interface)).stdout
                 args.vpc2_id = args.vpc_id
                 args.subnet2_id = args.subnet_id
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
@@ -259,7 +261,8 @@ def configure_supervisor_endpoint():
                       .format(args.ss_port, dlab_conf_dir))
             conn.sudo('sed -i "s|KEYCLOACK_HOST|{}|g" {}provisioning.yml'
                       .format(args.keycloack_host, dlab_conf_dir))
-
+            conn.sudo('sed -i "s|CLIENT_ID|{}|g" {}provisioning.yml'
+                      .format(args.keycloak_client_id, dlab_conf_dir))
             conn.sudo('sed -i "s|CLIENT_SECRET|{}|g" {}provisioning.yml'
                       .format(args.keycloak_client_secret, dlab_conf_dir))
             # conn.sudo('sed -i "s|MONGO_PASSWORD|{}|g" {}provisioning.yml'
@@ -461,6 +464,53 @@ def pull_docker_images():
         sys.exit(1)
 
 
+def id_generator(size=10, chars=string.digits + string.ascii_letters):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+
+def configure_guacamole():
+    try:
+        mysql_pass = id_generator()
+        conn.sudo('docker run --name guacd --restart unless-stopped -d -p 4822:4822 guacamole/guacd')
+        conn.sudo('docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > initdb.sql')
+        conn.sudo('mkdir /tmp/scripts')
+        conn.sudo('cp initdb.sql /tmp/scripts')
+        conn.sudo('mkdir -p /opt/mysql')
+        conn.sudo('docker run --name guac-mysql --restart unless-stopped -v /tmp/scripts:/tmp/scripts '
+                  ' -v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
+        time.sleep(180)
+        conn.sudo('touch /opt/mysql/dock-query.sql')
+        conn.sudo('chown {0}:{0} /opt/mysql/dock-query.sql'.format(args.os_user))
+        conn.sudo("""echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}';"""
+                  """ GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole.* TO 'guacamole';" > /opt/mysql/dock-query.sql"""
+                  .format(mysql_pass))
+        conn.sudo('docker exec -i guac-mysql /bin/bash -c "mysql -u root -p{} < /var/lib/mysql/dock-query.sql"'
+                  .format(mysql_pass))
+        conn.sudo('docker exec -i guac-mysql /bin/bash -c "cat /tmp/scripts/initdb.sql | mysql -u root -p{} guacamole"'
+                  .format(mysql_pass))
+        conn.sudo("docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql"
+                  " -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='{}'"
+                  " -d -p 8080:8080 guacamole/guacamole".format(mysql_pass))
+        # create cronjob for run containers on reboot
+        conn.sudo('mkdir -p /opt/dlab/cron')
+        conn.sudo('touch /opt/dlab/cron/mysql.sh')
+        conn.sudo('chmod 755 /opt/dlab/cron/mysql.sh')
+        conn.sudo('chown {0}:{0} //opt/dlab/cron/mysql.sh'.format(args.os_user))
+        conn.sudo('echo "docker start guacd" >> /opt/dlab/cron/mysql.sh')
+        conn.sudo('echo "docker start guac-mysql" >> /opt/dlab/cron/mysql.sh')
+        conn.sudo('echo "docker rm guacamole" >> /opt/dlab/cron/mysql.sh')
+        conn.sudo("""echo "docker run --name guacamole --restart unless-stopped --link guacd:guacd""" 
+                  """ --link guac-mysql:mysql -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' """
+                  """-e MYSQL_PASSWORD='{}' -d -p 8080:8080 guacamole/guacamole" >> """
+                  """/opt/dlab/cron/mysql.sh""".format(mysql_pass))
+        conn.sudo('''/bin/bash -c '(crontab -l 2>/dev/null; echo "@reboot sh /opt/dlab/cron/mysql.sh") |''' 
+                  ''' crontab - ' ''')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure guacamole: ', str(err))
+        return False
+
+
 def init_args():
     global args
     parser = argparse.ArgumentParser()
@@ -485,6 +535,7 @@ def init_args():
                         default='18.06.3~ce~3-0~ubuntu')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
     parser.add_argument('--endpoint_keystore_password', type=str, default='')
+    parser.add_argument('--keycloak_client_id', type=str, default='')
     parser.add_argument('--keycloak_client_secret', type=str, default='')
     parser.add_argument('--branch_name', type=str, default='DLAB-terraform')  # change default
     parser.add_argument('--env_os', type=str, default='debian')
@@ -614,6 +665,9 @@ def start_deploy():
 
     logging.info("Pulling docker images")
     pull_docker_images()
+
+    logging.info("Configuring guacamole")
+    configure_guacamole()
 
     logging.info("Starting supervisor")
     start_supervisor_endpoint()

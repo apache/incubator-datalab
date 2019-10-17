@@ -120,8 +120,10 @@ if __name__ == "__main__":
 
     try:
         edge_status = AzureMeta().get_instance_status(notebook_config['resource_group_name'],
-                                                      os.environ['conf_service_base_name'] + '-' +
-                                                      notebook_config['project_name'] + '-edge')
+                                                      '{0}-{1}-{2}-edge'.format(os.environ['conf_service_base_name'],
+                                                                                notebook_config['project_name'],
+                                                                                notebook_config['endpoint_name']))
+
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')

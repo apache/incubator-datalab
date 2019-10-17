@@ -48,8 +48,9 @@ if __name__ == "__main__":
     notebook_config['region'] = os.environ['gcp_region']
     notebook_config['zone'] = os.environ['gcp_zone']
 
-    edge_status = GCPMeta().get_instance_status('{0}-{1}-edge'.format(notebook_config['service_base_name'],
-                                                                      notebook_config['project_name']))
+    edge_status = GCPMeta().get_instance_status('{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
+                                                                          notebook_config['project_name'],
+                                                                          notebook_config['endpoint_tag']))
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')

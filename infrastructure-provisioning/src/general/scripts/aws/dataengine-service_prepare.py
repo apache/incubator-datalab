@@ -55,8 +55,12 @@ if __name__ == "__main__":
     emr_conf = dict()
     emr_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    edge_status = get_instance_status(emr_conf['service_base_name'] + '-Tag',
-        emr_conf['service_base_name'] + '-' + os.environ['project_name'] + '-edge')
+    emr_conf['project_name'] = os.environ['project_name']
+    emr_conf['endpoint_name'] = os.environ['endpoint_name']
+    edge_status = get_instance_status(emr_conf['service_base_name'] + '-Tag', '{0}-{1}-{2}-edge'
+                                      .format(emr_conf['service_base_name'],
+                                              emr_conf['project_name'],
+                                              emr_conf['endpoint_name']))
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
@@ -85,7 +89,8 @@ if __name__ == "__main__":
     emr_conf['project_tag'] = os.environ['project_name']
     emr_conf['region'] = os.environ['aws_region']
     emr_conf['release_label'] = os.environ['emr_version']
-    emr_conf['edge_instance_name'] = '{0}-{1}-edge'.format(emr_conf['service_base_name'], os.environ['project_name'])
+    emr_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'],
+                                                               os.environ['project_name'], emr_conf['endpoint_tag'])
     emr_conf['edge_security_group_name'] = '{0}-sg'.format(emr_conf['edge_instance_name'])
     emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
     emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']

@@ -110,7 +110,8 @@ export class ManagementGridComponent implements OnInit {
       filteredData = filteredData.filter(item => {
 
         const isUser = config.users.length > 0 ? (config.users.indexOf(item.user) !== -1) : true;
-        const isType = item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
+        const isTypeName = item.name ?
+          item.name.toLowerCase().indexOf(config.type.toLowerCase()) !== -1 : item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
         const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
         const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
         const isProject = config.projects.length > 0 ? (config.projects.indexOf(item.project) !== -1) : true;
@@ -126,7 +127,7 @@ export class ManagementGridComponent implements OnInit {
           isResources = true;
         }
 
-        return isUser && isType && isStatus && isShape && isProject && isResources;
+        return isUser && isTypeName && isStatus && isShape && isProject && isResources;
       });
     }
     this.allFilteredEnvironmentData = filteredData;
@@ -184,13 +185,18 @@ export class ManagementGridComponent implements OnInit {
     return false;
   }
 
-  inProgress(resources) {
+  public inProgress(resources) {
     return resources.filter(resource => (
       resource.status !== 'failed'
       && resource.status !== 'terminated'
       && resource.status !== 'running'
       && resource.status !== 'stopped')).length > 0;
   }
+
+  public isActiveResources(item) {
+    if (item.resources.length) return item.resources.some(e => e.status !== 'terminated');
+  }
+
 
   private getDefaultFilterConfiguration(data): void {
     const users = [], projects = [], shapes = [], statuses = [], resources = [];

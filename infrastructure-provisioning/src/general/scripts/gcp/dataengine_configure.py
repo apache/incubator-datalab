@@ -162,6 +162,7 @@ if __name__ == "__main__":
         data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
         data_engine['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
         data_engine['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+        data_engine['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         data_engine['region'] = os.environ['gcp_region']
         data_engine['zone'] = os.environ['gcp_zone']
         try:
@@ -208,8 +209,8 @@ if __name__ == "__main__":
         data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
                                                          data_engine['project_name'])
         master_node_hostname = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
-        edge_instance_name = '{0}-{1}-edge'.format(data_engine['service_base_name'],
-                                                   data_engine['project_name'])
+        edge_instance_name = '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                       data_engine['project_name'], data_engine['endpoint_tag'])
         edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
         edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']

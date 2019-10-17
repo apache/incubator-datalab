@@ -32,6 +32,7 @@ public class UserInfo implements Principal {
 
     private final String username;
     private final String accessToken;
+    private String refreshToken;
     private final Set<String> roles = new HashSet<>();
     private final Map<String,String> keys = new HashMap<>();
 
@@ -64,6 +65,15 @@ public class UserInfo implements Principal {
     @JsonProperty("access_token")
     public String getAccessToken() {
         return accessToken;
+    }
+
+    @JsonProperty("refresh_token")
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     @JsonProperty("roles")
@@ -120,8 +130,6 @@ public class UserInfo implements Principal {
         newInfo.setKeys(this.getKeys());
         return newInfo;
     }
-
-
 
     public boolean isAwsUser() {
         return awsUser;
@@ -182,6 +190,7 @@ public class UserInfo implements Principal {
         return "UserInfo{" +
                 "username='" + username + '\'' +
                 ", accessToken='" + accessToken + '\'' +
+                ", refreshToken='" + refreshToken + '\'' +
                 ", roles=" + roles +
                 ", keys=" + keys.keySet() +
                 ", firstName='" + firstName + '\'' +

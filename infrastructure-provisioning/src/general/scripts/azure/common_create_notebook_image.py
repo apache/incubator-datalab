@@ -56,7 +56,9 @@ if __name__ == "__main__":
 
         instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                image_conf['instance_name'])
-        edge_instance_name = '{}-{}-edge'.format(image_conf['service_base_name'], image_conf['project_name'])
+        edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
+                                                       notebook_config['project_name'],
+                                                       notebook_config['endpoint_name'])
         edge_instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                     edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])

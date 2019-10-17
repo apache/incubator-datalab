@@ -24,7 +24,8 @@ import { Subscription } from 'rxjs';
 
 import { ProjectDataService } from '../project-data.service';
 import { ProjectService } from '../../../core/services';
-import { Project } from '../project.component';
+import { Project, Endpoint } from '../project.component';
+import { CheckUtils } from '../../../core/util';
 
 @Component({
   selector: 'project-list',
@@ -35,6 +36,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   displayedColumns: string[] = ['name', 'groups', 'endpoints', 'actions'];
   dataSource: Project[] | any = [];
+  projectList: Project[];
+
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
   @Output() deleteItem: EventEmitter<{}> = new EventEmitter();
   @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
@@ -50,12 +53,23 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
-      if (value) this.dataSource = new MatTableDataSource(value);
+      this.projectList = value;
+      if (value) this.dataSource = new MatTableDataSource(value)
     }));
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+  }
+
+  public showActiveInstances(): void {
+    console.log(this.projectList);
+    const filteredList = this.projectList.map(project => {
+      project.endpoints = project.endpoints.filter((endpoint: Endpoint) => endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING')
+      return project;
+    })
+
+    this.dataSource = new MatTableDataSource(filteredList);
   }
 
   public toggleEndpointAction(project, action, endpoint) {
@@ -73,5 +87,14 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   public isInProgress(project) {
     if (project)
       return project.endpoints.some(e => e.status !== 'RUNNING' && e.status !== 'STOPPED' && e.status !== 'TERMINATED' && e.status !== 'FAILED')
+  }
+
+  public isActiveEndpoint(project) {
+    if (project)
+      return project.endpoints.some(e => e.status !== 'TERMINATED')
+  }
+
+  public toEndpointStatus(status) {
+    return CheckUtils.endpointStatus[status] || status;
   }
 }

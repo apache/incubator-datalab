@@ -113,24 +113,12 @@
       margin: 0;
     }
 
-    .list-item {
-      text-transform: capitalize;
-    }
   }
 
-  &.user {
+  &.statuses {
     .list-menu {
       .list-item {
-        text-transform: initial;
-      }
-    }
-  }
-
-  &.shapes,
-  &.shape {
-    .list-menu {
-      .list-item {
-        text-transform: initial;
+        text-transform: capitalize;
       }
     }
   }

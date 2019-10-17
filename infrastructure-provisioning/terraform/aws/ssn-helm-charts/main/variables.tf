@@ -27,11 +27,11 @@ variable "keycloak_user" {
     default = "dlab-admin"
 }
 
-variable "mysql_user" {
+variable "mysql_keycloak_user" {
     default = "keycloak"
 }
 
-variable "mysql_db_name" {
+variable "mysql_keycloak_db_name" {
     default = "keycloak"
 }
 
@@ -158,6 +158,10 @@ variable "billing_resource_id" {
 
 variable "billing_tags" {
     default = "line_item_operation,line_item_line_item_description"
+}
+
+variable "env_os" {
+    default = "debian"
 }
 //variable "nginx_http_port" {
 //    default = "31080"
