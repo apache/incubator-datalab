@@ -753,7 +753,7 @@ def ensure_docker_compose(dlab_path, os_user):
 def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id, keycloak_client_secret):
     try:
         if not os.path.exists('/home/{}/incubator-superset'.format(os_user)):
-            with cd('/home/{}'.format(os_user))
+            with cd('/home/{}'.format(os_user)):
                 sudo('git clone https://github.com/apache/incubator-superset/')
             with cd('/home/{}/incubator-superset/contrib/docker'.format(os_user)):
                 sudo('git clone https://github.com/kvspb/nginx-auth-ldap.git')
