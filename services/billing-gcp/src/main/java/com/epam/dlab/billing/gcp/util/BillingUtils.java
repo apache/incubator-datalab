@@ -62,6 +62,7 @@ public class BillingUtils {
 	public static Stream<BillingData> exploratoryBillingDataStream(UserInstance userInstance) {
 		final Stream<BillingData> computationalStream = userInstance.getComputationalResources()
 				.stream()
+				.filter(cr -> cr.getComputationalId() != null)
 				.flatMap(cr -> Stream.of(computationalBillableResource(userInstance, cr),
 						withExploratoryName(userInstance).displayName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_FORMAT, cr.getComputationalId()))
 								.resourceType(BillingData.ResourceType.VOLUME).computationalName(cr.getComputationalName()).build()));
