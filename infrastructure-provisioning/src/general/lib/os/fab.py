@@ -726,3 +726,50 @@ def update_hosts_file(os_user):
     except Exception as err:
         print('Failed to update hosts file', str(err))
         sys.exit(1)
+
+def ensure_docker_compose(dlab_path, os_user):
+    try:
+        if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
+            docker_version = os.environ['ssn_docker_version']
+            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
+                  stable"')
+            sudo('apt-get update')
+            sudo('apt-cache policy docker-ce')
+            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
+            sudo('usermod -a -G docker ' + os_user)
+            sudo('update-rc.d docker defaults')
+            sudo('update-rc.d docker enable')
+            sudo('touch ' + dlab_path + 'tmp/docker_daemon_ensured')
+        if not exists(dlab_path + 'tmp/docker_compose_ensured'):
+            docker_compose_version = os.environ['superset_docker_compose_version']
+            sudo('curl -L https://github.com/docker/compose/releases/download/{}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose'.format(docker_compose_version))
+            sudo('chmod +x /usr/local/bin/docker-compose')
+            sudo('touch ' + dlab_path + 'tmp/docker_compose_ensured')
+        return True
+    except:
+        return False
+
+def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id, keycloak_client_secret):
+    try:
+        if not os.path.exists('/home/{}/incubator-superset'.format(os_user)):
+            with cd('/home/{}'.format(os_user))
+                sudo('git clone https://github.com/apache/incubator-superset/')
+            with cd('/home/{}/incubator-superset/contrib/docker'.format(os_user)):
+                sudo('git clone https://github.com/kvspb/nginx-auth-ldap.git')
+            sudo('mkdir -p /opt/dlab/templates')
+            put('/root/templates', '/opt/dlab', use_sudo=True)
+            put('/root/service_account.json', '/home/dlab-user/', use_sudo=True)
+            sudo('sed -i \'s/OS_USER/{}/g\' /opt/dlab/templates/.env'.format(os_user))
+            sudo('sed -i \'s/KEYCLOAK_AUTH_SERVER_URL/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_auth_server_url))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_realm_name))
+            sudo('sed -i \'s/CLIENT_ID/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_client_id))
+            sudo('sed -i \'s/CLIENT_SECRET/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_client_secret))
+            sudo('cp -f /opt/dlab/templates/.env /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/docker_compose.yaml /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/id_provider.json /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/requirements-extra.txt /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/superset_config.py /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+    except Exception as err:
+        print("Failed configure superset: " + str(err))
+        sys.exit(1)
