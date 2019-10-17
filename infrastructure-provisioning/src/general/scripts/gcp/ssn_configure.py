@@ -221,6 +221,7 @@ if __name__ == "__main__":
                              {"name": "jupyter", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
+                             {"name": "superset", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
                              {"name": "tensor-rstudio", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
