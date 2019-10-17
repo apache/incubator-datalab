@@ -84,9 +84,11 @@ public class BillingServiceImpl implements BillingService {
 
 			final Stream<BillingData> billableEdges = projectRepository.findAll()
 					.stream()
-					.map(Project::getName)
-					.map(String::toLowerCase)
-					.flatMap(project -> edgeBillingDataStream(project, sbn));
+					.collect(Collectors.toMap(Project::getName, Project::getEndpoints))
+					.entrySet()
+					.stream()
+					.flatMap(e -> projectEdges(e.getKey(), e.getValue()));
+
 
 			final Map<String, BillingData> billableResources = Stream.of(billableUserInstances, billableEdges,
 					ssnBillingDataStream)
@@ -113,6 +115,12 @@ public class BillingServiceImpl implements BillingService {
 		} catch (Exception e) {
 			log.error("Can not update billing due to: {}", e.getMessage(), e);
 		}
+	}
+
+	private Stream<BillingData> projectEdges(String projectName, List<Project.Endpoint> endpoints) {
+		return endpoints
+				.stream()
+				.flatMap(endpoint -> edgeBillingDataStream(projectName, sbn, endpoint.getName()));
 	}
 
 	private BillingData getOrDefault(Map<String, BillingData> billableResources, String tag) {

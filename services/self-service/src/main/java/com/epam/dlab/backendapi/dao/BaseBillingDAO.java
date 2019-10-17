@@ -45,6 +45,7 @@ import org.bson.conversions.Bson;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_ID;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
@@ -83,6 +84,8 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	private static final String COST_FIELD = "$cost";
 	public static final String SHARED_RESOURCE_NAME = "Shared resource";
 	protected static final String FIELD_PROJECT = "project";
+	private static final String EDGE_FORMAT = "%s-%s-%s-edge";
+	private static final String PROJECT_COLLECTION = "projects";
 
 	@Inject
 	protected SettingsDAO settings;
@@ -325,7 +328,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
 			searchCriteria.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
 		}
-		if (filter.getProjects() != null && !filter.getProjects().isEmpty()){
+		if (filter.getProjects() != null && !filter.getProjects().isEmpty()) {
 			searchCriteria.add(in(PROJECT, filter.getProjects()));
 		}
 
@@ -405,8 +408,14 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes) {
 		final String ssnShape = getSsnShape();
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
-			String serviceBaseName = getServiceBaseName();
-			shapes.put(serviceBaseName + "-ssn", new ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
+			String sbn = getServiceBaseName();
+			shapes.put(sbn + "-ssn", new ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
+			StreamSupport.stream(getCollection(PROJECT_COLLECTION).find().spliterator(), false)
+					.forEach(d -> ((List<Document>) d.get("endpoints"))
+							.forEach(e -> shapes.put(String.format(EDGE_FORMAT, sbn, d.getString("name"), e.getString(
+									"name")),
+									new ShapeInfo(StringUtils.EMPTY,
+											UserInstanceStatus.of(e.getString("status"))))));
 		}
 	}
 
