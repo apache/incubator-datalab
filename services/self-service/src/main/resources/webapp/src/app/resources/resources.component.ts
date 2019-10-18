@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -80,12 +79,19 @@ export class ResourcesComponent implements OnInit {
   }
 
   public setActiveProject(project): void {
-    console.log(project)
+    this.resourcesGrid.selectActiveProject(project);
+  }
+
+  public getActiveProject() {
+    console.log('activeProject: ', this.resourcesGrid.activeProject);
+
+    return this.resourcesGrid.activeProject;
   }
 
   private getProjects() {
     this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
   }
+
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus().subscribe(
