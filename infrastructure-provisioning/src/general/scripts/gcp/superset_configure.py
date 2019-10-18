@@ -24,6 +24,7 @@
 import logging
 import json
 import sys
+import requests
 from dlab.fab import *
 from dlab.meta_lib import *
 from dlab.actions_lib import *
@@ -99,7 +100,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE PROXY ON SUPERSET INSTANCE]')
         print('[CONFIGURE PROXY ON SUPERSET INSTANCE]')
-        additional_config = {"proxy_host": edge_instance_name, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_private_ip, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'])
@@ -118,14 +119,14 @@ if __name__ == "__main__":
         print('[CONFIGURE KEYCLOAK]')
         logging.info('[CONFIGURE KEYCLOAK]')
         keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(os.environ['keycloak_auth_server_url'])
-        keycloak_client_create_url = '{0}/auth/realms/{1}/clients'.format(os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'])
+        keycloak_client_create_url = '{0}/admin/realms/{1}/clients'.format(os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'])
         keycloak_auth_data = {
             "username": os.environ['keycloak_user'],
             "password": os.environ['keycloak_user_password'],
             "grant_type": "password",
             "client_id": "admin-cli",
         }
-        keycloak_client_id = "{}-superset".format(notebook_config['project_name'])
+        keycloak_client_id = "{}-{}-superset".format(notebook_config['service_base_name'], notebook_config['project_name'])
         keycloak_client_secret = uuid.uuid4()
         keycloak_client_data = {
             "clientId": keycloak_client_id,
@@ -151,12 +152,14 @@ if __name__ == "__main__":
         print('[CONFIGURE SUPERSET NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} " \
                  "--region {} --os_user {} " \
-                 "--keycloak_auth_server_url {} --keycloak_realm_name {}" \
-                 " --keycloak_client_id --keycloak_client_secret {}".\
+                 "--dlab_path {} --keycloak_auth_server_url {} " \
+                 "--keycloak_realm_name {} --keycloak_client_id {} " \
+                 "--keycloak_client_secret {} --edge_instance_private_ip {} ".\
             format(instance_hostname, notebook_config['ssh_key_path'],
                    os.environ['gcp_region'], notebook_config['dlab_ssh_user'],
-                   os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'],
-                   keycloak_client_id, keycloak_client_secret)
+                   os.environ['ssn_dlab_path'], os.environ['keycloak_auth_server_url'],
+                   os.environ['keycloak_realm_name'], keycloak_client_id,
+                   keycloak_client_secret, edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('configure_superset_node', params))
         except:

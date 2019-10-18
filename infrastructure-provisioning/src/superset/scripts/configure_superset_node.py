@@ -34,11 +34,12 @@ parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
-
+parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--keycloak_auth_server_url', type=str, default='')
 parser.add_argument('--keycloak_realm_name', type=str, default='')
 parser.add_argument('--keycloak_client_id', type=str, default='')
 parser.add_argument('--keycloak_client_secret', type=str, default='')
+parser.add_argument('--edge_instance_private_ip', type=str, default='')
 args = parser.parse_args()
 
 ##############
@@ -62,12 +63,12 @@ if __name__ == "__main__":
 
     # INSTALL DOCKER COMPOSE
     print("Installing docker compose")
-    if not ensure_docker_compose(args.dlab_path, args.os_user, args.region):
+    if not ensure_docker_compose(args.dlab_path, args.os_user):
         sys.exit(1)
 
     # PREPARE SUPERSET
     try:
-        configure_superset(args.os_user, args.keycloak_auth_server_url, args.keycloak_realm_name, args.keycloak_client_id, args.keycloak_client_secret)
+        configure_superset(args.os_user, args.keycloak_auth_server_url, args.keycloak_realm_name, args.keycloak_client_id, args.keycloak_client_secret, args.edge_instance_private_ip)
     except:
         sys.exit(1)
 

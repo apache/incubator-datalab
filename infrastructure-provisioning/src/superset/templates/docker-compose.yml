@@ -52,6 +52,8 @@ services:
       USERNAME_OIDC_FIELD: preferred_username
       FIRST_NAME_OIDC_FIELD: given_name
       LAST_NAME_OIDC_FIELD: family_name
+      http_proxy: http://PROXY_STRING
+      https_proxy: http://PROXY_STRING
       # If using production, comment development volume below
       SUPERSET_ENV: production
       #SUPERSET_ENV: development
