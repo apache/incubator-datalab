@@ -35,7 +35,7 @@ data "template_file" "step_ca_values" {
 }
 
 resource "helm_release" "step_ca" {
-  name       = "dlab-step-ca"
+  name       = "step-certificates"
   // repository = data.helm_repository.smallstep.metadata.0.name
   chart      = "./step-ca-chart"
   namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
