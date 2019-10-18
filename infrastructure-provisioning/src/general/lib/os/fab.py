@@ -788,7 +788,7 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
             sudo('cp /opt/dlab/templates/superset-notebook.service /etc/systemd/system/')
             sudo('systemctl daemon-reload')
             sudo('systemctl enable superset-notebook')
-            sudo('systemctl startsuperset-notebook')
+            sudo('systemctl start superset-notebook')
             sudo('touch /tmp/superset-notebook_installed')
     except Exception as err:
         print("Failed configure superset: " + str(err))
