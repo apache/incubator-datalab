@@ -245,6 +245,6 @@ sudo bash -c 'echo "0 0 * * * root /usr/local/bin/update_files.sh" >> /etc/cront
 # sleep 300
 # sudo bash -c 'echo "* * * * * root /usr/local/bin/remove-etcd-member.sh >> /var/log/cron_k8s.log 2>&1" >> /etc/crontab'
 sudo -i -u ${k8s_os_user} helm repo update
-wget https://releases.hashicorp.com/terraform/0.12.3/terraform_0.12.3_linux_amd64.zip -O /tmp/terraform_0.12.3_linux_amd64.zip
-unzip /tmp/terraform_0.12.3_linux_amd64.zip -d /tmp/
+wget https://releases.hashicorp.com/terraform/0.12.12/terraform_0.12.12_linux_amd64.zip -O /tmp/terraform_0.12.12_linux_amd64.zip
+unzip /tmp/terraform_0.12.12_linux_amd64.zip -d /tmp/
 sudo mv /tmp/terraform /usr/local/bin/
