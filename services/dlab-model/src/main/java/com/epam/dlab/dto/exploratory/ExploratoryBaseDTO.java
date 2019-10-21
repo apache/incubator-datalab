@@ -30,6 +30,8 @@ public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends Resourc
 	private String notebookImage;
 	@JsonProperty("project_name")
 	private String project;
+	@JsonProperty("endpoint_name")
+	private String endpoint;
 
 	public String getNotebookImage() {
 		return notebookImage;
@@ -48,6 +50,10 @@ public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends Resourc
 		setProject(project);
 		return self;
 	}
+	public T withEndpoint(String endpoint) {
+		setEndpoint(project);
+		return self;
+	}
 
 	@Override
 	public ToStringHelper toStringHelper(Object self) {
@@ -61,6 +67,14 @@ public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends Resourc
 
 	public void setProject(String project) {
 		this.project = project;
+	}
+
+	public String getEndpoint() {
+		return endpoint;
+	}
+
+	public void setEndpoint(String endpoint) {
+		this.endpoint = endpoint;
 	}
 
 	@Override

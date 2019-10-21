@@ -20,11 +20,13 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.backendapi.SelfServiceApplication;
+import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.gcp.GcpBillingDao;
 import com.epam.dlab.backendapi.dao.gcp.GcpKeyDao;
+import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
 import com.epam.dlab.backendapi.resources.callback.gcp.EdgeCallbackGcp;
 import com.epam.dlab.backendapi.resources.callback.gcp.KeyUploaderCallbackGcp;
 import com.epam.dlab.backendapi.resources.gcp.BillingResourceGcp;
@@ -46,6 +48,9 @@ import io.dropwizard.setup.Environment;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
+
+import static com.google.inject.matcher.Matchers.annotatedWith;
+import static com.google.inject.matcher.Matchers.any;
 
 public class GcpSelfServiceModule extends CloudModule {
 
@@ -76,6 +81,9 @@ public class GcpSelfServiceModule extends CloudModule {
         bind(BillingDAO.class).to(GcpBillingDao.class);
         bind(SchedulerConfiguration.class).toInstance(
                 new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
+        final BudgetLimitInterceptor budgetLimitInterceptor = new BudgetLimitInterceptor();
+        requestInjection(budgetLimitInterceptor);
+        bindInterceptor(any(), annotatedWith(BudgetLimited.class), budgetLimitInterceptor);
     }
 
     @Provides
