@@ -506,6 +506,7 @@ if __name__ == "__main__":
                  "--usage {} " \
                  "--cost {} " \
                  "--resource_id {} " \
+                 "--default_endpoint_name {} " \
                  "--tags {}". \
             format(instance_hostname,
                    "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
@@ -531,6 +532,7 @@ if __name__ == "__main__":
                    os.environ['usage'],
                    os.environ['cost'],
                    os.environ['resource_id'],
+                   os.environ['default_endpoint_name'],
                    os.environ['tags'])
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))

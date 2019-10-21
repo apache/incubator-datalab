@@ -349,14 +349,14 @@ if __name__ == "__main__":
                  --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} \
                  --offer_number {} --currency {} --locale {} --region_info {}  --ldap_login {} --tenant_id {} \
                  --application_id {} --datalake_store_name {} --cloud_params '{}' --subscription_id {}  \
-                 --validate_permission_scope {}". \
+                 --validate_permission_scope {} --default_endpoint_name {}". \
             format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
                    ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
                    os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
                    billing_enabled, azure_auth_path, os.environ['azure_offer_number'],
                    os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
                    ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(cloud_params),
-                   subscription_id, os.environ['azure_validate_permission_scope'])
+                   subscription_id, os.environ['azure_validate_permission_scope'], ssn_conf['default_endpoint_name'])
         local("~/scripts/{}.py {}".format('configure_ui', params))
     except Exception as err:
         #print('Error: {0}'.format(err))
