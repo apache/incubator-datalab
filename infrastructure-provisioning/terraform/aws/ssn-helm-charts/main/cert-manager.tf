@@ -57,3 +57,12 @@ resource "helm_release" "cert-manager" {
     wait       = true
     version    = "v0.9.0"
 }
+
+resource "null_resource" "cert_manager_delay" {
+    provisioner "local-exec" {
+        command = "sleep 120"
+    }
+    triggers = {
+        "after" = helm_release.cert-manager.name
+    }
+}

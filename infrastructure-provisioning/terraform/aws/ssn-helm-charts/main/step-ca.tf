@@ -39,7 +39,7 @@ resource "helm_release" "step_ca" {
   // repository = data.helm_repository.smallstep.metadata.0.name
   chart      = "./step-ca-chart"
   namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-  depends_on = [helm_release.cert-manager]
+  depends_on = [null_resource.cert_manager_delay]
   wait       = false
   timeout    = 600
 
