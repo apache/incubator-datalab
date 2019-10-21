@@ -43,7 +43,7 @@ resource "kubernetes_namespace" "cert-manager-namespace" {
       name = "cert-manager"
     }
     labels = {
-      certmanager.k8s.io/disable-validation = "true"
+      "certmanager.k8s.io/disable-validation" = "true"
     }
 
     name = "cert-manager"
