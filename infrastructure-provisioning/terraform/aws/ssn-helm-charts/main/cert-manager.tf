@@ -19,20 +19,41 @@
 #
 # ******************************************************************************
 
-resource "null_resource" "cert_manager" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.9.1/cert-manager.yaml"
-  }
-  triggers = {
-    "after" = kubernetes_namespace.cert-manager-namespace.metadata[0].name
-  }
+//resource "null_resource" "cert_manager" {
+//  provisioner "local-exec" {
+//    command = "kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.9.1/cert-manager.yaml"
+//  }
+//  triggers = {
+//    "after" = kubernetes_namespace.cert-manager-namespace.metadata[0].name
+//  }
+//}
+//
+//resource "null_resource" "cert_manager_delay" {
+//  provisioner "local-exec" {
+//    command = "sleep 120"
+//  }
+//  triggers = {
+//    "before" = null_resource.cert_manager.id
+//  }
+//}
+
+resource "helm_release" "cert_manager_crd" {
+    name       = "cert_manager_crd"
+    chart      = "./cert-manager-crd-chart"
+    wait       = true
 }
 
-resource "null_resource" "cert_manager_delay" {
-  provisioner "local-exec" {
-    command = "sleep 120"
-  }
-  triggers = {
-    "before" = null_resource.cert_manager.id
-  }
+data "helm_repository" "jetstack" {
+  name = "jetstack"
+  url  = "https://charts.jetstack.io"
+}
+
+resource "helm_release" "cert-manager" {
+    name       = "cert-manager"
+    repository = data.helm_repository.jetstack.metadata.0.name
+    chart      = "jetstack/cert-manager"
+    namespace  = kubernetes_namespace.cert-manager-namespace.metadata[0].name
+    depends_on = [helm_release.cert_manager_crd]
+    wait       = true
+    version    = "0.9.1"
 }
