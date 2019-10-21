@@ -55,5 +55,5 @@ resource "helm_release" "cert-manager" {
     namespace  = kubernetes_namespace.cert-manager-namespace.metadata[0].name
     depends_on = [helm_release.cert_manager_crd]
     wait       = true
-    version    = "0.9.0"
+    version    = "v0.9.0"
 }
