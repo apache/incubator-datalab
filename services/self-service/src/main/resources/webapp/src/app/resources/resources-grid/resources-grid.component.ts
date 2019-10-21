@@ -215,6 +215,8 @@ export class ResourcesGridComponent implements OnInit {
 
   filterActiveInstances(): FilterConfigurationModel {
     const filteredData = (<any>Object).assign({}, this.filterConfiguration);
+    filteredData.project = this.activeProject || '';
+
     for (const index in filteredData) {
       if (filteredData[index] instanceof Array)
         filteredData[index] = filteredData[index].filter((item: string) => {
