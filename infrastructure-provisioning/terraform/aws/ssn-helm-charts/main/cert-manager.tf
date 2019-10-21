@@ -19,26 +19,20 @@
 #
 # ******************************************************************************
 
-data "template_file" "cert_manager_values" {
-  template = file("./cert-manager-chart/values.yaml")
-}
-
-resource "helm_release" "cert-manager" {
-    name       = "cert-manager"
-    chart      = "./cert-manager-chart"
-    namespace  = kubernetes_namespace.cert-manager-namespace.metadata[0].name
-    wait       = false
-
-    values     = [
-        data.template_file.cert_manager_values.rendered
-    ]
+resource "null_resource" "cert_manager" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.9.1/cert-manager.yaml"
+  }
+  triggers = {
+    "after" = kubernetes_namespace.cert-manager-namespace.metadata[0].name
+  }
 }
 
 resource "null_resource" "cert_manager_delay" {
   provisioner "local-exec" {
-    command = "sleep 60"
+    command = "sleep 120"
   }
   triggers = {
-    "before" = helm_release.cert-manager.name
+    "before" = null_resource.cert_manager.id
   }
 }
