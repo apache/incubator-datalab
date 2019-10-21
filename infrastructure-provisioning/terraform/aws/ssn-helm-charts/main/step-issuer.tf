@@ -33,3 +33,12 @@ resource "helm_release" "step-issuer" {
         data.template_file.step_issuer_values.rendered
     ]
 }
+
+resource "null_resource" "step_issuer_delay" {
+  provisioner "local-exec" {
+    command = "sleep 120"
+  }
+  triggers = {
+    "before" = helm_release.step-issuer.name
+  }
+}
