@@ -27,9 +27,18 @@ resource "helm_release" "cert-manager" {
     name       = "cert-manager"
     chart      = "./cert-manager-chart"
     namespace  = kubernetes_namespace.cert-manager-namespace.metadata[0].name
-    wait       = true
+    wait       = false
 
     values     = [
         data.template_file.cert_manager_values.rendered
     ]
+}
+
+resource "null_resource" "cert_manager_delay" {
+  provisioner "local-exec" {
+    command = "sleep 60"
+  }
+  triggers = {
+    "before" = helm_release.cert-manager.name
+  }
 }
