@@ -20,7 +20,7 @@
 # ******************************************************************************
 
 data "template_file" "step_issuer_values" {
-  template = file("./cert-manager-chart/values.yaml")
+  template = file("./step-issuer-chart/values.yaml")
 }
 
 resource "helm_release" "step-issuer" {
