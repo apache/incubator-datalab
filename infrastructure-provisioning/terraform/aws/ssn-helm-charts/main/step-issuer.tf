@@ -18,42 +18,18 @@
 # under the License.
 #
 # ******************************************************************************
-provider "helm" {
-    install_tiller  = true
-    namespace       = "kube-system"
-    service_account = "tiller"
-    tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.14.1"
+
+data "template_file" "step_issuer_values" {
+  template = file("./cert-manager-chart/values.yaml")
 }
 
-provider "kubernetes" {}
+resource "helm_release" "step-issuer" {
+    name       = "step-issuer"
+    chart      = "./step-issuer-chart"
+    wait       = true
+    depends_on = [null_resource.step_ca_delay]
 
-resource "kubernetes_namespace" "dlab-namespace" {
-  metadata {
-    annotations = {
-      name = var.namespace_name
-    }
-
-    name = var.namespace_name
-  }
-}
-
-resource "kubernetes_namespace" "cert-manager-namespace" {
-  metadata {
-    annotations = {
-      name = "cert-manager"
-    }
-
-    name = "cert-manager"
-  }
-}
-
-resource "kubernetes_storage_class" "dlab-storage-class" {
-  metadata {
-    name = "aws-ebs"
-  }
-  storage_provisioner = "kubernetes.io/aws-ebs"
-  reclaim_policy      = "Delete"
-  parameters = {
-    type = "gp2"
-  }
+    values     = [
+        data.template_file.step_issuer_values.rendered
+    ]
 }
