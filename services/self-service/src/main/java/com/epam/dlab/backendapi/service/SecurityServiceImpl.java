@@ -36,4 +36,10 @@ public class SecurityServiceImpl implements SecurityService {
 						accessTokenResponse.getToken()))
 				.orElseThrow(() -> new DlabException("Can not find token for user " + username));
 	}
+
+	@Override
+	public UserInfo getServiceAccountInfo(String username) {
+		AccessTokenResponse accessTokenResponse = keycloakService.generateServiceAccountToken();
+		return new UserInfo(username, accessTokenResponse.getToken());
+	}
 }

@@ -194,7 +194,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private void stopNotebook(UserInstanceDTO instance) {
-		final UserInfo userInfo = securityService.getUserInfoOffline(instance.getUser());
+		final UserInfo userInfo = securityService.getServiceAccountInfo(instance.getUser());
 		exploratoryService.stop(userInfo, instance.getExploratoryName());
 	}
 
