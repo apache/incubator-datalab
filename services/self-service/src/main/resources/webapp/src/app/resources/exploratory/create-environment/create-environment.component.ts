@@ -69,7 +69,14 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public getUserProjects() {
-    this.projectService.getUserProjectsList().subscribe((projects: any) => this.projects = projects);
+    this.projectService.getUserProjectsList().subscribe((projects: any) => {
+      this.projects = projects;
+      const activeProject = projects.find(item => item.name === this.resourceGrid.activeProject);
+      if (this.resourceGrid.activeProject && activeProject) {
+        this.setEndpoints(activeProject)
+        this.createExploratoryForm.controls['project'].setValue(activeProject.name);
+      }
+    });
   }
 
   public setEndpoints(project) {

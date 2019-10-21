@@ -25,16 +25,19 @@ export class StorageService {
   private userNameKey: string = 'user_name';
   private quoteUsedKey: string = 'billing_quote';
 
+  private readonly JWT_TOKEN = 'JWT_TOKEN';
+  private readonly REFRESH_TOKEN = 'REFRESH_TOKEN';
+
   getToken(): string {
-    return window.localStorage.getItem(this.accessTokenKey);
+    return window.localStorage.getItem(this.JWT_TOKEN);
+  }
+
+  getRefreshToken() {
+    return localStorage.getItem(this.REFRESH_TOKEN);
   }
 
   setAuthToken(token: string) {
-    window.localStorage.setItem(this.accessTokenKey, token);
-  }
-
-  destroyToken(): void {
-    window.localStorage.removeItem(this.accessTokenKey);
+    window.localStorage.setItem(this.JWT_TOKEN, token);
   }
 
   getUserName(): string {
@@ -51,5 +54,19 @@ export class StorageService {
 
   setBillingQuoteUsed(quote): void {
     window.localStorage.setItem(this.quoteUsedKey, quote);
+  }
+
+  storeTokens(tokens) {
+    window.localStorage.setItem(this.JWT_TOKEN, tokens.access_token);
+    window.localStorage.setItem(this.REFRESH_TOKEN, tokens.refresh_token);
+  }
+
+  destroyAccessToken(): void {
+    window.localStorage.removeItem(this.JWT_TOKEN);
+  }
+
+  destroyTokens(): void {
+    window.localStorage.removeItem(this.JWT_TOKEN);
+    window.localStorage.removeItem(this.REFRESH_TOKEN);
   }
 }
