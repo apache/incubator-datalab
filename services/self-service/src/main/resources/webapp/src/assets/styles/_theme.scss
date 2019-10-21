@@ -303,8 +303,9 @@ span.mat-slide-toggle-content {
 
   .mat-reset {
     .mat-form-field {
+      overflow: hidden;
+
       .mat-form-field-wrapper {
-        overflow: hidden;
 
         .mat-form-field-infix {
           width: 275px;
@@ -313,6 +314,10 @@ span.mat-slide-toggle-content {
           font-size: 15px;
           font-weight: 300;
           padding-top: 10px;
+
+          .mat-select-value {
+            max-width: inherit;
+          }
 
           .mat-select-value-text {
             span {

@@ -99,7 +99,8 @@
         <span class="label"> {{ DICTIONARY.instance_size}} </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filteredReportData.shape.length > 0; else shape_filtered">filter_list</span>
+            <span
+              *ngIf="filteredReportData[DICTIONARY.billing.instance_size].length > 0; else shape_filtered">filter_list</span>
             <ng-template #shape_filtered>more_vert</ng-template>
           </i>
         </button>

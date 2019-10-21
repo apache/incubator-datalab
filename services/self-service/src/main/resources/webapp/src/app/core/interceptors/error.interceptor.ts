@@ -18,41 +18,81 @@
  */
 
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import {
-    HttpInterceptor,
-    HttpRequest,
-    HttpHandler,
-    HttpEvent
+  HttpInterceptor,
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpErrorResponse
 } from '@angular/common/http';
 
-import { Observable, throwError, of as observableOf } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { _throw } from 'rxjs/observable/throw';
+import { switchMap, filter, take, catchError } from 'rxjs/operators';
 
-import { StorageService, AppRoutingService } from '../services';
+import { StorageService, AppRoutingService, ApplicationSecurityService } from '../services';
 import { HTTP_STATUS_CODES } from '../util';
 
 @Injectable() export class ErrorInterceptor implements HttpInterceptor {
+  private isRefreshing = false;
+  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+
   constructor(
     private jwtService: StorageService,
-    private routingService: AppRoutingService
-  ) {}
+    private routingService: AppRoutingService,
+    private auth: ApplicationSecurityService
+  ) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError(error => {
-        let url = error.url;
 
-        if (url.indexOf('?') > -1) {
-          url = url.substr(0, url.indexOf('?'));
-        }
-
-        if ((error.status === HTTP_STATUS_CODES.UNAUTHORIZED) && !url.endsWith('login')) {
-          this.jwtService.destroyToken();
-          this.routingService.redirectToLoginPage();
-          return observableOf(error);
+        if (error instanceof HttpErrorResponse) {
+          switch ((<HttpErrorResponse>error).status) {
+            case HTTP_STATUS_CODES.UNAUTHORIZED:
+              return this.handleUnauthorized(request, next);
+            case HTTP_STATUS_CODES.BAD_REQUEST:
+              return this.handleBadRequest(request, next);
+            default:
+              return _throw(error);
+          }
         } else {
-          return throwError(error);
+          this.routingService.redirectToLoginPage();
+          this.jwtService.destroyTokens();
+          return _throw(error);
         }
       }));
+  }
+
+  private addToken(request: HttpRequest<any>, token: string) {
+    return request.clone({ setHeaders: { 'Authorization': `Bearer ${token}` } });
+  }
+
+  private handleUnauthorized(request: HttpRequest<any>, next: HttpHandler) {
+
+    if (!this.isRefreshing) {
+      this.isRefreshing = true;
+      this.jwtService.destroyAccessToken();
+      this.refreshTokenSubject.next(null);
+
+      return this.auth.refreshToken().pipe(
+        switchMap((token: any) => {
+          this.isRefreshing = false;
+          this.refreshTokenSubject.next(this.addToken(request, token.access_token));
+          return next.handle(request);
+        }));
+
+    } else {
+      return this.refreshTokenSubject.pipe(
+        filter(token => token != null),
+        take(1),
+        switchMap(jwt => next.handle(this.addToken(request, jwt))));
     }
+  }
+
+  private handleBadRequest(request: HttpRequest<any>, next: HttpHandler) {
+    this.routingService.redirectToLoginPage();
+    return next.handle(request);
+  }
 }

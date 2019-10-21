@@ -18,15 +18,15 @@
  */
 
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';
-import { ExploratoryModel, Exploratory } from './resources-grid/resources-grid.model';
-import { HealthStatusService } from '../core/services';
+import { Exploratory } from './resources-grid/resources-grid.model';
+import { HealthStatusService, ProjectService } from '../core/services';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
+import { Project } from './../administration/project/project.component';
 
 @Component({
   selector: 'dlab-resources',
@@ -37,17 +37,20 @@ import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 export class ResourcesComponent implements OnInit {
   public exploratoryEnvironments: Exploratory[] = [];
   public healthStatus: any;
+  projects: Project[] = [];
 
   @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
 
   constructor(
     public toastr: ToastrService,
     private healthStatusService: HealthStatusService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private projectService: ProjectService
   ) { }
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
+    this.getProjects();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
@@ -74,6 +77,21 @@ export class ResourcesComponent implements OnInit {
     this.dialog.open(ManageUngitComponent, { panelClass: 'modal-xxl' })
       .afterClosed().subscribe(() => this.refreshGrid());
   }
+
+  public setActiveProject(project): void {
+    this.resourcesGrid.selectActiveProject(project);
+  }
+
+  public getActiveProject() {
+    console.log('activeProject: ', this.resourcesGrid.activeProject);
+
+    return this.resourcesGrid.activeProject;
+  }
+
+  private getProjects() {
+    this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
+  }
+
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus().subscribe(

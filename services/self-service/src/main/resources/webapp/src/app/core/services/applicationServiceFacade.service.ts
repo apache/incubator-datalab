@@ -35,6 +35,7 @@ export class ApplicationServiceFacade {
   private static readonly LOGIN = 'login';
   private static readonly LOGOUT = 'logout';
   private static readonly AUTHORIZE = 'authorize';
+  private static readonly REFRESH_TOKEN = 'refresh_token';
   private static readonly OAUTH = 'oauth';
   private static readonly ACCESS_KEY = 'access_key';
   private static readonly ACTIVE_LIST = 'active_list';
@@ -75,7 +76,7 @@ export class ApplicationServiceFacade {
   private static readonly PROJECT = 'project';
   private static readonly USER_PROJECT = 'project/me';
   private static readonly ENDPOINT = 'endpoint';
-  private accessTokenKey: string = 'access_token';
+
   private requestRegistry: Dictionary<string>;
 
   constructor(private http: HttpClient) {
@@ -105,6 +106,12 @@ export class ApplicationServiceFacade {
         headers: { 'Content-Type': 'text/plain' },
         observe: 'response'
       });
+  }
+
+  public buildRefreshToken(param: any): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.REFRESH_TOKEN) + param,
+      null);
   }
 
   public buildLocationCheck(): Observable<any> {
@@ -588,6 +595,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LOGIN, '/api/user/login');
     this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/oauth/logout');
     this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/oauth/authorize');
+    this.requestRegistry.Add(ApplicationServiceFacade.REFRESH_TOKEN, '/api/oauth/refresh');
     this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user');
     this.requestRegistry.Add(ApplicationServiceFacade.FULL_ACTIVE_LIST, '/api/environment/all');
     this.requestRegistry.Add(ApplicationServiceFacade.ENV, '/api/environment');
@@ -625,7 +633,6 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.BUDGET, '/api/user/settings/budget');
 
     // Environment Health Status
-    this.requestRegistry.Add(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS, '/api/infrastructure/status');
     this.requestRegistry.Add(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS, '/api/infrastructure/status');
     this.requestRegistry.Add(ApplicationServiceFacade.META_DATA, '/api/infrastructure/meta');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_START, '/api/infrastructure/edge/start');
