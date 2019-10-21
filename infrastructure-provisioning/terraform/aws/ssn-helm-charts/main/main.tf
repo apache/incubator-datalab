@@ -42,6 +42,9 @@ resource "kubernetes_namespace" "cert-manager-namespace" {
     annotations = {
       name = "cert-manager"
     }
+    labels = {
+      certmanager.k8s.io/disable-validation = "true"
+    }
 
     name = "cert-manager"
   }
