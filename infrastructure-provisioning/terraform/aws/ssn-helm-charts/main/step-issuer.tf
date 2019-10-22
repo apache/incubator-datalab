@@ -45,7 +45,7 @@ resource "null_resource" "step_issuer_delay" {
 
 data "template_file" "step_ca_issuer_values" {
   template = file("./step-ca-issuer-chart/values.yaml")
-  vars {
+  vars     = {
     step_ca_url      = "https://${var.ssn_k8s_nlb_dns_name}:7443"
     step_ca_bundle   = lookup(data.external.step-ca-config-values.result, "rootCa")
     namespace        = kubernetes_namespace.dlab-namespace.metadata[0].name
