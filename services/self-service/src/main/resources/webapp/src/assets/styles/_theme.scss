@@ -384,8 +384,9 @@ span.mat-slide-toggle-content {
 
   .roles {
     .selector-wrapper-edit {
-      .mat-select-value {
-        width: 93%;
+      .mat-select-trigger {
+        width: 100%;
+        display: flex;
       }
     }
   }
