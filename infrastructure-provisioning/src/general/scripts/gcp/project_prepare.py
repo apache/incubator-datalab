@@ -45,6 +45,7 @@ if __name__ == "__main__":
     project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
     project_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     project_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+    project_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
@@ -73,8 +74,11 @@ if __name__ == "__main__":
     project_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(project_conf['service_base_name'],
                                                           project_conf['project_name'], project_conf['endpoint_tag'])
     project_conf['ssn_instance_name'] = '{}-ssn'.format(project_conf['service_base_name'])
-    project_conf['bucket_name'] = '{0}-{1}-bucket'.format(project_conf['service_base_name'], project_conf['project_name'])
-    project_conf['shared_bucket_name'] = '{}-shared-bucket'.format(project_conf['service_base_name'])
+    project_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(project_conf['service_base_name'],
+                                                              project_conf['project_name'],
+                                                              project_conf['endpoint_name'])
+    project_conf['shared_bucket_name'] = '{0}-{1}-shared-bucket'.format(project_conf['service_base_name'],
+                                                                        project_conf['endpoint_name'])
     project_conf['instance_size'] = os.environ['gcp_edge_instance_size']
     project_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     project_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]

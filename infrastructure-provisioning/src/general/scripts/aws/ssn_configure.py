@@ -45,7 +45,8 @@ if __name__ == "__main__":
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
         ssn_bucket_name_tag = service_base_name + '-ssn-bucket'
-        shared_bucket_name_tag = service_base_name + '-shared-bucket'
+        default_endpoint_name = os.environ['default_endpoint_name']
+        shared_bucket_name_tag = '{0}-{1}-shared-bucket'.format(service_base_name, default_endpoint_name)
         ssn_bucket_name = ssn_bucket_name_tag.lower().replace('_', '-')
         shared_bucket_name = shared_bucket_name_tag.lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
@@ -505,6 +506,7 @@ if __name__ == "__main__":
                  "--usage {} " \
                  "--cost {} " \
                  "--resource_id {} " \
+                 "--default_endpoint_name {} " \
                  "--tags {}". \
             format(instance_hostname,
                    "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
@@ -530,6 +532,7 @@ if __name__ == "__main__":
                    os.environ['usage'],
                    os.environ['cost'],
                    os.environ['resource_id'],
+                   os.environ['default_endpoint_name'],
                    os.environ['tags'])
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))

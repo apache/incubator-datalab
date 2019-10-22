@@ -134,6 +134,8 @@ parser.add_argument('--tags', type=str, default='line_item_operation,line_item_l
                                                                                   'contains tags')
 parser.add_argument('--billing_dataset_name', type=str, default='', help='Name of GCP dataset (BigQuery service)'
                                                                          ' for billing')
+parser.add_argument('--default_endpoint_name', type=str, default='local', help='Name of localhost provisioning service,'
+                                                                               'that created by default')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()
