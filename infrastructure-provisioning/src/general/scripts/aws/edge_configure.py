@@ -50,7 +50,7 @@ if __name__ == "__main__":
                                                            edge_conf['project_name'],
                                                            edge_conf['endpoint_name']).lower().replace('_', '-')
     edge_conf['shared_bucket_name'] = '{0}-{1}-shared-bucket'.format(edge_conf['service_base_name'],
-                                                                     edge_conf['default_endpoint_name']).lower().replace('_', '-')
+                                                                     edge_conf['endpoint_name']).lower().replace('_', '-')
     edge_conf['edge_security_group_name'] = '{}-sg'.format(edge_conf['instance_name'])
     edge_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'],
                                                             os.environ['project_name'])
