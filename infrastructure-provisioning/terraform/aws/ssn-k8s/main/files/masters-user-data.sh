@@ -159,7 +159,7 @@ aws s3 cp /tmp/join_command s3://${k8s-bucket-name}/k8s/masters/join_command
 aws s3 cp /tmp/cert_key s3://${k8s-bucket-name}/k8s/masters/cert_key
 sudo rm -f /tmp/join_command
 sudo rm -f /tmp/cert_key
-cat <<EOF /tmp/get_configmap_values.sh
+cat <<EOF > /tmp/get_configmap_values.sh
 #!/bin/bash
 
 ROOT_CA=$(kubectl get -o jsonpath="{.data['root_ca\.crt']}" configmaps/step-certificates-certs -ndlab | base64 | tr -d '\n')
