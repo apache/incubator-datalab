@@ -42,3 +42,30 @@ resource "null_resource" "step_issuer_delay" {
     "before" = helm_release.step-issuer.name
   }
 }
+
+data "template_file" "step_ca_issuer_values" {
+  template = file("./step-ca-issuer-chart/values.yaml")
+  vars {
+    step_ca_url      = "https://${var.ssn_k8s_nlb_dns_name}:7443"
+    step_ca_bundle   = lookup(data.external.step-ca-config-values.result, "rootCa")
+    namespace        = kubernetes_namespace.dlab-namespace.metadata[0].name
+    step_ca_kid_name = lookup(data.external.step-ca-config-values.result, "kidName")
+    step_ca_kid      = lookup(data.external.step-ca-config-values.result, "kid")
+  }
+}
+
+resource "helm_release" "step-ca-issuer" {
+    name       = "step-ca-issuer"
+    chart      = "./step-ca-issuer-chart"
+    wait       = true
+    depends_on = [null_resource.step_issuer_delay]
+
+    values     = [
+        data.template_file.step_ca_issuer_values.rendered
+    ]
+}
+
+data "external" "step-ca-config-values" {
+  program     = ["sh", "/tmp/get_configmap_values.sh" ]
+  depends_on  = [null_resource.step_issuer_delay]
+}
