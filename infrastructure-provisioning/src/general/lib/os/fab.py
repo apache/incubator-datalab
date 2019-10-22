@@ -785,7 +785,10 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
             sudo('cp -f /opt/dlab/templates/docker-init.sh /home/{}/incubator-superset/contrib/docker/'.format(os_user))
             with cd('/home/{}/incubator-superset/contrib/docker'.format(os_user)):
                 sudo('docker-compose run --rm superset ./docker-init.sh')
-            sudo('cp /opt/dlab/templates/superset-notebook.service /etc/systemd/system/')
+            if not exists('/etc/systemd/system/superset-notebook.service'):
+                sudo('cp /opt/dlab/templates/superset-notebook.service /tmp/')
+                sudo('sed -i \'s/OS_USER/{}/g\' /tmp/superset-notebook.service'.format(os_user))
+                sudo('cp /tmp/superset-notebook.service /etc/systemd/system/')
             sudo('systemctl daemon-reload')
             sudo('systemctl enable superset-notebook')
             sudo('systemctl start superset-notebook')
@@ -793,4 +796,3 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
     except Exception as err:
         print("Failed configure superset: " + str(err))
         sys.exit(1)
-

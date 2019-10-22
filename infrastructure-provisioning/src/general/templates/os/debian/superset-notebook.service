@@ -24,14 +24,14 @@ Description=Superset service
 
 [Service]
 Type=simple
-User=OS_USR
-Group=OS_USR
-ExecStart=/usr/bin/sudo "/home/OS_USR/incubator-superset/contrib/docker" docker-compose up -d
-WorkingDirectory=/home/OS_USR/incubator-superset/contrib/docker
-
-TimeoutStopSec=10
+User=OS_USER
+Group=OS_USER
+ExecStart=/usr/bin/sudo docker-compose up
+ExecStop=/usr/bin/sudo docker-compose stop
+WorkingDirectory=/home/OS_USER/incubator-superset/contrib/docker
+TimeoutStopSec=60
 Restart=on-failure
-RestartSec=5
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
