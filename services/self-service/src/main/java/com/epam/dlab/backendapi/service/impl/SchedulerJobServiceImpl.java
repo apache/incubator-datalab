@@ -206,14 +206,14 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String compName = job.getComputationalName();
 		final String user = job.getUser();
 		log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.stopSparkCluster(securityService.getUserInfoOffline(user), expName, compName);
+		computationalService.stopSparkCluster(securityService.getServiceAccountInfo(job.getUser()), expName, compName);
 	}
 
 	private void terminateComputational(SchedulerJobData job) {
 		final String user = job.getUser();
 		final String expName = job.getExploratoryName();
 		final String compName = job.getComputationalName();
-		final UserInfo userInfo = securityService.getUserInfoOffline(user);
+		final UserInfo userInfo = securityService.getServiceAccountInfo(user);
 		log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
 		computationalService.terminateComputational(userInfo, expName, compName);
 	}
@@ -222,7 +222,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String expName = job.getExploratoryName();
 		final String user = job.getUser();
 		log.debug("Stopping exploratory {} for user {} by scheduler", expName, user);
-		exploratoryService.stop(securityService.getUserInfoOffline(user), expName);
+		exploratoryService.stop(securityService.getServiceAccountInfo(user), expName);
 	}
 
 	private List<SchedulerJobData> getExploratorySchedulersForTerminating(OffsetDateTime now) {
@@ -243,7 +243,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String user = schedulerJobData.getUser();
 		final String exploratoryName = schedulerJobData.getExploratoryName();
 		log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
-		exploratoryService.start(securityService.getUserInfoOffline(user), exploratoryName, ""); //TODO chagne empty
+		exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, ""); //TODO chagne empty
 		if (schedulerJobData.getJobDTO().isSyncStartRequired()) {
 			log.trace("Starting computational for exploratory {} for user {} by scheduler", exploratoryName, user);
 			final DataEngineType sparkCluster = DataEngineType.SPARK_STANDALONE;
@@ -266,7 +266,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private void startSpark(String user, String expName, String compName) {
 		log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.startSparkCluster(securityService.getUserInfoOffline(user), expName, compName, "");
+		computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, "");
 		//TODO change empty string
 	}
 
