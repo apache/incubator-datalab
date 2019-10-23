@@ -21,3 +21,6 @@
 
 extraArgs:
   - --feature-gates=CertificateRequestControllers=true
+webhook:
+  extraArgs:
+    - --feature-gates=CertificateRequestControllers=true
