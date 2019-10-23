@@ -159,7 +159,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	@Override
 	public void startComputationalByScheduler() {
 		getComputationalSchedulersForStarting(OffsetDateTime.now())
-				.forEach(job -> startSpark(job.getUser(), job.getExploratoryName(), job.getComputationalName()));
+				.forEach(job -> startSpark(job.getUser(), job.getExploratoryName(), job.getComputationalName(),
+						job.getProject()));
 	}
 
 	@Override
@@ -242,8 +243,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private void startExploratory(SchedulerJobData schedulerJobData) {
 		final String user = schedulerJobData.getUser();
 		final String exploratoryName = schedulerJobData.getExploratoryName();
+		final String project = schedulerJobData.getProject();
 		log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
-		exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, ""); //TODO chagne empty
+		exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, project);
 		if (schedulerJobData.getJobDTO().isSyncStartRequired()) {
 			log.trace("Starting computational for exploratory {} for user {} by scheduler", exploratoryName, user);
 			final DataEngineType sparkCluster = DataEngineType.SPARK_STANDALONE;
@@ -253,7 +255,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			compToBeStarted
 					.stream()
 					.filter(compResource -> shouldClusterBeStarted(sparkCluster, compResource))
-					.forEach(comp -> startSpark(user, exploratoryName, comp.getComputationalName()));
+					.forEach(comp -> startSpark(user, exploratoryName, comp.getComputationalName(), project));
 		}
 	}
 
@@ -264,10 +266,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		exploratoryService.terminate(securityService.getUserInfoOffline(user), expName);
 	}
 
-	private void startSpark(String user, String expName, String compName) {
+	private void startSpark(String user, String expName, String compName, String project) {
 		log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, "");
-		//TODO change empty string
+		computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, project);
 	}
 
 	private boolean shouldClusterBeStarted(DataEngineType sparkCluster, UserComputationalResource compResource) {

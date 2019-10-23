@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
+import static com.epam.dlab.backendapi.dao.ComputationalDAO.PROJECT;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.IMAGE;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
@@ -195,7 +196,7 @@ public class SchedulerJobDAO extends BaseDAO {
 						statusCondition,
 						schedulerNotNullCondition(), eq(CHECK_INACTIVITY_FLAG, false)
 				),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, PROJECT, SCHEDULER_DATA)));
 	}
 
 	private Stream<SchedulerJobData> computationalSchedulerDataStream(Document doc, DataEngineType computationalType,
@@ -209,9 +210,10 @@ public class SchedulerJobDAO extends BaseDAO {
 		final String user = userInstanceDocument.getString(USER);
 		final String exploratoryName = userInstanceDocument.getString(EXPLORATORY_NAME);
 		final String computationalName = compResource.getString(COMPUTATIONAL_NAME);
+		final String project = compResource.getString(PROJECT);
 		final SchedulerJobDTO schedulerData = convertFromDocument((Document) compResource.get(SCHEDULER_DATA),
 				SchedulerJobDTO.class);
-		return new SchedulerJobData(user, exploratoryName, computationalName, schedulerData);
+		return new SchedulerJobData(user, exploratoryName, computationalName, project, schedulerData);
 	}
 
 	@SuppressWarnings("unchecked")
