@@ -165,7 +165,7 @@ cat <<EOF > /tmp/get_configmap_values.sh
 ROOT_CA=\$(kubectl get -o jsonpath="{.data['root_ca\.crt']}" configmaps/step-certificates-certs -ndlab | base64 | tr -d '\n')
 KID=\$(kubectl get -o jsonpath="{.data['ca\.json']}" configmaps/step-certificates-config -ndlab | jq -r .authority.provisioners[].key.kid)
 KID_NAME=\$(kubectl get -o jsonpath="{.data['ca\.json']}" configmaps/step-certificates-config -ndlab | jq -r .authority.provisioners[].name)
-jq -n --arg rootCa "\$ROOT_CA" --arg kid "\$KID" --arg kidName "$KID_NAME" '{rootCa: \$rootCa, kid: \$kid, kidName: \$kidName}'
+jq -n --arg rootCa "\$ROOT_CA" --arg kid "\$KID" --arg kidName "\$KID_NAME" '{rootCa: \$rootCa, kid: \$kid, kidName: \$kidName}'
 EOF
 chown ${k8s_os_user}:${k8s_os_user} /tmp/get_configmap_values.sh
 else
