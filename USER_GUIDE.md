@@ -10,7 +10,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [Login](#login)
 
-[Create a project](#create_project)
+[Create a project](#setup_project)
 
 [Setting up analytical environment and managing computational power](#setup_environmen)
 
