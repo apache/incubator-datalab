@@ -109,29 +109,6 @@ In second step we should fill general information about the project:
 On the last step we should select user groups that will be assigned to such project
 As soon as project is created, Data Scientist will see a blank “List of Resources” page and can start create his resources.
 
-
-
-
-When you log into DLab Web Application, the first thing you will have to setup is a Gateway Node, or an “Edge” Node.
-
-To do this click on “Upload” button on “Create initial infrastructure”, select your personal public key and hit “Create” button or click on "Generate" button on “Create initial infrastructure” and save your private key.
-
-<p align="center" class="facebox-popup"> 
-    <img src="doc/upload_or_generate_user_key.png" alt="Upload or generate user key" width="400">
-</p>
-
-Please note that you need to have a key pair combination (public and private key) to work with DLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Create initial infrastructure” dialog. DLab build-in wiki page will guide Windows, MasOS and Linux on how to generate SSH key pairs quickly.
-
-After you hit "Create" or "Generate" button, creation of Edge node will start. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process, you will see following popup in your browser:
-
-<p align="center"> 
-    <img src="doc/loading_key.png" alt="Loading user key" width="350">
-</p>
-
-As soon as an Edge node is created, Data Scientist will see a blank “List of Resources” page. The message “To start working, please create new environment” will be displayed:
-
-![Main page](doc/main_page.png)
-
 ---------------------------------------------------------------------------------------
 # Setting up analytical environment and managing computational power <a name="setup_environmen"></a>
 
