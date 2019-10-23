@@ -37,6 +37,10 @@
 //  }
 //}
 
+data "template_file" "cert_manager_values" {
+  template = file("./files/cert_manager_values.yaml")
+}
+
 resource "helm_release" "cert_manager_crd" {
     name       = "cert_manager_crd"
     chart      = "./cert-manager-crd-chart"
@@ -56,6 +60,9 @@ resource "helm_release" "cert-manager" {
     depends_on = [helm_release.cert_manager_crd]
     wait       = true
     version    = "v0.9.0"
+    values     = [
+        data.template_file.cert_manager_values.rendered
+    ]
 }
 
 resource "null_resource" "cert_manager_delay" {
