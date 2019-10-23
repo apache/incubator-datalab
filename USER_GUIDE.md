@@ -87,7 +87,30 @@ After login user will see warning in case of exceeding quota or close to this li
 </p>
 
 ----------------------------------
-# Setup a Gateway/Edge node <a name="setup_edge_node"></a>
+# Create a project <a name="setup_edge_node"></a>
+
+In order to start working with DLab at least one project needs to be created by admin. This can be done by user that has
+administration privileges.
+To do this we should go to Projects tab in DLab and click "Create new" button.
+
+
+After that project creation wizard appeared that consist of 3 steps:
+
+-   Key upload
+-   General project information
+-   Groups that will be assigned to project
+
+On the first step we should either upload public key using "Upload" button or generete new one using  "Generate" button.
+In second step we should fill general information about the project:
+
+-   project name
+-   select list of endpoints that will be assigned to the project
+
+On the last step we should select user groups that will be assigned to such project
+As soon as project is created, Data Scientist will see a blank “List of Resources” page and can start create his resources.
+
+
+
 
 When you log into DLab Web Application, the first thing you will have to setup is a Gateway Node, or an “Edge” Node.
 
