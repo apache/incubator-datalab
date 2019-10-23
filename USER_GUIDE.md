@@ -10,7 +10,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [Login](#login)
 
-[Setup a Gateway/Edge node](#setup_edge_node)
+[Create a project](#create_project)
 
 [Setting up analytical environment and managing computational power](#setup_environmen)
 
@@ -87,7 +87,7 @@ After login user will see warning in case of exceeding quota or close to this li
 </p>
 
 ----------------------------------
-# Create a project <a name="setup_edge_node"></a>
+# Create a project <a name="setup_project"></a>
 
 In order to start working with DLab at least one project needs to be created by admin. This can be done by user that has
 administration privileges.
