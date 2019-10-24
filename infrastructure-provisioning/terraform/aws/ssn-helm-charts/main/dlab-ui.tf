@@ -49,6 +49,7 @@ resource "helm_release" "dlab_ui" {
 
 data "kubernetes_service" "nginx-service" {
     metadata {
-        name = "${helm_release.nginx.name}-controller"
+        name      = "${helm_release.nginx.name}-controller"
+        namespace = kubernetes_namespace.dlab-namespace.metadata[0].name
     }
 }
