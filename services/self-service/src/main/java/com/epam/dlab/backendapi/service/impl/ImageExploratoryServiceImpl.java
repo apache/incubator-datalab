@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
@@ -55,21 +56,20 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
 	private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist";
 	private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
+
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
-
 	@Inject
 	private ImageExploratoryDao imageExploratoryDao;
-
 	@Inject
 	private ExploratoryLibDAO libDAO;
-
 	@Inject
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
-
 	@Inject
 	private RequestBuilder requestBuilder;
+	@Inject
+	private EndpointService endpointService;
 
 	@Override
 	public String createImage(UserInfo user, String exploratoryName, String imageName, String imageDescription) {
@@ -100,7 +100,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 				.withExploratoryName(exploratoryName)
 				.withStatus(UserInstanceStatus.CREATING_IMAGE));
 
-		return provisioningService.post(ExploratoryAPI.EXPLORATORY_IMAGE, user.getAccessToken(),
+		return provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ExploratoryAPI.EXPLORATORY_IMAGE, user.getAccessToken(),
 				requestBuilder.newExploratoryImageCreate(user, userInstance, imageName), String.class);
 	}
 

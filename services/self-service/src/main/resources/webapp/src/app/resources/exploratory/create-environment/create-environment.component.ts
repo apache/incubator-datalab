@@ -130,7 +130,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   private getImagesList() {
-    this.userResourceService.getUserImages(this.currentTemplate.image, this.createExploratoryForm.controls['project'].value)
+    this.userResourceService.getUserImages(this.currentTemplate.image, this.createExploratoryForm.controls['project'].value,
+    this.createExploratoryForm.controls['endpoint'].value)
       .subscribe((res: any) => this.images = res.filter(el => el.status === 'CREATED'),
         error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
   }
