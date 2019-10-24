@@ -80,6 +80,7 @@ public class BillingServiceImpl implements BillingService {
 			final Stream<BillingData> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(sbn);
 			final Stream<BillingData> billableUserInstances = userInstanceRepository.findAll()
 					.stream()
+					.filter(userInstance -> userInstance.getExploratoryId() != null)
 					.flatMap(BillingUtils::exploratoryBillingDataStream);
 
 			final Stream<BillingData> billableEdges = projectRepository.findAll()
