@@ -65,6 +65,15 @@ resource "helm_release" "step-ca-issuer" {
     ]
 }
 
+resource "null_resource" "step_ca_issuer_delay" {
+  provisioner "local-exec" {
+    command = "sleep 60"
+  }
+  triggers = {
+    "before" = helm_release.step-ca-issuer.name
+  }
+}
+
 data "external" "step-ca-config-values" {
   program     = ["sh", "/tmp/get_configmap_values.sh" ]
   depends_on  = [null_resource.step_issuer_delay]

@@ -26,9 +26,9 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   # The secret name to store the signed certificate
-  secretName: dlab-ui-tls
+  secretName: {{ include "dlab-ui.fullname" . }}-tls
   # Common Name
-  commonName: {{ .Values.ui.ingress.host }}
+  commonName: localhost
   # DNS SAN
   dnsNames:
     - localhost
@@ -37,7 +37,7 @@ spec:
   ipAddresses:
     - "127.0.0.1"
   # Duration of the certificate
-  duration: 365d
+  duration: 24h
   # Renew 8 hours before the certificate expiration
   renewBefore: 8h
   # The reference to the step issuer

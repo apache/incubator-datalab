@@ -26,7 +26,7 @@ data "template_file" "dlab_ui_values" {
       mongo_user             = var.mongo_db_username
       mongo_port             = var.mongo_service_port
       mongo_service_name     = var.mongo_service_name
-      ssn_k8s_alb_dns_name   = data.kubernetes_service.nginx-service.load_balancer_ingress.0.ip
+      ssn_k8s_alb_dns_name   = data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
       ssn_bucket_name        = var.ssn_bucket_name
       provision_service_host = var.endpoint_eip_address
       service_base_name      = var.service_base_name
@@ -39,7 +39,7 @@ resource "helm_release" "dlab_ui" {
     name       = "dlab-ui"
     chart      = "./dlab-ui-chart"
     namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-    depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret]
+    depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret, null_resource.step_ca_issuer_delay]
     wait       = true
 
     values     = [
