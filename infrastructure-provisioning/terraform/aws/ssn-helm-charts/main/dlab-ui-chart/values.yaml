@@ -25,6 +25,7 @@
 
 replicaCount: 1
 labels: {}
+namespace: ${namespace}
 
 ui:
   service_base_name: ${service_base_name}
@@ -46,10 +47,10 @@ ui:
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/ssl-redirect: "false"
 
-    tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
+    tls:
+      - secretName: dlab-ui-tls
+        hosts:
+          - ${ssn_k8s_alb_dns_name}
   mongo:
     host: ${mongo_service_name}
     port: ${mongo_port}
