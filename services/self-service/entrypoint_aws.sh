@@ -10,8 +10,8 @@
 /usr/bin/keytool -importcert -trustcacerts -file /root/keys/endpoint.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
 
 if [ -d "/root/step-certs" ]; then
-  /usr/bin/keytool -importcert -trustcacerts -alias dlab -file /root/step-certs/ca.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
-  /usr/bin/keytool -importcert -trustcacerts -alias dlab -file /root/step-certs/tls.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
+  /usr/bin/keytool -importcert -trustcacerts -file /root/step-certs/ca.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
+  /usr/bin/keytool -importcert -trustcacerts -file /root/step-certs/tls.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
 fi
 
 /usr/bin/java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 -DDLAB_CONF_DIR=/root/ /root/self-service-2.1.jar server /root/self-service.yml
