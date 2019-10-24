@@ -93,6 +93,7 @@ In order to start working with DLab at least one project needs to be created by 
 administration privileges.
 To do this we should go to Projects tab in DLab and click "Create new" button.
 
+![Projects page](doc/projects-page.png)
 
 After that project creation wizard appeared that consist of 3 steps:
 
@@ -101,12 +102,26 @@ After that project creation wizard appeared that consist of 3 steps:
 -   Groups that will be assigned to project
 
 On the first step we should either upload public key using "Upload" button or generete new one using  "Generate" button.
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/create-project-1.png" alt="Key upload" width="550">
+</p>
+
 In second step we should fill general information about the project:
 
 -   project name
 -   select list of endpoints that will be assigned to the project
 
+<p align="center" class="facebox-popup"> 
+    <img src="doc/create-project-2.png" alt="General project information" width="550">
+</p>
+
 On the last step we should select user groups that will be assigned to such project
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/create-project-3.png" alt="Groups that will be assigned to project " width="550">
+</p>
+
 As soon as project is created, Data Scientist will see a blank “List of Resources” page and can start create his resources.
 
 ---------------------------------------------------------------------------------------
