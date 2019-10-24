@@ -778,9 +778,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 self.fill_args_from_dict(json.loads(output))
 
     def output_terraform_result(self):
-        # dns_name = json.loads(
-        #     TerraformProvider(self.no_color).output(self.tf_params,
-        #                                             '-json ssn_k8s_alb_dns_name'))
+        dns_name = json.loads(
+            TerraformProvider(self.no_color).output(self.tf_params,
+                                                    '-json nginx_load_balancer_hostname'))
         ssn_bucket_name = json.loads(
             TerraformProvider(self.no_color).output(self.tf_params,
                                                     '-json ssn_bucket_name'))
