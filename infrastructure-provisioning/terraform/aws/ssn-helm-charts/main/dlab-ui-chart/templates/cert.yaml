@@ -28,7 +28,7 @@ spec:
   # The secret name to store the signed certificate
   secretName: {{ include "dlab-ui.fullname" . }}-tls
   # Common Name
-  commonName: localhost
+  commonName: dlab-kubernetes-cluster
   # DNS SAN
   dnsNames:
     - localhost

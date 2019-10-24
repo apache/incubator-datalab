@@ -22,3 +22,7 @@
 output "keycloak_client_secret" {
     value = random_uuid.keycloak_client_secret.result
 }
+
+output "nginx_load_balancer_hostname" {
+    value = data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
+}

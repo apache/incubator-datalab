@@ -139,7 +139,7 @@ sudo -i -u ${k8s_os_user} helm init --service-account tiller --history-max 200
 sudo mkdir -p /home/${k8s_os_user}/keys
 sudo keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass ${ssn_keystore_password} \
   -keypass ${ssn_keystore_password} -keystore /home/${k8s_os_user}/keys/ssn.keystore.jks \
-  -keysize 2048 -dname "CN=${k8s-nlb-dns-name}" -ext SAN=dns:localhost,dns:${k8s-nlb-dns-name}
+  -keysize 2048 -dname "CN=dlab-kubernetes-cluster" -ext SAN=dns:localhost
 sudo keytool -exportcert -alias dlab -storepass ${ssn_keystore_password} -file /home/${k8s_os_user}/keys/ssn.crt \
   -keystore /home/${k8s_os_user}/keys/ssn.keystore.jks
 
