@@ -75,3 +75,7 @@ variable "additional_tag" {
 variable "tag_resource_id" {
   default = "user:tag"
 }
+
+variable "endpoint_eip_address" {
+  default = ""
+}
