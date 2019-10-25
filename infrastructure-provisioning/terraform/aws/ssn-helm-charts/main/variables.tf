@@ -23,10 +23,6 @@ variable "namespace_name" {
     default = "dlab"
 }
 
-//variable "ssn_k8s_alb_dns_name" {
-//    default = ""
-//}
-
 variable "ssn_k8s_nlb_dns_name" {
     default = ""
 }
@@ -107,10 +103,6 @@ variable "mongo_service_name" {
 variable "ssn_k8s_workers_count" {
     default = "2"
 }
-
-//variable "ssn_keystore_password" {}
-
-//variable "endpoint_keystore_password" {}
 
 variable "ssn_bucket_name" {}
 
