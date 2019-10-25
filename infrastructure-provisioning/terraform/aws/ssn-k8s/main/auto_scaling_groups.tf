@@ -28,15 +28,15 @@ locals {
   cluster_name                     = "${var.service_base_name}-k8s-cluster"
 }
 
-//resource "random_string" "ssn_keystore_password" {
-//  length = 16
-//  special = false
-//}
+resource "random_string" "ssn_keystore_password" {
+  length = 16
+  special = false
+}
 
-//resource "random_string" "endpoint_keystore_password" {
-//  length = 16
-//  special = false
-//}
+resource "random_string" "endpoint_keystore_password" {
+  length = 16
+  special = false
+}
 
 data "template_file" "ssn_k8s_masters_user_data" {
   template = file("./files/masters-user-data.sh")
