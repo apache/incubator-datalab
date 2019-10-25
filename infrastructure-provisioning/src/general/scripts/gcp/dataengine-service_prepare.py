@@ -93,7 +93,7 @@ if __name__ == "__main__":
                                                                    os.environ['gcp_project_id'])
     dataproc_conf['edge_instance_hostname'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
                                                                         dataproc_conf['project_name'],
-                                                                        dataproc_conf['project_tag'])
+                                                                        dataproc_conf['endpoint_name'])
     dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
 
     edge_status = GCPMeta().get_instance_status(dataproc_conf['edge_instance_hostname'])
