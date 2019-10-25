@@ -932,8 +932,6 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          # .add_str('--endpoint_eip_allocation_id',
          #          'Elastic Ip created for Endpoint',
          #          group='endpoint')
-         .add_str('--endpoint_eip_address', 'endpoint_eip_address',
-                  group='endpoint')
          .add_str('--product', 'Product name.', default='dlab',
                   group='endpoint')
          .add_str('--additional_tag', 'Additional tag.',
