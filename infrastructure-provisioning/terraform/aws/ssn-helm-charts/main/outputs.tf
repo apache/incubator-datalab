@@ -26,3 +26,19 @@ output "keycloak_client_secret" {
 output "nginx_load_balancer_hostname" {
     value = data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
 }
+
+output "step_root_ca" {
+    value = lookup(data.external.step-ca-config-values.result, "rootCa")
+}
+
+output "step_kid" {
+    value = lookup(data.external.step-ca-config-values.result, "kid")
+}
+
+output "step_kid_password" {
+    value = random_string.step_ca_provisioner_password.result
+}
+
+output "step_ca_url" {
+    value = "https://${var.ssn_k8s_nlb_dns_name}:7443"
+}

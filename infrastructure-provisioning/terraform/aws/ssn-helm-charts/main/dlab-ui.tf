@@ -28,7 +28,6 @@ data "template_file" "dlab_ui_values" {
       mongo_service_name     = var.mongo_service_name
       ssn_k8s_alb_dns_name   = data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
       ssn_bucket_name        = var.ssn_bucket_name
-      provision_service_host = var.endpoint_eip_address
       service_base_name      = var.service_base_name
       os                     = var.env_os
       namespace              = kubernetes_namespace.dlab-namespace.metadata[0].name

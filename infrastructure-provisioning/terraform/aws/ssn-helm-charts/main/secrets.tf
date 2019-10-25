@@ -21,6 +21,11 @@
 
 resource "random_uuid" "keycloak_client_secret" {}
 
+resource "random_string" "ssn_keystore_password" {
+  length = 16
+  special = false
+}
+
 resource "kubernetes_secret" "keycloak_client_secret" {
   metadata {
     name       = "keycloak-client-secret"
@@ -120,20 +125,20 @@ resource "kubernetes_secret" "ssn_keystore_password" {
   }
 
   data = {
-    password = var.ssn_keystore_password
+    password = random_string.ssn_keystore_password.result
   }
 }
 
-resource "kubernetes_secret" "endpoint_keystore_password" {
-  metadata {
-    name       = "endpoint-keystore-password"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-  }
-
-  data = {
-    password = var.endpoint_keystore_password
-  }
-}
+//resource "kubernetes_secret" "endpoint_keystore_password" {
+//  metadata {
+//    name       = "endpoint-keystore-password"
+//    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+//  }
+//
+//  data = {
+//    password = var.endpoint_keystore_password
+//  }
+//}
 
 resource "random_string" "step_ca_password" {
   length = 8

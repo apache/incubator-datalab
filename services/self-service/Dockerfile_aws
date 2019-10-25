@@ -28,6 +28,7 @@ RUN apk add --update \
     python \
     python-dev \
     py-pip \
+    openssl \
     build-base \
     && pip install awscli --upgrade \
     && apk --purge -v del py-pip \

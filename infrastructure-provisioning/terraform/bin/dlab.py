@@ -604,14 +604,14 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='k8s')
          .add_str('--zone', 'Name of AWS zone', default='a',
                   group=('k8s'))
-         .add_str('--ssn_keystore_password', 'ssn_keystore_password',
-                  group='helm_charts')
-         .add_str('--endpoint_keystore_password', 'endpoint_keystore_password',
-                  group='helm_charts')
+         # .add_str('--ssn_keystore_password', 'ssn_keystore_password',
+         #          group='helm_charts')
+         # .add_str('--endpoint_keystore_password', 'endpoint_keystore_password',
+         #          group='helm_charts')
          .add_str('--ssn_bucket_name', 'ssn_bucket_name',
                   group='helm_charts')
-         .add_str('--endpoint_eip_address', 'endpoint_eip_address',
-                  group='helm_charts')
+         # .add_str('--endpoint_eip_address', 'endpoint_eip_address',
+         #          group='helm_charts')
          .add_str('--ldap_host', 'ldap host', required=True,
                   group='helm_charts')
          .add_str('--ldap_dn', 'ldap dn', required=True,
@@ -778,9 +778,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 self.fill_args_from_dict(json.loads(output))
 
     def output_terraform_result(self):
-        dns_name = json.loads(
-            TerraformProvider(self.no_color).output(self.tf_params,
-                                                    '-json nginx_load_balancer_hostname'))
+        # dns_name = json.loads(
+        #     TerraformProvider(self.no_color).output(self.tf_params,
+        #                                             '-json nginx_load_balancer_hostname'))
         ssn_bucket_name = json.loads(
             TerraformProvider(self.no_color).output(self.tf_params,
                                                     '-json ssn_bucket_name'))
@@ -797,14 +797,12 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         logging.info("""
         DLab SSN K8S cluster has been deployed successfully!
         Summary:
-        DNS name: {}
         Bucket name: {}
         VPC ID: {}
         Subnet ID:  {}
         SG IDs: {}
-        DLab UI URL: http://{}
-        """.format(dns_name, ssn_bucket_name, ssn_vpc_id,
-                   ssn_subnet, ssn_k8s_sg_id, dns_name))
+        """.format(ssn_bucket_name, ssn_vpc_id,
+                   ssn_subnet, ssn_k8s_sg_id))
 
     def fill_args_from_dict(self, output):
         for key, value in output.items():
@@ -931,9 +929,9 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   default='t2.medium', group='endpoint')
          .add_int('--endpoint_volume_size', 'Size of root volume in GB.',
                   default=30, group='endpoint')
-         .add_str('--endpoint_eip_allocation_id',
-                  'Elastic Ip created for Endpoint',
-                  group='endpoint')
+         # .add_str('--endpoint_eip_allocation_id',
+         #          'Elastic Ip created for Endpoint',
+         #          group='endpoint')
          .add_str('--product', 'Product name.', default='dlab',
                   group='endpoint')
          .add_str('--additional_tag', 'Additional tag.',

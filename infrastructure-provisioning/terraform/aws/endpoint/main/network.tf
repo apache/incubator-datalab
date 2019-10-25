@@ -25,6 +25,7 @@ locals {
   endpoint_vpc_name = "${var.service_base_name}-endpoint-vpc"
   additional_tag       = split(":", var.additional_tag)
   endpoint_igw_name = "${var.service_base_name}-endpoint-igw"
+  endpoint_ip_name  = "${var.service_base_name}-endpoint-eip"
 }
 
 
@@ -124,5 +125,15 @@ resource "aws_security_group" "endpoint_sec_group" {
     "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_sg_name}"
     "${var.service_base_name}-Tag" = local.endpoint_sg_name
+  }
+}
+
+resource "aws_eip" "endpoint_eip" {
+  vpc      = true
+  tags = {
+    Name                                          = local.endpoint_ip_name
+    "${local.additional_tag[0]}"                  = local.additional_tag[1]
+    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.endpoint_ip_name}"
+    "${var.service_base_name}-Tag"                = local.endpoint_ip_name
   }
 }

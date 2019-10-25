@@ -26,7 +26,7 @@ locals {
   ssn_subnet_a_name = "${var.service_base_name}-ssn-subnet-az-a"
   ssn_subnet_b_name = "${var.service_base_name}-ssn-subnet-az-b"
   ssn_subnet_c_name = "${var.service_base_name}-ssn-subnet-az-c"
-  endpoint_ip_name  = "${var.service_base_name}-endpoint-eip"
+//  endpoint_ip_name  = "${var.service_base_name}-endpoint-eip"
   endpoint_rt_name  = "${var.service_base_name}-endpoint-rt"
   endpoint_s3_name  = "${var.service_base_name}-endpoint-s3"
 }
@@ -132,16 +132,16 @@ data "aws_subnet" "k8s-subnet-c-data" {
   id = aws_subnet.ssn_k8s_subnet_c.0.id
 }
 
-resource "aws_eip" "k8s-endpoint-eip" {
-  vpc      = true
-  tags = {
-    Name                                          = local.endpoint_ip_name
-    "${local.additional_tag[0]}"                  = local.additional_tag[1]
-    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.endpoint_ip_name}"
-    "${var.service_base_name}-Tag"                = local.endpoint_ip_name
-    "kubernetes.io/cluster/${local.cluster_name}" = "owned"
-  }
-}
+//resource "aws_eip" "k8s-endpoint-eip" {
+//  vpc      = true
+//  tags = {
+//    Name                                          = local.endpoint_ip_name
+//    "${local.additional_tag[0]}"                  = local.additional_tag[1]
+//    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.endpoint_ip_name}"
+//    "${var.service_base_name}-Tag"                = local.endpoint_ip_name
+//    "kubernetes.io/cluster/${local.cluster_name}" = "owned"
+//  }
+//}
 
 resource "aws_route_table" "ssn-k8s-users-route-table" {
   vpc_id = data.aws_vpc.ssn_k8s_vpc_data.id

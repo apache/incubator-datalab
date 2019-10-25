@@ -108,13 +108,13 @@ variable "ssn_k8s_workers_count" {
     default = "2"
 }
 
-variable "ssn_keystore_password" {}
+//variable "ssn_keystore_password" {}
 
-variable "endpoint_keystore_password" {}
+//variable "endpoint_keystore_password" {}
 
 variable "ssn_bucket_name" {}
 
-variable "endpoint_eip_address" {}
+//variable "endpoint_eip_address" {}
 
 variable "service_base_name" {}
 

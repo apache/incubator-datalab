@@ -55,21 +55,21 @@ output "ssn_k8s_sg_id" {
   value = aws_security_group.ssn_k8s_sg.id
 }
 
-output "endpoint_eip_allocation_id" {
-  value = aws_eip.k8s-endpoint-eip.id
-}
+//output "endpoint_eip_allocation_id" {
+//  value = aws_eip.k8s-endpoint-eip.id
+//}
+//
+//output "endpoint_eip_address" {
+//  value = aws_eip.k8s-endpoint-eip.public_ip
+//}
 
-output "endpoint_eip_address" {
-  value = aws_eip.k8s-endpoint-eip.public_ip
-}
+//output "ssn_keystore_password" {
+//  value = random_string.ssn_keystore_password.result
+//}
 
-output "ssn_keystore_password" {
-  value = random_string.ssn_keystore_password.result
-}
-
-output "endpoint_keystore_password" {
-  value = random_string.endpoint_keystore_password.result
-}
+//output "endpoint_keystore_password" {
+//  value = random_string.endpoint_keystore_password.result
+//}
 
 output "region" {
   value = var.region

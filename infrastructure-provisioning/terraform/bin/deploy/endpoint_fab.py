@@ -98,6 +98,35 @@ def ensure_jre_jdk_endpoint():
         sys.exit(1)
 
 
+def ensure_step_certs():
+    try:
+        if not exists(conn, '/home/{}/.ensure_dir/step_ensured'.format(args.os_user)):
+            conn.sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step-cli_0.13.3_amd64.deb '
+                      '-O /tmp/step-cli_0.13.3_amd64.deb')
+            conn.sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
+            conn.sudo('echo "{0}" | base64 --decode > /home/{1}/keys/root_ca.crt'.format(args.step_root_ca,
+                                                                                          args.os_user))
+            fingerptint = conn.sudo('step certificate fingerprint /home/{0}/keys/root_ca.crt'.format(
+                args.os_user)).stdout
+            conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerptint, args.step_ca_url))
+            conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(args.step_kid_password, args.os_user))
+            try:
+                ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/public-ipv4').stdout
+            except:
+                ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/local-ipv4').stdout
+            token = conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
+                              '--password-file /home/{2}/keys/provisioner_password'.format(
+                               args.step_kid, args.step_ca_url, args.os_user, ip_address)).stdout
+            conn.sudo('step ca certificate "{0}" /home/{2}/keys/endpoint.crt /home/{2}/keys/endpoint.key '
+                      '--token "{1}"'.format(ip_address, token, args.os_user))
+            conn.sudo('touch /home/{}/.ensure_dir/step_ensured'
+                      .format(args.os_user))
+    except Exception as err:
+        logging.error('Failed to install Java JDK: ', str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
+
 def ensure_supervisor_endpoint():
     try:
         if not exists(conn, '/home/{}/.ensure_dir/superv_ensured'.format(args.os_user)):
@@ -172,18 +201,29 @@ def create_key_dir_endpoint():
 def configure_keystore_endpoint(os_user):
     try:
         if args.cloud_provider == "aws":
-            conn.sudo('apt-get install -y awscli')
-            if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
-                conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
-                          '/home/{1}/keys/endpoint.keystore.jks'
-                          .format(args.ssn_bucket_name, args.os_user))
-            if not exists(conn, '/home/' + args.os_user + '/keys/dlab.crt'):
-                conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.crt'
-                          ' /home/{1}/keys/endpoint.crt'.format(args.ssn_bucket_name, args.os_user))
-            if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
-                conn.sudo('aws s3 cp '
-                          's3://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/ssn.crt'
-                          .format(args.ssn_bucket_name, args.os_user))
+            conn.sudo('openssl pkcs12 -export -in /home/{0}/keys/endpoint.crt -inkey '
+                      '/home/{0}/keys/endpoint.key -out /home/{0}/keys/endpoint.p12 -password pass:changeit'.format(
+                       args.os_user))
+            conn.sudo('keytool -importkeystore -srckeystore /home/{0}/keys/endpoint.p12 -srcstoretype PKCS12 '
+                      '-destkeystore /home/{0}/keys/endpoint.keystore.jks -deststoretype JKS -storepass "{1}" '
+                      '-srcstorepass changeit -keypass "{1}"'.format(args.os_user, endpoint_keystore_password))
+            conn.sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/endpoint.crt -noprompt '
+                      '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
+            conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/root_ca.crt -noprompt '
+                      '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
+            conn.sudo('touch /home/{0}/.ensure_dir/cert_imported'.format(args.os_user))
+            # conn.sudo('apt-get install -y awscli')
+            # if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
+            #     conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
+            #               '/home/{1}/keys/endpoint.keystore.jks'
+            #               .format(args.ssn_bucket_name, args.os_user))
+            # if not exists(conn, '/home/' + args.os_user + '/keys/dlab.crt'):
+            #     conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.crt'
+            #               ' /home/{1}/keys/endpoint.crt'.format(args.ssn_bucket_name, args.os_user))
+            # if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
+            #     conn.sudo('aws s3 cp '
+            #               's3://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/ssn.crt'
+            #               .format(args.ssn_bucket_name, args.os_user))
         elif args.cloud_provider == "gcp":
             if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
                 conn.sudo('gsutil -m cp -r gs://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
@@ -245,7 +285,7 @@ def configure_supervisor_endpoint():
             conn.sudo('sed -i "s|KEYNAME|{}|g" {}provisioning.yml'
                       .format(args.key_name, dlab_conf_dir))
             conn.sudo('sed -i "s|KEYSTORE_PASSWORD|{}|g" {}provisioning.yml'
-                      .format(args.endpoint_keystore_password, dlab_conf_dir))
+                      .format(endpoint_keystore_password, dlab_conf_dir))
             conn.sudo('sed -i "s|JRE_HOME|{}|g" {}provisioning.yml'
                       .format(java_home, dlab_conf_dir))
             conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" {}provisioning.yml'
@@ -534,7 +574,7 @@ def init_args():
     parser.add_argument('--docker_version', type=str,
                         default='18.06.3~ce~3-0~ubuntu')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
-    parser.add_argument('--endpoint_keystore_password', type=str, default='')
+    # parser.add_argument('--endpoint_keystore_password', type=str, default='')
     parser.add_argument('--keycloak_client_id', type=str, default='')
     parser.add_argument('--keycloak_client_secret', type=str, default='')
     parser.add_argument('--branch_name', type=str, default='DLAB-terraform')  # change default
@@ -563,6 +603,10 @@ def init_args():
     parser.add_argument('--ldap_users_group', type=str, default='')
     parser.add_argument('--ldap_user', type=str, default='')
     parser.add_argument('--ldap_bind_creds', type=str, default='')
+    parser.add_argument('--step_root_ca', type=str, default='')
+    parser.add_argument('--step_kid', type=str, default='')
+    parser.add_argument('--step_kid_password', type=str, default='')
+    parser.add_argument('--step_ca_url', type=str, default='')
 
     # TEMPORARY
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
@@ -639,6 +683,12 @@ def start_deploy():
 
     set_java_home()
 
+    logging.info("Creating key directory")
+    create_key_dir_endpoint()
+
+    logging.info("Installing Step Certificates")
+    ensure_step_certs()
+
     logging.info("Installing Supervisor")
     ensure_supervisor_endpoint()
 
@@ -647,9 +697,6 @@ def start_deploy():
 
     logging.info("Configuring Supervisor")
     configure_supervisor_endpoint()
-
-    logging.info("Creating key directory")
-    create_key_dir_endpoint()
 
     logging.info("Copying admin key")
     copy_keys()
@@ -677,4 +724,5 @@ def start_deploy():
 
 
 if __name__ == "__main__":
+    endpoint_keystore_password = id_generator()
     start_deploy()
