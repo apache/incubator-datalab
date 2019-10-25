@@ -68,7 +68,8 @@ if __name__ == "__main__":
 
     # PREPARE SUPERSET
     try:
-        configure_superset(args.os_user, args.keycloak_auth_server_url, args.keycloak_realm_name, args.keycloak_client_id, args.keycloak_client_secret, args.edge_instance_private_ip)
+        configure_superset(args.os_user, args.keycloak_auth_server_url, args.keycloak_realm_name,
+                           args.keycloak_client_id, args.keycloak_client_secret, args.edge_instance_private_ip)
     except:
         sys.exit(1)
 
