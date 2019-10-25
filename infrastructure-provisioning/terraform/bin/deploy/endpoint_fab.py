@@ -198,7 +198,7 @@ def create_key_dir_endpoint():
         sys.exit(1)
 
 
-def configure_keystore_endpoint(os_user):
+def configure_keystore_endpoint(os_user, endpoint_keystore_password):
     try:
         if args.cloud_provider == "aws":
             conn.sudo('openssl pkcs12 -export -in /home/{0}/keys/endpoint.crt -inkey '
@@ -656,6 +656,7 @@ def start_deploy():
     print(args)
     if args.hostname == "":
         args.hostname = args.endpoint_eip_address
+    endpoint_keystore_password = id_generator()
 
     print("Start provisioning of Endpoint.")
     time.sleep(40)
@@ -702,7 +703,7 @@ def start_deploy():
     copy_keys()
 
     logging.info("Configuring certificates")
-    configure_keystore_endpoint(args.os_user)
+    configure_keystore_endpoint(args.os_user, endpoint_keystore_password)
 
     logging.info("Ensure jar")
     ensure_jar_endpoint()
@@ -724,5 +725,4 @@ def start_deploy():
 
 
 if __name__ == "__main__":
-    endpoint_keystore_password = id_generator()
     start_deploy()
