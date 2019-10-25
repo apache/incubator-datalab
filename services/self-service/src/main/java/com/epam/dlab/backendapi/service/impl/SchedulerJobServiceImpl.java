@@ -159,7 +159,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	@Override
 	public void startComputationalByScheduler() {
 		getComputationalSchedulersForStarting(OffsetDateTime.now())
-				.forEach(job -> startSpark(job.getUser(), job.getExploratoryName(), job.getComputationalName()));
+				.forEach(job -> startSpark(job.getUser(), job.getExploratoryName(), job.getComputationalName(),
+						job.getProject()));
 	}
 
 	@Override
@@ -206,14 +207,14 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String compName = job.getComputationalName();
 		final String user = job.getUser();
 		log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.stopSparkCluster(securityService.getUserInfoOffline(user), expName, compName);
+		computationalService.stopSparkCluster(securityService.getServiceAccountInfo(job.getUser()), expName, compName);
 	}
 
 	private void terminateComputational(SchedulerJobData job) {
 		final String user = job.getUser();
 		final String expName = job.getExploratoryName();
 		final String compName = job.getComputationalName();
-		final UserInfo userInfo = securityService.getUserInfoOffline(user);
+		final UserInfo userInfo = securityService.getServiceAccountInfo(user);
 		log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
 		computationalService.terminateComputational(userInfo, expName, compName);
 	}
@@ -222,7 +223,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String expName = job.getExploratoryName();
 		final String user = job.getUser();
 		log.debug("Stopping exploratory {} for user {} by scheduler", expName, user);
-		exploratoryService.stop(securityService.getUserInfoOffline(user), expName);
+		exploratoryService.stop(securityService.getServiceAccountInfo(user), expName);
 	}
 
 	private List<SchedulerJobData> getExploratorySchedulersForTerminating(OffsetDateTime now) {
@@ -242,8 +243,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private void startExploratory(SchedulerJobData schedulerJobData) {
 		final String user = schedulerJobData.getUser();
 		final String exploratoryName = schedulerJobData.getExploratoryName();
+		final String project = schedulerJobData.getProject();
 		log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
-		exploratoryService.start(securityService.getUserInfoOffline(user), exploratoryName, ""); //TODO chagne empty
+		exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, project);
 		if (schedulerJobData.getJobDTO().isSyncStartRequired()) {
 			log.trace("Starting computational for exploratory {} for user {} by scheduler", exploratoryName, user);
 			final DataEngineType sparkCluster = DataEngineType.SPARK_STANDALONE;
@@ -253,7 +255,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			compToBeStarted
 					.stream()
 					.filter(compResource -> shouldClusterBeStarted(sparkCluster, compResource))
-					.forEach(comp -> startSpark(user, exploratoryName, comp.getComputationalName()));
+					.forEach(comp -> startSpark(user, exploratoryName, comp.getComputationalName(), project));
 		}
 	}
 
@@ -264,10 +266,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		exploratoryService.terminate(securityService.getUserInfoOffline(user), expName);
 	}
 
-	private void startSpark(String user, String expName, String compName) {
+	private void startSpark(String user, String expName, String compName, String project) {
 		log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.startSparkCluster(securityService.getUserInfoOffline(user), expName, compName, "");
-		//TODO change empty string
+		computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, project);
 	}
 
 	private boolean shouldClusterBeStarted(DataEngineType sparkCluster, UserComputationalResource compResource) {

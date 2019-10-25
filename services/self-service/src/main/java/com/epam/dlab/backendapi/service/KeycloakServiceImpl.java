@@ -51,6 +51,11 @@ public class KeycloakServiceImpl implements KeycloakService {
 		return tokenResponse;
 	}
 
+	@Override
+	public AccessTokenResponse generateServiceAccountToken() {
+		return requestToken(serviceAccountRequestForm());
+	}
+
 	private AccessTokenResponse requestToken(Form requestForm) {
 		final String credentials = Base64.encodeAsString(String.join(":", conf.getResource(),
 				String.valueOf(conf.getCredentials().get("secret"))));
@@ -77,5 +82,10 @@ public class KeycloakServiceImpl implements KeycloakService {
 		return new Form()
 				.param("grant_type", "refresh_token")
 				.param("refresh_token", refreshToken);
+	}
+
+	private Form serviceAccountRequestForm() {
+		return new Form()
+				.param("grant_type", "client_credentials");
 	}
 }

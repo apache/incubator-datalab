@@ -140,6 +140,7 @@ public class EnvironmentServiceImplTest {
 		final UserInfo userInfo = getUserInfo();
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
 		when(securityService.getUserInfoOffline(anyString())).thenReturn(userInfo);
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn(RUNNING_STATE);
 		when(edgeService.stop(any(UserInfo.class))).thenReturn(UUID);
@@ -147,7 +148,8 @@ public class EnvironmentServiceImplTest {
 		environmentService.stopEnvironment(USER);
 
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
-		verify(securityService, times(3)).getUserInfoOffline(USER);
+		verify(securityService, times(1)).getUserInfoOffline(USER);
+		verify(securityService, times(2)).getServiceAccountInfo(USER);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
 		verify(keyDAO, times(2)).getEdgeStatus(USER);
@@ -181,7 +183,7 @@ public class EnvironmentServiceImplTest {
 	public void stopEnvironmentWithoutEdge() {
 		final UserInfo userInfo = getUserInfo();
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
-		when(securityService.getUserInfoOffline(anyString())).thenReturn(userInfo);
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn(STOPPED_STATE);
 		when(edgeService.stop(any(UserInfo.class))).thenReturn(UUID);
@@ -189,7 +191,7 @@ public class EnvironmentServiceImplTest {
 		environmentService.stopEnvironment(USER);
 
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
-		verify(securityService, times(2)).getUserInfoOffline(USER);
+		verify(securityService, times(2)).getServiceAccountInfo(USER);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
 		verify(keyDAO, times(2)).getEdgeStatus(USER);
@@ -229,12 +231,12 @@ public class EnvironmentServiceImplTest {
 	@Test
 	public void stopExploratory() {
 		final UserInfo userInfo = getUserInfo();
-		when(securityService.getUserInfoOffline(anyString())).thenReturn(userInfo);
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
 
 		environmentService.stopExploratory(USER, EXPLORATORY_NAME_1);
 
-		verify(securityService).getUserInfoOffline(USER);
+		verify(securityService).getServiceAccountInfo(USER);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
 		verifyNoMoreInteractions(securityService, exploratoryService);
 	}
