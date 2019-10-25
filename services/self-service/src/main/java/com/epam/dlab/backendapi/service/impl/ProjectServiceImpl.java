@@ -3,17 +3,21 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.annotation.Project;
+import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.dlab.backendapi.domain.ProjectManagingDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -22,6 +26,8 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +45,9 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String START_PRJ_API = "infrastructure/project/start";
 	private static final String STOP_PRJ_API = "infrastructure/project/stop";
 	private static final String ANY_USER_ROLE = "$anyuser";
+	private static final String STOP_ACTION = "stop";
+	private static final String TERMINATE_ACTION = "terminate";
+
 	private final ProjectDAO projectDAO;
 	private final ExploratoryService exploratoryService;
 	private final UserGroupDao userGroupDao;
@@ -46,12 +55,15 @@ public class ProjectServiceImpl implements ProjectService {
 	private final RequestId requestId;
 	private final RequestBuilder requestBuilder;
 	private final EndpointService endpointService;
+	private final ExploratoryDAO exploratoryDAO;
+	private final SecurityService securityService;
 
 	@Inject
 	public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
 							  UserGroupDao userGroupDao,
 							  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-							  RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService) {
+							  RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService,
+							  ExploratoryDAO exploratoryDAO, SecurityService securityService) {
 		this.projectDAO = projectDAO;
 		this.exploratoryService = exploratoryService;
 		this.userGroupDao = userGroupDao;
@@ -59,11 +71,23 @@ public class ProjectServiceImpl implements ProjectService {
 		this.requestId = requestId;
 		this.requestBuilder = requestBuilder;
 		this.endpointService = endpointService;
+		this.exploratoryDAO = exploratoryDAO;
+		this.securityService = securityService;
 	}
 
 	@Override
 	public List<ProjectDTO> getProjects() {
 		return projectDAO.getProjects();
+	}
+
+	@Override
+	public List<ProjectManagingDTO> getProjectsForManaging() {
+		return projectDAO.getProjects().stream().map(p -> new ProjectManagingDTO(
+				p.getName(), p.getBudget(), !exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(p.getName(),
+				Collections.singletonList(UserInstanceStatus.RUNNING), UserInstanceStatus.RUNNING).isEmpty(),
+				!p.getEndpoints().stream().allMatch(e -> Arrays.asList(UserInstanceStatus.STARTING,
+						UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING).contains(e.getStatus()))))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -103,6 +127,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public void terminateProject(UserInfo userInfo, String name) {
+		checkProjectRelatedResourcesInProgress(name, TERMINATE_ACTION);
 		get(name).getEndpoints()
 				.stream()
 				.map(ProjectEndpointDTO::getName)
@@ -120,6 +145,16 @@ public class ProjectServiceImpl implements ProjectService {
 	public void stop(UserInfo userInfo, String endpoint, String name) {
 		projectActionOnCloud(userInfo, name, STOP_PRJ_API, endpoint);
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STOPPING);
+	}
+
+	@Override
+	public void stopWithResources(UserInfo userInfo, String projectName) {
+		ProjectDTO project = get(projectName);
+		checkProjectRelatedResourcesInProgress(projectName, STOP_ACTION);
+		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName).forEach(this::stopNotebook);
+		project.getEndpoints().stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.TERMINATING).contains(e.getStatus())).
+				forEach(e -> stop(userInfo, e.getName(), projectName));
 	}
 
 	@Override
@@ -187,6 +222,23 @@ public class ProjectServiceImpl implements ProjectService {
 			log.error("Can not terminate project due to: {}", e.getMessage());
 			projectDAO.updateStatus(projectName, ProjectDTO.Status.FAILED);
 		}
+	}
+
+	private void checkProjectRelatedResourcesInProgress(String projectName, String action) {
+		List<UserInstanceDTO> userInstanceDTOs = exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(projectName,
+				Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING,
+						UserInstanceStatus.CREATING_IMAGE), UserInstanceStatus.CREATING,
+				UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING, UserInstanceStatus.RECONFIGURING,
+				UserInstanceStatus.CREATING_IMAGE);
+		if (!userInstanceDTOs.isEmpty()) {
+			throw new ResourceConflictException((String.format("Can not %s environment because on of user resource " +
+					"is in status CREATING or STARTING", action)));
+		}
+	}
+
+	private void stopNotebook(UserInstanceDTO instance) {
+		final UserInfo userInfo = securityService.getUserInfoOffline(instance.getUser());
+		exploratoryService.stop(userInfo, instance.getExploratoryName());
 	}
 
 	private Supplier<ResourceNotFoundException> projectNotFound() {
