@@ -171,7 +171,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 					.append(currencyCodeFieldName(), id.getString(currencyCodeFieldName()))
 					.append(usageDateFromFieldName(), dateStart)
 					.append(usageDateToFieldName(), dateEnd)
-					.append(TAGS, getExploratoryTags(resourceId, dlabResourceType));
+					.append(TAGS, getTags(resourceId, dlabResourceType));
 
 			reportItems.add(item);
 		}
@@ -412,7 +412,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		return shapeNames == null || shapeNames.isEmpty() || Arrays.stream(shapes).anyMatch(shapeNames::contains);
 	}
 
-	private Map<String, String> getExploratoryTags(String resourceId, String dlabResourceType) {
+	private Map<String, String> getTags(String resourceId, String dlabResourceType) {
 		if (DlabResourceType.EXPLORATORY.name().equals(dlabResourceType)) {
 			return exploratoryDAO.findTagsById(resourceId);
 		} else if (DlabResourceType.COMPUTATIONAL.name().equals(dlabResourceType)) {
