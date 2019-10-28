@@ -106,9 +106,10 @@ def ensure_step_certs():
             conn.sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
             conn.sudo('echo "{0}" | base64 --decode > /home/{1}/keys/root_ca.crt'.format(args.step_root_ca,
                                                                                           args.os_user))
-            fingerptint = conn.sudo('step certificate fingerprint /home/{0}/keys/root_ca.crt'.format(
+            fingerprint = conn.sudo('step certificate fingerprint /home/{0}/keys/root_ca.crt'.format(
                 args.os_user)).stdout
-            conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerptint, args.step_ca_url))
+            conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint.replace('\n', ''),
+                                                                                  args.step_ca_url))
             conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(args.step_kid_password, args.os_user))
             try:
                 ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/public-ipv4').stdout
