@@ -52,7 +52,9 @@ if __name__ == "__main__":
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
         ssn_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(ssn_conf['service_base_name'])
-        ssn_conf['shared_bucket_name'] = '{}-shared-bucket'.format(ssn_conf['service_base_name'])
+        ssn_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
+        ssn_conf['shared_bucket_name'] = '{0}-{1}-shared-bucket'.format(ssn_conf['service_base_name'],
+                                                                        ssn_conf['default_endpoint_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_size'] = os.environ['gcp_ssn_instance_size']
         ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
@@ -381,11 +383,13 @@ if __name__ == "__main__":
         ]
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --billing_enabled {} " \
                  "--request_id {} --billing_dataset_name {} \
-                 --resource {} --service_base_name {} --cloud_provider {} --cloud_params '{}'". \
+                 --resource {} --service_base_name {} --cloud_provider {} --default_endpoint_name {} " \
+                 "--cloud_params '{}'". \
             format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
                    os.environ['conf_os_family'], billing_enabled, os.environ['request_id'],
                    os.environ['billing_dataset_name'], os.environ['conf_resource'],
-                   ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],  json.dumps(cloud_params))
+                   ssn_conf['service_base_name'], os.environ['conf_cloud_provider'], ssn_conf['default_endpoint_name'],
+                   json.dumps(cloud_params))
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:

@@ -48,8 +48,11 @@ if __name__ == "__main__":
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+    notebook_config['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-    notebook_config['bucket_name'] = '{}-{}-bucket'.format(notebook_config['service_base_name'], notebook_config['project_name'])
+    notebook_config['bucket_name'] = '{0}-{1}-{2}-bucket'.format(notebook_config['service_base_name'],
+                                                                 notebook_config['project_name'],
+                                                                 notebook_config['endpoint_name'])
     notebook_config['cluster_name'] = meta_lib.GCPMeta().get_not_configured_dataproc(notebook_config['notebook_name'])
     notebook_config['notebook_ip'] = meta_lib.GCPMeta().get_private_ip_address(notebook_config['notebook_name'])
     notebook_config['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])

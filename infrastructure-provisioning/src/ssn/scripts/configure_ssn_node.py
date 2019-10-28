@@ -138,7 +138,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
 
 def docker_build_script():
     try:
-        put('/root/templates/docker_build.py', 'docker_build')
+        put('/root/scripts/docker_build.py', 'docker_build')
         sudo('chmod +x docker_build')
         sudo('mv docker_build /usr/bin/docker-build')
     except Exception as err:

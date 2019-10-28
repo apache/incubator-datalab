@@ -64,7 +64,9 @@ if __name__ == "__main__":
         ssn_conf['ssn_image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         ssn_conf['ssn_storage_account_name'] = '{}-ssn-storage'.format(ssn_conf['service_base_name'])
         ssn_conf['ssn_container_name'] = '{}-ssn-container'.format(ssn_conf['service_base_name']).lower()
-        ssn_conf['shared_storage_account_name'] = '{}-shared-storage'.format(ssn_conf['service_base_name'])
+        ssn_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
+        ssn_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(ssn_conf['service_base_name'],
+                                                                                  ssn_conf['default_endpoint_name'])
         ssn_conf['shared_container_name'] = '{}-shared-container'.format(ssn_conf['service_base_name']).lower()
         ssn_conf['datalake_store_name'] = '{}-ssn-datalake'.format(ssn_conf['service_base_name'])
         ssn_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(ssn_conf['service_base_name'])

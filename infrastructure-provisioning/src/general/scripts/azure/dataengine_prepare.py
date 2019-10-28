@@ -104,11 +104,17 @@ if __name__ == "__main__":
                                       os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         data_engine['primary_disk_size'] = '32'
         data_engine['image_type'] = 'default'
-        data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
-            data_engine['service_base_name'],
-            data_engine['endpoint_name'],
-            data_engine['project_name'],
-            os.environ['application'])
+
+        if os.environ['conf_shared_image_enabled'] == 'false':
+            data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(data_engine['service_base_name'],
+                                                                                         os.environ['endpoint_name'],
+                                                                                         os.environ['project_name'],
+                                                                                         os.environ['application'])
+        else:
+            data_engine['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(data_engine['service_base_name'],
+                                                                                     os.environ['endpoint_name'],
+                                                                                     os.environ['application'])
+
         data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
                     else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
 

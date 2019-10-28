@@ -44,6 +44,7 @@ parser.add_argument('--request_id', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--billing_dataset_name', type=str, default='')
+parser.add_argument('--default_endpoint_name', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default=None)
 parser.add_argument('--billing_tag', type=str, default=None)
 parser.add_argument('--account_id', type=str, default=None)
@@ -99,7 +100,7 @@ def copy_ssn_libraries():
         sys.exit(1)
 
 
-def configure_mongo(mongo_passwd):
+def configure_mongo(mongo_passwd, default_endpoint_name):
     try:
         if not exists("/lib/systemd/system/mongod.service"):
             if os.environ['conf_os_family'] == 'debian':
@@ -122,7 +123,11 @@ def configure_mongo(mongo_passwd):
         local('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                           args.cloud_provider,
                                                                                           env.host_string))
+        local('scp -i {} /root/files/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
+                                                                                             env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
+        sudo('sed -i "s|DEF_ENDPOINT_NAME|{0}|g" /tmp/local_endpoint.json'.format(default_endpoint_name))
+        sudo('mv /tmp/local_endpoint.json ' + args.dlab_path + 'tmp/')
         sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} ".format(
             args.dlab_path))
     except Exception as err:
@@ -205,7 +210,7 @@ if __name__ == "__main__":
     ensure_mongo()
 
     print("Configuring MongoDB")
-    configure_mongo(mongo_passwd)
+    configure_mongo(mongo_passwd, args.default_endpoint_name)
 
     sudo('echo DLAB_CONF_DIR={} >> /etc/profile'.format(dlab_conf_dir))
     sudo('echo export DLAB_CONF_DIR >> /etc/profile')

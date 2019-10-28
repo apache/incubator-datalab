@@ -86,18 +86,19 @@ export class CoreModule {
 
         { provide: MatDialogRef, useValue: {} },
         { provide: MAT_DIALOG_DATA, useValue: [] },
-
+        {
+          provide: HTTP_INTERCEPTORS,
+          useClass: ErrorInterceptor,
+          multi: true,
+        },
         {
           provide: HTTP_INTERCEPTORS,
           useClass: HttpTokenInterceptor,
           multi: true
-        }, {
+        },
+        {
           provide: HTTP_INTERCEPTORS,
           useClass: NoCacheInterceptor,
-          multi: true,
-        }, {
-          provide: HTTP_INTERCEPTORS,
-          useClass: ErrorInterceptor,
           multi: true,
         }
       ]

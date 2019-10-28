@@ -63,6 +63,7 @@ if __name__ == "__main__":
     dataproc_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
     dataproc_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     dataproc_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+    dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     dataproc_conf['key_name'] = os.environ['conf_key_name']
     dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     dataproc_conf['region'] = os.environ['gcp_region']
@@ -71,7 +72,9 @@ if __name__ == "__main__":
     dataproc_conf['cluster_name'] = '{0}-{1}-des-{2}-{3}'.format(dataproc_conf['service_base_name'], dataproc_conf['project_name'],
                                                                  dataproc_conf['exploratory_name'], dataproc_conf['computational_name'])
     dataproc_conf['cluster_tag'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'], dataproc_conf['project_name'])
-    dataproc_conf['bucket_name'] = '{}-{}-bucket'.format(dataproc_conf['service_base_name'], dataproc_conf['project_name'])
+    dataproc_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(dataproc_conf['service_base_name'],
+                                                               dataproc_conf['project_name'],
+                                                               dataproc_conf['endpoint_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_labels'] = {
         os.environ['notebook_instance_name']: "not-configured",
@@ -90,7 +93,7 @@ if __name__ == "__main__":
                                                                    os.environ['gcp_project_id'])
     dataproc_conf['edge_instance_hostname'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
                                                                         dataproc_conf['project_name'],
-                                                                        dataproc_conf['project_tag'])
+                                                                        dataproc_conf['endpoint_name'])
     dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
 
     edge_status = GCPMeta().get_instance_status(dataproc_conf['edge_instance_hostname'])

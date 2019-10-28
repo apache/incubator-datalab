@@ -37,6 +37,33 @@ public class ProjectResourceTest extends TestBase {
     }
 
     @Test
+    public void getProjectsForManaging() {
+        final Response response = resources.getJerseyTest()
+                .target("project/managing")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .get();
+
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+        verify(projectService, times(1)).getProjectsForManaging();
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
+    public void stopProjectWithResources() {
+        final Response response = resources.getJerseyTest()
+                .target("project/managing/stop/" + "projectName")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(""));
+
+        assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
+        verify(projectService, times(1)).stopWithResources(any(UserInfo.class), anyString());
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
     public void generate() {
         when(keyService.generateKeys(any(UserInfo.class))).thenReturn(new KeysDTO("somePublicKey", "somePrivateKey",
                 "user"));

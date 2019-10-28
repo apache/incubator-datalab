@@ -43,6 +43,7 @@ if __name__ == "__main__":
         edge_conf['service_base_name'] = os.environ['conf_service_base_name']
         edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+        edge_conf['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-')
         edge_conf['azure_ad_user_name'] = os.environ['azure_iam_user']
         edge_conf['key_name'] = os.environ['conf_key_name']
         edge_conf['user_keyname'] = os.environ['edge_user_name']
@@ -66,8 +67,9 @@ if __name__ == "__main__":
                                                     + edge_conf['user_name'] + '-dataengine-master-sg'
         edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
                                                    + edge_conf['user_name'] + '-dataengine-slave-sg'
-        edge_conf['edge_storage_account_name'] = edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + \
-                                                 '-storage'
+        edge_conf['edge_storage_account_name'] = ('{0}-{1}-{2}-storage'.format(edge_conf['service_base_name'],
+                                                                               edge_conf['user_name'],
+                                                                               edge_conf['endpoint_name']))
         edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] +
                                             '-container').lower()
         edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'

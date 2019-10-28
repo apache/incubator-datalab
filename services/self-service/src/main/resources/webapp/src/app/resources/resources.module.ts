@@ -45,4 +45,4 @@ import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.componen
   entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog],
   exports: [ResourcesComponent]
 })
-export class ResourcesModule {}
+export class ResourcesModule { }

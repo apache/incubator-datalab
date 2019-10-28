@@ -57,16 +57,16 @@ export class ResourcesGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   environments: Exploratory[];
-  forse: boolean = true;
 
   collapseFilterRow: boolean = false;
   filtering: boolean = false;
   activeFiltering: boolean = false;
+  activeProject: any;
   healthStatus: GeneralEnvironmentStatus;
 
   filteredEnvironments: Exploratory[] = [];
-  filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
-  filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
+  filterConfiguration: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
+  filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '', '');
 
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
@@ -80,7 +80,6 @@ export class ResourcesGridComponent implements OnInit {
 
   public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
   public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
-
 
 
   constructor(
@@ -111,6 +110,11 @@ export class ResourcesGridComponent implements OnInit {
 
   public onUpdate($event) {
     this.filterForm[$event.type] = $event.model;
+  }
+
+  public selectActiveProject(project = '') {
+    this.filterForm.project = project;
+    this.applyFilter_btnClick(this.filterForm);
   }
 
   public showActiveInstances(): void {
@@ -157,7 +161,7 @@ export class ResourcesGridComponent implements OnInit {
       });
     }));
 
-    this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '');
+    this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '', '');
   }
 
   private applyFilter_btnClick(config: FilterConfigurationModel) {
@@ -169,28 +173,32 @@ export class ResourcesGridComponent implements OnInit {
 
     if (filteredData.length) this.filtering = true;
     if (config) {
-      filteredData = filteredData.filter(project => {
-        project.exploratory = project.exploratory.filter(item => {
+      this.activeProject = config.project;
+      filteredData = filteredData
+        .filter(project => config.project ? project.project === config.project : project)
+        .filter(project => {
 
-          const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
-          const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
-          const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+          project.exploratory = project.exploratory.filter(item => {
 
-          const modifiedResources = containsStatus(item.resources, config.resources);
-          let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
+            const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
+            const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
+            const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
 
-          if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
+            const modifiedResources = containsStatus(item.resources, config.resources);
+            let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
 
-          if (config.resources.length === 0 && config.type === 'active' ||
-            modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
-            item.resources = modifiedResources;
-            isResources = true;
-          }
+            if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
 
-          return isName && isStatus && isShape && isResources;
+            if (config.resources.length === 0 && config.type === 'active' ||
+              modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
+              item.resources = modifiedResources;
+              isResources = true;
+            }
+
+            return isName && isStatus && isShape && isResources;
+          });
+          return project.exploratory.length > 0;
         });
-        return project.exploratory.length > 0;
-      });
 
       this.updateUserPreferences(config);
     }
@@ -207,6 +215,8 @@ export class ResourcesGridComponent implements OnInit {
 
   filterActiveInstances(): FilterConfigurationModel {
     const filteredData = (<any>Object).assign({}, this.filterConfiguration);
+    filteredData.project = this.activeProject || '';
+
     for (const index in filteredData) {
       if (filteredData[index] instanceof Array)
         filteredData[index] = filteredData[index].filter((item: string) => {
@@ -231,11 +241,8 @@ export class ResourcesGridComponent implements OnInit {
     this.activeFiltering = false;
 
     for (const index in filterConfig)
-      if (filterConfig[index].length)
-        this.activeFiltering = true;
+      if (filterConfig[index].length) this.activeFiltering = true;
   }
-
-
 
   resetFilterConfigurations(): void {
     this.filterForm.resetConfigurations();
@@ -251,12 +258,12 @@ export class ResourcesGridComponent implements OnInit {
           this.isActiveFilter(result);
           this.filterForm = this.loadUserPreferences(result.type ? this.filterActiveInstances() : this.aliveStatuses(result));
         }
-        this.applyFilter_btnClick(result ? this.filterForm : result);
+        this.applyFilter_btnClick(result || this.filterForm);
       }, () => this.applyFilter_btnClick(null));
   }
 
   loadUserPreferences(config): FilterConfigurationModel {
-    return new FilterConfigurationModel(config.name, config.statuses, config.shapes, config.resources, config.type);
+    return new FilterConfigurationModel(config.name, config.statuses, config.shapes, config.resources, config.type, config.project);
   }
 
   updateUserPreferences(filterConfiguration: FilterConfigurationModel): void {

@@ -19,17 +19,12 @@
 
 import { Injectable } from '@angular/core';
 import { StorageService } from '../services/storage.service';
-import {
-    HttpInterceptor,
-    HttpRequest,
-    HttpHandler,
-    HttpEvent
-} from '@angular/common/http';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 
 @Injectable() export class HttpTokenInterceptor implements HttpInterceptor {
-  constructor(private jwtService: StorageService) {}
+  constructor(private jwtService: StorageService) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.jwtService.getToken();

@@ -44,7 +44,10 @@ if __name__ == "__main__":
 
     service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    bucket_name = ('{}-ssn-bucket'.format(service_base_name)).lower().replace('_', '-')
+    project_name = os.environ['project_name']
+    endpoint_name = os.environ['endpoint_name']
+    bucket_name = ('{0}-{1}-{2}-bucket'.format(service_base_name,
+                                               project_name, endpoint_name)).lower().replace('_', '-')
     gitlab_certfile = os.environ['conf_gitlab_certfile']
     if dlab.actions_lib.get_gitlab_cert(bucket_name, gitlab_certfile):
         put(gitlab_certfile, gitlab_certfile)

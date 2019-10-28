@@ -290,7 +290,7 @@ public class SchedulerJobResourceTest extends TestBase {
 	public void testGetActiveSchedulers() {
 		when(schedulerJobService.getActiveSchedulers(anyString(), anyLong()))
 				.thenReturn(Collections.singletonList(new SchedulerJobData(USER, "exploratoryName", null,
-						getSchedulerJobDTO())));
+						"project", getSchedulerJobDTO())));
 		final long minuteOffset = 10L;
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/scheduler/active")
@@ -304,7 +304,7 @@ public class SchedulerJobResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(1, activeSchedulers.size());
 		assertEquals(Collections.singletonList(new SchedulerJobData(USER, "exploratoryName", null,
-				getSchedulerJobDTO())), activeSchedulers);
+				"project", getSchedulerJobDTO())), activeSchedulers);
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(schedulerJobService).getActiveSchedulers(USER.toLowerCase(), minuteOffset);
