@@ -117,10 +117,10 @@ def ensure_step_certs():
             except:
                 public_ip_address = None
             sans = "--san {0} --san localhost ".format(local_ip_address)
-            cn = 'endpoint' # local_ip_address
+            cn = local_ip_address
             if public_ip_address:
                 sans += "--san {0}".format(public_ip_address)
-                cn = 'endpoint' # public_ip_address
+                cn = public_ip_address
             token = conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
                               '--password-file /home/{2}/keys/provisioner_password {4} '.format(
                                args.step_kid, args.step_ca_url, args.os_user, cn, sans)).stdout
