@@ -610,8 +610,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          #          group='helm_charts')
          .add_str('--ssn_bucket_name', 'ssn_bucket_name',
                   group='helm_charts')
-         # .add_str('--endpoint_eip_address', 'endpoint_eip_address',
-         #          group='helm_charts')
+         .add_str('--endpoint_eip_address', 'endpoint_eip_address',
+                  group='helm_charts')
          .add_str('--ldap_host', 'ldap host', required=True,
                   group='helm_charts')
          .add_str('--ldap_dn', 'ldap dn', required=True,
@@ -929,9 +929,9 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   default='t2.medium', group='endpoint')
          .add_int('--endpoint_volume_size', 'Size of root volume in GB.',
                   default=30, group='endpoint')
-         # .add_str('--endpoint_eip_allocation_id',
-         #          'Elastic Ip created for Endpoint',
-         #          group='endpoint')
+         .add_str('--endpoint_eip_allocation_id',
+                  'Elastic Ip created for Endpoint',
+                  group='endpoint')
          .add_str('--product', 'Product name.', default='dlab',
                   group='endpoint')
          .add_str('--additional_tag', 'Additional tag.',

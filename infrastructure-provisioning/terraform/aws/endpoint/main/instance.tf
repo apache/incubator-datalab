@@ -46,6 +46,12 @@ resource "aws_instance" "endpoint" {
 
 resource "aws_eip_association" "e_ip_assoc" {
   instance_id   = aws_instance.endpoint.id
-  allocation_id = aws_eip.endpoint_eip.id
+  allocation_id = var.endpoint_eip_allocation_id
   count         = var.network_type == "public" ? 1 : 0
 }
+
+//resource "aws_eip_association" "e_ip_assoc" {
+//  instance_id   = aws_instance.endpoint.id
+//  allocation_id = aws_eip.endpoint_eip.id
+//  count         = var.network_type == "public" ? 1 : 0
+//}
