@@ -65,6 +65,7 @@ public class ComputationalDAO extends BaseDAO {
 	private static final String COMPUTATIONAL_URL_URL = "url";
 	private static final String COMPUTATIONAL_LAST_ACTIVITY = "last_activity";
 	private static final String CONFIG = "config";
+	private static final String TAGS = "tags";
 
 	private static String computationalFieldFilter(String fieldName) {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
@@ -127,6 +128,21 @@ public class ComputationalDAO extends BaseDAO {
 				.stream()
 				.filter(computationalResource -> computationalResource.getStatus().equals(status.toString()))
 				.collect(toList());
+	}
+
+	/**
+	 * Finds and returns tags of computational resource.
+	 *
+	 * @param computationalId id of computational resource.
+	 * @return map of tags or empty map.
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, String> findTagsById(String computationalId) {
+		return findOne(USER_INSTANCES, elemMatch(COMPUTATIONAL_RESOURCES, eq(COMPUTATIONAL_ID, computationalId)),
+				fields(include(COMPUTATIONAL_RESOURCES + "." + TAGS), excludeId()))
+				.map(d -> ((List<Document>) d.get(COMPUTATIONAL_RESOURCES)).get(0))
+				.map(d -> ((Map<String, String>) d.get(TAGS)))
+				.orElse(Collections.emptyMap());
 	}
 
 	/**

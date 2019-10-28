@@ -86,6 +86,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	protected static final String FIELD_PROJECT = "project";
 	private static final String EDGE_FORMAT = "%s-%s-%s-edge";
 	private static final String PROJECT_COLLECTION = "projects";
+	private static final String TAGS = "tags";
 
 	@Inject
 	protected SettingsDAO settings;
@@ -93,6 +94,10 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	private UserSettingsDAO userSettingsDAO;
 	@Inject
 	private ProjectDAO projectDAO;
+	@Inject
+	private ExploratoryDAO exploratoryDAO;
+	@Inject
+	private ComputationalDAO computationalDAO;
 
 	@Override
 	public Document getReport(UserInfo userInfo, T filter) {
@@ -144,16 +149,18 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 
 			costTotal += d.getDouble(MongoKeyWords.COST);
 
+			final String dlabResourceType = id.getString("dlab_resource_type");
 			final String statusString = Optional
 					.ofNullable(status)
 					.map(UserInstanceStatus::toString)
 					.orElse(StringUtils.EMPTY);
+
 			Document item = new Document()
 					.append(MongoKeyWords.DLAB_USER, getUserOrDefault(id.getString(USER)))
 					.append(dlabIdFieldName(), resourceId)
 					.append(shapeFieldName(), generateShapeName(shape))
-					.append("dlab_resource_type", DlabResourceType.getResourceTypeName(id.getString(
-							"dlab_resource_type"))) //todo check on azure!!!
+					.append("dlab_resource_type", DlabResourceType
+							.getResourceTypeName(dlabResourceType)) //todo check on azure!!!
 					.append(STATUS, statusString)
 					.append(FIELD_RESOURCE_TYPE, resourceType(id))
 					.append(productFieldName(), id.getString(productFieldName()))
@@ -163,8 +170,8 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 							.COST)))
 					.append(currencyCodeFieldName(), id.getString(currencyCodeFieldName()))
 					.append(usageDateFromFieldName(), dateStart)
-					.append(usageDateToFieldName(), dateEnd);
-
+					.append(usageDateToFieldName(), dateEnd)
+					.append(TAGS, getExploratoryTags(resourceId, dlabResourceType));
 
 			reportItems.add(item);
 		}
@@ -403,6 +410,15 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 
 	private boolean isShapeAcceptable(List<String> shapeNames, String... shapes) {
 		return shapeNames == null || shapeNames.isEmpty() || Arrays.stream(shapes).anyMatch(shapeNames::contains);
+	}
+
+	private Map<String, String> getExploratoryTags(String resourceId, String dlabResourceType) {
+		if (DlabResourceType.EXPLORATORY.name().equals(dlabResourceType)) {
+			return exploratoryDAO.findTagsById(resourceId);
+		} else if (DlabResourceType.COMPUTATIONAL.name().equals(dlabResourceType)) {
+			return computationalDAO.findTagsById(resourceId);
+		}
+		return Collections.emptyMap();
 	}
 
 	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes) {

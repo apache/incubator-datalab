@@ -42,6 +42,7 @@ import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Updates.set;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -68,6 +69,7 @@ public class ExploratoryDAO extends BaseDAO {
 	public static final String EXPLORATORY_NOT_FOUND_MSG = "Exploratory for user %s with name %s not found";
 	private static final String EXPLORATORY_LAST_ACTIVITY = "last_activity";
 	private static final String PROJECT = "project";
+	private static final String TAGS = "tags";
 
 	public ExploratoryDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -105,6 +107,20 @@ public class ExploratoryDAO extends BaseDAO {
 				fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS,
 						ExploratoryLibDAO.COMPUTATIONAL_LIBS,
 						SCHEDULER_DATA)));
+	}
+
+	/**
+	 * Finds and returns exploratory tags.
+	 *
+	 * @param exploratoryId id of computational resource.
+	 * @return map of tags or empty map.
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, String> findTagsById(String exploratoryId) {
+		return findOne(USER_INSTANCES, eq(EXPLORATORY_ID, exploratoryId),
+				fields(include("tags"), excludeId()))
+				.map(d -> ((Map<String, String>) d.get(TAGS)))
+				.orElse(Collections.emptyMap());
 	}
 
 	/**
