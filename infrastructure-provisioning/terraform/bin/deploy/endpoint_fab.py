@@ -111,15 +111,21 @@ def ensure_step_certs():
             conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint.replace('\n', ''),
                                                                                   args.step_ca_url))
             conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(args.step_kid_password, args.os_user))
+            local_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/local-ipv4').stdout
             try:
-                ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/public-ipv4').stdout
+                public_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/public-ipv4').stdout
             except:
-                ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/local-ipv4').stdout
+                public_ip_address = None
+            sans = "--san {0} --san localhost ".format(local_ip_address)
+            cn = local_ip_address
+            if public_ip_address:
+                sans += "--san {0}".format(public_ip_address)
+                cn = public_ip_address
             token = conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
                               '--password-file /home/{2}/keys/provisioner_password'.format(
                                args.step_kid, args.step_ca_url, args.os_user, ip_address)).stdout
-            conn.sudo('step ca certificate "{0}" /home/{2}/keys/endpoint.crt /home/{2}/keys/endpoint.key '
-                      '--token "{1}"'.format(ip_address, token, args.os_user))
+            conn.sudo('step ca certificate "{3}" /home/{2}/keys/endpoint.crt /home/{2}/keys/endpoint.key '
+                      '--token "{1}" {0} '.format(sans, token, args.os_user, cn))
             conn.sudo('touch /home/{}/.ensure_dir/step_ensured'
                       .format(args.os_user))
     except Exception as err:
