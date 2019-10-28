@@ -123,7 +123,7 @@ def ensure_step_certs():
                 cn = public_ip_address
             token = conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
                               '--password-file /home/{2}/keys/provisioner_password'.format(
-                               args.step_kid, args.step_ca_url, args.os_user, ip_address)).stdout
+                               args.step_kid, args.step_ca_url, args.os_user, cn)).stdout
             conn.sudo('step ca certificate "{3}" /home/{2}/keys/endpoint.crt /home/{2}/keys/endpoint.key '
                       '--token "{1}" {0} '.format(sans, token, args.os_user, cn))
             conn.sudo('touch /home/{}/.ensure_dir/step_ensured'
