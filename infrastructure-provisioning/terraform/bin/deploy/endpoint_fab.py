@@ -105,27 +105,34 @@ def ensure_step_certs():
                       '-O /tmp/step-cli_0.13.3_amd64.deb')
             conn.sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
             conn.sudo('echo "{0}" | base64 --decode > /home/{1}/keys/root_ca.crt'.format(args.step_root_ca,
-                                                                                          args.os_user))
+                                                                                         args.os_user))
             fingerprint = conn.sudo('step certificate fingerprint /home/{0}/keys/root_ca.crt'.format(
                 args.os_user)).stdout
             conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint.replace('\n', ''),
                                                                                   args.step_ca_url))
             conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(args.step_kid_password, args.os_user))
             local_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/local-ipv4').stdout
+            local_hostname = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/local-hostname').stdout
             try:
                 public_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/public-ipv4').stdout
             except:
                 public_ip_address = None
-            sans = "--san {0} --san localhost ".format(local_ip_address)
+            try:
+                public_hostname = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/public-hostname').stdout
+            except:
+                public_hostname = None
+            sans = "--san {0} --san localhost --san {1} ".format(local_ip_address, local_hostname)
             cn = local_ip_address
             if public_ip_address:
                 sans += "--san {0}".format(public_ip_address)
                 cn = public_ip_address
+            if public_hostname:
+                sans += "--san {0}".format(public_hostname)
             token = conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
-                              '--password-file /home/{2}/keys/provisioner_password'.format(
-                               args.step_kid, args.step_ca_url, args.os_user, cn)).stdout
-            conn.sudo('step ca certificate "{3}" /home/{2}/keys/endpoint.crt /home/{2}/keys/endpoint.key '
-                      '--token "{1}" {0} '.format(sans, token, args.os_user, cn))
+                              '--password-file /home/{2}/keys/provisioner_password {4} '.format(
+                               args.step_kid, args.step_ca_url, args.os_user, cn, sans)).stdout
+            conn.sudo('step ca certificate "{0}" /home/{2}/keys/endpoint.crt /home/{2}/keys/endpoint.key '
+                      '--token "{1}" '.format(cn, token, args.os_user))
             conn.sudo('touch /home/{}/.ensure_dir/step_ensured'
                       .format(args.os_user))
     except Exception as err:
