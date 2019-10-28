@@ -100,6 +100,33 @@ if __name__ == "__main__":
     data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
     data_engine['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
+
+    data_engine['primary_disk_size'] = '30'
+
+    data_engine['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    if data_engine['shared_image_enabled'] == 'false':
+        data_engine['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image'.format(
+            data_engine['service_base_name'], data_engine['endpoint_tag'], data_engine['project_name'],
+            os.environ['application'])
+        data_engine['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-image'.format(
+            data_engine['service_base_name'], data_engine['endpoint_tag'], data_engine['project_name'],
+            os.environ['application'])
+    else:
+        data_engine['expected_primary_image_name'] = '{}-{}-{}-primary-image'.format(
+            data_engine['service_base_name'], data_engine['endpoint_tag'], os.environ['application'])
+        data_engine['expected_secondary_image_name'] = '{}-{}-{}-secondary-image'.format(
+            data_engine['service_base_name'], data_engine['endpoint_tag'], os.environ['application'])
+    data_engine['notebook_primary_image_name'] = (lambda x: os.environ['notebook_primary_image_name'] if x != 'None'
+    else data_engine['expected_primary_image_name'])(str(os.environ.get('notebook_primary_image_name')))
+    print('Searching pre-configured images')
+    data_engine['primary_image_name'] = GCPMeta().get_image_by_name(data_engine['notebook_primary_image_name'])
+    if data_engine['primary_image_name'] == '':
+        data_engine['primary_image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
+    else:
+        print('Pre-configured primary image found. Using: {}'.format(data_engine['primary_image_name'].get('name')))
+        data_engine['primary_image_name'] = 'global/images/{}'.format(
+            data_engine['primary_image_name'].get('name'))
+
     data_engine['gpu_accelerator_type'] = 'None'
     if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
         data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
@@ -126,13 +153,14 @@ if __name__ == "__main__":
         logging.info('[CREATE MASTER NODE]')
         print('[CREATE MASTER NODE]')
         params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} " \
-                 "--ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} " \
-                 "--primary_disk_size {} --gpu_accelerator_type {} --network_tag {} --cluster_name {} --labels '{}'".\
+                 "--ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} " \
+                 "--instance_class {} --primary_disk_size {} " \
+                 "--gpu_accelerator_type {} --network_tag {} --cluster_name {} --labels '{}'".\
             format(data_engine['master_node_name'], data_engine['region'], data_engine['zone'], data_engine['vpc_name'],
                    data_engine['subnet_name'], data_engine['master_size'], data_engine['ssh_key_path'], initial_user,
-                   data_engine['dataengine_service_account_name'], data_engine['image_name'], 'dataengine', '30',
-                   data_engine['gpu_accelerator_type'], data_engine['network_tag'], data_engine['cluster_name'],
-                   json.dumps(data_engine['master_labels']))
+                   data_engine['dataengine_service_account_name'], data_engine['primary_image_name'],
+                   'dataengine', '30', data_engine['gpu_accelerator_type'],
+                   data_engine['network_tag'], data_engine['cluster_name'], json.dumps(data_engine['master_labels']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -156,8 +184,9 @@ if __name__ == "__main__":
                 format(slave_name, data_engine['region'], data_engine['zone'],
                        data_engine['vpc_name'], data_engine['subnet_name'], data_engine['slave_size'],
                        data_engine['ssh_key_path'], initial_user, data_engine['dataengine_service_account_name'],
-                       data_engine['image_name'], 'dataengine', '30', data_engine['gpu_accelerator_type'],
-                       data_engine['network_tag'], data_engine['cluster_name'], json.dumps(data_engine['slave_labels']))
+                       data_engine['primary_image_name'], 'dataengine', '30',
+                       data_engine['gpu_accelerator_type'], data_engine['network_tag'], data_engine['cluster_name'],
+                       json.dumps(data_engine['slave_labels']))
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
             except:

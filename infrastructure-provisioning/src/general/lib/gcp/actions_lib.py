@@ -313,6 +313,7 @@ class GCPActions:
                 }
             ]
         elif instance_class == 'dataengine':
+            GCPActions().create_disk(instance_name, zone, secondary_disk_size, secondary_image_name)
             disks = [{
                 "name": instance_name,
                 "tag_name": cluster_name + '-volume-primary',
@@ -324,7 +325,21 @@ class GCPActions:
                 },
                 "boot": 'true',
                 "mode": "READ_WRITE"
-            }]
+            },
+                {
+                    "name": instance_name + '-secondary',
+                    "tag_name": instance_name + '-volume-secondary',
+                    "deviceName": instance_name + '-secondary',
+                    "autoDelete": "true",
+                    "boot": "false",
+                    "mode": "READ_WRITE",
+                    "type": "PERSISTENT",
+                    "interface": "SCSI",
+                    "source": "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project,
+                                                                                  zone,
+                                                                                  instance_name)
+                }
+            ]
         else:
             disks = [{
                 "name": instance_name,
@@ -366,7 +381,7 @@ class GCPActions:
                 }
             ]
         }
-        if instance_class == 'notebook':
+        if instance_class == 'notebook' or instance_class == 'dataengine':
             del instance_params['networkInterfaces'][0]['accessConfigs']
         if gpu_accelerator_type != 'None':
             request = self.service.acceleratorTypes().list(project=self.project, zone = zone)
@@ -749,7 +764,7 @@ class GCPActions:
                 print('Image {} was removed.'.format(image_name))
             except errors.HttpError as err:
                 if err.resp.status == 404:
-                    print('Image {} was not found. Skipped'.format(instance_name))
+                    print('Image {} was not found. Skipped'.format(image_name))
                     return request
                 else:
                     raise err
