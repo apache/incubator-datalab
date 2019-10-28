@@ -49,9 +49,9 @@ output "endpoint_eip_allocation_id" {
   value = aws_eip.k8s-endpoint-eip.id
 }
 
-output "endpoint_eip_address" {
-  value = aws_eip.k8s-endpoint-eip.public_ip
-}
+//output "endpoint_eip_address" {
+//  value = aws_eip.k8s-endpoint-eip.public_ip
+//}
 # TEMPORARY
 
 //output "ssn_keystore_password" {
