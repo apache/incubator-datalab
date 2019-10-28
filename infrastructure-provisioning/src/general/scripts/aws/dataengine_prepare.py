@@ -102,10 +102,15 @@ if __name__ == "__main__":
         data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
 
-        data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(data_engine['service_base_name'],
-                                                                           os.environ['endpoint_name'],
-                                                                           os.environ['project_name'],
-                                                                           os.environ['application'])
+        if os.environ['conf_shared_image_enabled'] == 'false':
+            data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(data_engine['service_base_name'],
+                                                                                         os.environ['endpoint_name'],
+                                                                                         os.environ['project_name'],
+                                                                                         os.environ['application'])
+        else:
+            data_engine['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(data_engine['service_base_name'],
+                                                                                         os.environ['endpoint_name'],
+                                                                                         os.environ['application'])
         data_engine['notebook_image_name'] = (
             lambda x: '{0}-{1}-{2}-{3}'.format(data_engine['service_base_name'],
                                                os.environ['project_name'],
