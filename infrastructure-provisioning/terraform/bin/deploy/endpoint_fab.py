@@ -112,22 +112,15 @@ def ensure_step_certs():
                                                                                   args.step_ca_url))
             conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(args.step_kid_password, args.os_user))
             local_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/local-ipv4').stdout
-            local_hostname = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/local-hostname').stdout
             try:
                 public_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/public-ipv4').stdout
             except:
                 public_ip_address = None
-            try:
-                public_hostname = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/public-hostname').stdout
-            except:
-                public_hostname = None
-            sans = "--san {0} --san localhost --san {1} ".format(local_ip_address, local_hostname)
+            sans = "--san {0} --san localhost ".format(local_ip_address)
             cn = local_ip_address
             if public_ip_address:
                 sans += "--san {0}".format(public_ip_address)
                 cn = public_ip_address
-            if public_hostname:
-                sans += "--san {0}".format(public_hostname)
             token = conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
                               '--password-file /home/{2}/keys/provisioner_password {4} '.format(
                                args.step_kid, args.step_ca_url, args.os_user, cn, sans)).stdout
