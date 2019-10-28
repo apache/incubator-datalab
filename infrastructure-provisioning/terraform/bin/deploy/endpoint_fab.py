@@ -250,7 +250,7 @@ def configure_keystore_endpoint(os_user, endpoint_keystore_password):
         sys.exit(1)
 
 
-def configure_supervisor_endpoint():
+def configure_supervisor_endpoint(endpoint_keystore_password):
     try:
         if not exists(conn,
                       '/home/{}/.ensure_dir/configure_supervisor_ensured'.format(args.os_user)):
@@ -698,7 +698,7 @@ def start_deploy():
     ensure_docker_endpoint()
 
     logging.info("Configuring Supervisor")
-    configure_supervisor_endpoint()
+    configure_supervisor_endpoint(endpoint_keystore_password)
 
     logging.info("Copying admin key")
     copy_keys()
