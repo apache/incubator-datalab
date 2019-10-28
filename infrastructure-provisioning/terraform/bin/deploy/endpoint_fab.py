@@ -203,11 +203,11 @@ def configure_keystore_endpoint(os_user, endpoint_keystore_password):
     try:
         if args.cloud_provider == "aws":
             conn.sudo('openssl pkcs12 -export -in /home/{0}/keys/endpoint.crt -inkey '
-                      '/home/{0}/keys/endpoint.key -out /home/{0}/keys/endpoint.p12 -password pass:changeit'.format(
-                       args.os_user))
+                      '/home/{0}/keys/endpoint.key -out /home/{0}/keys/endpoint.p12 -password pass:{1}'.format(
+                       args.os_user, endpoint_keystore_password))
             conn.sudo('keytool -importkeystore -srckeystore /home/{0}/keys/endpoint.p12 -srcstoretype PKCS12 '
-                      '-destkeystore /home/{0}/keys/endpoint.keystore.jks -deststoretype JKS -storepass "{1}" '
-                      '-srcstorepass changeit -keypass "{1}"'.format(args.os_user, endpoint_keystore_password))
+                      '-destkeystore /home/{0}/keys/endpoint.keystore.jks -deststoretype JKS -deststorepass "{1}" '
+                      '-srcstorepass "{1}" -keypass "{1}"'.format(args.os_user, endpoint_keystore_password))
             conn.sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/endpoint.crt -noprompt '
                       '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
             conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/root_ca.crt -noprompt '
@@ -302,7 +302,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                       .format(args.ss_port, dlab_conf_dir))
             conn.sudo('sed -i "s|KEYCLOACK_HOST|{}|g" {}provisioning.yml'
                       .format(args.keycloack_host, dlab_conf_dir))
-            conn.sudo('sed -i "s|CLIENT_ID|{}|g" {}provisioning.yml'
+            conn.sudo('sed -i "s|KEYCLOAK_CLIENT_ID|{}|g" {}provisioning.yml'
                       .format(args.keycloak_client_id, dlab_conf_dir))
             conn.sudo('sed -i "s|CLIENT_SECRET|{}|g" {}provisioning.yml'
                       .format(args.keycloak_client_secret, dlab_conf_dir))
