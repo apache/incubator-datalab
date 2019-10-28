@@ -117,7 +117,7 @@ def ensure_step_certs():
             except:
                 public_ip_address = None
             sans = "--san {0} --san localhost ".format(local_ip_address)
-            cn = local_ip_address
+            cn = 'endpoint' # local_ip_address
             if public_ip_address:
                 sans += "--san {0}".format(public_ip_address)
                 cn = public_ip_address
