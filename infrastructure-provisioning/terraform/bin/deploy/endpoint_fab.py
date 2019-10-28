@@ -125,7 +125,8 @@ def ensure_step_certs():
                               '--password-file /home/{2}/keys/provisioner_password {4} '.format(
                                args.step_kid, args.step_ca_url, args.os_user, cn, sans)).stdout
             conn.sudo('step ca certificate "{0}" /home/{2}/keys/endpoint.crt /home/{2}/keys/endpoint.key '
-                      '--token "{1}" --kty=RSA --size 2048 '.format(cn, token, args.os_user))
+                      '--token "{1}" --kty=RSA --size 2048 --provisioner {3} '.format(cn, token, args.os_user,
+                                                                                      args.step_kid))
             conn.sudo('touch /home/{}/.ensure_dir/step_ensured'
                       .format(args.os_user))
     except Exception as err:
