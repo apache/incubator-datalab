@@ -11,10 +11,10 @@
 #/usr/bin/keytool -importcert -trustcacerts -alias dlab -file /root/keys/ssn.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
 #/usr/bin/keytool -importcert -trustcacerts -file /root/keys/endpoint.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
 #
-#if [ -d "/root/step-certs" ]; then
-#  /usr/bin/keytool -importcert -trustcacerts -alias step-ca -file /root/step-certs/ca.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
-#  /usr/bin/keytool -importcert -trustcacerts -alias step-crt -file /root/step-certs/tls.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
-#fi
+if [ -d "/root/step-certs" ]; then
+  /usr/bin/keytool -importcert -trustcacerts -alias step-ca -file /root/step-certs/ca.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
+  /usr/bin/keytool -importcert -trustcacerts -alias step-crt -file /root/step-certs/tls.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
+fi
 
 
 
