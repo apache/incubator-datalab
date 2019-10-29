@@ -18,7 +18,7 @@
 
 
 
-/usr/bin/openssl pkcs12 -export -in /root/step-certs/tls.crt -inkey /root/step-certs/tls.key -name ssn -out ssn.p12 -password pass:"${SSN_KEYSTORE_PASSWORD}"
+/usr/bin/openssl pkcs12 -export -in /root/step-certs/tls.crt -inkey /root/step-certs/tls.key -name ssn -out ssn.p12 -password pass:${SSN_KEYSTORE_PASSWORD}
 /usr/bin/keytool -importkeystore -srckeystore ssn.p12 -srcstoretype PKCS12 -alias ssn -destkeystore /root/keys/ssn.keystore.jks -deststorepass "${SSN_KEYSTORE_PASSWORD}" -srcstorepass "${SSN_KEYSTORE_PASSWORD}"
 /usr/bin/keytool -keystore /root/keys/ssn.keystore.jks -alias CARoot -import -file /root/step-certs/ca.crt  -deststorepass "${SSN_KEYSTORE_PASSWORD}" -noprompt
 
