@@ -43,8 +43,7 @@ if __name__ == "__main__":
     project_conf = dict()
     project_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    project_conf['endpoint_name'] = '{0}-{1}-endpoint'.format(project_conf['service_base_name'],
-                                                              os.environ['endpoint_name'])
+    project_conf['endpoint_name'] = os.environ['endpoint_name']
     project_conf['endpoint_tag'] = os.environ['endpoint_name']
     project_conf['project_name'] = os.environ['project_name']
     project_conf['project_tag'] = os.environ['project_name']
