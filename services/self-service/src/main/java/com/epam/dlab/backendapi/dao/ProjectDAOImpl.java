@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.*;
@@ -28,7 +29,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String ENDPOINT_STATUS_FIELD = "endpoints." + STATUS_FIELD;
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
 	private static final String ENDPOINT_FIELD = "endpoints.$.";
-	private static final String ANYUSER = "$anyuser";
+	private static final String ANYUSER = Pattern.quote("$anyuser");
 
 	private final UserGroupDao userGroupDao;
 
