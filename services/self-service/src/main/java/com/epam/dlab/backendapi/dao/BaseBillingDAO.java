@@ -21,6 +21,12 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.BaseShape;
+import com.epam.dlab.backendapi.domain.DataEngineServiceShape;
+import com.epam.dlab.backendapi.domain.DataEngineShape;
+import com.epam.dlab.backendapi.domain.EndpointShape;
+import com.epam.dlab.backendapi.domain.ExploratoryShape;
+import com.epam.dlab.backendapi.domain.SsnShape;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -35,8 +41,6 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
-import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -85,7 +89,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	public static final String SHARED_RESOURCE_NAME = "Shared resource";
 	protected static final String FIELD_PROJECT = "project";
 	private static final String EDGE_FORMAT = "%s-%s-%s-edge";
-	private static final String PROJECT_COLLECTION = "projects";
+	private static final String PROJECT_COLLECTION = "Projects";
 	private static final String TAGS = "tags";
 
 	@Inject
@@ -94,10 +98,6 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	private UserSettingsDAO userSettingsDAO;
 	@Inject
 	private ProjectDAO projectDAO;
-	@Inject
-	private ExploratoryDAO exploratoryDAO;
-	@Inject
-	private ComputationalDAO computationalDAO;
 
 	@Override
 	public Document getReport(UserInfo userInfo, T filter) {
@@ -111,14 +111,14 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		}
 		pipeline.add(groupCriteria());
 		pipeline.add(sortCriteria());
-		final Map<String, ShapeInfo> shapes = getShapes(filter.getShapes());
+		final Map<String, BaseShape> shapes = getShapes(filter.getShapes());
 		return prepareReport(filter.getStatuses(), !filter.getShapes().isEmpty(),
 				getCollection(BILLING).aggregate(pipeline), shapes, isFullReport);
 	}
 
 	private Document prepareReport(List<UserInstanceStatus> statuses, boolean filterByShape,
 								   AggregateIterable<Document> agg,
-								   Map<String, ShapeInfo> shapes, boolean fullReport) {
+								   Map<String, BaseShape> shapes, boolean fullReport) {
 
 		List<Document> reportItems = new ArrayList<>();
 
@@ -129,8 +129,8 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		for (Document d : agg) {
 			Document id = (Document) d.get(MongoKeyWords.MONGO_ID);
 			String resourceId = id.getString(dlabIdFieldName());
-			ShapeInfo shape = shapes.get(resourceId);
-			final UserInstanceStatus status = Optional.ofNullable(shape).map(ShapeInfo::getStatus).orElse(null);
+			BaseShape shape = shapes.get(resourceId);
+			final UserInstanceStatus status = Optional.ofNullable(shape).map(BaseShape::getStatus).orElse(null);
 			if ((filterByShape && shape == null) ||
 					(!statuses.isEmpty() && statuses.stream().noneMatch(s -> s.equals(status)))) {
 				continue;
@@ -158,7 +158,8 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 			Document item = new Document()
 					.append(MongoKeyWords.DLAB_USER, getUserOrDefault(id.getString(USER)))
 					.append(dlabIdFieldName(), resourceId)
-					.append(shapeFieldName(), generateShapeName(shape))
+					.append(shapeFieldName(), Optional.ofNullable(shape).map(BaseShape::format)
+							.orElse(StringUtils.EMPTY))
 					.append("dlab_resource_type", DlabResourceType
 							.getResourceTypeName(dlabResourceType)) //todo check on azure!!!
 					.append(STATUS, statusString)
@@ -171,7 +172,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 					.append(currencyCodeFieldName(), id.getString(currencyCodeFieldName()))
 					.append(usageDateFromFieldName(), dateStart)
 					.append(usageDateToFieldName(), dateEnd)
-					.append(TAGS, getTags(resourceId, dlabResourceType));
+					.append(TAGS, Optional.ofNullable(shape).map(BaseShape::getTags));
 
 			reportItems.add(item);
 		}
@@ -225,21 +226,27 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 
 	protected abstract Bson groupCriteria();
 
-	protected Map<String, ShapeInfo> getShapes(List<String> shapeNames) {
+	private Map<String, BaseShape> getShapes(List<String> shapeNames) {
 		FindIterable<Document> userInstances = getUserInstances();
-		final Map<String, ShapeInfo> shapes = new HashMap<>();
+		final Map<String, BaseShape> shapes = new HashMap<>();
 
 		for (Document d : userInstances) {
 			getExploratoryShape(shapeNames, d)
-					.ifPresent(shapeInfo -> shapes.put(d.getString(EXPLORATORY_ID), shapeInfo));
+					.ifPresent(shape -> shapes.put(d.getString(EXPLORATORY_ID), shape));
 			@SuppressWarnings("unchecked")
 			List<Document> comp = (List<Document>) d.get(COMPUTATIONAL_RESOURCES);
-			comp.forEach(computational ->
-					getComputationalShape(shapeNames, computational)
-							.ifPresent(shapeInfo -> shapes.put(computational.getString(COMPUTATIONAL_ID), shapeInfo)));
+			comp.forEach(c -> (isDataEngine(c.getString(DATAENGINE_DOCKER_IMAGE)) ? getDataEngineShape(shapeNames, c) :
+					getDataEngineServiceShape(shapeNames, c))
+					.ifPresent(shape -> shapes.put(c.getString(COMPUTATIONAL_ID), shape)));
 		}
 
-		appendSsnAndEdgeNodeType(shapeNames, shapes);
+		StreamSupport.stream(getCollection(PROJECT_COLLECTION).find().spliterator(), false)
+				.forEach(d -> ((List<Document>) d.get("endpoints"))
+						.forEach(endpoint -> getEndpointShape(shapeNames, d.getString("name"), endpoint)
+								.ifPresent(shape -> shapes.put(shape.getShape(), shape))));
+
+		getSsnShape(shapeNames)
+				.ifPresent(shape -> shapes.put(getServiceBaseName() + "-ssn", shape));
 
 		log.trace("Loaded shapes is {}", shapes);
 		return shapes;
@@ -345,12 +352,6 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 
 	protected abstract List<Bson> cloudMatchCriteria(T filter);
 
-
-	private Optional<ShapeInfo> getComputationalShape(List<String> shapeNames, Document c) {
-		return isDataEngine(c.getString(DATAENGINE_DOCKER_IMAGE)) ? getDataEngineShape(shapeNames, c) :
-				getDataEngineServiceShape(shapeNames, c);
-	}
-
 	private Double aggregateBillingData(List<Bson> pipeline) {
 		return Optional.ofNullable(aggregate(BILLING, pipeline).first())
 				.map(d -> d.getDouble(TOTAL_FIELD_NAME))
@@ -362,7 +363,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 				.find()
 				.projection(
 						fields(excludeId(),
-								include(SHAPE, EXPLORATORY_ID, STATUS,
+								include(SHAPE, EXPLORATORY_ID, STATUS, TAGS,
 										COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_ID,
 										COMPUTATIONAL_RESOURCES + "." + MASTER_NODE_SHAPE,
 										COMPUTATIONAL_RESOURCES + "." + SLAVE_NODE_SHAPE,
@@ -370,14 +371,70 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 										COMPUTATIONAL_RESOURCES + "." + DATAENGINE_SHAPE,
 										COMPUTATIONAL_RESOURCES + "." + DATAENGINE_INSTANCE_COUNT,
 										COMPUTATIONAL_RESOURCES + "." + DATAENGINE_DOCKER_IMAGE,
-										COMPUTATIONAL_RESOURCES + "." + STATUS
+										COMPUTATIONAL_RESOURCES + "." + STATUS,
+										COMPUTATIONAL_RESOURCES + "." + TAGS
 								)));
 	}
 
-	private Optional<ShapeInfo> getExploratoryShape(List<String> shapeNames, Document d) {
+	private Optional<ExploratoryShape> getExploratoryShape(List<String> shapeNames, Document d) {
 		final String shape = d.getString(SHAPE);
 		if (isShapeAcceptable(shapeNames, shape)) {
-			return Optional.of(new ShapeInfo(shape, UserInstanceStatus.of(d.getString(STATUS))));
+			return Optional.of(ExploratoryShape.builder()
+					.shape(shape)
+					.status(UserInstanceStatus.of(d.getString(STATUS)))
+					.tags((Map<String, String>) d.get(TAGS))
+					.build());
+		}
+		return Optional.empty();
+	}
+
+	private Optional<DataEngineServiceShape> getDataEngineServiceShape(List<String> shapeNames, Document c) {
+		final String desMasterShape = c.getString(MASTER_NODE_SHAPE);
+		final String desSlaveShape = c.getString(SLAVE_NODE_SHAPE);
+		if (isShapeAcceptable(shapeNames, desMasterShape, desSlaveShape)) {
+			return Optional.of(DataEngineServiceShape.builder()
+					.shape(desMasterShape)
+					.status(UserInstanceStatus.of(c.getString(STATUS)))
+					.slaveCount(c.getString(TOTAL_INSTANCE_NUMBER))
+					.slaveShape(desSlaveShape)
+					.tags((Map<String, String>) c.get(TAGS))
+					.build());
+		}
+		return Optional.empty();
+	}
+
+	private Optional<DataEngineShape> getDataEngineShape(List<String> shapeNames, Document c) {
+		final String shape = c.getString(DATAENGINE_SHAPE);
+		if ((isShapeAcceptable(shapeNames, shape)) && StringUtils.isNotEmpty(c.getString(COMPUTATIONAL_ID))) {
+
+			return Optional.of(DataEngineShape.builder()
+					.shape(shape)
+					.status(UserInstanceStatus.of(c.getString(STATUS)))
+					.slaveCount(c.getString(DATAENGINE_INSTANCE_COUNT))
+					.tags((Map<String, String>) c.get(TAGS))
+					.build());
+		}
+		return Optional.empty();
+	}
+
+	private Optional<SsnShape> getSsnShape(List<String> shapeNames) {
+		final String shape = getSsnShape();
+		if (isShapeAcceptable(shapeNames, shape)) {
+			return Optional.of(SsnShape.builder()
+					.shape(shape)
+					.status(UserInstanceStatus.RUNNING)
+					.build());
+		}
+		return Optional.empty();
+	}
+
+	private Optional<EndpointShape> getEndpointShape(List<String> shapeNames, String projectName, Document endpoint) {
+		String sbn = getServiceBaseName();
+		if (isShapeAcceptable(shapeNames, getSsnShape())) {
+			return Optional.of(EndpointShape.builder()
+					.shape(String.format(EDGE_FORMAT, sbn, projectName, endpoint.getString("name")))
+					.status(UserInstanceStatus.of(endpoint.getString("status")))
+					.build());
 		}
 		return Optional.empty();
 	}
@@ -386,53 +443,8 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		return DataEngineType.fromDockerImageName(dockerImage) == DataEngineType.SPARK_STANDALONE;
 	}
 
-	private Optional<ShapeInfo> getDataEngineServiceShape(List<String> shapeNames,
-														  Document c) {
-		final String desMasterShape = c.getString(MASTER_NODE_SHAPE);
-		final String desSlaveShape = c.getString(SLAVE_NODE_SHAPE);
-		if (isShapeAcceptable(shapeNames, desMasterShape, desSlaveShape)) {
-			return Optional.of(new ShapeInfo(desMasterShape, desSlaveShape, c.getString(TOTAL_INSTANCE_NUMBER),
-					UserInstanceStatus.of(c.getString(STATUS))));
-		}
-		return Optional.empty();
-	}
-
-	private Optional<ShapeInfo> getDataEngineShape(List<String> shapeNames, Document c) {
-		final String dataEngineShape = c.getString(DATAENGINE_SHAPE);
-		if ((isShapeAcceptable(shapeNames, dataEngineShape))
-				&& StringUtils.isNotEmpty(c.getString(COMPUTATIONAL_ID))) {
-
-			return Optional.of(new ShapeInfo(dataEngineShape, c.getString(DATAENGINE_INSTANCE_COUNT),
-					UserInstanceStatus.of(c.getString(STATUS))));
-		}
-		return Optional.empty();
-	}
-
 	private boolean isShapeAcceptable(List<String> shapeNames, String... shapes) {
 		return shapeNames == null || shapeNames.isEmpty() || Arrays.stream(shapes).anyMatch(shapeNames::contains);
-	}
-
-	private Map<String, String> getTags(String resourceId, String dlabResourceType) {
-		if (DlabResourceType.EXPLORATORY.name().equals(dlabResourceType)) {
-			return exploratoryDAO.findTagsById(resourceId);
-		} else if (DlabResourceType.COMPUTATIONAL.name().equals(dlabResourceType)) {
-			return computationalDAO.findTagsById(resourceId);
-		}
-		return Collections.emptyMap();
-	}
-
-	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes) {
-		final String ssnShape = getSsnShape();
-		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
-			String sbn = getServiceBaseName();
-			shapes.put(sbn + "-ssn", new ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
-			StreamSupport.stream(getCollection(PROJECT_COLLECTION).find().spliterator(), false)
-					.forEach(d -> ((List<Document>) d.get("endpoints"))
-							.forEach(e -> shapes.put(String.format(EDGE_FORMAT, sbn, d.getString("name"), e.getString(
-									"name")),
-									new ShapeInfo(StringUtils.EMPTY,
-											UserInstanceStatus.of(e.getString("status"))))));
-		}
 	}
 
 	protected String getServiceBaseName() {
@@ -440,11 +452,6 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	}
 
 	protected abstract String getSsnShape();
-
-
-	protected String generateShapeName(ShapeInfo shape) {
-		return Optional.ofNullable(shape).map(ShapeInfo::getName).orElse(StringUtils.EMPTY);
-	}
 
 	protected void usersToLowerCase(List<String> users) {
 		if (users != null) {
@@ -457,64 +464,6 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 			usersToLowerCase(filter.getUser());
 		} else {
 			filter.setUser(Lists.newArrayList(userInfo.getName().toLowerCase()));
-		}
-	}
-
-	/**
-	 * Store shape info
-	 */
-	@Getter
-	@ToString
-	protected class ShapeInfo {
-		private static final String DES_NAME_FORMAT = "Master: %s%sSlave:  %d x %s";
-		private static final String DE_NAME_FORMAT = "%d x %s";
-		private final boolean isDataEngine;
-		private final String shape;
-		private final String slaveShape;
-		private final String slaveCount;
-		private final boolean isExploratory;
-		private final UserInstanceStatus status;
-
-		private ShapeInfo(boolean isDataEngine, String shape, String slaveShape, String slaveCount, boolean
-				isExploratory, UserInstanceStatus status) {
-			this.isDataEngine = isDataEngine;
-			this.shape = shape;
-			this.slaveShape = slaveShape;
-			this.slaveCount = slaveCount;
-			this.isExploratory = isExploratory;
-			this.status = status;
-		}
-
-		public ShapeInfo(String shape, UserInstanceStatus status) {
-			this(false, shape, null, null, true, status);
-		}
-
-		ShapeInfo(String shape, String slaveShape, String slaveCount, UserInstanceStatus status) {
-			this(false, shape, slaveShape, slaveCount, false, status);
-		}
-
-
-		ShapeInfo(String shape, String slaveCount, UserInstanceStatus status) {
-			this(true, shape, null, slaveCount, false, status);
-		}
-
-		public String getName() {
-			if (isExploratory) {
-				return shape;
-			} else {
-				return clusterName();
-			}
-		}
-
-		private String clusterName() {
-			try {
-				final Integer count = Integer.valueOf(slaveCount);
-				return isDataEngine ? String.format(DE_NAME_FORMAT, count, shape) :
-						String.format(DES_NAME_FORMAT, shape, System.lineSeparator(), count - 1, slaveShape);
-			} catch (NumberFormatException e) {
-				log.error("Cannot parse string {} to integer", slaveCount);
-				return StringUtils.EMPTY;
-			}
 		}
 	}
 }
