@@ -239,8 +239,8 @@ public class ComputationalServiceImplTest {
 		ComputationalTerminateDTO ctDto = new ComputationalTerminateDTO();
 		ctDto.setComputationalName(COMP_NAME);
 		ctDto.setExploratoryName(EXPLORATORY_NAME);
-		when(requestBuilder.newComputationalTerminate(any(UserInfo.class), anyString(), anyString(), anyString(),
-				anyString(), any(DataEngineType.class), anyString())).thenReturn(ctDto);
+		when(requestBuilder.newComputationalTerminate(any(UserInfo.class), any(UserInstanceDTO.class),
+				any(UserComputationalResource.class))).thenReturn(ctDto);
 
 		when(provisioningService.post(anyString(), anyString(), any(ComputationalTerminateDTO.class), any()))
 				.thenReturn(UUID);
@@ -251,8 +251,7 @@ public class ComputationalServiceImplTest {
 		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusTerminating, "self"));
 		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
 
-		verify(requestBuilder).newComputationalTerminate(userInfo, EXPLORATORY_NAME, explId, COMP_NAME, compId,
-				DataEngineType.CLOUD_SERVICE, null);
+		verify(requestBuilder).newComputationalTerminate(userInfo, userInstance,ucResource);
 
 		verify(provisioningService).post(endpointDTO().getUrl() + ComputationalAPI.COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC, TOKEN, ctDto,
 				String.class);
@@ -322,8 +321,8 @@ public class ComputationalServiceImplTest {
 		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
 
 		doThrow(new DlabException("Cannot create instance of resource class "))
-				.when(requestBuilder).newComputationalTerminate(any(UserInfo.class), anyString(), anyString(),
-				anyString(), anyString(), any(DataEngineType.class), anyString());
+				.when(requestBuilder).newComputationalTerminate(any(UserInfo.class), any(UserInstanceDTO.class),
+				any(UserComputationalResource.class));
 
 		when(computationalDAO.updateComputationalStatus(any(ComputationalStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
@@ -339,8 +338,7 @@ public class ComputationalServiceImplTest {
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 
-		verify(requestBuilder).newComputationalTerminate(userInfo, EXPLORATORY_NAME, explId, COMP_NAME, compId,
-				DataEngineType.CLOUD_SERVICE, null);
+		verify(requestBuilder).newComputationalTerminate(userInfo, userInstance, ucResource);
 		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusFailed, "self"));
 		verifyNoMoreInteractions(computationalDAO, exploratoryDAO, requestBuilder);
 	}

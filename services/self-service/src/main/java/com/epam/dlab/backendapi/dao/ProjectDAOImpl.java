@@ -11,7 +11,10 @@ import com.mongodb.BasicDBObject;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.*;
@@ -25,6 +28,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String ENDPOINT_STATUS_FIELD = "endpoints." + STATUS_FIELD;
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
 	private static final String ENDPOINT_FIELD = "endpoints.$.";
+	private static final String ANYUSER = "$anyuser";
 
 	private final UserGroupDao userGroupDao;
 
@@ -119,8 +123,9 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	@Override
 	public boolean isAnyProjectAssigned(Set<String> groups) {
-		return !Iterables.isEmpty(find(PROJECTS_COLLECTION, in(GROUPS,
-				Sets.union(groups, Collections.singleton("$anyuser")))));
+		final String groupsRegex = !groups.isEmpty() ? String.join("|", groups) + "|" + ANYUSER : ANYUSER;
+		return !Iterables.isEmpty(find(PROJECTS_COLLECTION, elemMatch(GROUPS, new Document("$regex",
+				"^(" + groupsRegex + ")$").append("$options", "i"))));
 	}
 
 	private Bson projectCondition(String name) {
