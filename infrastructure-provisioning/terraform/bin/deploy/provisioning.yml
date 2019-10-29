@@ -23,7 +23,7 @@
 <#assign KEYS_DIR="/home/${sys['user.name']}/keys">
 <#assign KEY_STORE_PATH="${KEYS_DIR}/endpoint.keystore.jks">
 <#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
-<#assign TRUST_STORE_PATH="$JRE_HOME/lib/security/cacerts">
+<#assign TRUST_STORE_PATH="JRE_HOME/lib/security/cacerts">
 <#assign TRUST_STORE_PASSWORD="changeit">
 
 # Available options are aws, azure, gcp
@@ -142,7 +142,7 @@ logging:
 keycloakConfiguration:
   realm: dlab
   bearer-only: true
-  auth-server-url: http://KEYCLOACK_HOST/auth
+  auth-server-url: https://KEYCLOACK_HOST/auth
   ssl-required: none
   register-node-at-startup: true
   register-node-period: 600

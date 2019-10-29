@@ -220,7 +220,7 @@ def configure_keystore_endpoint(os_user, endpoint_keystore_password):
             conn.sudo('keytool -keystore /home/{0}/keys/endpoint.keystore.jks -alias CARoot -import -file '
                       '/home/{0}/keys/root_ca.crt  -deststorepass "{1}" -noprompt'.format(
                        args.os_user, endpoint_keystore_password))
-            conn.sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/endpoint.crt -noprompt '
+            conn.sudo('keytool -importcert -trustcacerts -alias endpoint -file /home/{0}/keys/endpoint.crt -noprompt '
                       '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
             conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/root_ca.crt -noprompt '
                       '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
