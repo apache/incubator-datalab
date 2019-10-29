@@ -83,8 +83,8 @@
         </a>
       </span>
       <span>
-        <a (click)="deleteProject(element)"
-          [ngClass]="{'not-allowed' : isInProgress(element), 'not-allowed' : !isActiveEndpoint(element) }">
+        <a (click)="deleteProject(element)" class="action"
+          [ngClass]="{'not-allowed' : isInProgress(element) || !isActiveEndpoint(element) }">
           <mat-icon>delete_forever</mat-icon>
         </a>
       </span>
