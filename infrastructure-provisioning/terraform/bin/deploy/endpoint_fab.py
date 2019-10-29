@@ -116,7 +116,7 @@ def ensure_step_certs():
                 public_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/public-ipv4').stdout
             except:
                 public_ip_address = None
-            sans = "--san {0} --san localhost ".format(local_ip_address)
+            sans = "--san {0} --san localhost --san 127.0.0.1 ".format(local_ip_address)
             cn = local_ip_address
             if public_ip_address:
                 sans += "--san {0}".format(public_ip_address)
