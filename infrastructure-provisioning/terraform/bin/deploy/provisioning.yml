@@ -23,8 +23,8 @@
 <#assign KEYS_DIR="/home/${sys['user.name']}/keys">
 <#assign KEY_STORE_PATH="${KEYS_DIR}/endpoint.keystore.jks">
 <#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
-<#assign TRUST_STORE_PATH="JRE_HOME/lib/security/cacerts">
-<#assign TRUST_STORE_PASSWORD="changeit">
+<#assign TRUST_STORE_PATH="${KEYS_DIR}/endpoint.keystore.jks">
+<#assign TRUST_STORE_PASSWORD="KEYSTORE_PASSWORD">
 
 # Available options are aws, azure, gcp
 <#assign CLOUD_TYPE="CLOUD_PROVIDER">
@@ -107,8 +107,8 @@ server:
 #    - type: http
     - type: https
       port: 8084
-      certAlias: dlab
-      validateCerts: true
+      certAlias: endpoint
+      validateCerts: false
       keyStorePath: ${KEY_STORE_PATH}
       keyStorePassword: ${KEY_STORE_PASSWORD}
       trustStorePath: ${TRUST_STORE_PATH}
@@ -117,8 +117,8 @@ server:
 #    - type: http
     - type: https
       port: 8085
-      certAlias: dlab
-      validateCerts: true
+      certAlias: endpoint
+      validateCerts: false
       keyStorePath: ${KEY_STORE_PATH}
       keyStorePassword: ${KEY_STORE_PASSWORD}
       trustStorePath: ${TRUST_STORE_PATH}

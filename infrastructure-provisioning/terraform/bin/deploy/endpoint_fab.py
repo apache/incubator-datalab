@@ -212,15 +212,18 @@ def configure_keystore_endpoint(os_user, endpoint_keystore_password):
     try:
         if args.cloud_provider == "aws":
             conn.sudo('openssl pkcs12 -export -in /home/{0}/keys/endpoint.crt -inkey '
-                      '/home/{0}/keys/endpoint.key -out /home/{0}/keys/endpoint.p12 -password pass:{1}'.format(
-                       args.os_user, endpoint_keystore_password))
+                      '/home/{0}/keys/endpoint.key -name endpoint -out /home/{0}/keys/endpoint.p12 '
+                      '-password pass:{1}'.format(args.os_user, endpoint_keystore_password))
             conn.sudo('keytool -importkeystore -srckeystore /home/{0}/keys/endpoint.p12 -srcstoretype PKCS12 '
-                      '-destkeystore /home/{0}/keys/endpoint.keystore.jks -deststoretype JKS -deststorepass "{1}" '
-                      '-srcstorepass "{1}" -keypass "{1}"'.format(args.os_user, endpoint_keystore_password))
-            conn.sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/endpoint.crt -noprompt '
-                      '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
-            conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/root_ca.crt -noprompt '
-                      '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
+                      '-alias endpoint -destkeystore /home/{0}/keys/endpoint.keystore.jks -deststorepass "{1}" '
+                      '-srcstorepass "{1}"'.format(args.os_user, endpoint_keystore_password))
+            conn.sudo('keytool -keystore /home/{0}/keys/endpoint.keystore.jks -alias CARoot -import -file '
+                      '/home/{0}/keys/root_ca.crt  -deststorepass "{1}" -noprompt'.format(
+                       args.os_user, endpoint_keystore_password))
+            # conn.sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/endpoint.crt -noprompt '
+            #           '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
+            # conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/root_ca.crt -noprompt '
+            #           '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
             conn.sudo('touch /home/{0}/.ensure_dir/cert_imported'.format(args.os_user))
             # conn.sudo('apt-get install -y awscli')
             # if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
