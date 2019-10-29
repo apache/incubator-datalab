@@ -137,7 +137,7 @@ data:
         port: {{ .Values.ui.service.http_port }}
       - type: https
         port: {{ .Values.ui.service.https_port }}
-        certAlias: dlab
+        certAlias: ssn
         validateCerts: false
         keyStorePath: ${KEY_STORE_PATH}
         keyStorePassword: ${KEY_STORE_PASSWORD}
@@ -148,7 +148,7 @@ data:
     #      port: 8081
       - type: https
         port: 8444
-        certAlias: dlab
+        certAlias: ssn
         validateCerts: false
         keyStorePath: ${KEY_STORE_PATH}
         keyStorePassword: ${KEY_STORE_PASSWORD}
