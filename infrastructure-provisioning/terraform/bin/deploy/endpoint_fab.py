@@ -124,7 +124,7 @@ def ensure_step_certs():
                 sans += "--san {0}".format(public_ip_address)
                 # cn = public_ip_address
             token = conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
-                              '--password-file /home/{2}/keys/provisioner_password {4} '.format(
+                              '--password-file /home/{2}/keys/provisioner_password {4} --host '.format(
                                args.step_kid, args.step_ca_url, args.os_user, cn, sans)).stdout.replace('\n', '')
             conn.sudo('step ca certificate "{0}" /home/{2}/keys/endpoint.crt /home/{2}/keys/endpoint.key '
                       '--token "{1}" --kty=RSA --size 2048 --provisioner {3} '.format(cn, token, args.os_user,
