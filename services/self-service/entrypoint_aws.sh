@@ -18,7 +18,7 @@
 
 
 
-/usr/bin/openssl pkcs12 -export -in /root/step-certs/tls.crt -inkey /root/step-certs/tls.key -name endpoint -out dlab.p12 -password pass:"${SSN_KEYSTORE_PASSWORD}"
+/usr/bin/openssl pkcs12 -export -in /root/step-certs/tls.crt -inkey /root/step-certs/tls.key -name dlab -out dlab.p12 -password pass:"${SSN_KEYSTORE_PASSWORD}"
 /usr/bin/keytool -importkeystore -srckeystore dlab.p12 -srcstoretype PKCS12 -alias dlab -destkeystore /root/keys/ssn.keystore.jks -deststoretype JKS -deststorepass "${SSN_KEYSTORE_PASSWORD}" -srcstorepass "${SSN_KEYSTORE_PASSWORD}"
 /usr/bin/keytool -keystore /root/keys/ssn.keystore.jks -alias CARoot -import -file /root/step-certs/ca.crt  -deststorepass "${SSN_KEYSTORE_PASSWORD}" -noprompt
 
