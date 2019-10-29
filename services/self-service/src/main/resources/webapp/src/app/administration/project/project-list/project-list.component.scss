@@ -33,9 +33,26 @@ table {
     width: 25%;
     padding: 15px 0;
 
-    .label-1 {
+    .resource-wrap {
+      .resource-name {
+        width: 50%;
+        padding-left: 0;
+      }
+    }
+
+    .label-endpoint {
       display: inline-block;
       width: 50%;
+    }
+
+    .label-status {
+      padding-left: 5px;
+    }
+
+    &.source {
+      .no-details {
+        padding-left: 0;
+      }
     }
   }
 
@@ -53,7 +70,7 @@ table {
     width: 10%;
     text-align: right;
     vertical-align: top;
-    padding: 5px 24px;
+    padding: 10px 24px;
 
     span {
       transition: all .5s ease-in-out;
