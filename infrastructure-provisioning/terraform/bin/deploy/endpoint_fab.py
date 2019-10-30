@@ -135,10 +135,10 @@ def ensure_step_certs():
             conn.sudo('sed -i "s/OS_USER/{0}/g" /usr/local/bin/renew_certificates.sh'.format(args.os_user))
             conn.sudo('sed -i "s|JAVA_HOME|{0}|g" /usr/local/bin/renew_certificates.sh'.format(java_home))
             conn.sudo('touch /var/log/renew_certificates.log')
-            conn.sudo('echo "0 */3 * * * root step ca renew /home/{0}/keys/endpoint.crt /home/{0}/keys/endpoint.key '
-                      '--exec "/usr/local/bin/renew_certificates.sh" --ca-url "{1}" --root /home/{0}/keys/root_ca.crt '
-                      '--force --expires-in 8h >> /var/log/renew_certificates.log" >> /etc/crontab'.format(
-                       args.os_user, args.step_ca_url))
+            conn.sudo('bash -c \'echo "0 */3 * * * root step ca renew /home/{0}/keys/endpoint.crt '
+                      '/home/{0}/keys/endpoint.key --exec "/usr/local/bin/renew_certificates.sh" --ca-url "{1}" '
+                      '--root /home/{0}/keys/root_ca.crt --force --expires-in 8h >> /var/log/renew_certificates.log"\' '
+                      '>> /etc/crontab'.format(args.os_user, args.step_ca_url))
             conn.sudo('touch /home/{}/.ensure_dir/step_ensured'
                       .format(args.os_user))
     except Exception as err:
