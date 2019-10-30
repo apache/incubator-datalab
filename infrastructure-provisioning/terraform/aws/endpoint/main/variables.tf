@@ -52,10 +52,6 @@ variable "vpc_cidr" {}
 
 variable "endpoint_volume_size" {}
 
-//# TEMPORARY
-//variable "endpoint_eip_allocation_id" {}
-//# TEMPORARY
-
 variable "endpoint_id" {}
 
 variable "ssn_k8s_sg_id" {}

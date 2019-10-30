@@ -1,5 +1,15 @@
 #!/bin/sh
 
+checkfile () {
+if [ -s /root/step-certs/ca.crt ]
+then
+  RUN="true"
+else
+  RUN="false"
+  sleep 5
+fi
+}
+
 /bin/mkdir -p /root/keys
 
 #/usr/bin/aws s3 cp s3://${SSN_BUCKET_NAME}/dlab/certs/ssn/ssn.keystore.jks /root/keys/ssn.keystore.jks
@@ -10,8 +20,18 @@
 
 #/usr/bin/keytool -importcert -trustcacerts -alias dlab -file /root/keys/ssn.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
 #/usr/bin/keytool -importcert -trustcacerts -file /root/keys/endpoint.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
-#
+
 if [ -d "/root/step-certs" ]; then
+  while checkfile
+  do
+    if [ "$RUN" = "false" ];
+    then
+        echo "Waiting..."
+    else
+        echo "CA exist!"
+        break
+    fi
+  done
   /usr/bin/keytool -importcert -trustcacerts -alias step-ca -file /root/step-certs/ca.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
   /usr/bin/keytool -importcert -trustcacerts -alias step-crt -file /root/step-certs/tls.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts
 fi

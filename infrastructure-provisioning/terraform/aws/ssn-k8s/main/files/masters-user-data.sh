@@ -98,13 +98,8 @@ sudo kubeadm init --config=/tmp/kubeadm-config.yaml --upload-certs --node-name $
 while check_elb_status
 do
     if [[ $RUN == "false" ]];
-    then
-        echo "Waiting for NLB healthy status..."
-    else
-        echo "LB status is healthy!"
-        break
-    fi
-done
+
+
 sudo mkdir -p /home/${k8s_os_user}/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/${k8s_os_user}/.kube/config
 sudo chown -R ${k8s_os_user}:${k8s_os_user} /home/${k8s_os_user}/.kube

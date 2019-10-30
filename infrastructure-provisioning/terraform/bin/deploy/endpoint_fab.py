@@ -225,18 +225,6 @@ def configure_keystore_endpoint(os_user, endpoint_keystore_password):
             conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/root_ca.crt -noprompt '
                       '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
             conn.sudo('touch /home/{0}/.ensure_dir/cert_imported'.format(args.os_user))
-            # conn.sudo('apt-get install -y awscli')
-            # if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
-            #     conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
-            #               '/home/{1}/keys/endpoint.keystore.jks'
-            #               .format(args.ssn_bucket_name, args.os_user))
-            # if not exists(conn, '/home/' + args.os_user + '/keys/dlab.crt'):
-            #     conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.crt'
-            #               ' /home/{1}/keys/endpoint.crt'.format(args.ssn_bucket_name, args.os_user))
-            # if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
-            #     conn.sudo('aws s3 cp '
-            #               's3://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/ssn.crt'
-            #               .format(args.ssn_bucket_name, args.os_user))
         elif args.cloud_provider == "gcp":
             if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
                 conn.sudo('gsutil -m cp -r gs://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
