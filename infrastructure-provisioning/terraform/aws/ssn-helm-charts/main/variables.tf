@@ -104,13 +104,19 @@ variable "ssn_k8s_workers_count" {
     default = "2"
 }
 
-variable "ssn_bucket_name" {}
+variable "ssn_bucket_name" {
+    default = ""
+}
 
 //variable "endpoint_eip_address" {}
 
-variable "service_base_name" {}
+variable "service_base_name" {
+    default = ""
+}
 
-variable "tag_resource_id" {}
+variable "tag_resource_id" {
+    default = ""
+}
 
 variable "billing_bucket" {
     default = ""
