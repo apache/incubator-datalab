@@ -44,8 +44,8 @@ mongo:
 
 selfService:
   protocol: https
-  host: SS_HOST
-  port: SS_PORT
+  host: SSN_UI_HOST
+  port: 443
   jerseyClient:
     timeout: 3s
     connectionTimeout: 3s
@@ -142,7 +142,7 @@ logging:
 keycloakConfiguration:
   realm: dlab
   bearer-only: true
-  auth-server-url: https://KEYCLOACK_HOST/auth
+  auth-server-url: https://SSN_UI_HOST/auth
   ssl-required: none
   register-node-at-startup: true
   register-node-period: 600

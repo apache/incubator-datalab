@@ -23,7 +23,11 @@ output "keycloak_client_secret" {
     value = random_uuid.keycloak_client_secret.result
 }
 
-output "nginx_load_balancer_hostname" {
+output "keycloak_client_id" {
+    value = "dlab-ui"
+}
+
+output "ssn_ui_host" {
     value = data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
 }
 
