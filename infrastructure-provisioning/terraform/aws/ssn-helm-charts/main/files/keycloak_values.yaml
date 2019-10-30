@@ -34,8 +34,8 @@ keycloak:
     dbPassword: "${mysql_user_password}"
 
   service:
-    type: NodePort
-    nodePort: 31088
+    type: ClusterIP
+    # nodePort: 31088
 
   ingress:
     enabled: true
