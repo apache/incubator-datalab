@@ -52,9 +52,9 @@ variable "vpc_cidr" {}
 
 variable "endpoint_volume_size" {}
 
-# TEMPORARY
-variable "endpoint_eip_allocation_id" {}
-# TEMPORARY
+//# TEMPORARY
+//variable "endpoint_eip_allocation_id" {}
+//# TEMPORARY
 
 variable "endpoint_id" {}
 
