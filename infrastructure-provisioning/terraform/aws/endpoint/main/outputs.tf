@@ -19,6 +19,6 @@
 #
 # ******************************************************************************
 
-//output "endpoint_eip_address" {
-//  value = aws_eip.endpoint_eip.public_ip
-//}
+output "endpoint_eip_address" {
+  value = aws_eip.endpoint_eip.public_ip
+}

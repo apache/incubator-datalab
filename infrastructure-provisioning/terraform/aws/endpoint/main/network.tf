@@ -128,12 +128,12 @@ resource "aws_security_group" "endpoint_sec_group" {
   }
 }
 
-//resource "aws_eip" "endpoint_eip" {
-//  vpc      = true
-//  tags = {
-//    Name                                          = local.endpoint_ip_name
-//    "${local.additional_tag[0]}"                  = local.additional_tag[1]
-//    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.endpoint_ip_name}"
-//    "${var.service_base_name}-Tag"                = local.endpoint_ip_name
-//  }
-//}
+resource "aws_eip" "endpoint_eip" {
+  vpc      = true
+  tags = {
+    Name                                          = local.endpoint_ip_name
+    "${local.additional_tag[0]}"                  = local.additional_tag[1]
+    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.endpoint_ip_name}"
+    "${var.service_base_name}-Tag"                = local.endpoint_ip_name
+  }
+}
