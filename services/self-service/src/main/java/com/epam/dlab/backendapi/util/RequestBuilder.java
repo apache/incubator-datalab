@@ -575,7 +575,8 @@ public class RequestBuilder {
 				.withNotebookInstanceName(userInstanceDTO.getExploratoryId())
 				.withComputationalName(compRes.getComputationalName())
 				.withApplicationName(compRes.getImageName())
-				.withProject(userInstanceDTO.getProject());
+				.withProject(userInstanceDTO.getProject())
+				.withEndpoint(userInstanceDTO.getEndpoint());
 		clusterConfigDTO.setCopmutationalId(compRes.getComputationalId());
 		clusterConfigDTO.setConfig(config);
 		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
