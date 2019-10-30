@@ -133,7 +133,7 @@ def ensure_step_certs():
             conn.sudo('mv /tmp/renew_certificates.sh /usr/local/bin/')
             conn.sudo('chmod +x /usr/local/bin/renew_certificates.sh')
             conn.sudo('sed -i "s/OS_USER/{0}/g" /usr/local/bin/renew_certificates.sh'.format(args.os_user))
-            conn.sudo('sed -i "s/JAVA_HOME/{0}/g" /usr/local/bin/renew_certificates.sh'.format(java_home))
+            conn.sudo('sed -i "s|JAVA_HOME|{0}|g" /usr/local/bin/renew_certificates.sh'.format(java_home))
             conn.sudo('touch /var/log/renew_certificates.log')
             conn.sudo('echo "0 */3 * * * root step ca renew /home/{0}/keys/endpoint.crt /home/{0}/keys/endpoint.key '
                       '--exec "/usr/local/bin/renew_certificates.sh" --ca-url "{1}" --root /home/{0}/keys/root_ca.crt '
