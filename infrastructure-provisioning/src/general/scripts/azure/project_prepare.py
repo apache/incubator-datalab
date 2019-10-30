@@ -44,6 +44,7 @@ if __name__ == "__main__":
         project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
         project_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
         project_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+        project_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
         project_conf['resource_group_name'] = os.environ['azure_resource_group_name']
 
         project_conf['azure_ad_user_name'] = os.environ['azure_iam_user']
@@ -72,8 +73,9 @@ if __name__ == "__main__":
                                                     + project_conf['project_name'] + '-dataengine-master-sg'
         project_conf['slave_security_group_name'] = project_conf['service_base_name'] + '-' \
                                                    + project_conf['project_name'] + '-dataengine-slave-sg'
-        project_conf['edge_storage_account_name'] = project_conf['service_base_name'] + '-' + project_conf['project_name'] + \
-                                                 '-storage'
+        project_conf['edge_storage_account_name'] = '{0}-{1}-{2}-storage'.format(project_conf['service_base_name'],
+                                                                                 project_conf['project_name'],
+                                                                                 project_conf['endpoint_name'])
         project_conf['edge_container_name'] = (project_conf['service_base_name'] + '-' + project_conf['project_name'] +
                                             '-container').lower()
         project_conf['datalake_store_name'] = project_conf['service_base_name'] + '-ssn-datalake'

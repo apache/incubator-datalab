@@ -56,6 +56,7 @@ import static java.util.stream.Collectors.toList;
 public class ComputationalDAO extends BaseDAO {
 	static final String COMPUTATIONAL_NAME = "computational_name";
 	static final String COMPUTATIONAL_ID = "computational_id";
+	static final String PROJECT = "project";
 
 	static final String IMAGE = "image";
 	private static final String COMPUTATIONAL_URL = "computational_url";

@@ -97,7 +97,7 @@ public class UserRoles {
 
 	public static boolean isAdmin(UserInfo userInfo) {
 		final List<UserRole> roles = UserRoles.getRoles();
-		return roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equals(r.getId()) &&
+		return roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equalsIgnoreCase(r.getId()) &&
 				(userRoles.hasAccessByGroup(userInfo, r, userInfo.getRoles()) || userRoles.hasAccessByUserName(userInfo, r)));
 	}
 
@@ -257,7 +257,7 @@ public class UserRoles {
 
 			final Optional<String> group = role.getGroups()
 					.stream()
-					.filter(g -> userGroups.getOrDefault(g, Collections.emptySet()).contains(userInfo.getName()))
+					.filter(g -> userGroups.getOrDefault(g, Collections.emptySet()).contains(userInfo.getName().toLowerCase()))
 					.findAny();
 			if (group.isPresent()) {
 				LOGGER.trace("Got access by local group {}", group.get());

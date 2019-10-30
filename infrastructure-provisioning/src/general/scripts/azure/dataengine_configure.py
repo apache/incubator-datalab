@@ -218,9 +218,9 @@ if __name__ == "__main__":
         data_engine['notebook_name'] = os.environ['notebook_instance_name']
         master_node_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                            data_engine['master_node_name'])
-        edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
-                                                       notebook_config['project_name'],
-                                                       notebook_config['endpoint_name'])
+        edge_instance_name = '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                       data_engine['project_name'],
+                                                       data_engine['endpoint_name'])
         edge_instance_private_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                             edge_instance_name)
         if os.environ['conf_network_type'] == 'private':

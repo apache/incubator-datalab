@@ -133,13 +133,23 @@ export class ProjectComponent implements OnInit, OnDestroy {
   private toggleStatusRequest(data, action) {
     this.projectService.toggleProjectStatus(data, action).subscribe(() => {
       this.refreshGrid();
-      this.toastr.success(`Endpoint ${action} is in progress!`, 'Processing!');
+      this.toastr.success(`Endpoint ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
     }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => this.healthStatus = result);
+  }
+
+  private toEndpointAction(action) {
+    if (action === 'start') {
+      return 'connect';
+    } else if (action === 'stop') {
+      return 'disconnect';
+    } else {
+      return action;
+    }
   }
 }
 

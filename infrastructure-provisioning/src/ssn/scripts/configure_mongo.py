@@ -85,10 +85,10 @@ if __name__ == "__main__":
         client.dlabdb.add_user('admin', mongo_passwd, roles=[{'role':'userAdminAnyDatabase','db':'admin'}])
         client.dlabdb.command('grantRolesToUser', "admin", roles=["readWrite"])
         # set_mongo_parameters(client, mongo_parameters)
-        # with open(args.dlab_path + 'tmp/mongo_roles.json', 'r') as data:
-        #     json_data = json.load(data)
-        # for i in json_data:
-        #     client.dlabdb.roles.insert_one(i)
+        with open(args.dlab_path + 'tmp/local_endpoint.json', 'r') as data:
+            json_data = json.load(data)
+        for i in json_data:
+            client.dlabdb.endpoints.insert_one(i)
         # client.dlabdb.security.create_index("expireAt", expireAfterSeconds=7200)
         if add_2_yml_config(path,'security','authorization','enabled'):
             command = ['service', 'mongod', 'restart']

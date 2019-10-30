@@ -49,7 +49,7 @@ const routes: Routes = [{
     }, {
       path: 'resources_list',
       component: ResourcesComponent,
-      canActivate: [CheckParamsGuard]
+      canActivate: [AuthorizationGuard]
     }, {
       path: 'billing_report',
       component: ReportingComponent,

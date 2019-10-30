@@ -18,7 +18,7 @@
  */
 
 export class LoginModel {
-  constructor(public username: string, public password: string) {}
+  constructor(public username: string, public password: string) { }
 
   toJsonString(): string {
     return JSON.stringify({

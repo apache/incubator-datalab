@@ -1,6 +1,8 @@
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.SecurityDAO;
+import com.epam.dlab.backendapi.util.KeycloakUtil;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import de.ahus1.keycloak.dropwizard.KeycloakConfiguration;
@@ -20,12 +22,14 @@ public class KeycloakServiceImpl implements KeycloakService {
 	private static final String URI = "/realms/%s/protocol/openid-connect/token";
 	private final Client httpClient;
 	private final KeycloakConfiguration conf;
+	private final SecurityDAO securityDAO;
 	private final String redirectUri;
 
 	@Inject
-	public KeycloakServiceImpl(Client httpClient, SelfServiceApplicationConfiguration conf) {
+	public KeycloakServiceImpl(Client httpClient, SelfServiceApplicationConfiguration conf, SecurityDAO securityDAO) {
 		this.httpClient = httpClient;
 		this.conf = conf.getKeycloakConfiguration();
+		this.securityDAO = securityDAO;
 		this.redirectUri = conf.getKeycloakConfiguration().getRedirectUri();
 	}
 
@@ -37,6 +41,19 @@ public class KeycloakServiceImpl implements KeycloakService {
 	@Override
 	public AccessTokenResponse refreshToken(String refreshToken) {
 		return requestToken(refreshTokenRequestForm(refreshToken));
+	}
+
+	@Override
+	public AccessTokenResponse generateAccessToken(String refreshToken) {
+		AccessTokenResponse tokenResponse = refreshToken(refreshToken);
+		final String username = KeycloakUtil.parseToken(tokenResponse.getToken()).getPreferredUsername();
+		securityDAO.updateUser(username, tokenResponse);
+		return tokenResponse;
+	}
+
+	@Override
+	public AccessTokenResponse generateServiceAccountToken() {
+		return requestToken(serviceAccountRequestForm());
 	}
 
 	private AccessTokenResponse requestToken(Form requestForm) {
@@ -65,5 +82,10 @@ public class KeycloakServiceImpl implements KeycloakService {
 		return new Form()
 				.param("grant_type", "refresh_token")
 				.param("refresh_token", refreshToken);
+	}
+
+	private Form serviceAccountRequestForm() {
+		return new Form()
+				.param("grant_type", "client_credentials");
 	}
 }

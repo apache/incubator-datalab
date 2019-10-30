@@ -46,7 +46,7 @@ public class CheckProjectQuoteScheduler implements Job {
 				.stream()
 				.map(ProjectDTO::getName)
 				.filter(billingDAO::isProjectQuoteReached)
-				.peek(p -> log.warn("Stopping {} project env because of reaching user billing quote", p))
+				.peek(p -> log.debug("Stopping {} project env because of reaching user billing quote", p))
 				.forEach(environmentService::stopProjectEnvironment);
 	}
 }

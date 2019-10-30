@@ -5,4 +5,6 @@ import org.keycloak.representations.AccessTokenResponse;
 public interface KeycloakService {
 	AccessTokenResponse getToken(String code);
 	AccessTokenResponse refreshToken(String refreshToken);
+	AccessTokenResponse generateAccessToken(String refreshToken);
+	AccessTokenResponse generateServiceAccountToken();
 }

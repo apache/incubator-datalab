@@ -36,6 +36,8 @@ import org.bson.Document;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.fields;
@@ -59,18 +61,21 @@ public class AzureBillableResourcesService {
 	/**
 	 * Constructs the service class
 	 *
-	 * @param mongoDbBillingClient mongodb client to retrieve all billable resources
+	 * @param mongoDbBillingClient        mongodb client to retrieve all billable resources
+	 * @param sharedStorageAccountTagName shared storage account tag name
+	 * @param ssnStorageAccountTagName    ssn storage account tag name
+	 * @param azureDataLakeTagName        azure DataLake tag name
 	 */
-	public AzureBillableResourcesService(MongoDbBillingClient mongoDbBillingClient) {
+	public AzureBillableResourcesService(MongoDbBillingClient mongoDbBillingClient, String sharedStorageAccountTagName,
+										 String ssnStorageAccountTagName, String azureDataLakeTagName) {
 		this.mongoDbBillingClient = mongoDbBillingClient;
 
 		this.serviceBaseName = getConfigurationSettingValue(MongoKeyWords.SERVICE_BASE_NAME_KEY)
 				.replace('_', '-').toLowerCase();
 
-		this.sharedStorageAccountTagName = getConfigurationSettingValue(MongoKeyWords.SHARED_STORAGE_ACCOUNT_TAG_KEY);
-		this.ssnStorageAccountTagName = getConfigurationSettingValue(MongoKeyWords.SSN_STORAGE_ACCOUNT_TAG_KEY);
-		this.azureDataLakeTagName = getConfigurationSettingValueOrEmpty(MongoKeyWords.DATA_LAKE_TAG_NAME);
-
+		this.sharedStorageAccountTagName = sharedStorageAccountTagName;
+		this.ssnStorageAccountTagName = ssnStorageAccountTagName;
+		this.azureDataLakeTagName = azureDataLakeTagName;
 	}
 
 
@@ -157,9 +162,14 @@ public class AzureBillableResourcesService {
 
 		try {
 
+			final FindIterable<Document> prjDocuments = mongoDbBillingClient.getDatabase()
+					.getCollection("Projects").find();
+			final List<Document> edges = StreamSupport.stream(prjDocuments.spliterator(), false)
+					.flatMap(d -> ((List<Document>) d.get("endpoints")).stream())
+					.map(d -> (Document) d.get("edgeInfo"))
+					.collect(Collectors.toList());
 			List<EdgeInfoAzure> edgeInfoList = objectMapper.readValue(
-					objectMapper.writeValueAsString(mongoDbBillingClient.getDatabase()
-							.getCollection(MongoKeyWords.EDGE_COLLECTION).find()),
+					objectMapper.writeValueAsString(edges),
 					new com.fasterxml.jackson.core.type.TypeReference<List<EdgeInfoAzure>>() {
 					});
 

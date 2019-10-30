@@ -4,6 +4,7 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
+import com.epam.dlab.cloud.CloudProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -39,6 +40,9 @@ public class MongoStartupListener implements ServerLifecycleListener {
 	public void serverStarted(Server server) {
 		settingsDAO.setServiceBaseName(configuration.getServiceBaseName());
 		settingsDAO.setConfOsFamily(configuration.getOs());
+		if (configuration.getCloudProvider() == CloudProvider.AZURE) {
+			settingsDAO.setAzureSsnInstanceSize(configuration.getSsnInstanceSize());
+		}
 		if (userRoleDao.findAll().isEmpty()) {
 			log.debug("Populating DLab roles into database");
 			userRoleDao.insert(getRoles());

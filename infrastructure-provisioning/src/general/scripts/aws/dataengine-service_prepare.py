@@ -86,6 +86,7 @@ if __name__ == "__main__":
     emr_conf['tag_name'] = '{0}-Tag'.format(emr_conf['service_base_name'])
     emr_conf['key_name'] = os.environ['conf_key_name']
     emr_conf['endpoint_tag'] = os.environ['endpoint_name']
+    emr_conf['endpoint_name'] = os.environ['endpoint_name']
     emr_conf['project_tag'] = os.environ['project_name']
     emr_conf['region'] = os.environ['aws_region']
     emr_conf['release_label'] = os.environ['emr_version']
@@ -115,7 +116,8 @@ if __name__ == "__main__":
                 emr_conf['exploratory_name'],
                 emr_conf['computational_name'],
                 args.uuid)
-    emr_conf['bucket_name'] = '{0}-ssn-bucket'.format(emr_conf['service_base_name']).lower().replace('_', '-')
+    emr_conf['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
+                                                           emr_conf['endpoint_name'])).lower().replace('_', '-')
     emr_conf['configurations'] = '[]'
     if 'emr_configurations' in os.environ:
         emr_conf['configurations'] = os.environ['emr_configurations']

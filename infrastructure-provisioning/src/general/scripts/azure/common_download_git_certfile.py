@@ -35,7 +35,8 @@ parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
 resource_group_name = os.environ['azure_resource_group_name']
-ssn_storage_account_tag = os.environ['conf_service_base_name'] + '-ssn-storage'
+ssn_storage_account_tag = ('{0}-{1}-{2}-storage'.format(os.environ['conf_service_base_name'], os.environ['project_name'],
+                                                        os.environ['endpoint_name']))
 container_name = ('{}-ssn-container'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 

@@ -139,10 +139,21 @@ class ParamsBuilder:
         return self.add(str, name, desc, **kwargs)
 
     def add_bool(self, name, desc, **kwargs):
-        return self.add(bool, name, desc, **kwargs)
+        return self.add(self.str2bool, name, desc, **kwargs)
 
     def add_int(self, name, desc, **kwargs):
         return self.add(int, name, desc, **kwargs)
+
+    @staticmethod
+    def str2bool(v):
+        if isinstance(v, bool):
+            return v
+        if v.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Boolean value expected.')
 
     def build(self):
         return self.__params
@@ -673,6 +684,10 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--billing_tag', 'Billing tag', default='dlab',
                   group='helm_charts')
+         .add_bool('--custom_certs_enabled', 'Enable custom certificates',
+                   default=False, group='service')
+         .add_str('--custom_cert_path', 'custom_cert_path', group='service')
+         .add_str('--custom_key_path', 'custom_key_path', group='service')
          # Tmp for jenkins job
          .add_str('--endpoint_id', 'Endpoint Id',
                   default='user:tag', group=())
@@ -749,6 +764,16 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             conn.run('mkdir -p {}'.format(remote_dir))
             rsync(conn, source, remote_dir, strict_host_keys=False)
+
+    def copy_cert(self):
+        logging.info('transfer certificates to remote')
+        cert_path = self.service_args.get('custom_cert_path')
+        key_path = self.service_args.get('custom_key_path')
+        remote_dir = '/home/{}/'.format(self.user_name)
+        with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
+            conn.run('mkdir -p {}'.format(remote_dir))
+            rsync(conn, cert_path, remote_dir, strict_host_keys=False)
+            rsync(conn, key_path, remote_dir, strict_host_keys=False)
 
     def run_remote_terraform(self):
         logging.info('apply helm charts')
@@ -842,6 +867,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.check_k8s_cluster_status()
         self.check_tiller_status()
         self.copy_terraform_to_remote()
+        if self.service_args.get('custom_certs_enabled'):
+            self.copy_cert()
         self.run_remote_terraform()
         self.fill_remote_terraform_output()
         self.output_terraform_result()
@@ -950,6 +977,7 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
         return params.build()
 
     def deploy(self):
+        self.fill_sys_argv_from_file()
         new_dir = os.path.abspath(
             os.path.join(os.getcwd(), '../../../bin/deploy'))
         os.chdir(new_dir)

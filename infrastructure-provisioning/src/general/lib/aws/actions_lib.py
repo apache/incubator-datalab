@@ -1026,10 +1026,11 @@ def remove_s3(bucket_type='all', scientist=''):
         bucket_list = []
         if bucket_type == 'ssn':
             bucket_name = (os.environ['conf_service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
-            bucket_list.append((os.environ['conf_service_base_name'] + '-shared-bucket').lower().replace('_', '-'))
+            bucket_list.append(('{0}-{1}-shared-bucket'.format(os.environ['conf_service_base_name'],
+                                                               os.environ['default_endpoint_name'])).lower().replace('_', '-'))
         elif bucket_type == 'edge':
-            bucket_name = (os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) +
-                           '-bucket').lower().replace('_', '-')
+            bucket_name = (os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) + '-' +
+                           os.environ['endpoint_name'] + '-bucket').lower().replace('_', '-')
         else:
             bucket_name = (os.environ['conf_service_base_name']).lower().replace('_', '-')
         for item in client.list_buckets().get('Buckets'):
@@ -1350,7 +1351,7 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
             while image.state != 'available':
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
-            tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
+            tag = {'Key': 'Name', 'Value': image_name}
             response = client.describe_images(ImageIds=[image.id]).get('Images')[0].get('BlockDeviceMappings')
             for ebs in response:
                 if ebs.get('Ebs'):
