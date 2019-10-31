@@ -114,9 +114,11 @@ if __name__ == "__main__":
         params = "--hostname {0} " \
                  "--keyfile {1} " \
                  "--os_user {2} " \
+                 "--cluster_name {3} " \
             .format(notebook_config['notebook_ip'],
                     notebook_config['key_path'],
-                    notebook_config['dlab_ssh_user'])
+                    notebook_config['dlab_ssh_user'],
+                    notebook_config['cluster_name'])
         try:
             local("~/scripts/{0}.py {1}".format('common_configure_spark', params))
         except:
