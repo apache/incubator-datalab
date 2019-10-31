@@ -177,3 +177,9 @@ cloudProperties:
     ou: LDAP_OU
     user: LDAP_USER_NAME
     password: LDAP_USER_PASSWORD
+  stepCerts:
+    enabled: STEP_CERTS_ENABLED
+    rootCA: STEP_ROOT_CA
+    kid: STEP_KID_ID
+    kidPassword: STEP_KID_PASSWORD
+    caURL: STEP_CA_URL

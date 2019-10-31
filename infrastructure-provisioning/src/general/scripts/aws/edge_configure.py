@@ -85,9 +85,17 @@ if __name__ == "__main__":
     for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
         edge_conf['allowed_ip_cidr'].append(cidr.replace(' ', ''))
 
-
     instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
     keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
+
+    if os.environ['conf_stepcerts_enabled'] == 'true':
+        step_cert_sans = ' --san {0} '.format(edge_conf['edge_private_ip'])
+        if edge_conf['network_type'] == 'public':
+            step_cert_sans += ' --san {0} --san {1}'.format(
+                get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name']),
+                edge_conf['edge_public_ip'])
+    else:
+        step_cert_sans = ''
 
     try:
         if os.environ['conf_os_family'] == 'debian':
@@ -202,8 +210,8 @@ if __name__ == "__main__":
     try:
         print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
-        params = "--hostname {} --keyfile {} --user {}" \
-            .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'])
+        params = "--hostname {} --keyfile {} --user {} --step_cert_sans '{}' " \
+            .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], step_cert_sans)
         try:
             local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
         except:

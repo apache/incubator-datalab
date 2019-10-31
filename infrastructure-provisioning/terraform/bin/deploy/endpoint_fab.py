@@ -293,75 +293,171 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                       .format(args.dlab_path, supervisor_conf))
             conn.put('./provisioning.yml', '{}provisioning.yml'
                      .format(dlab_conf_dir))
-            conn.sudo('sed -i "s|KEYNAME|{}|g" {}provisioning.yml'
-                      .format(args.key_name, dlab_conf_dir))
-            conn.sudo('sed -i "s|KEYSTORE_PASSWORD|{}|g" {}provisioning.yml'
-                      .format(endpoint_keystore_password, dlab_conf_dir))
-            conn.sudo('sed -i "s|JRE_HOME|{}|g" {}provisioning.yml'
-                      .format(java_home, dlab_conf_dir))
-            conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" {}provisioning.yml'
-                      .format(args.cloud_provider, dlab_conf_dir))
 
-            conn.sudo('sed -i "s|MONGO_HOST|{}|g" {}provisioning.yml'
-                      .format(args.mongo_host, dlab_conf_dir))
-            conn.sudo('sed -i "s|MONGO_PORT|{}|g" {}provisioning.yml'
-                      .format(args.mongo_port, dlab_conf_dir))
-            conn.sudo('sed -i "s|SSN_UI_HOST|{}|g" {}provisioning.yml'
-                      .format(args.ssn_ui_host, dlab_conf_dir))
-            conn.sudo('sed -i "s|KEYCLOAK_CLIENT_ID|{}|g" {}provisioning.yml'
-                      .format(args.keycloak_client_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|CLIENT_SECRET|{}|g" {}provisioning.yml'
-                      .format(args.keycloak_client_secret, dlab_conf_dir))
-            conn.sudo('sed -i "s|CONF_OS|{}|g" {}provisioning.yml'
-                      .format(args.env_os, dlab_conf_dir))
-            conn.sudo('sed -i "s|SERVICE_BASE_NAME|{}|g" {}provisioning.yml'
-                      .format(args.service_base_name, dlab_conf_dir))
-            conn.sudo('sed -i "s|EDGE_INSTANCE_SIZE|{}|g" {}provisioning.yml'
-                      .format(args.edge_instence_size, dlab_conf_dir))
-            conn.sudo('sed -i "s|SUBNET_ID|{}|g" {}provisioning.yml'
-                      .format(args.subnet_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|REGION|{}|g" {}provisioning.yml'
-                      .format(args.region, dlab_conf_dir))
-            conn.sudo('sed -i "s|ZONE|{}|g" {}provisioning.yml'
-                      .format(args.zone, dlab_conf_dir))
-            conn.sudo('sed -i "s|TAG_RESOURCE_ID|{}|g" {}provisioning.yml'
-                      .format(args.tag_resource_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|SG_IDS|{}|g" {}provisioning.yml'
-                      .format(args.ssn_k8s_sg_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|SSN_INSTANCE_SIZE|{}|g" {}provisioning.yml'
-                      .format(args.ssn_instance_size, dlab_conf_dir))
-            conn.sudo('sed -i "s|VPC2_ID|{}|g" {}provisioning.yml'
-                      .format(args.vpc2_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|SUBNET2_ID|{}|g" {}provisioning.yml'
-                      .format(args.subnet2_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|CONF_KEY_DIR|{}|g" {}provisioning.yml'
-                      .format(args.conf_key_dir, dlab_conf_dir))
-            conn.sudo('sed -i "s|VPC_ID|{}|g" {}provisioning.yml'
-                      .format(args.vpc_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|PEERING_ID|{}|g" {}provisioning.yml'
-                      .format(args.peering_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|AZURE_RESOURCE_GROUP_NAME|{}|g" {}provisioning.yml'
-                      .format(args.azure_resource_group_name, dlab_conf_dir))
-            conn.sudo('sed -i "s|AZURE_SSN_STORAGE_ACCOUNT_TAG|{}|g" {}provisioning.yml'
-                      .format(args.azure_ssn_storage_account_tag, dlab_conf_dir))
-            conn.sudo('sed -i "s|AZURE_SHARED_STORAGE_ACCOUNT_TAG|{}|g" {}provisioning.yml'
-                      .format(args.azure_shared_storage_account_tag, dlab_conf_dir))
-            conn.sudo('sed -i "s|AZURE_DATALAKE_TAG|{}|g" {}provisioning.yml'
-                      .format(args.azure_datalake_tag, dlab_conf_dir))
-            conn.sudo('sed -i "s|AZURE_CLIENT_ID|{}|g" {}provisioning.yml'
-                      .format(args.azure_client_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|GCP_PROJECT_ID|{}|g" {}provisioning.yml'
-                      .format(args.gcp_project_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|LDAP_HOST|{}|g" {}provisioning.yml'
-                      .format(args.ldap_host, dlab_conf_dir))
-            conn.sudo('sed -i "s|LDAP_DN|{}|g" {}provisioning.yml'
-                      .format(args.ldap_dn, dlab_conf_dir))
-            conn.sudo('sed -i "s|LDAP_OU|{}|g" {}provisioning.yml'
-                      .format(args.ldap_users_group, dlab_conf_dir))
-            conn.sudo('sed -i "s|LDAP_USER_NAME|{}|g" {}provisioning.yml'
-                      .format(args.ldap_user, dlab_conf_dir))
-            conn.sudo('sed -i "s|LDAP_USER_PASSWORD|{}|g" {}provisioning.yml'
-                      .format(args.ldap_bind_creds, dlab_conf_dir))
+            cloud_properties = [
+                {
+                    'key': "KEYNAME",
+                    'value': args.key_name
+                },
+                {
+                    'key': "KEYSTORE_PASSWORD",
+                    'value': endpoint_keystore_password
+                },
+                {
+                    'key': "JRE_HOME",
+                    'value': java_home
+                },
+                {
+                    'key': "CLOUD_PROVIDER",
+                    'value': args.cloud_provider
+                },
+                {
+                    'key': "MONGO_HOST",
+                    'value': args.mongo_host
+                },
+                {
+                    'key': "MONGO_PORT",
+                    'value': args.mongo_port
+                },
+                {
+                    'key': "SSN_UI_HOST",
+                    'value': args.ssn_ui_host
+                },
+                {
+                    'key': "KEYCLOAK_CLIENT_ID",
+                    'value': args.keycloak_client_id
+                },
+                {
+                    'key': "CLIENT_SECRET",
+                    'value': args.keycloak_client_secret
+                },
+                {
+                    'key': "CONF_OS",
+                    'value': args.env_os
+                },
+                {
+                    'key': "SERVICE_BASE_NAME",
+                    'value': args.service_base_name
+                },
+                {
+                    'key': "EDGE_INSTANCE_SIZE",
+                    'value': args.edge_instence_size
+                },
+                {
+                    'key': "SUBNET_ID",
+                    'value': args.subnet_id
+                },
+                {
+                    'key': "REGION",
+                    'value': args.region
+                },
+                {
+                    'key': "ZONE",
+                    'value': args.zone
+                },
+                {
+                    'key': "TAG_RESOURCE_ID",
+                    'value': args.tag_resource_id
+                },
+                {
+                    'key': "SG_IDS",
+                    'value': args.ssn_k8s_sg_id
+                },
+                {
+                    'key': "SSN_INSTANCE_SIZE",
+                    'value': args.ssn_instance_size
+                },
+                {
+                    'key': "VPC2_ID",
+                    'value': args.vpc2_id
+                },
+                {
+                    'key': "SUBNET2_ID",
+                    'value': args.subnet2_id
+                },
+                {
+                    'key': "CONF_KEY_DIR",
+                    'value': args.conf_key_dir
+                },
+                {
+                    'key': "VPC_ID",
+                    'value': args.vpc_id
+                },
+                {
+                    'key': "PEERING_ID",
+                    'value': args.peering_id
+                },
+                {
+                    'key': "AZURE_RESOURCE_GROUP_NAME",
+                    'value': args.azure_resource_group_name
+                },
+                {
+                    'key': "AZURE_SSN_STORAGE_ACCOUNT_TAG",
+                    'value': args.azure_ssn_storage_account_tag
+                },
+                {
+                    'key': "AZURE_SHARED_STORAGE_ACCOUNT_TAG",
+                    'value': args.azure_shared_storage_account_tag
+                },
+                {
+                    'key': "AZURE_DATALAKE_TAG",
+                    'value': args.azure_datalake_tag
+                },
+                {
+                    'key': "AZURE_CLIENT_ID",
+                    'value': args.azure_client_id
+                },
+                {
+                    'key': "GCP_PROJECT_ID",
+                    'value': args.gcp_project_id
+                },
+                {
+                    'key': "LDAP_HOST",
+                    'value': args.ldap_host
+                },
+                {
+                    'key': "LDAP_DN",
+                    'value': args.ldap_dn
+                },
+                {
+                    'key': "LDAP_OU",
+                    'value': args.ldap_users_group
+                },
+                {
+                    'key': "LDAP_USER_NAME",
+                    'value': args.ldap_user
+                },
+                {
+                    'key': "LDAP_USER_PASSWORD",
+                    'value': args.ldap_bind_creds
+                },
+
+
+                {
+                    'key': "STEP_CERTS_ENABLED",
+                    'value': "true"
+                },
+                {
+                    'key': "STEP_ROOT_CA",
+                    'value': args.step_root_ca
+                },
+                {
+                    'key': "STEP_KID_ID",
+                    'value': args.step_kid
+                },
+                {
+                    'key': "STEP_KID_PASSWORD",
+                    'value': args.step_kid_password
+                },
+                {
+                    'key': "STEP_CA_URL",
+                    'value': args.step_ca_url
+                },
+            ]
+            for param in cloud_properties:
+                conn.sudo('sed -i "s|{0}|{1}|g" {2}provisioning.yml'
+                          .format(param['key'], param['value'], dlab_conf_dir))
+
             conn.sudo('touch /home/{}/.ensure_dir/configure_supervisor_ensured'
                       .format(args.os_user))
     except Exception as err:

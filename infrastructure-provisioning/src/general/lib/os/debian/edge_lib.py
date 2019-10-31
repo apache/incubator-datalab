@@ -58,11 +58,41 @@ def configure_http_proxy_server(config):
         sys.exit(1)
 
 
-def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_service_pass, ldap_service_username):
+def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_service_pass, ldap_service_username,
+                       user, hostname, step_cert_sans):
     try:
         if not os.path.exists('/tmp/nginx_installed'):
             sudo('apt-get install -y wget')
             sudo('apt-get -y install gcc build-essential make zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev')
+            if os.environ['conf_stepcerts_enabled'] == 'true':
+                sudo('mkdir -p /home/{0}/keys'.format(user))
+                sudo('echo "{0}" | base64 --decode > /home/{1}/keys/root_ca.crt'.format(
+                     os.environ['conf_stepcerts_root_ca'], user))
+                fingerprint = sudo('step certificate fingerprint /home/{0}/keys/root_ca.crt'.format(
+                    user))
+                sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
+                                                                                 os.environ['conf_stepcerts_ca_url']))
+                sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
+                     os.environ['conf_stepcerts_kid_password'], user))
+                sans = "--san localhost --san 127.0.0.1 --san {0}".format(step_cert_sans)
+                cn = edge_ip
+                token = sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
+                             '--password-file /home/{2}/keys/provisioner_password {4} '.format(
+                              os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'],
+                              user, cn, sans))
+                sudo('step ca certificate "{0}" /home/{2}/keys/dlab.crt /home/{2}/keys/dlab.key '
+                     '--token "{1}" --kty=RSA --size 2048 --provisioner {3} '.format(cn, token, user,
+                                                                                     os.environ['conf_stepcerts_kid']))
+                sudo('cp /home/{0}/keys/dlab.crt /etc/ssl/certs/'.format(user))
+                sudo('cp /home/{0}/keys/dlab.key /etc/ssl/certs/'.format(user))
+                sudo('touch /var/log/renew_certificates.log')
+                sudo('bash -c \'echo "0 */3 * * * root /usr/bin/step ca renew /etc/ssl/certs/dlab.crt '
+                     '/etc/ssl/certs/dlab.key --exec "nginx -s reload" --ca-url "{1}" '
+                     '--root /home/{0}/keys/root_ca.crt --force --expires-in 8h >> /var/log/renew_certificates.log '
+                     '2>&1" >> /etc/crontab \''.format(user, os.environ['conf_stepcerts_ca_url']))
+            else:
+                sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
+                     -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
             sudo('mkdir -p /tmp/nginx_auth_ldap')
             with cd('/tmp/nginx_auth_ldap'):
                 sudo('git clone https://github.com/kvspb/nginx-auth-ldap.git')

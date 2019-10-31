@@ -92,6 +92,13 @@ if __name__ == "__main__":
     edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_public'] = '{}-egress-public'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_internal'] = '{}-egress-internal'.format(edge_conf['instance_name'])
+
+    if os.environ['conf_stepcerts_enabled'] == 'true':
+        step_cert_sans = ' --san {0} --san {1} --san {2}'.format(edge_conf['static_ip'], instance_hostname,
+                                                                 edge_conf['private_ip'])
+    else:
+        step_cert_sans = ''
+
     edge_conf['allowed_ip_cidr'] = list()
     for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
         edge_conf['allowed_ip_cidr'].append(cidr.replace(' ', ''))
@@ -240,8 +247,8 @@ if __name__ == "__main__":
     try:
         print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
-        params = "--hostname {} --keyfile {} --user {}" \
-            .format(instance_hostname, edge_conf['ssh_key_path'], edge_conf['dlab_ssh_user'])
+        params = "--hostname {} --keyfile {} --user {} --step_cert_sans '{}'" \
+            .format(instance_hostname, edge_conf['ssh_key_path'], edge_conf['dlab_ssh_user'], step_cert_sans)
         try:
             local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
         except:

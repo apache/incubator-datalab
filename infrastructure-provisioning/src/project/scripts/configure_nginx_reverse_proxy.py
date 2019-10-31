@@ -26,12 +26,14 @@ from fabric.api import *
 import argparse
 import sys
 import os
+from dlab.common_lib import ensure_step
 from dlab.edge_lib import install_nginx_ldap
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--user', type=str, default='')
+parser.add_argument('--step_cert_sans', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -53,10 +55,16 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        ensure_step(args.user)
+    except Exception as err:
+        print("Failed install step: " + str(err))
+        sys.exit(1)
+
+    try:
         install_nginx_ldap(args.hostname, os.environ['reverse_proxy_nginx_version'],
                            os.environ['ldap_hostname'], os.environ['ldap_dn'],
                            os.environ['ldap_ou'], os.environ['ldap_service_password'],
-                           os.environ['ldap_service_username'])
+                           os.environ['ldap_service_username'], args.user, args.hostname, args.step_cert_sans)
     except Exception as err:
         print("Failed install nginx reverse proxy: " + str(err))
         sys.exit(1)

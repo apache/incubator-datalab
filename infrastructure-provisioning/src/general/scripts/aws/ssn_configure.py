@@ -136,6 +136,15 @@ if __name__ == "__main__":
         else:
             instance_hostname = get_instance_hostname(tag_name, instance_name)
 
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            step_cert_sans = ' --san {0} '.format(get_instance_ip_address(tag_name, instance_name).get('Private'))
+            if network_type == 'public':
+                step_cert_sans += ' --san {0} --san {1}'.format(
+                    get_instance_hostname(tag_name, instance_name),
+                    get_instance_ip_address(tag_name, instance_name).get('Public'))
+        else:
+            step_cert_sans = ''
+
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
@@ -222,10 +231,10 @@ if __name__ == "__main__":
                              "vpc_id": os.environ['aws_vpc_id'], "subnet_id": os.environ['aws_subnet_id'],
                              "admin_key": os.environ['conf_key_name']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} " \
-                 "--tag_resource_id {}".format(instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'],
-                                                                                    os.environ['conf_key_name']),
-                                               json.dumps(additional_config), dlab_ssh_user,
-                                               os.environ['ssn_dlab_path'], os.environ['conf_tag_resource_id'])
+                 "--tag_resource_id {} --step_cert_sans '{}' ".format(
+                  instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
+                  json.dumps(additional_config), dlab_ssh_user, os.environ['ssn_dlab_path'],
+                  os.environ['conf_tag_resource_id'], step_cert_sans)
 
         try:
             local("~/scripts/{}.py {}".format('configure_ssn_node', params))
@@ -478,6 +487,58 @@ if __name__ == "__main__":
             cloud_params.append(
                 {
                     'key': 'PEERING_ID',
+                    'value': ''
+                })
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': os.environ['conf_stepcerts_enabled']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': os.environ['conf_stepcerts_root_ca']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': os.environ['conf_stepcerts_kid']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': os.environ['conf_stepcerts_kid_password']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
+                    'value': os.environ['conf_stepcerts_ca_url']
+                })
+        else:
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
                     'value': ''
                 })
         logging.info('[CONFIGURE SSN INSTANCE UI]')

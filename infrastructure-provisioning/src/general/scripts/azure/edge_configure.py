@@ -87,13 +87,24 @@ if __name__ == "__main__":
             edge_conf['edge_public_ip'] =  edge_conf['edge_private_ip']
         else:
             edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                                        edge_conf['instance_name'])
+                                                                                     edge_conf['instance_name'])
             edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                                    edge_conf['instance_name'])
+                                                                              edge_conf['instance_name'])
         instance_hostname = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                        edge_conf['instance_name'])
+                                                               edge_conf['instance_name'])
         edge_conf['vpc_cidrs'] = AzureMeta().get_vpc(edge_conf['resource_group_name'],
-                                                      edge_conf['vpc_name']).address_space.address_prefixes
+                                                     edge_conf['vpc_name']).address_space.address_prefixes
+
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            step_cert_sans = ' --san {0} --san {1} '.format(AzureMeta().get_private_ip_address(
+                edge_conf['resource_group_name'], edge_conf['instance_name']), edge_conf['instance_dns_name'])
+            if os.environ['conf_network_type'] == 'public':
+                step_cert_sans += ' --san {0}'.format(
+                    AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                               edge_conf['instance_name']))
+        else:
+            step_cert_sans = ''
+
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to generate infrastructure names", str(err))
@@ -268,8 +279,8 @@ if __name__ == "__main__":
     try:
         print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
-        params = "--hostname {} --keyfile {} --user {}" \
-            .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'])
+        params = "--hostname {} --keyfile {} --user {} --step_cert_sans '{}'" \
+            .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], step_cert_sans)
         try:
             local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
         except:

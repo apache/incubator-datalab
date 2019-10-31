@@ -27,6 +27,7 @@ import json
 import sys
 import os
 from dlab.ssn_lib import *
+from dlab.common_lib import *
 from dlab.fab import *
 import traceback
 
@@ -37,6 +38,7 @@ parser.add_argument('--additional_config', type=str, default='{"empty":"string"}
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default='')
+parser.add_argument('--step_cert_sans', type=str, default='')
 args = parser.parse_args()
 
 
@@ -128,8 +130,37 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
             sudo('mv dlab.crt /etc/ssl/certs/dlab.crt')
             sudo('mv dlab.key /etc/ssl/certs/dlab.key')
         else:
-            sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
-                 -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
+            if os.environ['conf_stepcerts_enabled'] == 'true':
+                ensure_step(args.os_user)
+                sudo('mkdir -p /home/{0}/keys'.format(args.os_user))
+                sudo('echo "{0}" | base64 --decode > /home/{1}/keys/root_ca.crt'.format(
+                     os.environ['conf_stepcerts_root_ca'], args.os_user))
+                fingerprint = sudo('step certificate fingerprint /home/{0}/keys/root_ca.crt'.format(
+                    args.os_user))
+                sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
+                                                                                 os.environ['conf_stepcerts_ca_url']))
+                sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
+                     os.environ['conf_stepcerts_kid_password'], args.os_user))
+                sans = "--san localhost --san 127.0.0.1 {0}".format(args.step_cert_sans)
+                cn = hostname
+                token = sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
+                             '--password-file /home/{2}/keys/provisioner_password {4} '.format(
+                              os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'],
+                              args.os_user, cn, sans))
+                sudo('step ca certificate "{0}" /home/{2}/keys/dlab.crt /home/{2}/keys/dlab.key '
+                     '--token "{1}" --kty=RSA --size 2048 --provisioner {3} '.format(cn, token, args.os_user,
+                                                                                     os.environ['conf_stepcerts_kid']))
+                sudo('cp /home/{0}/keys/dlab.crt /etc/ssl/certs/'.format(args.os_user))
+                sudo('cp /home/{0}/keys/dlab.key /etc/ssl/certs/'.format(args.os_user))
+                sudo('touch /var/log/renew_certificates.log')
+                sudo('bash -c \'echo "0 */3 * * * root /usr/bin/step ca renew /etc/ssl/certs/dlab.crt '
+                     '/etc/ssl/certs/dlab.key --exec "nginx -s reload" --ca-url "{1}" '
+                     '--root /home/{0}/keys/root_ca.crt --force --expires-in 8h >> /var/log/renew_certificates.log '
+                     '2>&1" >> /etc/crontab \''.format(args.os_user, os.environ['conf_stepcerts_ca_url']))
+
+            else:
+                sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
+                     -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
         sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
     except Exception as err:
         traceback.print_exc()
@@ -149,6 +180,8 @@ def docker_build_script():
 ##############
 # Run script #
 ##############
+
+
 if __name__ == "__main__":
     print("Configure connections")
     try:

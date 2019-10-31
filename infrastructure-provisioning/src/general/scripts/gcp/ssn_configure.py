@@ -116,6 +116,11 @@ if __name__ == "__main__":
 
     try:
         instance_hostname = GCPMeta().get_instance_public_ip_by_name(ssn_conf['instance_name'])
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            step_cert_sans = ' --san {0} --san {1}'.format(GCPMeta().get_instance_public_ip_by_name(
+                ssn_conf['instance_name']), get_instance_private_ip_address('ssn', ssn_conf['instance_name']))
+        else:
+            step_cert_sans = ''
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'
@@ -188,9 +193,11 @@ if __name__ == "__main__":
                              "service_base_name": ssn_conf['service_base_name'],
                              "security_group_id": ssn_conf['firewall_name'], "vpc_id": ssn_conf['vpc_name'],
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} " \
+                 "--tag_resource_id {} --step_cert_sans '{}'". \
             format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
-                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'])
+                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'],
+                   step_cert_sans)
 
         try:
             local("~/scripts/{}.py {}".format('configure_ssn_node', params))
@@ -381,6 +388,58 @@ if __name__ == "__main__":
                 'value': ''
             }
         ]
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': os.environ['conf_stepcerts_enabled']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': os.environ['conf_stepcerts_root_ca']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': os.environ['conf_stepcerts_kid']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': os.environ['conf_stepcerts_kid_password']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
+                    'value': os.environ['conf_stepcerts_ca_url']
+                })
+        else:
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
+                    'value': ''
+                })
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --billing_enabled {} " \
                  "--request_id {} --billing_dataset_name {} \
                  --resource {} --service_base_name {} --cloud_provider {} --default_endpoint_name {} " \
