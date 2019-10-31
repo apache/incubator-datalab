@@ -435,6 +435,12 @@ class AbstractDeployBuilder:
                 key = '--' + key
                 if key not in sys.argv:
                     sys.argv.extend([key, value])
+                else:
+                    try:
+                        index = sys.argv.index(key)
+                        sys.argv[index + 1] = value
+                    except:
+                        pass
 
     def parse_args(self):
         """Get dict of arguments
