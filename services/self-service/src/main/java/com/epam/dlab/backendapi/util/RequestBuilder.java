@@ -461,20 +461,16 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	public <T extends ComputationalBase<T>> T newComputationalTerminate(UserInfo userInfo,
-																		String exploratoryName,
-																		String exploratoryId,
-																		String computationalName,
-																		String computationalId,
-																		DataEngineType dataEngineType,
-																		String project) {
+																		UserInstanceDTO userInstanceDTO,
+																		UserComputationalResource computationalResource) {
 		T computationalTerminate;
 
 		switch (cloudProvider()) {
 			case AWS:
 				AwsComputationalTerminateDTO terminateDTO = newResourceSysBaseDTO(userInfo,
 						AwsComputationalTerminateDTO.class);
-				if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
-					terminateDTO.setClusterName(computationalId);
+				if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE) {
+					terminateDTO.setClusterName(computationalResource.getComputationalId());
 				}
 				computationalTerminate = (T) terminateDTO;
 				break;
@@ -484,8 +480,8 @@ public class RequestBuilder {
 			case GCP:
 				GcpComputationalTerminateDTO gcpTerminateDTO = newResourceSysBaseDTO(userInfo,
 						GcpComputationalTerminateDTO.class);
-				if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
-					gcpTerminateDTO.setClusterName(computationalId);
+				if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE) {
+					gcpTerminateDTO.setClusterName(computationalResource.getComputationalId());
 				}
 				computationalTerminate = (T) gcpTerminateDTO;
 				break;
@@ -495,10 +491,11 @@ public class RequestBuilder {
 		}
 
 		return computationalTerminate
-				.withExploratoryName(exploratoryName)
-				.withComputationalName(computationalName)
-				.withNotebookInstanceName(exploratoryId)
-				.withProject(project);
+				.withExploratoryName(userInstanceDTO.getExploratoryName())
+				.withComputationalName(computationalResource.getComputationalName())
+				.withNotebookInstanceName(userInstanceDTO.getExploratoryId())
+				.withProject(userInstanceDTO.getProject())
+				.withEndpoint(userInstanceDTO.getEndpoint());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -578,7 +575,8 @@ public class RequestBuilder {
 				.withNotebookInstanceName(userInstanceDTO.getExploratoryId())
 				.withComputationalName(compRes.getComputationalName())
 				.withApplicationName(compRes.getImageName())
-				.withProject(userInstanceDTO.getProject());
+				.withProject(userInstanceDTO.getProject())
+				.withEndpoint(userInstanceDTO.getEndpoint());
 		clusterConfigDTO.setCopmutationalId(compRes.getComputationalId());
 		clusterConfigDTO.setConfig(config);
 		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
