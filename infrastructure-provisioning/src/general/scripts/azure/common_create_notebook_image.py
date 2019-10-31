@@ -36,7 +36,8 @@ if __name__ == "__main__":
         image_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
         image_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
         image_conf['project_tag'] = os.environ['project_name'].replace('_', '-')
-        image_conf['endpoint_tag'] = os.environ['project_name'].replace('_', '-')
+        image_conf['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-')
+        image_conf['endpoint_tag'] = os.environ['endpoint_name'].replace('_', '-')
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['application'] = os.environ['application']
         image_conf['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -56,9 +57,9 @@ if __name__ == "__main__":
 
         instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                image_conf['instance_name'])
-        edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
-                                                       notebook_config['project_name'],
-                                                       notebook_config['endpoint_name'])
+        edge_instance_name = '{0}-{1}-{2}-edge'.format(image_conf['service_base_name'],
+                                                       image_conf['project_name'],
+                                                       image_conf['endpoint_name'])
         edge_instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                     edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
