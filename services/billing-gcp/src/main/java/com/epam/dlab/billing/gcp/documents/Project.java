@@ -23,10 +23,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document(collection = "Projects")
 @Data
 public class Project {
 
-    @JsonProperty("name")
-    private String name;
+	@JsonProperty("name")
+	private String name;
+	private List<Endpoint> endpoints;
+
+
+	@Data
+	public class Endpoint {
+		private final String name;
+	}
 }

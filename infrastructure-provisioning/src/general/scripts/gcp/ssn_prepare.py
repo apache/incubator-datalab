@@ -48,7 +48,9 @@ if __name__ == "__main__":
     ssn_conf['region'] = os.environ['gcp_region']
     ssn_conf['zone'] = os.environ['gcp_zone']
     ssn_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(ssn_conf['service_base_name'])
-    ssn_conf['shared_bucket_name'] = '{}-shared-bucket'.format(ssn_conf['service_base_name'])
+    ssn_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
+    ssn_conf['shared_bucket_name'] = '{0}-{1}-shared-bucket'.format(ssn_conf['service_base_name'],
+                                                                    ssn_conf['default_endpoint_name'])
     ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
     ssn_conf['instance_size'] = os.environ['gcp_ssn_instance_size']
     ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])

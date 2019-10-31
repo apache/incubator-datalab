@@ -38,98 +38,89 @@ import java.util.List;
 @Singleton
 @Slf4j
 public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
-    public static final String SIZE = "size";
+	public static final String SIZE = "size";
 
-    @Override
-    protected List<Bson> cloudMatchCriteria(AzureBillingFilter filter) {
-        if (!filter.getCategory().isEmpty()) {
-            return Collections.singletonList(Filters.in(MongoKeyWords.METER_CATEGORY, filter.getCategory()));
-        } else {
-            return Collections.emptyList();
-        }
-    }
+	@Override
+	protected List<Bson> cloudMatchCriteria(AzureBillingFilter filter) {
+		if (!filter.getCategory().isEmpty()) {
+			return Collections.singletonList(Filters.in(MongoKeyWords.METER_CATEGORY, filter.getCategory()));
+		} else {
+			return Collections.emptyList();
+		}
+	}
 
-    @Override
-    protected Bson groupCriteria() {
-        return Aggregates.group(getGroupingFields(
-                MongoKeyWords.DLAB_USER,
-                MongoKeyWords.DLAB_ID,
-                MongoKeyWords.RESOURCE_TYPE,
-                MongoKeyWords.METER_CATEGORY,
-                MongoKeyWords.CURRENCY_CODE),
-                Accumulators.sum(MongoKeyWords.COST, MongoKeyWords.prepend$(MongoKeyWords.COST)),
-                Accumulators.min(MongoKeyWords.USAGE_FROM, MongoKeyWords.prepend$(MongoKeyWords.USAGE_DAY)),
-                Accumulators.max(MongoKeyWords.USAGE_TO, MongoKeyWords.prepend$(MongoKeyWords.USAGE_DAY))
-        );
-    }
+	@Override
+	protected Bson groupCriteria() {
+		return Aggregates.group(getGroupingFields(
+				MongoKeyWords.DLAB_USER,
+				MongoKeyWords.DLAB_ID,
+				MongoKeyWords.RESOURCE_TYPE,
+				MongoKeyWords.METER_CATEGORY,
+				MongoKeyWords.CURRENCY_CODE,
+				FIELD_PROJECT),
+				Accumulators.sum(MongoKeyWords.COST, MongoKeyWords.prepend$(MongoKeyWords.COST)),
+				Accumulators.min(MongoKeyWords.USAGE_FROM, MongoKeyWords.prepend$(MongoKeyWords.USAGE_DAY)),
+				Accumulators.max(MongoKeyWords.USAGE_TO, MongoKeyWords.prepend$(MongoKeyWords.USAGE_DAY))
+		);
+	}
 
-    @Override
-    protected Bson sortCriteria() {
-        return Aggregates.sort(Sorts.ascending(
-                MongoKeyWords.prependId(MongoKeyWords.DLAB_USER),
-                MongoKeyWords.prependId(MongoKeyWords.DLAB_ID),
-                MongoKeyWords.prependId(MongoKeyWords.RESOURCE_TYPE),
-                MongoKeyWords.prependId(MongoKeyWords.METER_CATEGORY)));
-    }
+	@Override
+	protected Bson sortCriteria() {
+		return Aggregates.sort(Sorts.ascending(
+				MongoKeyWords.prependId(MongoKeyWords.DLAB_USER),
+				MongoKeyWords.prependId(MongoKeyWords.DLAB_ID),
+				MongoKeyWords.prependId(MongoKeyWords.RESOURCE_TYPE),
+				MongoKeyWords.prependId(MongoKeyWords.METER_CATEGORY)));
+	}
 
-    @Override
-    protected String getServiceBaseName() {
-        return settings.getServiceBaseName().replace("_", "-").toLowerCase();
-    }
+	@Override
+	protected String getServiceBaseName() {
+		return settings.getServiceBaseName().replace("_", "-").toLowerCase();
+	}
 
-    @Override
-    protected String getEdgeSize() {
-        return settings.getAzureEdgeInstanceSize();
-    }
+	@Override
+	protected String getSsnShape() {
+		return settings.getAzureSsnInstanceSize();
+	}
 
-    @Override
-    protected String edgeId(Document d) {
-        return d.getString(INSTANCE_ID);
-    }
+	@Override
+	protected String shapeFieldName() {
+		return SIZE;
+	}
 
-    @Override
-    protected String getSsnShape() {
-        return settings.getAzureSsnInstanceSize();
-    }
+	@Override
+	protected String dlabIdFieldName() {
+		return MongoKeyWords.DLAB_ID;
+	}
 
-    @Override
-    protected String shapeFieldName() {
-        return SIZE;
-    }
+	@Override
+	protected String productFieldName() {
+		return MongoKeyWords.METER_CATEGORY;
+	}
 
-    @Override
-    protected String dlabIdFieldName() {
-        return MongoKeyWords.DLAB_ID;
-    }
+	@Override
+	protected String costFieldName() {
+		return MongoKeyWords.COST_STRING;
+	}
 
-    @Override
-    protected String productFieldName() {
-        return MongoKeyWords.METER_CATEGORY;
-    }
+	@Override
+	protected String usageDateFromFieldName() {
+		return MongoKeyWords.USAGE_FROM;
+	}
 
-    @Override
-    protected String costFieldName() {
-        return MongoKeyWords.COST_STRING;
-    }
+	@Override
+	protected String usageDateToFieldName() {
+		return MongoKeyWords.USAGE_TO;
+	}
 
-    @Override
-    protected String usageDateFromFieldName() {
-        return MongoKeyWords.USAGE_FROM;
-    }
+	@Override
+	protected String currencyCodeFieldName() {
+		return MongoKeyWords.CURRENCY_CODE;
+	}
 
-    @Override
-    protected String usageDateToFieldName() {
-        return MongoKeyWords.USAGE_TO;
-    }
-
-    @Override
-    protected String currencyCodeFieldName() {
-        return MongoKeyWords.CURRENCY_CODE;
-    }
-
-    @Override
-    protected String resourceType(Document id) {
-        return DlabResourceType.getResourceTypeName(id.getString(MongoKeyWords.RESOURCE_TYPE));
-    }
+	@Override
+	protected String resourceType(Document id) {
+		return DlabResourceType.getResourceTypeName(id.getString(MongoKeyWords.RESOURCE_TYPE));
+	}
 
 }

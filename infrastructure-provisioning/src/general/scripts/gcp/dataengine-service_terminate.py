@@ -63,12 +63,15 @@ if __name__ == "__main__":
     dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
     dataproc_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     dataproc_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     dataproc_conf['dataproc_name'] = os.environ['dataproc_cluster_name']
     dataproc_conf['gcp_project_id'] = os.environ['gcp_project_id']
     dataproc_conf['gcp_region'] = os.environ['gcp_region']
     dataproc_conf['gcp_zone'] = os.environ['gcp_zone']
     dataproc_conf['notebook_name'] = os.environ['notebook_instance_name']
-    dataproc_conf['bucket_name'] = '{}-{}-bucket'.format(dataproc_conf['service_base_name'], dataproc_conf['project_name'])
+    dataproc_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(dataproc_conf['service_base_name'],
+                                                               dataproc_conf['project_name'],
+                                                               dataproc_conf['endpoint_name'])
     dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
     try:

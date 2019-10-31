@@ -44,6 +44,7 @@ if __name__ == "__main__":
         project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
         project_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
         project_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+        project_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
         project_conf['resource_group_name'] = os.environ['azure_resource_group_name']
 
         project_conf['azure_ad_user_name'] = os.environ['azure_iam_user']
@@ -60,7 +61,10 @@ if __name__ == "__main__":
         project_conf['region'] = os.environ['azure_region']
         project_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         project_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
-        project_conf['instance_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name'] + '-edge'
+
+        project_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(project_conf['service_base_name'],
+                                                                  project_conf['project_name'],
+                                                                  project_conf['endpoint_tag'])
         project_conf['primary_disk_name'] = project_conf['instance_name'] + '-disk0'
         project_conf['edge_security_group_name'] = project_conf['instance_name'] + '-sg'
         project_conf['notebook_security_group_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name']\
@@ -69,8 +73,9 @@ if __name__ == "__main__":
                                                     + project_conf['project_name'] + '-dataengine-master-sg'
         project_conf['slave_security_group_name'] = project_conf['service_base_name'] + '-' \
                                                    + project_conf['project_name'] + '-dataengine-slave-sg'
-        project_conf['edge_storage_account_name'] = project_conf['service_base_name'] + '-' + project_conf['project_name'] + \
-                                                 '-storage'
+        project_conf['edge_storage_account_name'] = '{0}-{1}-{2}-storage'.format(project_conf['service_base_name'],
+                                                                                 project_conf['project_name'],
+                                                                                 project_conf['endpoint_name'])
         project_conf['edge_container_name'] = (project_conf['service_base_name'] + '-' + project_conf['project_name'] +
                                             '-container').lower()
         project_conf['datalake_store_name'] = project_conf['service_base_name'] + '-ssn-datalake'

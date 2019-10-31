@@ -20,12 +20,14 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.TagService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.SchedulerJobDTO;
@@ -99,6 +101,8 @@ public class ComputationalServiceImplTest {
 	private RequestId requestId;
 	@Mock
 	private TagService tagService;
+	@Mock
+	private EndpointService endpointService;
 
 	@InjectMocks
 	private ComputationalServiceImpl computationalService;
@@ -121,6 +125,7 @@ public class ComputationalServiceImplTest {
 
 	@Test
 	public void createSparkCluster() {
+		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		when(computationalDAO.addComputational(anyString(), anyString(),
 				any(SparkStandaloneClusterResource.class))).thenReturn(true);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
@@ -144,12 +149,12 @@ public class ComputationalServiceImplTest {
 				refEq(userInfo), refEq(userInstance), refEq(sparkClusterCreateForm));
 
 		verify(provisioningService)
-				.post(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK, TOKEN, compBaseMocked, String.class);
+				.post(endpointDTO().getUrl() + ComputationalAPI.COMPUTATIONAL_CREATE_SPARK, TOKEN, compBaseMocked,
+						String.class);
 
 		verify(requestId).put(USER, UUID);
 		verifyNoMoreInteractions(configuration, computationalDAO, requestBuilder, provisioningService, requestId);
 	}
-
 	@Test
 	public void createSparkClusterWhenResourceAlreadyExists() {
 		when(computationalDAO.addComputational(anyString(), anyString(),
@@ -218,6 +223,7 @@ public class ComputationalServiceImplTest {
 
 	@Test
 	public void terminateComputationalEnvironment() {
+		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		when(computationalDAO.updateComputationalStatus(any(ComputationalStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
 		String explId = "explId";
@@ -233,8 +239,8 @@ public class ComputationalServiceImplTest {
 		ComputationalTerminateDTO ctDto = new ComputationalTerminateDTO();
 		ctDto.setComputationalName(COMP_NAME);
 		ctDto.setExploratoryName(EXPLORATORY_NAME);
-		when(requestBuilder.newComputationalTerminate(any(UserInfo.class), anyString(), anyString(), anyString(),
-				anyString(), any(DataEngineType.class), anyString())).thenReturn(ctDto);
+		when(requestBuilder.newComputationalTerminate(any(UserInfo.class), any(UserInstanceDTO.class),
+				any(UserComputationalResource.class))).thenReturn(ctDto);
 
 		when(provisioningService.post(anyString(), anyString(), any(ComputationalTerminateDTO.class), any()))
 				.thenReturn(UUID);
@@ -245,10 +251,9 @@ public class ComputationalServiceImplTest {
 		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusTerminating, "self"));
 		verify(computationalDAO).fetchComputationalFields(USER, EXPLORATORY_NAME, COMP_NAME);
 
-		verify(requestBuilder).newComputationalTerminate(userInfo, EXPLORATORY_NAME, explId, COMP_NAME, compId,
-				DataEngineType.CLOUD_SERVICE, null);
+		verify(requestBuilder).newComputationalTerminate(userInfo, userInstance,ucResource);
 
-		verify(provisioningService).post(ComputationalAPI.COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC, TOKEN, ctDto,
+		verify(provisioningService).post(endpointDTO().getUrl() + ComputationalAPI.COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC, TOKEN, ctDto,
 				String.class);
 
 		verify(requestId).put(USER, UUID);
@@ -316,8 +321,8 @@ public class ComputationalServiceImplTest {
 		when(computationalDAO.fetchComputationalFields(anyString(), anyString(), anyString())).thenReturn(ucResource);
 
 		doThrow(new DlabException("Cannot create instance of resource class "))
-				.when(requestBuilder).newComputationalTerminate(any(UserInfo.class), anyString(), anyString(),
-				anyString(), anyString(), any(DataEngineType.class), anyString());
+				.when(requestBuilder).newComputationalTerminate(any(UserInfo.class), any(UserInstanceDTO.class),
+				any(UserComputationalResource.class));
 
 		when(computationalDAO.updateComputationalStatus(any(ComputationalStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
@@ -333,14 +338,14 @@ public class ComputationalServiceImplTest {
 
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
 
-		verify(requestBuilder).newComputationalTerminate(userInfo, EXPLORATORY_NAME, explId, COMP_NAME, compId,
-				DataEngineType.CLOUD_SERVICE, null);
+		verify(requestBuilder).newComputationalTerminate(userInfo, userInstance, ucResource);
 		verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusFailed, "self"));
 		verifyNoMoreInteractions(computationalDAO, exploratoryDAO, requestBuilder);
 	}
 
 	@Test
 	public void createDataEngineService() {
+		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		when(computationalDAO.addComputational(anyString(), anyString(), any(UserComputationalResource.class)))
 				.thenReturn(true);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
@@ -364,7 +369,8 @@ public class ComputationalServiceImplTest {
 				refEq(userInfo), refEq(userInstance), any(ComputationalCreateFormDTO.class));
 
 		verify(provisioningService)
-				.post(ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC, TOKEN, compBaseMocked, String.class);
+				.post(endpointDTO().getUrl() + ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC, TOKEN,
+						compBaseMocked, String.class);
 
 		verify(requestId).put(USER, UUID);
 		verifyNoMoreInteractions(computationalDAO, exploratoryDAO, requestBuilder, provisioningService, requestId);
@@ -412,6 +418,7 @@ public class ComputationalServiceImplTest {
 
 	@Test
 	public void createDataEngineServiceWhenMethodNewComputationalCreateThrowsException() {
+		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		when(computationalDAO.addComputational(anyString(), anyString(), any(UserComputationalResource.class)))
 				.thenReturn(true);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
@@ -444,6 +451,7 @@ public class ComputationalServiceImplTest {
 	public void stopSparkCluster() {
 		final UserInstanceDTO exploratory = getUserInstanceDto();
 		exploratory.setResources(singletonList(getUserComputationalResource(RUNNING, DOCKER_DLAB_DATAENGINE)));
+		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyBoolean())).thenReturn(exploratory);
 		when(computationalDAO.updateComputationalStatus(any(ComputationalStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
@@ -461,7 +469,8 @@ public class ComputationalServiceImplTest {
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, true);
 		verify(requestBuilder).newComputationalStop(refEq(userInfo), refEq(exploratory), eq(COMP_NAME));
 		verify(provisioningService)
-				.post(eq("computational/stop/spark"), eq(TOKEN), refEq(computationalStopDTO), eq(String.class));
+				.post(eq(endpointDTO().getUrl() + "computational/stop/spark"), eq(TOKEN), refEq(computationalStopDTO),
+						eq(String.class));
 		verify(requestId).put(USER, "someUuid");
 		verifyNoMoreInteractions(computationalDAO, exploratoryDAO, requestBuilder,
 				provisioningService, requestId);
@@ -480,6 +489,7 @@ public class ComputationalServiceImplTest {
 
 	@Test
 	public void startSparkCluster() {
+		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		final UserInstanceDTO exploratory = getUserInstanceDto();
 		exploratory.setResources(singletonList(getUserComputationalResource(STOPPED, DOCKER_DLAB_DATAENGINE)));
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyBoolean())).thenReturn(exploratory);
@@ -499,7 +509,9 @@ public class ComputationalServiceImplTest {
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, true);
 		verify(requestBuilder).newComputationalStart(refEq(userInfo), refEq(exploratory), eq(COMP_NAME));
 		verify(provisioningService)
-				.post(eq("computational/start/spark"), eq(TOKEN), refEq(computationalStartDTO), eq(String.class));
+				.post(eq(endpointDTO().getUrl() + "computational/start/spark"), eq(TOKEN),
+						refEq(computationalStartDTO),
+						eq(String.class));
 		verify(requestId).put(USER, "someUuid");
 		verifyNoMoreInteractions(computationalDAO, exploratoryDAO, requestBuilder,
 				provisioningService, requestId);
@@ -562,6 +574,7 @@ public class ComputationalServiceImplTest {
 
 	@Test
 	public void testUpdateSparkClusterConfig() {
+		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		final ComputationalClusterConfigDTO clusterConfigDTO = new ComputationalClusterConfigDTO();
 		final UserInstanceDTO userInstanceDto = getUserInstanceDto();
 		final List<ClusterConfig> config = Collections.singletonList(new ClusterConfig());
@@ -585,7 +598,8 @@ public class ComputationalServiceImplTest {
 				.withExploratoryName(EXPLORATORY_NAME)
 				.withComputationalName(COMP_NAME)
 				.withStatus(UserInstanceStatus.RECONFIGURING.toString()), "self"));
-		verify(provisioningService).post(eq("computational/spark/reconfigure"), eq(getUserInfo().getAccessToken()),
+		verify(provisioningService).post(eq(endpointDTO().getUrl() + "computational/spark/reconfigure"),
+				eq(getUserInfo().getAccessToken()),
 				refEq(new ComputationalClusterConfigDTO()), eq(String.class));
 
 	}
@@ -701,6 +715,11 @@ public class ComputationalServiceImplTest {
 				.tags(Collections.emptyMap())
 				.build();
 	}
+
+	private EndpointDTO endpointDTO() {
+		return new EndpointDTO("test", "url", "", null);
+	}
+
 
 	private UserComputationalResource getUserComputationalResource(UserInstanceStatus status, String imageName) {
 		UserComputationalResource ucResource = new UserComputationalResource();

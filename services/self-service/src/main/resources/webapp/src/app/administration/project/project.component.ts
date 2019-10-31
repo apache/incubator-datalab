@@ -17,18 +17,25 @@
  * under the License.
  */
 
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
 import { ProjectDataService } from './project-data.service';
 import { HealthStatusService, ProjectService } from '../../core/services';
 import { NotificationDialogComponent } from '../../shared/modal-dialog/notification-dialog';
+import { ProjectListComponent } from './project-list/project-list.component';
+
+export interface Endpoint {
+  name: string;
+  status: string;
+  edgeInfo: any;
+}
 
 export interface Project {
   name: string;
-  endpoints: string[];
+  endpoints: Endpoint[];
   tag: string;
   groups: string[];
 }
@@ -37,11 +44,15 @@ export interface Project {
   selector: 'dlab-project',
   templateUrl: './project.component.html'
 })
+
 export class ProjectComponent implements OnInit, OnDestroy {
   projectList: Project[] = [];
   healthStatus: any;
+  activeFiltering: boolean = false;
 
   private subscriptions: Subscription = new Subscription();
+
+  @ViewChild(ProjectListComponent, { static: false }) list: ProjectListComponent;
 
   constructor(
     public dialog: MatDialog,
@@ -66,6 +77,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   refreshGrid() {
     this.projectDataService.updateProjects();
+    this.activeFiltering = false;
   }
 
   createProject() {
@@ -75,6 +87,13 @@ export class ProjectComponent implements OnInit, OnDestroy {
           console.log('Create project');
           this.getEnvironmentHealthStatus();
         });
+  }
+
+  public toggleFiltering(): void {
+    this.activeFiltering = !this.activeFiltering;
+
+    this.activeFiltering ? this.list.showActiveInstances() : this.projectDataService.updateProjects();
+
   }
 
   public editProject($event) {
@@ -94,10 +113,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   public toggleStatus($event) {
-    const data = { 'project_name': $event.project.name };
+    const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.name };
 
-    if ($event.action === 'stop') {
-      this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: $event.project, action: 'stopped' }, panelClass: 'modal-sm' })
+    if ($event.action === 'stop' || $event.action === 'terminate') {
+      this.dialog.open(NotificationDialogComponent, {
+        data: {
+          type: 'confirmation',
+          item: $event.endpoint, action: $event.action === 'stop' ? 'stopped' : 'terminated'
+        }, panelClass: 'modal-sm'
+      })
         .afterClosed().subscribe(result => {
           result && this.toggleStatusRequest(data, $event.action);
         }, error => this.toastr.error(error.message, 'Oops!'));
@@ -107,13 +131,25 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   private toggleStatusRequest(data, action) {
-    this.projectService.toggleProjectStatus(data, action).subscribe(() => this.refreshGrid(),
-      error => this.toastr.error(error.message, 'Oops!'));
+    this.projectService.toggleProjectStatus(data, action).subscribe(() => {
+      this.refreshGrid();
+      this.toastr.success(`Endpoint ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
+    }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => this.healthStatus = result);
+  }
+
+  private toEndpointAction(action) {
+    if (action === 'start') {
+      return 'connect';
+    } else if (action === 'stop') {
+      return 'disconnect';
+    } else {
+      return action;
+    }
   }
 }
 

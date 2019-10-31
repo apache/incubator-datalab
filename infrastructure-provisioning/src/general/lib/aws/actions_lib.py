@@ -1026,10 +1026,11 @@ def remove_s3(bucket_type='all', scientist=''):
         bucket_list = []
         if bucket_type == 'ssn':
             bucket_name = (os.environ['conf_service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
-            bucket_list.append((os.environ['conf_service_base_name'] + '-shared-bucket').lower().replace('_', '-'))
+            bucket_list.append(('{0}-{1}-shared-bucket'.format(os.environ['conf_service_base_name'],
+                                                               os.environ['default_endpoint_name'])).lower().replace('_', '-'))
         elif bucket_type == 'edge':
-            bucket_name = (os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) +
-                           '-bucket').lower().replace('_', '-')
+            bucket_name = (os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) + '-' +
+                           os.environ['endpoint_name'] + '-bucket').lower().replace('_', '-')
         else:
             bucket_name = (os.environ['conf_service_base_name']).lower().replace('_', '-')
         for item in client.list_buckets().get('Buckets'):
@@ -1350,7 +1351,7 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
             while image.state != 'available':
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
-            tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
+            tag = {'Key': 'Name', 'Value': image_name}
             response = client.describe_images(ImageIds=[image.id]).get('Images')[0].get('BlockDeviceMappings')
             for ebs in response:
                 if ebs.get('Ebs'):
@@ -1529,7 +1530,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                 local('sudo rm -rf /opt/python/python{}/'.format(python_version))
                 sys.exit(1)
         else:
-            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3 --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip==9.0.3')
             local(venv_command + ' && sudo -i ' + pip_command + ' install pyzmq==17.0.0')
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command + ' install NumPy=={}'.format(numpy_version))

@@ -19,7 +19,7 @@
 
 import { Component, OnInit, ViewChild, Inject, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { ComputationalResourceModel } from './computational-resource-create.model';
@@ -57,9 +57,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
 
-  @ViewChild('spotInstancesCheck') spotInstancesSelect;
-  @ViewChild('preemptibleNode') preemptible;
-  @ViewChild('configurationNode') configuration;
+  @ViewChild('spotInstancesCheck', { static: false }) spotInstancesSelect;
+  @ViewChild('preemptibleNode', { static: false }) preemptible;
+  @ViewChild('configurationNode', { static: false }) configuration;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -77,7 +77,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.resourcesList = this.data.full_list;
     this.initFormModel();
 
-    this.getTemplates(this.notebook_instance.project);
+    this.getTemplates(this.notebook_instance.project, this.notebook_instance.endpoint);
   }
 
   public selectImage($event) {
@@ -234,11 +234,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private providerMaxLength(control) {
     if (DICTIONARY.cloud_provider !== 'aws')
-      return control.value.length <= 10 ? null : { valid: false };
+      return control.value.length <= DICTIONARY.max_cluster_name_length ? null : { valid: false };
   }
 
-  private getTemplates(project) {
-    this.userResourceService.getComputationalTemplates(project).subscribe(
+  private getTemplates(project, endpoint) {
+    this.userResourceService.getComputationalTemplates(project, endpoint).subscribe(
       clusterTypes => {
         this.clusterTypes = clusterTypes;
         this.selectedImage = clusterTypes[0];

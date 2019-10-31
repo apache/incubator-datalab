@@ -19,7 +19,7 @@
 
 import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
@@ -46,7 +46,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   resourceGrid: any;
   images: Array<any>;
 
-  @ViewChild('configurationNode') configuration;
+  @ViewChild('configurationNode', { static: false }) configuration;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -69,12 +69,24 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public getUserProjects() {
-    this.projectService.getUserProjectsList().subscribe((projects: any) => this.projects = projects);
+    this.projectService.getUserProjectsList().subscribe((projects: any) => {
+      this.projects = projects;
+      const activeProject = projects.find(item => item.name === this.resourceGrid.activeProject);
+      if (this.resourceGrid.activeProject && activeProject) {
+        this.setEndpoints(activeProject)
+        this.createExploratoryForm.controls['project'].setValue(activeProject.name);
+      }
+    });
   }
 
-  public getTemplates(project) {
-    this.endpoints = project.endpoints;
-    this.userResourceService.getExploratoryTemplates(project.name).subscribe(templates => this.templates = templates);
+  public setEndpoints(project) {
+    this.endpoints = project.endpoints
+      .filter(e => e.status === 'RUNNING')
+      .map(e => e.name);
+  }
+
+  public getTemplates(project, endpoint) {
+    this.userResourceService.getExploratoryTemplates(project, endpoint).subscribe(templates => this.templates = templates);
   }
 
   public getShapes(template) {
@@ -118,7 +130,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   private getImagesList() {
-    this.userResourceService.getUserImages(this.currentTemplate.image, this.createExploratoryForm.controls['project'].value)
+    this.userResourceService.getUserImages(this.currentTemplate.image, this.createExploratoryForm.controls['project'].value,
+    this.createExploratoryForm.controls['endpoint'].value)
       .subscribe((res: any) => this.images = res.filter(el => el.status === 'CREATED'),
         error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
   }

@@ -22,18 +22,16 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.UserRoles;
-import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.epam.dlab.validation.AwsValidation;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
@@ -65,10 +63,10 @@ public class SecurityResource implements SecurityAPI {
 	private SelfServiceApplicationConfiguration configuration;
 
 	@Inject
-	public SecurityResource(SecurityDAO dao, @Named(ServiceConsts.SECURITY_SERVICE_NAME) RESTService securityService,
+	public SecurityResource(SecurityDAO dao,
 							EnvStatusListener envStatusListener, SelfServiceApplicationConfiguration configuration) {
 		this.dao = dao;
-		this.securityService = securityService;
+		this.securityService = null;
 		this.envStatusListener = envStatusListener;
 		this.configuration = configuration;
 	}

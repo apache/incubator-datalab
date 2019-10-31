@@ -28,6 +28,13 @@
 
       &.action {
         width: 40%;
+        position: relative;
+
+        .ellipsis {
+          position: absolute;
+          width: 100%;
+          right: 0;
+        }
       }
     }
   }

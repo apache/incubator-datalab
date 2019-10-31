@@ -1,0 +1,238 @@
+[
+  {
+    "_id": "nbShapes_Standard_NC6_fetching",
+    "description": "Allow to use Standard_NC6 instance shape for notebook",
+    "exploratory_shapes": [
+      "Standard_NC6"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_E4s_v3_fetching",
+    "description": "Use Standard_E4s_v3 instance shape for notebook",
+    "exploratory_shapes": [
+      "Standard_E4s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_E16s_v3_fetching",
+    "description": "Use Standard_E16s_v3 instance shape for notebook",
+    "exploratory_shapes": [
+      "Standard_E16s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_E32s_v3_fetching",
+    "description": "Use Standard_E32s_v3 instance shape for notebook",
+    "exploratory_shapes": [
+      "Standard_E32s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_F2s_fetching",
+    "description": "Use Standard_F2s instance shape for notebook",
+    "exploratory_shapes": [
+      "Standard_F2s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_F4s_fetching",
+    "description": "Use Standard_F4s instance shape for notebook",
+    "exploratory_shapes": [
+      "Standard_F4s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_F8s_fetching",
+    "description": "Use Standard_F8s instance shape for notebook",
+    "exploratory_shapes": [
+      "Standard_F8s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbShapes_Standard_F16s_fetching",
+    "description": "Use Standard_F16s instance shape for notebook",
+    "exploratory_shapes": [
+      "Standard_F16s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateDeeplearning",
+    "description": "Create Notebook Deep Learning",
+    "exploratories": [
+      "docker.dlab-deeplearning"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateJupyter",
+    "description": "Create Notebook Jupyter",
+    "exploratories": [
+      "docker.dlab-jupyter"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateRstudio",
+    "description": "Create Notebook RStudio",
+    "exploratories": [
+      "docker.dlab-rstudio"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateTensor",
+    "description": "Create Notebook Jupyter with TensorFlow",
+    "exploratories": [
+      "docker.dlab-tensor"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateZeppelin",
+    "description": "Create Notebook Apache Zeppelin",
+    "exploratories": [
+      "docker.dlab-zeppelin"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateDataEngine",
+    "description": "Create Data Engine",
+    "computationals": [
+      "docker.dlab-dataengine"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_F4s_fetching",
+    "description": "Use Standard_F4s instance shape for cluster",
+    "computational_shapes": [
+      "Standard_F4s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_E4s_v3_fetching",
+    "description": "Use Standard_E4s_v3 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_E4s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_E16s_v3_fetching",
+    "description": "Use Standard_E16s_v3 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_E16s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_E32s_v3_fetching",
+    "description": "Use Standard_E32s_v3 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_E32s_v3"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_F8s_fetching",
+    "description": "Use Standard_F8s instance shape for cluster",
+    "computational_shapes": [
+      "Standard_F8s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_F16s_fetching",
+    "description": "Use Standard_F16s instance shape for cluster",
+    "computational_shapes": [
+      "Standard_F16s"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "compShapes_Standard_NC6_fetching",
+    "description": "Use Standard_NC6 instance shape for cluster",
+    "computational_shapes": [
+      "Standard_NC6"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbBillingReportFull",
+    "description": "View full billing report for all users",
+    "pages": [
+      "/api/infrastructure_provision/billing"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "admin",
+    "description": "Allow to execute administration operation",
+    "pages": [
+      "environment/*",
+      "/api/infrastructure/backup",
+      "/roleManagement",
+      "/api/settings",
+      "/user/settings",
+      "/api/project",
+      "/api/endpoint"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  }
+]

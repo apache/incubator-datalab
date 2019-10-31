@@ -21,7 +21,6 @@ package com.epam.dlab.backendapi.dao.gcp;
 
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpBillingFilter;
-import com.epam.dlab.util.UsernameUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -47,7 +46,7 @@ public class GcpBillingDao extends BaseBillingDAO<GcpBillingFilter> {
     @Override
     protected Bson groupCriteria() {
         return group(getGroupingFields(USER, FIELD_DLAB_ID, DLAB_RESOURCE_TYPE, FIELD_PRODUCT,
-                currencyCodeFieldName()),
+                currencyCodeFieldName(), FIELD_PROJECT),
                 sum(FIELD_COST, "$" + FIELD_COST),
                 min(USAGE_FROM, "$" + FIELD_USAGE_DATE),
                 max(USAGE_TO, "$" + FIELD_USAGE_DATE)
@@ -57,15 +56,6 @@ public class GcpBillingDao extends BaseBillingDAO<GcpBillingFilter> {
     @Override
     protected List<Bson> cloudMatchCriteria(GcpBillingFilter filter) {
         return Collections.emptyList();
-    }
-
-    @Override
-    protected String getEdgeSize() {
-        return getSsnShape();
-    }
-
-    public String edgeId(Document d) {
-        return String.join("-", settings.getServiceBaseName(), UsernameUtils.removeDomain(d.getString(ID)), "edge");
     }
 
 

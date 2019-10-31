@@ -19,7 +19,7 @@
 
 import { Injectable } from '@angular/core';
 import { of as observableOf, Observable, BehaviorSubject } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { AppRoutingService } from './appRouting.service';
@@ -40,10 +40,17 @@ export class ApplicationSecurityService {
     private serviceFacade: ApplicationServiceFacade,
     private appRoutingService: AppRoutingService,
     private storage: StorageService,
-  ) {}
+  ) { }
 
   get loggedInStatus() {
     return this._loggedInStatus.asObservable();
+  }
+
+  public locationCheck() {
+    return this.serviceFacade.buildLocationCheck()
+      .pipe(
+        map(response => response),
+        catchError(error => error));
   }
 
   public login(loginModel: LoginModel): Observable<boolean | {}> {
@@ -52,13 +59,8 @@ export class ApplicationSecurityService {
       .pipe(
         map(response => {
           if (response.status === HTTP_STATUS_CODES.OK) {
-            if (!DICTIONARY.use_ldap) {
-              this.storage.setAuthToken(response.body.access_token);
-              this.storage.setUserName(response.body.username);
-            } else {
-              this.storage.setAuthToken(response.body);
-              this.storage.setUserName(loginModel.username);
-            }
+            this.storage.storeTokens(response.body);
+            this.storage.setUserName(response.body.username);
             this._loggedInStatus.next(true);
             return true;
           }
@@ -66,6 +68,13 @@ export class ApplicationSecurityService {
           return false;
         }),
         catchError(ErrorUtils.handleServiceError));
+  }
+
+  public refreshToken() {
+    const refreshTocken = `/${this.storage.getRefreshToken()}`;
+    return this.serviceFacade.buildRefreshToken(refreshTocken)
+      .pipe(
+        tap((tokens) => this.storage.storeTokens(tokens)));
   }
 
   public logout(): Observable<boolean> {
@@ -76,11 +85,10 @@ export class ApplicationSecurityService {
         .buildLogoutRequest()
         .pipe(
           map(response => {
-            this.storage.destroyToken();
+            this.storage.destroyTokens();
             this.storage.setBillingQuoteUsed('');
             this._loggedInStatus.next(false);
-
-            return response.status === HTTP_STATUS_CODES.OK;
+            return response;
           }, this));
     }
 
@@ -100,12 +108,12 @@ export class ApplicationSecurityService {
               return true;
             }
 
-            this.storage.destroyToken();
+            this.storage.destroyTokens();
             return false;
           }),
           catchError(error => {
             this.emmitMessage(error.message);
-            this.storage.destroyToken();
+            this.storage.destroyTokens();
 
             return observableOf(false);
           }));
@@ -115,15 +123,15 @@ export class ApplicationSecurityService {
   }
 
   public redirectParams(params): Observable<boolean> {
-    console.log('redirect patams');
+    const code = `?code=${params.code}`;
 
     return this.serviceFacade
-      .buildGetAuthToken(params)
+      .buildGetAuthToken(code)
       .pipe(
         map((response: any) => {
           const data = response.body;
           if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
-            this.storage.setAuthToken(data.access_token);
+            this.storage.storeTokens(data);
             this.storage.setUserName(data.username);
 
             this.appRoutingService.redirectToHomePage();
@@ -137,12 +145,8 @@ export class ApplicationSecurityService {
           return false;
 
         }), catchError((error: any) => {
-          if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
-            window.location.href = error.headers.get('Location');
-          } else {
-            this.emmitMessage(error.message);
-            return observableOf(false);
-          }
+          this.emmitMessage(error.message);
+          return observableOf(false);
         }));
   }
 

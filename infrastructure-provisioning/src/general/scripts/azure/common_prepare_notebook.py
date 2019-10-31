@@ -47,6 +47,8 @@ if __name__ == "__main__":
         notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        notebook_config['application'] = os.environ['application'].lower().replace('_', '-')
         
         print('Generating infrastructure names and tags')
         try:
@@ -88,12 +90,22 @@ if __name__ == "__main__":
             sudo_group = 'wheel'
         notebook_config['image_type'] = 'default'
 
-        notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+        notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+        if notebook_config['shared_image_enabled'] == 'false':
+            notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
             notebook_config['service_base_name'],
-            os.environ['endpoint_name'],
-            os.environ['project_name'],
-            os.environ['application'])
-        notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'].lower().replace('_', '-') if (x != 'None' and x != '')
+            notebook_config['endpoint_name'],
+            notebook_config['project_name'],
+            notebook_config['application'])
+        else:
+            notebook_config['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(
+            notebook_config['service_base_name'],
+            notebook_config['endpoint_name'],
+            notebook_config['application'])
+        notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}'.format(notebook_config['service_base_name'],
+                                                                                 os.environ['project_name'],
+                                                                                 os.environ['application'],
+                                                                                 os.environ['notebook_image_name'].lower().replace('_', '-')) if (x != 'None' and x != '')
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
@@ -111,8 +123,10 @@ if __name__ == "__main__":
 
     try:
         edge_status = AzureMeta().get_instance_status(notebook_config['resource_group_name'],
-                                                      os.environ['conf_service_base_name'] + '-' +
-                                                      notebook_config['project_name'] + '-edge')
+                                                      '{0}-{1}-{2}-edge'.format(os.environ['conf_service_base_name'],
+                                                                                notebook_config['project_name'],
+                                                                                notebook_config['endpoint_name']))
+
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')

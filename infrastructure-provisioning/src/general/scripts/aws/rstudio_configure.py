@@ -58,10 +58,19 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
                                                                os.environ['project_name'],
                                                                notebook_config['exploratory_name'], args.uuid)
-    notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(notebook_config['service_base_name'],
-                                                                                     os.environ['endpoint_name'],
-                                                                                     os.environ['project_name'],
-                                                                                     os.environ['application'])
+    notebook_config['image_enabled'] = os.environ['conf_image_enabled']
+    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    if os.environ['conf_shared_image_enabled'] == 'false':
+        notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+            notebook_config['service_base_name'],
+            os.environ['endpoint_name'],
+            os.environ['project_name'],
+            os.environ['application'])
+    else:
+        notebook_config['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(
+            notebook_config['service_base_name'],
+            os.environ['endpoint_name'],
+            os.environ['application'])
     notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
         .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
@@ -70,12 +79,12 @@ if __name__ == "__main__":
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['rstudio_pass'] = id_generator()
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
     notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
-    edge_instance_name = notebook_config['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
+    edge_instance_name = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
+                                                os.environ['project_name'], os.environ['endpoint_name'])
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
     edge_instance_private_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     if notebook_config['network_type'] == 'private':
@@ -243,16 +252,32 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    if notebook_config['shared_image_enabled'] == 'true':
+    if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
-            ami_id = get_ami_id_by_name(notebook_config['expected_image_name'])
-            if ami_id == '':
+            ami_id = get_ami_id_by_name(`notebook_config['expected_image_name']`)
+            if ami_id == '' and notebook_config['shared_image_enabled'] == 'false':
                 print("Looks like it's first time we configure notebook server. Creating image.")
                 try:
-                    os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(os.environ['project_name'], os.environ['endpoint_name'])
+                    os.environ['conf_additional_tags'] = os.environ[
+                                                             'conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(
+                        os.environ['project_name'], os.environ['endpoint_name'])
                 except KeyError:
-                    os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(os.environ['project_name'], os.environ['endpoint_name'])
+                    os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(
+                        os.environ['project_name'], os.environ['endpoint_name'])
+                image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
+                                                      instance_name=notebook_config['instance_name'],
+                                                      image_name=notebook_config['expected_image_name'])
+                if image_id != '':
+                    print("Image was successfully created. It's ID is {}".format(image_id))
+            else:
+                try:
+                    os.environ['conf_additional_tags'] = os.environ[
+                                                             'conf_additional_tags'] + ';ami:shared;endpoint_tag:{};'.format(
+                        os.environ['endpoint_name'])
+                except KeyError:
+                    os.environ['conf_additional_tags'] = 'ami:shared;endpoint_tag:{}'.format(
+                        os.environ['endpoint_name'])
                 image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
                                                       instance_name=notebook_config['instance_name'],
                                                       image_name=notebook_config['expected_image_name'])

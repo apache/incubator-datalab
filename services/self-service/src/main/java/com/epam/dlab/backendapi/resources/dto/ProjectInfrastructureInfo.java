@@ -34,7 +34,7 @@ public class ProjectInfrastructureInfo {
 	@JsonProperty
 	private int billingQuoteUsed;
 	@JsonProperty
-	private Map<String, String> shared;
+	private Map<String, Map<String, String>> shared;
 	@JsonProperty
 	private Iterable<Document> exploratory;
 }

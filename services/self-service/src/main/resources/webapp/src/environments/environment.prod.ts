@@ -17,5 +17,6 @@
  * under the License.
  */
 export const environment = {
-  production: true
+  production: true,
+  apiUrl: 'default'
 };

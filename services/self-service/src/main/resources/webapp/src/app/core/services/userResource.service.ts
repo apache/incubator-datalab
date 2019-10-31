@@ -28,8 +28,8 @@ import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 export class UserResourceService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  public getExploratoryTemplates(project): Observable<any> {
-    const url = `/${project}/exploratory_templates`;
+  public getExploratoryTemplates(project, endpoint): Observable<any> {
+    const url = `/${project}/${endpoint}/exploratory_templates`;
     return this.applicationServiceFacade
       .buildGetTemplatesRequest(url)
       .pipe(
@@ -37,8 +37,8 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getComputationalTemplates(project): Observable<any> {
-    const url = `/${project}/computational_templates`;
+  public getComputationalTemplates(project, endpoint): Observable<any> {
+    const url = `/${project}/${endpoint}/computational_templates`;
     return this.applicationServiceFacade
       .buildGetTemplatesRequest(url)
       .pipe(
@@ -143,8 +143,8 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getUserImages(image, project): Observable<{}> {
-    const body = `?docker_image=${image}&project=${project}`;
+  public getUserImages(image, project, endpoint): Observable<{}> {
+    const body = `?docker_image=${image}&project=${project}&endpoint=${endpoint}`;
     return this.applicationServiceFacade
       .buildGetUserImages(body)
       .pipe(

@@ -20,8 +20,6 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
-import com.epam.dlab.auth.SystemUserInfoService;
-import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.MetadataHolder;
@@ -36,7 +34,6 @@ import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
 import com.epam.dlab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,8 +68,6 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
 				.SELF_SERVICE_NAME));
 		bind(MetadataHolder.class).to(DockerWarmuper.class);
 		bind(ICommandExecutor.class).to(CommandExecutor.class).asEagerSingleton();
-		bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
-		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
 		bind(ObjectMapper.class).toInstance(new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true));
 		bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
 		bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);

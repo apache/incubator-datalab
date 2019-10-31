@@ -24,8 +24,8 @@ import { LoginComponent } from './login/login.module';
 import { LayoutComponent } from './layout/layout.component'
 import { ResourcesComponent } from './resources/resources.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
-import { NotFoundComponent } from './not-found/not-found.component';
-import { AccessDeniedComponent } from './access-denied/access-denied.component';
+import { NotFoundComponent } from './service-pages/not-found/not-found.component';
+import { AccessDeniedComponent } from './service-pages/access-denied/access-denied.component';
 import { ReportingComponent } from './reporting/reporting.component';
 import { WebterminalComponent } from './webterminal/webterminal.component';
 import { ManagementComponent } from './administration/management/management.component';
@@ -39,7 +39,7 @@ const routes: Routes = [{
   component: LoginComponent
 }, {
   path: '',
-  canActivate: [AuthorizationGuard],
+  canActivate: [CheckParamsGuard],
   component: LayoutComponent,
   children: [
     {
@@ -49,7 +49,7 @@ const routes: Routes = [{
     }, {
       path: 'resources_list',
       component: ResourcesComponent,
-      canActivate: [CheckParamsGuard]
+      canActivate: [AuthorizationGuard]
     }, {
       path: 'billing_report',
       component: ReportingComponent,
@@ -77,7 +77,7 @@ const routes: Routes = [{
     }
   ]
 }, {
-  path: 'terminal/:id',
+  path: 'terminal/:id/:endpoint',
   component: WebterminalComponent
 }, {
   path: '403',

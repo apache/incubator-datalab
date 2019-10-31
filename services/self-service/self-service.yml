@@ -63,9 +63,12 @@ billingConfFile: ${DLAB_CONF_DIR}/billing.yml
 
 <#if CLOUD_TYPE == "azure">
 azureUseLdap: <LOGIN_USE_LDAP>
+ssnInstanceSize: <SSN_INSTANCE_SIZE>
 maxSessionDurabilityMilliseconds: 288000000
 </#if>
 
+serviceBaseName: SERVICE_BASE_NAME
+os: OPERATION_SYSTEM
 server:
   requestLog:
     appenders:
@@ -76,8 +79,8 @@ server:
       archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
-  #    - type: http
-  #      port: 8080
+#    - type: http
+#      port: 8080
   - type: https
     port: 8443
     certAlias: dlab
@@ -87,8 +90,8 @@ server:
     trustStorePath: ${TRUST_STORE_PATH}
     trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-  #    - type: http
-  #      port: 8081
+#    - type: http
+#      port: 8081
   - type: https
     port: 8444
     certAlias: dlab
@@ -103,7 +106,8 @@ mongoMigrationEnabled: false
 logging:
   level: INFO
   loggers:
-    com.epam: TRACE
+    com.epam: INFO
+    org.apache.guacamole: DEBUG
     com.novemberain: ERROR
   appenders:
 <#if DEV_MODE == "true">
@@ -166,9 +170,26 @@ schedulers:
 
 guacamole:
   connectionProtocol: ssh
-  serverHost: localhost
   serverPort: 4822
   port: 22
   username: dlab-user
 
+keycloakConfiguration:
+  redirectUri: KEYCLOAK_REDIRECT_URI
+  realm: KEYCLOAK_REALM_NAME
+  bearer-only: true
+  auth-server-url: KEYCLOAK_AUTH_SERVER_URL
+  ssl-required: none
+  register-node-at-startup: true
+  register-node-period: 600
+  resource: KEYCLOAK_CLIENT_NAME
+  credentials:
+    secret: KEYCLOAK_CLIENT_SECRET
 
+jerseyClient:
+  minThreads: 1
+  maxThreads: 128
+  workQueueSize: 8
+  gzipEnabled: true
+  gzipEnabledForRequests: false
+  chunkedEncodingEnabled: true

@@ -20,13 +20,14 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
@@ -61,6 +62,8 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 	private SettingsDAO settingsDAO;
 	@Inject
 	private ProjectDAO projectDAO;
+	@Inject
+	private EndpointService endpointService;
 
 
 	@Inject
@@ -68,12 +71,14 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 	private RESTService provisioningService;
 
 	@Override
-	public List<ExploratoryMetadataDTO> getExploratoryTemplates(UserInfo user, String project) {
+	public List<ExploratoryMetadataDTO> getExploratoryTemplates(UserInfo user, String project, String endpoint) {
 
 		log.debug("Loading list of exploratory templates for user {} for project {}", user.getName(), project);
 		try {
 			ExploratoryMetadataDTO[] array =
-					provisioningService.get(DOCKER_EXPLORATORY, user.getAccessToken(), ExploratoryMetadataDTO[].class);
+					provisioningService.get(endpointService.get(endpoint).getUrl() + DOCKER_EXPLORATORY,
+							user.getAccessToken(),
+							ExploratoryMetadataDTO[].class);
 
 			final Set<String> roles = getRoles(user, project);
 			return Arrays.stream(array)
@@ -105,13 +110,14 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 	}
 
 	@Override
-	public List<FullComputationalTemplate> getComputationalTemplates(UserInfo user, String project) {
+	public List<FullComputationalTemplate> getComputationalTemplates(UserInfo user, String project, String endpoint) {
 
 		log.debug("Loading list of computational templates for user {}", user.getName());
 		try {
 			ComputationalMetadataDTO[] array =
-					provisioningService.get(DOCKER_COMPUTATIONAL, user.getAccessToken(), ComputationalMetadataDTO[]
-							.class);
+					provisioningService.get(endpointService.get(endpoint).getUrl() + DOCKER_COMPUTATIONAL,
+							user.getAccessToken(), ComputationalMetadataDTO[]
+									.class);
 
 			final Set<String> roles = getRoles(user, project);
 

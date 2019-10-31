@@ -47,8 +47,7 @@
                   <input type="text" formControlName="url" placeholder="Enter endpoint url">
                   <span class="error"
                     *ngIf="!createEndpointForm?.controls.url.valid && createEndpointForm.controls.url.touched">
-                    Endpoint url can only contain letters, numbers, hyphens and '_' but can not end with special
-                    characters
+                    Endpoint url should end with slash
                   </span>
                 </div>
               </div>

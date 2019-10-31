@@ -44,6 +44,7 @@ parser.add_argument('--request_id', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--billing_dataset_name', type=str, default='')
+parser.add_argument('--default_endpoint_name', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default=None)
 parser.add_argument('--billing_tag', type=str, default=None)
 parser.add_argument('--account_id', type=str, default=None)
@@ -62,7 +63,7 @@ parser.add_argument('--application_id', type=str, default=None)
 parser.add_argument('--subscription_id', type=str, default=None)
 parser.add_argument('--datalake_store_name', type=str, default=None)
 parser.add_argument('--validate_permission_scope', type=str, default=None)
-parser.add_argument('--mongo_parameters', type=str, default='')
+parser.add_argument('--cloud_params', type=str, default='')
 parser.add_argument('--dlab_id', type=str, default=None)
 parser.add_argument('--usage_date', type=str, default=None)
 parser.add_argument('--product', type=str, default=None)
@@ -99,7 +100,7 @@ def copy_ssn_libraries():
         sys.exit(1)
 
 
-def configure_mongo(mongo_passwd):
+def configure_mongo(mongo_passwd, default_endpoint_name):
     try:
         if not exists("/lib/systemd/system/mongod.service"):
             if os.environ['conf_os_family'] == 'debian':
@@ -122,10 +123,13 @@ def configure_mongo(mongo_passwd):
         local('scp -i {} /root/files/{}/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                           args.cloud_provider,
                                                                                           env.host_string))
+        local('scp -i {} /root/files/local_endpoint.json {}:/tmp/local_endpoint.json'.format(args.keyfile,
+                                                                                             env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
-        mongo_parameters = json.loads(args.mongo_parameters)
-        sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} --mongo_parameters '{}'".format(
-            args.dlab_path, json.dumps(mongo_parameters)))
+        sudo('sed -i "s|DEF_ENDPOINT_NAME|{0}|g" /tmp/local_endpoint.json'.format(default_endpoint_name))
+        sudo('mv /tmp/local_endpoint.json ' + args.dlab_path + 'tmp/')
+        sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} ".format(
+            args.dlab_path))
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure MongoDB: ', str(err))
@@ -142,7 +146,7 @@ def build_ui():
                 sudo('sed -i "s|\'use_ldap\': true|{}|g" src/dictionary/azure.dictionary.ts'.format(
                      '\'use_ldap\': false'))
 
-            sudo('npm install')
+            sudo('echo "N" | npm install')
             sudo('npm run build.prod')
             sudo('sudo chown -R {} {}/*'.format(args.os_user, args.dlab_path))
 
@@ -151,7 +155,7 @@ def build_ui():
             sudo('/opt/maven/bin/mvn -P{} -DskipTests package'.format(args.cloud_provider))
 
         sudo('mkdir -p {}/webapp/'.format(args.dlab_path))
-        for service in ['self-service', 'security-service', 'provisioning-service', 'billing']:
+        for service in ['self-service', 'provisioning-service', 'billing']:
             sudo('mkdir -p {}/webapp/{}/lib/'.format(args.dlab_path, service))
             sudo('mkdir -p {}/webapp/{}/conf/'.format(args.dlab_path, service))
         sudo('cp {0}/sources/services/self-service/self-service.yml {0}/webapp/self-service/conf/'.format(
@@ -162,21 +166,6 @@ def build_ui():
             args.dlab_path))
         sudo('cp {0}/sources/services/provisioning-service/target/provisioning-service-*.jar '
              '{0}/webapp/provisioning-service/lib/'.format(args.dlab_path))
-
-        sudo('sed -i "s/LDAP_HOST/{0}/g" {1}/sources/services/security-service/security.yml'.format(
-            os.environ['ldap_hostname'], args.dlab_path))
-        sudo('sed -i "s/LDAP_USER/{0}/g" {1}/sources/services/security-service/security.yml'.format(
-            os.environ['ldap_service_username'], args.dlab_path))
-        sudo('sed -i "s/LDAP_DN/{0}/g" {1}/sources/services/security-service/security.yml'.format(os.environ['ldap_dn'],
-                                                                                                  args.dlab_path))
-        sudo('sed -i "s/LDAP_OU/{0}/g" {1}/sources/services/security-service/security.yml'.format(os.environ['ldap_ou'],
-                                                                                                  args.dlab_path))
-        sudo("sed -i 's/LDAP_PASS/{0}/g' {1}/sources/services/security-service/security.yml".format(
-            os.environ['ldap_service_password'], args.dlab_path))
-        sudo('cp {0}/sources/services/security-service/security.yml {0}/webapp/security-service/conf/'.format(
-            args.dlab_path))
-        sudo('cp {0}/sources/services/security-service/target/security-service-*.jar '
-             '{0}/webapp/security-service/lib/'.format(args.dlab_path))
 
         if args.cloud_provider == 'azure':
             sudo('cp {0}/sources/services/billing-azure/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
@@ -221,7 +210,7 @@ if __name__ == "__main__":
     ensure_mongo()
 
     print("Configuring MongoDB")
-    configure_mongo(mongo_passwd)
+    configure_mongo(mongo_passwd, args.default_endpoint_name)
 
     sudo('echo DLAB_CONF_DIR={} >> /etc/profile'.format(dlab_conf_dir))
     sudo('echo export DLAB_CONF_DIR >> /etc/profile')
@@ -236,7 +225,7 @@ if __name__ == "__main__":
     start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path,
              args.os_user, mongo_passwd, keystore_passwd, args.cloud_provider,
              args.service_base_name, args.tag_resource_id, args.billing_tag, args.account_id,
-             args.billing_bucket, args.aws_job_enabled, args.dlab_path, args.billing_enabled,
+             args.billing_bucket, args.aws_job_enabled, args.dlab_path, args.billing_enabled, args.cloud_params,
              args.authentication_file, args.offer_number, args.currency, args.locale,
              args.region_info, args.ldap_login, args.tenant_id, args.application_id,
              args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,

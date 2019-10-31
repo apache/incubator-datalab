@@ -35,6 +35,7 @@ public class Image {
 	private final ImageStatus status;
 	private final String exploratoryId;
 	private final String project;
+	private final String endpoint;
 	private final String user;
 	private final String fullName;
 	private final String externalName;

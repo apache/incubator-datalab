@@ -31,8 +31,8 @@
         <span class="label">{{ column.title }}</span>
         <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapsedFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapsedFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">more_vert</span>
           </i>
         </button>
       </th>
@@ -43,8 +43,8 @@
         <span class="label">Environment name</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm.name.length > 0 && !collapsedFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm.name.length > 0 && !collapsedFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm.name.length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.name.length > 0 && !collapseFilterRow">more_vert</span>
           </i>
         </button>
       </th>
@@ -54,8 +54,8 @@
         <span class="label"> Status </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm.statuses.length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.statuses.length > 0 && !collapseFilterRow">more_vert</span>
           </i>
         </button>
       </th>
@@ -65,8 +65,8 @@
         <span class="label"> {{ DICTIONARY.instance_size }} </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm.shapes.length > 0 && !collapsedFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm.shapes.length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.shapes.length > 0 && !collapseFilterRow">more_vert</span>
           </i>
         </button>
       </th>
@@ -81,8 +81,8 @@
         <span class="label"> {{ DICTIONARY.computational_resource }} </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">filter_list</span>
-            <span [hidden]="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">more_vert</span>
+            <span *ngIf="filtering && filterForm.resources.length > 0 && !collapseFilterRow">filter_list</span>
+            <span [hidden]="filtering && filterForm.resources.length > 0 && !collapseFilterRow">more_vert</span>
           </i>
         </button>
       </th>
@@ -100,7 +100,7 @@
 
     <ng-container matColumnDef="expandedDetail">
       <td mat-cell *matCellDef="let element" class="exploratory" [attr.colspan]="8"
-        [@detailExpand]="element == expandedElement || forse ? 'expanded' : 'collapsed'" sticky>
+        [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'" sticky>
 
         <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
           <td class="name-col" (click)="printDetailEnvironmentModal(element)">{{ element.name }}</td>
@@ -111,11 +111,19 @@
 
           <td class="tag-col selection">
             <mat-chip-list aria-label="Tags">
-              <mat-chip matTooltip="Endpoint tag" matTooltipPosition="above">{{ element.tags.endpoint_tag }}</mat-chip>
-              <mat-chip *ngIf="element.tags.custom_tag" matTooltip="Custom tag" matTooltipPosition="above">
-                {{ element.tags.custom_tag }}</mat-chip>
-              <mat-chip matTooltip="User tag" matTooltipPosition="above">{{ element.tags.user_tag }}</mat-chip>
-              <mat-chip matTooltip="Project tag" matTooltipPosition="above">{{ element.tags.project_tag }}</mat-chip>
+              <mat-chip matTooltip="Endpoint tag: {{ element.tags.endpoint_tag }}" matTooltipPosition="above">
+                {{ element.tags.endpoint_tag }}
+              </mat-chip>
+              <mat-chip *ngIf="element.tags.custom_tag" matTooltip="Custom tag: {{ element.tags.custom_tag }}"
+                matTooltipPosition="above">
+                {{ element.tags.custom_tag }}
+              </mat-chip>
+              <mat-chip matTooltip="User tag: {{ element.tags.user_tag }}" matTooltipPosition="above">
+                {{ element.tags.user_tag }}
+              </mat-chip>
+              <mat-chip matTooltip="Project tag: {{ element.tags.project_tag }}" matTooltipPosition="above">
+                {{ element.tags.project_tag }}
+              </mat-chip>
             </mat-chip-list>
           </td>
 
@@ -132,7 +140,7 @@
             </span>
           </td>
 
-          <td class="actions-col settings">
+          <td class="settings">
             <span #settings (click)="actions.toggle($event, settings)" class="actions"
               [ngClass]="{ 'disabled': element.status.toLowerCase() === 'creating' }">
             </span>
@@ -194,7 +202,8 @@
                   <span>Manage libraries</span>
                 </li>
                 <li *ngIf="element.status === 'running'">
-                  <a target="_blank" [attr.href]="'/#/terminal/' + element.private_ip" class="navigate">
+                  <a target="_blank" [attr.href]="'/#/terminal/' + element.private_ip + '/' + element.endpoint"
+                    class="navigate">
                     <i class="material-icons">laptop</i>
                     <span>Open terminal</span>
                   </a>

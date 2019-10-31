@@ -230,6 +230,16 @@
     ]
   },
   {
+    "_id": "nbBillingReportFull",
+    "description": "View full billing report for all users",
+    "pages": [
+      "/api/infrastructure_provision/billing"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "admin",
     "description": "Allow to execute administration operation",
     "pages": [

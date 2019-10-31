@@ -181,6 +181,8 @@ if __name__ == "__main__":
     emr_conf['apps'] = 'Hadoop Hive Hue Spark'
     emr_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    emr_conf['project_name'] = os.environ['project_name']
+    emr_conf['endpoint_name'] = os.environ['endpoint_name']
     emr_conf['tag_name'] = emr_conf['service_base_name'] + '-Tag'
     emr_conf['key_name'] = os.environ['conf_key_name']
     emr_conf['region'] = os.environ['aws_region']
@@ -202,8 +204,8 @@ if __name__ == "__main__":
     emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['project_name'] + '-des-' + \
                                emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + \
                                args.uuid
-    emr_conf['bucket_name'] = (emr_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
-
+    emr_conf['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
+                                                           emr_conf['endpoint_name'])).lower().replace('_', '-')
     tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']), "Value": "{}-{}-subnet".format(
         emr_conf['service_base_name'], os.environ['project_name'])}
     emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
@@ -216,7 +218,8 @@ if __name__ == "__main__":
     emr_conf['cluster_instances'] = get_emr_instances_list(emr_conf['cluster_id'])
     emr_conf['cluster_master_instances'] = get_emr_instances_list(emr_conf['cluster_id'], 'MASTER')
     emr_conf['cluster_core_instances'] = get_emr_instances_list(emr_conf['cluster_id'], 'CORE')
-    emr_conf['edge_instance_name'] = emr_conf['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
+    emr_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'],
+                                                               emr_conf['project_name'], emr_conf['endpoint_name'])
     emr_conf['edge_instance_hostname'] = get_instance_private_ip_address(emr_conf['tag_name'],
                                                                          emr_conf['edge_instance_name'])
     if emr_conf['network_type'] == 'private':

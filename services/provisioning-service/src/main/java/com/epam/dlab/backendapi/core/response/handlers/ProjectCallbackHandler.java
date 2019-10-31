@@ -1,6 +1,5 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
@@ -17,14 +16,16 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
 	private final String callbackUri;
 	private final String projectName;
 	private final Class<? extends EdgeInfo> clazz;
+	private final String endpointName;
 
-	public ProjectCallbackHandler(SystemUserInfoService systemUserInfoService, RESTService selfService, String user,
+	public ProjectCallbackHandler(RESTService selfService, String user,
 								  String uuid, DockerAction action, String callbackUri, String projectName,
-								  Class<? extends EdgeInfo> clazz) {
-		super(systemUserInfoService, selfService, user, uuid, action);
+								  Class<? extends EdgeInfo> clazz, String endpointName) {
+		super(selfService, user, uuid, action);
 		this.callbackUri = callbackUri;
 		this.projectName = projectName;
 		this.clazz = clazz;
+		this.endpointName = endpointName;
 	}
 
 	@Override
@@ -35,6 +36,7 @@ public class ProjectCallbackHandler extends ResourceCallbackHandler<ProjectResul
 	@Override
 	protected ProjectResult parseOutResponse(JsonNode resultNode, ProjectResult baseStatus) {
 		baseStatus.setProjectName(projectName);
+		baseStatus.setEndpointName(endpointName);
 		if (resultNode != null && getAction() == DockerAction.CREATE
 				&& UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
 			try {

@@ -48,8 +48,9 @@ if __name__ == "__main__":
     notebook_config['region'] = os.environ['gcp_region']
     notebook_config['zone'] = os.environ['gcp_zone']
 
-    edge_status = GCPMeta().get_instance_status('{0}-{1}-edge'.format(notebook_config['service_base_name'],
-                                                                      notebook_config['project_name']))
+    edge_status = GCPMeta().get_instance_status('{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
+                                                                          notebook_config['project_name'],
+                                                                          notebook_config['endpoint_tag']))
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
@@ -89,11 +90,19 @@ if __name__ == "__main__":
     notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
     notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
 
-
-    notebook_config['expected_primary_image_name'] = '{}-{}-notebook-primary-image'.format(
-        notebook_config['service_base_name'], os.environ['application'])
-    notebook_config['expected_secondary_image_name'] = '{}-{}-notebook-secondary-image'.format(
-        notebook_config['service_base_name'], os.environ['application'])
+    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    if notebook_config['shared_image_enabled'] == 'false':
+        notebook_config['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], notebook_config['project_name'],
+            os.environ['application'])
+        notebook_config['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], notebook_config['project_name'],
+            os.environ['application'])
+    else:
+        notebook_config['expected_primary_image_name'] = '{}-{}-{}-primary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], os.environ['application'])
+        notebook_config['expected_secondary_image_name'] = '{}-{}-{}-secondary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], os.environ['application'])
     notebook_config['notebook_primary_image_name'] = (lambda x: os.environ['notebook_primary_image_name'] if x != 'None'
         else notebook_config['expected_primary_image_name'])(str(os.environ.get('notebook_primary_image_name')))
     print('Searching pre-configured images')

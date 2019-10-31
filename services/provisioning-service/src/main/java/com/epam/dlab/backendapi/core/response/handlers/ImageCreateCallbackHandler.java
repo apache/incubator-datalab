@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
@@ -43,23 +42,21 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
 	private final String exploratoryName;
 
 	public ImageCreateCallbackHandler(
-			SystemUserInfoService systemUserInfoService,
 			RESTService selfService, String uuid, DockerAction action,
 			ExploratoryImageDTO image) {
-		super(systemUserInfoService, selfService, image.getCloudSettings().getIamUser(), uuid, action);
+		super(selfService, image.getCloudSettings().getIamUser(), uuid, action);
 		this.imageName = image.getImageName();
 		this.exploratoryName = image.getExploratoryName();
 	}
 
 	@JsonCreator
 	private ImageCreateCallbackHandler(
-			@JacksonInject SystemUserInfoService systemUserInfoService,
 			@JacksonInject RESTService selfService, @JsonProperty("uuid") String uuid,
 			@JsonProperty("action") DockerAction action,
 			@JsonProperty("user") String user,
 			@JsonProperty("imageName") String imageName,
 			@JsonProperty("exploratoryName") String exploratoryName) {
-		super(systemUserInfoService, selfService, user, uuid, action);
+		super(selfService, user, uuid, action);
 		this.imageName = imageName;
 		this.exploratoryName = exploratoryName;
 	}

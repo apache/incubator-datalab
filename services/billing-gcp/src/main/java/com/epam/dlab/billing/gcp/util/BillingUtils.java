@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 
 public class BillingUtils {
 
-	private static final String EDGE_FORMAT = "%s-%s-edge";
+	private static final String EDGE_FORMAT = "%s-%s-%s-edge";
 	private static final String EDGE_VOLUME_FORMAT = "%s-%s-edge-volume-primary";
 	private static final String EDGE_BUCKET_FORMAT = "%s-%s-bucket";
 	private static final String VOLUME_PRIMARY_FORMAT = "%s-volume-primary";
@@ -35,8 +35,8 @@ public class BillingUtils {
 	private static final String VOLUME_SECONDARY = "Volume secondary";
 	private static final String SHARED_RESOURCE = "Shared resource";
 
-	public static Stream<BillingData> edgeBillingDataStream(String project, String sbn) {
-		final String userEdgeId = String.format(EDGE_FORMAT, sbn, project);
+	public static Stream<BillingData> edgeBillingDataStream(String project, String sbn, String endpoint) {
+		final String userEdgeId = String.format(EDGE_FORMAT, sbn, project, endpoint);
 		final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project);
 		final String edgeBucketId = String.format(EDGE_BUCKET_FORMAT, sbn, project);
 		return Stream.of(
@@ -62,7 +62,10 @@ public class BillingUtils {
 	public static Stream<BillingData> exploratoryBillingDataStream(UserInstance userInstance) {
 		final Stream<BillingData> computationalStream = userInstance.getComputationalResources()
 				.stream()
-				.flatMap(cr -> Stream.of(computationalBillableResource(userInstance, cr)));
+				.filter(cr -> cr.getComputationalId() != null)
+				.flatMap(cr -> Stream.of(computationalBillableResource(userInstance, cr),
+						withExploratoryName(userInstance).displayName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_FORMAT, cr.getComputationalId()))
+								.resourceType(BillingData.ResourceType.VOLUME).computationalName(cr.getComputationalName()).build()));
 		final String exploratoryId = userInstance.getExploratoryId();
 		final String primaryVolumeId = String.format(VOLUME_PRIMARY_FORMAT, exploratoryId);
 		final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);

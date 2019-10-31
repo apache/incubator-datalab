@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
@@ -48,8 +47,6 @@ public class SparkClusterService extends DockerService implements DockerCommands
 
 	@Inject
 	private ComputationalConfigure computationalConfigure;
-	@Inject
-	private SystemUserInfoService systemUserInfoService;
 
 	public String create(UserInfo ui, ComputationalBase<?> dto) {
 		return action(ui, dto, CREATE);
@@ -76,7 +73,8 @@ public class SparkClusterService extends DockerService implements DockerCommands
 		return uuid;
 	}
 
-	private void runReconfigureSparkDockerCommand(UserInfo ui, ComputationalClusterConfigDTO clusterConfigDTO, String uuid) {
+	private void runReconfigureSparkDockerCommand(UserInfo ui, ComputationalClusterConfigDTO clusterConfigDTO,
+												  String uuid) {
 		try {
 			final RunDockerCommand dockerCommand = new RunDockerCommand()
 					.withInteractive()
@@ -127,8 +125,7 @@ public class SparkClusterService extends DockerService implements DockerCommands
 	}
 
 	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto) {
-		return new ComputationalCallbackHandler(systemUserInfoService, computationalConfigure, selfService, action,
-				uuid, dto);
+		return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto);
 	}
 
 	private String nameContainer(String user, DockerAction action, String exploratoryName, String name) {

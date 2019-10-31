@@ -21,17 +21,7 @@ package com.epam.dlab.backendapi.dao.aws;
 
 import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
-import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
-import com.epam.dlab.util.UsernameUtils;
-import com.epam.dlab.backendapi.roles.RoleType;
-import com.epam.dlab.backendapi.roles.UserRoles;
-import com.epam.dlab.billing.BillingCalculationUtils;
-import com.epam.dlab.billing.DlabResourceType;
-import com.epam.dlab.dto.UserInstanceStatus;
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.FindIterable;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -64,7 +54,7 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
     @Override
     protected Bson groupCriteria() {
         return group(getGroupingFields(USER, FIELD_DLAB_ID, DLAB_RESOURCE_TYPE, FIELD_PRODUCT, FIELD_RESOURCE_TYPE,
-                FIELD_CURRENCY_CODE),
+                FIELD_CURRENCY_CODE, FIELD_PROJECT),
                 sum(FIELD_COST, "$" + FIELD_COST),
                 min(MongoKeyWords.USAGE_FROM, "$" + FIELD_USAGE_DATE),
                 max(MongoKeyWords.USAGE_TO, "$" + FIELD_USAGE_DATE));
@@ -73,15 +63,6 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
     @Override
     protected List<Bson> cloudMatchCriteria(AwsBillingFilter filter) {
         return Collections.emptyList();
-    }
-
-    @Override
-    protected String getEdgeSize() {
-        return getSsnShape();
-    }
-
-    public String edgeId(Document d) {
-        return String.join("-", settings.getServiceBaseName(), UsernameUtils.removeDomain(d.getString(ID)), "edge");
     }
 
 

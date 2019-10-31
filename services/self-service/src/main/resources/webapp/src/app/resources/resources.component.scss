@@ -22,7 +22,17 @@
 }
 
 .butt {
+  &.butt-create {
+    margin-right: 10px;
+  }
+
   &.butt-tool {
     margin-right: 10px;
+  }
+}
+
+.base-retreat {
+  .selector-wrapper {
+    height: 38px;
   }
 }

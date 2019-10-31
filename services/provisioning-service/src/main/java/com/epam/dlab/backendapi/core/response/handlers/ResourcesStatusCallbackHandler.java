@@ -20,7 +20,6 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.dto.status.EnvStatusDTO;
@@ -44,10 +43,9 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
 
 	@JsonCreator
 	public ResourcesStatusCallbackHandler(
-			@JacksonInject SystemUserInfoService systemUserInfoService,
 			@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction
-					action, @JsonProperty("uuid") String uuid, @JsonProperty("user") String user) {
-		super(systemUserInfoService, selfService, user, uuid, action);
+			action, @JsonProperty("uuid") String uuid, @JsonProperty("user") String user) {
+		super(selfService, user, uuid, action);
 	}
 
 	@Override

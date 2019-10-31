@@ -38,6 +38,8 @@ parser.add_argument('--conf_user_subnets_range', type=str, default='', help='Ran
                                                                             '10.10.0.0/24 - 10.10.10.0/24')
 parser.add_argument('--conf_additional_tags', type=str, default='', help='Additional tags in format '
                                                                          '"Key1:Value1;Key2:Value2"')
+parser.add_argument('--conf_image_enabled', type=str, default='', help='Enable or Disable creating image at first time')
+parser.add_argument('--conf_shared_image_enabled', type=str, default='', help='Enable or Disable shared images')
 parser.add_argument('--aws_user_predefined_s3_policies', type=str, default='', help='Predefined policies for users '
                                                                                     'instances')
 parser.add_argument('--aws_access_key', type=str, default='', help='AWS Access Key ID')
@@ -124,10 +126,16 @@ parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organ
 parser.add_argument('--ldap_service_username', type=str, default='cn=service-user', help='Ldap service user name')
 parser.add_argument('--ldap_service_password', type=str, default='service-user-password',
                     help='Ldap password for admin user')
+parser.add_argument('--keycloak_realm_name', type=str, default='dlab', help='Keycloak Realm name')
+parser.add_argument('--keycloak_auth_server_url', type=str, default='dlab', help='Keycloak auth server URL')
+parser.add_argument('--keycloak_client_name', type=str, default='dlab', help='Keycloak client name')
+parser.add_argument('--keycloak_client_secret', type=str, default='dlab', help='Keycloak client secret')
 parser.add_argument('--tags', type=str, default='line_item_operation,line_item_line_item_description', help='Column name in report file that '
                                                                                   'contains tags')
 parser.add_argument('--billing_dataset_name', type=str, default='', help='Name of GCP dataset (BigQuery service)'
                                                                          ' for billing')
+parser.add_argument('--default_endpoint_name', type=str, default='local', help='Name of localhost provisioning service,'
+                                                                               'that created by default')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()

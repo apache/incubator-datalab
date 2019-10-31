@@ -45,9 +45,11 @@ if __name__ == "__main__":
         edge_conf['region'] = os.environ['azure_region']
         edge_conf['subnet_name'] = os.environ['azure_subnet_name']
         edge_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+        edge_conf['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
         edge_conf['user_keyname'] = os.environ['project_name']
         edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + edge_conf['project_name'] + '-subnet'
-        edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + '-edge'
+        edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
+                                                               edge_conf['project_name'], edge_conf['endpoint_name'])
         edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + \
                                               '-edge-nif'
         edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + \
@@ -55,11 +57,13 @@ if __name__ == "__main__":
         edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-disk0'
         edge_conf['instance_dns_name'] = 'host-' + edge_conf['instance_name'] + '.' + edge_conf['region'] + \
                                          '.cloudapp.azure.com'
-        edge_conf['user_storage_account_name'] = edge_conf['service_base_name'] + '-' + edge_conf[
-            'project_name'] + '-storage'
+        edge_conf['user_storage_account_name'] = '{0}-{1}-{2}-storage'.format(edge_conf['service_base_name'],
+                                                                              edge_conf['project_name'],
+                                                                              edge_conf['endpoint_name'])
         edge_conf['user_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['project_name'] +
                                             '-container').lower()
-        edge_conf['shared_storage_account_name'] = edge_conf['service_base_name'] + '-shared-storage'
+        edge_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(edge_conf['service_base_name'],
+                                                                                   edge_conf['endpoint_name'])
         edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower()
         edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'
         edge_conf['datalake_shared_directory_name'] = edge_conf['service_base_name'] + '-shared-folder'

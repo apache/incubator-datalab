@@ -45,11 +45,13 @@ import org.bson.conversions.Bson;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_ID;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_ID;
-import static com.epam.dlab.backendapi.dao.MongoCollections.*;
+import static com.epam.dlab.backendapi.dao.MongoCollections.BILLING;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.epam.dlab.model.aws.ReportLine.FIELD_RESOURCE_TYPE;
 import static com.epam.dlab.model.aws.ReportLine.FIELD_USAGE_DATE;
 import static com.mongodb.client.model.Accumulators.sum;
@@ -81,6 +83,9 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	private static final String TOTAL_FIELD_NAME = "total";
 	private static final String COST_FIELD = "$cost";
 	public static final String SHARED_RESOURCE_NAME = "Shared resource";
+	protected static final String FIELD_PROJECT = "project";
+	private static final String EDGE_FORMAT = "%s-%s-%s-edge";
+	private static final String PROJECT_COLLECTION = "projects";
 
 	@Inject
 	protected SettingsDAO settings;
@@ -103,7 +108,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		pipeline.add(sortCriteria());
 		final Map<String, ShapeInfo> shapes = getShapes(filter.getShapes());
 		return prepareReport(filter.getStatuses(), !filter.getShapes().isEmpty(),
-				getCollection(BILLING).aggregate(pipeline), shapes, isFullReport); //TODO add shapes
+				getCollection(BILLING).aggregate(pipeline), shapes, isFullReport);
 	}
 
 	private Document prepareReport(List<UserInstanceStatus> statuses, boolean filterByShape,
@@ -152,6 +157,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 					.append(STATUS, statusString)
 					.append(FIELD_RESOURCE_TYPE, resourceType(id))
 					.append(productFieldName(), id.getString(productFieldName()))
+					.append(PROJECT, id.getString(PROJECT))
 					.append(MongoKeyWords.COST, d.getDouble(MongoKeyWords.COST))
 					.append(costFieldName(), BillingCalculationUtils.formatDouble(d.getDouble(MongoKeyWords
 							.COST)))
@@ -322,6 +328,9 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
 			searchCriteria.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
 		}
+		if (filter.getProjects() != null && !filter.getProjects().isEmpty()) {
+			searchCriteria.add(in(PROJECT, filter.getProjects()));
+		}
 
 		searchCriteria.addAll(cloudMatchCriteria((T) filter));
 		return searchCriteria;
@@ -399,25 +408,20 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes) {
 		final String ssnShape = getSsnShape();
 		if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
-			String serviceBaseName = getServiceBaseName();
-			shapes.put(serviceBaseName + "-ssn", new ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
-			FindIterable<Document> docs = getCollection(USER_EDGE)
-					.find()
-					.projection(fields(include(ID, EDGE_STATUS)));
-			for (Document d : docs) {
-				shapes.put(edgeId(d),
-						new ShapeInfo(getEdgeSize(), UserInstanceStatus.of(d.getString(EDGE_STATUS))));
-			}
+			String sbn = getServiceBaseName();
+			shapes.put(sbn + "-ssn", new ShapeInfo(ssnShape, UserInstanceStatus.RUNNING));
+			StreamSupport.stream(getCollection(PROJECT_COLLECTION).find().spliterator(), false)
+					.forEach(d -> ((List<Document>) d.get("endpoints"))
+							.forEach(e -> shapes.put(String.format(EDGE_FORMAT, sbn, d.getString("name"), e.getString(
+									"name")),
+									new ShapeInfo(StringUtils.EMPTY,
+											UserInstanceStatus.of(e.getString("status"))))));
 		}
 	}
 
 	protected String getServiceBaseName() {
 		return settings.getServiceBaseName();
 	}
-
-	protected abstract String getEdgeSize();
-
-	protected abstract String edgeId(Document d);
 
 	protected abstract String getSsnShape();
 

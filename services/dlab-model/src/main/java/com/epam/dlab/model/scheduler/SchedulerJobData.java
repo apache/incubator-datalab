@@ -35,6 +35,9 @@ public class SchedulerJobData {
 	@JsonProperty("computational_name")
 	private final String computationalName;
 
+    @JsonProperty
+    private final String project;
+
 	@JsonProperty("scheduler_data")
 	private final SchedulerJobDTO jobDTO;
 }

@@ -137,16 +137,21 @@ public class DlabResourceTypeDAO implements MongoConstants {
 				.COLLABORATION_BUCKET);
 
 		// Add PROJECTS
-		Bson projection = fields(include("name"));
+		Bson projection = fields(include("name", "endpoints"));
 		Iterable<Document> docs = connection.getCollection("Projects").find().projection(projection);
 		for (Document d : docs) {
 			String projectName = d.getString("name");
-			resourceList.append(sbName + "-" + projectName + "-edge", "EDGE Node",
-					DlabResourceType.EDGE, null, null, projectName);
-			resourceList.append(sbName + "-" + projectName + "-bucket", "Project bucket",
-					DlabResourceType.COLLABORATION_BUCKET, null, null, projectName);
-			resourceList.append(sbName + "-" + projectName + "-edge-volume-primary",
-					"EDGE Volume", DlabResourceType.VOLUME, null, null, projectName);
+			((List<Document>) d.get("endpoints"))
+					.stream()
+					.map(endpoint -> endpoint.getString("name"))
+					.forEach(endpoint -> {
+						resourceList.append(sbName + "-" + projectName + "-" + endpoint + "-edge", "EDGE Node",
+								DlabResourceType.EDGE, null, null, projectName);
+						resourceList.append(sbName + "-" + projectName+ "-" + endpoint + "-bucket", "Project bucket",
+								DlabResourceType.COLLABORATION_BUCKET, null, null, projectName);
+						resourceList.append(sbName + "-" + projectName+ "-" + endpoint + "-edge-volume-primary",
+								"EDGE Volume", DlabResourceType.VOLUME, null, null, projectName);
+					});
 		}
 
 		// Add exploratory

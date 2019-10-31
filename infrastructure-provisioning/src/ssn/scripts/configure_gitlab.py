@@ -87,7 +87,7 @@ def prepare_config():
             else:
                 local('sed -i "s,EXTERNAL_URL,http://{},g" gitlab.rb'.format(os.environ['instance_hostname']))
 
-            local('sed -i "s/LDAP_HOST/{}/g" gitlab.rb'.format(os.environ['ldap_host']))
+            local('sed -i "s/LDAP_HOST/{}/g" gitlab.rb'.format(os.environ['ldap_hostname']))
             local('sed -i "s/LDAP_PORT/{}/g" gitlab.rb'.format(os.environ['ldap_port']))
             local('sed -i "s/LDAP_UID/{}/g" gitlab.rb'.format(os.environ['ldap_uid']))
             local('sed -i "s/LDAP_BIND_DN/{}/g" gitlab.rb'.format(os.environ['ldap_bind_dn']))
