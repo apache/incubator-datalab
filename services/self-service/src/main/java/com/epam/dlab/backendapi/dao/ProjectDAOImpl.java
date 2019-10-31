@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.mongodb.client.model.Filters.*;
 
@@ -59,8 +60,11 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	@Override
 	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
-		return find(PROJECTS_COLLECTION, and(in(GROUPS, Sets.union(userGroupDao.getUserGroups(userInfo.getName()),
-				userInfo.getRoles())), eq(ENDPOINT_STATUS_FIELD, UserInstanceStatus.RUNNING.name())),
+		final Set<String> groups = Stream.concat(userGroupDao.getUserGroups(userInfo.getName()).stream(),
+				userInfo.getRoles().stream())
+				.collect(Collectors.toSet());
+		return find(PROJECTS_COLLECTION, and(elemMatch(GROUPS, regexCaseInsensitive(String.join("|", groups))), eq(ENDPOINT_STATUS_FIELD,
+				UserInstanceStatus.RUNNING.name())),
 				ProjectDTO.class);
 	}
 
@@ -125,8 +129,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	@Override
 	public boolean isAnyProjectAssigned(Set<String> groups) {
 		final String groupsRegex = !groups.isEmpty() ? String.join("|", groups) + "|" + ANYUSER : ANYUSER;
-		return !Iterables.isEmpty(find(PROJECTS_COLLECTION, elemMatch(GROUPS, new Document("$regex",
-				"^(" + groupsRegex + ")$").append("$options", "i"))));
+		return !Iterables.isEmpty(find(PROJECTS_COLLECTION, elemMatch(GROUPS, regexCaseInsensitive(groupsRegex))));
 	}
 
 	private Bson projectCondition(String name) {
@@ -135,5 +138,10 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	private Bson projectAndEndpointCondition(String projectName, String endpointName) {
 		return and(eq("name", projectName), eq("endpoints.name", endpointName));
+	}
+
+	private Document regexCaseInsensitive(String values) {
+		return new Document("$regex",
+				"^(" + values + ")$").append("$options", "i");
 	}
 }
