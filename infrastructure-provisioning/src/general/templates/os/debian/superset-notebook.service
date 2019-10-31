@@ -29,7 +29,7 @@ Group=OS_USER
 ExecStart=/usr/bin/sudo docker-compose up
 ExecStop=/usr/bin/sudo docker-compose stop
 WorkingDirectory=/home/OS_USER/incubator-superset/contrib/docker
-TimeoutStopSec=60
+TimeoutStopSec=120
 Restart=on-failure
 RestartSec=10
 
