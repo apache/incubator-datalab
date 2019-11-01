@@ -970,6 +970,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   group='endpoint')
          .add_str('--ldap_users_group', 'ldap users group', required=True,
                   group='endpoint')
+         .add_str('--shared_image_enabled', 'Enable ot Disable shared image', default='true',
+                  group='endpoint')
          )
         return params.build()
 

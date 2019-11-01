@@ -431,8 +431,6 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                     'key': "LDAP_USER_PASSWORD",
                     'value': args.ldap_bind_creds
                 },
-
-
                 {
                     'key': "STEP_CERTS_ENABLED",
                     'value': "true"
@@ -453,6 +451,10 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                     'key': "STEP_CA_URL",
                     'value': args.step_ca_url
                 },
+                {
+                    'key': "SHARED_IMAGE_ENABLED",
+                    'value': args.shared_image_enabled
+                }
             ]
             for param in cloud_properties:
                 conn.sudo('sed -i "s|{0}|{1}|g" {2}provisioning.yml'
@@ -708,6 +710,7 @@ def init_args():
     parser.add_argument('--step_kid', type=str, default='')
     parser.add_argument('--step_kid_password', type=str, default='')
     parser.add_argument('--step_ca_url', type=str, default='')
+    parser.add_argument('--shared_image_enabled', type=str, default='true')
 
     # TEMPORARY
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
