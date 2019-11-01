@@ -597,14 +597,13 @@ public class RequestBuilder {
 						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 						.withNotebookImage(userInstance.getImageName())
 						.withConfig(config)
-						.withProject(userInstance.getProject());
+						.withProject(userInstance.getProject())
+						.withEndpoint(userInstance.getEndpoint());
 		if (cloudProvider() == AZURE && settingsDAO.isAzureDataLakeEnabled()) {
 			dto.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
 		}
 
 		return dto;
-
-
 	}
 
 	public ExploratoryCheckInactivityAction newExploratoryCheckInactivityAction(UserInfo userInfo,
