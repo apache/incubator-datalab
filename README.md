@@ -105,11 +105,13 @@ Database serves as a storage with description of user infrastructure, user’s s
 -----------------------------
 # Physical architecture <a name="Physical_architecture"></a>
 
-The following diagrams demonstrate high-level physical architecture of DLab in AWS and Azure.
+The following diagrams demonstrate high-level physical architecture of DLab in AWS, Azure and GCP.
 
 ![Physical architecture](doc/physical_architecture.png)
 
 ![Physical architecture](doc/azure_dlab_arch.png)
+
+![Physical architecture](doc/gcp_dlab.png)
 
 ## Main components
 
@@ -208,30 +210,30 @@ For each cloud provider, prerequisites are different.
 
 <details><summary>In Amazon cloud <i>(click to expand)</i></summary>
 
-Prerequisites:
+**Prerequisites:**
 
-DLab can be deployed using the following two methods:
- - IAM user: DLab deployment script is executed on local machine and uses IAM user permissions to create resources in AWS.
- - EC2 instance: DLab deployment script is executed on EC2 instance prepared in advance and with attached IAM role. Deployment script uses the attached IAM role to create resources in AWS.
+DLab can be deployed using one of the two options:
+ - **First option: using IAM user.** DLab deployment script is executed on local machine and uses IAM user permissions to create resources in AWS.
+ - **Second option (preferred) - using EC2 instance.** DLab deployment script is executed on EC2 instance prepared in advance and with attached IAM role. Deployment script uses the attached IAM role to create resources in AWS.
 
-**'IAM user' method prerequisites:**  
+**Requirements for the first option:**  
  
  - IAM user with created AWS access key ID and secret access key. These keys are provided as arguments for the deployment script and are used to create resources in AWS.
  - Amazon EC2 Key Pair. This key is system and is used for configuring DLab instances.
  - The following IAM [policy](#AWS_SSN_policy) should be attached to the IAM user in order to deploy DLab.
  
- **'EC2 instance' method prerequisites:**
+ **Requirements for the second option:**
  
  - Amazon EC2 Key Pair. This key is system and is used for configuring DLab instances.
  - EC2 instance where DLab deployment script is executed. 
  - IAM role with the following IAM [policy](#AWS_SSN_policy) should be attached to the EC2 instance. 
  
- **Optional prerequisites for both methods:**
+ **Requirements for both options(optional):**
   
   - VPC ID. If VPC where DLab should be deployed is already in place, then "VPC ID" should be provided for deployment script. DLab instances are deployed in this VPC.
   - Subnet ID. If Subnet where DLab should be deployed is already in place, then "Subnet ID" should be provided for deployment script. DLab SSN node and users' Edge nodes are deployed in this Subnet. 
  
- DLab IAM Policy
+ **DLab IAM Policy**
  <a name="AWS_SSN_policy"></a>
 ```
 {
@@ -331,19 +333,19 @@ DLab can be deployed using the following two methods:
 }
 ```
 
-Preparation steps for deployment:
+**Preparation steps for preferred deployment option:**
 
 - Create an EC2 instance with the following settings:
     - The instance should have access to Internet in order to install required prerequisites
     - The instance should have access to further DLab installation
     - AMI - Ubuntu 16.04
     - IAM role with [policy](#AWS_SSN_policy) should be assigned to the instance
-- Put SSH key file created through Amazon Console on the instance with the same name
-- Install Git and clone DLab repository</details>
+- Put SSH key file created through Amazon Console on the instance with the same name</details>
 
 <details><summary>In Azure cloud <i>(click to expand)</i></summary>
 
-Prerequisites:
+
+**Prerequisites:**
 
 - IAM user with Contributor permissions.
 - Service principal and JSON based auth file with clientId, clientSecret and tenantId.
@@ -352,34 +354,42 @@ Prerequisites:
 
 - Windows Azure Active Directory
 - Microsoft Graph
-- Windows Azure Service Management API</details>
+- Windows Azure Service Management API
+
+**Preparation steps for deployment:**
+
+- Create a VM instance with the following settings:
+    - The instance should have access to Internet in order to install required prerequisites
+    - Image - Ubuntu 16.04
+- Generate SSH key pair and rename private key with .pem extension
+- Put JSON auth file to users home directory</details>
 
 <details><summary>In Google cloud (GCP) <i>(click to expand)</i></summary>
 
-Prerequisites:
+**Prerequisites:**
 
-- IAM user
 - Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
 - Google Cloud Storage JSON API should be enabled
 
-Preparation steps for deployment:
+**Preparation steps for deployment:**
 
-- Create an VM instance with the following settings:
+- Create a VM instance with the following settings:
     - The instance should have access to Internet in order to install required prerequisites
     - Boot disk OS Image - Ubuntu 16.04
 - Generate SSH key pair and rename private key with .pem extension
-- Put JSON auth file created through Google cloud console to users home directory
-- Install Git and clone DLab repository</details>
+- Put JSON auth file created through Google cloud console to users home directory</details>
 
 ### Executing deployment script
 
-To build SSN node, following steps should be executed:
+To build SSN node using instance in the specific cloud platform, following steps should be executed:
 
-- Connect to the instance via SSH and run the following commands:
+- Connect to created at previous step instance via SSH and run the following commands:
 
 ```
 sudo su
 apt-get update
+apt-get install git
+git clone https://github.com/apache/incubator-dlab.git -b v2.1.1
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 apt-get update
@@ -388,42 +398,129 @@ apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
 usermod -a -G docker *username*
 apt-get install python-pip
 pip install fabric==1.14.0
-```
-- Go to *dlab* directory
-- Run deployment script:
-
-This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
-
-<details><summary>In Amazon cloud <i>(click to expand)</i></summary>
-
-```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region xx-xxxxx-x --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /path/to/key/ --conf_key_name key_name --conf_tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
+cd incubator-dlab
 ```
 
-List of parameters for SSN node deployment:
+- Run deployment script, which builds front-end and back-end part of DLab, creates SSN docker image and runs Docker container for creating SSN node:
 
-| Parameter                 | Description/Value                                                                       |
-|---------------------------|-----------------------------------------------------------------------------------------|
-| conf\_service\_base\_name | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
-| aws\_access\_key          | AWS user access key                                                                     |
-| aws\_secret\_access\_key  | AWS user secret access key                                                              |
-| aws\_region               | AWS region                                                                              |
-| conf\_os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
-| conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS)
-| conf\_duo\_vpc\_enable    | "true" - for installing DLab into two Virtual Private Clouds (VPCs) or "false" - for installing DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC
-| aws\_vpc\_id              | ID of the VPC                                                   |
-| aws\_subnet\_id           | ID of the public subnet                                                                 |
-| aws\_security\_groups\_ids| One or more ID\`s of AWS Security Groups, which will be assigned to SSN node            |
-| key\_path                 | Path to admin key (without key name)                                                    |
-| conf\_key\_name           | Name of the uploaded SSH key file (without “.pem” extension)                            |
-| conf\_tag\_resource\_id   | The name of tag for billing reports                                                     |
-| aws\_account\_id          | The The ID of Amazon account                                                            |
-| aws\_billing\_bucket      | The name of S3 bucket where billing reports will be placed                              |
-| aws\_report\_path         | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
-| action                    | In case of SSN node creation, this parameter should be set to “create”
-| workspace\_path           | Path to DLab sources root
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --action create
+	--conf_service_base_name <value>
+	--conf_os_family <value>
+	--conf_cloud_provider <value>
+	--key_path <value>
+	--conf_key_name <value>
+	[--conf_tag_resource_id <value>]
+	[--workspace_path <value>]
+	[--conf_network_type <value>]
+	[--conf_vpc_cidr <value>]
+	[--conf_vpc2_cidr <value>]
+	[--conf_allowed_ip_cidr <value>]
+	[--conf_user_subnets_range <value>]
+	[--conf_additional_tags <value>]
+	[--ssn_hosted_zone_name <value>]
+	[--ssn_hosted_zone_id <value>]
+	[--ssn_subdomain <value>]
+	[--ssn_assume_role_arn <value>]
+	[--ssl_cert_path <value> --ssl_key_path <value>]
+	[--aws_access_key <value> --aws_secret_access_key <value>]
+	[--aws_region', type=str <value> | --azure_region <value> | --gcp_region <value>]
+	[--aws_zone <value> | --gcp_zone <value>]
+	[--aws_vpc_id <value> | --azure_vpc_name <value> | --gcp_vpc_name <value>]
+	[--conf_duo_vpc_enable <value>]
+	[--aws_vpc2_id <value>]
+	[--aws_user_predefined_s3_policies <value>]
+	[--aws_peering_id <value>]
+	[--aws_subnet_id <value> | --azure_subnet_name <value> | --gcp_subnet_name <value>]
+	[--aws_security_groups_ids <value> | --azure_security_group_name <value> | --gcp_firewall_name <value>]
+	[--aws_ssn_instance_size <value> | --azure_ssn_instance_size <value> | --gcp_ssn_instance_size <value>]
+	[--aws_account_id <value>]
+	[--aws_billing_bucket <value>]
+	[--aws_report_path <value>]
+	[--azure_resource_group_name <value>]
+	[--azure_auth_path <value>]
+	[--azure_datalake_enable <value>]
+	[--azure_ad_group_id <value>]
+	[--azure_offer_number <value>]
+	[--azure_currency <value>]
+	[--azure_locale <value>
+	[--azure_application_id <value>]
+	[--azure_validate_permission_scope <value>]
+	[--azure_oauth2_enabled <value>]
+	[--azure_region_info <value>]
+	[--azure_source_vpc_name <value>]
+	[--azure_source_resource_group_name <value>]
+	[--gcp_project_id --gcp_service_account_path <value>]
+	[--dlab_id <value>]
+	[--usage_date <value>]
+	[--product <value>]
+	[--usage_type <value>]
+	[--usage <value>]
+	[--cost <value>]
+	[--resource_id <value>]
+	[--tags <value>]
+	[--ldap_dn <value> --ldap_ou <value> --ldap_service_username <value> --ldap_service_password <value>]
+```
 
-**Note:** If the following parameters are not specified, they will be created automatically:
+<details><summary>List of common options and their descriptions: <i>(click to expand)</i></summary>
+
+
+| Option                               | Description                                                               |
+| :---                                 |   :---                                                                    |
+| --conf_service_base_name (string)    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| --conf\_os\_family (string)          | Name of the Linux distributive family, which is supported by DLab         |
+| --conf\_cloud\_provider (string)     | Name of the cloud provider, which is supported by DLab (AWS, GCP or Azure)|
+| --key\_path (string)                 | Path to admin key (without key name)                                      |
+| --conf\_key\_name (string)           | Name of the uploaded SSH key file (without “.pem” extension)              |
+| --conf\_tag\_resource\_id (string)   | The name of tag for billing reports                                       |
+| --workspace\_path (string)           | Path to DLab sources root                                                 |
+| --conf_network_type (string)         | Define in which network DLab will be deployed. Possible options: public \| private |
+| --conf_vpc_cidr (string)             | CIDR of VPC                                                               |
+| --conf_vpc2_cidr (string)            | CIDR of secondary VPC                                                     |
+| --conf_allowed_ip_cidr (string)      | Comma-separated CIDR of IPs which will have access to SSN                 |
+| --conf_user_subnets_range (string)   | Range of subnets which will be using for users environments. For example: 10.10.0.0/24 - 10.10.10.0/24 |
+| --ssl_cert_path (string)             | Full path to SSL certificate                                              |
+| --ssl_key_path (string)              | Full path to key for SSL certificate                                      |
+| --ssn_hosted_zone_name (string)      | Name of hosted zone                                                       |
+| --ssn_hosted_zone_id (string)        | ID of hosted zone                                                         |
+| --ssn_subdomain (string)             | Subdomain name                                                            |
+| --ssn_assume_role_arn (string)       | Role ARN for creating Route53 record in different AWS account             |
+| --dlab_id (string)                   | Column name in report file that contains dlab id tag                      |
+| --usage_date (string)                | Column name in report file that contains usage date tag                   |
+| --product (string)                   | Column name in report file that contains product name tag                 |
+| --usage_type (string)                | Column name in report file that contains usage type tag                   |
+| --usage (string)                     | Column name in report file that contains usage tag                        |
+| --cost (string)                      | Column name in report file that contains cost tag                         |
+| --resource_id (string)               | Column name in report file that contains dlab resource id tag             |
+| --tags (string)                      | Column name in report file that contains dlab tags                        |
+| --ldap_dn (string)                   | Ldap distinguished name                                                   | 
+| --ldap_ou (string)                   | Ldap organisation unit                                                    |
+| --ldap_service_username (string)     | Ldap service user name                                                    |
+| --ldap_service_password (string)     | Ldap password for admin user                                              |
+</details>
+
+<details><summary>List of options and expample for AWS: <i>(click to expand)</i></summary>
+
+
+| Option                               | Description                                                               |
+| :---                                 |   :---                                                                    |
+| --aws_access_key (string)            | AWS user access key                                                       |
+| --aws_secret_access_key (string)     | AWS user secret access key                                                |
+| --aws_region (string)                | AWS region                                                                |
+| --aws_zone (string)                  | AWS zone                                                                  |
+| --aws\_vpc\_id (string)              | ID of the VPC                                                             |
+| --conf\_duo\_vpc\_enable (boolean)   | "true" - for installing DLab into two Virtual Private Clouds (VPCs) or "false" - for installing DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC |
+| --aws_vpc2_id (string)               | Secondary AWS VPC ID                                                      |
+| --aws\_subnet\_id (string)           | ID of the public subnet                                                   |
+| --aws\_security\_groups\_ids (list)  | One or more ID`s of AWS Security Groups, which will be assigned to SSN node |
+| --aws\_account\_id (string)          | The The ID of Amazon account                                              |   
+| --aws\_billing\_bucket (string)      | The name of S3 bucket where billing reports will be placed                |
+| --aws\_report\_path (string)         | The path to billing reports directory                                     |
+| --aws_peering_id (string)            | Amazon peering connection id                                              |
+| --aws_ssn_instance_size (string)     | The SSN instance shape                                                    |
+| --conf_additional_tags (list)        | Additional tags in format "Key1:Value1;Key2:Value2"                       |
+
+**Note:** If the following parameters are not specified, they creates automatically:
 -   aws\_vpc\_id
 -   aws\_subnet\_id
 -   aws\_sg\_ids
@@ -433,7 +530,7 @@ List of parameters for SSN node deployment:
 -   aws\_billing\_bucket
 -   aws\_report\_path
 
-After SSN node deployment following AWS resources will be created:
+**SSN deployment creates following AWS resources:**
 
 -   SSN EC2 instance
 -   Elastic IP for SSN instance
@@ -441,42 +538,50 @@ After SSN node deployment following AWS resources will be created:
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
 -   S3 bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
--   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket</details>
+-   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
 
-<details><summary>In Azure cloud <i>(click to expand)</i></summary>
-
+**Example for preferred deployment option:**
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --azure_region westus2 --conf_os_family debian --conf_cloud_provider azure --azure_vpc_name vpc-test --azure_subnet_name subnet-test --azure_security_group_name sg-test1,sg-test2 --key_path /root/ --conf_key_name Test --azure_auth_path /dir/file.json  --action create
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --action create
+	--conf_service_base_name dlab-sample 
+ 	--aws_region us-west-2 
+	--conf_os_family debian 
+	--conf_cloud_provider aws 
+	--aws_vpc_id vpc-xxxxxxxx 
+	--aws_subnet_id subnet-xxxxxxxx 
+	--aws_security_groups_ids sg-xxxxxxxx,sg-xxxxxxxx 
+	--key_path /home/ubuntu/key/ 
+	--conf_key_name dlab_key 
+	--conf_tag_resource_id user:tag 
 ```
+</details>
 
-List of parameters for SSN node deployment:
+<details><summary>List of options and example for Azure: <i>(click to expand)</i></summary>
 
-| Parameter                         | Description/Value                                                                       |
-|-----------------------------------|-----------------------------------------------------------------------------------------|
-| conf\_service\_base\_name         | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
-| azure\_resource\_group\_name      | Resource group name (could be the same as service base name                             |
-| azure\_region                     | Azure region                                                                            |
-| conf\_os\_family                  | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
-| conf\_cloud\_provider             | Name of the cloud provider, which is supported by DLab (Azure)                          |
-| azure\_vpc\_name                  | Name of the Virtual Network (VN)                                                        |
-| azure\_subnet\_name               | Name of the Azure subnet                                                                |
-| azure\_security\_groups\_name     | One or more Name\`s of Azure Security Groups, which will be assigned to SSN node        |
-| azure\_ssn\_instance\_size        | Instance size of SSN instance in Azure                                                  |
-| key\_path                         | Path to admin key (without key name)                                                    |
-| conf\_key\_name                   | Name of the uploaded SSH key file (without “.pem” extension)                            |
-| azure\_auth\_path                 | Full path to auth json file                                                             |
-| azure\_offer\_number              | Azure offer id number                                                                   |
-| azure\_currency                   | Currency that is used for billing information(e.g. USD)                                 |
-| azure\_locale                     | Locale that is used for billing information(e.g. en-US)                                 |
-| azure\_region\_info               | Region info that is used for billing information(e.g. US)                               |
-| azure\_datalake\_enable           | Support of Azure Data Lake (true/false)                                                 |
-| azure\_oauth2\_enabled            | Defines if Azure OAuth2 authentication mechanisms is enabled(true/false)                |
-| azure\_validate\_permission\_scope| Defines if DLab verifies user's permission to the configured resource(scope) during login with OAuth2 (true/false). If Data Lake is enabled default scope is Data Lake Store Account, else Resource Group, where DLab is deployed, is default scope. If user does not have any role in scope he/she is forbidden to log in
-| azure\_application\_id            | Azure application ID that is used to log in users in DLab                                                     |
-| azure\_ad\_group\_id              | ID of group in Active directory whose members have full access to shared folder in Azure Data Lake Store                                                                          |
-| action                            | In case of SSN node creation, this parameter should be set to “create”                  |
 
-**Note:** If the following parameters are not specified, they will be created automatically:
+| Option                                       | Description                                                        |
+| ---                                          |    ---                                                             |                                            
+| --azure\_resource\_group\_name (string)      | Resource group name (could be the same as service base name)        |
+| --azure\_region (string)                     | Azure region                                                       |
+| --azure\_vpc\_name (string)                  | Name of the Virtual Network (VN)                                   |
+| --azure\_subnet\_name (string)               | Name of the Azure subnet                                           |
+| --azure\_security\_groups\_name (list)       | One or more Name\`s of Azure Security Groups, which will be assigned to SSN node |
+| --azure\_ssn\_instance\_size (string)        | Instance size of SSN instance in Azure                             |
+| --azure\_auth\_path (string)                 | Full path to auth json file                                        |
+| --azure\_offer\_number (string)              | Azure offer id number                                              |
+| --azure\_currency (string)                   | Currency that is used for billing information(e.g. USD)            |
+| --azure\_locale (string)                     | Locale that is used for billing information(e.g. en-US)            |
+| --azure\_region\_info (string)               | Region info that is used for billing information(e.g. US)          |
+| --azure\_datalake\_enable (boolean)          | Support of Azure Data Lake (true/false)                            |
+| --azure\_oauth2\_enabled (string)            | Defines if Azure OAuth2 authentication mechanisms is enabled(true/false) |
+| --azure\_validate\_permission\_scope (string)| Defines if DLab verifies user's permission to the configured resource(scope) during login with OAuth2 (true/false). If Data Lake is enabled default scope is Data Lake Store Account, else Resource Group, where DLab is deployed, is default scope. If user does not have any role in scope he/she is forbidden to log in |
+| --azure\_application\_id (string)            | Azure application ID that is used to log in users in DLab          |
+| --azure\_ad\_group\_id (string)              | ID of group in Active directory whose members have full access to shared folder in Azure Data Lake Store |
+| --azure_oauth2_enabled (boolean)             | Using OAuth2 for logging in DLab                                   |
+| --azure_source_vpc_name (string)             | Azure VPC source Name                                              |
+| --azure_source_resource_group_name (string)  | Azure source resource group                                        |
+
+**Note:** If the following parameters are not specified, they creates automatically:
 -   azure\_vpc\_nam
 -   azure\_subnet\_name
 -   azure\_security\_groups\_name
@@ -504,7 +609,7 @@ To use Data Lake Store please review Azure Data Lake usage pre-requisites note a
 2. Usage of Data Lake resource predicts shared folder where all users can write or read any data. To manage access to this folder please create ot use existing group in Active Directory. All users from this group will have RW access to the shared folder. Put ID(in Active Directory) of the group as *azure_ad_group_id* parameter to deploy_dlab.py script
 3. After execution of deploy_dlab.py script go to the application created in step 1 and change *Redirect URIs* value to the https://SSN_HOSTNAME/ where SSN_HOSTNAME - SSN node hostname
 
-After SSN node deployment following Azure resources will be created:
+**SSN deployment creates following Azure resources:**
 
 -   Resource group where all DLAb resources will be provisioned
 -   SSN Virtual machine
@@ -514,37 +619,41 @@ After SSN node deployment following Azure resources will be created:
 -   Virtual network and Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   Storage account and blob container for collaboration between Dlab users
--   If support of Data Lake is enabled: Data Lake and shared directory will be created</details>
+-   If support of Data Lake is enabled: Data Lake and shared directory will be created
 
-<details><summary>In Google cloud (GCP) <i>(click to expand)</i></summary>
-
+**Example:**
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xxx-xxxxx-x --conf_os_family debian --conf_cloud_provider gcp --key_path /path/to/key/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --action create
+	--conf_service_base_name dlab-sample  
+	--azure_region westus2 
+	--conf_os_family debian 
+	--conf_cloud_provider azure 
+	--azure_vpc_name dlab-sample-vpc 
+	--azure_subnet_name dlab-sample-subnet 
+	--azure_security_group_name dlab-sample1-sg,dlab-sample2-sg 
+	--key_path /root/ 
+	--conf_key_name dlab_key 
+	--azure_auth_path /home/ubuntu/dlab.json
 ```
+</details>
 
-List of parameters for SSN node deployment:
+<details><summary>List of options and example for GCP: <i>(click to expand)</i></summary>
 
-| Parameter                    | Description/Value                                                                       |
-|------------------------------|-----------------------------------------------------------------------------------------|
-| conf\_service\_base\_name    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
-| gcp\_region                  | GCP region                                                                              |
-| gcp\_zone                    | GCP zone                                                                                |
-| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
-| conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (GCP)                            |
-| gcp\_vpc\_name               | Name of the Virtual Network (VN)                                                        |
-| gcp\_subnet\_name            | Name of the GCP subnet                                                                  |
-| gcp\_firewall\_name          | One or more Name\`s of GCP Security Groups, which will be assigned to SSN node          |
-| key\_path                    | Path to admin key (without key name)                                                    |
-| conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
-| gcp\_service\_account\_path  | Full path to auth json file                                                             |
-| gcp\_ssn\_instance\_size     | Instance size of SSN instance in GCP                                                    |
-| gcp\_project\_id             | ID of GCP project                                                                       |
-| action                       | In case of SSN node creation, this parameter should be set to “create”                  |
 
+| Option                                 | Description                                                              |
+| ---                                    |    ---                                                                   |                                            
+| --gcp\_region (string)                 | GCP region                                                               |
+| --gcp\_zone (string)                   | GCP zone                                                                 |
+| --gcp\_vpc\_name (string)              | Name of the Virtual Network (VN)                                         |
+| --gcp\_subnet\_name (string)           | Name of the GCP subnet                                                   |
+| --gcp\_firewall\_name (list)         | One or more Name\`s of GCP Security Groups, which will be assigned to SSN node |
+| --gcp\_service\_account\_path (string) | Full path to auth json file                                              |
+| --gcp\_ssn\_instance\_size (string)    | Instance size of SSN instance in GCP                                     |
+| --gcp\_project\_id (string)            | ID of GCP project                                                        |
 
 **Note:** If you gonna use Dataproc cluster, be aware that Dataproc has limited availability in GCP regions. [Cloud Dataproc availability by Region in GCP](https://cloud.google.com/about/locations/)
 
-After SSN node deployment following GCP resources will be created:
+**SSN deployment creates following GCP resources:**
 
 -   SSN VM instance
 -   External IP address for SSN instance
@@ -552,19 +661,32 @@ After SSN node deployment following GCP resources will be created:
 -   Security Groups for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
--   Bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket</details>
+-   Bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
+
+**Example:**
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --action create
+	--conf_service_base_name dlab-sample 
+	--gcp_region us-west1
+	--gcp_zone us-west1-a 
+	--conf_os_family debian 
+	--conf_cloud_provider gcp 
+	--key_path /root/ 
+	--conf_key_name dlab_key 
+	--gcp_ssn_instance_size n1-standard-1 
+	--gcp_project_id xxx-xxx-xxxx-xxxx-xxxxxx 
+	--gcp_service_account_path /home/ubuntu/gcp/service_account.json 
+```
+</details>
 
 ### Terminating Self-Service Node
 
-Terminating SSN node will also remove all nodes and components related to it. Basically, terminating Self-service node will terminate all DLab’s infrastructure.
-Example of command for terminating DLab environment:
+Terminating SSN node also removes all nodes and components related to it. Basically, terminating Self-service node terminates all DLab’s infrastructure.
+
+**Example of command for terminating DLab environment:**
 
 <details><summary>In Amazon <i>(click to expand)</i></summary>
 
-```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider aws --action terminate
-```
-List of parameters for SSN node termination:
 
 | Parameter                  | Description/Value                                                                  |
 |----------------------------|------------------------------------------------------------------------------------|
@@ -577,14 +699,23 @@ List of parameters for SSN node termination:
 | conf\_os\_family           | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)  |
 | conf\_cloud\_provider      | Name of the cloud provider, which is supported by DLab (AWS)                       |
 | action                     | terminate                                                                          |
+
+**Example:**
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --action terminate
+	--aws_access_key=XXXXXXXXXXXXXXXXXXXX
+	--aws_secret_access_key=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	--conf_service_base_name dlab-sample 
+	--aws_region us-west-2 
+	--key_path /home/ubuntu/key/ 
+	--conf_key_name dlab_key 
+	--conf_os_family debian 
+	--conf_cloud_provider aws 
+```
 </details>
 
 <details><summary>In Azure <i>(click to expand)</i></summary>
 
-```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --azure_vpc_name vpc-test --azure_resource_group_name resource-group-test --azure_region westus2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider azure --azure_auth_path /dir/file.json --action terminate
-```
-List of parameters for SSN node termination:
 
 | Parameter                  | Description/Value                                                                  |
 |----------------------------|------------------------------------------------------------------------------------|
@@ -597,14 +728,24 @@ List of parameters for SSN node termination:
 | conf\_key\_name            | Name of the uploaded SSH key file (without “.pem” extension)                       |
 | azure\_auth\_path          | Full path to auth json file                                                        |
 | action                     | terminate                                                                          |
+
+**Example:**
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --action terminate
+	--conf_service_base_name dlab-sample 
+	--azure_vpc_name dlab-sample-vpc 
+	--azure_resource_group_name dlab-sample 
+	--azure_region westus2 
+	--key_path /root/ 
+	--conf_key_name dlab_key 
+	--conf_os_family debian 
+	--conf_cloud_provider azure 
+	--azure_auth_path /home/ubuntu/dlab.json
+```
 </details>
 
 <details><summary>In Google cloud <i>(click to expand)</i></summary>
 
-```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --gcp_project_id project_id --conf_service_base_name dlab-test --gcp_region xx-xxxxx --gcp_zone xx-xxxxx-x --key_path /path/to/key/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
-```
-List of parameters for SSN node termination:
 
 | Parameter                    | Description/Value                                                                       |
 |------------------------------|-----------------------------------------------------------------------------------------|
@@ -618,6 +759,20 @@ List of parameters for SSN node termination:
 | gcp\_service\_account\_path  | Full path to auth json file                                                             |
 | gcp\_project\_id             | ID of GCP project                                                                       |
 | action                       | In case of SSN node termination, this parameter should be set to “terminate”            |
+
+**Example:**
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --action terminate
+	--gcp_project_id xxx-xxx-xxxx-xxxx-xxxxxx 
+	--conf_service_base_name dlab-sample 
+	--gcp_region us-west1 
+	--gcp_zone us-west1-a 
+	--key_path /root/ 
+	--conf_key_name dlab_key 
+	--conf_os_family debian 
+	--conf_cloud_provider gcp 
+	--gcp_service_account_path /home/ubuntu/gcp/service_account.json 
+```
 </details>
 
 ## Edge Node <a name="Edge_Node"></a>
