@@ -3,12 +3,15 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.*;
 import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
+import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -29,6 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("project")
+@Api(value = "Project API", authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 public class ProjectResource {
 	private final ProjectService projectService;
 	private final AccessKeyService keyService;
