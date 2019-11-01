@@ -5,7 +5,6 @@ import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
 import org.bson.Document;
@@ -63,9 +62,9 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 		final Set<String> groups = Stream.concat(userGroupDao.getUserGroups(userInfo.getName()).stream(),
 				userInfo.getRoles().stream())
 				.collect(Collectors.toSet());
-		return find(PROJECTS_COLLECTION, and(elemMatch(GROUPS, regexCaseInsensitive(String.join("|", groups))), eq(ENDPOINT_STATUS_FIELD,
-				UserInstanceStatus.RUNNING.name())),
-				ProjectDTO.class);
+		final String groupsRegex = !groups.isEmpty() ? String.join("|", groups) + "|" + ANYUSER : ANYUSER;
+		return find(PROJECTS_COLLECTION, and(elemMatch(GROUPS, regexCaseInsensitive(groupsRegex)),
+				eq(ENDPOINT_STATUS_FIELD, UserInstanceStatus.RUNNING.name())), ProjectDTO.class);
 	}
 
 	@Override
