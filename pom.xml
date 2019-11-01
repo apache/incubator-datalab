@@ -129,11 +129,6 @@
                 <artifactId>dropwizard-util</artifactId>
                 <version>${io.dropwizard.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.smoketurner</groupId>
-                <artifactId>dropwizard-swagger</artifactId>
-                <version>${dropwizard.swagger.version}</version>
-            </dependency>
 
 
         </dependencies>

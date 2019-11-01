@@ -162,10 +162,10 @@
             <version>1.1</version>
         </dependency>
 
-
         <dependency>
-            <groupId>com.smoketurner</groupId>
-            <artifactId>dropwizard-swagger</artifactId>
+            <groupId>com.fashiontrade</groupId>
+            <artifactId>dropwizard-swagger-v3</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
