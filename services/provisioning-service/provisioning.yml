@@ -119,9 +119,16 @@ cloudProperties:
   datalakeTagName: AZURE_DATALAKE_TAG
   azureClientId: AZURE_CLIENT_ID
   gcpProjectId: GCP_PROJECT_ID
+  sharedImageEnabled: SHARED_IMAGE_ENABLED
   ldap:
     host: LDAP_HOST
     dn: LDAP_DN
     ou: LDAP_OU
     user: LDAP_USER_NAME
     password: LDAP_USER_PASSWORD
+  stepCerts:
+    enabled: STEP_CERTS_ENABLED
+    rootCA: STEP_ROOT_CA
+    kid: STEP_KID_ID
+    kidPassword: STEP_KID_PASSWORD
+    caURL: STEP_CA_URL

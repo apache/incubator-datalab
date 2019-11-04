@@ -26,8 +26,10 @@ public class CloudConfiguration {
 	private final String azureClientId;
 	private final String peeringId;
 	private final String gcpProjectId;
+	private final boolean sharedImageEnabled;
 	@JsonProperty("ldap")
 	private final LdapConfig ldapConfig;
+	private final StepCerts stepCerts;
 
 	@Data
 	public static class LdapConfig {
@@ -36,5 +38,14 @@ public class CloudConfiguration {
 		private final String ou;
 		private final String user;
 		private final String password;
+	}
+
+	@Data
+	public static class StepCerts {
+		private final boolean enabled;
+		private final String rootCA;
+		private final String kid;
+		private final String kidPassword;
+		private final String caURL;
 	}
 }
