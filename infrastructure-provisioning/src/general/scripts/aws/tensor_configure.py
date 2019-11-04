@@ -294,9 +294,9 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     tensorboard_url = "http://" + ip_address + ":6006/"
     jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
-    jupyter_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
-    tensorboard_acces_url = "http://" + edge_instance_ip + "/{}-tensor/".format(notebook_config['exploratory_name'])
-    jupyter_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
+    jupyter_notebook_access_url = "https://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
+    tensorboard_access_url = "https://" + edge_instance_ip + "/{}-tensor/".format(notebook_config['exploratory_name'])
+    jupyter_ungit_access_url = "https://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
     ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
@@ -314,8 +314,10 @@ if __name__ == "__main__":
     print("TensorBoard log dir: /var/log/tensorboard")
     print("Jupyter URL: {}".format(jupyter_ip_url))
     print("Ungit URL: {}".format(ungit_ip_url))
-    print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
-    print('SSH access (from Edge node, via FQDN): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], dns_name))
+    print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(
+        notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
+    print('SSH access (from Edge node, via FQDN): ssh -i {0}.pem {1}@{2}'.format(
+        notebook_config['key_name'], notebook_config['dlab_ssh_user'], dns_name))
 
     with open("/root/result.json", 'w') as result:
         res = {"hostname": dns_name,
@@ -328,11 +330,11 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Jupyter",
-                    "url": jupyter_notebook_acces_url},
+                    "url": jupyter_notebook_access_url},
                    {"description": "TensorBoard",
-                    "url": tensorboard_acces_url},
+                    "url": tensorboard_access_url},
                    {"description": "Ungit",
-                    "url": jupyter_ungit_acces_url}#,
+                    "url": jupyter_ungit_access_url}#,
                    #{"description": "Jupyter (via tunnel)",
                    # "url": jupyter_ip_url},
                    #{"description": "TensorBoard (via tunnel)",
