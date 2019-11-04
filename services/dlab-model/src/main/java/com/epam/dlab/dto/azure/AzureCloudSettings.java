@@ -47,11 +47,11 @@ public class AzureCloudSettings extends CloudSettings {
     @JsonProperty("conf_key_dir")
     protected String confKeyDir;
     @JsonProperty("conf_image_enabled")
-    private boolean imageEnabled;
+    private String imageEnabled;
     @JsonProperty("conf_shared_image_enabled")
-    private boolean sharedImageEnabled;
+    private String sharedImageEnabled;
     @JsonProperty("conf_stepcerts_enabled")
-    private boolean stepCertsEnabled;
+    private String stepCertsEnabled;
     @JsonProperty("conf_stepcerts_root_ca")
     private String stepCertsRootCA;
     @JsonProperty("conf_stepcerts_kid")
