@@ -65,7 +65,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   public showActiveInstances(): void {
     console.log(this.projectList);
     const filteredList = this.projectList.map(project => {
-      project.endpoints = project.endpoints.filter((endpoint: Endpoint) => endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING')
+      project.endpoints = project.endpoints.filter((endpoint: Endpoint) => endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING' && endpoint.status !== 'FAILED')
       return project;
     })
 
@@ -91,7 +91,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   public isActiveEndpoint(project) {
     if (project)
-      return project.endpoints.some(e => e.status !== 'TERMINATED')
+      return project.endpoints.some(e => e.status !== 'TERMINATED' && e.status !== 'FAILED');
   }
 
   public toEndpointStatus(status) {

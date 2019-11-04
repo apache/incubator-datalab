@@ -51,7 +51,7 @@ public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends Resourc
 		return self;
 	}
 	public T withEndpoint(String endpoint) {
-		setEndpoint(project);
+		setEndpoint(endpoint);
 		return self;
 	}
 

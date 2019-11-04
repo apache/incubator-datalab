@@ -141,9 +141,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 					.getName(), exploratoryName, computationalName);
 
 			final DataEngineType dataEngineType = compResource.getDataEngineType();
-			ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(userInfo, exploratoryName,
-					userInstanceDTO.getExploratoryId(), computationalName, compResource.getComputationalId(),
-					dataEngineType, userInstanceDTO.getProject());
+			ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(userInfo, userInstanceDTO, compResource);
 
 			final String provisioningUrl = Optional.ofNullable(DATA_ENGINE_TYPE_TERMINATE_URLS.get(dataEngineType))
 					.orElseThrow(UnsupportedOperationException::new);

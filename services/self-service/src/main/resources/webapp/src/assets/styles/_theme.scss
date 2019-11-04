@@ -177,6 +177,12 @@
     color: #607D8B;
     font-size: 15px;
   }
+
+  &:hover {
+    .mat-option-text {
+      color: #35afd5;
+    }
+  }
 }
 
 .mat-option.mat-selected {

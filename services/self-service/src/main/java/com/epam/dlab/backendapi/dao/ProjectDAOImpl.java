@@ -5,14 +5,18 @@ import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.mongodb.client.model.Filters.*;
 
@@ -25,6 +29,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String ENDPOINT_STATUS_FIELD = "endpoints." + STATUS_FIELD;
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
 	private static final String ENDPOINT_FIELD = "endpoints.$.";
+	private static final String ANYUSER = Pattern.quote("$anyuser");
 
 	private final UserGroupDao userGroupDao;
 
@@ -54,9 +59,12 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	@Override
 	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
-		return find(PROJECTS_COLLECTION, and(in(GROUPS, Sets.union(userGroupDao.getUserGroups(userInfo.getName()),
-				userInfo.getRoles())), eq(ENDPOINT_STATUS_FIELD, UserInstanceStatus.RUNNING.name())),
-				ProjectDTO.class);
+		final Set<String> groups = Stream.concat(userGroupDao.getUserGroups(userInfo.getName()).stream(),
+				userInfo.getRoles().stream())
+				.collect(Collectors.toSet());
+		final String groupsRegex = !groups.isEmpty() ? String.join("|", groups) + "|" + ANYUSER : ANYUSER;
+		return find(PROJECTS_COLLECTION, and(elemMatch(GROUPS, regexCaseInsensitive(groupsRegex)),
+				eq(ENDPOINT_STATUS_FIELD, UserInstanceStatus.RUNNING.name())), ProjectDTO.class);
 	}
 
 	@Override
@@ -119,8 +127,8 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	@Override
 	public boolean isAnyProjectAssigned(Set<String> groups) {
-		return !Iterables.isEmpty(find(PROJECTS_COLLECTION, in(GROUPS,
-				Sets.union(groups, Collections.singleton("$anyuser")))));
+		final String groupsRegex = !groups.isEmpty() ? String.join("|", groups) + "|" + ANYUSER : ANYUSER;
+		return !Iterables.isEmpty(find(PROJECTS_COLLECTION, elemMatch(GROUPS, regexCaseInsensitive(groupsRegex))));
 	}
 
 	private Bson projectCondition(String name) {
@@ -129,5 +137,10 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	private Bson projectAndEndpointCondition(String projectName, String endpointName) {
 		return and(eq("name", projectName), eq("endpoints.name", endpointName));
+	}
+
+	private Document regexCaseInsensitive(String values) {
+		return new Document("$regex",
+				"^(" + values + ")$").append("$options", "i");
 	}
 }
