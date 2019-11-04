@@ -242,8 +242,10 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 
 		StreamSupport.stream(getCollection(PROJECT_COLLECTION).find().spliterator(), false)
 				.forEach(d -> ((List<Document>) d.get("endpoints"))
-						.forEach(endpoint -> getEndpointShape(shapeNames, d.getString("name"), endpoint)
-								.ifPresent(shape -> shapes.put(shape.getShape(), shape))));
+						.forEach(endpoint -> getEndpointShape(shapeNames, endpoint)
+								.ifPresent(shape -> shapes.put(String.format(EDGE_FORMAT, getServiceBaseName(),
+										d.getString("name").toLowerCase(),
+										endpoint.getString("name")), shape))));
 
 		getSsnShape(shapeNames)
 				.ifPresent(shape -> shapes.put(getServiceBaseName() + "-ssn", shape));
@@ -428,11 +430,10 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		return Optional.empty();
 	}
 
-	private Optional<EndpointShape> getEndpointShape(List<String> shapeNames, String projectName, Document endpoint) {
-		String sbn = getServiceBaseName();
+	private Optional<EndpointShape> getEndpointShape(List<String> shapeNames, Document endpoint) {
 		if (isShapeAcceptable(shapeNames, getSsnShape())) {
 			return Optional.of(EndpointShape.builder()
-					.shape(String.format(EDGE_FORMAT, sbn, projectName, endpoint.getString("name")))
+					.shape(StringUtils.EMPTY)
 					.status(UserInstanceStatus.of(endpoint.getString("status")))
 					.build());
 		}
