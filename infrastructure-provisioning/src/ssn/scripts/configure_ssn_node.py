@@ -143,10 +143,11 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                      os.environ['conf_stepcerts_kid_password'], args.os_user))
                 sans = "--san localhost --san 127.0.0.1 {0}".format(args.step_cert_sans)
                 cn = hostname
-                token = sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
-                             '--password-file /home/{2}/keys/provisioner_password {4} '.format(
+                sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
+                     '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
                               os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'],
                               args.os_user, cn, sans))
+                token = sudo('cat /tmp/step_token')
                 sudo('step ca certificate "{0}" /home/{2}/keys/dlab.crt /home/{2}/keys/dlab.key '
                      '--token "{1}" --kty=RSA --size 2048 --provisioner {3} '.format(cn, token, args.os_user,
                                                                                      os.environ['conf_stepcerts_kid']))
