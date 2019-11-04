@@ -350,7 +350,7 @@ if __name__ == "__main__":
         cloud_params = [
             {
                 'key': 'KEYCLOAK_REDIRECT_URI',
-                'value': "http://{0}/".format(get_instance_hostname(tag_name, instance_name))
+                'value': "https://{0}/".format(get_instance_hostname(tag_name, instance_name))
             },
             {
                 'key': 'KEYCLOAK_REALM_NAME',
@@ -459,6 +459,10 @@ if __name__ == "__main__":
             {
                 'key': 'SHARED_IMAGE_ENABLED',
                 'value': os.environ['conf_shared_image_enabled']
+            },
+            {
+                'key': 'CONF_IMAGE_ENABLED',
+                'value': os.environ['conf_image_enabled']
             }
         ]
         if os.environ['conf_duo_vpc_enable'] == 'true':

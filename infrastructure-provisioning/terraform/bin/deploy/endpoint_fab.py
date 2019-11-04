@@ -455,6 +455,10 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 {
                     'key': "SHARED_IMAGE_ENABLED",
                     'value': args.shared_image_enabled
+                },
+                {
+                    'key': "CONF_IMAGE_ENABLED",
+                    'value': args.image_enabled
                 }
             ]
             for param in cloud_properties:
@@ -712,6 +716,7 @@ def init_args():
     parser.add_argument('--step_kid_password', type=str, default='')
     parser.add_argument('--step_ca_url', type=str, default='')
     parser.add_argument('--shared_image_enabled', type=str, default='true')
+    parser.add_argument('--image_enabled', type=str, default='true')
 
     # TEMPORARY
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
