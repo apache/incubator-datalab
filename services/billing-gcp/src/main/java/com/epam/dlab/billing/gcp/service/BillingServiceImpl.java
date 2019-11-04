@@ -121,7 +121,7 @@ public class BillingServiceImpl implements BillingService {
 	private Stream<BillingData> projectEdges(String projectName, List<Project.Endpoint> endpoints) {
 		return endpoints
 				.stream()
-				.flatMap(endpoint -> edgeBillingDataStream(projectName, sbn, endpoint.getName()));
+				.flatMap(endpoint -> edgeBillingDataStream(projectName.toLowerCase(), sbn, endpoint.getName()));
 	}
 
 	private BillingData getOrDefault(Map<String, BillingData> billableResources, String tag) {

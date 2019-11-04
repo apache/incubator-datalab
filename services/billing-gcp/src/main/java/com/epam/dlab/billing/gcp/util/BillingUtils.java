@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 public class BillingUtils {
 
 	private static final String EDGE_FORMAT = "%s-%s-%s-edge";
-	private static final String EDGE_VOLUME_FORMAT = "%s-%s-edge-volume-primary";
+	private static final String EDGE_VOLUME_FORMAT = "%s-%s-%s-edge-volume-primary";
 	private static final String EDGE_BUCKET_FORMAT = "%s-%s-bucket";
 	private static final String VOLUME_PRIMARY_FORMAT = "%s-volume-primary";
 	private static final String VOLUME_SECONDARY_FORMAT = "%s-volume-secondary";
@@ -37,7 +37,7 @@ public class BillingUtils {
 
 	public static Stream<BillingData> edgeBillingDataStream(String project, String sbn, String endpoint) {
 		final String userEdgeId = String.format(EDGE_FORMAT, sbn, project, endpoint);
-		final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project);
+		final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project, endpoint);
 		final String edgeBucketId = String.format(EDGE_BUCKET_FORMAT, sbn, project);
 		return Stream.of(
 				BillingData.builder().displayName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(BillingData.ResourceType.EDGE).build(),
