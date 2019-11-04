@@ -53,12 +53,12 @@ if __name__ == "__main__":
     except Exception as err:
         print("Failed establish connection. Excpeption: " + str(err))
         sys.exit(1)
-
-    try:
-        ensure_step(args.user)
-    except Exception as err:
-        print("Failed install step: " + str(err))
-        sys.exit(1)
+    if os.environ['conf_stepcerts_enabled'] == 'true':
+        try:
+            ensure_step(args.user)
+        except Exception as err:
+            print("Failed install step: " + str(err))
+            sys.exit(1)
 
     try:
         install_nginx_ldap(args.hostname, os.environ['reverse_proxy_nginx_version'],
