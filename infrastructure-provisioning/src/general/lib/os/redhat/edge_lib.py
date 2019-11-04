@@ -80,7 +80,7 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
                                                                                  os.environ['conf_stepcerts_ca_url']))
                 sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
                      os.environ['conf_stepcerts_kid_password'], user))
-                sans = "--san localhost --san 127.0.0.1 --san {0}".format(step_cert_sans)
+                sans = "--san localhost --san 127.0.0.1 {0}".format(step_cert_sans)
                 cn = edge_ip
                 sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
                      '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
