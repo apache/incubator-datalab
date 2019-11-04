@@ -320,6 +320,10 @@ if __name__ == "__main__":
             {
                 'key': 'PEERING_ID',
                 'value': ''
+            },
+            {
+                'key': 'SHARED_IMAGE_ENABLED',
+                'value': os.environ['conf_shared_image_enabled']
             }
         ]
 
