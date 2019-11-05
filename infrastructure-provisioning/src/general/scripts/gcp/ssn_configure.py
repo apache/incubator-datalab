@@ -379,6 +379,14 @@ if __name__ == "__main__":
             {
                 'key': 'PEERING_ID',
                 'value': ''
+            },
+            {
+                'key': 'IMAGE_ENABLED',
+                'value': os.environ['conf_image_enabled']
+            },
+            {
+                'key': 'SHARED_IMAGE_ENABLED',
+                'value': os.environ['conf_shared_image_enabled']
             }
         ]
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --billing_enabled {} " \
