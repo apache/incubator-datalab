@@ -249,8 +249,8 @@
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>2.0.10</version>
                 <configuration>
-                    <outputFileName>openapi</outputFileName>
-                    <outputPath>${project.build.directory}/classes/webapp/dist</outputPath>
+                    <outputFileName>dlab-api</outputFileName>
+                    <outputPath>${project.build.directory}/classes/webapp/dist/assets</outputPath>
                     <outputFormat>JSONANDYAML</outputFormat>
                     <resourcePackages>
                         <package>com.epam.dlab.backendapi.resources</package>
