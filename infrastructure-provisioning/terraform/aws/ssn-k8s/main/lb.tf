@@ -150,7 +150,7 @@ resource "aws_lb_listener" "ssn_k8s_nlb_api_listener" {
 
 resource "aws_lb_listener" "ssn_k8s_nlb_step_ca_listener" {
   load_balancer_arn = aws_lb.ssn_k8s_nlb.arn
-  port              = "7443"
+  port              = "443"
   protocol          = "TCP"
 
   default_action {

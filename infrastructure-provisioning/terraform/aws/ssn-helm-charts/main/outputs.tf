@@ -44,5 +44,5 @@ output "step_kid_password" {
 }
 
 output "step_ca_url" {
-    value = "https://${var.ssn_k8s_nlb_dns_name}:7443"
+    value = "https://${var.ssn_k8s_nlb_dns_name}:443"
 }
