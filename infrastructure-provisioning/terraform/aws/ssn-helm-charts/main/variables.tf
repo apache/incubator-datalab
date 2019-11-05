@@ -173,6 +173,18 @@ variable "billing_tags" {
 variable "env_os" {
     default = "debian"
 }
+
+variable "custom_certs_enabled" {
+    default = "False"
+}
+
+variable "custom_cert_path" {
+    default = ""
+}
+
+variable "custom_key_path" {
+    default = ""
+}
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

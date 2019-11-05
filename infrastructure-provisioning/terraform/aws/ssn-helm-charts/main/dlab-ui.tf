@@ -19,6 +19,13 @@
 #
 # ******************************************************************************
 
+locals {
+    custom_cert_name = var.custom_certs_enabled == "True" ? split("/", var.custom_cert_path)[-1] : ''
+    custom_key_name = var.custom_certs_enabled == "True" ? split("/", var.custom_key_path)[-1] : ''
+    custom_cert = var.custom_certs_enabled == "True" ? base64encode(file('/tmp/${local.custom_cert_name}')) : ''
+    custom_key = var.custom_certs_enabled == "True" ? base64encode(file('/tmp/${local.custom_key_name}')) : ''
+}
+
 data "template_file" "dlab_ui_values" {
   template = file("./dlab-ui-chart/values.yaml")
   vars = {
@@ -31,6 +38,9 @@ data "template_file" "dlab_ui_values" {
       service_base_name      = var.service_base_name
       os                     = var.env_os
       namespace              = kubernetes_namespace.dlab-namespace.metadata[0].name
+      custom_certs_enabled   = var.custom_certs_enabled
+      custom_certs_crt       = local.custom_cert
+      custom_certs_key       = local.custom_key
   }
 }
 
@@ -52,3 +62,5 @@ data "kubernetes_service" "nginx-service" {
         namespace = kubernetes_namespace.dlab-namespace.metadata[0].name
     }
 }
+
+

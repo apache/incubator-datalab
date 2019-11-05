@@ -19,6 +19,7 @@
 #
 # ******************************************************************************
 
+{{- if eq .Values.ui.custom_certs.enabled False -}}
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
@@ -45,3 +46,16 @@ spec:
     group: certmanager.step.sm
     kind: Issuer
     name: step-issuer
+{{- end }}
+---
+{{- if eq .Values.ui.custom_certs.enabled True -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "dlab-ui.fullname" . }}-tls
+  namespace: {{ .Values.namespace }}
+type: kubernetes.io/tls
+data:
+  tls.crt: {{ .Values.ui.custom_certs.crt }}
+  tls.key: {{ .Values.ui.custom_certs.key }}
+{{- end }}

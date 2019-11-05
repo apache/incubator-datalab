@@ -685,9 +685,9 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--billing_tag', 'Billing tag', default='dlab',
                   group='helm_charts')
          .add_bool('--custom_certs_enabled', 'Enable custom certificates',
-                   default=False, group='service')
-         .add_str('--custom_cert_path', 'custom_cert_path', group='service')
-         .add_str('--custom_key_path', 'custom_key_path', group='service')
+                   default=False, group=('service', 'helm_charts'))
+         .add_str('--custom_cert_path', 'custom_cert_path', default='', group=('service', 'helm_charts'))
+         .add_str('--custom_key_path', 'custom_key_path', default='', group=('service', 'helm_charts'))
          # Tmp for jenkins job
          .add_str('--endpoint_id', 'Endpoint Id',
                   default='user:tag', group=())
@@ -769,7 +769,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         logging.info('transfer certificates to remote')
         cert_path = self.service_args.get('custom_cert_path')
         key_path = self.service_args.get('custom_key_path')
-        remote_dir = '/home/{}/'.format(self.user_name)
+        remote_dir = '/tmp/' # .format(self.user_name)
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             conn.run('mkdir -p {}'.format(remote_dir))
             rsync(conn, cert_path, remote_dir, strict_host_keys=False)
