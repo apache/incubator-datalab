@@ -1587,8 +1587,8 @@ def ensure_local_jars(os_user, jars_dir):
                     {1}hadoop-aws-{0}.jar'.format('2.7.4', jars_dir))
             sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar -O \
                     {1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir))
-            sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
-                    {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
+            # sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
+            #         {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
             sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except:
             sys.exit(1)
