@@ -446,6 +446,14 @@ if __name__ == "__main__":
             {
                 'key': 'AZURE_CLIENT_ID',
                 'value': ''
+            },
+            {
+                'key': 'IMAGE_ENABLED',
+                'value': os.environ['conf_image_enabled']
+            },
+            {
+                'key': 'SHARED_IMAGE_ENABLED',
+                'value': os.environ['conf_shared_image_enabled']
             }
         ]
         if os.environ['conf_duo_vpc_enable'] == 'true':
