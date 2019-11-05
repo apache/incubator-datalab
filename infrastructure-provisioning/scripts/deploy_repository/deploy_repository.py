@@ -1173,7 +1173,7 @@ def download_packages():
                     configuration['notebook_spark_version'], configuration['notebook_hadoop_version']),
                 'https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/{0}/hadoop-aws-{0}.jar'.format('2.7.4'),
                 'https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar'.format('1.7.4'),
-                'https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar'.format('0.4.20'),
+                #'https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar'.format('0.4.20'),
                 'http://central.maven.org/maven2/org/scalanlp/breeze_{0}/{1}/breeze_{0}-{1}.jar'.format('2.11', '0.12'),
                 'http://central.maven.org/maven2/org/scalanlp/breeze-natives_{0}/{1}/breeze-natives_{0}-{1}.jar'.format(
                     '2.11', '0.12'),
