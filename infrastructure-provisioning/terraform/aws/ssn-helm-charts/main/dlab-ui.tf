@@ -20,8 +20,8 @@
 # ******************************************************************************
 
 locals {
-    custom_cert_name = var.custom_certs_enabled == "True" ? split("/", var.custom_cert_path)[-1] : ""
-    custom_key_name = var.custom_certs_enabled == "True" ? split("/", var.custom_key_path)[-1] : ""
+    custom_cert_name = var.custom_certs_enabled == "True" ? reverse(split("/", var.custom_cert_path))[0] : ""
+    custom_key_name = var.custom_certs_enabled == "True" ? reverse(split("/", var.custom_key_path))[0] : ""
     custom_cert = var.custom_certs_enabled == "True" ? base64encode(file("/tmp/${local.custom_cert_name}")) : ""
     custom_key = var.custom_certs_enabled == "True" ? base64encode(file("/tmp/${local.custom_key_name}")) : ""
 }
