@@ -30,7 +30,6 @@ import com.epam.dlab.validation.GcpValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
-import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.group.GroupSequenceProvider;
 
@@ -107,9 +106,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private boolean mongoMigrationEnabled;
 	@JsonProperty
 	private int privateKeySize = 2048;
-	@JsonProperty
-	private SwaggerBundleConfiguration swaggerConfiguration;
-
 	@Valid
 	@NotNull
 	private Map<String, SchedulerConfigurationData> schedulers;
@@ -156,10 +152,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public Map<String, SchedulerConfigurationData> getSchedulers() {
 		return schedulers;
-	}
-
-	public SwaggerBundleConfiguration getSwaggerConfiguration() {
-		return swaggerConfiguration;
 	}
 
 	public boolean isGcpOuauth2AuthenticationEnabled() {

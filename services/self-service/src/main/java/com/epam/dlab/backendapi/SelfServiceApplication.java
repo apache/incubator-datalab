@@ -94,12 +94,12 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		));
 
 		bootstrap.addBundle(new DlabKeycloakBundle());
-		bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
+		/*bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
 			@Override
 			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(SelfServiceApplicationConfiguration configuration) {
 				return configuration.getSwaggerConfiguration();
 			}
-		});
+		});*/
 	}
 
 	@Override
