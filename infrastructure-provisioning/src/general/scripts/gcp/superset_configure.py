@@ -126,19 +126,35 @@ if __name__ == "__main__":
             "grant_type": "password",
             "client_id": "admin-cli",
         }
-        keycloak_client_id = "{}-{}-superset".format(notebook_config['service_base_name'], notebook_config['project_name'])
-        keycloak_client_secret = uuid.uuid4()
-        keycloak_client_data = {
-            "clientId": keycloak_client_id,
-            "enabled": "true",
-            "redirectUris": ["*"],
-            "secret": keycloak_client_secret,
-        }
         try:
+            keycloak_client_id = "{}-{}-superset".format(notebook_config['service_base_name'],
+                                                         notebook_config['project_name'])
+            client_params = {
+                "clientId": keycloak_client_id,
+            }
             keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data).json()
-            keycloak_client = requests.post(keycloak_client_create_url, json=keycloak_client_data, headers={"Authorization": "Bearer " + keycloak_token.get("access_token"), "Content-Type": "application/json"})
-        except:
-            append_result("Failed to configure keycloak")
+            keycloak_get_id_client = requests.get(keycloak_client_create_url, data=keycloak_auth_data, params=client_params, headers={"Authorization": "Bearer " + keycloak_token.get("access_token"), "Content-Type": "application/json"})
+            json_keycloak_client_id = json.loads(keycloak_get_id_client.text)
+            # Check, if response is not empty
+            if len(json_keycloak_client_id) != 0:
+                print('Keycloak client {} exists. Getting his required attributes.'.format(keycloak_client_id))
+                keycloak_id_client = json_keycloak_client_id[0]['id']
+                keycloak_client_get_secret_url = ("{0}/{1}/client-secret".format(keycloak_client_create_url, keycloak_id_client))
+                keycloak_client_get_secret = requests.get(keycloak_client_get_secret_url, data=keycloak_auth_data, headers={"Authorization": "Bearer " + keycloak_token.get("access_token"), "Content-Type": "application/json"})
+                json_keycloak_client_secret = json.loads(keycloak_client_get_secret.text)
+                keycloak_client_secret = json_keycloak_client_secret['value']
+            else:
+                print('Keycloak client does not exists. Creating new client {0}.'.format(keycloak_client_id))
+                keycloak_client_secret = str(uuid.uuid4())
+                keycloak_client_data = {
+                    "clientId": keycloak_client_id,
+                    "enabled": "true",
+                    "redirectUris": ["*"],
+                    "secret": keycloak_client_secret,
+                }
+                keycloak_client = requests.post(keycloak_client_create_url, json=keycloak_client_data, headers={"Authorization": "Bearer " + keycloak_token.get("access_token"), "Content-Type": "application/json"})
+        except Exception as err:
+            append_result("Failed to configure keycloak.")
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
@@ -261,7 +277,7 @@ if __name__ == "__main__":
 
     # generating output information
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
-    superset_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
+    superset_ip_url = "http://" + ip_address + ":8088/{}/".format(notebook_config['exploratory_name'])
     ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
     superset_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(notebook_config['exploratory_name'])
     superset_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
