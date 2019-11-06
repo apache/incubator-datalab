@@ -26,7 +26,6 @@ import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
 import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
 import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 import com.epam.dlab.backendapi.resources.dto.SearchLibsFormDTO;
-import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.ExternalLibraryService;
 import com.epam.dlab.backendapi.service.LibraryService;
 import com.epam.dlab.backendapi.validation.annotation.LibNameValid;
@@ -35,7 +34,6 @@ import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -55,7 +53,6 @@ import java.util.stream.Collectors;
 @Path("/infrastructure_provision/exploratory_environment")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "Library service", authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 @Slf4j
 public class LibExploratoryResource {
 
@@ -83,12 +80,8 @@ public class LibExploratoryResource {
 	 */
 	@GET
 	@Path("/lib_groups")
-	@ApiOperation("Returns the list of library groups for notebook or cluster")
-	public Iterable<String> getLibGroupList(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-											@ApiParam(value = "Notebook's name", required = true)
+	public Iterable<String> getLibGroupList(@Auth UserInfo userInfo,
 											@QueryParam("exploratory_name") @NotBlank String exploratoryName,
-											@ApiParam(value = "Cluster's name", required = true, allowEmptyValue =
-													true)
 											@QueryParam("computational_name") String computationalName) {
 
 		log.trace("Loading list of lib groups for user {} and exploratory {}, computational {}", userInfo.getName(),
@@ -126,11 +119,8 @@ public class LibExploratoryResource {
 	 */
 	@GET
 	@Path("/lib_list")
-	@ApiOperation("Returns the list of installed/failed libraries for notebook or cluster")
-	public List<Document> getLibList(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-									 @ApiParam(value = "Notebook's name", required = true)
+	public List<Document> getLibList(@Auth UserInfo userInfo,
 									 @QueryParam("exploratory_name") @NotBlank String exploratoryName,
-									 @ApiParam(value = "Cluster's name", required = true, allowEmptyValue = true)
 									 @QueryParam("computational_name") String computationalName) {
 
 		log.debug("Loading list of libraries for user {} and exploratory {} and computational {}", userInfo.getName(),
@@ -157,9 +147,8 @@ public class LibExploratoryResource {
 	 */
 	@GET
 	@Path("/lib_list/formatted")
-	@ApiOperation("Returns formatted representation of installed/failed libraries for notebook")
-	public List<LibInfoRecord> getLibListFormatted(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-												   @ApiParam(value = "Notebook's name", required = true)
+
+	public List<LibInfoRecord> getLibListFormatted(@Auth UserInfo userInfo,
 												   @QueryParam("exploratory_name") @NotBlank String exploratoryName) {
 
 		log.debug("Loading formatted list of libraries for user {} and exploratory {}", userInfo.getName(),
@@ -183,10 +172,7 @@ public class LibExploratoryResource {
 	 */
 	@POST
 	@Path("/lib_install")
-	@ApiOperation("Installs libraries on notebook or cluster")
-	@ApiResponses(@ApiResponse(code = 200, message = "Libraries were installed successfully"))
-	public Response libInstall(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-							   @ApiParam(value = "Library install form DTO", required = true)
+	public Response libInstall(@Auth UserInfo userInfo,
 							   @Valid @NotNull LibInstallFormDTO formDTO) {
 		log.debug("Installing libs to environment {} for user {}", formDTO, userInfo.getName());
 		final String exploratoryName = formDTO.getNotebookName();
@@ -208,9 +194,7 @@ public class LibExploratoryResource {
 	 */
 	@POST
 	@Path("search/lib_list")
-	@ApiOperation("Returns the list of available libraries for notebook basing on search conditions")
-	public List<LibraryDTO> getLibList(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-									   @ApiParam(value = "Search libraries form DTO", required = true)
+	public List<LibraryDTO> getLibList(@Auth UserInfo userInfo,
 									   @Valid @NotNull SearchLibsFormDTO formDTO) {
 		log.trace("Search list of libs for user {} with condition {}", userInfo.getName(), formDTO);
 		try {
@@ -242,9 +226,7 @@ public class LibExploratoryResource {
 
 	@GET
 	@Path("search/lib_list/maven")
-	@ApiOperation("Return information about maven artifact")
-	public Response getMavenArtifactInfo(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-										 @ApiParam(required = true, example = DROPWIZARD_ARTIFACT, value = "artifact")
+	public Response getMavenArtifactInfo(@Auth UserInfo userInfo,
 										 @LibNameValid @QueryParam("artifact") String artifact) {
 		final String[] libNameParts = artifact.split(":");
 		return Response.ok(externalLibraryService.getLibrary(libNameParts[0], libNameParts[1], libNameParts[2])).build();
