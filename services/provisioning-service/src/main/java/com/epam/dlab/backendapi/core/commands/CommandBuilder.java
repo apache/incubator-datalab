@@ -69,20 +69,18 @@ public class CommandBuilder {
 		final CloudProvider cloudProvider = conf.getCloudProvider();
 		final CloudConfiguration cloudConfiguration = conf.getCloudConfiguration();
 		final CloudConfiguration.LdapConfig ldapConfig = cloudConfiguration.getLdapConfig();
-		final CloudConfiguration.StepCerts stepCerts = cloudConfiguration.getStepCerts();
 		if (cloudProvider == CloudProvider.AWS) {
-			return awsCloudSettings(settings, cloudConfiguration, ldapConfig, stepCerts);
+			return awsCloudSettings(settings, cloudConfiguration, ldapConfig);
 		} else if (cloudProvider == CloudProvider.GCP) {
-			return gcpCloudSettings(settings, cloudConfiguration, ldapConfig, stepCerts);
+			return gcpCloudSettings(settings, cloudConfiguration, ldapConfig);
 		} else if (cloudProvider == CloudProvider.AZURE) {
-			return azureCloudSettings(settings, cloudConfiguration, stepCerts);
+			return azureCloudSettings(settings, cloudConfiguration);
 		} else {
 			throw new UnsupportedOperationException("Unsupported cloud provider " + cloudProvider.getName());
 		}
 	}
 
-	private AzureCloudSettings azureCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration,
-												  CloudConfiguration.StepCerts stepCerts) {
+	private AzureCloudSettings azureCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration) {
 		return AzureCloudSettings.builder()
 				.azureRegion(cloudConfiguration.getRegion())
 				.azureResourceGroupName(cloudConfiguration.getAzureResourceGroupName())
@@ -91,18 +89,12 @@ public class CommandBuilder {
 				.azureVpcName(cloudConfiguration.getVpcId())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
 				.azureIamUser(settings.getIamUser())
-				.sharedImageEnabled(cloudConfiguration.isSharedImageEnabled())
-				.stepCertsEnabled(stepCerts.isEnabled())
-				.stepCertsRootCA(stepCerts.getRootCA())
-				.stepCertsKid(stepCerts.getKid())
-				.stepCertsKidPassword(stepCerts.getKidPassword())
-				.stepCertsCAURL(stepCerts.getCaURL())
+				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
 				.build();
 	}
 
 	private GcpCloudSettings gcpCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration,
-											  CloudConfiguration.LdapConfig ldapConfig,
-											  CloudConfiguration.StepCerts stepCerts) {
+											  CloudConfiguration.LdapConfig ldapConfig) {
 		return GcpCloudSettings.builder()
 				.projectId(cloudConfiguration.getGcpProjectId())
 				.vpcName(cloudConfiguration.getVpcId())
@@ -119,18 +111,12 @@ public class CommandBuilder {
 				.os(cloudConfiguration.getOs())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
 				.gcpIamUser(settings.getIamUser())
-				.sharedImageEnabled(cloudConfiguration.isSharedImageEnabled())
-				.stepCertsEnabled(stepCerts.isEnabled())
-				.stepCertsRootCA(stepCerts.getRootCA())
-				.stepCertsKid(stepCerts.getKid())
-				.stepCertsKidPassword(stepCerts.getKidPassword())
-				.stepCertsCAURL(stepCerts.getCaURL())
+				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
 				.build();
 	}
 
 	private AwsCloudSettings awsCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration,
-											  CloudConfiguration.LdapConfig ldapConfig,
-											  CloudConfiguration.StepCerts stepCerts) {
+											  CloudConfiguration.LdapConfig ldapConfig) {
 		return AwsCloudSettings.builder()
 				.awsRegion(cloudConfiguration.getRegion())
 				.awsSecurityGroupIds(cloudConfiguration.getSecurityGroupIds())
@@ -150,12 +136,7 @@ public class CommandBuilder {
 				.cloud(conf.getCloudProvider().getName())
 				.os(cloudConfiguration.getOs())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
-				.sharedImageEnabled(cloudConfiguration.isSharedImageEnabled())
-				.stepCertsEnabled(stepCerts.isEnabled())
-				.stepCertsRootCA(stepCerts.getRootCA())
-				.stepCertsKid(stepCerts.getKid())
-				.stepCertsKidPassword(stepCerts.getKidPassword())
-				.stepCertsCAURL(stepCerts.getCaURL())
+				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
 				.build();
 	}
 }
