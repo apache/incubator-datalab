@@ -24,6 +24,8 @@ import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EdgeService;
@@ -32,6 +34,7 @@ import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import org.junit.Rule;
@@ -58,6 +61,9 @@ public class EnvironmentServiceImplTest {
 	private static final String UUID = "213-12312-321";
 	private static final String RUNNING_STATE = "running";
 	private static final String STOPPED_STATE = "stopped";
+	private static final String PROJECT_NAME = "projectName";
+	private static final String ENDPOINT_NAME = "endpointName";
+	private static final String ADMIN = "admin";
 
 	@Mock
 	private EnvDAO envDAO;
@@ -200,6 +206,31 @@ public class EnvironmentServiceImplTest {
 				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
 				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
 		verifyNoMoreInteractions(keyDAO, envDAO, exploratoryDAO, edgeService, exploratoryService);
+	}
+
+	@Test
+	public void stopProjectEnvironment() {
+		final UserInfo userInfo = getUserInfo();
+		final ProjectDTO projectDTO = getProjectDTO();
+		when(exploratoryDAO.fetchRunningExploratoryFieldsForProject(anyString())).thenReturn(getUserInstances());
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
+		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
+		when(projectService.get(anyString())).thenReturn(projectDTO);
+		doNothing().when(projectService).stop(any(UserInfo.class), anyString(), anyString());
+
+		environmentService.stopProjectEnvironment(PROJECT_NAME);
+
+		verify(exploratoryDAO).fetchRunningExploratoryFieldsForProject(PROJECT_NAME);
+		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
+		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
+		verify(securityService, times(2)).getServiceAccountInfo(USER);
+		verify(securityService).getServiceAccountInfo(ADMIN);
+		verify(projectService).get(eq(PROJECT_NAME));
+		verify(projectService).stop(refEq(userInfo), eq(ENDPOINT_NAME), eq(PROJECT_NAME));
+		verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusIn(PROJECT_NAME, Arrays.asList(UserInstanceStatus.CREATING,
+				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
+				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
+		verifyNoMoreInteractions(exploratoryDAO, exploratoryService, securityService, projectService);
 	}
 
 	@Test
@@ -440,5 +471,11 @@ public class EnvironmentServiceImplTest {
 		return Arrays.asList(
 				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER).withProject("prj"),
 				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER).withProject("prj"));
+	}
+
+	private ProjectDTO getProjectDTO() {
+		return new ProjectDTO(PROJECT_NAME, Collections.emptySet(), "", "", null,
+				Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.RUNNING,
+						new EdgeInfo())));
 	}
 }
