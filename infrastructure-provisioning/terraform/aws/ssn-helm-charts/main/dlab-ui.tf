@@ -42,7 +42,7 @@ data "template_file" "dlab_ui_values" {
       custom_certs_enabled   = var.custom_certs_enabled
       custom_certs_crt       = local.custom_cert
       custom_certs_key       = local.custom_key
-      step_ca_crt            = base64encode(lookup(data.external.step-ca-config-values.result, "rootCa"))
+      step_ca_crt            = lookup(data.external.step-ca-config-values.result, "rootCa")
   }
 }
 
