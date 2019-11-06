@@ -64,3 +64,4 @@ ui:
     enabled: ${custom_certs_enabled}
     crt: ${custom_certs_crt}
     key: ${custom_certs_key}
+    ca: ${step_ca_crt}

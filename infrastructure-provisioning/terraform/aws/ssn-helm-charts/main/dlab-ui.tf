@@ -20,10 +20,11 @@
 # ******************************************************************************
 
 locals {
-    custom_cert_name = var.custom_certs_enabled == "True" ? reverse(split("/", var.custom_cert_path))[0] : ""
-    custom_key_name = var.custom_certs_enabled == "True" ? reverse(split("/", var.custom_key_path))[0] : ""
-    custom_cert = var.custom_certs_enabled == "True" ? base64encode(file("/tmp/${local.custom_cert_name}")) : ""
-    custom_key = var.custom_certs_enabled == "True" ? base64encode(file("/tmp/${local.custom_key_name}")) : ""
+    custom_cert_name = var.custom_certs_enabled == "true" ? reverse(split("/", var.custom_cert_path))[0] : "None"
+    custom_key_name = var.custom_certs_enabled == "true" ? reverse(split("/", var.custom_key_path))[0] : "None"
+    custom_cert = var.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_cert_name}")) : "None"
+    custom_key = var.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_key_name}")) : "None"
+    ui_host = var.custom_certs_enabled == "true" ? var.custom_certs_host : data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
 }
 
 data "template_file" "dlab_ui_values" {
@@ -33,7 +34,7 @@ data "template_file" "dlab_ui_values" {
       mongo_user             = var.mongo_db_username
       mongo_port             = var.mongo_service_port
       mongo_service_name     = var.mongo_service_name
-      ssn_k8s_alb_dns_name   = data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
+      ssn_k8s_alb_dns_name   = local.ui_host
       ssn_bucket_name        = var.ssn_bucket_name
       service_base_name      = var.service_base_name
       os                     = var.env_os
@@ -41,6 +42,7 @@ data "template_file" "dlab_ui_values" {
       custom_certs_enabled   = var.custom_certs_enabled
       custom_certs_crt       = local.custom_cert
       custom_certs_key       = local.custom_key
+      step_ca_crt            = base64encode(lookup(data.external.step-ca-config-values.result, "rootCa"))
   }
 }
 

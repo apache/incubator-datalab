@@ -185,6 +185,10 @@ variable "custom_cert_path" {
 variable "custom_key_path" {
     default = ""
 }
+
+variable "custom_certs_host" {
+    default = ""
+}
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

@@ -28,7 +28,7 @@ output "keycloak_client_id" {
 }
 
 output "ssn_ui_host" {
-    value = data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
+    value = local.ui_host
 }
 
 output "step_root_ca" {
