@@ -64,16 +64,6 @@ public class GcpCloudSettings extends CloudSettings {
 	protected String region;
 	@JsonProperty("conf_shared_image_enabled")
 	private String sharedImageEnabled;
-	@JsonProperty("conf_stepcerts_enabled")
-	private String stepCertsEnabled;
-	@JsonProperty("conf_stepcerts_root_ca")
-	private String stepCertsRootCA;
-	@JsonProperty("conf_stepcerts_kid")
-	private String stepCertsKid;
-	@JsonProperty("conf_stepcerts_kid_password")
-	private String stepCertsKidPassword;
-	@JsonProperty("conf_stepcerts_ca_url")
-	private String stepCertsCAURL;
 
 	@Override
 	@JsonIgnore
