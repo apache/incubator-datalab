@@ -20,11 +20,12 @@
 # ******************************************************************************
 
 locals {
-    custom_cert_name = var.custom_certs_enabled == "true" ? reverse(split("/", var.custom_cert_path))[0] : "None"
-    custom_key_name = var.custom_certs_enabled == "true" ? reverse(split("/", var.custom_key_path))[0] : "None"
-    custom_cert = var.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_cert_name}")) : "None"
-    custom_key = var.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_key_name}")) : "None"
-    ui_host = var.custom_certs_enabled == "true" ? var.custom_certs_host : data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
+    custom_certs_enabled = lower(var.custom_certs_enabled)
+    custom_cert_name = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_cert_path))[0] : "None"
+    custom_key_name = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_key_path))[0] : "None"
+    custom_cert = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_cert_name}")) : "None"
+    custom_key = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_key_name}")) : "None"
+    ui_host = local.custom_certs_enabled == "true" ? var.custom_certs_host : data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
 }
 
 data "template_file" "dlab_ui_values" {
@@ -39,7 +40,7 @@ data "template_file" "dlab_ui_values" {
       service_base_name      = var.service_base_name
       os                     = var.env_os
       namespace              = kubernetes_namespace.dlab-namespace.metadata[0].name
-      custom_certs_enabled   = var.custom_certs_enabled
+      custom_certs_enabled   = local.custom_certs_enabled
       custom_certs_crt       = local.custom_cert
       custom_certs_key       = local.custom_key
       step_ca_crt            = lookup(data.external.step-ca-config-values.result, "rootCa")

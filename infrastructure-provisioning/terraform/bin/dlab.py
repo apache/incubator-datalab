@@ -685,7 +685,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--billing_tag', 'Billing tag', default='dlab',
                   group='helm_charts')
          .add_bool('--custom_certs_enabled', 'Enable custom certificates',
-                   default='false', group=('service', 'helm_charts'))
+                   default=False, group=('service', 'helm_charts'))
          .add_str('--custom_cert_path', 'custom_cert_path', default='', group=('service', 'helm_charts'))
          .add_str('--custom_key_path', 'custom_key_path', default='', group=('service', 'helm_charts'))
          .add_str('--custom_certs_host', 'custom certs host', default='', group='helm_charts')
@@ -868,7 +868,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.check_k8s_cluster_status()
         self.check_tiller_status()
         self.copy_terraform_to_remote()
-        if self.service_args.get('custom_certs_enabled') == 'true':
+        if self.service_args.get('custom_certs_enabled'):
             self.copy_cert()
         self.run_remote_terraform()
         self.fill_remote_terraform_output()
