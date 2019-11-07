@@ -99,10 +99,6 @@ if __name__ == "__main__":
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
-    # INSTALL GCLOUD
-    print("Install GCloud")
-    install_gcloud(args.os_user)
-
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     print("Install TensorFlow")
     install_tensor(args.os_user, cuda_version, cuda_file_name,

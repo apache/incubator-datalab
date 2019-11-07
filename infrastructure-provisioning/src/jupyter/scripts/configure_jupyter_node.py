@@ -100,10 +100,6 @@ if __name__ == "__main__":
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
-    # INSTALL GCLOUD
-    print("Install GCloud")
-    install_gcloud(args.os_user)
-
     # INSTALL JUPYTER NOTEBOOK
     print("Install Jupyter")
     configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version, args.exploratory_name)

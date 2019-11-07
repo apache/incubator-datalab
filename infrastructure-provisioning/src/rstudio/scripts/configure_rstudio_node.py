@@ -91,10 +91,6 @@ if __name__ == "__main__":
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
-    # INSTALL GCLOUD
-    print("Install GCloud")
-    install_gcloud(args.os_user)
-
     # INSTALL RSTUDIO
     print("Install RStudio")
     install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)
