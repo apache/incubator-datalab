@@ -239,6 +239,7 @@ def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyter_conf_file, jupyterl
             sudo('mv /tmp/build.sh {}build.sh'.format(jupyterlab_dir))
             sudo('mv /tmp/start.sh {}start.sh'.format(jupyterlab_dir))
             sudo('sed -i \'s/nb_user/{}/g\' {}Dockerfile_jupyterlab'.format(os_user, jupyterlab_dir))
+            sudo('sed -i \'s/jupyterlab_image/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_jupyter_image'], jupyterlab_dir))
             sudo('sed -i \'s/nb_user/{}/g\' {}start.sh'.format(os_user, jupyterlab_dir))
 #            sudo('sed -i \'s/jup_version/{}/g\' {}Dockerfile_jupyterlab'.format(jupyter_version, jupyterlab_dir))
 #            sudo('sed -i \'s/hadoop_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_hadoop_version'], jupyterlab_dir))

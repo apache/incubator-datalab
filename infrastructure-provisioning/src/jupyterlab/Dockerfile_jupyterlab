@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-FROM legionplatformtest/jupyterlab:1.0.0-rc18
+FROM jupyterlab_image
 
 ARG NB_USER="dlab-user"
 
