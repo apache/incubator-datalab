@@ -37,7 +37,7 @@ under the License.
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>jupyter</string>
-              <string>jupyter-docker</string>
+              <string>jupyterlab</string>
               <string>rstudio</string>
               <string>zeppelin</string>
               <string>tensor</string>

@@ -58,12 +58,12 @@ docker_version = '18.09.4'
 http_file = '/etc/systemd/system/docker.service.d/http-proxy.conf'
 https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
 legion_dir = '/home/' + args.os_user + '/legion/legion/'
-jupyter_dir = '/home/' + args.os_user + '/.jupyter/'
-spark_script = jupyter_dir + 'spark.sh'
-pyspark_local_path_dir = '/home/' + args.os_user + '/.jupyter/kernels/pyspark_local/'
-py3spark_local_path_dir = '/home/' + args.os_user + '/.jupyter/kernels/py3spark_local/'
-jupyter_conf_file = jupyter_dir + 'jupyter_notebook_config.py'
-docker_jupyter_conf = '\/etc\/jupyter\/jupyter_notebook_config.py'
+jupyterlab_dir = '/home/' + args.os_user + '/.jupyterlab/'
+spark_script = jupyterlab_dir + 'spark.sh'
+pyspark_local_path_dir = '/home/' + args.os_user + '/.jupyterlab/kernels/pyspark_local/'
+py3spark_local_path_dir = '/home/' + args.os_user + '/.jupyterlab/kernels/py3spark_local/'
+jupyter_conf_file = jupyterlab_dir + 'jupyter_notebook_config.py'
+jupyterlab_conf_file = '\/etc\/jupyter\/jupyter_notebook_config.py'
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 r_kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 jars_dir = '/opt/jars/'
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     # CONFIGURE JUPYTER FILES
     print("Configure jupyter files")
-    ensure_jupyter_docker_files(args.os_user,  jupyter_dir, jupyter_conf_file, docker_jupyter_conf, args.exploratory_name, args.edge_ip)
+    ensure_jupyterlab_files(args.os_user,  jupyterlab_dir, jupyter_conf_file, jupyterlab_conf_file, args.exploratory_name, args.edge_ip)
 
     # INSTALL UNGIT
     print("Install nodejs")

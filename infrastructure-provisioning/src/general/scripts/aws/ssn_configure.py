@@ -270,7 +270,7 @@ if __name__ == "__main__":
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
                              {"name": "tensor-rstudio", "tag": "latest"},
-                             {"name": "jupyter-docker", "tag": "latest"},
+                             {"name": "jupyterlab", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine-service", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"}]

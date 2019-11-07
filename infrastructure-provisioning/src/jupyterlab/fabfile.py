@@ -52,7 +52,7 @@ def run():
 
     try:
         params = "--uuid {}".format(notebook_config['uuid'])
-        local("~/scripts/{}.py {}".format('jupyter-docker_configure', params))
+        local("~/scripts/{}.py {}".format('jupyterlab_configure', params))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Notebook node.", str(err))

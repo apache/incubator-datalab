@@ -21,4 +21,4 @@
 #
 # ******************************************************************************
 
-docker build -t jupyter-lab -f Dockerfile_jupyter .
+docker build -t jupyter-lab -f Dockerfile_jupyterlab .

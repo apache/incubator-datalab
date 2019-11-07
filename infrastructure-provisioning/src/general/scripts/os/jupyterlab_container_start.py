@@ -33,14 +33,14 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
-jupyter_dir = '/home/' + args.os_user + '/.jupyter/'
+jupyterlab_dir = '/home/' + args.os_user + '/.jupyterlab/'
 
-def start_jupyter_container(jupyter_dir):
+def start_jupyterlab_container(jupyterlab_dir):
     try:
-        with cd('{}'.format(jupyter_dir)):
+        with cd('{}'.format(jupyterlab_dir)):
             run('docker volume create -d local-persist \
                      -o mountpoint=/home/{} --name=jup_volume'.format(args.os_user))
-            run('docker build --file Dockerfile_jupyter -t jupyter-lab .'.format(args.os_user))
+            run('docker build --file Dockerfile_jupyterlab -t jupyter-lab .'.format(args.os_user))
             run('docker run -d --restart unless-stopped -p 8888:8888 \
                      -v jup_volume:/opt/legion/repository \
                      -v /home/{0}/.ssh/:/home/{0}/.ssh/ \
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     env.host_string = args.os_user + '@' + args.hostname
     print("Starting Jupyter container")
     try:
-        start_jupyter_container(jupyter_dir)
+        start_jupyterlab_container(jupyterlab_dir)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)

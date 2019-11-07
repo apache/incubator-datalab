@@ -221,7 +221,7 @@ if __name__ == "__main__":
                              {"name": "project", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
-                             {"name": "jupyter-docker", "tag": "latest"},
+                             {"name": "jupyterlab", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},

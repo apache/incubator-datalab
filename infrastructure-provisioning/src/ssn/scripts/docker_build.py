@@ -34,7 +34,7 @@ if sys.argv[1] == 'all':
             'edge',
             'project',
             'jupyter',
-            'jupyter-docker'
+            'jupyterlab',
             'rstudio',
             'zeppelin',
             'tensor',

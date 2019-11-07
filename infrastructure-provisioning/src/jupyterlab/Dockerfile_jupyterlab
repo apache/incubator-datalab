@@ -30,9 +30,9 @@ EXPOSE 8888
 COPY jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
 
 #Prepearing Start script
-COPY jupyter_run.sh /jupyter_run.sh
-RUN  sed -i 's|CONF_PATH|/etc/jupyter/jupyter_notebook_config.py|' /jupyter_run.sh \
-  && chmod +x /jupyter_run.sh \
+COPY jupyterlab_run.sh /jupyterlab_run.sh
+RUN  sed -i 's|CONF_PATH|/etc/jupyter/jupyter_notebook_config.py|' /jupyterlab_run.sh \
+  && chmod +x /jupyterlab_run.sh \
   && chown -R 1001:1001 /etc/jupyter \
   && chown -R 1001:1001 /opt/legion
 
@@ -46,4 +46,4 @@ RUN jupyter serverextension enable --py jupyterlab_git && \
     jupyter serverextension list
 
 
-ENTRYPOINT ["/jupyter_run.sh", "-d"]
+ENTRYPOINT ["/jupyterlab_run.sh", "-d"]

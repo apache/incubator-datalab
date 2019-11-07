@@ -131,8 +131,8 @@ if __name__ == "__main__":
 
     # configuring proxy on Notebook instance
     try:
-        logging.info('[CONFIGURE PROXY ON JUPYTER-DOCKER INSTANCE]')
-        print('[CONFIGURE PROXY ON JUPYTER-DOCKER INSTANCE]')
+        logging.info('[CONFIGURE PROXY ON JUPYTERLAB INSTANCE]')
+        print('[CONFIGURE PROXY ON JUPYTERLAB INSTANCE]')
         additional_config = {"proxy_host": edge_instance_name, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
@@ -150,8 +150,8 @@ if __name__ == "__main__":
 
     # updating repositories & installing python packages
     try:
-        logging.info('[INSTALLING PREREQUISITES TO JUPYTER-DOCKER NOTEBOOK INSTANCE]')
-        print('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
+        logging.info('[INSTALLING PREREQUISITES TO JUPYTERLAB NOTEBOOK INSTANCE]')
+        print('[INSTALLING PREREQUISITES TO JUPYTERLAB NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}".\
             format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'],
                    os.environ['gcp_region'], edge_instance_private_ip)
@@ -181,7 +181,7 @@ if __name__ == "__main__":
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'],
                    notebook_config['exploratory_name'],)
         try:
-            local("~/scripts/{}.py {}".format('configure_jupyter-docker_node', params))
+            local("~/scripts/{}.py {}".format('configure_jupyterlab_node', params))
         except:
             traceback.print_exc()
             raise Exception
@@ -289,7 +289,7 @@ if __name__ == "__main__":
                    notebook_config['ssh_key_path'],
                    notebook_config['dlab_ssh_user'])
         try:
-           local("~/scripts/jupyter_container_start.py {}".format(params))
+           local("~/scripts/jupyterlab_container_start.py {}".format(params))
         except:
              traceback.print_exc()
              raise Exception
@@ -333,9 +333,9 @@ if __name__ == "__main__":
                     "url": jupyter_notebook_acces_url},
                    {"description": "Ungit",
                     "url": jupyter_ungit_acces_url},
-                   {"description": "JupyterLab (via tunnel)",
-                    "url": jupyter_ip_url},
-                   {"description": "Ungit (via tunnel)",
-                    "url": ungit_ip_url}
+                   #{"description": "JupyterLab (via tunnel)",
+                   # "url": jupyter_ip_url},
+                   #{"description": "Ungit (via tunnel)",
+                   # "url": ungit_ip_url}
                ]}
         result.write(json.dumps(res))
