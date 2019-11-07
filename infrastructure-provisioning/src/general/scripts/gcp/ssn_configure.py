@@ -381,7 +381,7 @@ if __name__ == "__main__":
                 'value': ''
             },
             {
-                'key': 'IMAGE_ENABLED',
+                'key': 'CONF_IMAGE_ENABLED',
                 'value': os.environ['conf_image_enabled']
             },
             {
