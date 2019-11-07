@@ -70,7 +70,7 @@ if __name__ == "__main__":
     else:
         notebook_config['expected_primary_image_name'] = '{}-{}-{}-primary-image'.format(
             notebook_config['service_base_name'], notebook_config['endpoint_tag'], os.environ['application'])
-        notebook_config['expected_secondary_image_name'] = '{}-{}-{}-secondary-image'.format(
+        notebook_config['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-image'.format(
             notebook_config['service_base_name'], notebook_config['endpoint_tag'], os.environ['application'])
         notebook_config['image_labels'] = {"sbn": notebook_config['service_base_name'],
                                            "endpoint_tag": notebook_config['endpoint_tag'],
