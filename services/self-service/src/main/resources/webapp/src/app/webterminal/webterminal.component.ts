@@ -27,7 +27,7 @@ import { environment } from '../../environments/environment';
 // we can now access environment.apiUrl
 const API_URL = environment.apiUrl;
 
-import { StorageService } from '../core/services';
+import { StorageService, HealthStatusService } from '../core/services';
 import { FileUtils } from '../core/util';
 
 @Component({
@@ -40,7 +40,11 @@ export class WebterminalComponent implements OnInit {
   public id: string;
   public endpoint: string;
   public state: string = '';
-  public layer;
+  public status: any;
+  public guacamole: any;
+  public tunnel: any;
+
+
   @ViewChild('terminal', { read: ElementRef, static: false }) terminal: ElementRef;
   @ViewChild('clip', { static: true }) clip;
 
@@ -48,47 +52,74 @@ export class WebterminalComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private storageService: StorageService,
+    private healthStatusService: HealthStatusService,
     @Inject(DOCUMENT) private document) {
   }
 
   ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id');
     this.endpoint = this.route.snapshot.paramMap.get('endpoint');
-    this.open(this.id, this.endpoint);
+    this.openTerminal();
   }
 
-  public open(id_parameter: string, endpoint_parameter: string) {
-    // added to simplify development process
-    const url = environment.production ? window.location.origin : API_URL;
-    const tunnel = new Guacamole.HTTPTunnel(
-      `${url}/api/tunnel`, false,
-      { 'Authorization': `Bearer ${this.storageService.getToken()}` }
-    );
+  public openTerminal() {
 
-    const guac = new Guacamole.Client(tunnel);
-    const display = document.getElementById('display');
+    this.guacamoleTunnel();
+    this.guacamoleConnect();
 
-    display.appendChild(guac.getDisplay().getElement());
-    this.layer = guac.getDisplay().getDefaultLayer();
-
-    guac.connect(`{"host" : "${id_parameter}", "endpoint" : "${endpoint_parameter}"}`);
-
-    // Error handler
-    guac.onerror = (error) => console.log(error.message);
-    window.onunload = () => guac.disconnect();
-
-    // Mouse
-    const mouse = new Guacamole.Mouse(guac.getDisplay().getElement());
-    mouse.onmousemove = (mouseState) => {
-      if (navigator.userAgent.indexOf('Firefox') === -1) {
-        mouseState.x = mouseState.x + 125;
-        mouseState.y = mouseState.y + 65;
+    this.tunnel.onerror = (error) => {
+      if (error.message = 'Unauthorized') {
+        this.getStatus();
       }
-      guac.sendMouseState(mouseState);
+    };
+
+    this.guacamole.onstatechange = (state) => {
+      console.log(state);
+
+      const TUNNEL_STATE_MAP = {
+        STATE_IDLE: 0,
+        STATE_CONNECTING: 1,
+        STATE_WAITING: 2,
+        STATE_CONNECTED: 3,
+        STATE_DISCONNECTING: 4,
+        STATE_DISCONNECTED: 5
+      }
+    };
+
+    window.onunload = () => this.guacamole.disconnect();
+
+    const mouse = new Guacamole.Mouse(this.guacamole.getDisplay().getElement());
+    mouse.onmousemove = (mouseState) => {
+      this.guacamole.sendMouseState(mouseState);
+      console.log(this.tunnel.state);
     }
 
     const keyboard = new Guacamole.Keyboard(document);
-    keyboard.onkeydown = (keysym) => guac.sendKeyEvent(1, keysym);
-    keyboard.onkeyup = (keysym) => guac.sendKeyEvent(0, keysym);
+    keyboard.onkeydown = (keysym) => this.guacamole.sendKeyEvent(1, keysym);
+    keyboard.onkeyup = (keysym) => this.guacamole.sendKeyEvent(0, keysym);
+  }
+
+  private guacamoleConnect() {
+    this.guacamole.connect(`{"host" : "${this.id}", "endpoint" : "${this.endpoint}"}`);
+  }
+
+  private guacamoleTunnel() {
+    const url = environment.production ? window.location.origin : API_URL;
+    this.tunnel = new Guacamole.HTTPTunnel(`${url}/api/tunnel`, true, { 'Authorization': `Bearer ${this.storageService.getToken()}` });
+    this.guacamole = new Guacamole.Client(this.tunnel);
+
+    const display = document.getElementById('display');
+    display.appendChild(this.guacamole.getDisplay().getElement());
+  }
+
+  private getStatus() {
+    this.healthStatusService.getEnvironmentHealthStatus().subscribe(
+      result => {
+        this.status = result || null;
+
+        this.guacamoleTunnel();
+        this.guacamoleConnect();
+      },
+      error => console.log('Status loading failed!'));
   }
 }
