@@ -19,14 +19,17 @@
 
 package com.epam.dlab.rest.client;
 
+import com.epam.dlab.exceptions.DlabException;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import java.net.ConnectException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
@@ -52,9 +55,7 @@ public class RESTService {
 	}
 
 	public <T> T get(String path, Class<T> clazz) {
-		Invocation.Builder builder = getBuilder(path);
-		log.debug("REST get {}", path);
-		return builder.get(clazz);
+		return get(path, null, clazz);
 	}
 
 	public <T> T get(URI path, Class<T> clazz) {
@@ -64,22 +65,18 @@ public class RESTService {
 				.get(clazz);
 	}
 
-	public <T> T post(String path, Object parameter, Class<T> clazz) {
-		Invocation.Builder builder = getBuilder(path);
-		log.debug("REST post {}", path);
-		return builder.post(Entity.json(parameter), clazz);
-	}
-
 	public <T> T get(String path, String accessToken, Class<T> clazz) {
 		Invocation.Builder builder = getBuilder(path, accessToken, Collections.emptyMap());
 		log.debug("REST get secured {} {}", path, accessToken);
 		return builder.get(clazz);
 	}
 
+	public <T> T post(String path, Object parameter, Class<T> clazz) {
+		return post(path, null, parameter, clazz);
+	}
+
 	public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz) {
-		Invocation.Builder builder = getBuilder(path, accessToken, Collections.emptyMap());
-		log.debug("REST post secured {} {}", path, accessToken);
-		return builder.post(Entity.json(parameter), clazz);
+		return post(path, accessToken, parameter, clazz, Collections.emptyMap());
 	}
 
 	public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz,
@@ -89,9 +86,6 @@ public class RESTService {
 		return builder.post(Entity.json(parameter), clazz);
 	}
 
-	private Invocation.Builder getBuilder(String path) {
-		return getBuilder(path, null, Collections.emptyMap());
-	}
 
 	private Invocation.Builder getBuilder(String path, String token, Map<String, Object> queryParams) {
 		WebTarget webTarget = getWebTarget(path);

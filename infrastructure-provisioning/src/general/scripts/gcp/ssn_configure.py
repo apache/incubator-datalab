@@ -221,6 +221,7 @@ if __name__ == "__main__":
                              {"name": "project", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
+                             {"name": "jupyterlab", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
@@ -381,7 +382,7 @@ if __name__ == "__main__":
                 'value': ''
             },
             {
-                'key': 'IMAGE_ENABLED',
+                'key': 'CONF_IMAGE_ENABLED',
                 'value': os.environ['conf_image_enabled']
             },
             {
