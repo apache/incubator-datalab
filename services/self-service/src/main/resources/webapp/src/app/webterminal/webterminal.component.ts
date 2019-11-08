@@ -105,7 +105,7 @@ export class WebterminalComponent implements OnInit {
 
   private guacamoleTunnel() {
     const url = environment.production ? window.location.origin : API_URL;
-    this.tunnel = new Guacamole.HTTPTunnel(`${url}/api/tunnel`, true, { 'Authorization': `Bearer ${this.storageService.getToken()}` });
+    this.tunnel = new Guacamole.HTTPTunnel(`${url}/api/tunnel`, false, { 'Authorization': `Bearer ${this.storageService.getToken()}` });
     this.guacamole = new Guacamole.Client(this.tunnel);
 
     const display = document.getElementById('display');
