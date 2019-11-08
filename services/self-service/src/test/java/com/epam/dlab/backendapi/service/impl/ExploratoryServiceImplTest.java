@@ -138,7 +138,7 @@ public class ExploratoryServiceImplTest {
 		try {
 			exploratoryService.start(userInfo, EXPLORATORY_NAME, "project");
 		} catch (DlabException e) {
-			assertEquals("Could not exploratory/start exploratory environment expName: Exploratory for user with " +
+			assertEquals("Could not start exploratory environment expName: Exploratory for user with " +
 					"name not found", e.getMessage());
 		}
 		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("starting");
@@ -190,7 +190,7 @@ public class ExploratoryServiceImplTest {
 		try {
 			exploratoryService.stop(userInfo, EXPLORATORY_NAME);
 		} catch (DlabException e) {
-			assertEquals("Could not exploratory/stop exploratory environment expName: Exploratory for user with " +
+			assertEquals("Could not stop exploratory environment expName: Exploratory for user with " +
 					"name not found", e.getMessage());
 		}
 		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
@@ -243,7 +243,7 @@ public class ExploratoryServiceImplTest {
 		try {
 			exploratoryService.terminate(userInfo, EXPLORATORY_NAME);
 		} catch (DlabException e) {
-			assertEquals("Could not exploratory/terminate exploratory environment expName: Exploratory for user " +
+			assertEquals("Could not terminate exploratory environment expName: Exploratory for user " +
 					"with name not found", e.getMessage());
 		}
 		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
