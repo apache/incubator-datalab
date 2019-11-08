@@ -54,7 +54,7 @@ if __name__ == "__main__":
     notebook_config['user_keyname'] = os.environ['edge_user_name']
     notebook_config['network_type'] = os.environ['conf_network_type']
     notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
-                                                               os.environ['edge_user_name'],
+                                                               os.environ['project_name'],
                                                                notebook_config['exploratory_name'], args.uuid)
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
     notebook_config['image_enabled'] = os.environ['conf_image_enabled']
