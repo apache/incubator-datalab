@@ -38,6 +38,8 @@ public class AzureDailyResourceInvoice extends MongoDocument<AzureDailyResourceI
 	@JsonProperty
 	private String user;
 	@JsonProperty
+	private String project;
+	@JsonProperty
 	private String exploratoryId;
 	@JsonProperty
 	private String computationalId;
@@ -62,6 +64,7 @@ public class AzureDailyResourceInvoice extends MongoDocument<AzureDailyResourceI
 	public AzureDailyResourceInvoice(AzureDlabBillableResource azureDlabBillableResource) {
 		this.dlabId = azureDlabBillableResource.getId();
 		this.user = azureDlabBillableResource.getUser();
+		this.project = azureDlabBillableResource.getProject();
 		this.resourceType = azureDlabBillableResource.getType();
 		this.resourceName = azureDlabBillableResource.getResourceName();
 
