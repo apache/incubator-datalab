@@ -121,7 +121,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				updateExploratoryStatusSilent(userInfo.getName(), exploratory.getName(), FAILED);
 			}
 			throw new DlabException("Could not create exploratory environment " + exploratory.getName() + " for user "
-					+ userInfo.getName() + ": " + t.getLocalizedMessage(), t);
+					+ userInfo.getName() + ": " + Optional.ofNullable(t.getCause()).map(Throwable::getMessage).orElse(t.getMessage()), t);
 		}
 	}
 
@@ -248,11 +248,13 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} catch (Exception t) {
-			log.error("Could not " + action + " exploratory environment {} for user {}", exploratoryName, userInfo
-					.getName(), t);
+			log.error("Could not {} exploratory environment {} for user {}",
+					StringUtils.substringAfter(action, "/"), exploratoryName, userInfo.getName(), t);
 			updateExploratoryStatusSilent(userInfo.getName(), exploratoryName, FAILED);
-			throw new DlabException("Could not " + action + " exploratory environment " + exploratoryName + ": " +
-					t.getLocalizedMessage(), t);
+			final String errorMsg = String.format("Could not %s exploratory environment %s: %s",
+					StringUtils.substringAfter(action, "/"), exploratoryName,
+					Optional.ofNullable(t.getCause()).map(Throwable::getMessage).orElse(t.getMessage()));
+			throw new DlabException(errorMsg, t);
 		}
 	}
 
