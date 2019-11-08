@@ -48,6 +48,7 @@ import static com.mongodb.client.model.Projections.fields;
  */
 @Slf4j
 public class AzureBillableResourcesService {
+	private static final String SHARED_RESOURCE = "Shared resource";
 	private static final String[] USER_INSTANCES_EXCLUDED_FIELDS = {"scheduler_data", "last_activity",
 			"computational_resources.scheduler_data", "computational_resources.last_activity"};
 	private final ObjectMapper objectMapper = new ObjectMapper();
@@ -173,11 +174,8 @@ public class AzureBillableResourcesService {
 					new com.fasterxml.jackson.core.type.TypeReference<List<EdgeInfoAzure>>() {
 					});
 
-			if (edgeInfoList != null && !edgeInfoList.isEmpty()) {
-				for (EdgeInfoAzure edgeInfoAzure : edgeInfoList) {
-					billableResources.addAll(getEdgeAndStorageAccount(edgeInfoAzure));
-				}
-			}
+			Optional.ofNullable(edgeInfoList).ifPresent(e -> e.stream().filter(Objects::nonNull).forEach(
+					edgeInfoAzure -> billableResources.addAll(getEdgeAndStorageAccount(edgeInfoAzure))));
 
 			return billableResources;
 		} catch (IOException e) {
@@ -194,26 +192,25 @@ public class AzureBillableResourcesService {
 			billableResources.add(AzureDlabBillableResource.builder()
 					.id(edgeInfoAzure.getUserStorageAccountTagName())
 					.type(DlabResourceType.EDGE_STORAGE_ACCOUNT)
-					.user(edgeInfoAzure.getId()).build());
+					.user(SHARED_RESOURCE)
+					.build());
 		}
 
 		if (StringUtils.isNotEmpty(edgeInfoAzure.getInstanceId())) {
 			billableResources.add(AzureDlabBillableResource.builder()
 					.id(edgeInfoAzure.getInstanceId())
 					.type(DlabResourceType.EDGE)
-					.user(edgeInfoAzure.getId()).build());
+					.user(SHARED_RESOURCE)
+					.build());
 
 			billableResources.add(AzureDlabBillableResource.builder()
-					.id(serviceBaseName + "-" + edgeUserSimpleName(edgeInfoAzure) + "-edge-volume-primary")
+					.id(edgeInfoAzure.getInstanceId() + "-volume-primary")
 					.type(DlabResourceType.VOLUME)
-					.user(edgeInfoAzure.getId()).build());
+					.user(SHARED_RESOURCE)
+					.build());
 		}
 
 		return billableResources;
-	}
-
-	private String edgeUserSimpleName(EdgeInfoAzure edgeInfoAzure) {
-		return edgeInfoAzure.getId().replaceAll("@.*", "");
 	}
 
 	private Set<AzureDlabBillableResource> getNotebooksAndClusters() {
@@ -249,8 +246,10 @@ public class AzureBillableResourcesService {
 					.id(userInstanceDTO.getExploratoryId())
 					.type(DlabResourceType.EXPLORATORY)
 					.user(userInstanceDTO.getUser())
+					.project(userInstanceDTO.getProject())
 					.notebookId(userInstanceDTO.getExploratoryId())
-					.resourceName(userInstanceDTO.getExploratoryName()).build());
+					.resourceName(userInstanceDTO.getExploratoryName())
+					.build());
 			notebookResources.addAll(getVolumes(userInstanceDTO, userInstanceDTO.getExploratoryId(), "Volume primary",
 					"Volume secondary"));
 
@@ -262,8 +261,10 @@ public class AzureBillableResourcesService {
 								.id(userComputationalResource.getComputationalId())
 								.type(DlabResourceType.COMPUTATIONAL)
 								.user(userInstanceDTO.getUser())
+								.project(userInstanceDTO.getProject())
 								.notebookId(userInstanceDTO.getExploratoryId())
-								.resourceName(userComputationalResource.getComputationalName()).build());
+								.resourceName(userComputationalResource.getComputationalName())
+								.build());
 						final List<AzureDlabBillableResource> volumes = getVolumes(userInstanceDTO,
 								userComputationalResource.getComputationalId(),
 								userComputationalResource.getComputationalName() + " volume primary",
@@ -292,14 +293,18 @@ public class AzureBillableResourcesService {
 						.id(exploratoryId + "-volume-primary")
 						.type(DlabResourceType.VOLUME)
 						.user(userInstanceDTO.getUser())
+						.project(userInstanceDTO.getProject())
 						.notebookId(userInstanceDTO.getExploratoryId())
-						.resourceName(primaryVolumeName).build(),
+						.resourceName(primaryVolumeName)
+						.build(),
 				AzureDlabBillableResource.builder()
 						.id(exploratoryId + "-volume-secondary")
 						.type(DlabResourceType.VOLUME)
 						.user(userInstanceDTO.getUser())
+						.project(userInstanceDTO.getProject())
 						.notebookId(userInstanceDTO.getExploratoryId())
-						.resourceName(secondaryVolumeName).build()
+						.resourceName(secondaryVolumeName)
+						.build()
 		);
 	}
 }
