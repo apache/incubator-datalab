@@ -40,12 +40,20 @@ if __name__ == "__main__":
         os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
     ssn_conf['region'] = os.environ['gcp_region']
     ssn_conf['zone'] = os.environ['gcp_zone']
+    try:
+        if os.environ['gcp_vpc_name'] == '':
+            raise KeyError
+        else:
+            pre_defined_vpc = True
+            ssn_conf['vpc_name'] = os.environ['gcp_vpc_name']
+    except KeyError:
+        ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
 
     try:
         logging.info('[TERMINATE SSN]')
         print('[TERMINATE SSN]')
-        params = "--service_base_name {} --region {} --zone {}".format(ssn_conf['service_base_name'],
-                                                                       ssn_conf['region'], ssn_conf['zone'])
+        params = "--service_base_name {} --region {} --zone {} --pre_defined_vpc {} --vpc_name {}".format(ssn_conf['service_base_name'],
+                                                                       ssn_conf['region'], ssn_conf['zone'], pre_defined_vpc, ssn_conf['vpc_name'], )
         try:
             local("~/scripts/{}.py {}".format('ssn_terminate_gcp_resources', params))
         except:
