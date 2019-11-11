@@ -161,31 +161,26 @@ public class AzureBillableResourcesService {
 	private Set<AzureDlabBillableResource> getEdgeAndStorageAccount() {
 		Set<AzureDlabBillableResource> billableResources = new HashSet<>();
 
-		try {
+		Map<String, List<Document>> projectEndpoints = StreamSupport.stream(mongoDbBillingClient.getDatabase()
+				.getCollection("Projects").find().spliterator(), false)
+				.collect(Collectors.toMap(key -> key.getString("name").toLowerCase(),
+						value -> (List<Document>) value.get("endpoints")));
 
-			final FindIterable<Document> prjDocuments = mongoDbBillingClient.getDatabase()
-					.getCollection("Projects").find();
-			final List<Document> edges = StreamSupport.stream(prjDocuments.spliterator(), false)
-					.flatMap(d -> ((List<Document>) d.get("endpoints")).stream())
-					.map(d -> (Document) d.get("edgeInfo"))
-					.collect(Collectors.toList());
-			List<EdgeInfoAzure> edgeInfoList = objectMapper.readValue(
-					objectMapper.writeValueAsString(edges),
-					new com.fasterxml.jackson.core.type.TypeReference<List<EdgeInfoAzure>>() {
-					});
+		projectEndpoints.forEach((key, value) -> value.forEach(endpoint -> {
+			try {
+				billableResources.addAll(getEdgeAndStorageAccount(key, objectMapper.readValue(
+						objectMapper.writeValueAsString(endpoint.get("edgeInfo")),
+						new com.fasterxml.jackson.core.type.TypeReference<EdgeInfoAzure>() {
+						})));
+			} catch (IOException ex) {
+				log.error("Error during preparation of billable resources", ex);
+			}
+		}));
 
-			Optional.ofNullable(edgeInfoList).ifPresent(e -> e.stream().filter(Objects::nonNull).forEach(
-					edgeInfoAzure -> billableResources.addAll(getEdgeAndStorageAccount(edgeInfoAzure))));
-
-			return billableResources;
-		} catch (IOException e) {
-			log.error("Error during preparation of billable resources", e);
-		}
 		return billableResources;
 	}
 
-	private Set<AzureDlabBillableResource> getEdgeAndStorageAccount(EdgeInfoAzure edgeInfoAzure) {
-
+	private Set<AzureDlabBillableResource> getEdgeAndStorageAccount(String projectName, EdgeInfoAzure edgeInfoAzure) {
 		Set<AzureDlabBillableResource> billableResources = new HashSet<>();
 
 		if (StringUtils.isNotEmpty(edgeInfoAzure.getUserContainerName())) {
@@ -193,6 +188,7 @@ public class AzureBillableResourcesService {
 					.id(edgeInfoAzure.getUserStorageAccountTagName())
 					.type(DlabResourceType.EDGE_STORAGE_ACCOUNT)
 					.user(SHARED_RESOURCE)
+					.project(projectName)
 					.build());
 		}
 
@@ -201,12 +197,14 @@ public class AzureBillableResourcesService {
 					.id(edgeInfoAzure.getInstanceId())
 					.type(DlabResourceType.EDGE)
 					.user(SHARED_RESOURCE)
+					.project(projectName)
 					.build());
 
 			billableResources.add(AzureDlabBillableResource.builder()
 					.id(edgeInfoAzure.getInstanceId() + "-volume-primary")
 					.type(DlabResourceType.VOLUME)
 					.user(SHARED_RESOURCE)
+					.project(projectName)
 					.build());
 		}
 
