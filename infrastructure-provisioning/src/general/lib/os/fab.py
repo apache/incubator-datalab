@@ -833,3 +833,74 @@ def update_hosts_file(os_user):
     except Exception as err:
         print('Failed to update hosts file', str(err))
         sys.exit(1)
+
+def ensure_docker_compose(dlab_path, os_user):
+    try:
+        if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
+            docker_version = os.environ['ssn_docker_version']
+            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
+                  stable"')
+            sudo('apt-get update')
+            sudo('apt-cache policy docker-ce')
+            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
+            print('Proxy for docker configuring')
+            sudo('mkdir -p /etc/systemd/system/docker.service.d')
+            with cd('/etc/systemd/system/docker.service.d'):
+                sudo('echo -e \'[Service] \nEnvironment=\"HTTP_PROXY=\'$http_proxy\'\"\' > http-proxy.conf')
+                sudo('echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > https-proxy.conf')
+            sudo('mkdir -p /home/' + os_user + '/.docker')
+            with cd('/home/' + os_user + '/.docker'):
+                sudo('echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/' +  os_user + '/.docker/config.json')
+            sudo('usermod -a -G docker ' + os_user)
+            sudo('update-rc.d docker defaults')
+            sudo('update-rc.d docker enable')
+            sudo('mkdir -p ' + dlab_path + 'tmp')
+            sudo('touch ' + dlab_path + 'tmp/docker_daemon_ensured')
+        if not exists(dlab_path + 'tmp/docker_compose_ensured'):
+            docker_compose_version = "1.24.1"
+            sudo('curl -L https://github.com/docker/compose/releases/download/{}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose'.format(docker_compose_version))
+            sudo('chmod +x /usr/local/bin/docker-compose')
+        sudo('systemctl daemon-reload')
+        sudo('systemctl restart docker')
+        return True
+    except:
+        return False
+
+def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id, keycloak_client_secret, edge_instance_private_ip):
+    print('Superset configuring')
+    try:
+        if not exists('/home/{}/incubator-superset'.format(os_user)):
+            with cd('/home/{}'.format(os_user)):
+                sudo('git clone https://github.com/apache/incubator-superset/')
+        if not exists('/tmp/superset-notebook_installed'):
+            sudo('mkdir -p /opt/dlab/templates')
+            put('/root/templates', '/opt/dlab', use_sudo=True)
+            sudo('sed -i \'s/OS_USER/{}/g\' /opt/dlab/templates/.env'.format(os_user))
+            keycloak_auth_server_ip = ''.join(re.findall('(?:[12]?\\d?\\d\\.){3}[12]?\\d?\\d:\d+', keycloak_auth_server_url))
+            proxy_string = '{}:3128'.format(edge_instance_private_ip)
+            sudo('sed -i \'s/KEYCLOAK_AUTH_SERVER_URL/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_auth_server_ip))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_realm_name))
+            sudo('sed -i \'s/CLIENT_ID/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_client_id))
+            sudo('sed -i \'s/CLIENT_SECRET/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_client_secret))
+            sudo('sed -i \'s/PROXY_STRING/{}/g\' /opt/dlab/templates/docker-compose.yml'.format(proxy_string))
+            sudo('sed -i \'s/KEYCLOAK_AUTH_SERVER_URL/{}/g\' /opt/dlab/templates/superset_config.py'.format(keycloak_auth_server_ip))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/superset_config.py'.format(keycloak_realm_name))
+            sudo('cp -f /opt/dlab/templates/.env /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/docker-compose.yml /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/id_provider.json /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/requirements-extra.txt /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/superset_config.py /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/docker-init.sh /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            with cd('/home/{}/incubator-superset/contrib/docker'.format(os_user)):
+                sudo('docker-compose run --rm superset ./docker-init.sh')
+            sudo('cp /opt/dlab/templates/superset-notebook.service /tmp/')
+            sudo('sed -i \'s/OS_USER/{}/g\' /tmp/superset-notebook.service'.format(os_user))
+            sudo('cp /tmp/superset-notebook.service /etc/systemd/system/')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable superset-notebook')
+            sudo('systemctl start superset-notebook')
+            sudo('touch /tmp/superset-notebook_installed')
+    except Exception as err:
+        print("Failed configure superset: " + str(err))
+        sys.exit(1)
