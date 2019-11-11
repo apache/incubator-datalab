@@ -90,25 +90,6 @@ if __name__ == "__main__":
         ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-ssn-role'
 
         try:
-            if os.environ['gcp_vpc_name'] == '':
-                raise KeyError
-        except KeyError:
-            pre_defined_vpc = True
-            os.environ['gcp_vpc_name'] = ssn_conf['vpc_name']
-        try:
-            if os.environ['gcp_subnet_name'] == '':
-                raise KeyError
-        except KeyError:
-            pre_defined_subnet = True
-            os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
-        try:
-            if os.environ['gcp_firewall_name'] == '':
-                raise KeyError
-        except KeyError:
-            pre_defined_firewall = True
-            os.environ['gcp_firewall_name'] = ssn_conf['firewall_name']
-
-        try:
             if os.environ['aws_account_id'] == '':
                 raise KeyError
             if os.environ['aws_billing_bucket'] == '':
