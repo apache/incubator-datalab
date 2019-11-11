@@ -159,25 +159,28 @@ public class AzureBillableResourcesService {
 	}
 
 	private Set<AzureDlabBillableResource> getEdgeAndStorageAccount() {
-		Set<AzureDlabBillableResource> billableResources = new HashSet<>();
-
 		Map<String, List<Document>> projectEndpoints = StreamSupport.stream(mongoDbBillingClient.getDatabase()
 				.getCollection("Projects").find().spliterator(), false)
 				.collect(Collectors.toMap(key -> key.getString("name").toLowerCase(),
 						value -> (List<Document>) value.get("endpoints")));
 
-		projectEndpoints.forEach((key, value) -> value.forEach(endpoint -> {
-			try {
-				billableResources.addAll(getEdgeAndStorageAccount(key, objectMapper.readValue(
-						objectMapper.writeValueAsString(endpoint.get("edgeInfo")),
-						new com.fasterxml.jackson.core.type.TypeReference<EdgeInfoAzure>() {
-						})));
-			} catch (IOException ex) {
-				log.error("Error during preparation of billable resources", ex);
-			}
-		}));
+		Set<AzureDlabBillableResource> edgeInfo = projectEndpoints.entrySet()
+				.stream()
+				.flatMap(e -> e.getValue().stream().map(endpoint -> {
+					try {
+						return getEdgeAndStorageAccount(e.getKey(), objectMapper.readValue(objectMapper.writeValueAsString(endpoint.get("edgeInfo")),
+								new com.fasterxml.jackson.core.type.TypeReference<EdgeInfoAzure>() {
+								}));
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+					return null;
+				}))
+				.filter(Objects::nonNull)
+				.flatMap(Set::stream)
+				.collect(Collectors.toSet());
 
-		return billableResources;
+		return new HashSet<>(edgeInfo);
 	}
 
 	private Set<AzureDlabBillableResource> getEdgeAndStorageAccount(String projectName, EdgeInfoAzure edgeInfoAzure) {
