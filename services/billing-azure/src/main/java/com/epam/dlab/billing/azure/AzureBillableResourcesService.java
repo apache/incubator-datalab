@@ -37,6 +37,7 @@ import org.bson.Document;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.mongodb.client.model.Projections.exclude;
@@ -164,23 +165,26 @@ public class AzureBillableResourcesService {
 				.collect(Collectors.toMap(key -> key.getString("name").toLowerCase(),
 						value -> (List<Document>) value.get("endpoints")));
 
-		Set<AzureDlabBillableResource> edgeInfo = projectEndpoints.entrySet()
+		return projectEndpoints.entrySet()
 				.stream()
-				.flatMap(e -> e.getValue().stream().map(endpoint -> {
-					try {
-						return getEdgeAndStorageAccount(e.getKey(), objectMapper.readValue(objectMapper.writeValueAsString(endpoint.get("edgeInfo")),
-								new com.fasterxml.jackson.core.type.TypeReference<EdgeInfoAzure>() {
-								}));
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
-					return null;
-				}))
-				.filter(Objects::nonNull)
-				.flatMap(Set::stream)
+				.flatMap(projectEndpoint -> getEdgeAndStoragePerProject(projectEndpoint.getKey(), projectEndpoint.getValue()))
 				.collect(Collectors.toSet());
+	}
 
-		return new HashSet<>(edgeInfo);
+	private Stream<AzureDlabBillableResource> getEdgeAndStoragePerProject(String projectName, List<Document> endpoints) {
+		return endpoints
+				.stream()
+				.flatMap(endpoint -> {
+					try {
+						return getEdgeAndStorageAccount(projectName, objectMapper.readValue(
+								objectMapper.writeValueAsString(endpoint.get("edgeInfo")),
+								new com.fasterxml.jackson.core.type.TypeReference<EdgeInfoAzure>() {
+								})).stream();
+					} catch (IOException e) {
+						log.error("Error during preparation of billable resources", e);
+					}
+					return Stream.empty();
+				});
 	}
 
 	private Set<AzureDlabBillableResource> getEdgeAndStorageAccount(String projectName, EdgeInfoAzure edgeInfoAzure) {
