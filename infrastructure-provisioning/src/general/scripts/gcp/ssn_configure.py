@@ -221,6 +221,7 @@ if __name__ == "__main__":
                              {"name": "project", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
+                             {"name": "jupyterlab", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
@@ -379,6 +380,14 @@ if __name__ == "__main__":
             {
                 'key': 'PEERING_ID',
                 'value': ''
+            },
+            {
+                'key': 'CONF_IMAGE_ENABLED',
+                'value': os.environ['conf_image_enabled']
+            },
+            {
+                'key': 'SHARED_IMAGE_ENABLED',
+                'value': os.environ['conf_shared_image_enabled']
             }
         ]
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --billing_enabled {} " \

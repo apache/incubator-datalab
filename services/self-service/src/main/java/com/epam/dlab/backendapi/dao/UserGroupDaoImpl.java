@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_GROUPS;
+import static com.mongodb.client.model.Filters.elemMatch;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.in;
 
 @Singleton
 public class UserGroupDaoImpl extends BaseDAO implements UserGroupDao {
@@ -55,7 +55,8 @@ public class UserGroupDaoImpl extends BaseDAO implements UserGroupDao {
 
 	@Override
 	public Set<String> getUserGroups(String user) {
-		return stream(find(USER_GROUPS, in(USERS_FIELD, user)))
+		return stream(find(USER_GROUPS, elemMatch(USERS_FIELD, new Document("$regex", "^" + user + "$")
+				.append("$options", "i"))))
 				.map(document -> document.getString(ID))
 				.collect(Collectors.toSet());
 	}

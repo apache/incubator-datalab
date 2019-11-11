@@ -20,11 +20,9 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.SystemInfoDto;
-import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.SystemInfoService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.security.RolesAllowed;
@@ -38,7 +36,6 @@ import javax.ws.rs.core.Response;
 @Path("sysinfo")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed("sysinfo")
-@Api(value = "System information resource", authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 public class SystemInfoResource {
 
 	private SystemInfoService systemInfoService;
@@ -50,9 +47,8 @@ public class SystemInfoResource {
 
 
 	@GET
-	@ApiOperation("Returns information about current system load")
-	@ApiResponses(@ApiResponse(code = 200, message = "System information (CPU, RAM etc. )"))
-	public Response getSystemInfo(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+
+	public Response getSystemInfo(@Auth UserInfo userInfo) {
 		log.debug("Getting system info for user {}...", userInfo.getName());
 		final SystemInfoDto systemInfoDto = systemInfoService.getSystemInfo();
 		return Response.ok(systemInfoDto).build();

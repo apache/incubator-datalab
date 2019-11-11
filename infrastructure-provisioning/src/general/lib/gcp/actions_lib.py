@@ -188,6 +188,23 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def add_bucket_label(self, bucket_name):
+        try:
+            bucket = self.storage_client.get_bucket(bucket_name)
+
+            labels = bucket.labels
+            labels['name'] = '{}'.format(bucket_name)
+            bucket.labels = labels
+            bucket.patch()
+            print('Updated labels on {}.'.format(bucket_name))
+        except Exception as err:
+            logging.info(
+                "Unable to create Bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Bucket",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def remove_bucket(self, bucket_name):
         try:
             GCPActions().bucket_cleanup(bucket_name)

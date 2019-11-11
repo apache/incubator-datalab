@@ -62,6 +62,10 @@ public class GcpCloudSettings extends CloudSettings {
 	protected String zone;
 	@JsonProperty("gcp_region")
 	protected String region;
+	@JsonProperty("conf_image_enabled")
+	private String imageEnabled;
+	@JsonProperty("conf_shared_image_enabled")
+	private String sharedImageEnabled;
 
 	@Override
 	@JsonIgnore

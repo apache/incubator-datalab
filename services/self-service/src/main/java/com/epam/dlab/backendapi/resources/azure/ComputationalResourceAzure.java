@@ -25,7 +25,6 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
-import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
@@ -36,7 +35,6 @@ import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
-import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.security.RolesAllowed;
@@ -53,8 +51,6 @@ import java.util.List;
 @Path("/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "Service for computational resources on Azure. (NOTE: available only on AZURE platform)",
-		authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH), hidden = true)
 @Slf4j
 public class ComputationalResourceAzure {
 
@@ -85,13 +81,7 @@ public class ComputationalResourceAzure {
 	@PUT
 	@Path("dataengine")
 	@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
-	@ApiOperation("Creates Spark cluster on Azure")
-	@ApiResponses({
-			@ApiResponse(code = 302, message = "Spark cluster on Azure with current parameters already exists"),
-			@ApiResponse(code = 200, message = "Spark cluster on Azure successfully created")
-	})
-	public Response createDataEngine(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-									 @ApiParam(value = "Spark cluster create form DTO", required = true)
+	public Response createDataEngine(@Auth UserInfo userInfo,
 									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
@@ -116,13 +106,8 @@ public class ComputationalResourceAzure {
 	 */
 	@DELETE
 	@Path("/{exploratoryName}/{computationalName}/terminate")
-	@ApiOperation("Terminates computational Spark cluster on Azure")
-	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on Azure successfully terminated"))
-	public Response terminate(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-							  @ApiParam(value = "Notebook's name corresponding to computational resource",
-									  required = true)
+	public Response terminate(@Auth UserInfo userInfo,
 							  @PathParam("exploratoryName") String exploratoryName,
-							  @ApiParam(value = "Spark cluster's name for terminating", required = true)
 							  @PathParam("computationalName") String computationalName) {
 
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
@@ -142,12 +127,8 @@ public class ComputationalResourceAzure {
 	 */
 	@DELETE
 	@Path("/{project}/{exploratoryName}/{computationalName}/stop")
-	@ApiOperation("Stops Spark cluster on Azure")
-	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on Azure successfully stopped"))
-	public Response stop(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-						 @ApiParam(value = "Notebook's name corresponding to Spark cluster", required = true)
+	public Response stop( @Auth UserInfo userInfo,
 						 @PathParam("exploratoryName") String exploratoryName,
-						 @ApiParam(value = "Spark cluster's name for stopping", required = true)
 						 @PathParam("computationalName") String computationalName) {
 		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
 
@@ -166,14 +147,9 @@ public class ComputationalResourceAzure {
 	 */
 	@PUT
 	@Path("/{project}/{exploratoryName}/{computationalName}/start")
-	@ApiOperation("Starts Spark cluster on Azure")
-	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on Azure successfully started"))
-	public Response start(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-						  @ApiParam(value = "Notebook's name corresponding to Spark cluster", required = true)
+	public Response start(@Auth UserInfo userInfo,
 						  @PathParam("exploratoryName") String exploratoryName,
-						  @ApiParam(value = "Spark cluster's name for starting", required = true)
 						  @PathParam("computationalName") String computationalName,
-						  @ApiParam(value = "Project name", required = true)
 						  @PathParam("project") String project) {
 		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
 
@@ -184,17 +160,9 @@ public class ComputationalResourceAzure {
 
 	@PUT
 	@Path("dataengine/{exploratoryName}/{computationalName}/config")
-	@ApiOperation("Updates Spark cluster configuration on AWS")
-	@ApiResponses(
-			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully updated")
-	)
-	public Response updateDataEngineConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-										   @ApiParam(value = "Notebook's name corresponding to Spark cluster",
-												   required = true)
+	public Response updateDataEngineConfig(@Auth UserInfo userInfo,
 										   @PathParam("exploratoryName") String exploratoryName,
-										   @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
 										   @PathParam("computationalName") String computationalName,
-										   @ApiParam(value = "Spark cluster config", required = true)
 										   @Valid @NotNull List<ClusterConfig> config) {
 
 		computationalService.updateSparkClusterConfig(userInfo, exploratoryName, computationalName, config);
@@ -203,15 +171,8 @@ public class ComputationalResourceAzure {
 
 	@GET
 	@Path("{exploratoryName}/{computationalName}/config")
-	@ApiOperation("Returns Spark cluster configuration on AWS")
-	@ApiResponses(
-			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully returned")
-	)
-	public Response getClusterConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-									 @ApiParam(value = "Notebook's name corresponding to Spark cluster",
-											 required = true)
+	public Response getClusterConfig(@Auth UserInfo userInfo,
 									 @PathParam("exploratoryName") String exploratoryName,
-									 @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
 									 @PathParam("computationalName") String computationalName) {
 		return Response.ok(computationalService.getClusterConfig(userInfo, exploratoryName, computationalName)).build();
 	}

@@ -88,7 +88,10 @@ public class CommandBuilder {
 				.azureSubnetName(cloudConfiguration.getSubnetId())
 				.azureVpcName(cloudConfiguration.getVpcId())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
-				.azureIamUser(settings.getIamUser()).build();
+				.azureIamUser(settings.getIamUser())
+				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
+				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
+				.build();
 	}
 
 	private GcpCloudSettings gcpCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration,
@@ -108,7 +111,10 @@ public class CommandBuilder {
 				.cloud(conf.getCloudProvider().getName())
 				.os(cloudConfiguration.getOs())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
-				.gcpIamUser(settings.getIamUser()).build();
+				.gcpIamUser(settings.getIamUser())
+				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
+				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
+				.build();
 	}
 
 	private AwsCloudSettings awsCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration,
@@ -132,6 +138,8 @@ public class CommandBuilder {
 				.cloud(conf.getCloudProvider().getName())
 				.os(cloudConfiguration.getOs())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
+				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
+				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
 				.build();
 	}
 }

@@ -98,9 +98,10 @@
             <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
           </div>
           <div class="m-top-10">
-            <p *ngFor="let item of resource.computational_url">
+            <p *ngFor="let item of resource.computational_url" class="ellipsis">
               <strong>{{ item.description }}:</strong>&nbsp;
-              <a href="{{item.url}}" target="_blank">{{ item.url }}</a>
+              <a href="{{item.url}}" target="_blank" matTooltip="{{item.url}}"
+                matTooltipPosition="above">{{ item.url }}</a>
             </p>
           </div>
         </div>

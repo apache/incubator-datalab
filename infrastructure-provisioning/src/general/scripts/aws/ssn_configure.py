@@ -270,6 +270,7 @@ if __name__ == "__main__":
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
                              {"name": "tensor-rstudio", "tag": "latest"},
+                             {"name": "jupyterlab", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine-service", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"}]
@@ -446,6 +447,14 @@ if __name__ == "__main__":
             {
                 'key': 'AZURE_CLIENT_ID',
                 'value': ''
+            },
+            {
+                'key': 'CONF_IMAGE_ENABLED',
+                'value': os.environ['conf_image_enabled']
+            },
+            {
+                'key': 'SHARED_IMAGE_ENABLED',
+                'value': os.environ['conf_shared_image_enabled']
             }
         ]
         if os.environ['conf_duo_vpc_enable'] == 'true':

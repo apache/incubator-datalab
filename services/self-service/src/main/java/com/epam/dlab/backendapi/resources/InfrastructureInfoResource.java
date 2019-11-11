@@ -22,12 +22,10 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
-import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.*;
@@ -41,7 +39,6 @@ import java.util.List;
 @Path("/infrastructure")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "Infrastructure info service", authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 @Slf4j
 public class InfrastructureInfoResource {
 
@@ -56,8 +53,6 @@ public class InfrastructureInfoResource {
 	 * Return status of self-service.
 	 */
 	@GET
-	@ApiOperation("Returns status of self-service")
-	@ApiResponses(@ApiResponse(code = 200, message = "Self-service's status fetched successfully"))
 	public Response status() {
 		return Response.status(Response.Status.OK).build();
 	}
@@ -69,9 +64,7 @@ public class InfrastructureInfoResource {
 	 */
 	@GET
 	@Path("/status")
-	@ApiOperation("Returns EDGE's status")
-	public HealthStatusPageDTO status(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-									  @ApiParam(value = "Full version of report required", defaultValue = "0")
+	public HealthStatusPageDTO status(@Auth UserInfo userInfo,
 									  @QueryParam("full") @DefaultValue("0") int fullReport) {
 		return infrastructureInfoService
 				.getHeathStatus(userInfo, fullReport != 0, UserRoles.isAdmin(userInfo));
@@ -84,16 +77,14 @@ public class InfrastructureInfoResource {
 	 */
 	@GET
 	@Path("/info")
-	@ApiOperation("Returns list of user's resources")
-	public List<ProjectInfrastructureInfo> getUserResources(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+	public List<ProjectInfrastructureInfo> getUserResources(@Auth UserInfo userInfo) {
 		return infrastructureInfoService.getUserResources(userInfo.getName());
 
 	}
 
 	@GET
 	@Path("/meta")
-	@ApiOperation("Return metainfo regarding application version etc")
-	public Response getVersion(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+	public Response getVersion(@Auth UserInfo userInfo) {
 		return Response.ok(infrastructureInfoService.getInfrastructureMetaInfo())
 				.build();
 
