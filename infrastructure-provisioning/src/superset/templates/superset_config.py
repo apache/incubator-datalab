@@ -65,26 +65,5 @@ CUSTOM_SECURITY_MANAGER = SupersetOIDCSecurityManager
 OIDC_CLIENT_SECRETS = '/home/superset/superset/id_provider.json'
 OIDC_COOKIE_SECURE = False
 OIDC_VALID_ISSUERS = 'http://KEYCLOAK_AUTH_SERVER_URL/auth/realms/KEYCLOAK_REALM_NAME'
-ENABLE_PROXY_FIX = True
-
-
-class ReverseProxied(object):
-    def __init__(self, app):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        script_name = environ.get('HTTP_X_SCRIPT_NAME', '')
-        if script_name:
-            environ['SCRIPT_NAME'] = script_name
-            path_info = environ['PATH_INFO']
-            if path_info.startswith(script_name):
-                environ['PATH_INFO'] = path_info[len(script_name):]
-
-        scheme = environ.get('HTTP_X_SCHEME', '')
-        if scheme:
-            environ['wsgi.url_scheme'] = scheme
-        return self.app(environ, start_response)
-
-
-ADDITIONAL_MIDDLEWARE = [ReverseProxied, ]
-
+WTF_CSRF_ENABLED = False
+OVERWRITE_REDIRECT_URI = 'http://EDGE_IP/SUPERSET_NAME/oidc_callback'

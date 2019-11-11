@@ -170,12 +170,14 @@ if __name__ == "__main__":
                  "--region {} --os_user {} " \
                  "--dlab_path {} --keycloak_auth_server_url {} " \
                  "--keycloak_realm_name {} --keycloak_client_id {} " \
-                 "--keycloak_client_secret {} --edge_instance_private_ip {} ".\
+                 "--keycloak_client_secret {} --edge_instance_private_ip {} " \
+                 "--superset_name {} ".\
             format(instance_hostname, notebook_config['ssh_key_path'],
                    os.environ['gcp_region'], notebook_config['dlab_ssh_user'],
                    os.environ['ssn_dlab_path'], os.environ['keycloak_auth_server_url'],
                    os.environ['keycloak_realm_name'], keycloak_client_id,
-                   keycloak_client_secret, edge_instance_private_ip)
+                   keycloak_client_secret, edge_instance_private_ip,
+                   notebook_config['exploratory_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_superset_node', params))
         except:
