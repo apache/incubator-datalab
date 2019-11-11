@@ -57,8 +57,6 @@ if __name__ == "__main__":
                                                                         ssn_conf['default_endpoint_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_size'] = os.environ['gcp_ssn_instance_size']
-        ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
-        ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
         ssn_conf['subnet_cidr'] = '10.10.1.0/24'
         ssn_conf['firewall_name'] = '{}-ssn-firewall'.format(ssn_conf['service_base_name'])
         ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
@@ -70,21 +68,28 @@ if __name__ == "__main__":
         try:
             if os.environ['gcp_vpc_name'] == '':
                 raise KeyError
+            else:
+                pre_defined_vpc = True
+                ssn_conf['vpc_name'] = os.environ['gcp_vpc_name']
         except KeyError:
-            pre_defined_vpc = True
-            os.environ['gcp_vpc_name'] = ssn_conf['vpc_name']
+            ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
+
         try:
             if os.environ['gcp_subnet_name'] == '':
                 raise KeyError
+            else:
+                pre_defined_subnet = True
+                ssn_conf['subnet_name'] = os.environ['gcp_subnet_name']
         except KeyError:
-            pre_defined_subnet = True
-            os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
+            ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
         try:
             if os.environ['gcp_firewall_name'] == '':
                 raise KeyError
+            else:
+                pre_defined_firewall = True
+                ssn_conf['firewall_name'] = os.environ['gcp_firewall_name']
         except KeyError:
-            pre_defined_firewall = True
-            os.environ['gcp_firewall_name'] = ssn_conf['firewall_name']
+            ssn_conf['firewall_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
 
         try:
             if os.environ['aws_account_id'] == '':

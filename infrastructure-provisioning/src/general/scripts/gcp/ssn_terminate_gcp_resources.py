@@ -32,6 +32,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--zone', type=str)
 parser.add_argument('--service_base_name', type=str)
 parser.add_argument('--region', type=str)
+parser.add_argument('--pre_defined_vpc', type=str)
+parser.add_argument('--vpc_name', type=str)
 args = parser.parse_args()
 
 
@@ -115,8 +117,7 @@ if __name__ == "__main__":
         list_subnets = GCPMeta().get_list_subnetworks(args.region, '', args.service_base_name)
         if 'items' in list_subnets:
             vpc_selflink = list_subnets['items'][0]['network']
-            vpc_name = vpc_selflink.split('/')[-1]
-            subnets = GCPMeta().get_list_subnetworks(args.region, vpc_name, args.service_base_name)
+            subnets = GCPMeta().get_list_subnetworks(args.region, args.vpc_name, args.service_base_name)
             for i in subnets['items']:
                 GCPActions().remove_subnet(i['name'], args.region)
     except Exception as err:
@@ -134,9 +135,12 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Removing SSN VPC")
-    try:
-        GCPActions().remove_vpc(args.service_base_name + '-ssn-vpc')
-    except Exception as err:
-        print('Error: {0}'.format(err))
-        print("No such VPC")
-        sys.exit(1)
+    if args.pre_defined_vpc != 'true':
+        try:
+            GCPActions().remove_vpc(args.vpc_name)
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            print("No such VPC")
+            sys.exit(1)
+    else:
+        print('VPC is predefined, VPC will not be deleted')
