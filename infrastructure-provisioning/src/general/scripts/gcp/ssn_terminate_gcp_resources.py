@@ -32,6 +32,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--zone', type=str)
 parser.add_argument('--service_base_name', type=str)
 parser.add_argument('--region', type=str)
+parser.add_argument('--pre_defined_vpc', type=str)
 parser.add_argument('--vpc_name', type=str)
 args = parser.parse_args()
 
@@ -134,9 +135,12 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Removing SSN VPC")
-    try:
-        GCPActions().remove_vpc(args.vpc_name)
-    except Exception as err:
-        print('Error: {0}'.format(err))
-        print("No such VPC")
-        sys.exit(1)
+    if args.pre_defined_vpc != 'true':
+        try:
+            GCPActions().remove_vpc(args.vpc_name)
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            print("No such VPC")
+            sys.exit(1)
+    else:
+        print('VPC is predefined, VPC will not be deleted')
