@@ -227,6 +227,7 @@ if __name__ == "__main__":
                              {"name": "jupyterlab", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
+                             {"name": "superset", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
                              {"name": "tensor-rstudio", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
@@ -283,6 +284,14 @@ if __name__ == "__main__":
             {
                 'key': 'KEYCLOAK_CLIENT_SECRET',
                 'value': os.environ['keycloak_client_secret']
+            },
+            {
+                'key': 'KEYCLOAK_USER',
+                'value': os.environ['keycloak_user']
+            },
+            {
+                'key': 'KEYCLOAK_USER_PASSWORD',
+                'value': os.environ['keycloak_user_password']
             },
             {
                 'key': 'CONF_OS',
