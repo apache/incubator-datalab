@@ -40,6 +40,7 @@ parser.add_argument('--keycloak_realm_name', type=str, default='')
 parser.add_argument('--keycloak_client_id', type=str, default='')
 parser.add_argument('--keycloak_client_secret', type=str, default='')
 parser.add_argument('--edge_instance_private_ip', type=str, default='')
+parser.add_argument('--edge_instance_public_ip', type=str, default='')
 parser.add_argument('--superset_name', type=str, default='')
 args = parser.parse_args()
 
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     # PREPARE SUPERSET
     try:
         configure_superset(args.os_user, args.keycloak_auth_server_url, args.keycloak_realm_name,
-                           args.keycloak_client_id, args.keycloak_client_secret, args.edge_instance_private_ip, args.superset_name)
+                           args.keycloak_client_id, args.keycloak_client_secret, args.edge_instance_private_ip, args.edge_instance_public_ip, args.superset_name)
     except:
         sys.exit(1)
 

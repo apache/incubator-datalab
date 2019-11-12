@@ -867,7 +867,7 @@ def ensure_docker_compose(dlab_path, os_user):
     except:
         return False
 
-def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id, keycloak_client_secret, edge_instance_private_ip, superset_name):
+def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id, keycloak_client_secret, edge_instance_private_ip, edge_instance_public_ip, superset_name):
     print('Superset configuring')
     try:
         if not exists('/home/{}/incubator-superset'.format(os_user)):
@@ -886,7 +886,7 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
             sudo('sed -i \'s/PROXY_STRING/{}/g\' /opt/dlab/templates/docker-compose.yml'.format(proxy_string))
             sudo('sed -i \'s/KEYCLOAK_AUTH_SERVER_URL/{}/g\' /opt/dlab/templates/superset_config.py'.format(keycloak_auth_server_ip))
             sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/superset_config.py'.format(keycloak_realm_name))
-            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/superset_config.py'.format(edge_instance_private_ip))
+            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/superset_config.py'.format(edge_instance_public_ip))
             sudo('sed -i \'s/SUPERSET_NAME/{}/g\' /opt/dlab/templates/superset_config.py'.format(superset_name))
             sudo('cp -f /opt/dlab/templates/.env /home/{}/incubator-superset/contrib/docker/'.format(os_user))
             sudo('cp -f /opt/dlab/templates/docker-compose.yml /home/{}/incubator-superset/contrib/docker/'.format(os_user))
