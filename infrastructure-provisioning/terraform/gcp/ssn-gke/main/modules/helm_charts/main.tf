@@ -71,3 +71,26 @@ resource "kubernetes_role_binding" "example" {
     namespace = "kube-system"
   }
 }
+
+resource "kubernetes_namespace" "dlab-namespace" {
+  metadata {
+    annotations = {
+      name = var.namespace_name
+    }
+
+    name = var.namespace_name
+  }
+}
+
+resource "kubernetes_namespace" "cert-manager-namespace" {
+  metadata {
+    annotations = {
+      name = "cert-manager"
+    }
+    labels = {
+      "certmanager.k8s.io/disable-validation" = "true"
+    }
+
+    name = "cert-manager"
+  }
+}

@@ -19,6 +19,8 @@
 #
 # ******************************************************************************
 
+variable "namespace_name" {}
+
 variable "mongo_dbname" {}
 
 variable "mongo_db_username" {}

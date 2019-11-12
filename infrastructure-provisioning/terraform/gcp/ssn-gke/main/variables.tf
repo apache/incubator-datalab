@@ -19,6 +19,10 @@
 #
 # ******************************************************************************
 
+variable "namespace_name" {
+    default = "dlab"
+}
+
 variable "credentials_file_path" {
   default = ""
 }

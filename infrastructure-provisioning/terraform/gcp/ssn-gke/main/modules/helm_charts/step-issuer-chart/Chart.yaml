@@ -19,26 +19,8 @@
 #
 # ******************************************************************************
 
-data "template_file" "dlab_billing_values" {
-  template = file("./modules/helm_charts/dlab-billing-chart/values.yaml")
-  vars = {
-    mongo_db_name           = var.mongo_dbname
-    mongo_user              = var.mongo_db_username
-    mongo_port              = var.mongo_service_port
-    mongo_service_name      = var.mongo_service_name
-    service_base_name       = var.service_base_name
-    big_query_dataset       = var.big_query_dataset
-  }
-}
-
-resource "helm_release" "dlab-billing" {
-    name       = "dlab-billing"
-    chart      = "./modules/helm_charts/dlab-billing-chart"
-    depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret]
-    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-    wait       = true
-
-    values     = [
-        data.template_file.dlab_billing_values.rendered
-    ]
-}
+apiVersion: v1
+appVersion: "1.0"
+description: A Helm chart for Kubernetes
+name: step-issuer
+version: 0.1.0

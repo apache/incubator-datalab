@@ -19,26 +19,37 @@
 #
 # ******************************************************************************
 
-data "template_file" "dlab_billing_values" {
-  template = file("./modules/helm_charts/dlab-billing-chart/values.yaml")
+//data "helm_repository" "smallstep" {
+//  name = "smallstep"
+//  url  = "https://smallstep.github.io/helm-charts/"
+//}
+
+data "template_file" "step_ca_values" {
+  template = file("./step-ca-chart/values.yaml")
   vars = {
-    mongo_db_name           = var.mongo_dbname
-    mongo_user              = var.mongo_db_username
-    mongo_port              = var.mongo_service_port
-    mongo_service_name      = var.mongo_service_name
-    service_base_name       = var.service_base_name
-    big_query_dataset       = var.big_query_dataset
+    step_ca_password             = random_string.step_ca_password.result
+    step_ca_provisioner_password = random_string.step_ca_provisioner_password.result
   }
 }
 
-resource "helm_release" "dlab-billing" {
-    name       = "dlab-billing"
-    chart      = "./modules/helm_charts/dlab-billing-chart"
-    depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret]
-    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-    wait       = true
+resource "helm_release" "step_ca" {
+  name       = "step-certificates"
+  chart      = "./step-ca-chart"
+  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+  depends_on = [null_resource.cert_manager_delay]
+  wait       = false
+  timeout    = 600
 
-    values     = [
-        data.template_file.dlab_billing_values.rendered
-    ]
+  values     = [
+    data.template_file.step_ca_values.rendered
+  ]
+}
+
+resource "null_resource" "step_ca_delay" {
+  provisioner "local-exec" {
+    command = "sleep 120"
+  }
+  triggers = {
+    "before" = helm_release.step_ca.name
+  }
 }
