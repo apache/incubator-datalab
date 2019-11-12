@@ -43,7 +43,7 @@ data "template_file" "cert_manager_values" {
 
 resource "helm_release" "cert_manager_crd" {
     name       = "cert_manager_crd"
-    chart      = "./cert-manager-crd-chart"
+    chart      = "./modules/helm_charts/cert-manager-crd-chart"
     wait       = true
 }
 
