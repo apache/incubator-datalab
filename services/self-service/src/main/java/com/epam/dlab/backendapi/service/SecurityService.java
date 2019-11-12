@@ -4,6 +4,8 @@ import com.epam.dlab.auth.UserInfo;
 
 public interface SecurityService {
 	UserInfo getUserInfo(String code);
+
 	UserInfo getUserInfoOffline(String username);
-	UserInfo getServiceAccountInfo(String username);
+
+	UserInfo getServiceAccountInfo();
 }

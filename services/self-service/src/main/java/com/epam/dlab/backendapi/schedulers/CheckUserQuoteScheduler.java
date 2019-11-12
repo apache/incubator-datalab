@@ -44,6 +44,6 @@ public class CheckUserQuoteScheduler implements Job {
 				.map(UserDTO::getName)
 				.filter(billingDAO::isUserQuoteReached)
 				.peek(u -> log.warn("Stopping {} user env because of reaching user billing quote", u))
-				.forEach(environmentService::stopEnvironment);
+				.forEach(environmentService::stopEnvironmentWithServiceAccount);
 	}
 }

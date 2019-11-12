@@ -37,6 +37,8 @@ public interface EnvironmentService {
 
 	void stopEnvironment(String user);
 
+	void stopEnvironmentWithServiceAccount(String user);
+
 	void stopProjectEnvironment(String project);
 
 	void stopEdge(String user);
