@@ -67,7 +67,8 @@ resource "helm_release" "keycloak" {
   values     = [
     data.template_file.keycloak_values.rendered
   ]
-  depends_on = [helm_release.keycloak-mysql, kubernetes_secret.keycloak_password_secret]
+  depends_on = [helm_release.keycloak-mysql, kubernetes_secret.keycloak_password_secret, helm_release.nginx,
+                helm_release.dlab_ui]
 }
 
 resource "kubernetes_ingress" "keycloak_ingress" {

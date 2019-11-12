@@ -37,7 +37,8 @@ resource "helm_release" "keycloak-mysql" {
   values     = [
     data.template_file.mysql_values.rendered
   ]
-  depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_user_password_secret]
+  depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_user_password_secret,
+                helm_release.nginx]
 }
 
 //resource "kubernetes_persistent_volume" "example" {
