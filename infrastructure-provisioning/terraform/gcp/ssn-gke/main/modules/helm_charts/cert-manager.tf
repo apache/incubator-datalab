@@ -38,7 +38,7 @@
 //}
 
 data "template_file" "cert_manager_values" {
-  template = file("./files/cert_manager_values.yaml")
+  template = file("./modules/helm_charts/files/cert_manager_values.yaml")
 }
 
 resource "helm_release" "cert_manager_crd" {

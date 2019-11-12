@@ -25,7 +25,7 @@
 //}
 
 data "template_file" "step_ca_values" {
-  template = file("./step-ca-chart/values.yaml")
+  template = file("./modules/helm_charts/step-ca-chart/values.yaml")
   vars = {
     step_ca_password             = random_string.step_ca_password.result
     step_ca_provisioner_password = random_string.step_ca_provisioner_password.result
@@ -34,7 +34,7 @@ data "template_file" "step_ca_values" {
 
 resource "helm_release" "step_ca" {
   name       = "step-certificates"
-  chart      = "./step-ca-chart"
+  chart      = "./modules/helm_charts/step-ca-chart"
   namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   depends_on = [null_resource.cert_manager_delay]
   wait       = false

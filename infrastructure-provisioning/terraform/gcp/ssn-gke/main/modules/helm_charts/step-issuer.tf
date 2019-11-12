@@ -20,12 +20,12 @@
 # ******************************************************************************
 
 data "template_file" "step_issuer_values" {
-  template = file("./step-issuer-chart/values.yaml")
+  template = file("./modules/helm_charts/step-issuer-chart/values.yaml")
 }
 
 resource "helm_release" "step-issuer" {
     name       = "step-issuer"
-    chart      = "./step-issuer-chart"
+    chart      = "./modules/helm_charts/step-issuer-chart"
     wait       = true
     depends_on = [null_resource.step_ca_delay]
 
