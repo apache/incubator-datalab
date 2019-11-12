@@ -146,7 +146,6 @@ public class EnvironmentServiceImplTest {
 		final UserInfo userInfo = getUserInfo();
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
 		when(securityService.getUserInfoOffline(anyString())).thenReturn(userInfo);
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn(RUNNING_STATE);
 		when(edgeService.stop(any(UserInfo.class))).thenReturn(UUID);
@@ -154,8 +153,7 @@ public class EnvironmentServiceImplTest {
 		environmentService.stopEnvironment(USER);
 
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
-		verify(securityService, times(1)).getUserInfoOffline(USER);
-		verify(securityService, times(2)).getServiceAccountInfo(USER);
+		verify(securityService, times(3)).getUserInfoOffline(USER);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
 		verify(keyDAO, times(2)).getEdgeStatus(USER);
@@ -189,7 +187,7 @@ public class EnvironmentServiceImplTest {
 	public void stopEnvironmentWithoutEdge() {
 		final UserInfo userInfo = getUserInfo();
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
+		when(securityService.getUserInfoOffline(anyString())).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(keyDAO.getEdgeStatus(anyString())).thenReturn(STOPPED_STATE);
 		when(edgeService.stop(any(UserInfo.class))).thenReturn(UUID);
@@ -197,7 +195,7 @@ public class EnvironmentServiceImplTest {
 		environmentService.stopEnvironment(USER);
 
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
-		verify(securityService, times(2)).getServiceAccountInfo(USER);
+		verify(securityService, times(2)).getUserInfoOffline(USER);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
 		verify(keyDAO, times(2)).getEdgeStatus(USER);
@@ -213,7 +211,7 @@ public class EnvironmentServiceImplTest {
 		final UserInfo userInfo = getUserInfo();
 		final ProjectDTO projectDTO = getProjectDTO();
 		when(exploratoryDAO.fetchRunningExploratoryFieldsForProject(anyString())).thenReturn(getUserInstances());
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
+		when(securityService.getServiceAccountInfo()).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(projectService.get(anyString())).thenReturn(projectDTO);
 		doNothing().when(projectService).stop(any(UserInfo.class), anyString(), anyString());
@@ -223,8 +221,7 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryDAO).fetchRunningExploratoryFieldsForProject(PROJECT_NAME);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
-		verify(securityService, times(2)).getServiceAccountInfo(USER);
-		verify(securityService).getServiceAccountInfo(ADMIN);
+		verify(securityService, times(3)).getServiceAccountInfo();
 		verify(projectService).get(eq(PROJECT_NAME));
 		verify(projectService).stop(refEq(userInfo), eq(ENDPOINT_NAME), eq(PROJECT_NAME));
 		verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusIn(PROJECT_NAME, Arrays.asList(UserInstanceStatus.CREATING,
@@ -262,12 +259,12 @@ public class EnvironmentServiceImplTest {
 	@Test
 	public void stopExploratory() {
 		final UserInfo userInfo = getUserInfo();
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
+		when(securityService.getUserInfoOffline(anyString())).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
 
 		environmentService.stopExploratory(USER, EXPLORATORY_NAME_1);
 
-		verify(securityService).getServiceAccountInfo(USER);
+		verify(securityService).getUserInfoOffline(USER);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
 		verifyNoMoreInteractions(securityService, exploratoryService);
 	}
