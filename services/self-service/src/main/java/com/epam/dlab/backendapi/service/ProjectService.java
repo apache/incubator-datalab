@@ -12,7 +12,7 @@ public interface ProjectService {
 
 	List<ProjectManagingDTO> getProjectsForManaging();
 
-	List<ProjectDTO> getUserActiveProjects(UserInfo userInfo);
+	List<ProjectDTO> getUserActiveProjects(UserInfo userInfo, boolean active);
 
 	List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status);
 
