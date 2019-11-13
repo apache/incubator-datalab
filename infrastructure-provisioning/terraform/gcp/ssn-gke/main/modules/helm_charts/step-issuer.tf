@@ -43,38 +43,47 @@ resource "null_resource" "step_issuer_delay" {
   }
 }
 
-//data "template_file" "step_ca_issuer_values" {
-//  template = file("./step-ca-issuer-chart/values.yaml")
-//  vars     = {
-//    step_ca_url      = "https://${var.ssn_k8s_nlb_dns_name}:443"
-//    step_ca_bundle   = lookup(data.external.step-ca-config-values.result, "rootCa")
-//    namespace        = kubernetes_namespace.dlab-namespace.metadata[0].name
-//    step_ca_kid_name = lookup(data.external.step-ca-config-values.result, "kidName")
-//    step_ca_kid      = lookup(data.external.step-ca-config-values.result, "kid")
-//  }
-//}
-//
-//resource "helm_release" "step-ca-issuer" {
-//    name       = "step-ca-issuer"
-//    chart      = "./step-ca-issuer-chart"
-//    wait       = true
-//    depends_on = [null_resource.step_issuer_delay]
-//
-//    values     = [
-//        data.template_file.step_ca_issuer_values.rendered
-//    ]
-//}
-//
-//resource "null_resource" "step_ca_issuer_delay" {
-//  provisioner "local-exec" {
-//    command = "sleep 60"
-//  }
-//  triggers = {
-//    "before" = helm_release.step-ca-issuer.name
-//  }
-//}
+data "kubernetes_service" "step_ca_service" {
+    metadata {
+        name       = helm_release.step_ca.name
+        namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+    }
+    depends_on = [helm_release.step_ca]
+}
+
+data "template_file" "step_ca_issuer_values" {
+  template = file("./step-ca-issuer-chart/values.yaml")
+  vars     = {
+    step_ca_url      = "https://${data.kubernetes_service.step_ca_service.load_balancer_ingress.0.ip}:32433"
+    step_ca_bundle   = lookup(data.external.step-ca-config-values.result, "rootCa")
+    namespace        = kubernetes_namespace.dlab-namespace.metadata[0].name
+    step_ca_kid_name = lookup(data.external.step-ca-config-values.result, "kidName")
+    step_ca_kid      = lookup(data.external.step-ca-config-values.result, "kid")
+  }
+}
+
+resource "helm_release" "step-ca-issuer" {
+    name       = "step-ca-issuer"
+    chart      = "./step-ca-issuer-chart"
+    wait       = true
+    depends_on = [null_resource.step_issuer_delay]
+
+    values     = [
+        data.template_file.step_ca_issuer_values.rendered
+    ]
+}
+
+resource "null_resource" "step_ca_issuer_delay" {
+  provisioner "local-exec" {
+    command = "sleep 60"
+  }
+  triggers = {
+    "before" = helm_release.step-ca-issuer.name
+  }
+}
 
 data "external" "step-ca-config-values" {
-  program     = ["sh", "/tmp/get_configmap_values.sh" ]
+  program     = ["sh", "./files/get_configmap_values.sh", var.credentials_file_path, var.gke_cluster_name, var.region,
+                 var.project_id]
   depends_on  = [null_resource.step_issuer_delay]
 }

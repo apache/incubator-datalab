@@ -69,4 +69,6 @@ module "helm_charts" {
   big_query_dataset          = var.big_query_dataset
   env_os                     = var.env_os
   namespace_name             = var.namespace_name
+  credentials_file_path      = var.credentials_file_path
+  project_id                 = var.project_id
 }
