@@ -39,8 +39,8 @@ import static com.mongodb.client.model.Aggregates.sort;
 public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
 
     public static final String DLAB_RESOURCE_TYPE = "dlab_resource_type";
-    public static final String USAGE_DATE_START = "usage_date_start";
-    public static final String USAGE_DATE_END = "usage_date_end";
+    public static final String USAGE_DATE_START = "from";
+    public static final String USAGE_DATE_END = "to";
     public static final String TAG_RESOURCE_ID = "tag_resource_id";
 
     @Override
