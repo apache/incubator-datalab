@@ -61,6 +61,7 @@ export class ResourcesComponent implements OnInit {
 
   public refreshGrid(): void {
     this.resourcesGrid.buildGrid();
+    this.getProjects();
     this.getEnvironmentHealthStatus();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
