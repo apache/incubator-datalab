@@ -47,13 +47,12 @@ import { HTTP_STATUS_CODES } from '../util';
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError(error => {
-
         if (error instanceof HttpErrorResponse) {
           switch ((<HttpErrorResponse>error).status) {
             case HTTP_STATUS_CODES.UNAUTHORIZED:
               return this.handleUnauthorized(request, next);
             case HTTP_STATUS_CODES.BAD_REQUEST:
-              return this.handleBadRequest(request, next);
+              return this.handleBadRequest(error, request, next);
             default:
               return _throw(error);
           }
@@ -70,7 +69,6 @@ import { HTTP_STATUS_CODES } from '../util';
   }
 
   private handleUnauthorized(request: HttpRequest<any>, next: HttpHandler) {
-
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.jwtService.destroyAccessToken();
@@ -91,8 +89,8 @@ import { HTTP_STATUS_CODES } from '../util';
     }
   }
 
-  private handleBadRequest(request: HttpRequest<any>, next: HttpHandler) {
-    this.routingService.redirectToLoginPage();
+  private handleBadRequest(error, request: HttpRequest<any>, next: HttpHandler) {
+    if (!error.url.split('?')[0].endsWith('maven')) this.routingService.redirectToLoginPage();
     return next.handle(request);
   }
 }
