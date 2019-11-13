@@ -128,7 +128,7 @@ export class ManagementComponent implements OnInit {
 
   manageEnvironment(event: { action: string, project: any }) {
     if (event.action === 'stop')
-      this.projectService.toggleProjectStatus(event.project, event.action)
+      this.projectService.stopProjectAction(event.project.project_name)
         .subscribe(() => this.handleSuccessAction(event.action), error => this.toastr.error(error.message, 'Oops!'));
 
     if (event.action === 'terminate')

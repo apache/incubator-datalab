@@ -78,6 +78,15 @@ export class ProjectService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+  public stopProjectAction(data): Observable<{}> {
+    const url = `/managing/stop/${data}`;
+    return this.applicationServiceFacade
+      .buildToggleProjectStatus(url, data)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public updateProjectsBudget(data): Observable<{}> {
     const url = '/budget';
     return this.applicationServiceFacade
