@@ -392,11 +392,11 @@ public class SchedulerJobServiceImplTest {
 				LocalDateTime.of(LocalDate.now(),
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
 				LocalTime.now().truncatedTo(ChronoUnit.MINUTES))));
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
+		when(securityService.getServiceAccountInfo()).thenReturn(getUserInfo());
 
 		schedulerJobService.startComputationalByScheduler();
 
-		verify(securityService).getServiceAccountInfo(USER);
+		verify(securityService).getServiceAccountInfo();
 		verify(schedulerJobDAO)
 				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, STOPPED);
 		verify(computationalService).startSparkCluster(refEq(getUserInfo()), eq(EXPLORATORY_NAME),
@@ -492,11 +492,11 @@ public class SchedulerJobServiceImplTest {
 				LocalDateTime.of(LocalDate.now(),
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
 				LocalTime.now().truncatedTo(ChronoUnit.MINUTES))));
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
+		when(securityService.getServiceAccountInfo()).thenReturn(getUserInfo());
 
 		schedulerJobService.stopComputationalByScheduler();
 
-		verify(securityService).getServiceAccountInfo(USER);
+		verify(securityService).getServiceAccountInfo();
 		verify(schedulerJobDAO)
 				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, RUNNING);
 		verify(computationalService).stopSparkCluster(refEq(getUserInfo()), eq(EXPLORATORY_NAME),
@@ -590,11 +590,11 @@ public class SchedulerJobServiceImplTest {
 						LocalDateTime.of(LocalDate.now(),
 								LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES))));
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
+		when(securityService.getServiceAccountInfo()).thenReturn(getUserInfo());
 
 		schedulerJobService.stopExploratoryByScheduler();
 
-		verify(securityService).getServiceAccountInfo(USER);
+		verify(securityService).getServiceAccountInfo();
 		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
 				any(Date.class));
 		verify(exploratoryService).stop(refEq(getUserInfo()), eq(EXPLORATORY_NAME));
@@ -686,11 +686,11 @@ public class SchedulerJobServiceImplTest {
 								LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), false, USER,
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 				)));
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
+		when(securityService.getServiceAccountInfo()).thenReturn(getUserInfo());
 
 		schedulerJobService.startExploratoryByScheduler();
 
-		verify(securityService).getServiceAccountInfo(USER);
+		verify(securityService).getServiceAccountInfo();
 		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
 		verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT));
 		verifyNoMoreInteractions(securityService, schedulerJobDAO, exploratoryService);
@@ -709,14 +709,14 @@ public class SchedulerJobServiceImplTest {
 								LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), true, USER,
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 				)));
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
+		when(securityService.getServiceAccountInfo()).thenReturn(getUserInfo());
 		when(computationalDAO.findComputationalResourcesWithStatus(anyString(), anyString(),
 				any(UserInstanceStatus.class))).thenReturn(singletonList(getComputationalResource(
 				DataEngineType.SPARK_STANDALONE, true)));
 
 		schedulerJobService.startExploratoryByScheduler();
 
-		verify(securityService, times(2)).getServiceAccountInfo(USER);
+		verify(securityService, times(2)).getServiceAccountInfo();
 		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
 		verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT));
 		verify(computationalDAO).findComputationalResourcesWithStatus(USER, EXPLORATORY_NAME, STOPPED);
@@ -736,14 +736,14 @@ public class SchedulerJobServiceImplTest {
 								LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), true, USER,
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 				)));
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
+		when(securityService.getServiceAccountInfo()).thenReturn(getUserInfo());
 		when(computationalDAO.findComputationalResourcesWithStatus(anyString(), anyString(),
 				any(UserInstanceStatus.class))).thenReturn(singletonList(getComputationalResource(
 				DataEngineType.CLOUD_SERVICE, true)));
 
 		schedulerJobService.startExploratoryByScheduler();
 
-		verify(securityService).getServiceAccountInfo(USER);
+		verify(securityService).getServiceAccountInfo();
 		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
 		verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT));
 		verify(computationalDAO).findComputationalResourcesWithStatus(USER, EXPLORATORY_NAME, STOPPED);
@@ -761,14 +761,14 @@ public class SchedulerJobServiceImplTest {
 								LocalTime.now().truncatedTo(ChronoUnit.MINUTES)), true, USER,
 						LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
 				)));
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
+		when(securityService.getServiceAccountInfo()).thenReturn(getUserInfo());
 		when(computationalDAO.findComputationalResourcesWithStatus(anyString(), anyString(),
 				any(UserInstanceStatus.class))).thenReturn(singletonList(getComputationalResource(
 				DataEngineType.SPARK_STANDALONE, false)));
 
 		schedulerJobService.startExploratoryByScheduler();
 
-		verify(securityService).getServiceAccountInfo(USER);
+		verify(securityService).getServiceAccountInfo();
 		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
 		verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT));
 		verify(computationalDAO).findComputationalResourcesWithStatus(USER, EXPLORATORY_NAME, STOPPED);
@@ -855,11 +855,11 @@ public class SchedulerJobServiceImplTest {
 		);
 		when(schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(any(UserInstanceStatus.class),
 				anyVararg())).thenReturn(singletonList(schedulerJobData));
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
+		when(securityService.getServiceAccountInfo()).thenReturn(getUserInfo());
 
 		schedulerJobService.terminateComputationalByScheduler();
 
-		verify(securityService).getServiceAccountInfo(USER);
+		verify(securityService).getServiceAccountInfo();
 		verify(schedulerJobDAO)
 				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING);
 		verify(computationalService).terminateComputational(refEq(getUserInfo()), eq(EXPLORATORY_NAME),

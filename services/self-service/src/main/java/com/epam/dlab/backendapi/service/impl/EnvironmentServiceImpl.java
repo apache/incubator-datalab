@@ -122,15 +122,24 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@Override
+	public void stopEnvironmentWithServiceAccount(String user) {
+		log.debug("Stopping environment for user {} by scheduler", user);
+		checkState(user, "stop");
+		exploratoryDAO.fetchRunningExploratoryFields(user)
+				.forEach(this::stopNotebookWithServiceAccount);
+		stopEdge(user);
+	}
+
+	@Override
 	public void stopProjectEnvironment(String project) {
 		log.debug("Stopping environment for project {}", project);
 		checkProjectResourceConditions(project, "stop");
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(project)
-				.forEach(this::stopNotebook);
+				.forEach(this::stopNotebookWithServiceAccount);
 
 		projectService.get(project).getEndpoints().stream()
 				.filter(e -> UserInstanceStatus.RUNNING == e.getStatus())
-				.forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo("admin"),
+				.forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo(),
 						endpoint.getName(), project));
 	}
 
@@ -196,7 +205,12 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private void stopNotebook(UserInstanceDTO instance) {
-		final UserInfo userInfo = securityService.getServiceAccountInfo(instance.getUser());
+		final UserInfo userInfo = securityService.getUserInfoOffline(instance.getUser());
+		exploratoryService.stop(userInfo, instance.getExploratoryName());
+	}
+
+	private void stopNotebookWithServiceAccount(UserInstanceDTO instance) {
+		final UserInfo userInfo = securityService.getServiceAccountInfo();
 		exploratoryService.stop(userInfo, instance.getExploratoryName());
 	}
 
