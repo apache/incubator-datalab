@@ -19,6 +19,14 @@
 #
 # ******************************************************************************
 
+data "template_file" "nginx_values" {
+  template = file("./modules/helm_charts/files/nginx_values.yaml")
+  vars = {
+      namespace = var.namespace_name
+      step_ca_service_name = helm_release.step_ca.name
+  }
+}
+
 resource "helm_release" "nginx" {
     name       = "nginx-ingress"
     chart      = "stable/nginx-ingress"

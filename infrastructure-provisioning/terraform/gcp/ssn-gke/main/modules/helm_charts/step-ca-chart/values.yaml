@@ -23,10 +23,13 @@ bootstrapImage:
 
 # service contains configuration for the kubernetes service.
 service:
-  type: NodePort
-  nodePort: 32433
-  port: 443
-  targetPort: 9000
+  type: ClusterIP
+  port: 433
+  targetPort: 32433
+#  type: NodePort
+#  nodePort: 32433
+#  port: 443
+#  targetPort: 9000
 
 # ca contains the certificate authority configuration.
 ca:

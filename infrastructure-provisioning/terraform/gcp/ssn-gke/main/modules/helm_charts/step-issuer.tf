@@ -43,18 +43,10 @@ resource "null_resource" "step_issuer_delay" {
   }
 }
 
-data "kubernetes_service" "step_ca_service" {
-    metadata {
-        name       = helm_release.step_ca.name
-        namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-    }
-    depends_on = [helm_release.step_ca]
-}
-
 data "template_file" "step_ca_issuer_values" {
   template = file("./modules/helm_charts/step-ca-issuer-chart/values.yaml")
   vars     = {
-    step_ca_url      = "https://${data.kubernetes_service.step_ca_service.load_balancer_ingress.0.ip}:32433"
+    step_ca_url      = "https://${data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip}:8080"
     step_ca_bundle   = lookup(data.external.step-ca-config-values.result, "rootCa")
     namespace        = kubernetes_namespace.dlab-namespace.metadata[0].name
     step_ca_kid_name = lookup(data.external.step-ca-config-values.result, "kidName")
