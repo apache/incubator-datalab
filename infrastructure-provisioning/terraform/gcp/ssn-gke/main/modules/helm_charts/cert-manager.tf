@@ -37,6 +37,12 @@
 //  }
 //}
 
+resource "null_resource" "crd_delay" {
+    provisioner "local-exec" {
+        command = "sleep 120"
+    }
+}
+
 data "template_file" "cert_manager_values" {
   template = file("./modules/helm_charts/files/cert_manager_values.yaml")
 }
@@ -45,6 +51,7 @@ resource "helm_release" "cert_manager_crd" {
     name       = "cert_manager_crd"
     chart      = "./modules/helm_charts/cert-manager-crd-chart"
     wait       = true
+    depends_on = [null_resource.crd_delay]
 }
 
 data "helm_repository" "jetstack" {
