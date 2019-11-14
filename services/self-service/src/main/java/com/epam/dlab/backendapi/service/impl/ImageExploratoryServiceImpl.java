@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
-	private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist";
+	private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist in project %s";
 	private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
 
 	@Inject
@@ -76,9 +76,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
 		UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), exploratoryName);
 
-		if (imageExploratoryDao.exist(user.getName(), imageName)) {
-			log.error(String.format(IMAGE_EXISTS_MSG, imageName));
-			throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName));
+		if (imageExploratoryDao.exist(imageName, userInstance.getProject())) {
+			log.error(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
+			throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
 		}
 		final List<Library> libraries = libDAO.getLibraries(user.getName(), exploratoryName);
 
@@ -130,6 +130,11 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	public ImageInfoRecord getImage(String user, String name) {
 		return imageExploratoryDao.getImage(user, name).orElseThrow(() ->
 				new ResourceNotFoundException(String.format(IMAGE_NOT_FOUND_MSG, name, user)));
+	}
+
+	@Override
+	public List<ImageInfoRecord> getImagesForProject(String project) {
+		return imageExploratoryDao.getImagesForProject(project);
 	}
 
 	private Map<String, List<Library>> fetchComputationalLibs(List<Library> libraries) {
