@@ -206,7 +206,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
             java_path = sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
-            supervisor_conf = '/etc/supervisord.d/supervisor_svc.conf'
+            supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
             local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
             local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
