@@ -52,9 +52,10 @@ export class ProjectService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getUserProjectsList(): Observable<{}> {
+  public getUserProjectsList(isActive?): Observable<{}> {
+    const params = isActive ? '?active=true' : '';
     return this.applicationServiceFacade
-      .buildGetUserProjectsList()
+      .buildGetUserProjectsList(params)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

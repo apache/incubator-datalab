@@ -90,7 +90,7 @@ export class ResourcesComponent implements OnInit {
   }
 
   private getProjects() {
-    this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
+    this.projectService.getUserProjectsList().subscribe((projects: any) => this.projects = projects);
   }
 
 
