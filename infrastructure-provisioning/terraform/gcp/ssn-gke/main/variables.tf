@@ -196,3 +196,19 @@ variable "endpoint_keystore_password" {
 variable "big_query_dataset" {
   default = ""
 }
+
+variable "custom_certs_enabled" {
+    default = "False"
+}
+
+variable "custom_cert_path" {
+    default = ""
+}
+
+variable "custom_key_path" {
+    default = ""
+}
+
+variable "custom_certs_host" {
+    default = ""
+}

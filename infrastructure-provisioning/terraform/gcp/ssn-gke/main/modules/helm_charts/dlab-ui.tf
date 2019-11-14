@@ -19,6 +19,15 @@
 #
 # ******************************************************************************
 
+locals {
+    custom_certs_enabled = lower(var.custom_certs_enabled)
+    custom_cert_name = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_cert_path))[0] : "None"
+    custom_key_name = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_key_path))[0] : "None"
+    custom_cert = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_cert_name}")) : "None"
+    custom_key = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_key_name}")) : "None"
+    ui_host = local.custom_certs_enabled == "true" ? var.custom_certs_host : data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
+}
+
 data "template_file" "dlab_ui_values" {
   template = file("./modules/helm_charts/dlab-ui-chart/values.yaml")
   vars = {
@@ -26,17 +35,21 @@ data "template_file" "dlab_ui_values" {
       mongo_user             = var.mongo_db_username
       mongo_port             = var.mongo_service_port
       mongo_service_name     = var.mongo_service_name
-      ssn_k8s_alb_dns_name   = data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
-      provision_service_host = "127.0.0.1" # var.endpoint_eip_address
+      ssn_k8s_alb_dns_name   = local.ui_host
       service_base_name      = var.service_base_name
       os                     = var.env_os
+      namespace              = kubernetes_namespace.dlab-namespace.metadata[0].name
+      custom_certs_enabled   = local.custom_certs_enabled
+      custom_certs_crt       = local.custom_cert
+      custom_certs_key       = local.custom_key
+      step_ca_crt            = lookup(data.external.step-ca-config-values.result, "rootCa")
   }
 }
 
 resource "helm_release" "dlab_ui" {
     name       = "dlab-ui"
     chart      = "./modules/helm_charts/dlab-ui-chart"
-    depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret] #, null_resource.step_ca_issuer_delay]
+    depends_on = [helm_release.mongodb, kubernetes_secret.mongo_db_password_secret, null_resource.step_ca_issuer_delay]
     namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
     wait       = true
 

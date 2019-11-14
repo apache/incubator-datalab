@@ -71,4 +71,8 @@ module "helm_charts" {
   namespace_name             = var.namespace_name
   credentials_file_path      = var.credentials_file_path
   project_id                 = var.project_id
+  custom_certs_enabled       = var.custom_certs_enabled
+  custom_cert_path           = var.custom_cert_path
+  custom_certs_host          = var.custom_certs_host
+  custom_key_path            = var.custom_key_path
 }

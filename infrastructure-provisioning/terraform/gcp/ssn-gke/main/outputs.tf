@@ -31,18 +31,30 @@ output "subnet_name" {
   value = module.gke_cluster.subnet_name
 }
 
-output "mongo_host" {
-  value = module.helm_charts.mongo_host
-}
-
-output "self_service_host" {
-  value = module.helm_charts.self_service_host
-}
-
-output "ui_host" {
-  value = module.helm_charts.ui_host
-}
-
 output "keycloak_client_secret" {
     value = module.helm_charts.keycloak_client_secret
+}
+
+output "keycloak_client_id" {
+    value = module.helm_charts.keycloak_client_id
+}
+
+output "ssn_ui_host" {
+    value = module.helm_charts.ssn_ui_host
+}
+
+output "step_root_ca" {
+    value = module.helm_charts.step_root_ca
+}
+
+output "step_kid" {
+    value = module.helm_charts.step_kid
+}
+
+output "step_kid_password" {
+    value = module.helm_charts.step_kid_password
+}
+
+output "step_ca_url" {
+    value = module.helm_charts.step_ca_url
 }

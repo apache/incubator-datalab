@@ -76,6 +76,9 @@ spec:
               mountPath: /root/self-service.yml
               subPath: self-service
               readOnly: true
+            - mountPath: "/root/step-certs"
+              name: ui-tls
+              readOnly: true
       volumes:
         - name: ui-conf
           configMap:
@@ -86,6 +89,9 @@ spec:
                 path: ssn
               - key: self-service.yml
                 path: self-service
+        - name: ui-tls
+          secret:
+            secretName: {{ include "dlab-ui.fullname" . }}-tls
 
       {{- with .Values.nodeSelector }}
       nodeSelector:

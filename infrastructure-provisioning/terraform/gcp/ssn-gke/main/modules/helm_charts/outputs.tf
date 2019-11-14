@@ -19,18 +19,31 @@
 #
 # ******************************************************************************
 
-output "mongo_host" {
-  value = data.kubernetes_service.mongo_service.load_balancer_ingress.0.ip
-}
-
-output "self_service_host" {
-  value = data.kubernetes_service.ui_service.load_balancer_ingress.0.ip
-}
-
-output "ui_host" {
-  value = data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
-}
-
 output "keycloak_client_secret" {
     value = random_uuid.keycloak_client_secret.result
 }
+
+output "keycloak_client_id" {
+    value = "dlab-ui"
+}
+
+output "ssn_ui_host" {
+    value = local.ui_host
+}
+
+output "step_root_ca" {
+    value = lookup(data.external.step-ca-config-values.result, "rootCa")
+}
+
+output "step_kid" {
+    value = lookup(data.external.step-ca-config-values.result, "kid")
+}
+
+output "step_kid_password" {
+    value = random_string.step_ca_provisioner_password.result
+}
+
+output "step_ca_url" {
+    value = "https://${data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip}:8080"
+}
+

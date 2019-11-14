@@ -22,7 +22,7 @@
 data "template_file" "configure_keycloak" {
   template = file("./files/configure_keycloak.sh")
   vars     = {
-    ssn_k8s_alb_dns_name   = local.ui_host # data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname # var.ssn_k8s_alb_dns_name
+    ssn_k8s_alb_dns_name   = local.ui_host
     keycloak_user          = var.keycloak_user
     keycloak_password      = random_string.keycloak_password.result
     keycloak_client_secret = random_uuid.keycloak_client_secret.result
@@ -42,7 +42,7 @@ data "template_file" "keycloak_values" {
   vars = {
     keycloak_user           = var.keycloak_user
     keycloak_password       = random_string.keycloak_password.result
-    ssn_k8s_alb_dns_name    = local.ui_host # data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname # var.ssn_k8s_alb_dns_name
+    ssn_k8s_alb_dns_name    = local.ui_host
     configure_keycloak_file = data.template_file.configure_keycloak.rendered
     mysql_db_name           = var.mysql_keycloak_db_name
     mysql_user              = var.mysql_keycloak_user

@@ -74,6 +74,15 @@ variable "env_os" {}
 variable "credentials_file_path" {}
 
 variable "project_id" {}
+
+variable "custom_certs_enabled" {}
+
+variable "custom_cert_path" {}
+
+variable "custom_key_path" {}
+
+variable "custom_certs_host" {}
+
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"
