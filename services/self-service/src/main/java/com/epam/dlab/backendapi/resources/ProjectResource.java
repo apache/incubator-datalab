@@ -197,7 +197,7 @@ public class ProjectResource {
 	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo,
 									@QueryParam("active") @DefaultValue("false") boolean active) {
 		return Response
-				.ok(projectService.getUserActiveProjects(userInfo, active))
+				.ok(projectService.getUserProjects(userInfo, active))
 				.build();
 	}
 
