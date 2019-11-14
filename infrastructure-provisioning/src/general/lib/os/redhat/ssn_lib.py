@@ -206,7 +206,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
             java_path = sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
-            supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
+            supervisor_conf = '/etc/supervisord.d/supervisor_svc.conf'
             local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
             local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
@@ -233,11 +233,11 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     .replace('CONF_PARAMETER_NAME', conf_parameter_name)
                 with open('/root/templates/supervisor_svc.conf', 'w') as f:
                     f.write(text)
-            put('/root/templates/supervisor_svc.ini', '/tmp/supervisor_svc.ini')
-            sudo('mv /tmp/supervisor_svc.ini ' + os.environ['ssn_dlab_path'] + 'tmp/')
+            put('/root/templates/supervisor_svc.conf', '/tmp/supervisor_svc.conf')
+            sudo('mv /tmp/supervisor_svc.conf ' + os.environ['ssn_dlab_path'] + 'tmp/')
             sudo('cp ' + os.environ['ssn_dlab_path'] +
                  'tmp/proxy_location_webapp_template.conf /etc/nginx/locations/proxy_location_webapp.conf')
-            sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/supervisor_svc.ini {}'.format(supervisor_conf))
+            sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/supervisor_svc.conf {}'.format(supervisor_conf))
             sudo('sed -i \'s=WEB_APP_DIR={}=\' {}'.format(web_path, supervisor_conf))
             try:
                 sudo('mkdir -p /var/log/application')
