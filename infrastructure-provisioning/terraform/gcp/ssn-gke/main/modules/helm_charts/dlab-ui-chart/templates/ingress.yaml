@@ -39,16 +39,11 @@ spec:
 {{- if .Values.ui.ingress.tls }}
   tls:
   {{- range .Values.ui.ingress.tls }}
-    - hosts:
-      {{- range .hosts }}
-        - {{ . | quote }}
-      {{- end }}
-      secretName: {{ .secretName }}
+    - secretName: {{ .secretName }}
   {{- end }}
 {{- end }}
   rules:
-    - host: {{ $host }}
-      http:
+    - http:
         paths:
         - backend:
             serviceName: {{ $fullName }}

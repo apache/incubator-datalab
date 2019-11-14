@@ -77,7 +77,7 @@ resource "kubernetes_ingress" "keycloak_ingress" {
     namespace   = kubernetes_namespace.dlab-namespace.metadata[0].name
     annotations = {
       "kubernetes.io/ingress.class": "nginx"
-      "nginx.ingress.kubernetes.io/ssl-redirect": "false"
+      "nginx.ingress.kubernetes.io/ssl-redirect": "true"
       "nginx.ingress.kubernetes.io/rewrite-target": "/auth"
     }
   }
@@ -99,6 +99,9 @@ resource "kubernetes_ingress" "keycloak_ingress" {
           path = "/auth"
         }
       }
+    }
+    tls {
+      secret_name = "${helm_release.dlab_ui.name}-tls"
     }
   }
   depends_on = [helm_release.keycloak]
