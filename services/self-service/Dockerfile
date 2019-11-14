@@ -35,7 +35,7 @@ RUN apk add --update \
     && rm -rf /var/cache/apk/*
 
 COPY self-service-2.1.jar /root/
-COPY entrypoint_aws.sh /
-RUN chmod 755 /entrypoint_aws.sh
+COPY entrypoint.sh /
+RUN chmod 755 /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint_aws.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
