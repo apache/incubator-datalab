@@ -35,7 +35,7 @@ public interface ProjectDAO {
 
 	List<ProjectDTO> getProjectsWithEndpointStatusNotIn(UserInstanceStatus... statuses);
 
-	List<ProjectDTO> getUserProjects(UserInfo userInfo);
+	List<ProjectDTO> getUserProjects(UserInfo userInfo, boolean active);
 
 	void create(ProjectDTO projectDTO);
 

@@ -77,13 +77,11 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public List<ProjectDTO> getUserProjects(UserInfo userInfo) {
+	public List<ProjectDTO> getUserProjects(UserInfo userInfo, boolean active) {
 		final Set<String> groups = Stream.concat(userGroupDao.getUserGroups(userInfo.getName()).stream(),
 				userInfo.getRoles().stream())
 				.collect(Collectors.toSet());
-		final String groupsRegex = !groups.isEmpty() ? String.join("|", groups) + "|" + ANYUSER : ANYUSER;
-		return find(PROJECTS_COLLECTION, and(elemMatch(GROUPS, regexCaseInsensitive(groupsRegex)),
-				eq(ENDPOINT_STATUS_FIELD, UserInstanceStatus.RUNNING.name())), ProjectDTO.class);
+		return find(PROJECTS_COLLECTION, userProjectCondition(groups, active), ProjectDTO.class);
 	}
 
 	@Override
@@ -152,6 +150,15 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	private Bson projectCondition(String name) {
 		return eq("name", name);
+	}
+
+	private Bson userProjectCondition(Set<String> groups, boolean active) {
+		final String groupsRegex = !groups.isEmpty() ? String.join("|", groups) + "|" + ANYUSER : ANYUSER;
+		if (active) {
+			return and(elemMatch(GROUPS, regexCaseInsensitive(groupsRegex)),
+					eq(ENDPOINT_STATUS_FIELD, UserInstanceStatus.RUNNING.name()));
+		}
+		return elemMatch(GROUPS, regexCaseInsensitive(groupsRegex));
 	}
 
 	private Bson projectAndEndpointCondition(String projectName, String endpointName) {
