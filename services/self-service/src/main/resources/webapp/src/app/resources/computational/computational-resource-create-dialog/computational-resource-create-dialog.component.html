@@ -78,8 +78,8 @@
                 <span class="error" *ngIf="!resourceForm?.controls.cluster_alias_name.valid
                                             && resourceForm?.controls['cluster_alias_name'].dirty
                                             && !resourceForm?.controls['cluster_alias_name'].hasError('duplication')">
-                  Cluster name <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters
-                    and</span> can only contain letters, numbers, hyphens and '_' but can not end with special
+                  Cluster name cannot be longer than {{DICTIONARY.max_cluster_name_length}} characters
+                    and can only contain letters, numbers, hyphens and '_' but can not end with special
                   characters
                 </span>
               </div>
@@ -219,7 +219,7 @@
         </div>
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
-          <button mat-raised-button type="button" [disabled]="!resourceForm?.valid || 
+          <button mat-raised-button type="button" [disabled]="!resourceForm?.valid ||
               (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.shape_slave) ||
               (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.version)"
             (click)="createComputationalResource(resourceForm.value)" class="butt butt-success action"

@@ -36,7 +36,7 @@ export const NAMING_CONVENTION = {
 
     'spot_instance': 'Preemptible worker nodes',
     'cluster_version': 'dataproc_version',
-    'max_cluster_name_length': 9,
+    'max_cluster_name_length': 7,
     'billing': {
         'resourceName': 'resource_name',
         'cost': 'cost',
