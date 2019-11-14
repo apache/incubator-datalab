@@ -68,7 +68,6 @@ public class ImageExploratoryResource {
 		return Response.accepted(uuid).location(imageUri).build();
 	}
 
-
 	@GET
 	public Response getImages(@Auth UserInfo ui,
 							  @QueryParam("docker_image") String dockerImage,
@@ -77,6 +76,14 @@ public class ImageExploratoryResource {
 		log.debug("Getting images for user {}, project {}", ui.getName(), project);
 		final List<ImageInfoRecord> images = imageExploratoryService.getNotFailedImages(ui.getName(), dockerImage,
 				project, endpoint);
+		return Response.ok(images).build();
+	}
+
+	@GET
+	@Path("all")
+	public Response getAllImagesForProject(@Auth UserInfo ui, @NotNull @QueryParam("project") String project) {
+		log.debug("Getting images for user {}, project {}", ui.getName(), project);
+		final List<ImageInfoRecord> images = imageExploratoryService.getImagesForProject(project);
 		return Response.ok(images).build();
 	}
 

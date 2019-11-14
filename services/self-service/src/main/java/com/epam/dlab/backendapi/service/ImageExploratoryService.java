@@ -34,4 +34,6 @@ public interface ImageExploratoryService {
 	List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project, String endpoint);
 
 	ImageInfoRecord getImage(String user, String name);
+
+	List<ImageInfoRecord> getImagesForProject(String project);
 }
