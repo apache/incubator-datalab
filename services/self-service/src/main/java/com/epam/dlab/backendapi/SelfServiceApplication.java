@@ -31,7 +31,6 @@ import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.backendapi.schedulers.internal.ManagedScheduler;
-import com.epam.dlab.backendapi.servlet.guacamole.GuacamoleSecurityFilter;
 import com.epam.dlab.backendapi.servlet.guacamole.GuacamoleServlet;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.constants.ServiceConsts;
@@ -58,15 +57,12 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 
-import javax.servlet.DispatcherType;
-import java.util.EnumSet;
-
 /**
  * Self Service based on Dropwizard application.
  */
 @Slf4j
 public class SelfServiceApplication extends Application<SelfServiceApplicationConfiguration> {
-	private static final String GUACAMOLE_SERVLET_PATH = "/api/tunnel";
+	public static final String GUACAMOLE_SERVLET_PATH = "/api/tunnel";
 	private static Injector appInjector;
 
 	public static Injector getInjector() {
@@ -94,12 +90,6 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		));
 
 		bootstrap.addBundle(new DlabKeycloakBundle());
-		/*bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
-			@Override
-			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(SelfServiceApplicationConfiguration configuration) {
-				return configuration.getSwaggerConfiguration();
-			}
-		});*/
 	}
 
 	@Override
@@ -125,12 +115,8 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		environment.lifecycle().manage(injector.getInstance(ManagedScheduler.class));
 		environment.healthChecks().register(ServiceConsts.MONGO_NAME, injector.getInstance(MongoHealthCheck.class));
 
-		final String guacamoleServletName = "GuacamoleServlet";
-		environment.servlets().addServlet(guacamoleServletName, injector.getInstance(GuacamoleServlet.class))
+		environment.servlets().addServlet("GuacamoleServlet", injector.getInstance(GuacamoleServlet.class))
 				.addMapping(GUACAMOLE_SERVLET_PATH);
-		environment.servlets().addFilter("GuacamoleSecurityFilter",
-				injector.getInstance(GuacamoleSecurityFilter.class))
-				.addMappingForServletNames(EnumSet.allOf(DispatcherType.class), true, guacamoleServletName);
 
 
 		JerseyEnvironment jersey = environment.jersey();
