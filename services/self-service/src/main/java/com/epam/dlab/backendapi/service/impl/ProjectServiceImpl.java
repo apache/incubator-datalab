@@ -109,7 +109,7 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public List<ProjectDTO> getUserActiveProjects(UserInfo userInfo, boolean active) {
+	public List<ProjectDTO> getUserProjects(UserInfo userInfo, boolean active) {
 		return projectDAO.getUserProjects(userInfo, active);
 	}
 
