@@ -39,10 +39,10 @@ ca:
   address: :9000
   # dns is the comma separated dns names to use. Leave it empty to use the format:
   # {include "step-certificates.fullname" .}.{ .Release.Namespace}.svc.cluster.local,127.0.0.1
-  # dns:
+  dns:
   # url is the http url where step-certificates will listen at. Leave it empty to use the format
   # https://{{ include "step-certificates.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
-  # url:
+  url: https://${step_ca_host}
   # password is the password used to encrypt the keys. Leave it empty to generate a random one.
   password: ${step_ca_password}
   # provisioner contains the step-certificates provisioner configuration.
@@ -62,7 +62,7 @@ ca:
     # If set to "-", storageClassName: "", which disables dynamic provisioning.
     # If undefined or set to null, no storageClassName spec is set, choosing the
     # default provisioner (gp2 on AWS, standard on GKE, AWS & OpenStack).
-    storageClass:
+    storageClass: standart
     # accessModes defines the Persistent Volume Access Mode.
     accessModes:
     - ReadWriteOnce

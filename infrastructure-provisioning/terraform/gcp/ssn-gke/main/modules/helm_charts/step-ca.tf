@@ -29,6 +29,7 @@ data "template_file" "step_ca_values" {
   vars = {
     step_ca_password             = random_string.step_ca_password.result
     step_ca_provisioner_password = random_string.step_ca_provisioner_password.result
+    step_ca_host                 = data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
   }
 }
 
