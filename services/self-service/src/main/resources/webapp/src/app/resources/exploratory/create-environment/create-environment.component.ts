@@ -69,7 +69,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public getUserProjects() {
-    this.projectService.getUserProjectsList().subscribe((projects: any) => {
+    this.projectService.getUserProjectsList(true).subscribe((projects: any) => {
       this.projects = projects;
       const activeProject = projects.find(item => item.name === this.resourceGrid.activeProject);
       if (this.resourceGrid.activeProject && activeProject) {
@@ -131,7 +131,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
   private getImagesList() {
     this.userResourceService.getUserImages(this.currentTemplate.image, this.createExploratoryForm.controls['project'].value,
-    this.createExploratoryForm.controls['endpoint'].value)
+      this.createExploratoryForm.controls['endpoint'].value)
       .subscribe((res: any) => this.images = res.filter(el => el.status === 'CREATED'),
         error => this.toastr.error(error.message || 'Images list loading failed!', 'Oops!'));
   }
