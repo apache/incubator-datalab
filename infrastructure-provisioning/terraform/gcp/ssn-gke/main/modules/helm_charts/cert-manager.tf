@@ -51,7 +51,7 @@ resource "helm_release" "cert_manager_crd" {
     name       = "cert_manager_crd"
     chart      = "./modules/helm_charts/cert-manager-crd-chart"
     wait       = true
-    depends_on = [null_resource.crd_delay]
+    depends_on = [null_resource.crd_delay, helm_release.nginx]
 }
 
 data "helm_repository" "jetstack" {
