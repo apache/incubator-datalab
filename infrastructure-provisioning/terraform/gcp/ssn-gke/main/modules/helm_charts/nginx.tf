@@ -33,6 +33,7 @@ resource "helm_release" "nginx" {
     namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
     wait       = true
     # depends_on = [null_resource.step_ca_delay]
+    depends_on = [null_resource.crd_delay]
 
     values     = [
         file("./modules/helm_charts/files/nginx_values.yaml")
