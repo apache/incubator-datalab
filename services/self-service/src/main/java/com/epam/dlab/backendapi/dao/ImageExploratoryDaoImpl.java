@@ -49,8 +49,8 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 	private static final String ENDPOINT = "endpoint";
 
 	@Override
-	public boolean exist(String user, String name) {
-		return findOne(MongoCollections.IMAGES, userImageCondition(user, name)).isPresent();
+	public boolean exist(String image, String project) {
+		return findOne(MongoCollections.IMAGES, imageProjectCondition(image, project)).isPresent();
 	}
 
 	@Override
@@ -69,6 +69,13 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 	public List<ImageInfoRecord> getImages(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses) {
 		return find(MongoCollections.IMAGES,
 				userImagesCondition(user, dockerImage, project, endpoint, statuses),
+				ImageInfoRecord.class);
+	}
+
+	@Override
+	public List<ImageInfoRecord> getImagesForProject(String project) {
+		return find(MongoCollections.IMAGES,
+				eq(PROJECT, project),
 				ImageInfoRecord.class);
 	}
 
@@ -125,6 +132,10 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 
 	private Bson userImageCondition(String user, String imageName) {
 		return and(eq(USER, user), eq(IMAGE_NAME, imageName));
+	}
+
+	private Bson imageProjectCondition(String image, String project) {
+		return and(eq(IMAGE_NAME, image), eq(PROJECT, project));
 	}
 
 	private Document getUpdatedFields(Image image) {
