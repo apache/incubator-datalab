@@ -139,7 +139,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 		projectService.get(project).getEndpoints().stream()
 				.filter(e -> UserInstanceStatus.RUNNING == e.getStatus())
-				.forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo(),
+				.forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo("admin"),
 						endpoint.getName(), project));
 	}
 
@@ -210,7 +210,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private void stopNotebookWithServiceAccount(UserInstanceDTO instance) {
-		final UserInfo userInfo = securityService.getServiceAccountInfo();
+		final UserInfo userInfo = securityService.getServiceAccountInfo(instance.getUser());
 		exploratoryService.stop(userInfo, instance.getExploratoryName());
 	}
 
