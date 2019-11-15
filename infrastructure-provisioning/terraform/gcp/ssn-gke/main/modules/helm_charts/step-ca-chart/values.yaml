@@ -25,7 +25,7 @@ bootstrapImage:
 service:
   type: ClusterIP
   port: 433
-  targetPort: 32433
+  targetPort: 9000
 #  type: NodePort
 #  nodePort: 32433
 #  port: 443

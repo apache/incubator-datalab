@@ -59,7 +59,8 @@ resource "google_container_cluster" "ssn_k8s_gke_cluster" {
       issue_client_certificate = true
     }
   }
-  depends_on = [google_project_iam_member.iam]
+  depends_on = [google_project_iam_member.iam, google_service_account.ssn_k8s_sa,
+                google_service_account_key.nodes_sa_key]
 }
 
 resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
