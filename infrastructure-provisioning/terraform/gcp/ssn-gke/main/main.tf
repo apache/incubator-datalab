@@ -75,4 +75,5 @@ module "helm_charts" {
   custom_cert_path           = var.custom_cert_path
   custom_certs_host          = var.custom_certs_host
   custom_key_path            = var.custom_key_path
+  mysql_disk_size            = var.mysql_disk_size
 }

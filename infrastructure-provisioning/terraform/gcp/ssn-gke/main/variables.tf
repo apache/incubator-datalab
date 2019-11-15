@@ -212,3 +212,7 @@ variable "custom_key_path" {
 variable "custom_certs_host" {
     default = ""
 }
+
+variable "mysql_disk_size" {
+    default = "10"
+}

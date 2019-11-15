@@ -26,6 +26,8 @@ data "template_file" "mysql_values" {
     mysql_user          = var.mysql_user
     mysql_user_password = random_string.mysql_user_password.result
     mysql_db_name       = var.mysql_db_name
+    storage_class       = "standard"
+    mysql_disk_size     = var.mysql_disk_size
   }
 }
 
