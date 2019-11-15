@@ -27,3 +27,5 @@ persistence:
   enabled: true
   size: ${mysql_disk_size}Gi
   storageClass: ${storage_class}
+livenessProbe:
+  initialDelaySeconds: 120
