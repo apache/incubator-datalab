@@ -57,9 +57,8 @@ public class SecurityServiceImpl implements SecurityService {
 	}
 
 	@Override
-	public UserInfo getServiceAccountInfo() {
+	public UserInfo getServiceAccountInfo(String username) {
 		AccessTokenResponse accessTokenResponse = keycloakService.generateServiceAccountToken();
-		return new UserInfo(KeycloakUtil.parseToken(accessTokenResponse.getToken()).getPreferredUsername(),
-				accessTokenResponse.getToken());
+		return new UserInfo(username, accessTokenResponse.getToken());
 	}
 }

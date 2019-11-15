@@ -26,5 +26,5 @@ public interface SecurityService {
 
 	UserInfo getUserInfoOffline(String username);
 
-	UserInfo getServiceAccountInfo();
+	UserInfo getServiceAccountInfo(String username);
 }

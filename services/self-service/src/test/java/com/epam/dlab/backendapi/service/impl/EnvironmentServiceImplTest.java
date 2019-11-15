@@ -211,7 +211,7 @@ public class EnvironmentServiceImplTest {
 		final UserInfo userInfo = getUserInfo();
 		final ProjectDTO projectDTO = getProjectDTO();
 		when(exploratoryDAO.fetchRunningExploratoryFieldsForProject(anyString())).thenReturn(getUserInstances());
-		when(securityService.getServiceAccountInfo()).thenReturn(userInfo);
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
 		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
 		when(projectService.get(anyString())).thenReturn(projectDTO);
 		doNothing().when(projectService).stop(any(UserInfo.class), anyString(), anyString());
@@ -221,7 +221,8 @@ public class EnvironmentServiceImplTest {
 		verify(exploratoryDAO).fetchRunningExploratoryFieldsForProject(PROJECT_NAME);
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
 		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
-		verify(securityService, times(3)).getServiceAccountInfo();
+		verify(securityService, times(2)).getServiceAccountInfo(USER);
+		verify(securityService).getServiceAccountInfo(ADMIN);
 		verify(projectService).get(eq(PROJECT_NAME));
 		verify(projectService).stop(refEq(userInfo), eq(ENDPOINT_NAME), eq(PROJECT_NAME));
 		verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusIn(PROJECT_NAME, Arrays.asList(UserInstanceStatus.CREATING,
