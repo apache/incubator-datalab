@@ -35,10 +35,10 @@ spec:
   # DNS SAN
   dnsNames:
     - localhost
-    - {{ .Values.ui.ingress.host }}
   # IP Address SAN
   ipAddresses:
     - "127.0.0.1"
+    - {{ .Values.ui.ingress.host }}
   # Duration of the certificate
   duration: 24h
   # Renew 8 hours before the certificate expiration

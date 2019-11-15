@@ -27,4 +27,4 @@ controller:
     type: LoadBalancer
 
 tcp:
-  8080: "${namespace}/${step_ca_service_name}:32433"
+  8080: "${namespace}/${step_ca_service_name}:433"
