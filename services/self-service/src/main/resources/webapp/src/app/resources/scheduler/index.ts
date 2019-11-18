@@ -26,6 +26,7 @@ import { BubbleModule } from '../../shared';
 import { FormControlsModule } from '../../shared/form-controls';
 import { SchedulerComponent } from './scheduler.component';
 import { TimePickerModule } from '../../shared/time-picker';
+import { KeysPipeModule } from '../../core/pipes';
 
 export * from './scheduler.component';
 export * from './scheduler.model';
@@ -38,10 +39,11 @@ export * from './scheduler.model';
     FormControlsModule,
     MaterialModule,
     BubbleModule,
-    TimePickerModule
+    TimePickerModule,
+    KeysPipeModule
   ],
   declarations: [SchedulerComponent],
   entryComponents: [SchedulerComponent],
   exports: [SchedulerComponent]
 })
-export class SchedulerModule {}
+export class SchedulerModule { }

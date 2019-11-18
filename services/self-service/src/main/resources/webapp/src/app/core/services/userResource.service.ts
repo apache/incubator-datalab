@@ -152,9 +152,10 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getImagesList(): Observable<{}> {
+  public getImagesList(project?): Observable<{}> {
+    const body = project ? `/all?project=${project}` : '';
     return this.applicationServiceFacade
-      .buildGetImagesList()
+      .buildGetImagesList(body)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

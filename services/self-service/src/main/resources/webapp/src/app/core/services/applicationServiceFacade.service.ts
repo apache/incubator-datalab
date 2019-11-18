@@ -359,9 +359,9 @@ export class ApplicationServiceFacade {
       image);
   }
 
-  public buildGetImagesList(): Observable<any> {
+  public buildGetImagesList(param): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
-      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE) + param,
       null);
   }
 
