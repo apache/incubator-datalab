@@ -80,6 +80,8 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public setEndpoints(project) {
+    if (this.images) this.images = [];
+
     this.endpoints = project.endpoints
       .filter(e => e.status === 'RUNNING')
       .map(e => e.name);
