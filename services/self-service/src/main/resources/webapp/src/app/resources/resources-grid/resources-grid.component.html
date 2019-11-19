@@ -103,7 +103,15 @@
         [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'" sticky>
 
         <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
-          <td class="name-col" (click)="printDetailEnvironmentModal(element)" matTooltip="{{ element.name }}">{{ element.name }}</td>
+          <td
+            class="name-col"
+            (click)="printDetailEnvironmentModal(element)"
+            matTooltip="{{ element.name }}"
+            [matTooltipShowDelay]="2000"
+            matTooltipPosition="above"
+          >
+            {{ element.name }}
+          </td>
           <td class="status-col status" ngClass="{{ element.status.toLowerCase() || ''}}">
             {{element.status | underscoreless }}
           </td>
