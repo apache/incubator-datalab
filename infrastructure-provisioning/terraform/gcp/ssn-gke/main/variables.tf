@@ -60,7 +60,7 @@ variable "additional_tag" {
 }
 
 variable "ssn_k8s_workers_count" {
-  default = 1
+  default = 2
 }
 
 variable "gke_cluster_version" {

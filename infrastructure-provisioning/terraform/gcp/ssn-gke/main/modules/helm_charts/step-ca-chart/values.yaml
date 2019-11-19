@@ -42,7 +42,7 @@ ca:
   dns: ${step_ca_host}
   # url is the http url where step-certificates will listen at. Leave it empty to use the format
   # https://{{ include "step-certificates.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
-  url: https://${step_ca_host}
+  url: http://${step_ca_host}/step
   # password is the password used to encrypt the keys. Leave it empty to generate a random one.
   password: ${step_ca_password}
   # provisioner contains the step-certificates provisioner configuration.
@@ -75,12 +75,17 @@ ca:
 
 # autocert is used to configure the autocert chart that depends on step-certificates.
 autocert:
-  enabled: false
+  enabled: true
 
 # ingress contains the configuration for an ingress controller.
+paths:
+  - /step
 ingress:
-  enabled: false
-  annotations: {}
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /step
   hosts: []
   tls: []
 
