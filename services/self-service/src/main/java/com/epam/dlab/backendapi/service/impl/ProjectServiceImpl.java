@@ -149,7 +149,10 @@ public class ProjectServiceImpl implements ProjectService {
 	public void stopWithResources(UserInfo userInfo, String projectName) {
 		ProjectDTO project = get(projectName);
 		checkProjectRelatedResourcesInProgress(projectName, STOP_ACTION);
-		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName).forEach(this::stopNotebook);
+
+		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName).forEach(e ->
+				exploratoryService.stop(new UserInfo(e.getUser(), userInfo.getAccessToken()), e.getExploratoryName()));
+
 		project.getEndpoints().stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING).contains(e.getStatus())).
 				forEach(e -> stop(userInfo, e.getName(), projectName));
@@ -232,11 +235,6 @@ public class ProjectServiceImpl implements ProjectService {
 			throw new ResourceConflictException((String.format("Can not %s environment because on of user resource " +
 					"is in status CREATING or STARTING", action)));
 		}
-	}
-
-	private void stopNotebook(UserInstanceDTO instance) {
-		final UserInfo userInfo = securityService.getUserInfoOffline(instance.getUser());
-		exploratoryService.stop(userInfo, instance.getExploratoryName());
 	}
 
 	private Supplier<ResourceNotFoundException> projectNotFound() {
