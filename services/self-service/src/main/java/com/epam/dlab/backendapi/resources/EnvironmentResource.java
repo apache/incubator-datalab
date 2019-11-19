@@ -66,7 +66,7 @@ public class EnvironmentResource {
 	public Response terminateEnv(@Auth UserInfo userInfo,
 								 @NotEmpty String user) {
 		log.info("User {} is terminating {} environment", userInfo.getName(), user);
-		environmentService.terminateEnvironment(user);
+		environmentService.terminateEnvironment(userInfo, user);
 		return Response.ok().build();
 	}
 
@@ -77,7 +77,7 @@ public class EnvironmentResource {
 	public Response stopEnv(@Auth UserInfo userInfo,
 							@NotEmpty String user) {
 		log.info("User {} is stopping {} environment", userInfo.getName(), user);
-		environmentService.stopEnvironment(user);
+		environmentService.stopEnvironment(userInfo, user);
 		return Response.ok().build();
 	}
 
@@ -98,7 +98,7 @@ public class EnvironmentResource {
 	public Response stopNotebook(@Auth UserInfo userInfo, @NotEmpty String user,
 								 @PathParam("exploratoryName") String exploratoryName) {
 		log.info("Admin {} is stopping notebook {} of user {}", userInfo.getName(), exploratoryName, user);
-		environmentService.stopExploratory(user, exploratoryName);
+		environmentService.stopExploratory(userInfo, user, exploratoryName);
 		return Response.ok().build();
 	}
 
@@ -111,7 +111,7 @@ public class EnvironmentResource {
 								@PathParam("computationalName") String computationalName) {
 		log.info("Admin {} is stopping computational resource {} affiliated with exploratory {} of user {}",
 				userInfo.getName(), computationalName, exploratoryName, user);
-		environmentService.stopComputational(user, exploratoryName, computationalName);
+		environmentService.stopComputational(userInfo, user, exploratoryName, computationalName);
 		return Response.ok().build();
 	}
 
@@ -122,7 +122,7 @@ public class EnvironmentResource {
 	public Response terminateNotebook(@Auth UserInfo userInfo, @NotEmpty String user,
 									  @PathParam("exploratoryName") String exploratoryName) {
 		log.info("Admin {} is terminating notebook {} of user {}", userInfo.getName(), exploratoryName, user);
-		environmentService.terminateExploratory(user, exploratoryName);
+		environmentService.terminateExploratory(userInfo, user, exploratoryName);
 		return Response.ok().build();
 	}
 
@@ -135,7 +135,7 @@ public class EnvironmentResource {
 									 @PathParam("computationalName") String computationalName) {
 		log.info("Admin {} is terminating computational resource {} affiliated with exploratory {} of user {}",
 				userInfo.getName(), computationalName, exploratoryName, user);
-		environmentService.terminateComputational(user, exploratoryName, computationalName);
+		environmentService.terminateComputational(userInfo, user, exploratoryName, computationalName);
 		return Response.ok().build();
 	}
 }
