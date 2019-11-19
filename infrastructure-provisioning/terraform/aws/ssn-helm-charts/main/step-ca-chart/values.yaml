@@ -53,7 +53,7 @@ ca:
     # enabled defines if the database is enabled.
     enabled: true
     # persistent defines if a Persistent Volume Claim is used, if false and emptyDir will be used.
-    persistent: true
+    persistent: false
     # storeageClass is Persistent Volume Storage Class
     # If defined, storageClassName: <storageClass>.
     # If set to "-", storageClassName: "", which disables dynamic provisioning.
