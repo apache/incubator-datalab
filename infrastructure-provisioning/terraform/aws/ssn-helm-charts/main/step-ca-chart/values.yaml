@@ -59,7 +59,8 @@ ca:
     # If set to "-", storageClassName: "", which disables dynamic provisioning.
     # If undefined or set to null, no storageClassName spec is set, choosing the
     # default provisioner (gp2 on AWS, standard on GKE, AWS & OpenStack).
-    storageClass: ${storage_class_name}
+    storageClass: ""
+    # ${storage_class_name}
     # accessModes defines the Persistent Volume Access Mode.
     accessModes:
     - ReadWriteOnce
