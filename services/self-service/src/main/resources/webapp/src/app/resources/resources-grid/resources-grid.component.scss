@@ -53,6 +53,14 @@ table {
           padding-right: 5px;
           padding-left: 24px;
           cursor: pointer;
+          max-width: 250px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        &.resources-col{
+          max-width: 250px;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
     }
