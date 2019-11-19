@@ -46,6 +46,39 @@ resource "helm_release" "step_ca" {
   ]
 }
 
+resource "kubernetes_ingress" "step_ca_ingress" {
+  metadata {
+    name        = "keycloak"
+    namespace   = kubernetes_namespace.dlab-namespace.metadata[0].name
+    annotations = {
+      "kubernetes.io/ingress.class": "nginx"
+      "nginx.ingress.kubernetes.io/ssl-redirect": "false"
+      "nginx.ingress.kubernetes.io/rewrite-target": "/step"
+    }
+  }
+
+  spec {
+    backend {
+      service_name = helm_release.step_ca.name
+      service_port = 80
+    }
+
+    rule {
+      http {
+        path {
+          backend {
+            service_name = helm_release.step_ca.name
+            service_port = 80
+          }
+
+          path = "/step"
+        }
+      }
+    }
+  }
+  depends_on = [helm_release.step_ca]
+}
+
 resource "null_resource" "step_ca_delay" {
   provisioner "local-exec" {
     command = "sleep 120"
