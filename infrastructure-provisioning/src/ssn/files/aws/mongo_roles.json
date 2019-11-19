@@ -110,6 +110,16 @@
     ]
   },
   {
+    "_id": "nbCreateJupyterLab",
+    "description": "Create Notebook JupyterLab",
+    "exploratories": [
+      "docker.dlab-jupyterlab"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateRstudio",
     "description": "Create Notebook RStudio",
     "exploratories": [
@@ -144,16 +154,6 @@
     "description": "Create Notebook RStudio with TensorFlow",
     "exploratories": [
       "docker.dlab-tensor-rstudio"
-    ],
-    "groups": [
-      "$anyuser"
-    ]
-  },
-  {
-    "_id": "nbCreateJupyterlab",
-    "description": "Create Notebook Jupyterlab in Docker container",
-    "exploratories": [
-      "docker.dlab-jupyterlab"
     ],
     "groups": [
       "$anyuser"
