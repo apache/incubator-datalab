@@ -48,13 +48,25 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
         <strong>by a schedule in 15 minutes.</strong>
       </div>
       <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
-      <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
+      <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">          
         <p>
           <strong class="ellipsis label-name" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
           {{ data.item.name }}</strong> will be {{ data.action || 'decommissioned' }}.
         </p>
+        <mat-list class="endpoints-list" *ngIf="data.item.endpoints.length">
+            <mat-list-item class="list-header">
+                <div class="endpoint">Endpoint</div>
+                <div class="status">Status</div>                  
+            </mat-list-item>
+            <div class="scrolling-content">
+                <mat-list-item *ngFor="let endpoint of data.item.endpoints">                                 
+                    <div class="endpoint ellipsis">{{endpoint.name}}</div>
+                    <div class="status terminated">Terminated</div>
+                </mat-list-item>
+            </div>
+        </mat-list>          
         <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
-      
+          
         <div class="text-center m-top-30 m-bott-10">
           <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
           <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
@@ -72,7 +84,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
     .plur { font-style: normal; }
-    .label-name { display: inline-block; width: 100% }
+    .label-name { display: inline-block; width: 100% } 
+    .scrolling-content{overflow-y: auto; max-height: 200px;}
+    .endpoint { width: 70%;text-align: left;}
+    .status { width: 30%;text-align: right;}
   `]
 })
 export class NotificationDialogComponent {
