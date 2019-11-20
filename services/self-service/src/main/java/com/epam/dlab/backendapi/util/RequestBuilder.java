@@ -302,6 +302,7 @@ public class RequestBuilder {
 				.withNotebookImage(instanceDTO.getImageName())
 				.withApplicationName(getApplicationNameFromImage(instanceDTO.getImageName()))
 				.withProject(instanceDTO.getProject())
+				.withEndpoint(instanceDTO.getEndpoint())
 				.withNotebookInstanceName(instanceDTO.getExploratoryId())
 				.withExploratoryName(instanceDTO.getExploratoryName())
 				.withGitCreds(exploratoryGitCredsDTO.getGitCreds());

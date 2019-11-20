@@ -34,7 +34,7 @@ export const NAMING_CONVENTION = {
     'total_instance_number': 'total_instance_number',
     'spot_instance': 'Spot instance',
     'cluster_version': 'emr_version',
-    'max_cluster_name_length': 64,
+    'max_cluster_name_length': 10,
     'billing': {
         'resourceName': 'resource_name',
         'cost': 'cost',

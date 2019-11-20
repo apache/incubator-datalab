@@ -31,13 +31,15 @@ import java.util.Optional;
 
 public interface ImageExploratoryDao {
 
-	boolean exist(String user, String name);
+	boolean exist(String image, String project);
 
 	void save(Image image);
 
 	void updateImageFields(Image image);
 
 	List<ImageInfoRecord> getImages(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses);
+
+	List<ImageInfoRecord> getImagesForProject(String project);
 
 	Optional<ImageInfoRecord> getImage(String user, String name);
 

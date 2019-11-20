@@ -63,6 +63,7 @@ public class ImageExploratoryServiceImplTest {
 	private final String USER = "test";
 	private final String TOKEN = "token";
 	private final String EXPLORATORY_NAME = "expName";
+	private final String PROJECT = "project";
 
 	private UserInfo userInfo;
 	private UserInstanceDTO userInstance;
@@ -120,7 +121,7 @@ public class ImageExploratoryServiceImplTest {
 
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
-		verify(imageExploratoryDao).exist(USER, imageName);
+		verify(imageExploratoryDao).exist(imageName, PROJECT);
 		verify(imageExploratoryDao).save(any(Image.class));
 		verify(libDAO).getLibraries(USER, EXPLORATORY_NAME);
 		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName);
@@ -179,7 +180,7 @@ public class ImageExploratoryServiceImplTest {
 
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
-		verify(imageExploratoryDao).exist(USER, imageName);
+		verify(imageExploratoryDao).exist(imageName, PROJECT);
 		verify(imageExploratoryDao).save(any(Image.class));
 		verify(libDAO).getLibraries(USER, EXPLORATORY_NAME);
 		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName);
@@ -277,6 +278,16 @@ public class ImageExploratoryServiceImplTest {
 		imageExploratoryService.getImage(USER, "someImageName");
 	}
 
+	@Test
+	public void getImagesForProject() {
+		when(imageExploratoryDao.getImagesForProject(anyString())).thenReturn(Collections.singletonList(getImageInfoRecord()));
+
+		imageExploratoryService.getImagesForProject(PROJECT);
+
+		verify(imageExploratoryDao).getImagesForProject(PROJECT);
+		verifyNoMoreInteractions(imageExploratoryDao);
+	}
+
 	private ImageInfoRecord getImageInfoRecord() {
 		return new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someApp",
 				"someFullName", ImageStatus.CREATED);
@@ -301,7 +312,7 @@ public class ImageExploratoryServiceImplTest {
 
 	private UserInstanceDTO getUserInstanceDto() {
 		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME)
-				.withExploratoryId("explId");
+				.withExploratoryId("explId").withProject(PROJECT);
 	}
 
 	private UserInfo getUserInfo() {

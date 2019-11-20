@@ -53,6 +53,14 @@ table {
           padding-right: 5px;
           padding-left: 24px;
           cursor: pointer;
+          max-width: 250px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        &.resources-col{
+          max-width: 250px;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
     }
@@ -215,6 +223,7 @@ tr.detail-row {
 
 .filter-row .actions {
   text-align: right;
+  display: flex;
 }
 
 .filter-row .actions button {
@@ -360,4 +369,9 @@ tr.detail-row {
 .mat-icon-button i {
   line-height: 42px;
   font-size: 18px;
+}
+
+.info{
+  padding: 40px;
+  text-align: center;
 }

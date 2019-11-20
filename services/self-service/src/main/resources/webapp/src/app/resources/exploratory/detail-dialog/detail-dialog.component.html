@@ -48,7 +48,15 @@
             <div class="links_block">
               <p *ngFor="let item of notebook.url">
                 <strong class="description">{{item.description}}: &#32;</strong>
-                <a class="ellipsis" href="{{item.url}}" target="_blank">&#32;{{item.url}}</a>
+                <a
+                  class="ellipsis"
+                  matTooltip="{{item.url}}"
+                  [matTooltipShowDelay]="2000"
+                  href="{{item.url}}"
+                  target="_blank"
+                >
+                  &#32;{{item.url}}
+                </a>
               </p>
             </div>
             <p *ngIf="notebook.username">Node User: &#32;<strong>{{ notebook.username }}</strong></p>

@@ -53,7 +53,6 @@ if __name__ == "__main__":
         project_conf['vpc_name'] = os.environ['azure_vpc_name']
         project_conf['subnet_name'] = os.environ['azure_subnet_name']
         project_conf['private_subnet_name'] = project_conf['service_base_name'] + '-' + project_conf['project_name'] + '-subnet'
-        project_conf['network_interface_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name'] + '-edge-nif'
         if os.environ['conf_network_type'] == 'private':
             project_conf['static_public_ip_name'] = 'None'
         else:
@@ -65,6 +64,7 @@ if __name__ == "__main__":
         project_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(project_conf['service_base_name'],
                                                                   project_conf['project_name'],
                                                                   project_conf['endpoint_tag'])
+        project_conf['network_interface_name'] = '{0}-nif'.format(project_conf['instance_name'])
         project_conf['primary_disk_name'] = project_conf['instance_name'] + '-disk0'
         project_conf['edge_security_group_name'] = project_conf['instance_name'] + '-sg'
         project_conf['notebook_security_group_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name']\
