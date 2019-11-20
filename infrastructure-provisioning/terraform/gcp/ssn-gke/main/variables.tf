@@ -60,7 +60,7 @@ variable "additional_tag" {
 }
 
 variable "ssn_k8s_workers_count" {
-  default = 2
+  default = 1
 }
 
 variable "gke_cluster_version" {
@@ -73,7 +73,7 @@ variable "gke_cluster_version" {
 //}
 
 variable "ssn_k8s_workers_shape" {
-  default = "n1-standard-1"
+  default = "n1-standard-2"
 }
 
 variable "service_account_iam_roles" {
