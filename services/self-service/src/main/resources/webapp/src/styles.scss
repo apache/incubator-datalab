@@ -458,3 +458,12 @@ input[type='number'] {
     }
   }
 }
+
+.dialog-max-width{
+  margin: 0 auto;
+  max-width: 350px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
