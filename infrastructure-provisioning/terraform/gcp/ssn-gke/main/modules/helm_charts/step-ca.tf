@@ -48,7 +48,7 @@ resource "helm_release" "step_ca" {
 
 resource "kubernetes_ingress" "step_ca_ingress" {
   metadata {
-    name        = "keycloak"
+    name        = "step-ca"
     namespace   = kubernetes_namespace.dlab-namespace.metadata[0].name
     annotations = {
       "kubernetes.io/ingress.class": "nginx"
