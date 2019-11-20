@@ -90,7 +90,9 @@
                 <mat-form-field class="timezone-offset">
                   <mat-select placeholder="Select offset" [(value)]="tzOffset"
                     [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
-                    <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
+                    <mat-option *ngFor="let zone of zones | keys" [value]="zone.key" matTooltip="{{ zone.value }}"
+                      matTooltipShowDelay="1000" matTooltipPosition="above"> GMT {{zone.key}} {{ zone.value }}
+                    </mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
