@@ -243,6 +243,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           this._ref.detectChanges();
 
           this.filterShapes();
+          this.selectedImage.computation_resources_shapes = SortUtils.shapesSort(this.selectedImage.computation_resources_shapes);
           this.resourceForm.get('template_name').setValue(this.selectedImage.template_name);
           this.getComputationalResourceLimits();
         }
