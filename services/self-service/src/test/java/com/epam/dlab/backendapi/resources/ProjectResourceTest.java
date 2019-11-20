@@ -59,7 +59,7 @@ public class ProjectResourceTest extends TestBase {
                 .post(Entity.json(""));
 
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
-        verify(projectService, times(1)).stopWithResources(any(UserInfo.class), anyString());
+        verify(projectService).stopWithResources(any(UserInfo.class), anyString());
         verifyNoMoreInteractions(projectService);
     }
 
