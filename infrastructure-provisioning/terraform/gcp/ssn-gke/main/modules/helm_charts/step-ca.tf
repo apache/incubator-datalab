@@ -25,9 +25,11 @@
 //}
 
 resource "kubernetes_service" "step_service_lb" {
+
   depends_on = [null_resource.cert_manager_delay]
   metadata {
     name = "step-certs"
+    namespace = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
   spec {
     selector = {
@@ -43,20 +45,29 @@ resource "kubernetes_service" "step_service_lb" {
   }
 }
 
-data "kubernetes_service" "step_service_lb" {
-    metadata {
-        name       = "step-certs"
-        namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-    }
-    depends_on     = [kubernetes_service.step_service_lb]
-}
+//resource "null_resource" "step_ca_service_delay" {
+//  provisioner "local-exec" {
+//    command = "sleep 120"
+//  }
+//  triggers = {
+//    "before" = helm_release.step_ca.name
+//  }
+//}
+//
+//data "kubernetes_service" "step_service_lb" {
+//    metadata {
+//        name       = "step-certs"
+//        namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+//    }
+//    depends_on     = [kubernetes_service.step_service_lb]
+//}
 
 data "template_file" "step_ca_values" {
   template = file("./modules/helm_charts/step-ca-chart/values.yaml")
   vars = {
     step_ca_password             = random_string.step_ca_password.result
     step_ca_provisioner_password = random_string.step_ca_provisioner_password.result
-    step_ca_host                 = data.kubernetes_service.step_service_lb.load_balancer_ingress.0.ip
+    step_ca_host                 = kubernetes_service.step_service_lb.load_balancer_ingress.0.ip
   }
 }
 
