@@ -83,6 +83,7 @@ variable "service_account_iam_roles" {
     "roles/monitoring.viewer",
     "roles/storage.objectViewer",
     "roles/iam.serviceAccountTokenCreator",
+    "roles/iam.serviceAccountKeyAdmin"
   ]
 }
 
