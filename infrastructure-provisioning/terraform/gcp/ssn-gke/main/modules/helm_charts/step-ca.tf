@@ -24,6 +24,10 @@
 //  url  = "https://smallstep.github.io/helm-charts/"
 //}
 
+locals {
+  step_ca_name = 'step-certificates'
+}
+
 resource "kubernetes_service" "step_service_lb" {
 
   depends_on = [null_resource.cert_manager_delay]
@@ -33,34 +37,17 @@ resource "kubernetes_service" "step_service_lb" {
   }
   spec {
     selector = {
-      app = "step-certificates"
+      app.kubernetes.io/name = local.step_ca_name
     }
     session_affinity = "ClientIP"
     port {
-      port        = 8080
-      target_port = 8080
+      port        = 443
+      target_port = 443
     }
 
     type = "LoadBalancer"
   }
 }
-
-//resource "null_resource" "step_ca_service_delay" {
-//  provisioner "local-exec" {
-//    command = "sleep 120"
-//  }
-//  triggers = {
-//    "before" = helm_release.step_ca.name
-//  }
-//}
-//
-//data "kubernetes_service" "step_service_lb" {
-//    metadata {
-//        name       = "step-certs"
-//        namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-//    }
-//    depends_on     = [kubernetes_service.step_service_lb]
-//}
 
 data "template_file" "step_ca_values" {
   template = file("./modules/helm_charts/step-ca-chart/values.yaml")
@@ -72,7 +59,7 @@ data "template_file" "step_ca_values" {
 }
 
 resource "helm_release" "step_ca" {
-  name       = "step-certificates"
+  name       = local.step_ca_name
   chart      = "./modules/helm_charts/step-ca-chart"
   namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   # depends_on = [kubernetes_service.step_service_lb]

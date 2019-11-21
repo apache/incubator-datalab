@@ -38,7 +38,6 @@ Common labels
 helm.sh/chart: {{ include "step-certificates.chart" . }}
 app.kubernetes.io/name: {{ include "step-certificates.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: step-certificates
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}

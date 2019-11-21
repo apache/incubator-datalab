@@ -44,6 +44,6 @@ output "step_kid_password" {
 }
 
 output "step_ca_url" {
-    value = "https://${data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip}:8080"
+    value = "https://${kubernetes_service.step_service_lb.load_balancer_ingress.0.ip}"
 }
 
