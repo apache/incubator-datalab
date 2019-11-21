@@ -48,7 +48,7 @@ data "kubernetes_service" "step_service_lb" {
         name       = "step-certs"
         namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
     }
-    depends_on     = kubernetes_service.step_service_lb
+    depends_on     = [kubernetes_service.step_service_lb]
 }
 
 data "template_file" "step_ca_values" {
