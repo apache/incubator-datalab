@@ -24,11 +24,9 @@ import com.epam.dlab.billing.BillingCalculationUtils;
 import com.epam.dlab.billing.DlabResourceType;
 import com.google.common.collect.Lists;
 import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -37,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 public class AzureBillingDetailsService {
@@ -49,25 +48,10 @@ public class AzureBillingDetailsService {
 	}
 
 	public void updateBillingDetails() {
-		final List<String> users = new ArrayList<>();
-		FindIterable<Document> iterable = mongoDbBillingClient.getDatabase()
-				.getCollection(MongoKeyWords.EDGE_COLLECTION)
-				.find().projection(Projections.include(MongoKeyWords.MONGO_ID));
-
-		for (Document document : iterable) {
-			String user = document.getString(MongoKeyWords.MONGO_ID);
-			if (StringUtils.isNotEmpty(user)) {
-				users.add(user);
-			} else {
-				log.warn("Empty user is found");
-			}
-		}
-
-		if (!users.isEmpty()) {
-			users.forEach(this::updateBillingDetails);
-		} else {
-			log.warn("No users found");
-		}
+		StreamSupport.stream(mongoDbBillingClient.getDatabase()
+				.getCollection(MongoKeyWords.NOTEBOOK_COLLECTION).find().spliterator(), false)
+				.map(a -> a.getString(MongoKeyWords.DLAB_USER))
+				.forEach(this::updateBillingDetails);
 	}
 
 	public void updateBillingDetails(String user) {
@@ -160,7 +144,8 @@ public class AzureBillingDetailsService {
 
 			billingDetails.stream()
 					.filter(e -> DlabResourceType.COMPUTATIONAL.toString().equals(e.getString(MongoKeyWords
-							.RESOURCE_TYPE))).forEach(aggregator);
+							.RESOURCE_TYPE)))
+					.forEach(aggregator);
 
 			billingDetails.stream()
 					.filter(e -> DlabResourceType.VOLUME.toString().equals(e.getString(MongoKeyWords.RESOURCE_TYPE)))
