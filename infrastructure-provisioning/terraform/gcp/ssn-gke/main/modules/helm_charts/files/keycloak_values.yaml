@@ -46,10 +46,10 @@ keycloak:
     path: /auth
     hosts:
       - ${ssn_k8s_alb_dns_name}
-      tls:
-        - hosts:
-            - ${ssn_k8s_alb_dns_name}
-          secretName: dlab-ui-tls
+    tls:
+      - hosts:
+          - ${ssn_k8s_alb_dns_name}
+        secretName: dlab-ui-tls
 
   startupScripts:
     mystartup.sh: |
