@@ -769,6 +769,9 @@ footer {
     .logo-wrap {
         padding: 1rem;
         @include flexbox();
+        justify-content: center;
+        // border-bottom: 1px solid;
+        // border-color: rgba(249,250,251,.06);
         span {
             font-size: 14px;
             align-self: center;
@@ -783,6 +786,18 @@ footer {
                 vertical-align: bottom;
             }
         }
+    }
+    .asf-container {
+        border-bottom: 1px solid;
+        border-color: rgba(249,250,251,.06);
+        padding-top: 20px;
+        color: #9199a0;
+        font-size: 12px;
+    }
+    .copyright {
+      text-align: center;
+      color: #9199a0;
+      font-size: 12px;
     }
 }
 

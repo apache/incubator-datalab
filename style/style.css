@@ -1045,7 +1045,8 @@ footer {
     display: -webkit-flex;
     display: -moz-flex;
     display: -ms-flexbox;
-    display: flex; }
+    display: flex;
+    justify-content: center; }
     footer .logo-wrap span {
       font-size: 14px;
       align-self: center; }
@@ -1057,6 +1058,16 @@ footer {
         width: 60px;
         height: 30px;
         vertical-align: bottom; }
+  footer .asf-container {
+    border-bottom: 1px solid;
+    border-color: rgba(249, 250, 251, 0.06);
+    padding-top: 20px;
+    color: #9199a0;
+    font-size: 12px; }
+  footer .copyright {
+    text-align: center;
+    color: #9199a0;
+    font-size: 12px; }
 
 .overlay {
   -webkit-transition: all 0.2s ease;
