@@ -35,7 +35,7 @@ ui:
     tag: '0.1-gcp'
     pullPolicy: Always
   service:
-    type: LoadBalancer
+    type: ClusterIP
     #  port: 58443
     http_port: 58080
     https_port: 58443
