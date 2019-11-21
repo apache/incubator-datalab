@@ -24,12 +24,39 @@
 //  url  = "https://smallstep.github.io/helm-charts/"
 //}
 
+resource "kubernetes_service" "step_service_lb" {
+  depends_on = [null_resource.cert_manager_delay]
+  metadata {
+    name = "step-certs"
+  }
+  spec {
+    selector = {
+      app = "step-certificates"
+    }
+    session_affinity = "ClientIP"
+    port {
+      port        = 8080
+      target_port = 8080
+    }
+
+    type = "LoadBalancer"
+  }
+}
+
+data "kubernetes_service" "step_service_lb" {
+    metadata {
+        name       = "step-certs"
+        namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+    }
+    depends_on     = kubernetes_service.step_service_lb
+}
+
 data "template_file" "step_ca_values" {
   template = file("./modules/helm_charts/step-ca-chart/values.yaml")
   vars = {
     step_ca_password             = random_string.step_ca_password.result
     step_ca_provisioner_password = random_string.step_ca_provisioner_password.result
-    step_ca_host                 = data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
+    step_ca_host                 = data.kubernetes_service.step_service_lb.load_balancer_ingress.0.ip
   }
 }
 
@@ -37,46 +64,13 @@ resource "helm_release" "step_ca" {
   name       = "step-certificates"
   chart      = "./modules/helm_charts/step-ca-chart"
   namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-  depends_on = [null_resource.cert_manager_delay]
+  # depends_on = [kubernetes_service.step_service_lb]
   wait       = false
   timeout    = 600
 
   values     = [
     data.template_file.step_ca_values.rendered
   ]
-}
-
-resource "kubernetes_ingress" "step_ca_ingress" {
-  metadata {
-    name        = "step-ca"
-    namespace   = kubernetes_namespace.dlab-namespace.metadata[0].name
-    annotations = {
-      "kubernetes.io/ingress.class": "nginx"
-      "nginx.ingress.kubernetes.io/ssl-redirect": "false"
-      "nginx.ingress.kubernetes.io/rewrite-target": "/step"
-    }
-  }
-
-  spec {
-    backend {
-      service_name = helm_release.step_ca.name
-      service_port = 80
-    }
-
-    rule {
-      http {
-        path {
-          backend {
-            service_name = helm_release.step_ca.name
-            service_port = 80
-          }
-
-          path = "/step"
-        }
-      }
-    }
-  }
-  depends_on = [helm_release.step_ca]
 }
 
 resource "null_resource" "step_ca_delay" {
