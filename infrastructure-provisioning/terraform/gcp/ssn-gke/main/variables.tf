@@ -186,14 +186,6 @@ variable "env_os" {
   default = "debian"
 }
 
-variable "ssn_keystore_password" {
-  default = ""
-}
-
-variable "endpoint_keystore_password" {
-  default = ""
-}
-
 variable "big_query_dataset" {
   default = ""
 }

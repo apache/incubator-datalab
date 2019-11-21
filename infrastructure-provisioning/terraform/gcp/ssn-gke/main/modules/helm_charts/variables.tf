@@ -61,10 +61,6 @@ variable "mongo_image_tag" {}
 
 variable "mongo_node_port" {}
 
-variable "ssn_keystore_password" {}
-
-variable "endpoint_keystore_password" {}
-
 variable "gke_cluster_name" {}
 
 variable "big_query_dataset" {}

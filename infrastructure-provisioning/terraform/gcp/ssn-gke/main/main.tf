@@ -63,8 +63,6 @@ module "helm_charts" {
   region                     = var.region
   mongo_image_tag            = var.mongo_image_tag
   mongo_node_port            = var.mongo_node_port
-  ssn_keystore_password      = var.ssn_keystore_password
-  endpoint_keystore_password = var.endpoint_keystore_password
   gke_cluster_name           = module.gke_cluster.gke_cluster_name
   big_query_dataset          = var.big_query_dataset
   env_os                     = var.env_os
