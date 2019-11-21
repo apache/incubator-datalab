@@ -37,12 +37,12 @@ resource "kubernetes_service" "step_service_lb" {
   }
   spec {
     selector = {
-      "app.kubernetes.io/name" = local.step_ca_name
+      "app" = local.step_ca_name
     }
     session_affinity = "ClientIP"
     port {
-      port        = 9000
-      target_port = 443
+      port        = 443
+      target_port = 9000
     }
 
     type = "LoadBalancer"
