@@ -26,10 +26,6 @@ service:
   type: ClusterIP
   port: 443
   targetPort: 9000
-#  type: NodePort
-#  nodePort: 32433
-#  port: 443
-#  targetPort: 9000
 
 # ca contains the certificate authority configuration.
 ca:
@@ -56,14 +52,13 @@ ca:
     # enabled defines if the database is enabled.
     enabled: true
     # persistent defines if a Persistent Volume Claim is used, if false and emptyDir will be used.
-    persistent: false
+    persistent: true
     # storeageClass is Persistent Volume Storage Class
     # If defined, storageClassName: <storageClass>.
     # If set to "-", storageClassName: "", which disables dynamic provisioning.
     # If undefined or set to null, no storageClassName spec is set, choosing the
     # default provisioner (gp2 on AWS, standard on GKE, AWS & OpenStack).
-    storageClass: ""
-    # standard
+    storageClass: standard
     # accessModes defines the Persistent Volume Access Mode.
     accessModes:
     - ReadWriteOnce
