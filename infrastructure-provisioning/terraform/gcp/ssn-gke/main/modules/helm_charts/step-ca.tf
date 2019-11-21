@@ -25,7 +25,7 @@
 //}
 
 locals {
-  step_ca_name = 'step-certificates'
+  step_ca_name = "step-certificates"
 }
 
 resource "kubernetes_service" "step_service_lb" {
