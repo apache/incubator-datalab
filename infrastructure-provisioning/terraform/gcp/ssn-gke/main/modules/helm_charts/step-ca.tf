@@ -41,7 +41,7 @@ resource "kubernetes_service" "step_service_lb" {
     }
     session_affinity = "ClientIP"
     port {
-      port        = 443
+      port        = 9000
       target_port = 443
     }
 

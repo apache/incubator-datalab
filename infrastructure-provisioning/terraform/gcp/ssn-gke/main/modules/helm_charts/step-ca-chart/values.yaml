@@ -25,7 +25,7 @@ bootstrapImage:
 service:
   type: ClusterIP
   port: 443
-  targetPort: 443
+  targetPort: 9000
 #  type: NodePort
 #  nodePort: 32433
 #  port: 443
@@ -36,7 +36,7 @@ ca:
   # name is new public key infrastructure (PKI) names.
   name: dlab-step-ca
   # address is the HTTP listener address of step-certificates.
-  address: :443
+  address: :9000
   # dns is the comma separated dns names to use. Leave it empty to use the format:
   # {include "step-certificates.fullname" .}.{ .Release.Namespace}.svc.cluster.local,127.0.0.1
   dns: ${step_ca_host}
