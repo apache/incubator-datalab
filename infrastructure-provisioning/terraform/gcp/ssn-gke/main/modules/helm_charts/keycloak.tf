@@ -71,38 +71,38 @@ resource "helm_release" "keycloak" {
                 helm_release.dlab_ui]
 }
 
-//resource "kubernetes_ingress" "keycloak_ingress" {
-//  metadata {
-//    name        = "keycloak"
-//    namespace   = kubernetes_namespace.dlab-namespace.metadata[0].name
-//    annotations = {
-//      "kubernetes.io/ingress.class": "nginx"
-//      "nginx.ingress.kubernetes.io/ssl-redirect": "true"
-//      "nginx.ingress.kubernetes.io/rewrite-target": "/auth"
-//    }
-//  }
-//
-//  spec {
-//    backend {
-//      service_name = "${helm_release.keycloak.name}-http"
-//      service_port = 80
-//    }
-//
-//    rule {
-//      http {
-//        path {
-//          backend {
-//            service_name = "${helm_release.keycloak.name}-http"
-//            service_port = 80
-//          }
-//
-//          path = "/auth"
-//        }
-//      }
-//    }
-//    tls {
-//      secret_name = "${helm_release.dlab_ui.name}-tls"
-//    }
-//  }
-//  depends_on = [helm_release.keycloak]
-//}
+resource "kubernetes_ingress" "keycloak_ingress" {
+  metadata {
+    name        = "keycloak"
+    namespace   = kubernetes_namespace.dlab-namespace.metadata[0].name
+    annotations = {
+      "kubernetes.io/ingress.class": "nginx"
+      "nginx.ingress.kubernetes.io/ssl-redirect": "true"
+      "nginx.ingress.kubernetes.io/rewrite-target": "/auth"
+    }
+  }
+
+  spec {
+    backend {
+      service_name = "${helm_release.keycloak.name}-http"
+      service_port = 80
+    }
+
+    rule {
+      http {
+        path {
+          backend {
+            service_name = "${helm_release.keycloak.name}-http"
+            service_port = 80
+          }
+
+          path = "/auth"
+        }
+      }
+    }
+    tls {
+      secret_name = "${helm_release.dlab_ui.name}-tls"
+    }
+  }
+  depends_on = [helm_release.keycloak]
+}
