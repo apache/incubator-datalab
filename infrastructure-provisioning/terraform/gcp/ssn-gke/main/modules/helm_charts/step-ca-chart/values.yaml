@@ -23,9 +23,9 @@ bootstrapImage:
 
 # service contains configuration for the kubernetes service.
 service:
-  type: ClusterIP
-  port: 8080
-  targetPort: 8080
+  type: LoadBalancer
+  # port: 8080
+  # targetPort: 8080
 #  type: NodePort
 #  nodePort: 32433
 #  port: 443
@@ -39,10 +39,12 @@ ca:
   address: :8080
   # dns is the comma separated dns names to use. Leave it empty to use the format:
   # {include "step-certificates.fullname" .}.{ .Release.Namespace}.svc.cluster.local,127.0.0.1
-  dns: ${step_ca_host}
+  dns:
+  #${step_ca_host}
   # url is the http url where step-certificates will listen at. Leave it empty to use the format
   # https://{{ include "step-certificates.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
-  url: http://${step_ca_host}/step
+  url:
+  #http://${step_ca_host}/step
   # password is the password used to encrypt the keys. Leave it empty to generate a random one.
   password: ${step_ca_password}
   # provisioner contains the step-certificates provisioner configuration.
