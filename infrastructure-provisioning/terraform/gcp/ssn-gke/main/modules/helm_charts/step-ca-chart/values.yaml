@@ -24,8 +24,8 @@ bootstrapImage:
 # service contains configuration for the kubernetes service.
 service:
   type: LoadBalancer
-  # port: 8080
-  # targetPort: 8080
+  port: 8080
+  targetPort: 8080
 #  type: NodePort
 #  nodePort: 32433
 #  port: 443
