@@ -24,7 +24,7 @@ data "template_file" "mysql_values" {
   vars = {
     mysql_root_password = random_string.mysql_root_password.result
     mysql_user          = var.mysql_user
-    mysql_user_password = random_string.mysql_user_password.result
+    mysql_user_password = random_string.mysql_keycloak_user_password.result
     mysql_db_name       = var.mysql_db_name
     storage_class       = "standard"
     mysql_disk_size     = var.mysql_disk_size
@@ -39,7 +39,7 @@ resource "helm_release" "keycloak-mysql" {
   values     = [
     data.template_file.mysql_values.rendered
   ]
-  depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_user_password_secret,
+  depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_keycloak_user_password_secret,
                 helm_release.nginx]
 }
 
