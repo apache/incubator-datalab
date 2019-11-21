@@ -25,6 +25,3 @@ controller:
 #      http: 31080
 #      https: 31443
     type: LoadBalancer
-
-tcp:
-  8080: "${namespace}/${step_ca_service_name}:433"

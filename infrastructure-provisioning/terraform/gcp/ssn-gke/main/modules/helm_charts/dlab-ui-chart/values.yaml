@@ -47,6 +47,8 @@ ui:
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
     tls:
       - secretName: dlab-ui-tls
+        hosts:
+          - ${ssn_k8s_alb_dns_name}
   mongo:
     host: ${mongo_service_name}
     port: ${mongo_port}
