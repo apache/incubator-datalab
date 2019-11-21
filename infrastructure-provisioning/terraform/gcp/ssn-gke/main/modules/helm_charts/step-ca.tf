@@ -37,7 +37,7 @@ resource "kubernetes_service" "step_service_lb" {
   }
   spec {
     selector = {
-      app.kubernetes.io/name = local.step_ca_name
+      "app.kubernetes.io/name" = local.step_ca_name
     }
     session_affinity = "ClientIP"
     port {
