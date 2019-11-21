@@ -75,7 +75,7 @@ ca:
 
 # autocert is used to configure the autocert chart that depends on step-certificates.
 autocert:
-  enabled: true
+  enabled: false
 
 # ingress contains the configuration for an ingress controller.
 ingress:
