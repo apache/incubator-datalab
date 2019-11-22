@@ -131,7 +131,7 @@ public class ExploratoryResourceTest extends TestBase {
 				.post(Entity.json(getEmptyExploratoryActionFormDTO()));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
-		assertEquals("{\"errors\":[\"notebookInstanceName may not be empty\"]}", response.readEntity(String.class));
+		assertEquals("{\"errors\":[\"notebookInstanceName may not be empty\",\"projectName may not be empty\"]}", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verifyZeroInteractions(exploratoryService);
