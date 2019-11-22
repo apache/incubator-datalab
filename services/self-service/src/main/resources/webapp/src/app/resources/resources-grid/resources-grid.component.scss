@@ -92,6 +92,7 @@ table {
     width: 18%;
     padding-right: 5px;
     padding-left: 24px;
+    background-color: transparent;
   }
 
   .status-col,
@@ -122,13 +123,13 @@ table {
   .cost-col {
     width: 10%;
     text-align: center;
-
   }
 
   .actions-col {
     width: 10%;
     padding-right: 24px;
     text-align: right;
+    background-color: transparent;
   }
 }
 
