@@ -294,7 +294,7 @@ export class ResourcesGridComponent implements OnInit {
         .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'run') {
       this.userResourceService
-        .runExploratoryEnvironment({ notebook_instance_name: data.name })
+        .runExploratoryEnvironment({ notebook_instance_name: data.name, project_name: data.project })
         .subscribe(
           () => this.buildGrid(),
           error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
