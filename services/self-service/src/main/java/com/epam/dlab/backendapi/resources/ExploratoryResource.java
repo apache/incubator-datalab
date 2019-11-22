@@ -94,7 +94,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 						@Valid @NotNull ExploratoryActionFormDTO formDTO) {
 		log.debug("Starting exploratory environment {} for user {}", formDTO.getNotebookInstanceName(),
 				userInfo.getName());
-		return exploratoryService.start(userInfo, formDTO.getNotebookInstanceName(), "");
+		return exploratoryService.start(userInfo, formDTO.getNotebookInstanceName(), formDTO.getProjectName());
 	}
 
 	/**
