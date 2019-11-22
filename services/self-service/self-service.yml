@@ -53,7 +53,7 @@ rolePolicyEnabled: true
 roleDefaultAccess: true
 
 # Set to true to enable the scheduler of billing report.
-billingSchedulerEnabled: false
+billingSchedulerEnabled: true
 # Name of configuration file for billing report.
 <#if DEV_MODE == "true">
 billingConfFile: ${sys['user.dir']}/../billing/billing.yml
@@ -164,16 +164,16 @@ guacamole:
   username: dlab-user
 
 keycloakConfiguration:
-  redirectUri: KEYCLOAK_REDIRECT_URI
-  realm: KEYCLOAK_REALM_NAME
+  redirectUri: http://localhost:4200/
+  realm: DLAB_bhliva
   bearer-only: true
-  auth-server-url: KEYCLOAK_AUTH_SERVER_URL
+  auth-server-url: http://52.11.45.11:8080/auth
   ssl-required: none
   register-node-at-startup: true
   register-node-period: 600
-  resource: KEYCLOAK_CLIENT_NAME
+  resource: sss
   credentials:
-    secret: KEYCLOAK_CLIENT_SECRET
+    secret: 37338cc5-77f9-47f9-9d95-5cb716b91118
 
 jerseyClient:
   minThreads: 1
