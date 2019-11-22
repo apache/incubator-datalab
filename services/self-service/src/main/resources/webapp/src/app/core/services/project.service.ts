@@ -52,8 +52,17 @@ export class ProjectService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+  public getProjectsManagingList(): Observable<{}> {
+    const params = '/managing';
+    return this.applicationServiceFacade
+      .buildGetUserProjectsList(params)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public getUserProjectsList(isActive?): Observable<{}> {
-    const params = isActive ? '?active=true' : '';
+    const params = isActive ? '/me?active=true' : '';
     return this.applicationServiceFacade
       .buildGetUserProjectsList(params)
       .pipe(
