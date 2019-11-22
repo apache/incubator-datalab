@@ -27,6 +27,7 @@ import { UserResourceService, ProjectService } from '../../../core/services';
 import { CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
+import {tap} from "rxjs/operators";
 
 @Component({
   selector: 'create-environment',
@@ -73,7 +74,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       this.projects = projects;
       const activeProject = projects.find(item => item.name === this.resourceGrid.activeProject);
       if (this.resourceGrid.activeProject && activeProject) {
-        this.setEndpoints(activeProject)
+        this.setEndpoints(activeProject);
         this.createExploratoryForm.controls['project'].setValue(activeProject.name);
       }
     });
@@ -88,7 +89,14 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   public getTemplates(project, endpoint) {
-    this.userResourceService.getExploratoryTemplates(project, endpoint).subscribe(templates => this.templates = templates);
+    this.userResourceService.getExploratoryTemplates(project, endpoint)
+      .pipe(tap(results => {
+        results.sort((a,b) => (a.exploratory_environment_versions[0].template_name > b.exploratory_environment_versions[0].template_name) ? 1 : -1)
+      }))
+      .subscribe(templates =>  {
+        this.templates = templates;
+      }
+      );
   }
 
   public getShapes(template) {
@@ -103,7 +111,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       template_name: this.currentTemplate.exploratory_environment_versions[0].template_name
     };
 
-    data.cluster_config = data.cluster_config ? JSON.parse(data.cluster_config) : null
+    data.cluster_config = data.cluster_config ? JSON.parse(data.cluster_config) : null;
     this.userResourceService.createExploratoryEnvironment({ ...parameters, ...data }).subscribe((response: any) => {
       if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
     }, error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'));
