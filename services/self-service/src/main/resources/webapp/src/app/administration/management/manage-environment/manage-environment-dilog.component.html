@@ -50,12 +50,30 @@
                     quotes cannot be greater than total budget</span>
                 </div>
                 <div class="action">
-                  <span matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)"><i
-                      class="material-icons">pause_circle_outline</i>
+                  <span
+                    *ngIf="manageUsersForm?.controls['projects'].controls[i].controls['canBeStopped'].value; else not_allowed_stop"
+                    matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)">
+                    <i class="material-icons">pause_circle_outline</i>
                   </span>
-                  <span matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)">
+                  <ng-template #not_allowed_stop>
+                    <span matTooltip="Unable to stop project because at least one resource is in progress"
+                      matTooltipPosition="above" class="not-active">
+                      <i class="material-icons">pause_circle_outline</i>
+                    </span>
+                  </ng-template>
+
+                  <span
+                    *ngIf="manageUsersForm?.controls['projects'].controls[i].controls['canBeTerminated'].value; else not_allowed_terminate"
+                    matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)">
                     <i class="material-icons">phonelink_off</i>
                   </span>
+                  <ng-template #not_allowed_terminate>
+                    <span matTooltip="Unable to terminate project because at least one resource is in progress"
+                      matTooltipPosition="above" class="not-active">
+                      <i class="material-icons">phonelink_off</i>
+                    </span>
+                  </ng-template>
+
                 </div>
               </mat-list-item>
             </div>
