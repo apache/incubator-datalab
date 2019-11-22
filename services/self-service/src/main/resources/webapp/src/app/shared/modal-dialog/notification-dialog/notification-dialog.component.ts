@@ -56,7 +56,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
         <mat-list class="endpoints-list" *ngIf="data.item.endpoints.length">
             <mat-list-item class="list-header">
                 <div class="endpoint">Endpoint</div>
-                <div class="status">Status</div>                  
+                <div class="status">Further status</div>
             </mat-list-item>
             <div class="scrolling-content">
                 <mat-list-item *ngFor="let endpoint of data.item.endpoints">                                 

@@ -88,7 +88,7 @@
             <ng-template #timezone>
               <div class="col-3">
                 <mat-form-field class="timezone-offset">
-                  <mat-select placeholder="Select offset" [(value)]="tzOffset"
+                  <mat-select placeholder="Select timezone" [(value)]="tzOffset"
                     [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
                     <mat-option *ngFor="let zone of zones | keys" [value]="zone.key" matTooltip="{{ zone.value }}"
                       matTooltipShowDelay="1000" matTooltipPosition="above"> GMT {{zone.key}} {{ zone.value }}
