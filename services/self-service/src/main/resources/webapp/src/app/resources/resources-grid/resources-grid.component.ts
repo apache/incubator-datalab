@@ -131,7 +131,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public isResourcesInProgress(notebook) {
-    const env = this.getEnvironmentsListCopy().map(env => env.exploratory.find(el => el.name === notebook.name))[0];
+    let env = this.getResourceByName(notebook.name);
 
     if (env && env.resources.length) {
       return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
@@ -142,6 +142,12 @@ export class ResourcesGridComponent implements OnInit {
 
 
   // PRIVATE
+  private getResourceByName(notebook_name: string) {
+    return this.getEnvironmentsListCopy()
+      .map(env => env.exploratory.find(({ name }) => name === notebook_name))
+      .filter(notebook_name => !!notebook_name)[0];
+  }
+
   private getEnvironmentsListCopy() {
     return this.environments.map(env => JSON.parse(JSON.stringify(env)));
   }
