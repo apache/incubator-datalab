@@ -265,6 +265,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			updateComputationalStatuses(user, exploratoryName, STOPPING, TERMINATING, FAILED, TERMINATED, STOPPED);
 		} else if (status == TERMINATING) {
 			updateComputationalStatuses(user, exploratoryName, TERMINATING, TERMINATING, TERMINATED, FAILED);
+		} else if (status == TERMINATED) {
+			updateComputationalStatuses(user, exploratoryName, TERMINATED, TERMINATED, TERMINATED, FAILED);
 		}
 	}
 
