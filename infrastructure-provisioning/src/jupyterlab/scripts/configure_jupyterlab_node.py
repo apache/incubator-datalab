@@ -58,6 +58,7 @@ docker_version = '18.09.4'
 http_file = '/etc/systemd/system/docker.service.d/http-proxy.conf'
 https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
 legion_dir = '/home/' + args.os_user + '/legion/legion/'
+jupyterlab_image = os.environ['notebook_jupyterlab_image']
 jupyterlab_dir = '/home/' + args.os_user + '/.jupyterlab/'
 spark_script = jupyterlab_dir + 'spark.sh'
 pyspark_local_path_dir = '/home/' + args.os_user + '/.jupyterlab/kernels/pyspark_local/'
@@ -107,7 +108,7 @@ if __name__ == "__main__":
 
     # CONFIGURE JUPYTER FILES
     print("Configure jupyter files")
-    ensure_jupyterlab_files(args.os_user,  jupyterlab_dir, jupyter_conf_file, jupyterlab_conf_file, args.exploratory_name, args.edge_ip)
+    ensure_jupyterlab_files(args.os_user, jupyterlab_dir, jupyterlab_image, jupyter_conf_file, jupyterlab_conf_file, args.exploratory_name, args.edge_ip)
 
     # INSTALL UNGIT
     print("Install nodejs")
