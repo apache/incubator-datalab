@@ -118,9 +118,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public showActiveInstances(): void {
-
     this.filterForm = this.loadUserPreferences(this.filterActiveInstances());
-
     this.applyFilter_btnClick(this.filterForm);
     this.buildGrid();
   }
@@ -168,8 +166,10 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public exploratoryAction(data, action: string) {
+    const resource = this.getResourceByName(data.name);
+
     if (action === 'deploy') {
-      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: data, full_list: this.environments }, panelClass: 'modal-xxl' })
+      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: resource, full_list: this.environments }, panelClass: 'modal-xxl' })
         .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'run') {
       this.userResourceService
