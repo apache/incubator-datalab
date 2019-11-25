@@ -61,7 +61,7 @@ a#kc-current-locale-link::after {
 }
 
 .login-pf .container {
-    padding-top: 40px;
+    padding-top: 60px;
 }
 
 .login-pf a:hover {
@@ -74,6 +74,7 @@ a#kc-current-locale-link::after {
 
 #kc-logo-wrapper {
     background-image: url(../img/keycloak-logo-2.png);
+    background-color: red;
     background-repeat: no-repeat;
     background-size: contain;
     width: 340px;
@@ -84,14 +85,18 @@ a#kc-current-locale-link::after {
 div.kc-logo-text {
     background-image: url(../img/logo.png);
     background-repeat: no-repeat;
-    background-size: cover;
-    height: 240px;
-    width: 340px;
+    background-position: top center;
+    background-size: 333px 250px;
+    min-height: 280px;
+    width: 500px;
     margin: 0 auto;
 }
 
 div.kc-logo-text span {
-    display: none;
+    display: block;
+    padding-top: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #kc-header {
@@ -424,6 +429,9 @@ a.zocial {
 
     .login-pf-page .login-pf-social-section:last-of-type {
         padding-left: 40px;
+    }
+    .login-pf-page .login-pf-page-header {
+         margin-bottom: 20px;
     }
 
     .login-pf-page .login-pf-social-section .login-pf-social-link:last-of-type {
