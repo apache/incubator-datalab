@@ -24,6 +24,10 @@ export class SortUtils {
     return order.indexOf(arg1) - order.indexOf(arg2);
   }
 
+  public static activeStatuses(): String[] {
+    return ['running', 'stopping', 'stopped', 'creating', 'configuring', 'starting', 'creating_image'];
+  }
+
   public static shapesSort(shapesJson) {
     const sortOrder = ['For testing', 'Memory optimized', 'GPU optimized', 'Compute optimized'];
     const sortedShapes = {};
