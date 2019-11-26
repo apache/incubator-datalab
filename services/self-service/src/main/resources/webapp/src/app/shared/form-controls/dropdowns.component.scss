@@ -122,6 +122,14 @@
       }
     }
   }
+  
+  &.resources {
+    .list-menu {
+      .list-item {
+        text-transform: capitalize;
+      }
+    }
+  }
 }
 
 .dropdown-list .list-menu a,
