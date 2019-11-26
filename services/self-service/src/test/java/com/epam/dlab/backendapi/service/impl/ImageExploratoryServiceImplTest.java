@@ -259,23 +259,24 @@ public class ImageExploratoryServiceImplTest {
 	@Test
 	public void getImage() {
 		ImageInfoRecord expectedImageInfoRecord = getImageInfoRecord();
-		when(imageExploratoryDao.getImage(anyString(), anyString())).thenReturn(Optional.of(expectedImageInfoRecord));
+		when(imageExploratoryDao.getImage(anyString(), anyString(), anyString(), anyString()))
+				.thenReturn(Optional.of(expectedImageInfoRecord));
 
-		ImageInfoRecord actualImageInfoRecord = imageExploratoryService.getImage(USER, "someName");
+		ImageInfoRecord actualImageInfoRecord = imageExploratoryService.getImage(USER, "someName", "someProject", "someEndpoint");
 		assertNotNull(actualImageInfoRecord);
 		assertEquals(expectedImageInfoRecord, actualImageInfoRecord);
 
-		verify(imageExploratoryDao).getImage(USER, "someName");
+		verify(imageExploratoryDao).getImage(USER, "someName", "someProject", "someEndpoint");
 		verifyNoMoreInteractions(imageExploratoryDao);
 	}
 
 	@Test
 	public void getImageWhenMethodGetImageReturnsOptionalEmpty() {
-		when(imageExploratoryDao.getImage(anyString(), anyString())).thenReturn(Optional.empty());
+		when(imageExploratoryDao.getImage(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.empty());
 		expectedException.expect(ResourceNotFoundException.class);
 		expectedException.expectMessage(String.format("Image with name %s was not found for user %s",
 				"someImageName", USER));
-		imageExploratoryService.getImage(USER, "someImageName");
+		imageExploratoryService.getImage(USER, "someImageName", "someProject", "someEndpoint");
 	}
 
 	@Test
