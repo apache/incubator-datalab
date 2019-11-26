@@ -236,6 +236,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.userResourceService.getComputationalTemplates(project, endpoint).subscribe(
       clusterTypes => {
         this.clusterTypes = clusterTypes;
+        this.clusterTypes.forEach((cluster, index) => this.clusterTypes[index].computation_resources_shapes = SortUtils.shapesSort(cluster.computation_resources_shapes));
         this.selectedImage = clusterTypes[0];
 
         if (this.selectedImage) {
@@ -243,7 +244,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           this._ref.detectChanges();
 
           this.filterShapes();
-          this.selectedImage.computation_resources_shapes = SortUtils.shapesSort(this.selectedImage.computation_resources_shapes);
           this.resourceForm.get('template_name').setValue(this.selectedImage.template_name);
           this.getComputationalResourceLimits();
         }
