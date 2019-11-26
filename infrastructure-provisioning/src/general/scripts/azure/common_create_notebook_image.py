@@ -67,7 +67,7 @@ if __name__ == "__main__":
         instance = AzureMeta().get_instance(image_conf['resource_group_name'], image_conf['instance_name'])
         os.environ['azure_notebook_instance_size'] = instance.hardware_profile.vm_size
         os.environ['exploratory_name'] = instance.tags['Exploratory']
-        os.environ['notebook_image_name'] = image_conf['full_image_name']
+        os.environ['notebook_image_name'] = image_conf['image_name']
 
         image = AzureMeta().get_image(image_conf['resource_group_name'], image_conf['full_image_name'])
         if image == '':
