@@ -1,6 +1,7 @@
 .login-pf body {
     background: url("../img/login-background.png") no-repeat center center fixed;
     background-size: cover;
+    padding-top: 300px;
 }
 
 .alert-error {
@@ -83,18 +84,12 @@ a#kc-current-locale-link::after {
 }
 
 div.kc-logo-text {
-    background-image: url(../img/logo.png);
-    background-repeat: no-repeat;
-    background-position: top center;
-    background-size: 333px 250px;
-    min-height: 280px;
     width: 500px;
     margin: 0 auto;
 }
 
 div.kc-logo-text span {
     display: block;
-    padding-top: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -110,7 +105,6 @@ div.kc-logo-text span {
     text-transform: uppercase;
     letter-spacing: 3px;
     line-height: 1.2em;
-    padding-top: 50px;
     white-space: normal;
 }
 
@@ -263,6 +257,11 @@ a.zocial {
 .zocial.stackoverflow:before {
     color: inherit;
 }
+@media (max-width: 1600px){
+    .login-pf body  {
+        background-image: url("../img/login-background1.png");
+    }
+}
 
 
 @media (min-width: 768px) {
@@ -286,25 +285,24 @@ a.zocial {
 
     .login-pf body {
         background: white;
+        padding-top: 50px;
     }
 
     #kc-header {
         padding-left: 15px;
         padding-right: 15px;
         float: none;
-        text-align: left;
     }
 
     #kc-header-wrapper {
         font-size: 16px;
         font-weight: bold;
-        padding: 20px 60px 0 0;
         color: #72767b;
         letter-spacing: 0;
     }
 
     div.kc-logo-text {
-        margin: 0;
+        margin: auto;
         width: 150px;
         height: 32px;
         background-size: 100%;
