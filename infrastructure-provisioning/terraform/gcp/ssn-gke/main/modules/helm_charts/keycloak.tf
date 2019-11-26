@@ -42,7 +42,7 @@ data "template_file" "keycloak_values" {
   vars = {
     keycloak_user           = var.keycloak_user
     keycloak_password       = random_string.keycloak_password.result
-    ssn_k8s_alb_dns_name    = "om2611.dedvelop.dlabanalytics.com" # local.ui_host
+    ssn_k8s_alb_dns_name    = local.ui_host
     configure_keycloak_file = data.template_file.configure_keycloak.rendered
     mysql_db_name           = var.mysql_db_name
     mysql_user              = var.mysql_user
