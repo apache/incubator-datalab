@@ -90,8 +90,10 @@ public class ImageExploratoryResource {
 	@GET
 	@Path("{name}")
 	public Response getImage(@Auth UserInfo ui,
-							 @PathParam("name") String name) {
+							 @PathParam("name") String name,
+							 @QueryParam("project") String project,
+							 @QueryParam("endpoint") String endpoint) {
 		log.debug("Getting image with name {} for user {}", name, ui.getName());
-		return Response.ok(imageExploratoryService.getImage(ui.getName(), name)).build();
+		return Response.ok(imageExploratoryService.getImage(ui.getName(), name, project, endpoint)).build();
 	}
 }

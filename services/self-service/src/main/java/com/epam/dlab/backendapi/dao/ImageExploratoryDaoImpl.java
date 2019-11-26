@@ -60,7 +60,7 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 
 	@Override
 	public void updateImageFields(Image image) {
-		final Bson condition = userImageCondition(image.getUser(), image.getName());
+		final Bson condition = userImageCondition(image.getUser(), image.getName(), image.getProject(), image.getEndpoint());
 		final Document updatedFields = getUpdatedFields(image);
 		updateOne(MongoCollections.IMAGES, condition, new Document(SET, updatedFields));
 	}
@@ -80,8 +80,8 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 	}
 
 	@Override
-	public Optional<ImageInfoRecord> getImage(String user, String name) {
-		return findOne(MongoCollections.IMAGES, userImageCondition(user, name), ImageInfoRecord.class);
+	public Optional<ImageInfoRecord> getImage(String user, String name, String project, String endpoint) {
+		return findOne(MongoCollections.IMAGES, userImageCondition(user, name, project, endpoint), ImageInfoRecord.class);
 	}
 
 	@Override
@@ -130,8 +130,8 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 	}
 
 
-	private Bson userImageCondition(String user, String imageName) {
-		return and(eq(USER, user), eq(IMAGE_NAME, imageName));
+	private Bson userImageCondition(String user, String imageName, String project, String endpoint) {
+		return and(eq(USER, user), eq(IMAGE_NAME, imageName), eq(PROJECT, project), eq(ENDPOINT, endpoint));
 	}
 
 	private Bson imageProjectCondition(String image, String project) {

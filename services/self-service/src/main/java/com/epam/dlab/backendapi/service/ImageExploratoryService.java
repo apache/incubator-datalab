@@ -33,7 +33,7 @@ public interface ImageExploratoryService {
 
 	List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project, String endpoint);
 
-	ImageInfoRecord getImage(String user, String name);
+	ImageInfoRecord getImage(String user, String name, String project, String endpoint);
 
 	List<ImageInfoRecord> getImagesForProject(String project);
 }

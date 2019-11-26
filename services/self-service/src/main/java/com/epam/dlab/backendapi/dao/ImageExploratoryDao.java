@@ -41,7 +41,7 @@ public interface ImageExploratoryDao {
 
 	List<ImageInfoRecord> getImagesForProject(String project);
 
-	Optional<ImageInfoRecord> getImage(String user, String name);
+	Optional<ImageInfoRecord> getImage(String user, String name, String project, String endpoint);
 
 	List<Library> getLibraries(String user, String imageFullName, ResourceType resourceType, LibStatus status);
 }

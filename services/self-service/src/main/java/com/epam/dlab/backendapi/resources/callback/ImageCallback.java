@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -27,7 +26,6 @@ import com.epam.dlab.dto.exploratory.ImageCreateStatusDTO;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.model.exploratory.Image;
 import com.google.inject.Inject;
-import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -45,10 +43,8 @@ public class ImageCallback {
 
 	@Inject
 	private ImageExploratoryService imageExploratoryService;
-
 	@Inject
 	private RequestId requestId;
-
 
 	@POST
 	@Path("/image_status")
@@ -60,11 +56,12 @@ public class ImageCallback {
 		return Response.status(Response.Status.CREATED).build();
 	}
 
-
 	private Image getImage(ImageCreateStatusDTO dto) {
 		return Image.builder()
 				.name(dto.getName())
 				.user(dto.getUser())
+				.project(dto.getProject())
+				.endpoint(dto.getEndpoint())
 				.externalName(dto.getImageCreateDTO().getExternalName())
 				.fullName(dto.getImageCreateDTO().getFullName())
 				.status(UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus()) ?
