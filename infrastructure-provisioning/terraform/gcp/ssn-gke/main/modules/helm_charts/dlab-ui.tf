@@ -35,7 +35,7 @@ data "template_file" "dlab_ui_values" {
       mongo_user             = var.mongo_db_username
       mongo_port             = var.mongo_service_port
       mongo_service_name     = var.mongo_service_name
-      ssn_k8s_alb_dns_name   = local.ui_host
+      ssn_k8s_alb_dns_name   = "om2611.dedvelop.dlabanalytics.com" #local.ui_host
       service_base_name      = var.service_base_name
       os                     = var.env_os
       namespace              = kubernetes_namespace.dlab-namespace.metadata[0].name
