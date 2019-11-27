@@ -21,12 +21,12 @@
 # ******************************************************************************
 */ -}}
 
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    control-plane: controller-manager
-  name: step-issuer-system
+#apiVersion: v1
+#kind: Namespace
+#metadata:
+#  labels:
+#    control-plane: controller-manager
+#  name: step-issuer-system
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -157,7 +157,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: step-issuer-leader-election-role
-  namespace: step-issuer-system
+  namespace: dlab
+  # step-issuer-system
 rules:
 - apiGroups:
   - ""
@@ -260,7 +261,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: step-issuer-leader-election-rolebinding
-  namespace: step-issuer-system
+  namespace: dlab
+  # step-issuer-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -268,7 +270,8 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: step-issuer-system
+  namespace: dlab
+  # step-issuer-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -281,7 +284,8 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: step-issuer-system
+  namespace: dlab
+  # step-issuer-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -294,7 +298,8 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: step-issuer-system
+  namespace: dlab
+  # step-issuer-system
 ---
 apiVersion: v1
 kind: Service
@@ -306,7 +311,8 @@ metadata:
   labels:
     control-plane: controller-manager
   name: step-issuer-controller-manager-metrics-service
-  namespace: step-issuer-system
+  namespace: dlab
+  # step-issuer-system
 spec:
   ports:
   - name: https
@@ -321,7 +327,8 @@ metadata:
   labels:
     control-plane: controller-manager
   name: step-issuer-controller-manager
-  namespace: step-issuer-system
+  namespace: dlab
+  # step-issuer-system
 spec:
   replicas: 1
   selector:
