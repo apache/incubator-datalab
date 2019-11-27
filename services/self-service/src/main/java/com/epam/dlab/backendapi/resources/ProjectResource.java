@@ -191,12 +191,13 @@ public class ProjectResource {
 					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
 					@Schema(implementation = ProjectDTO.class))),
 	})
-	@Path("/me")
 	@GET
+	@Path("/me")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo) {
+	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo,
+									@QueryParam("active") @DefaultValue("false") boolean active) {
 		return Response
-				.ok(projectService.getUserActiveProjects(userInfo))
+				.ok(projectService.getUserProjects(userInfo, active))
 				.build();
 	}
 

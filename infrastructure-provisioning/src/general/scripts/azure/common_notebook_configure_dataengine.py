@@ -55,7 +55,7 @@ if __name__ == "__main__":
         notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
         notebook_config['region'] = os.environ['azure_region']
         notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        notebook_config['project_name'] = os.environ['project_name'].replace('_', '-')
+        notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['project_tag'] = os.environ['project_name'].replace('_', '-')
         notebook_config['endpoint_tag'] = os.environ['endpoint_name'].replace('_', '-')
         notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + notebook_config['project_name'] + \

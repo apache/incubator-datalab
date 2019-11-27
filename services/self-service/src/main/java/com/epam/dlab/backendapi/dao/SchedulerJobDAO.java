@@ -176,7 +176,7 @@ public class SchedulerJobDAO extends BaseDAO {
 				and(schedulerNotNullCondition()));
 		return find(USER_INSTANCES,
 				and(eq(STATUS, exploratoryStatus.toString()), computationalSchedulerCondition),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
+				fields(excludeId(), include(USER, PROJECT, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
 	}
 
 	public void removeScheduler(String user, String exploratory) {
@@ -208,9 +208,9 @@ public class SchedulerJobDAO extends BaseDAO {
 
 	private SchedulerJobData toSchedulerData(Document userInstanceDocument, Document compResource) {
 		final String user = userInstanceDocument.getString(USER);
+		final String project = userInstanceDocument.getString(PROJECT);
 		final String exploratoryName = userInstanceDocument.getString(EXPLORATORY_NAME);
 		final String computationalName = compResource.getString(COMPUTATIONAL_NAME);
-		final String project = compResource.getString(PROJECT);
 		final SchedulerJobDTO schedulerData = convertFromDocument((Document) compResource.get(SCHEDULER_DATA),
 				SchedulerJobDTO.class);
 		return new SchedulerJobData(user, exploratoryName, computationalName, project, schedulerData);

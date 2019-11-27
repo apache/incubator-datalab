@@ -168,10 +168,12 @@ public class ImageExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void getImage() {
-		when(imageExploratoryService.getImage(anyString(), anyString()))
+		when(imageExploratoryService.getImage(anyString(), anyString(), anyString(), anyString()))
 				.thenReturn(getImageList().get(0));
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image/someName")
+				.queryParam("project", "someProject")
+				.queryParam("endpoint", "someEndpoint")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -180,17 +182,19 @@ public class ImageExploratoryResourceTest extends TestBase {
 		assertEquals(getImageList().get(0), response.readEntity(ImageInfoRecord.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getImage(USER.toLowerCase(), "someName");
+		verify(imageExploratoryService).getImage(USER.toLowerCase(), "someName", "someProject", "someEndpoint");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 
 	@Test
 	public void getImageWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(imageExploratoryService.getImage(anyString(), anyString()))
+		when(imageExploratoryService.getImage(anyString(), anyString(), anyString(), anyString()))
 				.thenReturn(getImageList().get(0));
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image/someName")
+				.queryParam("project", "someProject")
+				.queryParam("endpoint", "someEndpoint")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -199,16 +203,52 @@ public class ImageExploratoryResourceTest extends TestBase {
 		assertEquals(getImageList().get(0), response.readEntity(ImageInfoRecord.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getImage(USER.toLowerCase(), "someName");
+		verify(imageExploratoryService).getImage(USER.toLowerCase(), "someName", "someProject", "someEndpoint");
+		verifyNoMoreInteractions(imageExploratoryService);
+	}
+
+	@Test
+	public void getAllImagesForProject() {
+		when(imageExploratoryService.getImagesForProject(anyString())).thenReturn(getImageList());
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/image/all")
+				.queryParam("project", "someProject")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(getImageList(), response.readEntity(new GenericType<List<ImageInfoRecord>>() {}));
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(imageExploratoryService).getImagesForProject("someProject");
+		verifyNoMoreInteractions(imageExploratoryService);
+	}
+
+	@Test
+	public void getAllImagesForNullProject() {
+		when(imageExploratoryService.getImagesForProject(anyString())).thenReturn(getImageList());
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/image/all")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
+
+		assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(imageExploratoryService, never()).getImagesForProject(anyString());
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 
 	@Test
 	public void getImageWithException() {
 		doThrow(new ResourceNotFoundException("Image with name was not found for user"))
-				.when(imageExploratoryService).getImage(anyString(), anyString());
+				.when(imageExploratoryService).getImage(anyString(), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image/someName")
+				.queryParam("project", "someProject")
+				.queryParam("endpoint", "someEndpoint")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -216,7 +256,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).getImage(USER.toLowerCase(), "someName");
+		verify(imageExploratoryService).getImage(USER.toLowerCase(), "someName", "someProject", "someEndpoint");
 		verifyNoMoreInteractions(imageExploratoryService);
 	}
 

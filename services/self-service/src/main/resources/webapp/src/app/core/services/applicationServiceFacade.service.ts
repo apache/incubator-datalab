@@ -74,7 +74,6 @@ export class ApplicationServiceFacade {
   private static readonly DOWNLOAD_REPORT = 'download_report';
   private static readonly SETTINGS = 'settings';
   private static readonly PROJECT = 'project';
-  private static readonly USER_PROJECT = 'project/me';
   private static readonly ENDPOINT = 'endpoint';
 
   private requestRegistry: Dictionary<string>;
@@ -359,9 +358,9 @@ export class ApplicationServiceFacade {
       image);
   }
 
-  public buildGetImagesList(): Observable<any> {
+  public buildGetImagesList(param): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
-      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE) + param,
       null);
   }
 
@@ -545,9 +544,9 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public buildGetUserProjectsList(): Observable<any> {
+  public buildGetUserProjectsList(params?): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
-      this.requestRegistry.Item(ApplicationServiceFacade.USER_PROJECT),
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + params,
       null);
   }
 
@@ -664,7 +663,6 @@ export class ApplicationServiceFacade {
     // project
     this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
-    this.requestRegistry.Add(ApplicationServiceFacade.USER_PROJECT, '/api/project/me');
   }
 
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {

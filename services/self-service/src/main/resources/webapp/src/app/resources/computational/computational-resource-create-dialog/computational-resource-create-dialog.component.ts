@@ -85,7 +85,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.getComputationalResourceLimits();
 
     if ($event.templates && $event.templates.length)
-      this.resourceForm.controls['version'].setValue($event.templates[0].version)
+      this.resourceForm.controls['version'].setValue($event.templates[0].version);
   }
 
   public selectSpotInstances($event?): void {
@@ -142,8 +142,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       version: [''],
       shape_master: ['', Validators.required],
       shape_slave: [''],
-      cluster_alias_name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern),
-      this.providerMaxLength, this.checkDuplication.bind(this)]],
+      cluster_alias_name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), Validators.maxLength(DICTIONARY.max_cluster_name_length),
+      this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(PATTERNS.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       preemptible_instance_number: [0, Validators.compose([Validators.pattern(PATTERNS.integerRegex), this.validPreemptibleRange.bind(this)])],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
@@ -232,11 +232,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       return { duplication: true };
   }
 
-  private providerMaxLength(control) {
-    if (DICTIONARY.cloud_provider !== 'aws')
-      return control.value.length <= DICTIONARY.max_cluster_name_length ? null : { valid: false };
-  }
-
   private getTemplates(project, endpoint) {
     this.userResourceService.getComputationalTemplates(project, endpoint).subscribe(
       clusterTypes => {
@@ -248,6 +243,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           this._ref.detectChanges();
 
           this.filterShapes();
+          this.selectedImage.computation_resources_shapes = SortUtils.shapesSort(this.selectedImage.computation_resources_shapes);
           this.resourceForm.get('template_name').setValue(this.selectedImage.template_name);
           this.getComputationalResourceLimits();
         }
