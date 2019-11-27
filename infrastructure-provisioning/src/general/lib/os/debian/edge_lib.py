@@ -73,7 +73,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('wget https://github.com/openresty/lua-nginx-module/archive/v0.10.15.tar.gz')
                 sudo('tar -xzf v0.10.15.tar.gz')
 
-                sudo('https://github.com/simplresty/ngx_devel_kit/archive/v0.3.1.tar.gz')
+                sudo('wget https://github.com/simplresty/ngx_devel_kit/archive/v0.3.1.tar.gz')
                 sudo('tar -xzf v0.3.1.tar.gz')
 
                 sudo('wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz')
@@ -87,10 +87,10 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             with cd('/tmp/src/LuaJIT-2.0.5/'):
                 sudo('make')
                 sudo('make install')
-                sudo('export LUAJIT_LIB=/usr/local/lib/')
-                sudo('export LUAJIT_INC=/usr/local/include/luajit-2.0')
 
             with cd('/tmp/src/nginx/'):
+                sudo('export LUAJIT_LIB=/usr/local/lib/')
+                sudo('export LUAJIT_INC=/usr/local/include/luajit-2.0')
                 sudo('./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
                               --conf-path=/etc/nginx/nginx.conf --pid-path=/run/nginx.pid --lock-path=/run/lock/subsys/nginx \
                               --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log \

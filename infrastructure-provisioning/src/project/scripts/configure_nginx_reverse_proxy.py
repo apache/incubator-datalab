@@ -26,7 +26,7 @@ from fabric.api import *
 import argparse
 import sys
 import os
-from dlab.edge_lib import install_nginx_ldap
+from dlab.edge_lib import install_nginx_lua
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     try:
         install_nginx_lua(args.hostname, os.environ['reverse_proxy_nginx_version'],
                            os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'],
-                           keycloak_client_id, keycloak_client_secret)
+                           args.keycloak_client_id, args.keycloak_client_secret)
     except Exception as err:
         print("Failed install nginx reverse proxy: " + str(err))
         sys.exit(1)
