@@ -65,7 +65,7 @@
 
 </div>
 <mat-sidenav-container class="example-container" autosize>
-  <mat-sidenav #drawer mode="side" opened role="navigation" [style.width]="isExpanded ? '220px' : '60px'">
+  <mat-sidenav #drawer mode="side" opened role="navigation" [style.width]="isExpanded ? '220px' : '60px'" disableClose>
     <mat-nav-list>
       <nav>
         <a class="nav-item" [routerLink]="['/resources_list']" [routerLinkActive]="['active']"

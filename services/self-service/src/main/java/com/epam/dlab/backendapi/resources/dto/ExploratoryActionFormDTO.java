@@ -19,27 +19,26 @@
 
 package com.epam.dlab.backendapi.resources.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 
-/** Stores info about the action of exploratory notebook. 
- * */
+/**
+ * Stores info about action on the exploratory resource.
+ */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExploratoryActionFormDTO {
     @NotBlank
     @JsonProperty("notebook_instance_name")
     private String notebookInstanceName;
 
-    /** Returns the name of notebook instance. */
-    public String getNotebookInstanceName() {
-        return notebookInstanceName;
-    }
-
-    @Override
-    public String toString() {
-    	return MoreObjects.toStringHelper(this)
-        .add("notebookInstanceName", notebookInstanceName)
-        .toString();
-    }
+    @NotBlank
+    @JsonProperty("project_name")
+    private String projectName;
 }

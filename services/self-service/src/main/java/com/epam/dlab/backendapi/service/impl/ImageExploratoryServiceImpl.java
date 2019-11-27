@@ -127,8 +127,8 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	}
 
 	@Override
-	public ImageInfoRecord getImage(String user, String name) {
-		return imageExploratoryDao.getImage(user, name).orElseThrow(() ->
+	public ImageInfoRecord getImage(String user, String name, String project, String endpoint) {
+		return imageExploratoryDao.getImage(user, name, project, endpoint).orElseThrow(() ->
 				new ResourceNotFoundException(String.format(IMAGE_NOT_FOUND_MSG, name, user)));
 	}
 

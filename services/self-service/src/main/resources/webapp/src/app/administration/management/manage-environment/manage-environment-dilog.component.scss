@@ -65,6 +65,12 @@
         color: #35afd5;
       }
 
+      &.not-active {
+        &:hover {
+          color: #6b8299;
+        }
+      }
+
       i {
         font-size: 20px;
       }
