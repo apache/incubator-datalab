@@ -104,3 +104,21 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
     except Exception as err:
         print("Failed install nginx with ldap: " + str(err))
         sys.exit(1)
+
+
+def configure_keycloak(keycloak_realm, keycloak_user, keycloak_password, client_secret, edge_url, project_name):
+    try:
+        sudo('mkdir -p /tmp/configure_for_gatekeeper/{}'.format(project_name))
+        put('/root/scripts/configure_keycloak_for_gatekeeper.sh', '/tmp/configure_for_gatekeeper/{}'.format(project_name), use_sudo=True)
+        with cd('/tmp/configure_for_gatekeeper/{}'.format(project_name)):
+            sudo('sed -i \'s/KEYCLOAK_REALM/{}/g\' configure_keycloak_for_gatekeeper.sh'.format(keycloak_realm))
+            sudo('sed -i \'s/KEYCLOAK_USER/{}/g\' configure_keycloak_for_gatekeeper.sh'.format(keycloak_user))
+            sudo('sed -i \'s/KEYCLOAK_PASSWORD/{}/g\' configure_keycloak_for_gatekeeper.sh'.format(keycloak_password))
+            sudo('sed -i \'s/PROJECT_NAME/{}/g\' configure_keycloak_for_gatekeeper.sh'.format(project_name))
+            sudo('sed -i \'s/EDGE_URL/{}/g\' configure_keycloak_for_gatekeeper.sh'.format(edge_url))
+            sudo('sed -i \'s/KEYCLOAK_SECRET/{}/g\' configure_keycloak_for_gatekeeper.sh'.format(client_secret))
+        sudo('sh /tmp/configure_for_gatekeeper/{}/configure_keycloak_for_gatekeeper.sh'.format(project_name))
+
+    except Exception as err:
+        print("Failed install gatekeeper: " + str(err))
+        sys.exit(1)
