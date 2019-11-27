@@ -19,7 +19,7 @@ function stopMacVideos() {
 $(document).ready(function () {
     'use strict';
 
-    document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()));
+    document.getElementById('current_year').appendChild(document.createTextNode(new Date().getFullYear()));
     screenThumbsNavigation.on('click', 'div', function () {
         screenSliderTop.slideTo($(this).data('slide'));
         return false;
