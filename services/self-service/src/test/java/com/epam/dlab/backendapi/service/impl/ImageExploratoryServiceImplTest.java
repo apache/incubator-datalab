@@ -63,6 +63,7 @@ public class ImageExploratoryServiceImplTest {
 	private final String USER = "test";
 	private final String TOKEN = "token";
 	private final String EXPLORATORY_NAME = "expName";
+	private final String PROJECT = "project";
 
 	private UserInfo userInfo;
 	private UserInstanceDTO userInstance;
@@ -120,7 +121,7 @@ public class ImageExploratoryServiceImplTest {
 
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
-		verify(imageExploratoryDao).exist(USER, imageName);
+		verify(imageExploratoryDao).exist(imageName, PROJECT);
 		verify(imageExploratoryDao).save(any(Image.class));
 		verify(libDAO).getLibraries(USER, EXPLORATORY_NAME);
 		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName);
@@ -179,7 +180,7 @@ public class ImageExploratoryServiceImplTest {
 
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
-		verify(imageExploratoryDao).exist(USER, imageName);
+		verify(imageExploratoryDao).exist(imageName, PROJECT);
 		verify(imageExploratoryDao).save(any(Image.class));
 		verify(libDAO).getLibraries(USER, EXPLORATORY_NAME);
 		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName);
@@ -258,23 +259,34 @@ public class ImageExploratoryServiceImplTest {
 	@Test
 	public void getImage() {
 		ImageInfoRecord expectedImageInfoRecord = getImageInfoRecord();
-		when(imageExploratoryDao.getImage(anyString(), anyString())).thenReturn(Optional.of(expectedImageInfoRecord));
+		when(imageExploratoryDao.getImage(anyString(), anyString(), anyString(), anyString()))
+				.thenReturn(Optional.of(expectedImageInfoRecord));
 
-		ImageInfoRecord actualImageInfoRecord = imageExploratoryService.getImage(USER, "someName");
+		ImageInfoRecord actualImageInfoRecord = imageExploratoryService.getImage(USER, "someName", "someProject", "someEndpoint");
 		assertNotNull(actualImageInfoRecord);
 		assertEquals(expectedImageInfoRecord, actualImageInfoRecord);
 
-		verify(imageExploratoryDao).getImage(USER, "someName");
+		verify(imageExploratoryDao).getImage(USER, "someName", "someProject", "someEndpoint");
 		verifyNoMoreInteractions(imageExploratoryDao);
 	}
 
 	@Test
 	public void getImageWhenMethodGetImageReturnsOptionalEmpty() {
-		when(imageExploratoryDao.getImage(anyString(), anyString())).thenReturn(Optional.empty());
+		when(imageExploratoryDao.getImage(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.empty());
 		expectedException.expect(ResourceNotFoundException.class);
 		expectedException.expectMessage(String.format("Image with name %s was not found for user %s",
 				"someImageName", USER));
-		imageExploratoryService.getImage(USER, "someImageName");
+		imageExploratoryService.getImage(USER, "someImageName", "someProject", "someEndpoint");
+	}
+
+	@Test
+	public void getImagesForProject() {
+		when(imageExploratoryDao.getImagesForProject(anyString())).thenReturn(Collections.singletonList(getImageInfoRecord()));
+
+		imageExploratoryService.getImagesForProject(PROJECT);
+
+		verify(imageExploratoryDao).getImagesForProject(PROJECT);
+		verifyNoMoreInteractions(imageExploratoryDao);
 	}
 
 	private ImageInfoRecord getImageInfoRecord() {
@@ -301,7 +313,7 @@ public class ImageExploratoryServiceImplTest {
 
 	private UserInstanceDTO getUserInstanceDto() {
 		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME)
-				.withExploratoryId("explId");
+				.withExploratoryId("explId").withProject(PROJECT);
 	}
 
 	private UserInfo getUserInfo() {

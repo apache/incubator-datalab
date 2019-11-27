@@ -33,7 +33,8 @@ public class ImageCreateStatusDTO extends StatusBaseDTO<ImageCreateStatusDTO> {
 	private ImageCreateDTO imageCreateDTO;
 	private String name;
 	private String exploratoryName;
-
+	private String project;
+	private String endpoint;
 
 	public ImageCreateStatusDTO withImageCreateDto(ImageCreateDTO imageCreateDto) {
 		setImageCreateDTO(imageCreateDto);

@@ -52,9 +52,19 @@ export class ProjectService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getUserProjectsList(): Observable<{}> {
+  public getProjectsManagingList(): Observable<{}> {
+    const params = '/managing';
     return this.applicationServiceFacade
-      .buildGetUserProjectsList()
+      .buildGetUserProjectsList(params)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
+  public getUserProjectsList(isActive?): Observable<{}> {
+    const params = isActive ? '/me?active=true' : '';
+    return this.applicationServiceFacade
+      .buildGetUserProjectsList(params)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
@@ -71,6 +81,15 @@ export class ProjectService {
 
   public toggleProjectStatus(data, action): Observable<{}> {
     const url = `/${action}`;
+    return this.applicationServiceFacade
+      .buildToggleProjectStatus(url, data)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
+  public stopProjectAction(data): Observable<{}> {
+    const url = `/managing/stop/${data}`;
     return this.applicationServiceFacade
       .buildToggleProjectStatus(url, data)
       .pipe(

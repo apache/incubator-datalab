@@ -49,22 +49,15 @@ export class AmiCreateDialogComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this._userResource.getImagesList().subscribe(res => this.imagesList = res);
-    this.open(this.data);
-  }
-
-  public open(notebook): void {
-    this.notebook = notebook;
+    this.notebook = this.data;
 
     this.initFormModel();
-    this._userResource.getImagesList().subscribe(res => this.imagesList = res);
+    this._userResource.getImagesList(this.data.project).subscribe(res => this.imagesList = res);
   }
 
   public assignChanges(data) {
     this._userResource.createAMI(data).subscribe(
-      response => {
-        if (response.status === HTTP_STATUS_CODES.ACCEPTED) this.dialogRef.close();
-      },
+      response => response.status === HTTP_STATUS_CODES.ACCEPTED && this.dialogRef.close(),
       error => this.toastr.error(error.message || `${DICTIONARY.image.toLocaleUpperCase()} creation failed!`, 'Oops!'));
   }
 
@@ -81,10 +74,6 @@ export class AmiCreateDialogComponent implements OnInit {
       return control.value.length <= 10 ? null : { valid: false };
   }
 
-  private delimitersFiltering(resource): string {
-    return resource.replace(this.delimitersRegex, '').toString().toLowerCase();
-  }
-
   private checkDuplication(control) {
     if (control.value)
       return this.isDuplicate(control.value) ? { duplication: true } : null;
@@ -96,5 +85,9 @@ export class AmiCreateDialogComponent implements OnInit {
         return true;
     }
     return false;
+  }
+
+  private delimitersFiltering(resource): string {
+    return resource.replace(this.delimitersRegex, '').toString().toLowerCase();
   }
 }

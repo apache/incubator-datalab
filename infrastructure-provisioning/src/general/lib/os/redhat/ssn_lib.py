@@ -233,11 +233,11 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     .replace('CONF_PARAMETER_NAME', conf_parameter_name)
                 with open('/root/templates/supervisor_svc.conf', 'w') as f:
                     f.write(text)
-            put('/root/templates/supervisor_svc.ini', '/tmp/supervisor_svc.ini')
-            sudo('mv /tmp/supervisor_svc.ini ' + os.environ['ssn_dlab_path'] + 'tmp/')
+            put('/root/templates/supervisor_svc.conf', '/tmp/supervisor_svc.conf')
+            sudo('mv /tmp/supervisor_svc.conf ' + os.environ['ssn_dlab_path'] + 'tmp/')
             sudo('cp ' + os.environ['ssn_dlab_path'] +
                  'tmp/proxy_location_webapp_template.conf /etc/nginx/locations/proxy_location_webapp.conf')
-            sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/supervisor_svc.ini {}'.format(supervisor_conf))
+            sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/supervisor_svc.conf {}'.format(supervisor_conf))
             sudo('sed -i \'s=WEB_APP_DIR={}=\' {}'.format(web_path, supervisor_conf))
             try:
                 sudo('mkdir -p /var/log/application')

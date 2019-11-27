@@ -62,7 +62,7 @@ export class WebterminalComponent implements OnInit {
     const url = environment.production ? window.location.origin : API_URL;
     const tunnel = new Guacamole.HTTPTunnel(
       `${url}/api/tunnel`, false,
-      { 'Authorization': `Bearer ${this.storageService.getToken()}` }
+      { 'DLab-Authorization': `Bearer ${this.storageService.getToken()}` }
     );
 
     const guac = new Guacamole.Client(tunnel);
@@ -80,10 +80,10 @@ export class WebterminalComponent implements OnInit {
     // Mouse
     const mouse = new Guacamole.Mouse(guac.getDisplay().getElement());
     mouse.onmousemove = (mouseState) => {
-      if (navigator.userAgent.indexOf('Firefox') === -1) {
-        mouseState.x = mouseState.x + 125;
-        mouseState.y = mouseState.y + 65;
-      }
+      // if (navigator.userAgent.indexOf('Firefox') === -1) {
+      //   mouseState.x = mouseState.x + 125;
+      //   mouseState.y = mouseState.y + 65;
+      // }
       guac.sendMouseState(mouseState);
     }
 

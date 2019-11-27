@@ -207,7 +207,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String compName = job.getComputationalName();
 		final String user = job.getUser();
 		log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.stopSparkCluster(securityService.getServiceAccountInfo(job.getUser()), expName, compName);
+		computationalService.stopSparkCluster(securityService.getServiceAccountInfo(user), expName, compName);
 	}
 
 	private void terminateComputational(SchedulerJobData job) {

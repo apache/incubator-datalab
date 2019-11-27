@@ -57,34 +57,37 @@ if __name__ == "__main__":
                                                                         ssn_conf['default_endpoint_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_size'] = os.environ['gcp_ssn_instance_size']
-        ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
-        ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
+        try:
+            if os.environ['gcp_vpc_name'] == '':
+                raise KeyError
+            else:
+                pre_defined_vpc = True
+                ssn_conf['vpc_name'] = os.environ['gcp_vpc_name']
+        except KeyError:
+            ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
+
+        try:
+            if os.environ['gcp_subnet_name'] == '':
+                raise KeyError
+            else:
+                pre_defined_subnet = True
+                ssn_conf['subnet_name'] = os.environ['gcp_subnet_name']
+        except KeyError:
+            ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
+        try:
+            if os.environ['gcp_firewall_name'] == '':
+                raise KeyError
+            else:
+                pre_defined_firewall = True
+                ssn_conf['firewall_name'] = os.environ['gcp_firewall_name']
+        except KeyError:
+            ssn_conf['firewall_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
         ssn_conf['subnet_cidr'] = '10.10.1.0/24'
-        ssn_conf['firewall_name'] = '{}-ssn-firewall'.format(ssn_conf['service_base_name'])
         ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
         ssn_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
         ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-ssn-role'
-
-        try:
-            if os.environ['gcp_vpc_name'] == '':
-                raise KeyError
-        except KeyError:
-            pre_defined_vpc = True
-            os.environ['gcp_vpc_name'] = ssn_conf['vpc_name']
-        try:
-            if os.environ['gcp_subnet_name'] == '':
-                raise KeyError
-        except KeyError:
-            pre_defined_subnet = True
-            os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
-        try:
-            if os.environ['gcp_firewall_name'] == '':
-                raise KeyError
-        except KeyError:
-            pre_defined_firewall = True
-            os.environ['gcp_firewall_name'] = ssn_conf['firewall_name']
 
         try:
             if os.environ['aws_account_id'] == '':
@@ -224,6 +227,7 @@ if __name__ == "__main__":
                              {"name": "jupyterlab", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
+                             {"name": "superset", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
                              {"name": "tensor-rstudio", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
@@ -280,6 +284,14 @@ if __name__ == "__main__":
             {
                 'key': 'KEYCLOAK_CLIENT_SECRET',
                 'value': os.environ['keycloak_client_secret']
+            },
+            {
+                'key': 'KEYCLOAK_USER',
+                'value': os.environ['keycloak_user']
+            },
+            {
+                'key': 'KEYCLOAK_USER_PASSWORD',
+                'value': os.environ['keycloak_user_password']
             },
             {
                 'key': 'CONF_OS',

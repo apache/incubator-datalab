@@ -33,6 +33,7 @@ public class AzureDlabBillableResource {
     private String id;
     private DlabResourceType type;
     private String user;
+    private String project;
     private String notebookId;
     private String resourceName;
 }

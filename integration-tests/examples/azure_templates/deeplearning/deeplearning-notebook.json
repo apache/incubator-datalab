@@ -2,6 +2,6 @@
   "image" : "docker.dlab-deeplearning",
   "name" : "set the name",
   "shape" : "Standard_NC6",
-  "version" : "deeplearning-2.1",
-  "template_name" : "Deep Learning 2.1"
+  "version" : "deeplearning-2.2",
+  "template_name" : "Deep Learning 2.2"
 }

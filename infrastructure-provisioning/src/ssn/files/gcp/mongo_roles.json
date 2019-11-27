@@ -90,8 +90,8 @@
     ]
   },
   {
-    "_id": "nbCreateJupyterlab",
-    "description": "Create Notebook Jupyterlab",
+    "_id": "nbCreateJupyterLab",
+    "description": "Create Notebook JupyterLab",
     "exploratories": [
       "docker.dlab-jupyterlab"
     ],
