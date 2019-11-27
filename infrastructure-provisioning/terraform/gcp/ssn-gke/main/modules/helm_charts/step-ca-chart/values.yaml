@@ -35,13 +35,11 @@ ca:
   address: :9000
   # dns is the comma separated dns names to use. Leave it empty to use the format:
   # {include "step-certificates.fullname" .}.{ .Release.Namespace}.svc.cluster.local,127.0.0.1
-  dns: step-certs
-  # ${step_chart_name}.${namespace}.svc.cluster.local,${step_ca_host}
+  dns: ${step_chart_name}.${namespace}.svc.cluster.local,${step_ca_host}
   # ${step_ca_host}
   # url is the http url where step-certificates will listen at. Leave it empty to use the format
   # https://{{ include "step-certificates.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
-  url: https://step-certs
-  #${step_chart_name}.${namespace}.svc.cluster.local
+  url: https://${step_chart_name}.${namespace}.svc.cluster.local
   #${step_ca_host}
   # password is the password used to encrypt the keys. Leave it empty to generate a random one.
   password: ${step_ca_password}
