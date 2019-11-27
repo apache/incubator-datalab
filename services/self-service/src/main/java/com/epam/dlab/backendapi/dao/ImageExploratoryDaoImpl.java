@@ -22,7 +22,6 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.dto.exploratory.LibStatus;
-import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.exploratory.Image;
 import com.epam.dlab.model.library.Library;
 import com.google.inject.Singleton;
@@ -86,18 +85,18 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<Library> getLibraries(String user, String imageFullName, ResourceType resourceType, LibStatus
-			status) {
-		return ((List<Document>) libDocument(user, imageFullName, status)
+	public List<Library> getLibraries(String user, String imageFullName, String project, String endpoint, LibStatus status) {
+		return ((List<Document>) libDocument(user, imageFullName, project, endpoint, status)
 				.orElse(emptyLibrariesDocument()).get(LIBRARIES))
 				.stream()
 				.map(d -> convertFromDocument(d, Library.class))
 				.collect(Collectors.toList());
 	}
 
-	private Optional<Document> libDocument(String user, String imageFullName, LibStatus status) {
+	private Optional<Document> libDocument(String user, String imageFullName, String project, String endpoint,
+										   LibStatus status) {
 		return findOne(MongoCollections.IMAGES,
-				imageLibraryCondition(user, imageFullName, status),
+				imageLibraryCondition(user, imageFullName, project, endpoint, status),
 				fields(include(LIBRARIES), excludeId()));
 	}
 
@@ -105,8 +104,9 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 		return new Document(LIBRARIES, Collections.emptyList());
 	}
 
-	private Bson imageLibraryCondition(String user, String imageFullName, LibStatus status) {
-		return and(eq(USER, user), eq(IMAGE_NAME, imageFullName),
+	private Bson imageLibraryCondition(String user, String imageFullName, String project, String endpoint,
+									   LibStatus status) {
+		return and(eq(USER, user), eq(IMAGE_NAME, imageFullName), eq(PROJECT, project), eq(ENDPOINT, endpoint),
 				elemMatch(LIBRARIES, eq(STATUS, status.name())));
 	}
 
