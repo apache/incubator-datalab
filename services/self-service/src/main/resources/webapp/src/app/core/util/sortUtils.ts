@@ -25,7 +25,7 @@ export class SortUtils {
   }
 
   public static activeStatuses(): String[] {
-    return ['running', 'stopping', 'stopped', 'creating', 'configuring', 'starting', 'creating_image'];
+    return ['running', 'stopping', 'stopped', 'creating', 'configuring', 'starting', 'creating image'];
   }
 
   public static shapesSort(shapesJson) {
