@@ -32,6 +32,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--user', type=str, default='')
+parser.add_argument('--keycloak_client_id', type=str, default='')
+parser.add_argument('--keycloak_client_secret', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
