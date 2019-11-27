@@ -37,14 +37,15 @@ ui:
   service:
     type: ClusterIP
     #  port: 58443
-    http_port: 58080
-    https_port: 58443
+    http_port: 80
+    https_port: 443
   ingress:
     enabled: true
     host: ${ssn_k8s_alb_dns_name}
     annotations:
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
     tls:
       - secretName: dlab-ui-tls
   mongo:

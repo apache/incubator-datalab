@@ -23,7 +23,7 @@
 
 {{- if .Values.ui.ingress.enabled -}}
 {{- $fullName := include "dlab-ui.fullname" . -}}
-{{ $servicePort := .Values.ui.service.http_port }}
+{{ $servicePort := .Values.ui.service.https_port }}
 {{ $host := .Values.ui.ingress.host }}
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -36,12 +36,12 @@ metadata:
 {{ toYaml . | indent 4 }}
   {{- end }}
 spec:
-{{- if .Values.ui.ingress.tls }}
-  tls:
-  {{- range .Values.ui.ingress.tls }}
-    - secretName: {{ .secretName }}
-  {{- end }}
-{{- end }}
+#{{- if .Values.ui.ingress.tls }}
+#  tls:
+#  {{- range .Values.ui.ingress.tls }}
+#    - secretName: {{ .secretName }}
+#  {{- end }}
+#{{- end }}
   rules:
     - http:
         paths:

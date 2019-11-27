@@ -22,3 +22,5 @@
 controller:
   service:
     type: LoadBalancer
+  extraArgs:
+    enable-ssl-passthrough: true
