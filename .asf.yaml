@@ -1,2 +1,4 @@
 github:
   ghp_branch:  gh-pages
+publish:
+  whoami: asf-site
