@@ -63,8 +63,14 @@
         <div class="inner-step mat-reset roles">
           <div class="selector-wrapper">
             <mat-form-field>
-              <mat-select multiple [compareWith]="compareObjects" name="roles" [(value)]="setupRoles"
-                disableOptionCentering placeholder="Select roles">
+              <mat-select
+                multiple [compareWith]="compareObjects"
+                name="roles"
+                [(value)]="setupRoles"
+                disableOptionCentering
+                placeholder="Select roles"
+                panelClass="select-role"
+              >
                 <mat-option class="multiple-select" disabled>
                   <a class="select ani" (click)="selectAllOptions(setupRoles, rolesList)">
                     <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -109,7 +115,7 @@
             <div class="selector-wrapper-edit">
               <mat-form-field class="select">
                 <mat-select multiple [compareWith]="compareObjects" name="selected_roles" disableOptionCentering
-                  [(value)]="element.selected_roles" placeholder="Select roles" class="roles-select">
+                  [(value)]="element.selected_roles" placeholder="Select roles" class="roles-select" panelClass="select-role">
                   <mat-option class="multiple-select" disabled>
                     <a class="select ani" (click)="selectAllOptions(element, rolesList, 'selected_roles')">
                       <i class="material-icons">playlist_add_check</i>&nbsp;All

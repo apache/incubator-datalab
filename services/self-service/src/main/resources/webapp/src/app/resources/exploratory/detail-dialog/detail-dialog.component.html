@@ -47,10 +47,12 @@
             <p>Open following URL(s) in your browser to access this box:</p>
             <div class="links_block">
               <p *ngFor="let item of notebook.url">
-                <strong class="description">{{item.description}}: &nbsp;</strong>
+                <span class="description">{{item.description}}: &nbsp;</span>
                 <a
                   class="ellipsis"
                   matTooltip="{{item.url}}"
+                  [matTooltipShowDelay]="2000"
+                  matTooltipPosition="above"
                   href="{{item.url}}"
                   target="_blank"
                 >
@@ -58,30 +60,30 @@
                 </a>
               </p>
             </div>
-            <p *ngIf="notebook.username">Node User: &nbsp;<strong>{{ notebook.username }}</strong></p>
-            <p *ngIf="notebook.password">Password: &nbsp;<strong>{{ notebook.password }}</strong></p>
+            <p *ngIf="notebook.username">Node User: &nbsp;<span class="strong">{{ notebook.username }}</span></p>
+            <p *ngIf="notebook.password">Password: &nbsp;<span class="strong">{{ notebook.password }}</span></p>
 
             <p class="m-top-30">{{ DICTIONARY.personal_storage }}: &nbsp;</p>
             <div class="links_block">
               <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">{{ DICTIONARY.account }}
-                <strong>{{ notebook.account_name}}</strong></p>
-              <p *ngIf="notebook.bucket_name">{{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
+                <span class="bucket-info">{{ notebook.account_name}}</span></p>
+              <p *ngIf="notebook.bucket_name">{{ DICTIONARY.container }} <span class="bucket-info">{{ notebook.bucket_name }}</span></p>
             </div>
             <p>{{ DICTIONARY.collaboration_storage }}: &nbsp;</p>
             <div class="links_block">
               <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">{{ DICTIONARY.account }}
-                <strong>{{ notebook.shared_account_name}}</strong></p>
+                <span class="bucket-info">{{ notebook.shared_account_name}}</span></p>
               <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY.container }}
-                <strong>{{ notebook.shared_bucket_name }}</strong></p>
+                <span class="bucket-info">{{ notebook.shared_bucket_name }}</span></p>
             </div>
             <br />
 
             <div *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.datalake_name">
               <p>Data Lake Store: &nbsp;</p>
               <div class="links_block">
-                <p>Data Lake Store Account: &nbsp;<strong>{{ notebook.datalake_name }}</strong></p>
-                <p>Personal folder: &nbsp;<strong>{{ notebook.datalake_directory }}</strong></p>
-                <p>Collaboration folder: &nbsp;<strong>{{ notebook.datalake_shared_directory }}</strong></p>
+                <p>Data Lake Store Account: &nbsp;<span class="bucket-info">{{ notebook.datalake_name }}</span></p>
+                <p>Personal folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_directory }}</span></p>
+                <p>Collaboration folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_shared_directory }}</span></p>
               </div>
             </div>
 

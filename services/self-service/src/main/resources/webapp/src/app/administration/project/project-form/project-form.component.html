@@ -92,7 +92,7 @@
               <label class="label">Endpoints</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-select multiple formControlName="endpoints" placeholder="Select endpoints">
+                  <mat-select multiple formControlName="endpoints" placeholder="Select endpoints" panelClass="crete-project-dialog">
                     <mat-option class="multiple-select" disabled>
                       <a class="select ani" (click)="selectOptions(endpointsList, 'endpoints', 'all')">
                         <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -136,7 +136,7 @@
             <label class="label">Groups</label>
             <div class="control selector-wrapper">
               <mat-form-field>
-                <mat-select multiple formControlName="groups" placeholder="Select user groups">
+                <mat-select multiple formControlName="groups" placeholder="Select user groups" panelClass="crete-project-dialog">
                   <mat-option class="multiple-select" disabled>
                     <a class="select ani" (click)="selectOptions(groupsList, 'groups', 'all')">
                       <i class="material-icons">playlist_add_check</i>&nbsp;All
