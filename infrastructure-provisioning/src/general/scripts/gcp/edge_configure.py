@@ -241,7 +241,6 @@ if __name__ == "__main__":
         print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
 
-
         keycloak_client_secret = str(uuid.uuid4())
         keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} --keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} --edge_public_ip {} --project_name {}" \
             .format(edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
