@@ -244,7 +244,8 @@ html {
     color: #3C4349;
     opacity: 1; }
 
-.ani, header nav > ul > li.has-children > a::before, header nav > ul > li.has-children > a::after, header nav > ul > li .sub-menu, .controls-slider .controls-nav mark, .controls-slider .mac-wrap .swiper-slide video, h2.heading, .we-solve article div, .we-solve article div svg g[stroke*="#"], .we-solve article div p, .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide, .social li, .overlay .overlay-wrap .sources div .git-ref, .overlay .overlay-wrap .sources div .apache-ref {
+.ani, header nav > ul > li.has-children > a::before, header nav > ul > li.has-children > a::after, header nav > ul > li .sub-menu, .controls-slider .controls-nav mark, .controls-slider .mac-wrap .swiper-slide video, h2.heading, .we-solve article div, .we-solve article div svg g[stroke*="#"], .we-solve article div p, .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide, .social li, .overlay .overlay-wrap .sources div .git-ref,
+.overlay .overlay-wrap .sources div .apache-ref {
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -ms-transition: all 0.5s ease;
@@ -1135,16 +1136,19 @@ footer {
         margin: 0 auto;
         margin-bottom: 40px;
         height: 96px; }
-        .overlay .overlay-wrap .sources div .git-ref, .overlay .overlay-wrap .sources div .apache-ref {
+        .overlay .overlay-wrap .sources div .git-ref,
+        .overlay .overlay-wrap .sources div .apache-ref {
           height: 100%;
           background-size: 50%;
           background-repeat: no-repeat;
           background-position: center;
           padding: 15px; }
-          .overlay .overlay-wrap .sources div .git-ref.git-ref, .overlay .overlay-wrap .sources div .apache-ref.git-ref {
+          .overlay .overlay-wrap .sources div .git-ref.git-ref,
+          .overlay .overlay-wrap .sources div .apache-ref.git-ref {
             border: 1px solid #0366D6;
             background-image: url(../images/sources/git_logo.png); }
-          .overlay .overlay-wrap .sources div .git-ref.apache-ref, .overlay .overlay-wrap .sources div .apache-ref.apache-ref {
+          .overlay .overlay-wrap .sources div .git-ref.apache-ref,
+          .overlay .overlay-wrap .sources div .apache-ref.apache-ref {
             border: 1px solid #C41742;
             background-image: url(../images/sources/apache_logo.png); }
       .overlay .overlay-wrap .sources mark {
@@ -1253,7 +1257,8 @@ footer {
       margin-top: 35px; } }
 
 @media (max-width: 1024px) {
-  .controls-nav, .technologies {
+  .controls-nav,
+  .technologies {
     display: none; }
   .we-solve article div {
     width: 25%; }
@@ -1297,9 +1302,7 @@ footer {
     left: 0; }
   .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-next {
     top: 175px;
-    right: 0; }
-  footer .row ul.social li:first-child {
-    display: none; } }
+    right: 0; } }
 
 @media (max-width: 767px) {
   #wrap > section {
@@ -1368,7 +1371,8 @@ footer {
         color: #1CBC79; }
       header .menu > li.has-children li {
         border: none; }
-      header .menu > li.has-children a::before, header .menu > li.has-children a::after {
+      header .menu > li.has-children a::before,
+      header .menu > li.has-children a::after {
         display: none; }
       header .menu > li .sub-menu {
         width: auto;
@@ -1568,6 +1572,4 @@ footer {
     footer .row ul.social {
       flex-basis: 100%;
       justify-content: center;
-      margin-bottom: 25px; }
-      footer .row ul.social li:first-child {
-        display: none; } }
+      margin-bottom: 25px; } }
