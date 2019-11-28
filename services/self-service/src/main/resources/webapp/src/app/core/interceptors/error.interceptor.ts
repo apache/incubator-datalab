@@ -90,7 +90,7 @@ import { HTTP_STATUS_CODES } from '../util';
   }
 
   private handleBadRequest(error, request: HttpRequest<any>, next: HttpHandler) {
-    if (!error.url.split('?')[0].endsWith('maven')) this.routingService.redirectToLoginPage();
+    if (error.url.indexOf('refresh') > -1) this.routingService.redirectToLoginPage();
     return next.handle(request);
   }
 }
