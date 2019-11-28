@@ -39,7 +39,6 @@ import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.exploratory.Exploratory;
 import com.epam.dlab.model.library.Library;
 import com.epam.dlab.rest.client.RESTService;
@@ -349,16 +348,17 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withTags(tagService.getResourceTags(userInfo, exploratory.getEndpoint(), project,
 						exploratory.getExploratoryTag()));
 		if (StringUtils.isNotBlank(exploratory.getImageName())) {
-			final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory
-					.getImageName());
+			final List<LibInstallDTO> libInstallDtoList = getImageRelatedLibraries(userInfo, exploratory.getImageName(),
+					project, exploratory.getEndpoint());
 			userInstance.withLibs(libInstallDtoList);
 		}
 		return userInstance;
 	}
 
-	private List<LibInstallDTO> getImageRelatedLibraries(UserInfo userInfo, String imageFullName) {
-		final List<Library> libraries = imageExploratoryDao.getLibraries(userInfo.getName(), imageFullName,
-				ResourceType.EXPLORATORY, LibStatus.INSTALLED);
+	private List<LibInstallDTO> getImageRelatedLibraries(UserInfo userInfo, String imageFullName, String project,
+														 String endpoint) {
+		final List<Library> libraries = imageExploratoryDao.getLibraries(userInfo.getName(), imageFullName, project,
+				endpoint, LibStatus.INSTALLED);
 		return toLibInstallDtoList(libraries);
 	}
 

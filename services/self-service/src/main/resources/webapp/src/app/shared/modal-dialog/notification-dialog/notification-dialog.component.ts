@@ -53,7 +53,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
           <strong class="ellipsis label-name" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
           {{ data.item.name }}</strong> will be {{ data.action || 'decommissioned' }}.
         </p>
-        <mat-list class="endpoints-list" *ngIf="data.item.endpoints.length">
+        <mat-list class="endpoints-list" *ngIf="data.item.endpoints?.length">
             <mat-list-item class="list-header">
                 <div class="endpoint">Endpoint</div>
                 <div class="status">Further status</div>
