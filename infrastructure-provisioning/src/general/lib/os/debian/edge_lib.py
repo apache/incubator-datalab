@@ -88,14 +88,12 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('make')
                 sudo('make install')
 
-            with cd('/tmp/src/nginx/'):
-                sudo('export LUAJIT_LIB=/usr/local/lib/')
-                sudo('export LUAJIT_INC=/usr/local/include/luajit-2.0')
+            with cd('/tmp/src/nginx/'), shell_env(LUAJIT_LIB='/usr/local/lib/', LUAJIT_INC='/usr/local/include/luajit-2.0')::
                 sudo('./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
                               --conf-path=/etc/nginx/nginx.conf --pid-path=/run/nginx.pid --lock-path=/run/lock/subsys/nginx \
                               --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log \
                               --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module --with-pcre \
-                              --with-http_realip_module --with-file-aio --with-ipv6 --with-http_v2_module --with-debug \
+                              --with-http_realip_module --with-file-aio --with-ipv6 --with-http_v2_module --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB"  \
                               --without-http_scgi_module --without-http_uwsgi_module --without-http_fastcgi_module --with-http_sub_module \
                               --add-dynamic-module=/tmp/src/ngx_devel_kit-0.3.1 --add-dynamic-module=/tmp/src/lua-nginx-module-0.10.15')
                 sudo('make')
