@@ -23,6 +23,7 @@
 
 import os
 import sys
+import re
 from fabric.api import *
 from fabric.contrib.files import exists
 
@@ -58,39 +59,71 @@ def configure_http_proxy_server(config):
         sys.exit(1)
 
 
-def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_service_pass, ldap_service_username):
+def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id, keycloak_client_secret):
     try:
         if not os.path.exists('/tmp/nginx_installed'):
             sudo('apt-get install -y wget')
-            sudo('apt-get -y install gcc build-essential make zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev')
-            sudo('mkdir -p /tmp/nginx_auth_ldap')
-            with cd('/tmp/nginx_auth_ldap'):
-                sudo('git clone https://github.com/kvspb/nginx-auth-ldap.git')
+            sudo('apt-get -y install gcc build-essential make automake zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev libc6-dev libgd-dev libgeoip-dev libpcre3-dev apt-utils autoconf liblmdb-dev libtool libxml2-dev libyajl-dev pkgconf liblua5.1-0 liblua5.1-0-dev libreadline-dev libreadline6-dev libtinfo-dev libtool-bin lua5.1 zip readline-doc')
+            sudo('mkdir -p /tmp/lua')
             sudo('mkdir -p /tmp/src')
             with cd('/tmp/src/'):
                 sudo('wget http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version))
                 sudo('tar -xzf nginx-{}.tar.gz'.format(nginx_version))
+
+                sudo('wget https://github.com/openresty/lua-nginx-module/archive/v0.10.15.tar.gz')
+                sudo('tar -xzf v0.10.15.tar.gz')
+
+                sudo('wget https://github.com/simplresty/ngx_devel_kit/archive/v0.3.1.tar.gz')
+                sudo('tar -xzf v0.3.1.tar.gz')
+
+                sudo('wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz')
+                sudo('tar -xzf LuaJIT-2.0.5.tar.gz')
+
+                sudo('wget http://keplerproject.github.io/luarocks/releases/luarocks-2.2.2.tar.gz')
+                sudo('tar -xzf luarocks-2.2.2.tar.gz')
+
                 sudo('ln -sf nginx-{} nginx'.format(nginx_version))
-            with cd('/tmp/src/nginx/'):
+
+            with cd('/tmp/src/LuaJIT-2.0.5/'):
+                sudo('make')
+                sudo('make install')
+
+            with cd('/tmp/src/nginx/'), shell_env(LUAJIT_LIB='/usr/local/lib/', LUAJIT_INC='/usr/local/include/luajit-2.0'):
                 sudo('./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
                               --conf-path=/etc/nginx/nginx.conf --pid-path=/run/nginx.pid --lock-path=/run/lock/subsys/nginx \
                               --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log \
                               --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module --with-pcre \
-                              --with-http_realip_module --with-file-aio --with-ipv6 --with-http_v2_module --with-debug \
+                              --with-http_realip_module --with-file-aio --with-ipv6 --with-http_v2_module --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB"  \
                               --without-http_scgi_module --without-http_uwsgi_module --without-http_fastcgi_module --with-http_sub_module \
-                              --add-module=/tmp/nginx_auth_ldap/nginx-auth-ldap/')
+                              --add-dynamic-module=/tmp/src/ngx_devel_kit-0.3.1 --add-dynamic-module=/tmp/src/lua-nginx-module-0.10.15')
                 sudo('make')
                 sudo('make install')
+
+            with cd('/tmp/src/luarocks-2.2.2/'):
+                sudo('./configure')
+                sudo('make build')
+                sudo('make install')
+                sudo('luarocks install lua-resty-jwt')
+                sudo('luarocks install lua-resty-session')
+                sudo('luarocks install lua-resty-http')
+                sudo('luarocks install lua-resty-openidc')
+                sudo('luarocks install luacrypto')
+                sudo('luarocks install lua-cjson')
+                sudo('luarocks install lua-resty-core')
+                sudo('luarocks install random')
+                sudo('luarocks install lua-resty-string')
+
             sudo('useradd -r nginx')
             sudo('rm -f /etc/nginx/nginx.conf')
             sudo('mkdir -p /opt/dlab/templates')
             put('/root/templates', '/opt/dlab', use_sudo=True)
-            sudo('sed -i \'s/LDAP_IP/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_ip))
-            sudo('sed -i \'s/LDAP_DN/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_dn))
-            sudo('sed -i \'s/LDAP_OU/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_ou))
-            sudo('sed -i \'s/LDAP_SERVICE_PASSWORD/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_service_pass))
-            sudo('sed -i \'s/LDAP_SERVICE_USERNAME/{}/g\' /opt/dlab/templates/nginx.conf'.format(ldap_service_username))
+            keycloak_auth_server_ip = ''.join(re.findall('(?:[12]?\\d?\\d\\.){3}[12]?\\d?\\d:\d+', keycloak_auth_server_url))
             sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(edge_ip))
+            sudo('sed -i \'s/KEYCLOAK_SERVER_IP/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_auth_server_ip))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_realm_name))
+            sudo('sed -i \'s/KEYCLOAK_CLIENT_ID/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_client_id))
+            sudo('sed -i \'s/KEYCLOAK_CLIENT_SECRET/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_client_secret))
+
             sudo('cp /opt/dlab/templates/nginx.conf /etc/nginx/')
             sudo('mkdir /etc/nginx/conf.d')
             sudo('cp /opt/dlab/templates/conf.d/proxy.conf /etc/nginx/conf.d/')
