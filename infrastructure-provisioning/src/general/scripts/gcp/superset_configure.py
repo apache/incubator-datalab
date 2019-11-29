@@ -277,6 +277,21 @@ if __name__ == "__main__":
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
+    try:
+        print('[CONFIGURING PROXY FOR DOCKER]')
+        logging.info('[CONFIGURING PROXY FOR DOCKER]')
+        params = "--os_user {} ".format(notebook_config['dlab_ssh_user'])
+        try:
+            local("~/scripts/configure_proxy_for_docker.py {}".format(params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to configure proxy for docker.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     # generating output information
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     superset_ip_url = "http://" + ip_address + ":8088/{}/".format(notebook_config['exploratory_name'])
