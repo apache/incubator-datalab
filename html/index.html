@@ -19,9 +19,10 @@
     <meta property="og:image" content="http://dlab.opensource.epam.com/images/background/login-background.jpg" />
     <meta property="og:image:alt" content="DLab logo" />
     <meta property="og:site_name" content="DLab" />
-
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" type="text/css" href="dist/app.css" />
+    <script src="./js/libs/_jquery.js"></script>
+    <script src="./js/libs/jquery.lazyload.min.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -32,7 +33,7 @@
         <header>
             <nav>
                 <div>
-                    <a class="logo"><img src="images/logo_black.svg" alt="dlab-logo"></a>
+                    <a class="logo"><img class="lazy" data-original="images/logo_black.svg" alt="dlab-logo"></a>
                 </div>
                 <input type="checkbox" id="menu-toggle" />
                 <label for="menu-toggle" class="label-toggle">
@@ -157,16 +158,16 @@
 
         <div class="technologies">
             <div class="row">
-                <figure><img src="images/technologies/amazon.png" alt="Amazon Web Services"></figure>
-                <figure><img src="images/technologies/emr.png" alt="Amazon Elastic MapReduce, EMR"></figure>
-                <figure><img src="images/technologies/jupyter.png" alt="Jupyter Notebook"></figure>
-                <figure><img src="images/technologies/zeppelin.png" alt="Apache Zeppelin"></figure>
-                <figure><img src="images/technologies/python.png" alt="Python"></figure>
-                <figure><img src="images/technologies/mongodb.png"
+                <figure><img class="lazy" data-original="images/technologies/amazon.png" alt="Amazon Web Services"></figure>
+                <figure><img class="lazy" data-original="images/technologies/emr.png" alt="Amazon Elastic MapReduce, EMR"></figure>
+                <figure><img class="lazy" data-original="images/technologies/jupyter.png" alt="Jupyter Notebook"></figure>
+                <figure><img class="lazy" data-original="images/technologies/zeppelin.png" alt="Apache Zeppelin"></figure>
+                <figure><img class="lazy" data-original="images/technologies/python.png" alt="Python"></figure>
+                <figure><img class="lazy" data-original="images/technologies/mongodb.png"
                         alt="MongoDB. Cross-platform document-oriented database program"></figure>
-                <figure><img src="images/technologies/tensorflow.png"
+                <figure><img class="lazy" data-original="images/technologies/tensorflow.png"
                         alt="TensorFlow. An open source machine learning framework"></figure>
-                <figure><img src="images/technologies/rstudio.png" alt="RStudio"></figure>
+                <figure><img class="lazy" data-original="images/technologies/rstudio.png" alt="RStudio"></figure>
             </div>
         </div>
         <section class="we-solve">
@@ -394,7 +395,7 @@
                 <div>
                     <div class="min-visible">
                         <p>Data access problem</p>
-                        <img src="images/ps_icon_1.svg" alt="Solve data access problem">
+                        <img class="lazy" data-original="images/ps_icon_1.svg" alt="Solve data access problem">
                     </div>
                     <ul class="list-points">
                         <li>Access to full datasets is on “need to know” basis</li>
@@ -405,7 +406,7 @@
                 <div>
                     <div class="min-visible">
                         <p>Problems with tools</p>
-                        <img src="images/ps_icon_2.svg" alt="Solve problems with tools">
+                        <img class="lazy" data-original="images/ps_icon_2.svg" alt="Solve problems with tools">
                     </div>
                     <ul class="list-points">
                         <li>Installation of tools difficult and expensive (lack of ops &amp; security skills)</li>
@@ -416,7 +417,7 @@
                 <div>
                     <div class="min-visible">
                         <p>Increased IT handholding</p>
-                        <img src="images/ps_icon_3.svg" alt="Increased IT handholding">
+                        <img class="lazy" data-original="images/ps_icon_3.svg" alt="Increased IT handholding">
                     </div>
                     <ul class="list-points">
                         <li>Data sciences are bound to local machines, due to the cost of IT support</li>
@@ -427,7 +428,7 @@
                 <div>
                     <div class="min-visible">
                         <p>Lack of security</p>
-                        <img src="images/ps_icon_4.svg" alt="Solve lack of security">
+                        <img class="lazy" data-original="images/ps_icon_4.svg" alt="Solve lack of security">
                     </div>
                     <ul class="list-points">
                         <li>Local data copies are not secure (DS get copies of data on their local machines)</li>
@@ -441,7 +442,7 @@
         <section class="solutions">
             <h2 class="heading">Our Solution</h2>
             <div class="row animatedParent">
-                <figure class="left animated fadeInLeft"><img src="images/solutions/self_service_illustr.svg"
+                <figure class="left animated fadeInLeft"><img class="lazy" data-original="images/solutions/self_service_illustr.svg"
                         alt="Self-service and customization"></figure>
                 <article class="right animated fadeInRight">
                     <h3>Self-service and customization</h3>
@@ -461,11 +462,11 @@
                         <li>Security policies and access controls</li>
                     </ul>
                 </article>
-                <figure class="right animated fadeInRight"><img src="images/solutions/secured_illustr.svg"
+                <figure class="right animated fadeInRight"><img class="lazy" data-original="images/solutions/secured_illustr.svg"
                         alt="Secured and fail safe"></figure>
             </div>
             <div class="row animatedParent">
-                <figure class="left animated fadeInLeft"><img src="images/solutions/collaborative_illustr.svg"
+                <figure class="left animated fadeInLeft"><img class="lazy" data-original="images/solutions/collaborative_illustr.svg"
                         alt="Collaborative workflow"></figure>
                 <article class="right animated fadeInRight">
                     <h3>Collaborative workflow</h3>
@@ -486,11 +487,11 @@
                         <li>Training / workshops</li>
                     </ul>
                 </article>
-                <figure class="right animated fadeInRight"><img src="images/solutions/exploratory_illustr.svg"
+                <figure class="right animated fadeInRight"><img class="lazy" data-original="images/solutions/exploratory_illustr.svg"
                         alt="Exploratory environment"></figure>
             </div>
             <div class="row animatedParent">
-                <figure class="left animated fadeInLeft"><img src="images/solutions/flexible_illustr.svg"
+                <figure class="left animated fadeInLeft"><img class="lazy" data-original="images/solutions/flexible_illustr.svg"
                         alt="Flexible deployment architecture"></figure>
                 <article class="right animated fadeInRight">
                     <h3>Flexible deployment architecture</h3>
@@ -508,52 +509,52 @@
             <div class="mac-screen-wrap">
                 <div class="swiper-container screen-slider-thumbs">
                     <div data-slide="0" class="swiper-slide swiper-slide-active">
-                        <a><img src="images/features/thumb-icons/ps_icon_1.png" alt="Customizable authentication"></a>
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_1.png" alt="Customizable authentication"></a>
                         <span>Customizable authentication</span>
                     </div>
                     <div data-slide="1" class="swiper-slide">
-                        <a><img src="images/features/thumb-icons/ps_icon_2.png" alt="Secured access to environment"></a>
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_2.png" alt="Secured access to environment"></a>
                         <span>Secured access to environment</span>
                     </div>
                     <div data-slide="2" class="swiper-slide">
-                        <a><img src="images/features/thumb-icons/ps_icon_3.png" alt="Easy to use Web Interface"></a>
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_3.png" alt="Easy to use Web Interface"></a>
                         <span>Easy to use Web Interface</span>
                     </div>
                     <div data-slide="3" class="swiper-slide">
-                        <a><img src="images/features/thumb-icons/ps_icon_4.png"
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_4.png"
                                 alt="Leverage the power of analytical tools"></a>
                         <span>Leverage the power of analytical tools</span>
                     </div>
                     <div data-slide="4" class="swiper-slide">
-                        <a><img src="images/features/thumb-icons/ps_icon_5.png"
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_5.png"
                                 alt="Data visualization with data science libraries"></a>
                         <span>Data visualization with data science libraries</span>
                     </div>
                     <div data-slide="5" class="swiper-slide">
-                        <a><img src="images/features/thumb-icons/ps_icon_6.png" alt="Manage analytical environment"></a>
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_6.png" alt="Manage analytical environment"></a>
                         <span>Manage analytical environment</span>
                     </div>
                     <div data-slide="6" class="swiper-slide">
-                        <a><img src="images/features/thumb-icons/ps_icon_7.png"
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_7.png"
                                 alt="Install libraries and dependencies"></a>
                         <span>Install libraries and dependencies</span>
                     </div>
                     <div data-slide="7" class="swiper-slide">
-                        <a><img src="images/features/thumb-icons/ps_icon_8.png"
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_8.png"
                                 alt="Multiple Git repositories support"></a>
                         <span>Multiple Git repositories support</span>
                     </div>
                     <div data-slide="8" class="swiper-slide">
-                        <a><img src="images/features/thumb-icons/ps_icon_9.png" alt="Control Cloud Services Usage"></a>
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_9.png" alt="Control Cloud Services Usage"></a>
                         <span>Control Cloud Services Usage</span>
                     </div>
                     <div data-slide="9" class="swiper-slide">
-                        <a><img src="images/features/thumb-icons/ps_icon_10.png"
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_10.png"
                                 alt="Manage Cloud services quota limits"></a>
                         <span>Manage Cloud services quota limits</span>
                     </div>
                     <div data-slide="10" class="swiper-slide">
-                        <a><img src="images/features/thumb-icons/ps_icon_11.png"
+                        <a><img class="lazy" data-original="images/features/thumb-icons/ps_icon_11.png"
                                 alt="Role permissions administration:"></a>
                         <span>Role permissions administration</span>
                     </div>
@@ -569,7 +570,7 @@
                                         <span class="green-dot"></span>
                                     </div>
                                     <figure>
-                                        <img src="images/features/login-screen.png" alt=Customizable authentication" />
+                                        <img src="images/features/login-screen.png" alt="Customizable authentication" />
                                     </figure>
                                 </div>
                                 <figcaption>
@@ -593,7 +594,7 @@
                                     </div>
                                     <figure>
                                         <img src="images/features/upload_key.png"
-                                            alt="Secured access to personal exploratory environment" />
+                                            alt="Secured access to personal exploratory environment"/>
                                     </figure>
                                 </div>
                                 <figcaption>
@@ -885,7 +886,14 @@
             </div>
         </div>
     </div>
-    <script defer src="dist/app.js"></script>
+    <script async src="dist/app.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("img.lazy").lazyload({
+                effect : "fadeIn"
+            });
+        });
+    </script>
 </body> 
 
 </html>
