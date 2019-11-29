@@ -245,7 +245,7 @@ def ensure_python3_libraries(os_user):
             sudo('python3.5 -m pip install boto3 --no-cache-dir')
             sudo('python3.5 -m pip install fabvenv fabric-virtualenv future --no-cache-dir')
             try:
-                sudo('python3.5 -m pip install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                sudo('python3.5 -m pip install tornado=={0} ipython==7.9.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
                 sudo('python3.5 -m pip install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
