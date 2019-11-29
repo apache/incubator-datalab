@@ -182,8 +182,8 @@ export class ManageUngitComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p>Account <strong>{{ data.hostname }}</strong> will be decommissioned.</p>
-    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+    <p>Account <span class="strong">{{ data.hostname }}</span> will be decommissioned.</p>
+    <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
   </div>
   <div class="text-center">
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>

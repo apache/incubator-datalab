@@ -30,8 +30,9 @@
 
     .description {
       white-space: nowrap;
-      padding-right: 5px;
+      padding-left: 7px;
       font-weight: 600;
+      color: #455c74;
     }
   }
 }
@@ -75,17 +76,17 @@
       bottom: -16px;
       right: 0;
     }
-
-    .bucket-info{
-      padding-left: 7px;
-      font-weight: 600;
-    }
-
-    .strong{
-      font-weight: 600;
-    }
   }
 }
+
+.bucket-info{
+  padding-left: 7px;
+  font-weight: 600;
+  color: #455c74;
+}
+
+
+
 
 
 

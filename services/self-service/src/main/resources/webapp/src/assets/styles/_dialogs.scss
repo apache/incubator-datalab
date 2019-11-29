@@ -138,6 +138,7 @@ mat-dialog-container {
         color: #35afd5;
         text-decoration: none;
         transition: all .45s ease-in-out;
+        line-height: 19px;
 
         &:hover {
           color: #5faec7;
@@ -319,6 +320,14 @@ mat-dialog-container {
   }
 }
 
+.strong{
+  font-weight: 600;
+  color: #455c74;
+}
+
+.flex{
+  display: flex;
+}
 
 
 

@@ -25,8 +25,7 @@
   <div *ngIf="resources?.length">
     <div *ngFor="let resource of resources" class="resource-wrap">
       <div class="resource-name">
-        <a class="detailed-link" (click)="detailComputationalResources(environment, resource)"
-          matTooltip="{{resource.computational_name}}" [matTooltipShowDelay]="2000" matTooltipPosition="left">
+        <a class="detailed-link" (click)="detailComputationalResources(environment, resource)">
           {{resource.computational_name}}
         </a>
       </div>
