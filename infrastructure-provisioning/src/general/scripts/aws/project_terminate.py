@@ -27,6 +27,7 @@ from dlab.meta_lib import *
 import sys, time, os
 from dlab.actions_lib import *
 import boto3
+import requests
 
 
 def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg):
