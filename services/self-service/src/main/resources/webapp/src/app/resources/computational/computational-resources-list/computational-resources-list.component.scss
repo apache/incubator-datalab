@@ -27,6 +27,7 @@
      display: flex;
      justify-content: space-between;
      height: 26px;
+     align-items: center;
 
      .resource-name {
        width: 55%;
@@ -77,7 +78,8 @@
        }
 
        .start-stop-action {
-
+         display: flex;
+         align-items: center;
          font-size: 18px;
          color: #36afd5;
 
@@ -93,6 +95,8 @@
        .remove_butt {
          cursor: pointer;
          color: #ef5c4b;
+         display: flex;
+         align-items: center;
 
          &.disabled {
            color: #f5d3d3;

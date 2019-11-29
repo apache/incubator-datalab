@@ -206,7 +206,7 @@ if __name__ == "__main__":
         keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} --keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} --edge_public_ip {} --project_name {}" \
             .format(edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
                     os.environ['keycloak_user_password'],
-                    keycloak_client_secret, instance_hostname, os.environ['project_name'])
+                    keycloak_client_secret, edge_conf['edge_public_ip'], os.environ['project_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
         except:
