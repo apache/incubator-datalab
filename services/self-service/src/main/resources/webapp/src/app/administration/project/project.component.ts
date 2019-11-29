@@ -38,7 +38,7 @@ export interface Project {
   endpoints: Endpoint[];
   tag: string;
   groups: string[];
-  shared_image_enabled?: boolean;
+  // shared_image_enabled?: boolean;
 }
 
 @Component({
