@@ -141,13 +141,16 @@ export class ProjectFormComponent implements OnInit {
     this.projectForm.controls[key].setValue(select ? filter : []);
   }
 
+  //  TODO: return shared_image_enabled properties after back-end part will be fully completed 
+
   private initFormModel(): void {
     this.projectForm = this._fb.group({
       'key': ['', Validators.required],
       'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.projectName), this.checkDuplication.bind(this), this.providerMaxLength.bind(this)])],
       'endpoints': [[], Validators.required],
       'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.projectName)])],
-      'groups': [[], Validators.required]
+      'groups': [[], Validators.required],
+      // 'shared_image_enabled': [false, Validators.required]
     });
   }
 
@@ -159,7 +162,8 @@ export class ProjectFormComponent implements OnInit {
       'name': [item.name, Validators.required],
       'endpoints': [endpoints],
       'tag': [item.tag, Validators.required],
-      'groups': [item.groups, Validators.required]
+      'groups': [item.groups, Validators.required],
+      // 'shared_image_enabled': [item.shared_image_enabled, Validators.required]
     });
   }
 
