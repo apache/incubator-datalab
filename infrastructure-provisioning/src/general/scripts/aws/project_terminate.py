@@ -27,6 +27,7 @@ from dlab.meta_lib import *
 import sys, time, os
 from dlab.actions_lib import *
 import boto3
+import requests
 
 
 def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg):
@@ -130,6 +131,26 @@ if __name__ == "__main__":
         print("Failed to remove Project tag from Enpoint", str(err))
 #        traceback.print_exc()
 #        sys.exit(1)
+
+    try:
+        print('[CONFIGURE KEYCLOAK]')
+        logging.info('[CONFIGURE KEYCLOAK]')
+        keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(
+            os.environ['keycloak_auth_server_url'])
+        keycloak_auth_data = {
+            "username": os.environ['keycloak_user'],
+            "password": os.environ['keycloak_user_password'],
+            "grant_type": "password",
+            "client_id": "admin-cli",
+        }
+        keycloak_client_delete_url = '{0}/admin/realms/{1}/clients/{2}'.format(os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'],
+                                                                           project_conf['service_base_name'] + '-' + project_conf['project_name'])
+        keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data).json()
+
+        keycloak_client = requests.delete(keycloak_client_delete_url, headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
+                                                 "Content-Type": "application/json"})
+    except Exception as err:
+        print("Failed to remove project client from Keycloak", str(err))
 
     try:
         with open("/root/result.json", 'w') as result:
