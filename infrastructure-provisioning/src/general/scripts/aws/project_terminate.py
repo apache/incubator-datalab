@@ -133,19 +133,35 @@ if __name__ == "__main__":
 #        sys.exit(1)
 
     try:
-        print('[CONFIGURE KEYCLOAK]')
-        logging.info('[CONFIGURE KEYCLOAK]')
+        print('[KEYCLOAK PROJECT CLIENT DELETE]')
+        logging.info('[KEYCLOAK PROJECT CLIENT DELETE]')
         keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(
             os.environ['keycloak_auth_server_url'])
+        keycloak_client_url = '{0}/admin/realms/{1}/clients'.format(os.environ['keycloak_auth_server_url'],
+                                                                           os.environ['keycloak_realm_name'])
+
         keycloak_auth_data = {
             "username": os.environ['keycloak_user'],
             "password": os.environ['keycloak_user_password'],
             "grant_type": "password",
             "client_id": "admin-cli",
         }
-        keycloak_client_delete_url = '{0}/admin/realms/{1}/clients/{2}'.format(os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'],
-                                                                           project_conf['service_base_name'] + '-' + project_conf['project_name'])
+
+        client_params = {
+            "clientId": project_conf['service_base_name'] + '-' + project_conf['project_name'],
+        }
+
         keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data).json()
+
+        keycloak_get_id_client = requests.get(keycloak_client_url, data=keycloak_auth_data, params=client_params,
+                                              headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
+                                                       "Content-Type": "application/json"})
+        json_keycloak_client_id = json.loads(keycloak_get_id_client.text)
+        keycloak_id_client = json_keycloak_client_id[0]['id']
+
+        keycloak_client_delete_url = '{0}/admin/realms/{1}/clients/{2}'.format(os.environ['keycloak_auth_server_url'],
+                                                                               os.environ['keycloak_realm_name'],
+                                                                               keycloak_id_client)
 
         keycloak_client = requests.delete(keycloak_client_delete_url, headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
                                                  "Content-Type": "application/json"})
