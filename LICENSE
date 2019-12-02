@@ -225,13 +225,8 @@ Apache 2.0 licenses
 
 The following components are provided under the Apache 2.0 License. See project link for details.
 
-(Apache 2.0 License) MongoDB Java Driver - org.mongodb:mongo-java-driver (http://mongodb.github.io/mongo-java-driver/3.2/driver)
-(Apache 2.0 License) Dropwizard (https://github.com/dropwizard/dropwizard)
-(Apache 2.0 License) Dropwizard Template Config (https://github.com/tkrille/dropwizard-template-config)
-(Apache 2.0 License) directory server (https://github.com/apache/directory-server)
-(Apache 2.0 License) jackson (https://github.com/FasterXML/jackson)
-(Apache 2.0 License) aws java sdk (https://github.com/aws/aws-sdk-java)
-(Apache 2.0 License) boto3 (https://github.com/boto/boto3)
+(Apache 2.0 License) Material design icons (https://github.com/google/material-design-icons)
+(Apache 2.0 License) Google Fonts Files, Open Sans (https://github.com/google/fonts/tree/master/apache/opensans)
 
 ========================================================================
 PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2 licenses
