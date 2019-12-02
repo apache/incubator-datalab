@@ -282,7 +282,12 @@ if __name__ == "__main__":
     try:
         print('[CONFIGURING PROXY FOR DOCKER]')
         logging.info('[CONFIGURING PROXY FOR DOCKER]')
-        params = "--os_user {} ".format(notebook_config['dlab_ssh_user'])
+        params = "--hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} ". \
+            format(instance_hostname,
+                   keyfile_name,
+                   notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/configure_proxy_for_docker.py {}".format(params))
         except:

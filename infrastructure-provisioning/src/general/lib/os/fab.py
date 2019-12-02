@@ -193,7 +193,7 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             print('Error:', str(err))
             sys.exit(1)
 
-def configure_docker(os_user, ):
+def configure_docker(os_user):
     try:
         if not exists('/home/' + os_user + '/.ensure_dir/docker_ensured'):
             docker_version = os.environ['ssn_docker_version']

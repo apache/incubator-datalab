@@ -26,6 +26,8 @@ import sys
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--hostname', type=str, default='')
+parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
@@ -44,13 +46,14 @@ if __name__ == "__main__":
         sudo('echo -e \'[Service] \nEnvironment=\"HTTP_PROXY=\'$http_proxy\'\"\' > {}'.format(http_file))
         sudo('touch {}'.format(https_file))
         sudo('echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > {}'.format(https_file))
-        sudo('mkdir /home/{}/.docker'.format(os_user))
-        sudo('touch /home/{}/.docker/config.json'.format(os_user))
+        sudo('mkdir /home/{}/.docker'.format(args.os_user))
+        sudo('touch /home/{}/.docker/config.json'.format(args.os_user))
         sudo(
             'echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/dlab-user/.docker/config.json')
-        sudo('usermod -a -G docker ' + os_user)
+        sudo('usermod -a -G docker ' + args.os_user)
         sudo('update-rc.d docker defaults')
         sudo('update-rc.d docker enable')
+        sudo('systemctl restart docker')
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
