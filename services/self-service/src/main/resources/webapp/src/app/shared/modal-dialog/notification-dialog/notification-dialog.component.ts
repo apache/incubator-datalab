@@ -49,10 +49,15 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
       </div>
       <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
       <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">          
-        <p>
-          <span class="ellipsis label-name strong" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
-          {{ data.item.name }}</span> will be {{ data.action || 'decommissioned' }}.
+        <p *ngIf="data.template; else label">
+          <span [innerHTML]="data.template"></span>
         </p>
+        <ng-template #label>
+          <p>
+            <span class="ellipsis label-name strong" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
+            {{ data.item.name }}</span> will be {{ data.action || 'decommissioned' }}.
+          </p>
+        </ng-template>
         <mat-list class="endpoints-list" *ngIf="data.item.endpoints?.length">
             <mat-list-item class="list-header">
                 <div class="endpoint">Endpoint</div>
@@ -96,6 +101,5 @@ export class NotificationDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     console.log(data);
-
   }
 }
