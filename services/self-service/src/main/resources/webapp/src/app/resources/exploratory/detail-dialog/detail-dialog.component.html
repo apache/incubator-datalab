@@ -51,7 +51,6 @@
                 <a
                   class="ellipsis"
                   matTooltip="{{item.url}}"
-                  [matTooltipShowDelay]="2000"
                   matTooltipPosition="above"
                   href="{{item.url}}"
                   target="_blank"
@@ -60,8 +59,8 @@
                 </a>
               </p>
             </div>
-            <p *ngIf="notebook.username">Node User: &nbsp;<span class="strong">{{ notebook.username }}</span></p>
-            <p *ngIf="notebook.password">Password: &nbsp;<span class="strong">{{ notebook.password }}</span></p>
+            <p class="flex" *ngIf="notebook.username">Node User: &nbsp;<span class="strong">{{ notebook.username }}</span></p>
+            <p class="flex" *ngIf="notebook.password">Password: &nbsp;<span class="strong">{{ notebook.password }}</span></p>
 
             <p class="m-top-30">{{ DICTIONARY.personal_storage }}: &nbsp;</p>
             <div class="links_block">

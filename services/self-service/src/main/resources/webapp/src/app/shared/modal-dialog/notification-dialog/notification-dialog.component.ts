@@ -45,13 +45,13 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
               will be stopped
           </p>
         </div>
-        <strong>by a schedule in 15 minutes.</strong>
+        <span class="strong">by a schedule in 15 minutes.</span>
       </div>
       <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
       <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">          
         <p>
-          <strong class="ellipsis label-name" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
-          {{ data.item.name }}</strong> will be {{ data.action || 'decommissioned' }}.
+          <span class="ellipsis label-name strong" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
+          {{ data.item.name }}</span> will be {{ data.action || 'decommissioned' }}.
         </p>
         <mat-list class="endpoints-list" *ngIf="data.item.endpoints?.length">
             <mat-list-item class="list-header">
@@ -65,7 +65,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
                 </mat-list-item>
             </div>
         </mat-list>          
-        <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+        <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
           
         <div class="text-center m-top-30 m-bott-10">
           <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
