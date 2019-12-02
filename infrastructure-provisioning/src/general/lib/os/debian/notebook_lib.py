@@ -255,7 +255,7 @@ def ensure_python3_libraries(os_user):
             sudo('apt-get install python3-setuptools')
             sudo('apt install -y python3-pip')
             try:
-                sudo('pip3 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
                 sudo('pip3 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
