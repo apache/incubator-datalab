@@ -35,6 +35,7 @@ spec:
   # DNS SAN
   dnsNames:
     - localhost
+    - dlab-ui.k8s-gcp.dlabanalytics.com
   # IP Address SAN
   ipAddresses:
     - "127.0.0.1"
