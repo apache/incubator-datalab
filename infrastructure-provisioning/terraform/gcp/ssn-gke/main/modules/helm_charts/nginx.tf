@@ -73,7 +73,7 @@ resource "helm_release" "nginx" {
 
 data "kubernetes_service" "nginx_service" {
     metadata {
-        name       = "${helm_release.nginx.name}-controller"
+        name       = helm_release.nginx.name
         namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
     }
     depends_on     = [helm_release.nginx]
