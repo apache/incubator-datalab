@@ -211,15 +211,6 @@ subcomponents is subject to the terms and conditions of the following
 licenses.
 
 ========================================================================
-MIT licenses
-========================================================================
-
-The following components are provided under the MIT License. See project link for details.
-
-(MIT License) Mockito (https://github.com/mockito/mockito)
-(MIT License) SLF4J (http://www.slf4j.org/)
-
-========================================================================
 Apache 2.0 licenses
 ========================================================================
 
@@ -227,11 +218,3 @@ The following components are provided under the Apache 2.0 License. See project 
 
 (Apache 2.0 License) Material design icons (https://github.com/google/material-design-icons)
 (Apache 2.0 License) Google Fonts Files, Open Sans (https://github.com/google/fonts/tree/master/apache/opensans)
-
-========================================================================
-PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2 licenses
-========================================================================
-
-The following components are provided under the PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2 License. See project link for details.
-
-(PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2) jython (https://github.com/jythontools/jython)
