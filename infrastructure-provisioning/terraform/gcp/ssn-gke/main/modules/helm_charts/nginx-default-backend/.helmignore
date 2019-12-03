@@ -19,17 +19,25 @@
 #
 # ******************************************************************************
 
-data "template_file" "external_dns_values" {
-  template = file("./modules/helm_charts/external-dns/values.yaml")
-}
-
-resource "helm_release" "external_dns" {
-    name       = "external-dns"
-    chart      = "./modules/helm_charts/external-dns"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-    wait       = true
-    depends_on = [helm_release.nginx]
-    values     = [
-        data.template_file.external_dns_values.rendered
-    ]
-}
+# Patterns to ignore when building packages.
+# This supports shell glob matching, relative path matching, and
+# negation (prefixed with !). Only one pattern per line.
+.DS_Store
+# Common VCS dirs
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*~
+# Various IDEs
+.project
+.idea/
+*.tmproj
+.vscode/

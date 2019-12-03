@@ -1,3 +1,4 @@
+{{- /*
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -18,18 +19,31 @@
 # under the License.
 #
 # ******************************************************************************
+*/ -}}
 
-data "template_file" "external_dns_values" {
-  template = file("./modules/helm_charts/external-dns/values.yaml")
-}
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-default-backend
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: nginx-default-backend
 
-resource "helm_release" "external_dns" {
-    name       = "external-dns"
-    chart      = "./modules/helm_charts/external-dns"
-    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-    wait       = true
-    depends_on = [helm_release.nginx]
-    values     = [
-        data.template_file.external_dns_values.rendered
-    ]
-}
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-default-backend
+spec:
+  template:
+    metadata:
+      labels:
+        app: nginx-default-backend
+    spec:
+      containers:
+      - name: nginx-default-backend
+        image: gcr.io/google_containers/defaultbackend:1.3

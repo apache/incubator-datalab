@@ -19,24 +19,55 @@
 #
 # ******************************************************************************
 
-data "template_file" "nginx_values" {
-  template = file("./modules/helm_charts/files/nginx_values.yaml")
-  vars = {
-      namespace = var.namespace_name
-      step_ca_service_name = helm_release.step_ca.name
-  }
+//data "template_file" "nginx_values" {
+//  template = file("./modules/helm_charts/files/nginx_values.yaml")
+//  vars = {
+//      namespace = var.namespace_name
+//      step_ca_service_name = helm_release.step_ca.name
+//  }
+//}
+//
+//resource "helm_release" "nginx" {
+//    name       = "nginx-ingress"
+//    chart      = "stable/nginx-ingress"
+//    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+//    wait       = true
+//    # depends_on = [null_resource.step_ca_delay]
+//    depends_on = [null_resource.crd_delay]
+//
+//    values     = [
+//        file("./modules/helm_charts/files/nginx_values.yaml")
+//    ]
+//}
+
+
+data "template_file" "nginx-default-backend" {
+  template = file("./modules/helm_charts/nginx-default-backend/values.yaml")
+}
+
+resource "helm_release" "nginx-default-backend" {
+    name       = "nginx-default-backend"
+    chart      = "./modules/helm_charts/nginx-default-backend"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+    wait       = true
+    depends_on = [null_resource.crd_delay]
+    values     = [
+        data.template_file.nginx-default-backend.rendered
+    ]
+}
+
+data "template_file" "nginx-ingress" {
+  template = file("./modules/helm_charts/nginx-ingress/values.yaml")
 }
 
 resource "helm_release" "nginx" {
     name       = "nginx-ingress"
-    chart      = "stable/nginx-ingress"
+    chart      = "./modules/helm_charts/nginx-ingress"
     namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
     wait       = true
-    # depends_on = [null_resource.step_ca_delay]
-    depends_on = [null_resource.crd_delay]
-
+    depends_on = [helm_release.nginx-default-backend]
     values     = [
-        file("./modules/helm_charts/files/nginx_values.yaml")
+        data.template_file.nginx-ingress.rendered
     ]
 }
 
