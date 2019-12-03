@@ -289,7 +289,7 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to configure proxy for docker.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     # generating output information

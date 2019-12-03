@@ -286,7 +286,7 @@ if __name__ == "__main__":
                  "--keyfile {} " \
                  "--os_user {} ". \
             format(instance_hostname,
-                   keyfile_name,
+                   notebook_config['ssh_key_path'],
                    notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/configure_proxy_for_docker.py {}".format(params))
@@ -296,7 +296,7 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to configure proxy for docker.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
 
