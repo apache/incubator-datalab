@@ -38,12 +38,18 @@ keycloak:
     # nodePort: 31088
 
   ingress:
-    enabled: false
+    enabled: true
     annotations:
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/rewrite-target: /auth
     path: /auth
+    hosts:
+      - ${ssn_k8s_alb_dns_name}
+    tls:
+      - hosts:
+          - ${ssn_k8s_alb_dns_name}
+        secretName: dlab-ui-tls
 
   startupScripts:
     mystartup.sh: |
