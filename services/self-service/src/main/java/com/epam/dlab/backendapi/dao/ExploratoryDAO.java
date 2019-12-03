@@ -102,9 +102,8 @@ public class ExploratoryDAO extends BaseDAO {
 	 */
 	public Iterable<Document> findExploratory(String user) {
 		return find(USER_INSTANCES, eq(USER, user),
-				fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS,
-						ExploratoryLibDAO.COMPUTATIONAL_LIBS,
-						SCHEDULER_DATA)));
+				fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS, ExploratoryLibDAO.COMPUTATIONAL_LIBS, SCHEDULER_DATA,
+						EXPLORATORY_USER, EXPLORATORY_PASS)));
 	}
 
 	/**

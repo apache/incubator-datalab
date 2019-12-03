@@ -27,9 +27,9 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -221,30 +221,32 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private void checkProjectRelatedResourcesInProgress(String projectName, String action) {
-		boolean projectProgress = get(projectName).getEndpoints().stream().anyMatch(e ->
-				Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING)
-						.contains(e.getStatus()));
+        boolean edgeProgress = get(projectName).getEndpoints().stream().anyMatch(e ->
+                Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
+                        UserInstanceStatus.TERMINATING).contains(e.getStatus()));
 
 		List<UserInstanceDTO> userInstanceDTOs = exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(projectName,
 				Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING,
-						UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.RECONFIGURING), UserInstanceStatus.CREATING,
-				UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING, UserInstanceStatus.RECONFIGURING,
-				UserInstanceStatus.CREATING_IMAGE);
-		if (projectProgress || !userInstanceDTOs.isEmpty()) {
+                        UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.RECONFIGURING),
+                UserInstanceStatus.CREATING, UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING,
+                UserInstanceStatus.RECONFIGURING, UserInstanceStatus.CREATING_IMAGE);
+        if (edgeProgress || !userInstanceDTOs.isEmpty()) {
 			throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
 					"resource is in processing stage", action)));
 		}
 	}
 
 	private boolean isCanBeStopped(ProjectDTO projectDTO) {
-		return !exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(projectDTO.getName(),
-				Collections.singletonList(UserInstanceStatus.RUNNING), UserInstanceStatus.RUNNING).isEmpty() ||
-				projectDTO.getEndpoints().stream().allMatch(e -> e.getStatus() == UserInstanceStatus.RUNNING);
+        List<ProjectEndpointDTO> endpoints = projectDTO.getEndpoints();
+        return !endpoints.stream().allMatch(e -> exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(
+                projectDTO.getName(), e.getName(), UserInstanceStatus.STOPPED, UserInstanceStatus.TERMINATED,
+                UserInstanceStatus.TERMINATING).isEmpty()) ||
+                endpoints.stream().anyMatch(e -> e.getStatus() == UserInstanceStatus.RUNNING);
 	}
 
 	private boolean isCanBeTerminated(ProjectDTO projectDTO) {
-		return !projectDTO.getEndpoints().stream().allMatch(e -> Arrays.asList(UserInstanceStatus.STARTING,
-				UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING).contains(e.getStatus()));
+        return !projectDTO.getEndpoints().stream().allMatch(e -> Objects.equals(UserInstanceStatus.TERMINATED,
+                e.getStatus()));
 	}
 
 	private Supplier<ResourceNotFoundException> projectNotFound() {

@@ -67,7 +67,7 @@ CONTENTS
 # What is DLAB? <a name="What_is_DLAB"></a>
 
 DLab is an essential toolset for analytics. It is a self-service Web Console, used to create and manage exploratory environments. It allows teams to spin up analytical environments with best of breed open-source tools just with a single click of the mouse. Once established, environment can be managed by an analytical team itself, leveraging simple and easy-to-use Web Interface.
-<p>See more at <a href="http://dlab.opensource.epam.com/" rel="nofollow">apache.github.io/incubator-dlab</a>.</p>
+<p>See more at <a href="https://dlab.apache.org/" rel="nofollow">dlab.apache.org</a>.</p>
 
 ----------------------------
 # Logical architecture <a name="Logical_architecture"></a>
