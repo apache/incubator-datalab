@@ -1,0 +1,14 @@
+{
+  "status": "ok",
+  "response": {
+    "result": {
+      "instance_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge",
+      "public_ip": "104.198.5.3",
+      "hostname": "104.198.5.3",
+      "Action": "Start up notebook server",
+      "ip": "10.10.0.3"
+    },
+    "log": "/var/log/dlab/edge/edge_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+  },
+  "request_id": "${REQUEST_ID}"
+}

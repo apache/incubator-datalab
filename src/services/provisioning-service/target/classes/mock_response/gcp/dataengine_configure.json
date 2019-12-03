@@ -1,0 +1,11 @@
+{
+  "status": "ok",
+  "response": {
+    "result": {
+      "Action": "Configure notebook server",
+      "notebook_name": "${NOTEBOOK_INSTANCE_NAME}"
+    },
+    "log": "/var/log/dlab/dataengine/dataengine_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+  },
+  "request_id": "${REQUEST_ID}"
+}

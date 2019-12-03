@@ -1,0 +1,34 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": [
+      "es2016",
+      "dom"
+    ],
+    "outDir": "../out-tsc/app",
+    "baseUrl": "",
+    "types": [],
+    "paths": {
+      "moment": [
+        "../node_modules/moment/min/moment.min.js"
+      ],
+      "moment-timezone": [
+        "../node_modules/moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js"
+      ]
+    }
+  },
+  "typeRoots": [
+    "node_modules/@types"
+  ],
+  "types": ["jest"],
+  "exclude": [
+    "test.ts",
+    "**/*.spec.ts",
+    "..node_modules",
+  ]
+}
