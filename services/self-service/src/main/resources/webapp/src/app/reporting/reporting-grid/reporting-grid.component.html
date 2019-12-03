@@ -20,7 +20,7 @@
 <section class="table-wrapper">
   <table mat-table [dataSource]="reportData" class="data-grid reporting mat-elevation-z6">
 
-    <ng-container matColumnDef="name" sticky>
+    <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef class="env_name">
         <span class="label"> Environment name </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
@@ -129,6 +129,30 @@
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
+    <ng-container matColumnDef="tags">
+      <th mat-header-cell *matHeaderCellDef class="tags">
+        <span class="label"> Tags </span>
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <mat-chip-list aria-label="Tags" *ngIf="element.tags" class="tags-col selection">
+          <mat-chip matTooltip="Endpoint tag: {{ element.tags.endpoint_tag }}" matTooltipPosition="above">
+            {{ element.tags.endpoint_tag }}
+          </mat-chip>
+          <mat-chip *ngIf="element.tags.custom_tag" matTooltip="Custom tag: {{ element.tags.custom_tag }}"
+            matTooltipPosition="above">
+            {{ element.tags.custom_tag }}
+          </mat-chip>
+          <mat-chip matTooltip="User tag: {{ element.tags.user_tag }}" matTooltipPosition="above">
+            {{ element.tags.user_tag }}
+          </mat-chip>
+          <mat-chip matTooltip="Project tag: {{ element.tags.project_tag }}" matTooltipPosition="above">
+            {{ element.tags.project_tag }}
+          </mat-chip>
+        </mat-chip-list>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
     <ng-container matColumnDef="charge" stickyEnd>
       <th mat-header-cell *matHeaderCellDef class="th_charges">
         <span class="label"> Service Charges </span>
@@ -144,7 +168,7 @@
     </ng-container>
 
     <!-- ----------------FILTER -->
-    <ng-container matColumnDef="name-filter" sticky>
+    <ng-container matColumnDef="name-filter">
       <th mat-header-cell *matHeaderCellDef>
         <input #nameFilter type="text" placeholder="Filter by environment name" class="form-control filter-field"
           [value]="filtered?.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
@@ -189,6 +213,9 @@
           [items]="filterConfiguration[DICTIONARY.billing.service_filter_key]"
           [model]="filteredReportData[DICTIONARY.billing.service_filter_key]"></multi-select-dropdown>
       </th>
+    </ng-container>
+    <ng-container matColumnDef="tags-filter">
+      <th mat-header-cell *matHeaderCellDef></th>
     </ng-container>
     <ng-container matColumnDef="actions" stickyEnd>
       <th mat-header-cell *matHeaderCellDef>
