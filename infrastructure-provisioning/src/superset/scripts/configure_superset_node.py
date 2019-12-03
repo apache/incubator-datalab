@@ -42,7 +42,10 @@ parser.add_argument('--keycloak_client_secret', type=str, default='')
 parser.add_argument('--edge_instance_private_ip', type=str, default='')
 parser.add_argument('--edge_instance_public_ip', type=str, default='')
 parser.add_argument('--superset_name', type=str, default='')
+parser.add_argument('--ip_adress', type=str, default='')
 args = parser.parse_args()
+
+gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 ##############
 # Run script #
@@ -67,6 +70,18 @@ if __name__ == "__main__":
     print("Installing docker compose")
     if not ensure_docker_compose(args.dlab_path, args.os_user):
         sys.exit(1)
+
+    # INSTALL UNGIT
+    print("Install nodejs")
+    install_nodejs(args.os_user)
+    print("Install ungit")
+    install_ungit(args.os_user, args.superset_name, args.edge_instance_private_ip)
+    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+        install_gitlab_cert(args.os_user, gitlab_certfile)
+
+        # INSTALL INACTIVITY CHECKER
+    print("Install inactivity checker")
+    install_inactivity_checker(args.os_user, args.ip_adress)
 
     # PREPARE SUPERSET
     try:

@@ -35,12 +35,9 @@
   <ng-container matColumnDef="endpoints">
     <th mat-header-cell *matHeaderCellDef class="endpoints">
       <span class="label-endpoint"> Endpoint </span>
-      <span class="label-status"> Endpoint status </span>
+      <span class="label-status"> Edge node status </span>
     </th>
     <td mat-cell *matCellDef="let element" class="source endpoints">
-      <!-- <mat-chip-list>
-        <mat-chip *ngFor="let endpoint of element.endpoints">{{ endpoint }}</mat-chip>
-      </mat-chip-list> -->
       <div *ngIf="!element.endpoints?.length; else list">
         <span *ngIf="!element.endpoints.length" class="no-details">no details</span>
       </div>
@@ -51,8 +48,8 @@
               {{ endpoint.name }}
             </a>
           </div>
-          <span ngClass="{{toEndpointStatus(endpoint.status).toLowerCase() || ''}}"
-            class="status resource-status">{{ toEndpointStatus(endpoint.status).toLowerCase() }}</span>
+          <span class="status resource-status"
+            ngClass="{{endpoint.status.toLowerCase() || ''}}">{{ endpoint.status.toLowerCase() }}</span>
           <div class="resource-actions">
             <a class="start-stop-action">
               <i class="material-icons" (click)="toggleEndpointAction(element, 'stop', endpoint)"

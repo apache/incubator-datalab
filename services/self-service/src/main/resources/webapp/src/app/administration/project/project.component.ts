@@ -120,6 +120,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.dialog.open(NotificationDialogComponent, {
         data: {
           type: 'confirmation',
+          template: `Endpoint  <b>${$event.endpoint.name}</b> will be ${$event.action === 'stop' ? 'stopped' : 'terminated'}`,
           item: $event.endpoint, action: $event.action === 'stop' ? 'stopped' : 'terminated'
         }, panelClass: 'modal-sm'
       })
