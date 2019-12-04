@@ -167,7 +167,7 @@ public class AwsBillingServiceTest {
 	@Test
 	public void getHeadersList() {
 		List<String> expectedResult1 =
-				Arrays.asList("USER", "ENVIRONMENT NAME", "RESOURCE TYPE", "SHAPE", "SERVICE", "SERVICE CHARGES");
+				Arrays.asList("USER", "PROJECT", "ENVIRONMENT NAME", "RESOURCE TYPE", "SHAPE", "SERVICE", "SERVICE CHARGES");
 		List<String> expectedResult2 = expectedResult1.subList(1, expectedResult1.size());
 
 		List<String> actualResult1 = awsBillingService.getHeadersList(true);
@@ -179,23 +179,23 @@ public class AwsBillingServiceTest {
 
 	@Test
 	public void getLine() {
-		String expectedResult1 = "someUser,someId,someResType,someShape,someProduct,someCost someCode\n";
+		String expectedResult1 = "someUser,someProject,someId,someResType,someShape,someProduct,someCost someCode\n";
 		String actualResult1 = awsBillingService.getLine(true, basicDocument);
 		assertEquals(expectedResult1, actualResult1);
 
 		basicDocument.remove("user");
-		String expectedResult2 = "someId,someResType,someShape,someProduct,someCost someCode\n";
+		String expectedResult2 = "someProject,someId,someResType,someShape,someProduct,someCost someCode\n";
 		String actualResult2 = awsBillingService.getLine(false, basicDocument);
 		assertEquals(expectedResult2, actualResult2);
 	}
 
 	@Test
 	public void getTotal() {
-		String expectedResult1 = ",,,,,Total: someCostTotal someCode\n";
+		String expectedResult1 = ",,,,,,Total: someCostTotal someCode\n";
 		String actualResult1 = awsBillingService.getTotal(true, basicDocument);
 		assertEquals(expectedResult1, actualResult1);
 
-		String expectedResult2 = ",,,,Total: someCostTotal someCode\n";
+		String expectedResult2 = ",,,,,Total: someCostTotal someCode\n";
 		String actualResult2 = awsBillingService.getTotal(false, basicDocument);
 		assertEquals(expectedResult2, actualResult2);
 	}
@@ -206,9 +206,9 @@ public class AwsBillingServiceTest {
 
 	private Document getBasicDocument() {
 		return new Document().append("service_base_name", "someSBN").append("user", "someUser")
-				.append("dlab_id", "someId").append("dlab_resource_type", "someResType")
-				.append("tag_resource_id", "someTagResourceId").append("from", "2018-03-21")
-				.append("to", "2018-03-22").append("full_report", false)
+				.append("project", "someProject").append("dlab_id", "someId")
+				.append("dlab_resource_type", "someResType").append("tag_resource_id", "someTagResourceId")
+				.append("from", "2018-03-21").append("to", "2018-03-22").append("full_report", false)
 				.append("shape", "someShape").append("product", "someProduct").append("cost", "someCost")
 				.append("cost_total", "someCostTotal").append("currency_code", "someCode")
 				.append("lines", Collections.singletonList(new Document()));

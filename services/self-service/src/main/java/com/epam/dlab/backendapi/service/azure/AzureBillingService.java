@@ -27,6 +27,7 @@ import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
+import com.epam.dlab.model.aws.ReportLine;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +69,7 @@ public class AzureBillingService extends BillingService<AzureBillingFilter> {
             headers.add("USER");
         }
 
+        headers.add("PROJECT");
         headers.add("ENVIRONMENT NAME");
         headers.add("RESOURCE TYPE");
         headers.add("INSTANCE SIZE");
@@ -85,6 +87,7 @@ public class AzureBillingService extends BillingService<AzureBillingFilter> {
             items.add(getValueOrEmpty(document, MongoKeyWords.DLAB_USER));
         }
 
+        items.add(getValueOrEmpty(document, ReportLine.FIELD_PROJECT));
         items.add(getValueOrEmpty(document, MongoKeyWords.DLAB_ID));
         items.add(getValueOrEmpty(document, MongoKeyWords.RESOURCE_TYPE));
         items.add(getValueOrEmpty(document, AzureBillingDAO.SIZE).replace(System.lineSeparator(), " "));

@@ -52,6 +52,7 @@ public class GcpBillingService extends BillingService<GcpBillingFilter> {
             headers.add("USER");
         }
 
+        headers.add("PROJECT");
         headers.add("ENVIRONMENT NAME");
         headers.add("RESOURCE TYPE");
         headers.add("SHAPE");
@@ -69,6 +70,7 @@ public class GcpBillingService extends BillingService<GcpBillingFilter> {
             items.add(getValueOrEmpty(document, ReportLine.FIELD_USER_ID));
         }
 
+        items.add(getValueOrEmpty(document, ReportLine.FIELD_PROJECT));
         items.add(getValueOrEmpty(document, ReportLine.FIELD_DLAB_ID));
         items.add(getValueOrEmpty(document, AwsBillingDAO.DLAB_RESOURCE_TYPE));
         items.add(getValueOrEmpty(document, AwsBillingDAO.SHAPE).replace(System.lineSeparator(), " "));

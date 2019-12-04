@@ -152,7 +152,7 @@ public class AzureBillingServiceTest {
 	@Test
 	public void getHeadersList() {
 		List<String> expectedResult1 =
-				Arrays.asList("USER", "ENVIRONMENT NAME", "RESOURCE TYPE", "INSTANCE SIZE", "CATEGORY", "SERVICE " +
+				Arrays.asList("USER", "PROJECT" ,"ENVIRONMENT NAME", "RESOURCE TYPE", "INSTANCE SIZE", "CATEGORY", "SERVICE " +
 						"CHARGES");
 		List<String> expectedResult2 = expectedResult1.subList(1, expectedResult1.size());
 
@@ -165,23 +165,23 @@ public class AzureBillingServiceTest {
 
 	@Test
 	public void getLine() {
-		String expectedResult1 = "someUser,someId,someResType,someSize,someMeterCategory,someCost someCode\n";
+		String expectedResult1 = "someUser,someProject,someId,someResType,someSize,someMeterCategory,someCost someCode\n";
 		String actualResult1 = azureBillingService.getLine(true, basicDocument);
 		assertEquals(expectedResult1, actualResult1);
 
 		basicDocument.remove("user");
-		String expectedResult2 = "someId,someResType,someSize,someMeterCategory,someCost someCode\n";
+		String expectedResult2 = "someProject,someId,someResType,someSize,someMeterCategory,someCost someCode\n";
 		String actualResult2 = azureBillingService.getLine(false, basicDocument);
 		assertEquals(expectedResult2, actualResult2);
 	}
 
 	@Test
 	public void getTotal() {
-		String expectedResult1 = ",,,,,Total: someCost someCode\n";
+		String expectedResult1 = ",,,,,,Total: someCost someCode\n";
 		String actualResult1 = azureBillingService.getTotal(true, basicDocument);
 		assertEquals(expectedResult1, actualResult1);
 
-		String expectedResult2 = ",,,,Total: someCost someCode\n";
+		String expectedResult2 = ",,,,,Total: someCost someCode\n";
 		String actualResult2 = azureBillingService.getTotal(false, basicDocument);
 		assertEquals(expectedResult2, actualResult2);
 	}
@@ -192,11 +192,11 @@ public class AzureBillingServiceTest {
 
 	private Document getBasicDocument() {
 		return new Document().append("service_base_name", "someSBN").append("user", "someUser")
-				.append("dlabId", "someId").append("resourceType", "someResType")
-				.append("from", "2018-03-21").append("size", "someSize")
-				.append("to", "2018-03-22").append("full_report", false)
-				.append("meterCategory", "someMeterCategory").append("costString", "someCost")
-				.append("currencyCode", "someCode").append("lines", Collections.singletonList(new Document()));
+				.append("project", "someProject").append("dlabId", "someId").append("resourceType", "someResType")
+				.append("from", "2018-03-21").append("size", "someSize").append("to", "2018-03-22")
+				.append("full_report", false).append("meterCategory", "someMeterCategory")
+				.append("costString", "someCost").append("currencyCode", "someCode")
+				.append("lines", Collections.singletonList(new Document()));
 	}
 
 }
