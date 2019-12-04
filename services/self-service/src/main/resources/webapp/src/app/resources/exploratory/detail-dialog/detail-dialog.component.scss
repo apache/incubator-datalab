@@ -25,14 +25,14 @@
 
 .links_block {
 
-  > p {
+  >p {
     display: flex;
 
     .description {
       white-space: nowrap;
       padding-left: 7px;
       font-weight: 600;
-      color: #455c74;
+      color: #577289;
     }
   }
 }
@@ -46,6 +46,7 @@
       margin: 10px 0;
     }
   }
+
   span {
 
     &.danger_color {
@@ -79,14 +80,8 @@
   }
 }
 
-.bucket-info{
+.bucket-info {
   padding-left: 7px;
   font-weight: 600;
   color: #455c74;
 }
-
-
-
-
-
-
