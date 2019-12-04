@@ -210,3 +210,7 @@ variable "custom_certs_host" {
 variable "mysql_disk_size" {
     default = "10"
 }
+
+variable "domain" {
+  default = ""
+}

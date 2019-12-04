@@ -41,8 +41,7 @@ ui:
     https_port: 443
   ingress:
     enabled: true
-    host: dlab-ui.k8s-gcp.dlabanalytics.com
-    # ${ssn_k8s_alb_dns_name}
+    host: ${ssn_k8s_alb_dns_name}
     annotations:
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -54,10 +53,8 @@ ui:
     username: ${mongo_user}
     db_name: ${mongo_db_name}
   keycloak:
-    auth_server_url: https://dlab-ui.k8s-gcp.dlabanalytics.com/auth
-    # https://${ssn_k8s_alb_dns_name}/auth
-    redirect_uri: https://dlab-ui.k8s-gcp.dlabanalytics.com/
-    # https://${ssn_k8s_alb_dns_name}/
+    auth_server_url: https://${ssn_k8s_alb_dns_name}/auth
+    redirect_uri: https://${ssn_k8s_alb_dns_name}/
 
   custom_certs:
     enabled: ${custom_certs_enabled}

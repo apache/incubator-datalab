@@ -81,6 +81,8 @@ variable "custom_certs_host" {}
 
 variable "mysql_disk_size" {}
 
+variable "domain" {}
+
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"

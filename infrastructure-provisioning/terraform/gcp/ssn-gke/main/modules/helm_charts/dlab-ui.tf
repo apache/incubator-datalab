@@ -25,7 +25,7 @@ locals {
     custom_key_name = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_key_path))[0] : "None"
     custom_cert = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_cert_name}")) : "None"
     custom_key = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_key_name}")) : "None"
-    ui_host = local.custom_certs_enabled == "true" ? var.custom_certs_host : data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
+    ui_host = local.custom_certs_enabled == "true" ? var.custom_certs_host : "${var.service_base_name}-ssn.${var.domain}"
 }
 
 data "template_file" "dlab_ui_values" {

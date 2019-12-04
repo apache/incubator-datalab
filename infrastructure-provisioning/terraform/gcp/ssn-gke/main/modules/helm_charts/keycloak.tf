@@ -22,7 +22,7 @@
 data "template_file" "configure_keycloak" {
   template = file("./modules/helm_charts/files/configure_keycloak.sh")
   vars     = {
-    ssn_k8s_alb_dns_name   = "dlab-ui.k8s-gcp.dlabanalytics.com" # local.ui_host
+    ssn_k8s_alb_dns_name   = local.ui_host
     keycloak_user          = var.keycloak_user
     keycloak_password      = random_string.keycloak_password.result
     keycloak_client_secret = random_uuid.keycloak_client_secret.result
@@ -42,7 +42,7 @@ data "template_file" "keycloak_values" {
   vars = {
     keycloak_user           = var.keycloak_user
     keycloak_password       = random_string.keycloak_password.result
-    ssn_k8s_alb_dns_name    = "dlab-ui.k8s-gcp.dlabanalytics.com" # local.ui_host
+    ssn_k8s_alb_dns_name    = local.ui_host
     configure_keycloak_file = data.template_file.configure_keycloak.rendered
     mysql_db_name           = var.mysql_db_name
     mysql_user              = var.mysql_user
@@ -70,39 +70,3 @@ resource "helm_release" "keycloak" {
   depends_on = [helm_release.keycloak-mysql, kubernetes_secret.keycloak_password_secret, helm_release.nginx,
                 helm_release.dlab_ui]
 }
-
-//resource "kubernetes_ingress" "keycloak_ingress" {
-//  metadata {
-//    name        = "keycloak"
-//    namespace   = kubernetes_namespace.dlab-namespace.metadata[0].name
-//    annotations = {
-//      "kubernetes.io/ingress.class": "nginx"
-//      "nginx.ingress.kubernetes.io/ssl-redirect": "true"
-//      "nginx.ingress.kubernetes.io/rewrite-target": "/auth"
-//    }
-//  }
-//
-//  spec {
-//    backend {
-//      service_name = "${helm_release.keycloak.name}-http"
-//      service_port = 80
-//    }
-//
-//    rule {
-//      http {
-//        path {
-//          backend {
-//            service_name = "${helm_release.keycloak.name}-http"
-//            service_port = 80
-//          }
-//
-//          path = "/auth"
-//        }
-//      }
-//    }
-//    tls {
-//      secret_name = "${helm_release.dlab_ui.name}-tls"
-//    }
-//  }
-//  depends_on = [helm_release.keycloak]
-//}

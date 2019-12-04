@@ -20,4 +20,6 @@
 # ******************************************************************************
 
 replicaCount: 1
-
+namespace: ${namespace}
+domain: ${domain}
+project_id: ${project_id}
