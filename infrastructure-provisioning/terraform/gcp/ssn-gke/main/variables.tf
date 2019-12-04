@@ -76,22 +76,15 @@ variable "ssn_k8s_workers_shape" {
   default = "n1-standard-2"
 }
 
-//variable "service_account_iam_roles" {
-//  default = [
-//    "roles/logging.logWriter",
-//    "roles/monitoring.metricWriter",
-//    "roles/monitoring.viewer",
-//    "roles/storage.objectViewer",
-//    "roles/iam.serviceAccountUser",
-//    "roles/iam.serviceAccountAdmin",
-//    "roles/iam.serviceAccountKeyAdmin",
-//    "roles/dns.admin"
-//  ]
-//}
-
 variable "service_account_iam_roles" {
   default = [
-    "roles/owner"
+    "roles/logging.logWriter",
+    "roles/monitoring.metricWriter",
+    "roles/monitoring.viewer",
+    "roles/storage.objectViewer",
+    "roles/iam.serviceAccountTokenCreator",
+    "roles/iam.serviceAccountKeyAdmin",
+    "roles/dns.admin"
   ]
 }
 
