@@ -67,6 +67,11 @@ resource "kubernetes_role_binding" "example" {
   }
   subject {
     kind      = "ServiceAccount"
+    name      = "default"
+    namespace = "kube-system"
+  }
+  subject {
+    kind      = "ServiceAccount"
     name      = "tiller"
     namespace = "kube-system"
   }
