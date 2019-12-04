@@ -107,7 +107,7 @@
         </div>
 
         <div class="checkbox-group"
-          *ngIf="resource.image === 'docker.dlab-dataengine' && resource.status === 'running' && environment.image !== 'docker.dlab-zeppelin'">
+          *ngIf="resource.image === 'docker.dlab-dataengine' && resource.status === 'running' && environment.image !== 'docker.dlab-zeppelin' && environment.image === 'docker.dlab-superset'">
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
           </label>

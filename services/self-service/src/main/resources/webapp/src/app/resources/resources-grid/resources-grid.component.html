@@ -181,10 +181,8 @@
                       <span>Terminate</span>
                     </div>
                   </li>
-                  <li (click)="exploratoryAction(element, 'deploy')" *ngIf="element.status != 'stopping'
-                && element.status !== 'stopped'
-                && element.status !== 'starting'
-                && element.status !== 'creating image'">
+                  <li (click)="exploratoryAction(element, 'deploy')"
+                    *ngIf="element.status === 'running' && element.image !== 'docker.dlab-superset'">
                     <i class="material-icons">memory</i>
                     <span>Add compute</span>
                   </li>
@@ -195,11 +193,11 @@
                   </li>
                 </div>
                 <li (click)="exploratoryAction(element, 'ami')"
-                  *ngIf="element.status === 'running' && DICTIONARY.cloud_provider !== 'gcp'">
+                  *ngIf="element.status === 'running' && DICTIONARY.cloud_provider !== 'gcp' && element.image !== 'docker.dlab-superset'">
                   <i class="material-icons">view_module</i>
                   <span>Create {{ DICTIONARY.image }}</span>
                 </li>
-                <li (click)="exploratoryAction(element, 'install')">
+                <li (click)="exploratoryAction(element, 'install')" *ngIf="element.image !== 'docker.dlab-superset'">
                   <i class="material-icons">developer_board</i>
                   <span>Manage libraries</span>
                 </li>
