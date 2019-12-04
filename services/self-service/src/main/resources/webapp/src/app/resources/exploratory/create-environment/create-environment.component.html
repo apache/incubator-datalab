@@ -30,8 +30,8 @@
           <div class="control selector-wrapper">
             <mat-form-field>
               <mat-label>Select project</mat-label>
-              <mat-select formControlName="project" panelClass="create-resources-dialog" >
-                <mat-option  *ngFor="let project of projects" [value]="project.name" (click)="setEndpoints(project)">
+              <mat-select formControlName="project" panelClass="create-resources-dialog">
+                <mat-option *ngFor="let project of projects" [value]="project.name" (click)="setEndpoints(project)">
                   {{ project.name }}</mat-option>
                 <mat-option *ngIf="!projects.length" class="multiple-select ml-10" disabled>Projects list is empty
                 </mat-option>
@@ -48,7 +48,8 @@
           <div class="control selector-wrapper" [ngClass]="{ 'not-active' : !endpoints.length }">
             <mat-form-field>
               <mat-label>Select endpoint</mat-label>
-              <mat-select formControlName="endpoint" disableOptionCentering [disabled]="!endpoints.length" panelClass="create-resources-dialog" >
+              <mat-select formControlName="endpoint" disableOptionCentering [disabled]="!endpoints.length"
+                panelClass="create-resources-dialog">
                 <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint"
                   (click)="getTemplates(createExploratoryForm?.controls['project'].value, endpoint)">{{ endpoint }}
                 </mat-option>
@@ -67,7 +68,8 @@
           <div class="control selector-wrapper" [ngClass]="{ 'not-active' : !templates.length }">
             <mat-form-field>
               <mat-label>Select template</mat-label>
-              <mat-select formControlName="version" disableOptionCentering [disabled]="!templates.length" panelClass="create-resources-dialog" >
+              <mat-select formControlName="version" disableOptionCentering [disabled]="!templates.length"
+                panelClass="create-resources-dialog">
                 <mat-option *ngFor="let template of templates"
                   [value]="template.exploratory_environment_versions[0].version" (click)="getShapes(template)">
                   {{ template.exploratory_environment_versions[0].template_name }}
@@ -123,7 +125,8 @@
           <div class="control selector-wrapper" [ngClass]="{ 'not-active': !currentTemplate }">
             <mat-form-field>
               <mat-label>Select {{ DICTIONARY.notebook_instance_size }}</mat-label>
-              <mat-select formControlName="shape" disableOptionCentering [disabled]="!currentTemplate" panelClass="create-resources-shapes">
+              <mat-select formControlName="shape" disableOptionCentering [disabled]="!currentTemplate"
+                panelClass="create-resources-shapes">
                 <mat-optgroup *ngFor="let item of (shapes | keys)" [label]="item.key | underscoreless">
                   <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
                     <strong class="highlight icon-label">{{ list_item.Size }}</strong> {{ list_item.Type }}
@@ -148,7 +151,8 @@
         </div>
 
         <div *ngIf="currentTemplate">
-          <div class="checkbox-group" *ngIf="currentTemplate?.image !== 'docker.dlab-zeppelin'; else not_support">
+          <div class="checkbox-group"
+            *ngIf="currentTemplate?.image !== 'docker.dlab-zeppelin' && currentTemplate?.image !== 'docker.dlab-superset' && currentTemplate?.image !== 'docker.dlab-jupyterlab'">
             <label>
               <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Spark configurations
             </label>
@@ -160,14 +164,14 @@
                 parameters is not in a valid format</span>
             </div>
           </div>
-          <ng-template #not_support>
-            <small>Spark default configuration for Apache Zeppelin can not be changed from DLab UI. Currently it can be
-              done directly through Apache Zeppelin interpreter menu.
-              For more details please refer for Apache Zeppelin <a
-                href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official
-                documentation</a>.
-            </small>
-          </ng-template>
+
+          <small *ngIf="currentTemplate?.image === 'docker.dlab-zeppelin'">
+            Spark default configuration for Apache Zeppelin can not be changed from DLab UI. Currently it can be
+            done directly through Apache Zeppelin interpreter menu.
+            For more details please refer for Apache Zeppelin <a
+              href="https://zeppelin.apache.org/docs/0.8.0/usage/interpreter/overview.html" target="_blank">official
+              documentation</a>.
+          </small>
         </div>
 
         <div class="text-center m-top-30">

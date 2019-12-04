@@ -48,25 +48,23 @@
             <div class="links_block">
               <p *ngFor="let item of notebook.url">
                 <span class="description">{{item.description}}: &nbsp;</span>
-                <a
-                  class="ellipsis"
-                  matTooltip="{{item.url}}"
-                  matTooltipPosition="above"
-                  href="{{item.url}}"
-                  target="_blank"
-                >
+                <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
+                  target="_blank">
                   &nbsp;{{item.url}}
                 </a>
               </p>
             </div>
-            <p class="flex" *ngIf="notebook.username">Node User: &nbsp;<span class="strong">{{ notebook.username }}</span></p>
-            <p class="flex" *ngIf="notebook.password">Password: &nbsp;<span class="strong">{{ notebook.password }}</span></p>
+            <p class="flex" *ngIf="notebook.username">Node User: &nbsp;<span
+                class="strong">{{ notebook.username }}</span></p>
+            <p class="flex" *ngIf="notebook.password">Password: &nbsp;<span
+                class="strong">{{ notebook.password }}</span></p>
 
             <p class="m-top-30">{{ DICTIONARY.personal_storage }}: &nbsp;</p>
             <div class="links_block">
               <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">{{ DICTIONARY.account }}
                 <span class="bucket-info">{{ notebook.account_name}}</span></p>
-              <p *ngIf="notebook.bucket_name">{{ DICTIONARY.container }} <span class="bucket-info">{{ notebook.bucket_name }}</span></p>
+              <p *ngIf="notebook.bucket_name">{{ DICTIONARY.container }} <span
+                  class="bucket-info">{{ notebook.bucket_name }}</span></p>
             </div>
             <p>{{ DICTIONARY.collaboration_storage }}: &nbsp;</p>
             <div class="links_block">
@@ -82,7 +80,8 @@
               <div class="links_block">
                 <p>Data Lake Store Account: &nbsp;<span class="bucket-info">{{ notebook.datalake_name }}</span></p>
                 <p>Personal folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_directory }}</span></p>
-                <p>Collaboration folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_shared_directory }}</span></p>
+                <p>Collaboration folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_shared_directory }}</span>
+                </p>
               </div>
             </div>
 
@@ -96,7 +95,7 @@
           </div>
 
           <div class="checkbox-group" *ngIf="notebook.image !== 'docker.dlab-zeppelin'; else not_support"
-            [hidden]="notebook.status !== 'running'">
+            [hidden]="notebook.status !== 'running' || notebook.image === 'docker.dlab-superset' || notebook.image === 'docker.dlab-jupyterlab'">
             <label>
               <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
             </label>
