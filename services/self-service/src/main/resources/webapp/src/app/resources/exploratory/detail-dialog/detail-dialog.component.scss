@@ -17,6 +17,8 @@
  * under the License.
  */
 
+@import '_variables.scss';
+
 .scroll-box {
   max-height: 65vh;
   overflow-y: auto;
@@ -32,7 +34,7 @@
       white-space: nowrap;
       padding-left: 7px;
       font-weight: 600;
-      color: #577289;
+      color: $blue-grey-color;
     }
   }
 }
@@ -83,5 +85,5 @@
 .bucket-info {
   padding-left: 7px;
   font-weight: 600;
-  color: #455c74;
+  color: $blue-grey-color;
 }

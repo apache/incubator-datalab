@@ -152,7 +152,7 @@
 
         <div *ngIf="currentTemplate">
           <div class="checkbox-group"
-            *ngIf="currentTemplate?.image !== 'docker.dlab-zeppelin' && currentTemplate?.image !== 'docker.dlab-superset'">
+            *ngIf="currentTemplate?.image !== 'docker.dlab-zeppelin' && currentTemplate?.image !== 'docker.dlab-superset' && currentTemplate?.image !== 'docker.dlab-jupyterlab'">
             <label>
               <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Spark configurations
             </label>
