@@ -27,6 +27,10 @@
 @import '_theme.scss';
 @import '_dialogs.scss';
 
+.sans {
+  font-family: 'Open Sans', sans-serif !important;
+}
+
 .mat-tab-label {
   font-family: 'Open Sans', sans-serif !important;
   color: #455c74;
@@ -459,11 +463,9 @@ input[type='number'] {
   }
 }
 
-.dialog-max-width{
+.dialog-max-width {
   margin: 0 auto;
   max-width: 350px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-

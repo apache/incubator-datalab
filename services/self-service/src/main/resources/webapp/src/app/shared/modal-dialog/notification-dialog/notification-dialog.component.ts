@@ -58,13 +58,13 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
             {{ data.item.name }}</span> will be {{ data.action || 'decommissioned' }}.
           </p>
         </ng-template>
-        <mat-list class="endpoints-list" *ngIf="data.item.endpoints?.length">
-            <mat-list-item class="list-header">
-                <div class="endpoint">Endpoint</div>
+        <mat-list *ngIf="data.item.endpoints?.length">
+            <mat-list-item class="list-header sans">
+                <div class="endpoint">Edge node in endpoint</div>
                 <div class="status">Further status</div>
             </mat-list-item>
             <div class="scrolling-content">
-                <mat-list-item *ngFor="let endpoint of data.item.endpoints">                                 
+                <mat-list-item *ngFor="let endpoint of data.item.endpoints" class="sans node">
                     <div class="endpoint ellipsis">{{endpoint.name}}</div>
                     <div class="status terminated">Terminated</div>
                 </mat-list-item>
@@ -90,9 +90,11 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     header a:hover i { color: #35afd5; cursor: pointer; }
     .plur { font-style: normal; }
     .label-name { display: inline-block; width: 100% } 
-    .scrolling-content{overflow-y: auto; max-height: 200px;}
-    .endpoint { width: 70%;text-align: left;}
+    .scrolling-content{overflow-y: auto; max-height: 200px; }
+    .endpoint { width: 70%; text-align: left; color: #577289;}
     .status { width: 30%;text-align: right;}
+    .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
+    .node { font-weight: 300;}
   `]
 })
 export class NotificationDialogComponent {
