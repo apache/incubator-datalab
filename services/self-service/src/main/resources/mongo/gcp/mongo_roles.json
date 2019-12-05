@@ -100,6 +100,16 @@
     ]
   },
   {
+    "_id": "nbCreateSuperset",
+    "description": "Create Notebook Superset",
+    "exploratories": [
+      "docker.dlab-superset"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateRstudio",
     "description": "Create Notebook RStudio",
     "exploratories": [
