@@ -226,11 +226,11 @@ export class ManagementGridComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p>Resource <strong> {{ data.resource_name }}</strong> of user <strong> {{ data.user }} </strong> will be
+      <p>Resource <span class="strong"> {{ data.resource_name }}</span> of user <span class="strong"> {{ data.user }} </span> will be
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </p>
-    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+    <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
   </div>
   <div class="text-center">
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
