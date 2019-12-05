@@ -1,0 +1,13 @@
+{
+   "status": "ok",
+   "response": {
+      "result": {
+         "Action": "Terminate Dataproc cluster",
+         "user_own_bucket_name": "${CONF_SERVICE_BASE_NAME}-ssn-bucket",
+         "Dataproc_name": "${DATAPROC_CLUSTER_NAME}",
+         "notebook_name": "${NOTEBOOK_INSTANCE_NAME}"
+      },
+      "log": "/var/log/dlab/emr/emr_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+   },
+   "request_id": "${REQUEST_ID}"
+}

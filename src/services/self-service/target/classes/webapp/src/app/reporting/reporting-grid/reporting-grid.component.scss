@@ -1,0 +1,155 @@
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.table-wrapper {
+  width: 100%;
+}
+
+.reporting {
+  width: 100%;
+  min-width: 1100px;
+  overflow: auto;
+  border-collapse: inherit;
+
+  .mat-cell {
+    vertical-align: middle;
+  }
+
+  tr {
+    th {
+      padding-right: 5px;
+      z-index: 2 !important;
+    }
+
+    td {
+      font-size: 13px;
+
+      &.info {
+        z-index: 1 !important;
+        text-align: center;
+        padding: 40px;
+      }
+    }
+
+    &.filter-row {
+      th {
+        padding: 5px;
+        font-size: 13px;
+      }
+
+      .filter-field {
+        font-size: 13px;
+      }
+
+    }
+
+    &.header-row {
+      th {
+        font-size: 11px;
+      }
+    }
+  }
+
+  .th_shape {
+    width: 10%;
+  }
+
+  .th_user,
+  .env_name,
+  .service {
+    width: 15%;
+    overflow: hidden;
+    word-wrap: break-word;
+  }
+
+  .env_name {
+    width: 16%;
+  }
+
+  .th_type {
+    width: 12%;
+  }
+
+  .th_status {
+    width: 8%;
+  }
+
+  .th_charges {
+    width: 8%;
+    padding-right: 15px;
+    text-align: right;
+  }
+
+  .mat-column-charge {
+    text-align: right;
+  }
+
+  .header-row {
+    .label {
+      display: inline-block;
+      padding-top: 10px;
+      vertical-align: super !important;
+      padding-left: 5px;
+    }
+  }
+
+  .filter-row {
+    .actions {
+      text-align: right;
+    }
+  }
+}
+
+.dashboard_table_body {
+  td:first-child {
+    cursor: default;
+  }
+
+  .dropdown-multiselect {
+    button {
+      font-size: 14px;
+      height: 34px;
+      padding: 7px 20px;
+    }
+  }
+}
+
+@media screen and (max-width: 1280px) {
+  .dashboard_table.reporting {
+
+    .env_name,
+    .service,
+    .th_type,
+    .th_rstatus {
+      width: 10%;
+    }
+
+    .th_user {
+      width: 12%;
+    }
+
+    .th_charges {
+      width: 6%;
+    }
+
+    .user-field {
+      word-wrap: break-word;
+    }
+  }
+}

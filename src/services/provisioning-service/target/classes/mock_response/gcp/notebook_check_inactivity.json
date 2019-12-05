@@ -1,0 +1,7 @@
+{
+  "status": "ok",
+  "response": {
+    "result": "1548253841"
+  },
+  "request_id" : "${REQUEST_ID}"
+}

@@ -1,0 +1,97 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<table mat-table [dataSource]="dataSource" class="projects-table mat-elevation-z6 selection">
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef class="name"> Project name </th>
+    <td mat-cell *matCellDef="let element" class="name"> {{element.name}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="groups">
+    <th mat-header-cell *matHeaderCellDef class="groups"> Groups </th>
+    <td mat-cell *matCellDef="let element" class="groups">
+      <mat-chip-list>
+        <mat-chip *ngFor="let group of element.groups">{{ group }}</mat-chip>
+      </mat-chip-list>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="endpoints">
+    <th mat-header-cell *matHeaderCellDef class="endpoints">
+      <span class="label-endpoint"> Endpoint </span>
+      <span class="label-status"> Endpoint status </span>
+    </th>
+    <td mat-cell *matCellDef="let element" class="source endpoints">
+      <!-- <mat-chip-list>
+        <mat-chip *ngFor="let endpoint of element.endpoints">{{ endpoint }}</mat-chip>
+      </mat-chip-list> -->
+      <div *ngIf="!element.endpoints?.length; else list">
+        <span *ngIf="!element.endpoints.length" class="no-details">no details</span>
+      </div>
+      <ng-template #list>
+        <div *ngFor="let endpoint of element.endpoints" class="resource-wrap">
+          <div class="resource-name">
+            <a class="detailed-link">
+              {{ endpoint.name }}
+            </a>
+          </div>
+          <span ngClass="{{toEndpointStatus(endpoint.status).toLowerCase() || ''}}"
+            class="status resource-status">{{ toEndpointStatus(endpoint.status).toLowerCase() }}</span>
+          <div class="resource-actions">
+            <a class="start-stop-action">
+              <i class="material-icons" (click)="toggleEndpointAction(element, 'stop', endpoint)"
+                *ngIf="endpoint.status === 'RUNNING' || endpoint.status === 'STOPPING'"
+                [ngClass]="{'not-active' : endpoint.status === 'STOPPING'}">pause_circle_outline</i>
+            </a>
+            <a class="start-stop-action">
+              <i class="material-icons" (click)="toggleEndpointAction(element, 'start', endpoint)"
+                *ngIf="endpoint.status === 'STOPPED'">play_circle_outline</i>
+            </a>
+
+            <a class="remove_butt" (click)="toggleEndpointAction(element, 'terminate', endpoint)"
+              [ngClass]="{ 'disabled' : endpoint.status !== 'RUNNING' && endpoint.status !== 'STOPPED' }">
+              <i class="material-icons">highlight_off</i>
+            </a>
+          </div>
+        </div>
+      </ng-template>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef class="project-actions"></th>
+    <td mat-cell *matCellDef="let element" class="project-actions">
+      <span>
+        <a (click)="editProject(element)">
+          <mat-icon>mode_edit</mat-icon>
+        </a>
+      </span>
+      <span>
+        <a (click)="deleteProject(element)" class="action"
+          [ngClass]="{'not-allowed' : isInProgress(element) || !isActiveEndpoint(element) }">
+          <mat-icon>delete_forever</mat-icon>
+        </a>
+      </span>
+    </td>
+
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

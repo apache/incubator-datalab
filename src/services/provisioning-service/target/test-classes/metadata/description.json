@@ -1,0 +1,25 @@
+{
+  "template_name": "EMR cluster",
+  "description": "Image for EMR provisioning",
+  "environment_type": "computational",
+  "computation_resources_shapes":
+  {
+    "Memory optimized" : [
+      {"Size": "S", "Description": "r3.xlarge", "Type": "r3.xlarge","Ram": "30.5 GB","Cpu": "4", "Spot": "true", "SpotPctPrice": "70"},
+      {"Size": "M", "Description": "r3.4xlarge", "Type": "r3.4xlarge","Ram": "122 GB","Cpu": "16", "Spot": "true", "SpotPctPrice": "70"},
+      {"Size": "L", "Description": "r3.8xlarge", "Type": "r3.8xlarge","Ram": "244 GB","Cpu": "32", "Spot": "true", "SpotPctPrice": "70"}
+    ],
+    "GPU optimized": [
+      {"Size": "M", "Description": "g2.2xlarge", "Type": "g2.2xlarge","Ram": "15.0 GB","Cpu": "8", "Spot": "true", "SpotPctPrice": "70"}
+    ],
+    "Compute optimized": [
+      {"Size": "S", "Description": "c4.large", "Type": "c4.large","Ram": "3.75 GB","Cpu": "2", "Spot": "true", "SpotPctPrice": "70"},
+      {"Size": "M", "Description": "c4.2xlarge", "Type": "c4.2xlarge","Ram": "15.0 GB","Cpu": "8", "Spot": "true", "SpotPctPrice": "70"},
+      {"Size": "L", "Description": "c4.8xlarge", "Type": "c4.8xlarge","Ram": "60.0 GB","Cpu": "36", "Spot": "true", "SpotPctPrice": "70"}
+    ]
+  },
+  "templates":
+  [
+    {"version":"emr-5.2.0", "applications": [{"Name":"Hadoop", "Version": "2.7.3"}, {"Name":"Spark", "Version": "2.0.2"}, {"Name":"Hive", "Version": "2.1.0"}]}
+  ]
+}
