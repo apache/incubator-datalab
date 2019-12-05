@@ -67,7 +67,9 @@
 
        .schedule {
          cursor: pointer;
-         margin-top: 5px;
+         display: flex;
+         align-items: center;
+         font-size: 18px;
 
          &.not-allowed {
            pointer-events: none;

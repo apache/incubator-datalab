@@ -96,17 +96,17 @@ export class ComputationalResourcesListComponent {
   </div>
   <div mat-dialog-content class="content">
     <div class="dialog-max-width">
-        Computational resource 
-            <strong matTooltip="{{ data.resource.computational_name }}"
-                    [matTooltipShowDelay]="2000"
-                    matTooltipPosition="left"
-            > 
+        Computational resource
+          <span class="strong" matTooltip="{{ data.resource.computational_name }}"
+                  [matTooltipShowDelay]="2000"
+                  matTooltipPosition="left"
+          > 
                 {{ data.resource.computational_name }}
-            </strong> will be 
+            </span> will be 
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </div>
-    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+    <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
   </div>
   <div class="text-center">
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>

@@ -33,7 +33,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
         <div *ngIf="data.template.notebook.length > 0">
           Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
           <span *ngFor="let item of data.template.notebook">
-            <b>{{ item.exploratory_name }}</b>
+            <span class="strong">{{ item.exploratory_name }}</span>
             <span *ngIf="data.template.notebook.length > 1">, </span>
           </span> will be stopped and all computational resources will be stopped/terminated
         </div>
@@ -41,7 +41,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
         <div *ngIf="data.template.cluster.length > 0">
           <p *ngFor="let item of data.template.cluster">
               Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
-              <b>{{ item.computational_name }}</b> on <b>{{ item.exploratory_name }}</b>
+              <span class="strong">{{ item.computational_name }}</span> on <span class="strong">{{ item.exploratory_name }}</span>
               will be stopped
           </p>
         </div>
@@ -95,6 +95,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     .status { width: 30%;text-align: right;}
     .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
     .node { font-weight: 300;}
+    .label-name { display: inline-block; width: 100%}
+    .scrolling-content{overflow-y: auto; max-height: 200px;}
+    .endpoint { width: 280px;text-align: left;}
+    .status { text-align: left;}
   `]
 })
 export class NotificationDialogComponent {

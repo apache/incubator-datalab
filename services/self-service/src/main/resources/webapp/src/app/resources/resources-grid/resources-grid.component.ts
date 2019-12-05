@@ -95,7 +95,6 @@ export class ResourcesGridComponent implements OnInit {
   public buildGrid(): void {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
-        this.filtering = false;
         this.environments = ExploratoryModel.loadEnvironments(result);
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
