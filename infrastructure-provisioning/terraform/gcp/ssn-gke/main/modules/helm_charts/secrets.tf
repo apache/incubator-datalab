@@ -129,17 +129,6 @@ resource "kubernetes_secret" "ssn_keystore_password" {
   }
 }
 
-//resource "kubernetes_secret" "endpoint_keystore_password" {
-//  metadata {
-//    name       = "endpoint-keystore-password"
-//    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
-//  }
-//
-//  data = {
-//    password = var.endpoint_keystore_password
-//  }
-//}
-
 resource "random_string" "step_ca_password" {
   length = 8
   special = false

@@ -19,24 +19,6 @@
 #
 # ******************************************************************************
 
-//resource "null_resource" "cert_manager" {
-//  provisioner "local-exec" {
-//    command = "kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.9.1/cert-manager.yaml"
-//  }
-//  triggers = {
-//    "after" = kubernetes_namespace.cert-manager-namespace.metadata[0].name
-//  }
-//}
-//
-//resource "null_resource" "cert_manager_delay" {
-//  provisioner "local-exec" {
-//    command = "sleep 120"
-//  }
-//  triggers = {
-//    "before" = null_resource.cert_manager.id
-//  }
-//}
-
 resource "null_resource" "crd_delay" {
     provisioner "local-exec" {
         command = "sleep 120"

@@ -19,11 +19,6 @@
 #
 # ******************************************************************************
 
-//data "helm_repository" "smallstep" {
-//  name = "smallstep"
-//  url  = "https://smallstep.github.io/helm-charts/"
-//}
-
 locals {
   step_ca_name = "step-certificates"
 }

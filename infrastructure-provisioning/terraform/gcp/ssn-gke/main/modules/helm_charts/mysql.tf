@@ -43,35 +43,3 @@ resource "helm_release" "keycloak-mysql" {
                 helm_release.nginx]
 }
 
-//resource "kubernetes_persistent_volume" "example" {
-//  metadata {
-//    name = "mysql-keycloak-pv2"
-//  }
-//  spec {
-//    capacity = {
-//      storage = "8Gi"
-//    }
-//    access_modes = ["ReadWriteMany"]
-//    persistent_volume_source {
-//      host_path {
-//        path = "/home/dlab-user/keycloak-pv2"
-//      }
-//    }
-//  }
-//}
-//
-//resource "kubernetes_persistent_volume_claim" "example" {
-//  metadata {
-//    name = "mysql-keycloak-pvc2"
-//  }
-//  spec {
-//    access_modes = ["ReadWriteMany"]
-//    resources {
-//      requests = {
-//        storage = "5Gi"
-//      }
-//    }
-//    volume_name = kubernetes_persistent_volume.example.metadata.0.name
-//  }
-//}
-
