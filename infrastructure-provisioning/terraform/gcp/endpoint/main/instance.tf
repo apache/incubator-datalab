@@ -34,7 +34,7 @@ resource "google_compute_instance" "endpoint" {
     product     = "${var.product}"
     endpoint_id = "${var.endpoint_id}"
   }
-  zone         = var.zone
+  zone         = "${var.region}${var.zone}"
 
   boot_disk {
     initialize_params {
