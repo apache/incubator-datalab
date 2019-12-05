@@ -125,8 +125,8 @@ def ensure_step_certs():
                                              'access-configs/0/external-ip').stdout.replace('\n', '')
                 try:
                     public_ip_address = conn.sudo('curl -H "Metadata-Flavor: Google" '
-                                                  'http://metadata/computeMetadata/v1/instance/network-interfaces/0/ip'
-                                                  'access-configs/0/external-ip').stdout.replace('\n', '')
+                                                  'http://metadata/computeMetadata/v1/instance/network-interfaces/0/'
+                                                  'ip').stdout.replace('\n', '')
                 except:
                     public_ip_address = None
             else:
