@@ -42,8 +42,8 @@ export class ReportingGridComponent implements OnInit {
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
-  displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'tags', 'charge'];
-  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'tags-filter', 'actions'];
+  displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'charge']; //'tags'
+  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions']; //'tags-filter'
 
   ngOnInit() { }
 
