@@ -111,12 +111,26 @@ def ensure_step_certs():
             conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
                                                                                   args.step_ca_url))
             conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(args.step_kid_password, args.os_user))
-            local_ip_address = conn.sudo('curl -s '
-                                         'http://169.254.169.254/latest/meta-data/local-ipv4').stdout.replace('\n', '')
-            try:
-                public_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/'
-                                              'public-ipv4').stdout.replace('\n', '')
-            except:
+            if args.cloud_provider == 'aws':
+                local_ip_address = conn.sudo('curl -s '
+                                             'http://169.254.169.254/latest/meta-data/local-ipv4').stdout.replace('\n', '')
+                try:
+                    public_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/'
+                                                  'public-ipv4').stdout.replace('\n', '')
+                except:
+                    public_ip_address = None
+            elif args.cloud_provider == 'gcp':
+                local_ip_address = conn.sudo('curl -H "Metadata-Flavor: Google" '
+                                             'http://metadata/computeMetadata/v1/instance/network-interfaces/0/'
+                                             'access-configs/0/external-ip').stdout.replace('\n', '')
+                try:
+                    public_ip_address = conn.sudo('curl -H "Metadata-Flavor: Google" '
+                                                  'http://metadata/computeMetadata/v1/instance/network-interfaces/0/ip'
+                                                  'access-configs/0/external-ip').stdout.replace('\n', '')
+                except:
+                    public_ip_address = None
+            else:
+                local_ip_address = None
                 public_ip_address = None
             sans = "--san localhost --san {0} --san 127.0.0.1 ".format(local_ip_address)
             cn = local_ip_address
@@ -221,39 +235,20 @@ def create_key_dir_endpoint():
 
 def configure_keystore_endpoint(os_user, endpoint_keystore_password):
     try:
-        if args.cloud_provider == "aws":
-            conn.sudo('openssl pkcs12 -export -in /home/{0}/keys/endpoint.crt -inkey '
-                      '/home/{0}/keys/endpoint.key -name endpoint -out /home/{0}/keys/endpoint.p12 '
-                      '-password pass:{1}'.format(args.os_user, endpoint_keystore_password))
-            conn.sudo('keytool -importkeystore -srckeystore /home/{0}/keys/endpoint.p12 -srcstoretype PKCS12 '
-                      '-alias endpoint -destkeystore /home/{0}/keys/endpoint.keystore.jks -deststorepass "{1}" '
-                      '-srcstorepass "{1}"'.format(args.os_user, endpoint_keystore_password))
-            conn.sudo('keytool -keystore /home/{0}/keys/endpoint.keystore.jks -alias CARoot -import -file '
-                      '/home/{0}/keys/root_ca.crt  -deststorepass "{1}" -noprompt'.format(
-                       args.os_user, endpoint_keystore_password))
-            conn.sudo('keytool -importcert -trustcacerts -alias endpoint -file /home/{0}/keys/endpoint.crt -noprompt '
-                      '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
-            conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/root_ca.crt -noprompt '
-                      '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
-            conn.sudo('touch /home/{0}/.ensure_dir/cert_imported'.format(args.os_user))
-        elif args.cloud_provider == "gcp":
-            if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
-                conn.sudo('gsutil -m cp -r gs://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
-                          '/home/{1}/keys/'
-                          .format(args.ssn_bucket_name, args.os_user))
-            if not exists(conn, '/home/' + args.os_user + '/keys/dlab.crt'):
-                conn.sudo('gsutil -m cp -r gs://{0}/dlab/certs/endpoint/endpoint.crt'
-                          ' /home/{1}/keys/'.format(args.ssn_bucket_name, args.os_user))
-            if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
-                conn.sudo('gsutil -m cp -r '
-                          'gs://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/'
-                          .format(args.ssn_bucket_name, args.os_user))
-        if not exists(conn, '/home/' + args.os_user + '/.ensure_dir/cert_imported'):
-            conn.sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/endpoint.crt -noprompt \
-                 -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
-            conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/ssn.crt -noprompt \
-                 -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
-            conn.sudo('touch /home/' + args.os_user + '/.ensure_dir/cert_imported')
+        conn.sudo('openssl pkcs12 -export -in /home/{0}/keys/endpoint.crt -inkey '
+                  '/home/{0}/keys/endpoint.key -name endpoint -out /home/{0}/keys/endpoint.p12 '
+                  '-password pass:{1}'.format(args.os_user, endpoint_keystore_password))
+        conn.sudo('keytool -importkeystore -srckeystore /home/{0}/keys/endpoint.p12 -srcstoretype PKCS12 '
+                  '-alias endpoint -destkeystore /home/{0}/keys/endpoint.keystore.jks -deststorepass "{1}" '
+                  '-srcstorepass "{1}"'.format(args.os_user, endpoint_keystore_password))
+        conn.sudo('keytool -keystore /home/{0}/keys/endpoint.keystore.jks -alias CARoot -import -file '
+                  '/home/{0}/keys/root_ca.crt  -deststorepass "{1}" -noprompt'.format(
+                   args.os_user, endpoint_keystore_password))
+        conn.sudo('keytool -importcert -trustcacerts -alias endpoint -file /home/{0}/keys/endpoint.crt -noprompt '
+                  '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
+        conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/root_ca.crt -noprompt '
+                  '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
+        conn.sudo('touch /home/{0}/.ensure_dir/cert_imported'.format(args.os_user))
         print("Certificates are imported.")
     except Exception as err:
         print('Failed to configure Keystore certificates: ', str(err))
