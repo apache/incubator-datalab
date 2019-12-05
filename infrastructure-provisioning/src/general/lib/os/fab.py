@@ -872,7 +872,9 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
     try:
         if not exists('/home/{}/incubator-superset'.format(os_user)):
             with cd('/home/{}'.format(os_user)):
-                sudo('git clone https://github.com/apache/incubator-superset/')
+                sudo('wget https://github.com/apache/incubator-superset/archive/{}.tar.gz'.format(os.environ['notebook_superset_version']))
+                sudo('tar -xzf {}.tar.gz'.format(os.environ['notebook_superset_version']))
+                sudo('ln -sf incubator-superset-{} incubator-superset'.format(os.environ['notebook_superset_version']))
         if not exists('/tmp/superset-notebook_installed'):
             sudo('mkdir -p /opt/dlab/templates')
             put('/root/templates', '/opt/dlab', use_sudo=True)
