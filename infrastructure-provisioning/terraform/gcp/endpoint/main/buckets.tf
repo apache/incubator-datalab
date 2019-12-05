@@ -24,7 +24,7 @@ locals {
   additional_tag  = split(":", var.additional_tag)
 }
 
-resource "google_storage_bucket" "ssn_bucket" {
+resource "google_storage_bucket" "shared_bucket" {
   name     = local.shared_bucket_name
   force_destroy = true
   labels = {
