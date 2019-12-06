@@ -27,6 +27,7 @@ import { debounceTime } from 'rxjs/operators';
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
 import { SortUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import {FilterLibsModel} from "./filter-libs.model";
 
 
 @Component({
@@ -67,6 +68,12 @@ export class InstallLibrariesComponent implements OnInit {
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
   private clearCheckInstalling = undefined;
+
+  public filterConfiguration: FilterLibsModel = new FilterLibsModel('',[],[],[],[]);
+  public filterModel: FilterLibsModel = new FilterLibsModel('', [], [], [],[]);
+  public filtered: boolean;
+
+  public filtredNotebookLibs:any;
 
   @ViewChild('groupSelect', { static: false }) group_select;
   @ViewChild('resourceSelect', { static: false }) resource_select;
@@ -233,7 +240,12 @@ export class InstallLibrariesComponent implements OnInit {
     this.model.getInstalledLibrariesList(this.notebook)
       .subscribe((data: any) => {
         this.notebookLibs = data ? data : [];
+        this.filtredNotebookLibs = [...this.notebookLibs];
         this.changeDetector.markForCheck();
+        this.filterConfiguration.group = this.notebookLibs.map(v=>v.group).filter((v,i,arr)=>arr.indexOf(v) === i);
+        this.filterConfiguration.resource = this.notebookLibs.map(v=>v.status[0].resource).filter((v,i,arr)=> arr.indexOf(v) === i);
+        this.filterConfiguration.resourceType = this.notebookLibs.map(v=>v.status[0].resourceType).filter((v,i,arr)=>arr.indexOf(v) === i);
+        this.filterConfiguration.status = this.notebookLibs.map(v=>v.status[0].status).filter((v,i,arr)=>arr.indexOf(v) === i);
         this.isInstallingInProgress(this.notebookLibs);
       });
   }
@@ -300,6 +312,29 @@ export class InstallLibrariesComponent implements OnInit {
     this.clearCheckInstalling = undefined;
     this.selectorsReset();
   }
+
+  public toggleFilterRow (){
+    this.filtered = !this.filtered
+  }
+  public filterData(){
+    this.filtredNotebookLibs = this.notebookLibs.filter(lib => {
+      const isName = this.filterModel.name ? lib.name.toLowerCase().indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 : true;
+      const isGroup = this.filterModel.group.length ? this.filterModel.group.includes(lib.group) : true;
+      const isResource = this.filterModel.resource.length ? this.filterModel.resource.includes(lib.status[0].resource) : true;
+      const isResourceType = this.filterModel.resourceType.length ? this.filterModel.resourceType.includes(lib.status[0].resourceType) : true;
+      const isStatus = this.filterModel.status.length ? this.filterModel.status.includes(lib.status[0].status) : true;
+
+      return isName && isGroup && isResource && isResourceType && isStatus;
+    });
+    console.log(this.filterModel);
+  }
+
+  public resetFilterConfigurations() {
+    this.filtredNotebookLibs = [...this.notebookLibs];
+    this.filterModel.resetFilterLibs();
+  }
+
+
 }
 
 @Component({

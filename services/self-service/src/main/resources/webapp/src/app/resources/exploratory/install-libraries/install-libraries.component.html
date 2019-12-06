@@ -101,19 +101,106 @@
     <div class="libs-info">
       <mat-list>
         <mat-list-item class="list-header">
-          <div class="lib-name">Name</div>
-          <div class="lib-group">Group</div>
-          <div class="lib-destination">Destination</div>
-          <div class="lib-resource-type">Resource type</div>
+          <div class="lib-name">Name
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+            <i class="material-icons">
+              <span *ngIf="filtered> 0 ">filter_list</span>
+              <span [hidden]="filtered> 0 ">more_vert</span>
+            </i>
+          </button></div>
+          <div class="lib-group">Group
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span *ngIf="filtered> 0 ">filter_list</span>
+                <span [hidden]="filtered> 0 ">more_vert</span>
+              </i>
+            </button>
+          </div>
+          <div class="lib-destination">Destination
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span *ngIf="filtered> 0 ">filter_list</span>
+                <span [hidden]="filtered> 0 ">more_vert</span>
+              </i>
+            </button>
+          </div>
+          <div class="lib-resource-type">Resource type
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span *ngIf="filtered> 0 ">filter_list</span>
+                <span [hidden]="filtered> 0 ">more_vert</span>
+              </i>
+            </button>
+          </div>
           <div class="lib-status">Status</div>
+
+
         </mat-list-item>
+
+
+        <ng-container *ngIf="filtered" >
+         <mat-list-item class="list-header lib-col">
+          <th class="lib-name">
+            <input [value]="filterModel.name" (input)="filterModel.name = $event.target.value" type="text" class="form-control filter-field"/>
+          </th>
+          <th class="lib-group lib-col">
+              <multi-select-dropdown
+                [items]="this.filterConfiguration.group"
+                [type]="'group'"
+                [model]="this.filterModel.group"
+              >
+              </multi-select-dropdown>
+            </th>
+            <th class="lib-destination lib-col">
+              <multi-select-dropdown
+                [items]="this.filterConfiguration.resource"
+                 [type]="'resource'"
+                 [model]="this.filterModel.resource"
+              >
+              </multi-select-dropdown>
+            </th>
+            <th class="lib-resource-type lib-col">
+              <multi-select-dropdown
+                [items]="this.filterConfiguration.resourceType"
+                [type]="'resourceType'"
+                [model]="this.filterModel.resourceType"
+              >
+              </multi-select-dropdown>
+          </th>
+          <th class="lib-status lib-col">
+            <multi-select-dropdown [items]="this.filterConfiguration.status"
+                                   [type]="'status'"
+                                   [model]="this.filterModel.status">
+
+            </multi-select-dropdown>
+          </th>
+           <ng-container matColumnDef="action-filter" stickyEnd>
+             <th mat-header-cell>
+               <div class="actions">
+                 <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+                   <i class="material-icons">close</i>
+                 </button>
+
+                 <button mat-icon-button class="btn apply" (click)="filterData()">
+                   <!--                      [disabled]="filteredEnvironments.length == 0 && !filtering">-->
+                   <i class="material-icons">done</i>
+                   <!--                   [ngClass]="{'not-allowed': filteredEnvironments.length == 0 && !filtering}"-->
+                 </button>
+               </div>
+             </th>
+           </ng-container>
+         </mat-list-item>
+        </ng-container>
+
+
+
 
         <div class="scrollingList" id="scrolling" *ngIf="notebookLibs?.length">
           <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">
             <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>
           </div>
 
-          <mat-list-item *ngFor="let lib of notebookLibs">
+          <mat-list-item *ngFor="let lib of filtredNotebookLibs">
             <div class="lib-name">
               <strong>{{ lib.name }}</strong>&nbsp;
               <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
