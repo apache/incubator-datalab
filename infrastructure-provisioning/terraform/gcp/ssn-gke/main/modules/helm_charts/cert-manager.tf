@@ -23,6 +23,9 @@ resource "null_resource" "crd_delay" {
     provisioner "local-exec" {
         command = "sleep 120"
     }
+    triggers = {
+        "after" = var.node_pool
+    }
 }
 
 data "template_file" "cert_manager_values" {

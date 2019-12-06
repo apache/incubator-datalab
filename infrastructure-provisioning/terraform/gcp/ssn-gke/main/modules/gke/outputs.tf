@@ -38,3 +38,7 @@ output "vpc_name" {
 output "subnet_name" {
   value = data.google_compute_subnetwork.ssn_gke_subnet_data.name
 }
+
+output "node_pool" {
+  value = google_container_node_pool.ssn_k8s_gke_node_pool.name
+}

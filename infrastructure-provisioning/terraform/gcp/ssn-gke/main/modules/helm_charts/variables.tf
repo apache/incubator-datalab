@@ -82,3 +82,5 @@ variable "custom_certs_host" {}
 variable "mysql_disk_size" {}
 
 variable "domain" {}
+
+variable "node_pool" {}
