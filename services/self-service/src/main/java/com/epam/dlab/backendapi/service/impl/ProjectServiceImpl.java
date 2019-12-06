@@ -227,9 +227,11 @@ public class ProjectServiceImpl implements ProjectService {
 
 		List<UserInstanceDTO> userInstanceDTOs = exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(projectName,
 				Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING,
-                        UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.RECONFIGURING),
+						UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.CONFIGURING,
+						UserInstanceStatus.RECONFIGURING, UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING),
                 UserInstanceStatus.CREATING, UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING,
-                UserInstanceStatus.RECONFIGURING, UserInstanceStatus.CREATING_IMAGE);
+				UserInstanceStatus.RECONFIGURING, UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.STOPPING,
+				UserInstanceStatus.TERMINATING);
         if (edgeProgress || !userInstanceDTOs.isEmpty()) {
 			throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
 					"resource is in processing stage", action)));
@@ -241,7 +243,8 @@ public class ProjectServiceImpl implements ProjectService {
         return !endpoints.stream().allMatch(e -> exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(
                 projectDTO.getName(), e.getName(), UserInstanceStatus.STOPPED, UserInstanceStatus.TERMINATED,
                 UserInstanceStatus.TERMINATING).isEmpty()) ||
-                endpoints.stream().anyMatch(e -> e.getStatus() == UserInstanceStatus.RUNNING);
+				endpoints.stream().anyMatch(e -> Arrays.asList(UserInstanceStatus.RUNNING, UserInstanceStatus.STARTING)
+						.contains(e.getStatus()));
 	}
 
 	private boolean isCanBeTerminated(ProjectDTO projectDTO) {
