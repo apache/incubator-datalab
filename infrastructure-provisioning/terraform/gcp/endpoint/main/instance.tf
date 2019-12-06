@@ -27,14 +27,14 @@ locals {
 resource "google_compute_instance" "endpoint" {
   name         = local.endpoint_instance_name
   machine_type = var.endpoint_shape
-  tags         = ["${replace("${local.endpoint_instance_name}", "_", "-")}"]
+  zone         = var.zone
+  tags         = [replace(local.endpoint_instance_name, "_", "-")]
   labels       = {
-    name        = "${local.endpoint_instance_name}"
-    sbn         = "${var.service_base_name}"
-    product     = "${var.product}"
-    endpoint_id = "${var.endpoint_id}"
+    name        = local.endpoint_instance_name
+    sbn         = var.service_base_name
+    product     = var.product
+    endpoint_id = var.endpoint_id
   }
-  zone         = "${var.region}-${var.zone}"
 
   boot_disk {
     initialize_params {

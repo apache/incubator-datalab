@@ -36,7 +36,7 @@ variable "region" {
 }
 
 variable "zone" {
-  default = "a"
+  default = "us-west1-a"
 }
 
 variable "vpc_name" {
