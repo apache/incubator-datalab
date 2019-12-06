@@ -75,5 +75,4 @@ module "helm_charts" {
   custom_key_path            = var.custom_key_path
   mysql_disk_size            = var.mysql_disk_size
   domain                     = var.domain
-  node_pool                  = module.gke_cluster.node_pool
 }
