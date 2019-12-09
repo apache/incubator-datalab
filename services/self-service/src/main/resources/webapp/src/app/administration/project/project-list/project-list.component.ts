@@ -23,7 +23,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
 
 import { ProjectDataService } from '../project-data.service';
-import { ProjectService } from '../../../core/services';
 import { Project, Endpoint } from '../project.component';
 import { CheckUtils } from '../../../core/util';
 
@@ -46,8 +45,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   constructor(
     public toastr: ToastrService,
-    private projectDataService: ProjectDataService,
-    private projectService: ProjectService
+    private projectDataService: ProjectDataService
   ) { }
 
 

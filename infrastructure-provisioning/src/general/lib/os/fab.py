@@ -193,6 +193,113 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             print('Error:', str(err))
             sys.exit(1)
 
+def configure_docker(os_user, http_file, https_file):
+    try:
+        if not exists('/home/' + os_user + '/.ensure_dir/docker_ensured'):
+            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
+                  stable"')
+            sudo('apt-get update')
+            sudo('apt-cache policy docker-ce')
+            sudo('apt-get install -y docker-ce')
+            sudo('mkdir -p /etc/systemd/system/docker.service.d')
+            sudo('touch {}'.format(http_file))
+            sudo('echo -e \'[Service] \nEnvironment=\"HTTP_PROXY=\'$http_proxy\'\"\' > {}'.format(http_file))
+            sudo('touch {}'.format(https_file))
+            sudo('echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > {}'.format(https_file))
+            sudo('mkdir /home/{}/.docker'.format(os_user))
+            sudo('touch /home/{}/.docker/config.json'.format(os_user))
+            sudo('echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/dlab-user/.docker/config.json')
+            sudo('usermod -a -G docker ' + os_user)
+            sudo('update-rc.d docker defaults')
+            sudo('update-rc.d docker enable')
+            sudo('wget https://raw.githubusercontent.com/CWSpear/local-persist/master/scripts/install.sh && chmod +x install.sh')
+            sudo('sed -i "66s/curl/sudo curl/g" install.sh')
+            sudo('sed -i "s/sudo curl/sudo -E curl/g" install.sh')
+            run('sudo -E ./install.sh')
+            sudo('rm install.sh')
+            sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
+    except Exception as err:
+        print('Failed to configure Docker:', str(err))
+        sys.exit(1)
+
+def ensure_jupyterlab_files(os_user, jupyterlab_dir, jupyterlab_image, jupyter_conf_file, jupyterlab_conf_file, exploratory_name, edge_ip):
+    if not exists(jupyterlab_dir):
+        try:
+            sudo('mkdir {}'.format(jupyterlab_dir))
+#            put(templates_dir + 'pyspark_local_template.json', '/tmp/pyspark_local_template.json')
+#            put(templates_dir + 'py3spark_local_template.json', '/tmp/py3spark_local_template.json')
+            put('/root/Dockerfile_jupyterlab', '/tmp/Dockerfile_jupyterlab')
+            put('/root/scripts/*', '/tmp/')
+#            sudo('\cp /tmp/pyspark_local_template.json ' + jupyterlab_dir + 'pyspark_local_template.json')
+#            sudo('\cp /tmp/py3spark_local_template.json ' + jupyterlab_dir + 'py3spark_local_template.json')
+#            sudo('sed -i \'s/3.5/3.6/g\' {}py3spark_local_template.json'.format(jupyterlab_dir))
+            sudo('mv /tmp/jupyterlab_run.sh {}jupyterlab_run.sh'.format(jupyterlab_dir))
+            sudo('mv /tmp/Dockerfile_jupyterlab {}Dockerfile_jupyterlab'.format(jupyterlab_dir))
+            sudo('mv /tmp/build.sh {}build.sh'.format(jupyterlab_dir))
+            sudo('mv /tmp/start.sh {}start.sh'.format(jupyterlab_dir))
+            sudo('sed -i \'s/nb_user/{}/g\' {}Dockerfile_jupyterlab'.format(os_user, jupyterlab_dir))
+            sudo('sed -i \'s/jupyterlab_image/{}/g\' {}Dockerfile_jupyterlab'.format(jupyterlab_image, jupyterlab_dir))
+            sudo('sed -i \'s/nb_user/{}/g\' {}start.sh'.format(os_user, jupyterlab_dir))
+#            sudo('sed -i \'s/jup_version/{}/g\' {}Dockerfile_jupyterlab'.format(jupyter_version, jupyterlab_dir))
+#            sudo('sed -i \'s/hadoop_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_hadoop_version'], jupyterlab_dir))
+#            sudo('sed -i \'s/tornado_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_tornado_version'], jupyterlab_dir))
+#            sudo('sed -i \'s/matplotlib_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_matplotlib_version'], jupyterlab_dir))
+#            sudo('sed -i \'s/numpy_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_numpy_version'], jupyterlab_dir))
+#            sudo('sed -i \'s/spark_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_spark_version'], jupyterlab_dir))
+#            sudo('sed -i \'s/scala_version/{}/g\' {}Dockerfile_jupyterlab'.format(os.environ['notebook_scala_version'], jupyterlab_dir))
+            sudo('sed -i \'s/CONF_PATH/{}/g\' {}jupyterlab_run.sh'.format(jupyterlab_conf_file, jupyterlab_dir))
+            sudo('touch {}'.format(jupyter_conf_file))
+            sudo('echo "c.NotebookApp.ip = \'0.0.0.0\'" >> {}'.format(jupyter_conf_file))
+            sudo('echo "c.NotebookApp.base_url = \'/{0}/\'" >> {1}'.format(exploratory_name, jupyter_conf_file))
+            sudo('echo c.NotebookApp.open_browser = False >> {}'.format(jupyter_conf_file))
+            sudo('echo \'c.NotebookApp.cookie_secret = b"{0}"\' >> {1}'.format(id_generator(), jupyter_conf_file))
+            sudo('''echo "c.NotebookApp.token = u''" >> {}'''.format(jupyter_conf_file))
+            sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> {}'.format(jupyter_conf_file))
+            sudo('chown dlab-user:dlab-user /opt')
+            sudo('echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(edge_ip, os_user))
+            sudo('echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(edge_ip, os_user))
+#            sudo('touch {}'.format(spark_script))
+#            sudo('echo "#!/bin/bash" >> {}'.format(spark_script))
+#            sudo(
+#                'echo "PYJ=\`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'\`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/pyspark_local_template.json" >> {}'.format(
+#                spark_script))
+#            sudo(
+#                'echo "sed -i \'14s/:",/:\\/home\\/dlab-user\\/caffe\\/python:\\/home\\/dlab-user\\/pytorch\\/build:",/\' /tmp/pyspark_local_template.json" >> {}'.format(
+#                    spark_script))
+#            sudo('echo \'sed -i "s|SP_VER|{}|g" /tmp/pyspark_local_template.json\' >> {}'.format(os.environ['notebook_spark_version'], spark_script))
+#            sudo(
+#                'echo "PYJ=\`find /opt/spark/ -name \'*py4j*.zip\' | tr \'\\n\' \':\' | sed \'s|:$||g\'\`; sed -i \'s|PY4J|\'$PYJ\'|g\' /tmp/py3spark_local_template.json" >> {}'.format(
+#                spark_script))
+#            sudo(
+#                'echo "sed -i \'14s/:",/:\\/home\\/dlab-user\\/caffe\\/python:\\/home\\/dlab-user\\/pytorch\\/build:",/\' /tmp/py3spark_local_template.json" >> {}'.format(
+#                    spark_script))
+#            sudo('echo \'sed -i "s|SP_VER|{}|g" /tmp/py3spark_local_template.json\' >> {}'.format(os.environ['notebook_spark_version'], spark_script))
+#            sudo('echo "cp /tmp/pyspark_local_template.json /home/{}/.local/share/jupyter/kernels/pyspark_local/kernel.json" >> {}'.format(os_user, spark_script))
+#            sudo(
+#                'echo "cp /tmp/py3spark_local_template.json /home/{}/.local/share/jupyter/kernels/py3spark_local/kernel.json" >> {}'.format(
+#                    os_user, spark_script))
+#            sudo('git clone https://github.com/legion-platform/legion.git')
+#            sudo('cp {}sdk/Pipfile {}sdk_Pipfile'.format(legion_dir, jupyterlab_dir))
+#            sudo('cp {}sdk/Pipfile.lock {}sdk_Pipfile.lock'.format(legion_dir, jupyterlab_dir))
+#            sudo('cp {}toolchains/python/Pipfile {}toolchains_Pipfile'.format(legion_dir, jupyterlab_dir))
+#            sudo('cp {}toolchains/python/Pipfile.lock {}toolchains_Pipfile.lock'.format(legion_dir, jupyterlab_dir))
+#            sudo('cp {}cli/Pipfile {}cli_Pipfile'.format(legion_dir, jupyterlab_dir))
+#            sudo('cp {}cli/Pipfile.lock {}cli_Pipfile.lock'.format(legion_dir, jupyterlab_dir))
+#            sudo('cp -r {}sdk {}sdk'.format(legion_dir, jupyterlab_dir))
+#            sudo('cp -r {}toolchains/python {}toolchains_python'.format(legion_dir, jupyterlab_dir))
+#            sudo('cp -r {}cli {}cli'.format(legion_dir, jupyterlab_dir))
+        except:
+           sys.exit(1)
+    else:
+        try:
+            sudo(
+                'sed -i "s/c.NotebookApp.base_url =.*/c.NotebookApp.base_url = \'\/{0}\/\'/" {1}'.format(
+                    exploratory_name, jupyter_conf_file))
+        except Exception as err:
+            print('Error:', str(err))
+            sys.exit(1)
+
 
 def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, spark_version):
     if not exists('/home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured'):
@@ -725,4 +832,79 @@ def update_hosts_file(os_user):
             sudo('touch /home/{}/.ensure_dir/hosts_file_updated'.format(os_user))
     except Exception as err:
         print('Failed to update hosts file', str(err))
+        sys.exit(1)
+
+def ensure_docker_compose(dlab_path, os_user):
+    try:
+        if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
+            docker_version = os.environ['ssn_docker_version']
+            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
+                  stable"')
+            sudo('apt-get update')
+            sudo('apt-cache policy docker-ce')
+            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
+            print('Proxy for docker configuring')
+            sudo('mkdir -p /etc/systemd/system/docker.service.d')
+            with cd('/etc/systemd/system/docker.service.d'):
+                sudo('echo -e \'[Service] \nEnvironment=\"HTTP_PROXY=\'$http_proxy\'\"\' > http-proxy.conf')
+                sudo('echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > https-proxy.conf')
+            sudo('mkdir -p /home/' + os_user + '/.docker')
+            with cd('/home/' + os_user + '/.docker'):
+                sudo('echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/' +  os_user + '/.docker/config.json')
+            sudo('usermod -a -G docker ' + os_user)
+            sudo('update-rc.d docker defaults')
+            sudo('update-rc.d docker enable')
+            sudo('mkdir -p ' + dlab_path + 'tmp')
+            sudo('touch ' + dlab_path + 'tmp/docker_daemon_ensured')
+        if not exists(dlab_path + 'tmp/docker_compose_ensured'):
+            docker_compose_version = "1.24.1"
+            sudo('curl -L https://github.com/docker/compose/releases/download/{}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose'.format(docker_compose_version))
+            sudo('chmod +x /usr/local/bin/docker-compose')
+        sudo('systemctl daemon-reload')
+        sudo('systemctl restart docker')
+        return True
+    except:
+        return False
+
+def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id, keycloak_client_secret, edge_instance_private_ip, edge_instance_public_ip, superset_name):
+    print('Superset configuring')
+    try:
+        if not exists('/home/{}/incubator-superset'.format(os_user)):
+            with cd('/home/{}'.format(os_user)):
+                sudo('wget https://github.com/apache/incubator-superset/archive/{}.tar.gz'.format(os.environ['notebook_superset_version']))
+                sudo('tar -xzf {}.tar.gz'.format(os.environ['notebook_superset_version']))
+                sudo('ln -sf incubator-superset-{} incubator-superset'.format(os.environ['notebook_superset_version']))
+        if not exists('/tmp/superset-notebook_installed'):
+            sudo('mkdir -p /opt/dlab/templates')
+            put('/root/templates', '/opt/dlab', use_sudo=True)
+            sudo('sed -i \'s/OS_USER/{}/g\' /opt/dlab/templates/.env'.format(os_user))
+            keycloak_auth_server_ip = ''.join(re.findall('(?:[12]?\\d?\\d\\.){3}[12]?\\d?\\d:\d+', keycloak_auth_server_url))
+            proxy_string = '{}:3128'.format(edge_instance_private_ip)
+            sudo('sed -i \'s/KEYCLOAK_AUTH_SERVER_URL/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_auth_server_ip))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_realm_name))
+            sudo('sed -i \'s/CLIENT_ID/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_client_id))
+            sudo('sed -i \'s/CLIENT_SECRET/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_client_secret))
+            sudo('sed -i \'s/PROXY_STRING/{}/g\' /opt/dlab/templates/docker-compose.yml'.format(proxy_string))
+            sudo('sed -i \'s/KEYCLOAK_AUTH_SERVER_URL/{}/g\' /opt/dlab/templates/superset_config.py'.format(keycloak_auth_server_ip))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/superset_config.py'.format(keycloak_realm_name))
+            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/superset_config.py'.format(edge_instance_public_ip))
+            sudo('sed -i \'s/SUPERSET_NAME/{}/g\' /opt/dlab/templates/superset_config.py'.format(superset_name))
+            sudo('cp -f /opt/dlab/templates/.env /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/docker-compose.yml /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/id_provider.json /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/requirements-extra.txt /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/superset_config.py /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            sudo('cp -f /opt/dlab/templates/docker-init.sh /home/{}/incubator-superset/contrib/docker/'.format(os_user))
+            with cd('/home/{}/incubator-superset/contrib/docker'.format(os_user)):
+                sudo('docker-compose run --rm superset ./docker-init.sh')
+            sudo('cp /opt/dlab/templates/superset-notebook.service /tmp/')
+            sudo('sed -i \'s/OS_USER/{}/g\' /tmp/superset-notebook.service'.format(os_user))
+            sudo('cp /tmp/superset-notebook.service /etc/systemd/system/')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable superset-notebook')
+            sudo('systemctl start superset-notebook')
+            sudo('touch /tmp/superset-notebook_installed')
+    except Exception as err:
+        print("Failed configure superset: " + str(err))
         sys.exit(1)

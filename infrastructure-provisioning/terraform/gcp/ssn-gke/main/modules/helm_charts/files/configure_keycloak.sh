@@ -68,7 +68,8 @@
           -s 'config."mapped.group.attributes"=[]' -s 'config."drop.non.existing.groups.during.sync"=["false"]'
           # Create client
           /opt/jboss/keycloak/bin/kcadm.sh create clients -r dlab -s clientId=dlab-ui -s enabled=true -s \
-          'redirectUris=["https://${ssn_k8s_alb_dns_name}/"]' -s secret=${keycloak_client_secret}
+          'redirectUris=["https://${ssn_k8s_alb_dns_name}/"]' -s secret=${keycloak_client_secret} -s \
+          serviceAccountsEnabled=true
           # Get clint ID
           client_id=$(/opt/jboss/keycloak/bin/kcadm.sh get clients -r dlab --query clientId=dlab-ui | /usr/bin/jq -er '.[].id')
           # Create client mapper

@@ -27,9 +27,9 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -82,16 +82,13 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	public List<ProjectManagingDTO> getProjectsForManaging() {
 		return projectDAO.getProjects().stream().map(p -> new ProjectManagingDTO(
-				p.getName(), p.getBudget(), !exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(p.getName(),
-				Collections.singletonList(UserInstanceStatus.RUNNING), UserInstanceStatus.RUNNING).isEmpty(),
-				!p.getEndpoints().stream().allMatch(e -> Arrays.asList(UserInstanceStatus.STARTING,
-						UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING).contains(e.getStatus()))))
+				p.getName(), p.getBudget(), isCanBeStopped(p), isCanBeTerminated(p)))
 				.collect(Collectors.toList());
 	}
 
 	@Override
-	public List<ProjectDTO> getUserActiveProjects(UserInfo userInfo) {
-		return projectDAO.getUserProjects(userInfo);
+	public List<ProjectDTO> getUserProjects(UserInfo userInfo, boolean active) {
+		return projectDAO.getUserProjects(userInfo, active);
 	}
 
 	@Override
@@ -147,12 +144,14 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public void stopWithResources(UserInfo userInfo, String projectName) {
-		ProjectDTO project = get(projectName);
 		checkProjectRelatedResourcesInProgress(projectName, STOP_ACTION);
-		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName).forEach(this::stopNotebook);
-		project.getEndpoints().stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
-				UserInstanceStatus.TERMINATING).contains(e.getStatus())).
-				forEach(e -> stop(userInfo, e.getName(), projectName));
+
+		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName).forEach(e ->
+				exploratoryService.stop(new UserInfo(e.getUser(), userInfo.getAccessToken()), e.getExploratoryName()));
+
+		get(projectName).getEndpoints().stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED).contains(e.getStatus()))
+				.forEach(e -> stop(userInfo, e.getName(), projectName));
 	}
 
 	@Override
@@ -209,7 +208,6 @@ public class ProjectServiceImpl implements ProjectService {
 		requestId.put(user.getName(), uuid);
 	}
 
-
 	private void projectActionOnCloud(UserInfo user, String projectName, String provisioningApiUri, String endpoint) {
 		try {
 			String uuid = provisioningService.post(endpointService.get(endpoint).getUrl() + provisioningApiUri,
@@ -223,20 +221,35 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private void checkProjectRelatedResourcesInProgress(String projectName, String action) {
+        boolean edgeProgress = get(projectName).getEndpoints().stream().anyMatch(e ->
+                Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
+                        UserInstanceStatus.TERMINATING).contains(e.getStatus()));
+
 		List<UserInstanceDTO> userInstanceDTOs = exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(projectName,
 				Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING,
-						UserInstanceStatus.CREATING_IMAGE), UserInstanceStatus.CREATING,
-				UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING, UserInstanceStatus.RECONFIGURING,
-				UserInstanceStatus.CREATING_IMAGE);
-		if (!userInstanceDTOs.isEmpty()) {
-			throw new ResourceConflictException((String.format("Can not %s environment because on of user resource " +
-					"is in status CREATING or STARTING", action)));
+						UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.CONFIGURING,
+						UserInstanceStatus.RECONFIGURING, UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING),
+                UserInstanceStatus.CREATING, UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING,
+				UserInstanceStatus.RECONFIGURING, UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.STOPPING,
+				UserInstanceStatus.TERMINATING);
+        if (edgeProgress || !userInstanceDTOs.isEmpty()) {
+			throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
+					"resource is in processing stage", action)));
 		}
 	}
 
-	private void stopNotebook(UserInstanceDTO instance) {
-		final UserInfo userInfo = securityService.getUserInfoOffline(instance.getUser());
-		exploratoryService.stop(userInfo, instance.getExploratoryName());
+	private boolean isCanBeStopped(ProjectDTO projectDTO) {
+        List<ProjectEndpointDTO> endpoints = projectDTO.getEndpoints();
+        return !endpoints.stream().allMatch(e -> exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(
+                projectDTO.getName(), e.getName(), UserInstanceStatus.STOPPED, UserInstanceStatus.TERMINATED,
+                UserInstanceStatus.TERMINATING).isEmpty()) ||
+				endpoints.stream().anyMatch(e -> Arrays.asList(UserInstanceStatus.RUNNING, UserInstanceStatus.STARTING)
+						.contains(e.getStatus()));
+	}
+
+	private boolean isCanBeTerminated(ProjectDTO projectDTO) {
+        return !projectDTO.getEndpoints().stream().allMatch(e -> Objects.equals(UserInstanceStatus.TERMINATED,
+                e.getStatus()));
 	}
 
 	private Supplier<ResourceNotFoundException> projectNotFound() {

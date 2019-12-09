@@ -61,6 +61,7 @@ export class ResourcesComponent implements OnInit {
 
   public refreshGrid(): void {
     this.resourcesGrid.buildGrid();
+    this.getProjects();
     this.getEnvironmentHealthStatus();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
@@ -89,7 +90,7 @@ export class ResourcesComponent implements OnInit {
   }
 
   private getProjects() {
-    this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
+    this.projectService.getUserProjectsList().subscribe((projects: any) => this.projects = projects);
   }
 
 

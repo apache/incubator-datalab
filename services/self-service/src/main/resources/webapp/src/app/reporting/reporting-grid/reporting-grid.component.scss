@@ -39,9 +39,12 @@
 
     td {
       font-size: 13px;
+      padding-left: 15px;
 
       &.info {
         z-index: 1 !important;
+        text-align: center;
+        padding: 40px;
       }
     }
 
@@ -66,32 +69,73 @@
 
   .th_shape {
     width: 10%;
+    min-width: 150px;
   }
 
   .th_user,
   .env_name,
-  .service {
+  .service,
+  .tags {
     width: 15%;
+    min-width: 150px;
     overflow: hidden;
     word-wrap: break-word;
   }
 
+  .tags {
+    .label {
+      padding-top: 0;
+    }
+  }
+
+  .service {
+    min-width: 175px;
+  }
+
   .env_name {
     width: 16%;
+    min-width: 200px;
   }
 
   .th_type {
     width: 12%;
+    min-width: 200px;
   }
 
   .th_status {
     width: 8%;
+    min-width: 150px;
   }
 
   .th_charges {
     width: 8%;
+    min-width: 110px;
     padding-right: 15px;
     text-align: right;
+
+    .label {
+      padding-top: 0;
+    }
+  }
+
+  .th_project {
+    min-width: 150px;
+  }
+
+  .tags-col {
+    padding: 5px;
+
+    mat-chip {
+      min-height: 20px;
+      padding: 5px 10px;
+      font-size: 13px;
+      max-width: 110px !important;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      line-height: 10px;
+      margin: 2px;
+    }
   }
 
   .mat-column-charge {
@@ -101,9 +145,9 @@
   .header-row {
     .label {
       display: inline-block;
-      padding-top: 10px;
+      padding-top: 15px;
       vertical-align: super !important;
-      padding-left: 5px;
+      padding-left: 15px;
     }
   }
 

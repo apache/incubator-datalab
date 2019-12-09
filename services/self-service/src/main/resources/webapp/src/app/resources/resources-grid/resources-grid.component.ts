@@ -95,7 +95,6 @@ export class ResourcesGridComponent implements OnInit {
   public buildGrid(): void {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
-        this.filtering = false;
         this.environments = ExploratoryModel.loadEnvironments(result);
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
@@ -131,7 +130,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public isResourcesInProgress(notebook) {
-    const env = this.getEnvironmentsListCopy().map(env => env.exploratory.find(el => el.name === notebook.name))[0];
+    let env = this.getResourceByName(notebook.name);
 
     if (env && env.resources.length) {
       return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
@@ -140,8 +139,69 @@ export class ResourcesGridComponent implements OnInit {
     return false;
   }
 
+  public filterActiveInstances(): FilterConfigurationModel {
+    return (<FilterConfigurationModel | any>Object).assign({}, this.filterConfiguration, {
+      statuses: SortUtils.activeStatuses(),
+      resources: SortUtils.activeStatuses(),
+      type: 'active',
+      project: this.activeProject || ''
+    });
+  }
+
+  public resetFilterConfigurations(): void {
+    this.filterForm.resetConfigurations();
+    this.updateUserPreferences(this.filterForm);
+    this.buildGrid();
+  }
+
+  public printDetailEnvironmentModal(data): void {
+    this.dialog.open(DetailDialogComponent, { data: data, panelClass: 'modal-lg' })
+      .afterClosed().subscribe(() => this.buildGrid());
+  }
+
+  public printCostDetails(data): void {
+    this.dialog.open(CostDetailsDialogComponent, { data: data, panelClass: 'modal-xl' })
+      .afterClosed().subscribe(() => this.buildGrid());
+  }
+
+  public exploratoryAction(data, action: string) {
+    const resource = this.getResourceByName(data.name);
+
+    if (action === 'deploy') {
+      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: resource, full_list: this.environments }, panelClass: 'modal-xxl' })
+        .afterClosed().subscribe(() => this.buildGrid());
+    } else if (action === 'run') {
+      this.userResourceService
+        .runExploratoryEnvironment({ notebook_instance_name: data.name, project_name: data.project })
+        .subscribe(
+          () => this.buildGrid(),
+          error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
+    } else if (action === 'stop') {
+      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
+        .afterClosed().subscribe(() => this.buildGrid());
+    } else if (action === 'terminate') {
+      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
+        .afterClosed().subscribe(() => this.buildGrid());
+    } else if (action === 'install') {
+      this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
+        .afterClosed().subscribe(() => this.buildGrid());
+    } else if (action === 'schedule') {
+      this.dialog.open(SchedulerComponent, { data: { notebook: data, type: 'EXPLORATORY' }, panelClass: 'modal-xl-s' })
+        .afterClosed().subscribe(() => this.buildGrid());
+    } else if (action === 'ami') {
+      this.dialog.open(AmiCreateDialogComponent, { data: data, panelClass: 'modal-sm' })
+        .afterClosed().subscribe(() => this.buildGrid());
+    }
+  }
+
 
   // PRIVATE
+  private getResourceByName(notebook_name: string) {
+    return this.getEnvironmentsListCopy()
+      .map(env => env.exploratory.find(({ name }) => name === notebook_name))
+      .filter(notebook_name => !!notebook_name)[0];
+  }
+
   private getEnvironmentsListCopy() {
     return this.environments.map(env => JSON.parse(JSON.stringify(env)));
   }
@@ -206,30 +266,12 @@ export class ResourcesGridComponent implements OnInit {
     this.filteredEnvironments = filteredData;
   }
 
-  private modifyGrid() {
+  private modifyGrid(): void {
     this.displayedColumns = this.displayedColumns.filter(el => el !== 'cost');
     this.displayedFilterColumns = this.displayedFilterColumns.filter(el => el !== 'cost-filter');
   }
 
-
-
-  filterActiveInstances(): FilterConfigurationModel {
-    const filteredData = (<any>Object).assign({}, this.filterConfiguration);
-    filteredData.project = this.activeProject || '';
-
-    for (const index in filteredData) {
-      if (filteredData[index] instanceof Array)
-        filteredData[index] = filteredData[index].filter((item: string) => {
-          return (item !== 'failed' && item !== 'terminated' && item !== 'terminating');
-        });
-      if (index === 'shapes') { filteredData[index] = []; }
-    }
-    filteredData.type = 'active';
-
-    return filteredData;
-  }
-
-  aliveStatuses(сonfig): void {
+  private aliveStatuses(сonfig): void {
     for (const index in this.filterConfiguration) {
       if (сonfig[index] && сonfig[index] instanceof Array)
         сonfig[index] = сonfig[index].filter(item => this.filterConfiguration[index].includes(item));
@@ -244,14 +286,7 @@ export class ResourcesGridComponent implements OnInit {
       if (filterConfig[index].length) this.activeFiltering = true;
   }
 
-  resetFilterConfigurations(): void {
-    this.filterForm.resetConfigurations();
-    this.updateUserPreferences(this.filterForm);
-    this.buildGrid();
-  }
-
-
-  getUserPreferences(): void {
+  private getUserPreferences(): void {
     this.userResourceService.getUserPreferences()
       .subscribe((result: FilterConfigurationModel) => {
         if (result) {
@@ -262,51 +297,13 @@ export class ResourcesGridComponent implements OnInit {
       }, () => this.applyFilter_btnClick(null));
   }
 
-  loadUserPreferences(config): FilterConfigurationModel {
+  private loadUserPreferences(config): FilterConfigurationModel {
     return new FilterConfigurationModel(config.name, config.statuses, config.shapes, config.resources, config.type, config.project);
   }
 
-  updateUserPreferences(filterConfiguration: FilterConfigurationModel): void {
+  private updateUserPreferences(filterConfiguration: FilterConfigurationModel): void {
     this.userResourceService.updateUserPreferences(filterConfiguration)
       .subscribe((result) => { },
         (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
-  }
-
-  printDetailEnvironmentModal(data): void {
-    this.dialog.open(DetailDialogComponent, { data: data, panelClass: 'modal-lg' })
-      .afterClosed().subscribe(() => this.buildGrid());
-  }
-
-  printCostDetails(data): void {
-    this.dialog.open(CostDetailsDialogComponent, { data: data, panelClass: 'modal-xl' })
-      .afterClosed().subscribe(() => this.buildGrid());
-  }
-
-  exploratoryAction(data, action: string) {
-    if (action === 'deploy') {
-      this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: data, full_list: this.environments }, panelClass: 'modal-xxl' })
-        .afterClosed().subscribe(() => this.buildGrid());
-    } else if (action === 'run') {
-      this.userResourceService
-        .runExploratoryEnvironment({ notebook_instance_name: data.name })
-        .subscribe(
-          () => this.buildGrid(),
-          error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
-    } else if (action === 'stop') {
-      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(() => this.buildGrid());
-    } else if (action === 'terminate') {
-      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(() => this.buildGrid());
-    } else if (action === 'install') {
-      this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
-        .afterClosed().subscribe(() => this.buildGrid());
-    } else if (action === 'schedule') {
-      this.dialog.open(SchedulerComponent, { data: { notebook: data, type: 'EXPLORATORY' }, panelClass: 'modal-xl-s' })
-        .afterClosed().subscribe(() => this.buildGrid());
-    } else if (action === 'ami') {
-      this.dialog.open(AmiCreateDialogComponent, { data: data, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(() => this.buildGrid());
-    }
   }
 }

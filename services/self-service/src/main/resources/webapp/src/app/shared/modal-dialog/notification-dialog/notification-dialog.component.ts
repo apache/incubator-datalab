@@ -33,7 +33,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
         <div *ngIf="data.template.notebook.length > 0">
           Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
           <span *ngFor="let item of data.template.notebook">
-            <b>{{ item.exploratory_name }}</b>
+            <span class="strong">{{ item.exploratory_name }}</span>
             <span *ngIf="data.template.notebook.length > 1">, </span>
           </span> will be stopped and all computational resources will be stopped/terminated
         </div>
@@ -41,20 +41,37 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
         <div *ngIf="data.template.cluster.length > 0">
           <p *ngFor="let item of data.template.cluster">
               Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
-              <b>{{ item.computational_name }}</b> on <b>{{ item.exploratory_name }}</b>
+              <span class="strong">{{ item.computational_name }}</span> on <span class="strong">{{ item.exploratory_name }}</span>
               will be stopped
           </p>
         </div>
-        <strong>by a schedule in 15 minutes.</strong>
+        <span class="strong">by a schedule in 15 minutes.</span>
       </div>
       <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
-      <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
-        <p>
-          <strong class="ellipsis label-name" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
-          {{ data.item.name }}</strong> will be {{ data.action || 'decommissioned' }}.
+      <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">          
+        <p *ngIf="data.template; else label">
+          <span [innerHTML]="data.template"></span>
         </p>
-        <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
-      
+        <ng-template #label>
+          <p>
+            <span class="ellipsis label-name strong" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
+            {{ data.item.name }}</span> will be {{ data.action || 'decommissioned' }}.
+          </p>
+        </ng-template>
+        <mat-list *ngIf="data.item.endpoints?.length">
+            <mat-list-item class="list-header sans">
+                <div class="endpoint">Edge node in endpoint</div>
+                <div class="status">Further status</div>
+            </mat-list-item>
+            <div class="scrolling-content">
+                <mat-list-item *ngFor="let endpoint of data.item.endpoints" class="sans node">
+                    <div class="endpoint ellipsis">{{endpoint.name}}</div>
+                    <div class="status terminated">Terminated</div>
+                </mat-list-item>
+            </div>
+        </mat-list>          
+        <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
+          
         <div class="text-center m-top-30 m-bott-10">
           <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
           <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
@@ -72,7 +89,16 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
     .plur { font-style: normal; }
-    .label-name { display: inline-block; width: 100% }
+    .label-name { display: inline-block; width: 100% } 
+    .scrolling-content{overflow-y: auto; max-height: 200px; }
+    .endpoint { width: 70%; text-align: left; color: #577289;}
+    .status { width: 30%;text-align: right;}
+    .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
+    .node { font-weight: 300;}
+    .label-name { display: inline-block; width: 100%}
+    .scrolling-content{overflow-y: auto; max-height: 200px;}
+    .endpoint { width: 280px;text-align: left;}
+    .status { text-align: left;}
   `]
 })
 export class NotificationDialogComponent {
@@ -81,6 +107,5 @@ export class NotificationDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     console.log(data);
-
   }
 }

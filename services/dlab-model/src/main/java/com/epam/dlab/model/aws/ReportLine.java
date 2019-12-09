@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 public class ReportLine {
 	public static final String FIELD_DLAB_ID = "dlab_id";
 	public static final String FIELD_USER_ID = "user";
+	public static final String FIELD_PROJECT = "project";
 	public static final String FIELD_USAGE_DATE = "usage_date";
 	public static final String FIELD_PRODUCT = "product";
 	public static final String FIELD_USAGE_TYPE = "usage_type";

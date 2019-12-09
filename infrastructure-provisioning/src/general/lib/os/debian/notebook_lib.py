@@ -118,10 +118,10 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
-            if os.environ['application'] == 'tensor-rstudio':
-                sudo("sed -i '/ExecStart/s|=|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /etc/systemd/system/rstudio-server.service")
-                sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
-                sudo("systemctl daemon-reload")
+            sudo("sed -i '/Type=forking/a \Environment=USER=dlab-user' /etc/systemd/system/rstudio-server.service")
+            sudo("sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /etc/systemd/system/rstudio-server.service")
+            sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
+            sudo("systemctl daemon-reload")
             sudo('touch /home/{}/.Renviron'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
             sudo('''echo 'SPARK_HOME="{0}"' >> /home/{1}/.Renviron'''.format(local_spark_path, os_user))
@@ -255,7 +255,7 @@ def ensure_python3_libraries(os_user):
             sudo('apt-get install python3-setuptools')
             sudo('apt install -y python3-pip')
             try:
-                sudo('pip3 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
                 sudo('pip3 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
@@ -327,6 +327,12 @@ def install_maven(os_user):
         sudo('apt-get -y install maven')
         sudo('touch /home/' + os_user + '/.ensure_dir/maven_ensured')
 
+def install_gcloud(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/gcloud_ensured'):
+        sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
+        sudo('curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -')
+        sudo('apt-get install google-cloud-sdk')
+        sudo('touch /home/' + os_user + '/.ensure_dir/gcloud_ensured')
 
 def install_livy_dependencies(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):

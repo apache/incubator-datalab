@@ -56,7 +56,7 @@ public class CheckUserQuoteSchedulerTest {
 
 		verify(environmentService).getUsers();
 		verify(billingDAO).isUserQuoteReached(USER);
-		verify(environmentService).stopEnvironment(USER);
+		verify(environmentService).stopEnvironmentWithServiceAccount(USER);
 		verifyNoMoreInteractions(environmentService, billingDAO);
 		verifyZeroInteractions(jobExecutionContext);
 	}
@@ -70,7 +70,7 @@ public class CheckUserQuoteSchedulerTest {
 
 		verify(environmentService).getUsers();
 		verify(billingDAO).isUserQuoteReached(USER);
-		verify(environmentService, never()).stopEnvironment(anyString());
+		verify(environmentService, never()).stopEnvironmentWithServiceAccount(anyString());
 		verifyNoMoreInteractions(environmentService, billingDAO);
 		verifyZeroInteractions(jobExecutionContext);
 	}

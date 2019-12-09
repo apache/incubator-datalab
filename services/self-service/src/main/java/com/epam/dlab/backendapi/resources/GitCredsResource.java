@@ -20,13 +20,11 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.GitCredentialService;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.Valid;
@@ -41,8 +39,6 @@ import javax.ws.rs.core.Response;
 @Path("/user/git_creds")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "Service for updating or retrieving GIT credentials",
-		authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 @Slf4j
 public class GitCredsResource implements ExploratoryAPI {
 
@@ -61,10 +57,7 @@ public class GitCredsResource implements ExploratoryAPI {
 	 * @return {@link Response.Status#OK} request for provisioning service has been accepted.<br>
 	 */
 	@PUT
-	@ApiOperation("Updates GIT credentials")
-	@ApiResponses(@ApiResponse(code = 200, message = "GIT credentials updated successfully"))
-	public Response updateGitCreds(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-								   @ApiParam(value = "Notebook GIT credentials form DTO", required = true)
+	public Response updateGitCreds(@Auth UserInfo userInfo,
 								   @Valid @NotNull ExploratoryGitCredsDTO formDTO) {
 		gitCredentialService.updateGitCredentials(userInfo, formDTO);
 		return Response.ok().build();
@@ -76,8 +69,7 @@ public class GitCredsResource implements ExploratoryAPI {
 	 * @param userInfo user info.
 	 */
 	@GET
-	@ApiOperation("Fetches info about GIT credentials")
-	public ExploratoryGitCredsDTO getGitCreds(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+	public ExploratoryGitCredsDTO getGitCreds(@Auth UserInfo userInfo) {
 		return gitCredentialService.getGitCredentials(userInfo.getName());
 	}
 }

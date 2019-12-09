@@ -20,17 +20,12 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
 import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
 import com.epam.dlab.rest.contracts.DockerAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -41,8 +36,6 @@ import javax.ws.rs.core.MediaType;
 @Path("/infrastructure_templates")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "Service for retrieving notebook and cluster templates",
-		authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 public class InfrastructureTemplateResource implements DockerAPI {
 
 	private InfrastructureTemplateService infrastructureTemplateService;
@@ -59,9 +52,7 @@ public class InfrastructureTemplateResource implements DockerAPI {
 	 */
 	@GET
 	@Path("/{project}/{endpoint}/computational_templates")
-	@ApiOperation("Returns list of cluster's templates")
-	public Iterable<FullComputationalTemplate> getComputationalTemplates(@ApiParam(hidden = true)
-																		 @Auth UserInfo userInfo,
+	public Iterable<FullComputationalTemplate> getComputationalTemplates(@Auth UserInfo userInfo,
 																		 @PathParam("project") String project,
 																		 @PathParam("endpoint") String endpoint) {
 		return infrastructureTemplateService.getComputationalTemplates(userInfo, project, endpoint);
@@ -74,8 +65,7 @@ public class InfrastructureTemplateResource implements DockerAPI {
 	 */
 	@GET
 	@Path("/{project}/{endpoint}/exploratory_templates")
-	@ApiOperation("Returns list of notebook's templates")
-	public Iterable<ExploratoryMetadataDTO> getExploratoryTemplates(@ApiParam(hidden = true) @Auth UserInfo userInfo,
+	public Iterable<ExploratoryMetadataDTO> getExploratoryTemplates(@Auth UserInfo userInfo,
 																	@PathParam("project") String project,
 																	@PathParam("endpoint") String endpoint) {
 		return infrastructureTemplateService.getExploratoryTemplates(userInfo, project, endpoint);

@@ -103,15 +103,34 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void start() {
+		ExploratoryActionFormDTO exploratoryDTO = getExploratoryActionFormDTO();
 		when(exploratoryService.start(any(UserInfo.class), anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getExploratoryActionFormDTO()));
+				.post(Entity.json(exploratoryDTO));
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals("someUuid", response.readEntity(String.class));
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(exploratoryService).start(getUserInfo(), exploratoryDTO.getNotebookInstanceName(),
+				exploratoryDTO.getProjectName());
+
+		verifyZeroInteractions(exploratoryService);
+	}
+
+	@Test
+	public void startUnprocessableEntity() {
+		when(exploratoryService.start(any(UserInfo.class), anyString(), anyString())).thenReturn("someUuid");
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(getEmptyExploratoryActionFormDTO()));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
-		assertEquals("{\"errors\":[\"notebookInstanceName may not be empty\"]}", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verifyZeroInteractions(exploratoryService);
@@ -125,7 +144,7 @@ public class ExploratoryResourceTest extends TestBase {
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getExploratoryActionFormDTO()));
+				.post(Entity.json(getEmptyExploratoryActionFormDTO()));
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
@@ -294,8 +313,12 @@ public class ExploratoryResourceTest extends TestBase {
 		return ecfDto;
 	}
 
-	private ExploratoryActionFormDTO getExploratoryActionFormDTO() {
+	private ExploratoryActionFormDTO getEmptyExploratoryActionFormDTO() {
 		return new ExploratoryActionFormDTO();
+	}
+
+	private ExploratoryActionFormDTO getExploratoryActionFormDTO() {
+		return new ExploratoryActionFormDTO("notebook_instance_name", "project_name");
 	}
 
 	private Exploratory getExploratory(@Valid @NotNull ExploratoryCreateFormDTO formDTO) {

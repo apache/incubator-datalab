@@ -57,8 +57,7 @@
             </span>
           </div>
         </div>
-        <div class="schedule-by-time" *ngIf="!enableIdleTimeView"
-          [ngClass]="{ hide: enableIdleTimeView, resource: destination.type === 'СOMPUTATIONAL',
+        <div class="schedule-by-time" *ngIf="!enableIdleTimeView" [ngClass]="{ hide: enableIdleTimeView, resource: destination.type === 'СOMPUTATIONAL',
                        des: destination.image === 'docker.dlab-dataengine-service' }">
           <div class="row-wrap" *ngIf="destination.image !== 'docker.dlab-dataengine-service'">
             <div class="col-3">
@@ -82,17 +81,18 @@
               <mat-form-field>
                 <input matInput [matDatepicker]="terminateDate" placeholder="Choose terminate date"
                   formControlName="terminateDate">
-                <mat-datepicker-toggle
-                  matSuffix [for]="terminateDate"></mat-datepicker-toggle>
+                <mat-datepicker-toggle matSuffix [for]="terminateDate"></mat-datepicker-toggle>
                 <mat-datepicker #terminateDate></mat-datepicker>
               </mat-form-field>
             </div>
             <ng-template #timezone>
               <div class="col-3">
                 <mat-form-field class="timezone-offset">
-                  <mat-select placeholder="Select offset" [(value)]="tzOffset"
+                  <mat-select placeholder="Select timezone" [(value)]="tzOffset"
                     [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
-                    <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
+                    <mat-option *ngFor="let zone of zones | keys" [value]="zone.key" matTooltip="{{ zone.value }}"
+                      matTooltipShowDelay="1000" matTooltipPosition="above"> GMT {{zone.key}} {{ zone.value }}
+                    </mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
@@ -121,12 +121,15 @@
             </div>
           </div>
 
-          <div class="row-wrap" *ngIf="destination.type === 'СOMPUTATIONAL' && destination.image !== 'docker.dlab-dataengine-service'">
+          <div class="row-wrap"
+            *ngIf="destination.type === 'СOMPUTATIONAL' && destination.image !== 'docker.dlab-dataengine-service'">
             <div class="col-3">
               <mat-form-field class="timezone-offset">
-                <mat-select placeholder="Select offset" [(value)]="tzOffset"
+                <mat-select placeholder="Select timezone" [(value)]="tzOffset"
                   [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
-                  <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
+                  <mat-option *ngFor="let zone of zones | keys" [value]="zone.key" matTooltip="{{ zone.value }}"
+                    matTooltipShowDelay="1000" matTooltipPosition="above"> GMT {{zone.key}} {{ zone.value }}
+                  </mat-option>
                 </mat-select>
               </mat-form-field>
             </div>
@@ -167,9 +170,11 @@
               </div>
               <div class="col-3">
                 <mat-form-field class="timezone-offset">
-                  <mat-select placeholder="Select offset" [(value)]="tzOffset"
+                  <mat-select placeholder="Select timezone" [(value)]="tzOffset"
                     [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
-                    <mat-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</mat-option>
+                    <mat-option *ngFor="let zone of zones | keys" [value]="zone.key" matTooltip="{{ zone.value }}"
+                      matTooltipShowDelay="1000" matTooltipPosition="above"> GMT {{zone.key}} {{ zone.value }}
+                    </mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
@@ -179,7 +184,8 @@
             </div>
           </div>
 
-          <div class="options" *ngIf="destination && allowInheritView && destination.image !== 'docker.dlab-dataengine-service'">
+          <div class="options"
+            *ngIf="destination && allowInheritView && destination.image !== 'docker.dlab-dataengine-service'">
             <mat-slide-toggle labelPosition="after" [checked]="inherit" (change)="toggleInherit($event)"
               [disabled]="!enableSchedule || (!parentInherit && destination.type === 'СOMPUTATIONAL')">
               <span *ngIf="destination.type === 'EXPLORATORY'; else resourcePropagation" class="hold-label">
@@ -205,7 +211,8 @@
       </form>
       <div class="text-center m-top-30">
         <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
-        <button mat-raised-button type="button" class="butt butt-success action" [disabled]="enableIdleTime && !schedulerForm.controls.inactivityTime.valid"
+        <button mat-raised-button type="button" class="butt butt-success action"
+          [disabled]="enableIdleTime && !schedulerForm.controls.inactivityTime.valid"
           (click)="scheduleInstance_btnClick()">Save</button>
       </div>
     </div>

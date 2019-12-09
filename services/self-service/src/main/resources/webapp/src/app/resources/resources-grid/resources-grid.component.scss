@@ -53,6 +53,13 @@ table {
           padding-right: 5px;
           padding-left: 24px;
           cursor: pointer;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        &.resources-col {
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
     }
@@ -84,6 +91,7 @@ table {
     width: 18%;
     padding-right: 5px;
     padding-left: 24px;
+    background-color: transparent;
   }
 
   .status-col,
@@ -114,13 +122,13 @@ table {
   .cost-col {
     width: 10%;
     text-align: center;
-
   }
 
   .actions-col {
     width: 10%;
     padding-right: 24px;
     text-align: right;
+    background-color: transparent;
   }
 }
 
@@ -215,6 +223,7 @@ tr.detail-row {
 
 .filter-row .actions {
   text-align: right;
+  display: flex;
 }
 
 .filter-row .actions button {
@@ -360,4 +369,9 @@ tr.detail-row {
 .mat-icon-button i {
   line-height: 42px;
   font-size: 18px;
+}
+
+.info {
+  padding: 40px;
+  text-align: center;
 }

@@ -22,7 +22,6 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.dto.exploratory.LibStatus;
-import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.exploratory.Image;
 import com.epam.dlab.model.library.Library;
 
@@ -31,7 +30,7 @@ import java.util.Optional;
 
 public interface ImageExploratoryDao {
 
-	boolean exist(String user, String name);
+	boolean exist(String image, String project);
 
 	void save(Image image);
 
@@ -39,7 +38,9 @@ public interface ImageExploratoryDao {
 
 	List<ImageInfoRecord> getImages(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses);
 
-	Optional<ImageInfoRecord> getImage(String user, String name);
+	List<ImageInfoRecord> getImagesForProject(String project);
 
-	List<Library> getLibraries(String user, String imageFullName, ResourceType resourceType, LibStatus status);
+	Optional<ImageInfoRecord> getImage(String user, String name, String project, String endpoint);
+
+	List<Library> getLibraries(String user, String imageFullName, String project, String endpoint, LibStatus status);
 }

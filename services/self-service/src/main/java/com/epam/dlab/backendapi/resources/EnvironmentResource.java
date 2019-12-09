@@ -20,11 +20,9 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -36,7 +34,6 @@ import javax.ws.rs.core.Response;
 @Path("environment")
 @Slf4j
 @RolesAllowed("environment/*")
-@Api(value = "Environment service", authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH))
 public class EnvironmentResource {
 
 	private EnvironmentService environmentService;
@@ -49,10 +46,7 @@ public class EnvironmentResource {
 	@GET
 	@Path("user")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation("Fetches environment users")
-	@ApiResponses({@ApiResponse(code = 404, message = "Users not found"),
-			@ApiResponse(code = 200, message = "Users were fetched successfully")})
-	public Response getUsersWithActiveEnv(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+	public Response getUsersWithActiveEnv(@Auth UserInfo userInfo) {
 		log.debug("User {} requested information about active environments", userInfo.getName());
 		return Response.ok(environmentService.getUsers()).build();
 	}
@@ -60,8 +54,7 @@ public class EnvironmentResource {
 	@GET
 	@Path("all")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation("Fetches user resources")
-	public Response getAllEnv(@ApiParam(hidden = true) @Auth UserInfo userInfo) {
+	public Response getAllEnv(@Auth UserInfo userInfo) {
 		log.debug("Admin {} requested information about all user's environment", userInfo.getName());
 		return Response.ok(environmentService.getAllEnv()).build();
 	}
@@ -70,12 +63,10 @@ public class EnvironmentResource {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("terminate")
-	@ApiOperation("Terminates user's environment including EDGE, notebooks, clusters")
-	@ApiResponses(@ApiResponse(code = 200, message = "User's environment terminated successfully"))
-	public Response terminateEnv(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-								 @ApiParam(value = "User's name", required = true) @NotEmpty String user) {
+	public Response terminateEnv(@Auth UserInfo userInfo,
+								 @NotEmpty String user) {
 		log.info("User {} is terminating {} environment", userInfo.getName(), user);
-		environmentService.terminateEnvironment(user);
+		environmentService.terminateEnvironment(userInfo, user);
 		return Response.ok().build();
 	}
 
@@ -83,12 +74,10 @@ public class EnvironmentResource {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("stop")
-	@ApiOperation("Stops user's environment including EDGE, notebooks, Spark clusters")
-	@ApiResponses(@ApiResponse(code = 200, message = "User's environment stopped successfully"))
-	public Response stopEnv(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-							@ApiParam(value = "User's name", required = true) @NotEmpty String user) {
+	public Response stopEnv(@Auth UserInfo userInfo,
+							@NotEmpty String user) {
 		log.info("User {} is stopping {} environment", userInfo.getName(), user);
-		environmentService.stopEnvironment(user);
+		environmentService.stopEnvironment(userInfo, user);
 		return Response.ok().build();
 	}
 
@@ -96,8 +85,7 @@ public class EnvironmentResource {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("stop/edge")
-	@ApiOperation("Stops user's EDGE node")
-	public Response stopEdge(@ApiParam(hidden = true) @Auth UserInfo userInfo, @NotEmpty String user) {
+	public Response stopEdge(@Auth UserInfo userInfo, @NotEmpty String user) {
 		log.info("Admin {} is stopping edge of user {}", userInfo.getName(), user);
 		environmentService.stopEdge(user);
 		return Response.ok().build();
@@ -110,7 +98,7 @@ public class EnvironmentResource {
 	public Response stopNotebook(@Auth UserInfo userInfo, @NotEmpty String user,
 								 @PathParam("exploratoryName") String exploratoryName) {
 		log.info("Admin {} is stopping notebook {} of user {}", userInfo.getName(), exploratoryName, user);
-		environmentService.stopExploratory(user, exploratoryName);
+		environmentService.stopExploratory(userInfo, user, exploratoryName);
 		return Response.ok().build();
 	}
 
@@ -123,7 +111,7 @@ public class EnvironmentResource {
 								@PathParam("computationalName") String computationalName) {
 		log.info("Admin {} is stopping computational resource {} affiliated with exploratory {} of user {}",
 				userInfo.getName(), computationalName, exploratoryName, user);
-		environmentService.stopComputational(user, exploratoryName, computationalName);
+		environmentService.stopComputational(userInfo, user, exploratoryName, computationalName);
 		return Response.ok().build();
 	}
 
@@ -134,7 +122,7 @@ public class EnvironmentResource {
 	public Response terminateNotebook(@Auth UserInfo userInfo, @NotEmpty String user,
 									  @PathParam("exploratoryName") String exploratoryName) {
 		log.info("Admin {} is terminating notebook {} of user {}", userInfo.getName(), exploratoryName, user);
-		environmentService.terminateExploratory(user, exploratoryName);
+		environmentService.terminateExploratory(userInfo, user, exploratoryName);
 		return Response.ok().build();
 	}
 
@@ -147,7 +135,7 @@ public class EnvironmentResource {
 									 @PathParam("computationalName") String computationalName) {
 		log.info("Admin {} is terminating computational resource {} affiliated with exploratory {} of user {}",
 				userInfo.getName(), computationalName, exploratoryName, user);
-		environmentService.terminateComputational(user, exploratoryName, computationalName);
+		environmentService.terminateComputational(userInfo, user, exploratoryName, computationalName);
 		return Response.ok().build();
 	}
 }

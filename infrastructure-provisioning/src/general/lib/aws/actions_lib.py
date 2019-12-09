@@ -1172,8 +1172,7 @@ def deregister_image(image_name='*'):
         resource = boto3.resource('ec2')
         client = boto3.client('ec2')
         for image in resource.images.filter(
-                Filters=[{'Name': 'name', 'Values': ['{}-*'.format(os.environ['conf_service_base_name'])]},
-                         {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]},
+                Filters=[{'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]},
                          {'Name': 'tag-value', 'Values': [image_name]}]):
             client.deregister_image(ImageId=image.id)
             for device in image.block_device_mappings:
@@ -1352,12 +1351,15 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
             tag = {'Key': 'Name', 'Value': image_name}
+            sbn_tag = {'Key': 'SBN', 'Value': os.environ['conf_service_base_name']}
             response = client.describe_images(ImageIds=[image.id]).get('Images')[0].get('BlockDeviceMappings')
             for ebs in response:
                 if ebs.get('Ebs'):
                     snapshot_id = ebs.get('Ebs').get('SnapshotId')
                     create_tag(snapshot_id, tag)
+                    create_tag(snapshot_id, sbn_tag)
             create_tag(image.id, tag)
+            create_tag(image.id, sbn_tag)
             if tags:
                 all_tags = json.loads(tags)
                 for key in all_tags.keys():

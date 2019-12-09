@@ -138,7 +138,7 @@ public class ExploratoryServiceImplTest {
 		try {
 			exploratoryService.start(userInfo, EXPLORATORY_NAME, "project");
 		} catch (DlabException e) {
-			assertEquals("Could not exploratory/start exploratory environment expName: Exploratory for user with " +
+			assertEquals("Could not start exploratory environment expName: Exploratory for user with " +
 					"name not found", e.getMessage());
 		}
 		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("starting");
@@ -190,7 +190,7 @@ public class ExploratoryServiceImplTest {
 		try {
 			exploratoryService.stop(userInfo, EXPLORATORY_NAME);
 		} catch (DlabException e) {
-			assertEquals("Could not exploratory/stop exploratory environment expName: Exploratory for user with " +
+			assertEquals("Could not stop exploratory environment expName: Exploratory for user with " +
 					"name not found", e.getMessage());
 		}
 		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
@@ -243,7 +243,7 @@ public class ExploratoryServiceImplTest {
 		try {
 			exploratoryService.terminate(userInfo, EXPLORATORY_NAME);
 		} catch (DlabException e) {
-			assertEquals("Could not exploratory/terminate exploratory environment expName: Exploratory for user " +
+			assertEquals("Could not terminate exploratory environment expName: Exploratory for user " +
 					"with name not found", e.getMessage());
 		}
 		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
@@ -406,6 +406,28 @@ public class ExploratoryServiceImplTest {
 		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME, UserInstanceStatus
 				.TERMINATING, UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED, UserInstanceStatus
 				.FAILED);
+		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+	}
+
+	@Test
+	public void updateProjectExploratoryStatuses() {
+		when(exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(anyString(), anyString(), anyVararg()))
+				.thenReturn(singletonList(userInstance));
+		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+		doNothing().when(computationalDAO).updateComputationalStatusesForExploratory(anyString(), anyString(),
+				any(UserInstanceStatus.class), any(UserInstanceStatus.class), anyVararg());
+
+		exploratoryService.updateProjectExploratoryStatuses("project", "endpoint",
+				UserInstanceStatus.TERMINATED);
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminated");
+
+		verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusNotIn("project", "endpoint",
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
+		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME,
+				UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.FAILED);
+
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
 	}
 

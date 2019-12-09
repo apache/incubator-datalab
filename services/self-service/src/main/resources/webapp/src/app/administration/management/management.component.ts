@@ -95,7 +95,7 @@ export class ManagementComponent implements OnInit {
   }
 
   openManageEnvironmentDialog() {
-    this.projectService.getProjectsList().subscribe(projectsList => {
+    this.projectService.getProjectsManagingList().subscribe(projectsList => {
       this.getTotalBudgetData().subscribe(total => {
         this.dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { projectsList, total }, panelClass: 'modal-xl-s' });
         this.dialogRef.componentInstance.manageEnv.subscribe((data) => this.manageEnvironment(data));
@@ -128,7 +128,7 @@ export class ManagementComponent implements OnInit {
 
   manageEnvironment(event: { action: string, project: any }) {
     if (event.action === 'stop')
-      this.projectService.toggleProjectStatus(event.project, event.action)
+      this.projectService.stopProjectAction(event.project.project_name)
         .subscribe(() => this.handleSuccessAction(event.action), error => this.toastr.error(error.message, 'Oops!'));
 
     if (event.action === 'terminate')
@@ -138,7 +138,7 @@ export class ManagementComponent implements OnInit {
 
   handleSuccessAction(action) {
     this.toastr.success(`Action ${action} is processing!`, 'Processing!');
-    this.projectService.getProjectsList().subscribe(data => {
+    this.projectService.getProjectsManagingList().subscribe(data => {
       this.dialogRef.componentInstance.data.projectsList = data
       this.dialogRef.componentInstance.setProjectsControl();
     });

@@ -138,6 +138,7 @@ mat-dialog-container {
         color: #35afd5;
         text-decoration: none;
         transition: all .45s ease-in-out;
+        line-height: 19px;
 
         &:hover {
           color: #5faec7;
@@ -287,4 +288,43 @@ mat-dialog-container {
   .dialog-header {
     padding-left: 45px !important;
   }
+}
+
+.cdk-overlay-container .cdk-overlay-pane {
+
+  .mat-select-panel {
+
+    &.ng-animating {
+      visibility: hidden;
+    }
+  }
+
+  .create-resources-dialog {
+    margin-left: 6px;
+    min-width: calc(100% + 10px) !important;
+  }
+
+  .create-resources-shapes {
+    margin-left: 22px;
+    min-width: calc(100% + 10px) !important;
+  }
+
+  .crete-project-dialog {
+    margin-left: 30px;
+    min-width: calc(100% + 10px) !important;
+  }
+
+  .select-role {
+    margin-left: 30px;
+    min-width: calc(100% + 10px) !important;
+  }
+}
+
+.strong {
+  font-weight: 600;
+  color: $blue-grey-color;
+}
+
+.flex {
+  display: flex;
 }

@@ -20,14 +20,11 @@
 package com.epam.dlab.backendapi.service.aws;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.aws.ReportLine;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -67,6 +64,7 @@ public class AwsBillingService extends BillingService<AwsBillingFilter> {
 			headers.add("USER");
 		}
 
+		headers.add("PROJECT");
 		headers.add("ENVIRONMENT NAME");
 		headers.add("RESOURCE TYPE");
 		headers.add("SHAPE");
@@ -83,6 +81,7 @@ public class AwsBillingService extends BillingService<AwsBillingFilter> {
 			items.add(getValueOrEmpty(document, ReportLine.FIELD_USER_ID));
 		}
 
+		items.add(getValueOrEmpty(document, ReportLine.FIELD_PROJECT));
 		items.add(getValueOrEmpty(document, ReportLine.FIELD_DLAB_ID));
 		items.add(getValueOrEmpty(document, AwsBillingDAO.DLAB_RESOURCE_TYPE));
 		items.add(getValueOrEmpty(document, AwsBillingDAO.SHAPE).replace(System.lineSeparator(), " "));

@@ -24,7 +24,6 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
-import com.epam.dlab.backendapi.resources.swagger.SwaggerSecurityInfo;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
@@ -35,7 +34,8 @@ import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.Valid;
@@ -55,8 +55,6 @@ import static com.epam.dlab.dto.base.DataEngineType.SPARK_STANDALONE;
 @Path("/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "Service for computational resources on AWS (NOTE: available only on AWS platform)",
-		authorizations = @Authorization(SwaggerSecurityInfo.TOKEN_AUTH), hidden = true)
 @Slf4j
 public class ComputationalResourceAws implements ComputationalAPI {
 
@@ -76,14 +74,8 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 */
 	@PUT
 	@Path("dataengine-service")
-	@ApiOperation("Creates EMR cluster on AWS")
-	@ApiResponses({
-			@ApiResponse(code = 302, message = "EMR cluster on AWS with current parameters already exists"),
-			@ApiResponse(code = 200, message = "EMR cluster on AWS successfully created")
-	})
-	public Response createDataEngineService(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-											@ApiParam(value = "AWS form DTO for EMR creation", required = true)
-											@Valid @NotNull AwsComputationalCreateForm form) {
+	public Response createDataEngineService(@Auth @Parameter(hidden = true) UserInfo userInfo,
+											@Parameter @Valid @NotNull AwsComputationalCreateForm form) {
 
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
@@ -122,13 +114,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 
 	@PUT
 	@Path("dataengine")
-	@ApiOperation("Creates Spark cluster on AWS")
-	@ApiResponses({
-			@ApiResponse(code = 302, message = "Spark cluster on AWS with current parameters already exists"),
-			@ApiResponse(code = 200, message = "Spark cluster on AWS successfully created")
-	})
-	public Response createDataEngine(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-									 @ApiParam(value = "Spark cluster create form DTO", required = true)
+	public Response createDataEngine(@Auth UserInfo userInfo,
 									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
@@ -148,12 +134,8 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 */
 	@DELETE
 	@Path("/{exploratoryName}/{computationalName}/terminate")
-	@ApiOperation("Terminates computational resource (EMR/Spark cluster) on AWS")
-	@ApiResponses(@ApiResponse(code = 200, message = "EMR/Spark cluster on AWS successfully terminated"))
-	public Response terminate(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-							  @ApiParam(value = "Notebook's name", required = true)
+	public Response terminate(@Auth UserInfo userInfo,
 							  @PathParam("exploratoryName") String exploratoryName,
-							  @ApiParam(value = "Computational resource's name for terminating", required = true)
 							  @PathParam("computationalName") String computationalName) {
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
@@ -172,12 +154,8 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 */
 	@DELETE
 	@Path("/{project}/{exploratoryName}/{computationalName}/stop")
-	@ApiOperation("Stops Spark cluster on AWS")
-	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on AWS successfully stopped"))
-	public Response stop(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-						 @ApiParam(value = "Notebook's name corresponding to Spark cluster", required = true)
+	public Response stop(@Auth UserInfo userInfo,
 						 @PathParam("exploratoryName") String exploratoryName,
-						 @ApiParam(value = "Spark cluster's name for stopping", required = true)
 						 @PathParam("computationalName") String computationalName) {
 		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
 
@@ -196,14 +174,9 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	 */
 	@PUT
 	@Path("/{project}/{exploratoryName}/{computationalName}/start")
-	@ApiOperation("Starts Spark cluster on AWS")
-	@ApiResponses(@ApiResponse(code = 200, message = "Spark cluster on AWS successfully started"))
-	public Response start(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-						  @ApiParam(value = "Notebook's name corresponding to Spark cluster", required = true)
+	public Response start(@Auth UserInfo userInfo,
 						  @PathParam("exploratoryName") String exploratoryName,
-						  @ApiParam(value = "Spark cluster's name for starting", required = true)
 						  @PathParam("computationalName") String computationalName,
-						  @ApiParam(value = "Project name", required = true)
 						  @PathParam("project") String project) {
 		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
 
@@ -214,17 +187,9 @@ public class ComputationalResourceAws implements ComputationalAPI {
 
 	@PUT
 	@Path("dataengine/{exploratoryName}/{computationalName}/config")
-	@ApiOperation("Updates Spark cluster configuration on AWS")
-	@ApiResponses(
-			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully updated")
-	)
-	public Response updateDataEngineConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-										   @ApiParam(value = "Notebook's name corresponding to Spark cluster",
-												   required = true)
+	public Response updateDataEngineConfig(@Auth UserInfo userInfo,
 										   @PathParam("exploratoryName") String exploratoryName,
-										   @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
 										   @PathParam("computationalName") String computationalName,
-										   @ApiParam(value = "Spark cluster config", required = true)
 										   @Valid @NotNull List<ClusterConfig> config) {
 
 		computationalService.updateSparkClusterConfig(userInfo, exploratoryName, computationalName, config);
@@ -233,15 +198,8 @@ public class ComputationalResourceAws implements ComputationalAPI {
 
 	@GET
 	@Path("{exploratoryName}/{computationalName}/config")
-	@ApiOperation("Returns Spark cluster configuration on AWS")
-	@ApiResponses(
-			@ApiResponse(code = 200, message = "Spark cluster configuration on AWS successfully returned")
-	)
-	public Response getClusterConfig(@ApiParam(hidden = true) @Auth UserInfo userInfo,
-									 @ApiParam(value = "Notebook's name corresponding to Spark cluster",
-											 required = true)
+	public Response getClusterConfig(@Auth UserInfo userInfo,
 									 @PathParam("exploratoryName") String exploratoryName,
-									 @ApiParam(value = "Spark cluster's name for reconfiguring", required = true)
 									 @PathParam("computationalName") String computationalName) {
 		return Response.ok(computationalService.getClusterConfig(userInfo, exploratoryName, computationalName)).build();
 	}
@@ -279,11 +237,12 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					".");
 		}
 
-		if (formDTO.getSlaveInstanceSpotPctPrice() != null){
+		if (formDTO.getSlaveInstanceSpotPctPrice() != null) {
 			int slaveSpotInstanceBidPct = formDTO.getSlaveInstanceSpotPctPrice();
 			if (formDTO.getSlaveInstanceSpot() && (slaveSpotInstanceBidPct < configuration.getMinEmrSpotInstanceBidPct()
 					|| slaveSpotInstanceBidPct > configuration.getMaxEmrSpotInstanceBidPct())) {
-				log.debug("Creating computational resource {} for user {} fail: Spot instances bidding percentage value " +
+				log.debug("Creating computational resource {} for user {} fail: Spot instances bidding percentage " +
+								"value " +
 								"out of the boundaries. Minimum is {}, maximum is {}",
 						formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(),
 						configuration.getMaxEmrSpotInstanceBidPct());

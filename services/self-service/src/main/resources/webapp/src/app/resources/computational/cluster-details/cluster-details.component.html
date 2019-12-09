@@ -98,16 +98,19 @@
             <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
           </div>
           <div class="m-top-10">
-            <p *ngFor="let item of resource.computational_url" class="ellipsis">
-              <strong>{{ item.description }}:</strong>&nbsp;
+            <p *ngFor="let item of resource.computational_url" class="ellipsis flex">
+              <span class="strong">{{ item.description }}:</span>&nbsp;
               <a href="{{item.url}}" target="_blank" matTooltip="{{item.url}}"
                 matTooltipPosition="above">{{ item.url }}</a>
             </p>
           </div>
         </div>
 
-        <div class="checkbox-group"
-          *ngIf="resource.image === 'docker.dlab-dataengine' && resource.status === 'running' && environment.image !== 'docker.dlab-zeppelin'">
+        <div class="checkbox-group" *ngIf="resource.image === 'docker.dlab-dataengine'
+          && resource.status === 'running'
+          && environment.image !== 'docker.dlab-zeppelin'
+          && environment.image === 'docker.dlab-superset'
+          && environment.image !== 'docker.dlab-jupyterlab'">
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
           </label>

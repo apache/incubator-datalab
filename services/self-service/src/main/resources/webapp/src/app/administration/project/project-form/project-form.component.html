@@ -92,7 +92,8 @@
               <label class="label">Endpoints</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-select multiple formControlName="endpoints" placeholder="Select endpoints">
+                  <mat-select multiple formControlName="endpoints" placeholder="Select endpoints"
+                    panelClass="crete-project-dialog">
                     <mat-option class="multiple-select" disabled>
                       <a class="select ani" (click)="selectOptions(endpointsList, 'endpoints', 'all')">
                         <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -136,7 +137,8 @@
             <label class="label">Groups</label>
             <div class="control selector-wrapper">
               <mat-form-field>
-                <mat-select multiple formControlName="groups" placeholder="Select user groups">
+                <mat-select multiple formControlName="groups" placeholder="Select user groups"
+                  panelClass="crete-project-dialog">
                   <mat-option class="multiple-select" disabled>
                     <a class="select ani" (click)="selectOptions(groupsList, 'groups', 'all')">
                       <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -158,6 +160,14 @@
             </div>
           </div>
           <div class="text-center m-bott-10">
+
+            <!-- TODO: return after back-end part will be fully completed -->
+            <!-- <div class="control-group">
+              <mat-slide-toggle formControlName="shared_image_enabled" labelPosition="after" [disabled]="item">
+                <span class="hold-label">Use shared image</span>
+              </mat-slide-toggle>
+            </div> -->
+
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button matStepperPrevious class="butt"><i
                 class="material-icons">keyboard_arrow_left</i>Back</button>
