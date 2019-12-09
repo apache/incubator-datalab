@@ -60,6 +60,14 @@ public class AzureCloudSettings extends CloudSettings {
     private String stepCertsKidPassword;
     @JsonProperty("conf_stepcerts_ca_url")
     private String stepCertsCAURL;
+    @JsonProperty("keycloak_auth_server_url")
+    private String keycloakAuthServerUrl;
+    @JsonProperty("keycloak_realm_name")
+    private String keycloakRealmName;
+    @JsonProperty("keycloak_user")
+    private String keycloakUser;
+    @JsonProperty("keycloak_user_password")
+    private String keycloakUserPassword;
 
     @Override
     @JsonIgnore
