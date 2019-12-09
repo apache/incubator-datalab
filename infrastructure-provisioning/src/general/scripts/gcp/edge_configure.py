@@ -248,8 +248,18 @@ if __name__ == "__main__":
     try:
         print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
-
         keycloak_client_secret = str(uuid.uuid4())
+        params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
+                 "--step_cert_sans '{}'" \
+            .format(instance_hostname, edge_conf['ssh_key_path'], edge_conf['dlab_ssh_user'],
+                    edge_conf['service_base_name'] + '-' + os.environ['project_name'], keycloak_client_secret,
+                    step_cert_sans)
+
+        try:
+            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
+        except:
+            traceback.print_exc()
+            raise Exception
         keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                           "-keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
                           "--edge_public_ip {} --project_name {}" \
@@ -259,18 +269,6 @@ if __name__ == "__main__":
                     keycloak_client_secret, instance_hostname, os.environ['project_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
-        except:
-            traceback.print_exc()
-            raise Exception
-
-        params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
-                 "--step_cert_sans '{}'" \
-            .format(instance_hostname, edge_conf['ssh_key_path'], edge_conf['dlab_ssh_user'],
-                    edge_conf['service_base_name'] + '-' + os.environ['project_name'], keycloak_client_secret,
-                    step_cert_sans)
-
-        try:
-            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
         except:
             traceback.print_exc()
             raise Exception
