@@ -609,6 +609,10 @@ ul.list-points {
             background: #1cbc79;
             border-radius: 50%;
         }
+
+        &.inner-level {
+            padding: 0 60px;
+        }
     }
 }
 
@@ -1682,7 +1686,8 @@ footer {
 
                         .list-points {
                             li {
-                                font-size: 18px
+                                font-size: 18px;
+
                             }
                         }
                     }
