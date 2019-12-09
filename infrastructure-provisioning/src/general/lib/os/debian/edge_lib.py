@@ -147,12 +147,15 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             sudo('rm -f /etc/nginx/nginx.conf')
             sudo('mkdir -p /opt/dlab/templates')
             put('/root/templates', '/opt/dlab', use_sudo=True)
-            keycloak_auth_server_ip = ''.join(re.findall('(?:[12]?\\d?\\d\\.){3}[12]?\\d?\\d:\d+', keycloak_auth_server_url))
             sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(edge_ip))
-            sudo('sed -i \'s/KEYCLOAK_SERVER_IP/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_auth_server_ip))
-            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_realm_name))
-            sudo('sed -i \'s/KEYCLOAK_CLIENT_ID/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_client_id))
-            sudo('sed -i \'s/KEYCLOAK_CLIENT_SECRET/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_client_secret))
+            sudo('sed -i \'s|KEYCLOAK_AUTH_URL|{}|g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+                keycloak_auth_server_url))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+                keycloak_realm_name))
+            sudo('sed -i \'s/KEYCLOAK_CLIENT_ID/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+                keycloak_client_id))
+            sudo('sed -i \'s/KEYCLOAK_CLIENT_SECRET/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+                keycloak_client_secret))
 
             sudo('cp /opt/dlab/templates/nginx.conf /etc/nginx/')
             sudo('mkdir /etc/nginx/conf.d')
