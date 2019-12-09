@@ -24,7 +24,7 @@
 import json
 from dlab.fab import *
 from dlab.meta_lib import *
-import sys, time, os
+import sys, time, os, re
 from dlab.actions_lib import *
 import traceback
 from Crypto.PublicKey import RSA
@@ -97,6 +97,7 @@ if __name__ == "__main__":
                                                 "endpoint_tag": project_conf['endpoint_tag'],
                                                 os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         project_conf['primary_disk_size'] = '32'
+        project_conf['keycloak_host'] = ''.join(re.findall(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", os.environ['keycloak_auth_server_url'])) + "/32"
 
         # FUSE in case of absence of user's key
         try:
@@ -227,9 +228,9 @@ if __name__ == "__main__":
                 "name": "out-4",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "8787",
+                "destination_port_range": "8080",
                 "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
+                "destination_address_prefix": project_conf['keycloak_host'],
                 "access": "Allow",
                 "priority": 130,
                 "direction": "Outbound"
@@ -238,7 +239,7 @@ if __name__ == "__main__":
                 "name": "out-5",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "6006",
+                "destination_port_range": "8787",
                 "source_address_prefix": "*",
                 "destination_address_prefix": project_conf['private_subnet_cidr'],
                 "access": "Allow",
@@ -249,7 +250,7 @@ if __name__ == "__main__":
                 "name": "out-6",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "20888",
+                "destination_port_range": "6006",
                 "source_address_prefix": "*",
                 "destination_address_prefix": project_conf['private_subnet_cidr'],
                 "access": "Allow",
@@ -260,7 +261,7 @@ if __name__ == "__main__":
                 "name": "out-7",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "8088",
+                "destination_port_range": "20888",
                 "source_address_prefix": "*",
                 "destination_address_prefix": project_conf['private_subnet_cidr'],
                 "access": "Allow",
@@ -271,7 +272,7 @@ if __name__ == "__main__":
                 "name": "out-8",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "18080",
+                "destination_port_range": "8088",
                 "source_address_prefix": "*",
                 "destination_address_prefix": project_conf['private_subnet_cidr'],
                 "access": "Allow",
@@ -282,7 +283,7 @@ if __name__ == "__main__":
                 "name": "out-9",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "50070",
+                "destination_port_range": "18080",
                 "source_address_prefix": "*",
                 "destination_address_prefix": project_conf['private_subnet_cidr'],
                 "access": "Allow",
@@ -293,7 +294,7 @@ if __name__ == "__main__":
                 "name": "out-10",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "8085",
+                "destination_port_range": "50070",
                 "source_address_prefix": "*",
                 "destination_address_prefix": project_conf['private_subnet_cidr'],
                 "access": "Allow",
@@ -304,7 +305,7 @@ if __name__ == "__main__":
                 "name": "out-11",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "8081",
+                "destination_port_range": "8085",
                 "source_address_prefix": "*",
                 "destination_address_prefix": project_conf['private_subnet_cidr'],
                 "access": "Allow",
@@ -315,7 +316,7 @@ if __name__ == "__main__":
                 "name": "out-12",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "4040-4140",
+                "destination_port_range": "8081",
                 "source_address_prefix": "*",
                 "destination_address_prefix": project_conf['private_subnet_cidr'],
                 "access": "Allow",
@@ -324,20 +325,20 @@ if __name__ == "__main__":
             },
             {
                 "name": "out-13",
-                "protocol": "Udp",
+                "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "53",
-                "source_address_prefix": '*',
-                "destination_address_prefix": "*",
+                "destination_port_range": "4040-4140",
+                "source_address_prefix": "*",
+                "destination_address_prefix": project_conf['private_subnet_cidr'],
                 "access": "Allow",
                 "priority": 220,
                 "direction": "Outbound"
             },
             {
                 "name": "out-14",
-                "protocol": "Tcp",
+                "protocol": "Udp",
                 "source_port_range": "*",
-                "destination_port_range": "80",
+                "destination_port_range": "53",
                 "source_address_prefix": '*',
                 "destination_address_prefix": "*",
                 "access": "Allow",
@@ -348,7 +349,7 @@ if __name__ == "__main__":
                 "name": "out-15",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "443",
+                "destination_port_range": "80",
                 "source_address_prefix": '*',
                 "destination_address_prefix": "*",
                 "access": "Allow",
@@ -359,7 +360,7 @@ if __name__ == "__main__":
                 "name": "out-16",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "389",
+                "destination_port_range": "443",
                 "source_address_prefix": '*',
                 "destination_address_prefix": "*",
                 "access": "Allow",
@@ -370,26 +371,37 @@ if __name__ == "__main__":
                 "name": "out-17",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "8042",
-                "source_address_prefix": "*",
-                "destination_address_prefix": project_conf['private_subnet_cidr'],
+                "destination_port_range": "389",
+                "source_address_prefix": '*',
+                "destination_address_prefix": "*",
                 "access": "Allow",
                 "priority": 260,
                 "direction": "Outbound"
             },
             {
                 "name": "out-18",
-                "protocol": "Udp",
+                "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "123",
+                "destination_port_range": "8042",
                 "source_address_prefix": "*",
-                "destination_address_prefix": "*",
+                "destination_address_prefix": project_conf['private_subnet_cidr'],
                 "access": "Allow",
                 "priority": 270,
                 "direction": "Outbound"
             },
             {
                 "name": "out-19",
+                "protocol": "Udp",
+                "source_port_range": "*",
+                "destination_port_range": "123",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 280,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-20",
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
