@@ -144,7 +144,9 @@
 
           <td class="settings">
             <span #settings (click)="actions.toggle($event, settings)" class="actions"
-              [ngClass]="{ 'disabled': element.status.toLowerCase() === 'creating' }">
+              [ngClass]="{ 'disabled': element.status.toLowerCase() === 'creating'
+              || (element.image === 'docker.dlab-superset' && element.status !== 'running' && element.status !== 'stopped')
+              || (element.image === 'docker.dlab-jupyterlab' && element.status !== 'running' && element.status !== 'stopped') }">
             </span>
 
             <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
