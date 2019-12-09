@@ -162,6 +162,10 @@ export class InstallLibrariesComponent implements OnInit {
     this.filterList();
   }
 
+  public onFilterUpdate($event) {
+    this.filterModel[$event.type] = $event.model;
+  }
+
   public isDuplicated(item) {
     const select = { group: this.group, name: item.name, version: item.version };
 
@@ -241,13 +245,18 @@ export class InstallLibrariesComponent implements OnInit {
       .subscribe((data: any) => {
         this.notebookLibs = data ? data : [];
         this.filtredNotebookLibs = [...this.notebookLibs];
+        this.notebookLibs.forEach(v => v.filteredStatus = v.status);
         this.changeDetector.markForCheck();
-        this.filterConfiguration.group = this.notebookLibs.map(v=>v.group).filter((v,i,arr)=>arr.indexOf(v) === i);
-        this.filterConfiguration.resource = this.notebookLibs.map(v=>v.status[0].resource).filter((v,i,arr)=> arr.indexOf(v) === i);
-        this.filterConfiguration.resourceType = this.notebookLibs.map(v=>v.status[0].resourceType).filter((v,i,arr)=>arr.indexOf(v) === i);
-        this.filterConfiguration.status = this.notebookLibs.map(v=>v.status[0].status).filter((v,i,arr)=>arr.indexOf(v) === i);
+        this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v=>v.group));
+        this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.resource)));
+        this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.resourceType)));
+        this.filterConfiguration.status = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.status)));
         this.isInstallingInProgress(this.notebookLibs);
       });
+  }
+
+  public createFilterList(array): [] {
+    return array.flat().filter((v,i,arr)=> arr.indexOf(v) === i);
   }
 
   private getInstalledLibsByResource() {
@@ -313,23 +322,26 @@ export class InstallLibrariesComponent implements OnInit {
     this.selectorsReset();
   }
 
-  public toggleFilterRow (){
+  public toggleFilterRow(): void {
     this.filtered = !this.filtered
   }
-  public filterData(){
-    this.filtredNotebookLibs = this.notebookLibs.filter(lib => {
+  
+  public filterLibs(): void {
+    this.filtredNotebookLibs = this.notebookLibs.filter((lib) => {
       const isName = this.filterModel.name ? lib.name.toLowerCase().indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 : true;
       const isGroup = this.filterModel.group.length ? this.filterModel.group.includes(lib.group) : true;
-      const isResource = this.filterModel.resource.length ? this.filterModel.resource.includes(lib.status[0].resource) : true;
-      const isResourceType = this.filterModel.resourceType.length ? this.filterModel.resourceType.includes(lib.status[0].resourceType) : true;
-      const isStatus = this.filterModel.status.length ? this.filterModel.status.includes(lib.status[0].status) : true;
-
-      return isName && isGroup && isResource && isResourceType && isStatus;
+      lib.filteredStatus = lib.status.filter(status => {
+        const isResource = this.filterModel.resource.length ? this.filterModel.resource.includes(status.resource) :true;
+        const isResourceType = this.filterModel.resourceType.length ? this.filterModel.resourceType.includes(status.resourceType) : true;
+        const isStatus = this.filterModel.status.length ? this.filterModel.status.includes(status.status) : true;
+        return isResource && isResourceType && isStatus
+      });
+      return isName && isGroup && lib.filteredStatus.length;
     });
-    console.log(this.filterModel);
   }
 
-  public resetFilterConfigurations() {
+  public resetFilterConfigurations(): void {
+    this.notebookLibs.forEach(v => v.filteredStatus = v.status);
     this.filtredNotebookLibs = [...this.notebookLibs];
     this.filterModel.resetFilterLibs();
   }

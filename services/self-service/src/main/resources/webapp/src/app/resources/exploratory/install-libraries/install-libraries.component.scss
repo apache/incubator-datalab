@@ -242,6 +242,14 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 }
 
 /* Tab info */
+.list-header{
+  line-height: 40px;
+}
+
+.list-header+div{
+  padding-left: 5px;
+}
+
 .libs-info {
   padding: 0 20px;
   display: flex;
@@ -267,10 +275,14 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     }
   }
   .lib-col{
-    padding: 0 3px;
+    padding-left: 4px;
+
   }
   .lib-name {
-    width: 30%;
+    width: 27%;
+    &.lib-input{
+
+    }
 
     strong {
       font-weight: 400;
@@ -279,41 +291,49 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
   .lib-group,
   .lib-destination {
-    width: 15%;
+    width: 17%;
+    padding-left: 6px;
   }
 
   .lib-status {
-    width: 15%;
-    text-align: center;
+    width: 17%;
+    padding-left: 6px;
   }
 
   .lib-resource-type {
-    width: 15%;
+    width: 17%;
+    padding-left: 6px;
+  }
+  .lib-group-col {
+    width: 17%;
+    padding-left: 8px;
   }
 
   .st-group {
     display: flex;
     flex-direction: column;
-    width: 50%;
+    width: 51%;
 
     .wrap-col {
       display: flex;
       padding: 5px 0px;
 
       .lib-destination-col {
-        width: 40%;
+        width: 33.3%;
+        padding-left: 8px;
       }
 
       .lib-resource-type-col {
-        width: 20%;
+        width: 33.3%;
         color: #36afd5;
+        padding-left: 8px;
       }
 
       .lib-status-col {
-        text-align: center;
         position: relative;
-        width: 40%;
-        text-align: center;
+        width: 33.3%;
+        padding-left: 8px;
+
 
         .warn-action {
           position: absolute;
