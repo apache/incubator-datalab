@@ -22,9 +22,10 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
-import { EndpointService } from '../../../core/services';
+import {EndpointService, UserResourceService} from '../../../core/services';
 import { NotificationDialogComponent } from '../../../shared/modal-dialog/notification-dialog';
 import { PATTERNS } from '../../../core/util';
+import {ExploratoryModel} from "../../../resources/resources-grid/resources-grid.model";
 
 export interface Endpoint {
   name: string;
@@ -41,6 +42,8 @@ export class EndpointsComponent implements OnInit {
   public createEndpointForm: FormGroup;
   endpoints: Endpoint[] = [];
   displayedColumns: string[] = ['name', 'url', 'account', 'endpoint_tag', 'actions'];
+  private resources: any;
+  private filtredResource: Array<any>;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -48,12 +51,15 @@ export class EndpointsComponent implements OnInit {
     public dialogRef: MatDialogRef<EndpointsComponent>,
     public dialog: MatDialog,
     private endpointService: EndpointService,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private userResourceService: UserResourceService,
+
   ) { }
 
   ngOnInit() {
     this.initFormModel();
     this.getEndpointList();
+    this.getResource();
   }
 
   public generateEndpointTag($event) {
@@ -68,7 +74,12 @@ export class EndpointsComponent implements OnInit {
   }
 
   public deleteEndpoint(data) {
-    this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data }, panelClass: 'modal-sm' })
+    this.filtredResource = this.resources.filter(project => {
+      project.filtredExploratory =  project.exploratory.filter(resource => resource.endpoint === data.name);
+      return project.filtredExploratory.length
+    });
+
+    this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data, list: this.filtredResource }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
         result && this.endpointService.deleteEndpoint(data.name).subscribe(() => {
           this.toastr.success('Endpoint successfully deleted!', 'Success!');
@@ -88,5 +99,12 @@ export class EndpointsComponent implements OnInit {
 
   private getEndpointList() {
     this.endpointService.getEndpointsData().subscribe((endpoints: any) => this.endpoints = endpoints);
+  }
+
+  private getResource(): void{
+  this.userResourceService.getUserProvisionedResources()
+   .subscribe((result: any) => {
+     this.resources = ExploratoryModel.loadEnvironments(result);
+    })
   }
 }

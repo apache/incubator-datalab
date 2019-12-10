@@ -37,7 +37,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
             <span *ngIf="data.template.notebook.length > 1">, </span>
           </span> will be stopped and all computational resources will be stopped/terminated
         </div>
-
+        
         <div *ngIf="data.template.cluster.length > 0">
           <p *ngFor="let item of data.template.cluster">
               Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
@@ -48,7 +48,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
         <span class="strong">by a schedule in 15 minutes.</span>
       </div>
       <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
-      <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">          
+      <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
         <p *ngIf="data.template; else label">
           <span [innerHTML]="data.template"></span>
         </p>
@@ -58,7 +58,23 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
             {{ data.item.name }}</span> will be {{ data.action || 'decommissioned' }}.
           </p>
         </ng-template>
-        <mat-list *ngIf="data.item.endpoints?.length">
+          
+        <mat-list *ngIf="data.list && data.list.length && data.type === 'confirmation'">
+            <mat-list-item class="list-header sans">
+                <div class="endpoint">Project</div>
+                <div class="status">Resource</div>
+            </mat-list-item>
+            <div class="scrolling-content">
+                <mat-list-item *ngFor="let project of data.list" class="sans node">
+                    <div class="endpoint ellipsis">
+                        <div *ngFor="let notebook of project.filtredExploratory">{{notebook.name}}</div>
+                    </div>
+                    <div class="status ellipsis">{{project.project}}</div>                    
+                </mat-list-item>
+            </div>
+          </mat-list>
+          
+          <mat-list *ngIf="data.item.endpoints?.length">
             <mat-list-item class="list-header sans">
                 <div class="endpoint">Edge node in endpoint</div>
                 <div class="status">Further status</div>
@@ -92,13 +108,12 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     .label-name { display: inline-block; width: 100% } 
     .scrolling-content{overflow-y: auto; max-height: 200px; }
     .endpoint { width: 70%; text-align: left; color: #577289;}
-    .status { width: 30%;text-align: right;}
+    .status { width: 30%;text-align: left;}
     .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
     .node { font-weight: 300;}
     .label-name { display: inline-block; width: 100%}
     .scrolling-content{overflow-y: auto; max-height: 200px;}
-    .endpoint { width: 280px;text-align: left;}
-    .status { text-align: left;}
+    .endpoint { width: 280px;text-align: left;}    
   `]
 })
 export class NotificationDialogComponent {
