@@ -23,6 +23,22 @@ output "keycloak_client_secret" {
     value = random_uuid.keycloak_client_secret.result
 }
 
+output "keycloak_auth_server_url" {
+    value = "https://${local.ui_host}/auth"
+}
+
+output "keycloak_realm_name" {
+    value = "dlab"
+}
+
+output "keycloak_user_name" {
+    value = var.keycloak_user
+}
+
+output "keycloak_user_password" {
+    value = random_string.keycloak_password.result
+}
+
 output "keycloak_client_id" {
     value = "dlab-ui"
 }

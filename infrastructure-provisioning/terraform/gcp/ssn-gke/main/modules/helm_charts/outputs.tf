@@ -27,6 +27,10 @@ output "keycloak_client_id" {
     value = "dlab-ui"
 }
 
+output "keycloak_user_password" {
+    value = random_string.keycloak_password.result
+}
+
 output "ssn_ui_host" {
     value = local.ui_host
 }

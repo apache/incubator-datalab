@@ -58,3 +58,19 @@ output "step_kid_password" {
 output "step_ca_url" {
     value = module.helm_charts.step_ca_url
 }
+
+output "keycloak_auth_server_url" {
+    value = "https://${module.helm_charts.ssn_ui_host}/auth"
+}
+
+output "keycloak_realm_name" {
+    value = "dlab"
+}
+
+output "keycloak_user_name" {
+    value = var.keycloak_user
+}
+
+output "keycloak_user_password" {
+    value = module.helm_charts.keycloak_user_password
+}

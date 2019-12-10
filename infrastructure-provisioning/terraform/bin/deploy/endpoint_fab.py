@@ -458,6 +458,22 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 {
                     'key': "CONF_IMAGE_ENABLED",
                     'value': args.image_enabled
+                },
+                {
+                    'key': "KEYCLOAK_AUTH_SERVER_URL",
+                    'value': args.keycloak_auth_server_url
+                },
+                {
+                    'key': "KEYCLOAK_REALM_NAME",
+                    'value': args.keycloak_realm_name
+                },
+                {
+                    'key': "KEYCLOAK_USER_NAME",
+                    'value': args.keycloak_user_name
+                },
+                {
+                    'key': "KEYCLOAK_PASSWORD",
+                    'value': args.keycloak_user_password
                 }
             ]
             for param in cloud_properties:
@@ -672,7 +688,6 @@ def init_args():
     parser.add_argument('--mongo_port', type=str, default='27017')
     parser.add_argument('--ss_host', type=str, default='')
     parser.add_argument('--ss_port', type=str, default='8443')
-    parser.add_argument('--keycloack_host', type=str, default='')
     parser.add_argument('--ssn_ui_host', type=str, default='')
     # parser.add_argument('--mongo_password', type=str, default='')
     parser.add_argument('--repository_address', type=str, default='')
@@ -682,6 +697,10 @@ def init_args():
     parser.add_argument('--docker_version', type=str,
                         default='18.06.3~ce~3-0~ubuntu')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
+    parser.add_argument('--keycloak_auth_server_url', type=str, default='')
+    parser.add_argument('--keycloak_realm_name', type=str, default='')
+    parser.add_argument('--keycloak_user_name', type=str, default='')
+    parser.add_argument('--keycloak_user_password', type=str, default='')
     parser.add_argument('--keycloak_client_id', type=str, default='')
     parser.add_argument('--keycloak_client_secret', type=str, default='')
     parser.add_argument('--branch_name', type=str, default='DLAB-terraform')  # change default
