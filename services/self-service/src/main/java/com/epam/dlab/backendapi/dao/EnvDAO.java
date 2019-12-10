@@ -21,13 +21,13 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplication;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
-import com.epam.dlab.backendapi.resources.dto.HealthStatusResource;
 import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.status.EnvResource;
@@ -68,9 +68,11 @@ public class EnvDAO extends BaseDAO {
 	private static final String COMPUTATIONAL_STATUS_FILTER = COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + STATUS;
 	private static final String COMPUTATIONAL_SPOT = "slave_node_spot";
 	private static final String IMAGE = "image";
+	private static final String PROJECT = "project";
+	private static final String ENDPOINT = "endpoint";
 
 	private static final Bson INCLUDE_EDGE_FIELDS = include(INSTANCE_ID, EDGE_STATUS, EDGE_PUBLIC_IP);
-	private static final Bson INCLUDE_EXP_FIELDS = include(INSTANCE_ID, STATUS,
+	private static final Bson INCLUDE_EXP_FIELDS = include(INSTANCE_ID, STATUS, PROJECT, ENDPOINT,
 			COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, COMPUTATIONAL_RESOURCES + "." + IMAGE, COMPUTATIONAL_STATUS,
 			EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES + "." + ComputationalDAO.COMPUTATIONAL_NAME);
 	private static final Bson INCLUDE_EXP_UPDATE_FIELDS = include(EXPLORATORY_NAME, INSTANCE_ID, STATUS,
@@ -87,56 +89,48 @@ public class EnvDAO extends BaseDAO {
 	 *
 	 * @param user name.
 	 */
-	public EnvResourceList findEnvResources(String user) {
+	public Map<String, EnvResourceList> findEnvResources(String user) {
 		List<EnvResource> hostList = new ArrayList<>();
 		List<EnvResource> clusterList = new ArrayList<>();
-
-		getEdgeNode(user).ifPresent(edge -> addResource(hostList, edge, EDGE_STATUS, ResourceType.EDGE, null));
 
 		stream(find(USER_INSTANCES, eq(USER, user), fields(INCLUDE_EXP_FIELDS, excludeId())))
 				.forEach(exp -> {
 					final String exploratoryName = exp.getString(EXPLORATORY_NAME);
-					addResource(hostList, exp, STATUS, ResourceType.EXPLORATORY, exploratoryName);
+					final String project = exp.getString(PROJECT);
+					final String endpoint = exp.getString(ENDPOINT);
+					addResource(hostList, exp, STATUS, ResourceType.EXPLORATORY, exploratoryName, project, endpoint);
 					addComputationalResources(hostList, clusterList, exp, exploratoryName);
 				});
-		return new EnvResourceList()
-				.withHostList(!hostList.isEmpty() ? hostList : Collections.emptyList())
-				.withClusterList(!clusterList.isEmpty() ? clusterList : Collections.emptyList());
+		final Map<String, List<EnvResource>> clustersByEndpoint = clusterList.stream()
+				.collect(Collectors.groupingBy(EnvResource::getEndpoint));
+		return hostList.stream()
+				.collect(Collectors.groupingBy(EnvResource::getEndpoint)).entrySet()
+				.stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, e -> new EnvResourceList()
+						.withHostList(!e.getValue().isEmpty() ? e.getValue() : Collections.emptyList())
+						.withClusterList(clustersByEndpoint.getOrDefault(e.getKey(), clusterList))));
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<EnvResource> findRunningResourcesForCheckInactivity() {
+	public List<UserInstanceDTO> findRunningResourcesForCheckInactivity() {
 		return stream(find(USER_INSTANCES, or(eq(STATUS, RUNNING.toString()),
 				elemMatch(COMPUTATIONAL_RESOURCES, eq(STATUS, RUNNING.toString())))))
-				.flatMap(ui -> getRunningEnvResources(ui).stream())
+				.map(d -> convertFromDocument(d, UserInstanceDTO.class))
 				.collect(Collectors.toList());
 	}
 
-	private List<EnvResource> getRunningEnvResources(Document ui) {
-		final String exploratoryName = ui.getString(EXPLORATORY_NAME);
-		final List<EnvResource> envResources = getComputationalResources(ui)
-				.stream()
-				.filter(comp -> RUNNING.toString().equals(comp.getString(STATUS)))
-				.map(comp -> toEnvResource(String.join("_", exploratoryName,
-						comp.getString(COMPUTATIONAL_NAME)), comp.getString(INSTANCE_ID),
-						ResourceType.COMPUTATIONAL))
-				.collect(Collectors.toList());
-		if (UserInstanceStatus.of(ui.getString(STATUS)) == RUNNING) {
-			envResources.add(toEnvResource(exploratoryName, ui.getString(INSTANCE_ID),
-					ResourceType.EXPLORATORY));
-		}
-		return envResources;
-	}
-
-	private EnvResource toEnvResource(String name, String instanceId, ResourceType resType) {
-		return new EnvResource(instanceId, name, resType);
+	private EnvResource toEnvResource(String name, String instanceId, ResourceType resType, String project,
+									  String endpoint) {
+		return new EnvResource(instanceId, name, resType, project, endpoint);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void addComputationalResources(List<EnvResource> hostList, List<EnvResource> clusterList, Document exp,
 										   String exploratoryName) {
+		final String project = exp.getString(PROJECT);
 		getComputationalResources(exp)
-				.forEach(comp -> addComputational(hostList, clusterList, exploratoryName, comp));
+				.forEach(comp -> addComputational(hostList, clusterList, exploratoryName, comp, project,
+						exp.getString(ENDPOINT)));
 	}
 
 	private List<Document> getComputationalResources(Document userInstanceDocument) {
@@ -144,40 +138,23 @@ public class EnvDAO extends BaseDAO {
 	}
 
 	private void addComputational(List<EnvResource> hostList, List<EnvResource> clusterList, String exploratoryName,
-								  Document computational) {
+								  Document computational, String project, String endpoint) {
 		final List<EnvResource> resourceList = DataEngineType.CLOUD_SERVICE ==
 				DataEngineType.fromDockerImageName(computational.getString(IMAGE)) ? clusterList :
 				hostList;
 		addResource(resourceList, computational, STATUS, ResourceType.COMPUTATIONAL,
-				String.join("_", exploratoryName, computational.getString(COMPUTATIONAL_NAME)));
+				String.join("_", exploratoryName, computational.getString(COMPUTATIONAL_NAME)), project, endpoint);
 	}
 
 	/**
-	 * Finds and returns the of computational resource.
-	 *
 	 * @param user       the name of user.
 	 * @param fullReport return full report if <b>true</b> otherwise common status only.
 	 * @throws DlabException in case of any exception
 	 */
 	public HealthStatusPageDTO getHealthStatusPageDTO(String user, boolean fullReport) {
-		List<HealthStatusResource> listResource = new ArrayList<>();
-		final HealthStatusPageDTO healthStatusPageDTO = new HealthStatusPageDTO()
-				.withStatus(HealthStatusEnum.OK);
-
-		getEdgeNode(user).ifPresent(edge -> {
-			final String edgeStatus = edge.getString(EDGE_STATUS);
-			if (UserInstanceStatus.RUNNING != UserInstanceStatus.of(edgeStatus)) {
-				healthStatusPageDTO.withStatus(HealthStatusEnum.ERROR);
-			}
-			if (fullReport) {
-				listResource.add(new HealthStatusResource()
-						.withType("Edge Node")
-						.withResourceId(edge.getString(EDGE_PUBLIC_IP))
-						.withStatus(edgeStatus));
-			}
-		});
-		return healthStatusPageDTO
-				.withListResources(fullReport ? listResource : null);
+		return new HealthStatusPageDTO()
+				.withStatus(HealthStatusEnum.OK)
+				.withListResources(Collections.emptyList());
 	}
 
 
@@ -519,13 +496,13 @@ public class EnvDAO extends BaseDAO {
 	 * @param resourceType    type if resource EDGE/NOTEBOOK
 	 */
 	private void addResource(List<EnvResource> list, Document document, String statusFieldName,
-							 ResourceType resourceType, String name) {
+							 ResourceType resourceType, String name, String project, String endpoint) {
 		LOGGER.trace("Add resource from {}", document);
 		getInstanceId(document).ifPresent(instanceId ->
 				Optional.ofNullable(UserInstanceStatus.of(document.getString(statusFieldName)))
 						.filter(s -> s.in(CONFIGURING, CREATING, RUNNING, STARTING, STOPPED, STOPPING, TERMINATING) ||
 								(FAILED == s && ResourceType.EDGE == resourceType))
-						.ifPresent(s -> list.add(toEnvResource(name, instanceId, resourceType))));
+						.ifPresent(s -> list.add(toEnvResource(name, instanceId, resourceType, project, endpoint))));
 	}
 
 	private boolean notEmpty(List<EnvResource> hostList) {

@@ -5,7 +5,6 @@
   "computation_resources_shapes":
   {
     "For testing" : [
-      {"Size": "XS", "Description": "n1-standard-1", "Type": "n1-standard-1","Ram": "3.75 GB","Cpu": "1"},
       {"Size": "S", "Description": "n1-standard-2", "Type": "n1-standard-2","Ram": "7.50 GB","Cpu": "2"}
     ],
     "Memory optimized" : [
@@ -26,7 +25,7 @@
   },
   "templates":
   [
-    {"version":"1.1", "applications": [{"Name":"Hadoop", "Version": "2.7.3"}, {"Name":"Spark", "Version": "2.0.2"}, {"Name":"Hive", "Version": "2.1.1"}]},
-    {"version":"1.2", "applications": [{"Name":"Hadoop", "Version": "2.8.2"}, {"Name":"Spark", "Version": "2.2.0"}, {"Name":"Hive", "Version": "2.1.1"}]}
+    {"version":"1.2", "applications": [{"Name":"Hadoop", "Version": "2.8.2"}, {"Name":"Spark", "Version": "2.2.0"}, {"Name":"Hive", "Version": "2.1.1"}]},
+    {"version":"1.3", "applications": [{"Name":"Hadoop", "Version": "2.9.2"}, {"Name":"Spark", "Version": "2.3.2"}, {"Name":"Hive", "Version": "2.3.4"}]}
   ]
 }

@@ -28,41 +28,43 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:git:file://.</connection>
-        <url>scm:git:file://.</url>
+        <connection>scm:git:https://github.com/apache/incubator-dlab.git</connection>
+        <url>scm:git:https://github.com/apache/incubator-dlab.git</url>
         <tag>HEAD</tag>
     </scm>
 
     <profiles>
         <profile>
             <id>aws</id>
+            <modules>
+                <module>services/billing-aws</module>
+            </modules>
         </profile>
         <profile>
             <id>azure</id>
+            <modules>
+                <module>services/billing-azure</module>
+            </modules>
         </profile>
         <profile>
             <id>gcp</id>
+            <modules>
+                <module>services/billing-gcp</module>
+            </modules>
         </profile>
     </profiles>
 
     <modules>
         <module>services/common</module>
-        <module>services/billing-aws</module>
         <module>services/provisioning-service</module>
         <module>services/self-service</module>
-        <module>services/billing-azure</module>
-        <module>services/billing-gcp</module>
-        <module>services/security-azure</module>
-        <module>services/security-gcp</module>
-        <module>services/security-aws</module>
-        <module>services/security-service</module>
-        <module>services/dlab-process</module>
-        <module>services/dlab-auth-common</module>
-        <module>services/dlab-rest-client</module>
         <module>services/dlab-model</module>
         <module>services/dlab-utils</module>
         <module>services/dlab-webapp-common</module>
         <module>services/dlab-mongo-migration</module>
+        <module>services/billing-azure</module>
+        <module>services/billing-gcp</module>
+        <module>services/billing-aws</module>
     </modules>
 
     <properties>
@@ -113,11 +115,6 @@
                 <version>${com.google.inject.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.epam.dlab</groupId>
-                <artifactId>dlab-auth-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
@@ -131,11 +128,6 @@
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-util</artifactId>
                 <version>${io.dropwizard.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smoketurner</groupId>
-                <artifactId>dropwizard-swagger</artifactId>
-                <version>${dropwizard.swagger.version}</version>
             </dependency>
 
 

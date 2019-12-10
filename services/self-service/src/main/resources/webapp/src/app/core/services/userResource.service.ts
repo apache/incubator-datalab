@@ -18,50 +18,58 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { ErrorUtils } from '../util/';
-import { ApplicationServiceFacade } from '.';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 
 @Injectable()
 export class UserResourceService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  public getExploratoryEnvironmentTemplates(): Observable<any> {
+  public getExploratoryTemplates(project, endpoint): Observable<any> {
+    const url = `/${project}/${endpoint}/exploratory_templates`;
     return this.applicationServiceFacade
-      .buildGetExploratoryEnvironmentTemplatesRequest()
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .buildGetTemplatesRequest(url)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
-  public getComputationalResourcesTemplates(): Observable<any> {
+  public getComputationalTemplates(project, endpoint): Observable<any> {
+    const url = `/${project}/${endpoint}/computational_templates`;
     return this.applicationServiceFacade
-      .buildGetComputationalResourcesTemplatesRequest()
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .buildGetTemplatesRequest(url)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public getUserProvisionedResources(): Observable<any> {
     return this.applicationServiceFacade
       .buildGetUserProvisionedResourcesRequest()
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public createExploratoryEnvironment(data): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateExploratoryEnvironmentRequest(body)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public runExploratoryEnvironment(data): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildRunExploratoryEnvironmentRequest(body)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public suspendExploratoryEnvironment(notebook: any, action): Observable<{}> {
@@ -69,84 +77,95 @@ export class UserResourceService {
 
     return this.applicationServiceFacade
       .buildSuspendExploratoryEnvironmentRequest(JSON.stringify(url))
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public createComputationalResource_DataengineService(data): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateComputationalResources_DataengineServiceRequest(body)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public createComputationalResource_Dataengine(data): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateComputationalResources_DataengineRequest(body)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public suspendComputationalResource(notebookName: string, computationalResourceName: string): Observable<{}> {
     const body = JSON.stringify('/' + notebookName + '/' + computationalResourceName + '/terminate');
     return this.applicationServiceFacade
       .buildDeleteComputationalResourcesRequest(body)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
-  public toggleStopStartAction(notebook: string, resource: string, action): Observable<{}> {
-    const url = `/${notebook}/${resource}/${action}`;
+  public toggleStopStartAction(project: string, notebook: string, resource: string, action): Observable<{}> {
+    const url = `/${project}/${notebook}/${resource}/${action}`;
     if (action === 'stop') {
       return this.applicationServiceFacade
         .buildStopSparkClusterAction(JSON.stringify(url))
-        .map(response => response)
-        .catch(ErrorUtils.handleServiceError);
+        .pipe(
+          map(response => response),
+          catchError(ErrorUtils.handleServiceError));
     } else if (action === 'start') {
       return this.applicationServiceFacade
         .buildStartSparkClusterAction(url)
-        .map(response => response)
-        .catch(ErrorUtils.handleServiceError);
+        .pipe(
+          map(response => response),
+          catchError(ErrorUtils.handleServiceError));
     }
   }
 
   public getUserPreferences(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetUserPreferences()
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public updateUserPreferences(data): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildUpdateUserPreferences(body)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
-  public getUserImages(image): Observable<{}> {
-    const body = `?docker_image=${image}`;
+  public getUserImages(image, project, endpoint): Observable<{}> {
+    const body = `?docker_image=${image}&project=${project}&endpoint=${endpoint}`;
     return this.applicationServiceFacade
       .buildGetUserImages(body)
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public getImagesList(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetImagesList()
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public createAMI(data): Observable<any> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateAMI(data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 }

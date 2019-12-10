@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -53,12 +52,11 @@ public class ExploratoryCallbackHandler extends ResourceCallbackHandler<Explorat
 	private final String exploratoryName;
 
 	@JsonCreator
-	public ExploratoryCallbackHandler(@JacksonInject SystemUserInfoService systemUserInfoService,
-									  @JacksonInject RESTService selfService,
+	public ExploratoryCallbackHandler(@JacksonInject RESTService selfService,
 									  @JsonProperty("action") DockerAction action,
 									  @JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
 									  @JsonProperty("exploratoryName") String exploratoryName) {
-		super(systemUserInfoService, selfService, user, uuid, action);
+		super(selfService, user, uuid, action);
 		this.exploratoryName = exploratoryName;
 	}
 

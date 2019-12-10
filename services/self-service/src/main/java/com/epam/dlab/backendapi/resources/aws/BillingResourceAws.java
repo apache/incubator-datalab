@@ -43,38 +43,38 @@ import javax.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public class BillingResourceAws {
 
-    @Inject
-    private BillingService billingService;
+	@Inject
+	private BillingService billingService;
 
-    /**
-     * Returns the billing report.
-     *
-     * @param userInfo user info.
-     * @param formDTO  filter for report data.
-     */
-    @POST
-    @Path("/report")
-    @Produces(MediaType.APPLICATION_JSON)
-    @SuppressWarnings("unchecked")
-    public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull AwsBillingFilter formDTO) {
-        return billingService.getReport(userInfo, formDTO);
-    }
+	/**
+	 * Returns the billing report.
+	 *
+	 * @param userInfo user info.
+	 * @param formDTO  filter for report data.
+	 */
+	@POST
+	@Path("/report")
+	@Produces(MediaType.APPLICATION_JSON)
+	@SuppressWarnings("unchecked")
+	public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull AwsBillingFilter formDTO) {
+		return billingService.getBillingReport(userInfo, formDTO);
+	}
 
-    /**
-     * Returns the billing report in csv file.
-     *
-     * @param userInfo user info.
-     * @param formDTO  filter for report data.
-     */
+	/**
+	 * Returns the billing report in csv file.
+	 *
+	 * @param userInfo user info.
+	 * @param formDTO  filter for report data.
+	 */
 
-    @POST
-    @Path("/report/download")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @SuppressWarnings("unchecked")
-    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull AwsBillingFilter formDTO) {
-        return Response.ok(billingService.downloadReport(userInfo, formDTO))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + billingService.getReportFileName(userInfo, formDTO) + "\"")
-                .build();
-    }
+	@POST
+	@Path("/report/download")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	@SuppressWarnings("unchecked")
+	public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull AwsBillingFilter formDTO) {
+		return Response.ok(billingService.downloadReport(userInfo, formDTO))
+				.header(HttpHeaders.CONTENT_DISPOSITION,
+						"attachment; filename=\"" + billingService.getReportFileName(userInfo, formDTO) + "\"")
+				.build();
+	}
 }

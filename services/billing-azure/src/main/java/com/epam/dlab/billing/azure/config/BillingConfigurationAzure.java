@@ -39,6 +39,10 @@ public class BillingConfigurationAzure {
     private String regionInfo;
     private boolean billingEnabled;
 
+    private String ssnStorageAccountTagName;
+    private String sharedStorageAccountTagName;
+    private String datalakeTagName;
+
     private LoggingConfigurationFactory logging;
     private AggregationOutputMongoDataSource aggregationOutputMongoDataSource;
 }

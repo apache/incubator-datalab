@@ -33,6 +33,7 @@ parser.add_argument('--infrastructure_tag', type=str, help='unique name for DLab
 parser.add_argument('--access_key_id', default='', type=str, help='AWS Access Key ID')
 parser.add_argument('--secret_access_key', default='', type=str, help='AWS Secret Access Key')
 parser.add_argument('--tag_resource_id', type=str, default='user:tag', help='The name of user tag')
+parser.add_argument('--billing_tag', type=str, default='dlab', help='Billing tag')
 parser.add_argument('--account_id', type=str, help='The ID of ASW linked account')
 parser.add_argument('--billing_bucket', type=str, help='The name of bucket')
 parser.add_argument('--aws_job_enabled', type=str, default='false', help='Billing format. Available options: true (aws), false(epam)')
@@ -56,6 +57,7 @@ parser.add_argument('--usage', type=str, default='', help='Column name in report
 parser.add_argument('--cost', type=str, default='', help='Column name in report file that contains cost tag')
 parser.add_argument('--resource_id', type=str, default='', help='Column name in report file that contains dlab resource id tag')
 parser.add_argument('--tags', type=str, default='', help='Column name in report file that contains tags')
+parser.add_argument('--billing_dataset_name', type=str, default='', help='Name of gcp billing dataset (in big query service')
 args = parser.parse_args()
 
 
@@ -68,15 +70,13 @@ def yml_billing(path):
         if args.cloud_provider == 'aws':
             if args.aws_job_enabled == 'true':
                 args.tag_resource_id =  'resourceTags' + ':' + args.tag_resource_id
-            elif args.aws_job_enabled == 'false':
-                args.tag_resource_id = 'user' + ':' + args.tag_resource_id
             config_orig = config_orig.replace('<BILLING_BUCKET_NAME>', args.billing_bucket)
             config_orig = config_orig.replace('<AWS_JOB_ENABLED>', args.aws_job_enabled)
             config_orig = config_orig.replace('<REPORT_PATH>', args.report_path)
             config_orig = config_orig.replace('<ACCOUNT_ID>', args.account_id)
             config_orig = config_orig.replace('<ACCESS_KEY_ID>', args.access_key_id)
             config_orig = config_orig.replace('<SECRET_ACCESS_KEY>', args.secret_access_key)
-            config_orig = config_orig.replace('<CONF_TAG_RESOURCE_ID>', args.tag_resource_id)
+            config_orig = config_orig.replace('<CONF_BILLING_TAG>', args.billing_tag)
             config_orig = config_orig.replace('<CONF_SERVICE_BASE_NAME>', args.infrastructure_tag)
             config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
             config_orig = config_orig.replace('<DLAB_ID>', args.dlab_id)
@@ -98,6 +98,10 @@ def yml_billing(path):
             config_orig = config_orig.replace('<LOCALE>', args.locale)
             config_orig = config_orig.replace('<REGION_INFO>', args.region_info)
             config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
+        elif args.cloud_provider == 'gcp':
+            config_orig = config_orig.replace('<CONF_SERVICE_BASE_NAME>', args.infrastructure_tag)
+            config_orig = config_orig.replace('<MONGO_PASSWORD>', args.mongo_password)
+            config_orig = config_orig.replace('<BILLING_DATASET_NAME>', args.billing_dataset_name)
         f = open(path, 'w')
         f.write(config_orig)
         f.close()

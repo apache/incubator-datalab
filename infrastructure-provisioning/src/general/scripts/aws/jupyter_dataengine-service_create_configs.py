@@ -45,7 +45,7 @@ parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--excluded_lines', type=str, default='')
-parser.add_argument('--user_name', type=str, default='')
+parser.add_argument('--project_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--numpy_version', type=str, default='')
@@ -163,6 +163,8 @@ def add_breeze_library_emr(args):
           """\/jars\/usr\/other\/*/' """ + spark_defaults_path + """" """)
 
 
+
+
 if __name__ == "__main__":
     if args.dry_run == 'true':
         parser.print_help()
@@ -173,7 +175,7 @@ if __name__ == "__main__":
         yarn(args, yarn_dir)
         install_emr_spark(args)
         pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
-                       args.user_name, args.region, args.os_user, args.application, args.pip_mirror, args.numpy_version)
+                       args.project_name, args.region, args.os_user, args.application, args.pip_mirror, args.numpy_version)
         toree_kernel(args)
         if args.r_enabled == 'true':
             r_kernel(args)

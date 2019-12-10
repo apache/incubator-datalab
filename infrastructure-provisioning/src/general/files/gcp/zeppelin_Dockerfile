@@ -34,6 +34,9 @@ COPY general/templates/os/dataengine_interpreter_livy.json /root/templates/
 COPY general/templates/os/dataengine_interpreter_spark.json /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
+COPY general/templates/os/inactive.sh /root/templates/
+COPY general/templates/os/inactive.service /root/templates/
+COPY general/templates/os/inactive.timer /root/templates/
 COPY general/templates/gcp/dataengine-service_interpreter_* /root/templates/
 COPY general/templates/gcp/core-site.xml /root/templates/
 

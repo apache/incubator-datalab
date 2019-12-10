@@ -19,59 +19,54 @@
 
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
-import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { HttpModule, Http, XHRBackend, RequestOptions } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 
 import { LoginModule } from './login/login.module';
-import { NavbarModule } from './shared/navbar';
-import { GuidesModule } from './help';
-import { NotFoundModule } from './not-found/not-found.module';
-import { AccessDeniedModule } from './access-denied/access-denied.module';
-import { ResourcesModule } from './resources/resources.module';
-import { HealthStatusModule } from './health-status/health-status.module';
-import { LogInterceptorFactory } from './core/interceptors/logInterceptor.factory';
-import { ReportingModule } from './reporting/reporting.module';
-import { ManagenementModule } from './management';
+import { LayoutModule } from './layout/layout.module'
 
+import { GuidesModule } from './help';
+import { ServicePagesModule } from './service-pages/service-pages.module';
+import { ResourcesModule } from './resources/resources.module';
+
+import { ReportingModule } from './reporting/reporting.module';
+import { AdministrationModule } from './administration/administration.module';
+import { WebterminalModule } from './webterminal';
 import { CoreModule } from './core/core.module';
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpModule,
+    HttpClientModule,
     LoginModule,
-    NavbarModule,
+    LayoutModule,
     ResourcesModule,
     GuidesModule,
-    NotFoundModule,
-    AccessDeniedModule,
-    HealthStatusModule,
+    ServicePagesModule,
     ReportingModule,
-    ManagenementModule,
+    AdministrationModule,
+    WebterminalModule,
     RouterModule,
     AppRoutingModule,
-    BrowserAnimationsModule,
-    CoreModule.forRoot()
+    CoreModule.forRoot(),
+    ToastrModule.forRoot({ timeOut: 10000 })
   ],
   providers: [{
-      provide: LocationStrategy,
-      useClass: HashLocationStrategy,
-      useValue: '/'
-    }, {
-      provide: Http,
-      useFactory: LogInterceptorFactory,
-      deps: [XHRBackend, RequestOptions, Router]
-    }
-  ],
+    provide: LocationStrategy,
+    useClass: HashLocationStrategy,
+    useValue: '/'
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -36,6 +36,9 @@ import org.bson.Document;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.fields;
@@ -46,6 +49,7 @@ import static com.mongodb.client.model.Projections.fields;
  */
 @Slf4j
 public class AzureBillableResourcesService {
+	private static final String SHARED_RESOURCE = "Shared resource";
 	private static final String[] USER_INSTANCES_EXCLUDED_FIELDS = {"scheduler_data", "last_activity",
 			"computational_resources.scheduler_data", "computational_resources.last_activity"};
 	private final ObjectMapper objectMapper = new ObjectMapper();
@@ -59,18 +63,21 @@ public class AzureBillableResourcesService {
 	/**
 	 * Constructs the service class
 	 *
-	 * @param mongoDbBillingClient mongodb client to retrieve all billable resources
+	 * @param mongoDbBillingClient        mongodb client to retrieve all billable resources
+	 * @param sharedStorageAccountTagName shared storage account tag name
+	 * @param ssnStorageAccountTagName    ssn storage account tag name
+	 * @param azureDataLakeTagName        azure DataLake tag name
 	 */
-	public AzureBillableResourcesService(MongoDbBillingClient mongoDbBillingClient) {
+	public AzureBillableResourcesService(MongoDbBillingClient mongoDbBillingClient, String sharedStorageAccountTagName,
+										 String ssnStorageAccountTagName, String azureDataLakeTagName) {
 		this.mongoDbBillingClient = mongoDbBillingClient;
 
 		this.serviceBaseName = getConfigurationSettingValue(MongoKeyWords.SERVICE_BASE_NAME_KEY)
 				.replace('_', '-').toLowerCase();
 
-		this.sharedStorageAccountTagName = getConfigurationSettingValue(MongoKeyWords.SHARED_STORAGE_ACCOUNT_TAG_KEY);
-		this.ssnStorageAccountTagName = getConfigurationSettingValue(MongoKeyWords.SSN_STORAGE_ACCOUNT_TAG_KEY);
-		this.azureDataLakeTagName = getConfigurationSettingValueOrEmpty(MongoKeyWords.DATA_LAKE_TAG_NAME);
-
+		this.sharedStorageAccountTagName = sharedStorageAccountTagName;
+		this.ssnStorageAccountTagName = ssnStorageAccountTagName;
+		this.azureDataLakeTagName = azureDataLakeTagName;
 	}
 
 
@@ -153,57 +160,62 @@ public class AzureBillableResourcesService {
 	}
 
 	private Set<AzureDlabBillableResource> getEdgeAndStorageAccount() {
-		Set<AzureDlabBillableResource> billableResources = new HashSet<>();
+		Map<String, List<Document>> projectEndpoints = StreamSupport.stream(mongoDbBillingClient.getDatabase()
+				.getCollection("Projects").find().spliterator(), false)
+				.collect(Collectors.toMap(key -> key.getString("name").toLowerCase(),
+						value -> (List<Document>) value.get("endpoints")));
 
-		try {
-
-			List<EdgeInfoAzure> edgeInfoList = objectMapper.readValue(
-					objectMapper.writeValueAsString(mongoDbBillingClient.getDatabase()
-							.getCollection(MongoKeyWords.EDGE_COLLECTION).find()),
-					new com.fasterxml.jackson.core.type.TypeReference<List<EdgeInfoAzure>>() {
-					});
-
-			if (edgeInfoList != null && !edgeInfoList.isEmpty()) {
-				for (EdgeInfoAzure edgeInfoAzure : edgeInfoList) {
-					billableResources.addAll(getEdgeAndStorageAccount(edgeInfoAzure));
-				}
-			}
-
-			return billableResources;
-		} catch (IOException e) {
-			log.error("Error during preparation of billable resources", e);
-		}
-		return billableResources;
+		return projectEndpoints.entrySet()
+				.stream()
+				.flatMap(projectEndpoint -> getEdgeAndStoragePerProject(projectEndpoint.getKey(), projectEndpoint.getValue()))
+				.collect(Collectors.toSet());
 	}
 
-	private Set<AzureDlabBillableResource> getEdgeAndStorageAccount(EdgeInfoAzure edgeInfoAzure) {
+	private Stream<AzureDlabBillableResource> getEdgeAndStoragePerProject(String projectName, List<Document> endpoints) {
+		return endpoints
+				.stream()
+				.flatMap(endpoint -> {
+					try {
+						return getEdgeAndStorageAccount(projectName, objectMapper.readValue(
+								objectMapper.writeValueAsString(endpoint.get("edgeInfo")),
+								new com.fasterxml.jackson.core.type.TypeReference<EdgeInfoAzure>() {
+								})).stream();
+					} catch (IOException e) {
+						log.error("Error during preparation of billable resources", e);
+					}
+					return Stream.empty();
+				});
+	}
 
+	private Set<AzureDlabBillableResource> getEdgeAndStorageAccount(String projectName, EdgeInfoAzure edgeInfoAzure) {
 		Set<AzureDlabBillableResource> billableResources = new HashSet<>();
 
 		if (StringUtils.isNotEmpty(edgeInfoAzure.getUserContainerName())) {
 			billableResources.add(AzureDlabBillableResource.builder()
 					.id(edgeInfoAzure.getUserStorageAccountTagName())
 					.type(DlabResourceType.EDGE_STORAGE_ACCOUNT)
-					.user(edgeInfoAzure.getId()).build());
+					.user(SHARED_RESOURCE)
+					.project(projectName)
+					.build());
 		}
 
 		if (StringUtils.isNotEmpty(edgeInfoAzure.getInstanceId())) {
 			billableResources.add(AzureDlabBillableResource.builder()
 					.id(edgeInfoAzure.getInstanceId())
 					.type(DlabResourceType.EDGE)
-					.user(edgeInfoAzure.getId()).build());
+					.user(SHARED_RESOURCE)
+					.project(projectName)
+					.build());
 
 			billableResources.add(AzureDlabBillableResource.builder()
-					.id(serviceBaseName + "-" + edgeUserSimpleName(edgeInfoAzure) + "-edge-volume-primary")
+					.id(edgeInfoAzure.getInstanceId() + "-volume-primary")
 					.type(DlabResourceType.VOLUME)
-					.user(edgeInfoAzure.getId()).build());
+					.user(SHARED_RESOURCE)
+					.project(projectName)
+					.build());
 		}
 
 		return billableResources;
-	}
-
-	private String edgeUserSimpleName(EdgeInfoAzure edgeInfoAzure) {
-		return edgeInfoAzure.getId().replaceAll("@.*", "");
 	}
 
 	private Set<AzureDlabBillableResource> getNotebooksAndClusters() {
@@ -239,8 +251,10 @@ public class AzureBillableResourcesService {
 					.id(userInstanceDTO.getExploratoryId())
 					.type(DlabResourceType.EXPLORATORY)
 					.user(userInstanceDTO.getUser())
+					.project(userInstanceDTO.getProject())
 					.notebookId(userInstanceDTO.getExploratoryId())
-					.resourceName(userInstanceDTO.getExploratoryName()).build());
+					.resourceName(userInstanceDTO.getExploratoryName())
+					.build());
 			notebookResources.addAll(getVolumes(userInstanceDTO, userInstanceDTO.getExploratoryId(), "Volume primary",
 					"Volume secondary"));
 
@@ -252,8 +266,10 @@ public class AzureBillableResourcesService {
 								.id(userComputationalResource.getComputationalId())
 								.type(DlabResourceType.COMPUTATIONAL)
 								.user(userInstanceDTO.getUser())
+								.project(userInstanceDTO.getProject())
 								.notebookId(userInstanceDTO.getExploratoryId())
-								.resourceName(userComputationalResource.getComputationalName()).build());
+								.resourceName(userComputationalResource.getComputationalName())
+								.build());
 						final List<AzureDlabBillableResource> volumes = getVolumes(userInstanceDTO,
 								userComputationalResource.getComputationalId(),
 								userComputationalResource.getComputationalName() + " volume primary",
@@ -282,14 +298,18 @@ public class AzureBillableResourcesService {
 						.id(exploratoryId + "-volume-primary")
 						.type(DlabResourceType.VOLUME)
 						.user(userInstanceDTO.getUser())
+						.project(userInstanceDTO.getProject())
 						.notebookId(userInstanceDTO.getExploratoryId())
-						.resourceName(primaryVolumeName).build(),
+						.resourceName(primaryVolumeName)
+						.build(),
 				AzureDlabBillableResource.builder()
 						.id(exploratoryId + "-volume-secondary")
 						.type(DlabResourceType.VOLUME)
 						.user(userInstanceDTO.getUser())
+						.project(userInstanceDTO.getProject())
 						.notebookId(userInstanceDTO.getExploratoryId())
-						.resourceName(secondaryVolumeName).build()
+						.resourceName(secondaryVolumeName)
+						.build()
 		);
 	}
 }

@@ -36,7 +36,7 @@ import multiprocessing
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -44,20 +44,24 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     try:
         create_aws_config_files()
-        edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
-                                          os.environ['conf_service_base_name'] + '-' + os.environ[
-                                              'edge_user_name'] + '-edge')
+        data_engine = dict()
+        data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
+        edge_status = get_instance_status(data_engine['service_base_name'] + '-Tag',
+                                          '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                                    os.environ['project_name'],
+                                                                    os.environ['endpoint_name']))
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag',
-                                                 os.environ['conf_service_base_name'] + '-ssn')
+            ssn_hostname = get_instance_hostname(data_engine['service_base_name'] + '-Tag',
+                                                 data_engine['service_base_name'] + '-ssn')
             put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                 ssn_hostname)
             append_result("Edge node is unavailable")
             sys.exit(1)
         print('Generating infrastructure names and tags')
-        data_engine = dict()
+
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name']
         except:
@@ -66,11 +70,11 @@ if __name__ == "__main__":
             data_engine['computational_name'] = os.environ['computational_name']
         except:
             data_engine['computational_name'] = ''
-        data_engine['service_base_name'] = os.environ['conf_service_base_name']
+
         data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['project_name'] + \
                                       '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
         data_engine['master_node_name'] = '{}-m'.format(data_engine['cluster_name'])
@@ -78,15 +82,15 @@ if __name__ == "__main__":
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
         data_engine['dataengine_master_security_group_name'] = '{}-{}-dataengine-master-sg' \
-            .format(data_engine['service_base_name'], os.environ['edge_user_name'])
+            .format(data_engine['service_base_name'], os.environ['project_name'])
         data_engine['dataengine_slave_security_group_name'] = '{}-{}-dataengine-slave-sg' \
-            .format(data_engine['service_base_name'], os.environ['edge_user_name'])
+            .format(data_engine['service_base_name'], os.environ['project_name'])
         data_engine['tag_name'] = '{}-Tag'.format(data_engine['service_base_name'])
         tag = {"Key": data_engine['tag_name'],
-               "Value": "{}-{}-subnet".format(data_engine['service_base_name'], os.environ['edge_user_name'])}
+               "Value": "{}-{}-subnet".format(data_engine['service_base_name'], os.environ['project_name'])}
         data_engine['subnet_cidr'] = get_subnet_by_tag(tag)
         data_engine['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
-            .format(data_engine['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
+            .format(data_engine['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['cluster_nodes_tag'] = {"Key": "dataengine_notebook_name",
                                             "Value": os.environ['notebook_instance_name']}
@@ -98,9 +102,21 @@ if __name__ == "__main__":
         data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
 
-        data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(os.environ['conf_service_base_name'],
-                                                                           os.environ['application'])
-        data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+        if os.environ['conf_shared_image_enabled'] == 'false':
+            data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(data_engine['service_base_name'],
+                                                                                         os.environ['endpoint_name'],
+                                                                                         os.environ['project_name'],
+                                                                                         os.environ['application'])
+        else:
+            data_engine['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(data_engine['service_base_name'],
+                                                                                         os.environ['endpoint_name'],
+                                                                                         os.environ['application'])
+        data_engine['notebook_image_name'] = (
+            lambda x: '{0}-{1}-{2}-{3}'.format(data_engine['service_base_name'],
+                                               os.environ['project_name'],
+                                               os.environ['application'],
+                                               os.environ['notebook_image_name'].lower().replace('_', '-')) if (
+                    x != 'None' and x != '')
             else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         data_engine['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
@@ -120,6 +136,12 @@ if __name__ == "__main__":
     with open('/root/result.json', 'w') as f:
         data = {"hostname": data_engine['cluster_name'], "error": ""}
         json.dump(data, f)
+
+    try:
+        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(os.environ['project_name'], os.environ['endpoint_name'])
+    except KeyError:
+        os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(os.environ['project_name'], os.environ['endpoint_name'])
+    print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
     try:
         logging.info('[CREATE MASTER NODE]')

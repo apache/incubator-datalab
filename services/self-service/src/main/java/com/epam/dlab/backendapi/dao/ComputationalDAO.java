@@ -56,6 +56,7 @@ import static java.util.stream.Collectors.toList;
 public class ComputationalDAO extends BaseDAO {
 	static final String COMPUTATIONAL_NAME = "computational_name";
 	static final String COMPUTATIONAL_ID = "computational_id";
+	static final String PROJECT = "project";
 
 	static final String IMAGE = "image";
 	private static final String COMPUTATIONAL_URL = "computational_url";
@@ -69,10 +70,9 @@ public class ComputationalDAO extends BaseDAO {
 		return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
 	}
 
-	private static Bson computationalCondition(String user, String exploratoryFieldValue,
-											   String compResourceFieldValue) {
-		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryFieldValue),
-				eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, compResourceFieldValue));
+	private static Bson computationalCondition(String user, String exploratoryName, String compName) {
+		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName),
+				eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, compName));
 	}
 
 	/**
@@ -427,9 +427,10 @@ public class ComputationalDAO extends BaseDAO {
 				Objects.isNull(dto) ? null : convertToBson(dto));
 	}
 
-
-	public void updateLastActivityDateForInstanceId(String instanceId, LocalDateTime lastActivity) {
-		updateOne(USER_INSTANCES, eq(computationalFieldFilter(COMPUTATIONAL_ID), instanceId),
+	public void updateLastActivity(String user, String exploratoryName,
+								   String computationalName, LocalDateTime lastActivity) {
+		updateOne(USER_INSTANCES,
+				computationalCondition(user, exploratoryName, computationalName),
 				set(computationalFieldFilter(COMPUTATIONAL_LAST_ACTIVITY),
 						Date.from(lastActivity.atZone(ZoneId.systemDefault()).toInstant())));
 	}

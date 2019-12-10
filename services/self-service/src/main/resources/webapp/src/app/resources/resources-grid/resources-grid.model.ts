@@ -16,8 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
-export class ResourcesGridRowModel {
+export class ExploratoryModel {
+  readonly DICTIONARY = DICTIONARY;
+
   constructor(
     public name: Array<any>,
     public template_name: string,
@@ -27,7 +30,8 @@ export class ResourcesGridRowModel {
     public resources: Array<any>,
     public time: string,
     public url: Array<any>,
-    public ip: string,
+    public node_ip: string,
+    public private_ip: string,
     public username: string,
     public password: string,
     public bucket_name: string,
@@ -41,6 +45,52 @@ export class ResourcesGridRowModel {
     public shared_account_name: string,
     public datalake_name: string,
     public datalake_directory: string,
-    public datalake_shared_directory: string
+    public datalake_shared_directory: string,
+    public project: string,
+    public endpoint: string,
+    public tags: any,
   ) { }
+
+  public static loadEnvironments(data: Array<any>) {
+    if (data) {
+      return data.map((value) => {
+        return {
+          project: value.project,
+          exploratory: value.exploratory.map(el => new ExploratoryModel(el.exploratory_name,
+            el.template_name,
+            el.image,
+            el.status,
+            el.shape,
+            el.computational_resources,
+            el.up_time,
+            el.exploratory_url,
+            value.shared[el.endpoint].edge_node_ip,
+            el.private_ip,
+            el.exploratory_user,
+            el.exploratory_pass,
+            value.shared[el.endpoint][DICTIONARY.bucket_name],
+            value.shared[el.endpoint][DICTIONARY.shared_bucket_name],
+            el.error_message,
+            el[DICTIONARY.billing.cost],
+            el[DICTIONARY.billing.currencyCode],
+            el.billing,
+            el.libs,
+            value.shared[el.endpoint][DICTIONARY.user_storage_account_name],
+            value.shared[el.endpoint][DICTIONARY.shared_storage_account_name],
+            value.shared[el.endpoint][DICTIONARY.datalake_name],
+            value.shared[el.endpoint][DICTIONARY.datalake_user_directory_name],
+            value.shared[el.endpoint][DICTIONARY.datalake_shared_directory_name],
+            el.project,
+            el.endpoint,
+            el.tags
+          ))
+        }
+      });
+    }
+  }
+}
+
+export interface Exploratory {
+  project: string;
+  exploratory: ExploratoryModel[]
 }

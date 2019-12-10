@@ -17,10 +17,10 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, Inject, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { ToastsManager } from 'ng2-toastr';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 
 import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
 import { ManageUngitService } from '../../core/services';
@@ -29,7 +29,7 @@ import { ManageUngitService } from '../../core/services';
   selector: 'dlab-manage-ungit',
   templateUrl: './manage-ungit.component.html',
   styleUrls: ['./manage-ungit.component.scss',
-              '../exploratory/install-libraries/install-libraries.component.scss']
+    '../exploratory/install-libraries/install-libraries.component.scss']
 })
 export class ManageUngitComponent implements OnInit {
   model: MangeUngitModel;
@@ -44,43 +44,35 @@ export class ManageUngitComponent implements OnInit {
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
 
-  @ViewChild('bindDialog') bindDialog;
-  @ViewChild('tabGroup') tabGroup;
+  @ViewChild('tabGroupGit', { static: false }) tabGroupGit;
 
   constructor(
+    public toastr: ToastrService,
+    public dialog: MatDialog,
+    public dialogRef: MatDialogRef<ManageUngitComponent>,
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
-    public dialog: MatDialog,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
   ) {
     this.model = MangeUngitModel.getDefault(manageUngitService);
-    this.toastr.setRootViewContainerRef(vcr);
   }
 
   ngOnInit() {
-    this.bindDialog.onClosing = () => this.cancelAllModifyings();
-
     this.initFormModel();
-    this.getGitCredentials();
+    this.model.getGitCredentials().subscribe(
+      (credentials: any) => {
+        this.gitCredentials = credentials.git_creds || [];
+        this.open();
+      }, () => this.open());
   }
 
-  public open(param): void {
-    if (!this.bindDialog.isOpened)
-      this.model = new MangeUngitModel(response => { },
-      error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!', { toastLife: 5000 }),
+  public open(): void {
+    this.model = new MangeUngitModel(() => { },
+      error => this.toastr.error(error.message || 'Manage git credentials failed!', 'Oops!'),
       () => {
-        this.bindDialog.open(param);
-
-        if (!this.gitCredentials.length)
-          this.tabGroup.selectedIndex = 1;
+        // if (!this.gitCredentials.length)
+        //   this.tabGroupGit.selectedIndex = 1;
       },
       this.manageUngitService);
-  }
-
-  public close(): void {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
   }
 
   public resetForm(): void {
@@ -95,7 +87,7 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public editSpecificAccount(item: AccountCredentials) {
-    this.tabGroup.selectedIndex = 1;
+    this.tabGroupGit.selectedIndex = 1;
     this.currentEditableItem = item;
 
     this.updateAccountCredentialsForm = this._fb.group({
@@ -111,11 +103,12 @@ export class ManageUngitComponent implements OnInit {
   public deleteAccount(item: AccountCredentials) {
     const dialogRef: MatDialogRef<ConfirmDeleteAccountDialog> = this.dialog.open(
       ConfirmDeleteAccountDialog,
-      { data: item, width: '550px' });
+      { data: item, width: '550px', panelClass: 'error-modalbox' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
         this.model.confirmAction(this.gitCredentials);
+        this.toastr.success('Git credentials deleted successfully!', 'Success!');
       }
     });
   }
@@ -129,14 +122,15 @@ export class ManageUngitComponent implements OnInit {
 
     this.gitCredentials = modifiedCredentials;
     this.editableForm = true;
-    this.tabGroup.selectedIndex = 0;
+    this.tabGroupGit.selectedIndex = 0;
     this.resetForm();
   }
 
   public editAccounts_btnClick() {
     this.model.confirmAction(this.gitCredentials);
-    this.tabGroup.selectedIndex = 0;
+    this.tabGroupGit.selectedIndex = 0;
     this.editableForm = false;
+    this.toastr.success('Git credentials updated successfully!', 'Success!');
   }
 
   private initFormModel(): void {
@@ -154,7 +148,7 @@ export class ManageUngitComponent implements OnInit {
     this.model.getGitCredentials()
       .subscribe(
         (response: any) => this.gitCredentials = response.git_creds || [],
-        error => this.toastr.error(error.message || 'Git credentials loading failed!', 'Oops!', { toastLife: 5000 }));
+        error => this.toastr.error(error.message || 'Git credentials loading failed!', 'Oops!'));
   }
 
   private validConfirmField(control) {
@@ -183,6 +177,10 @@ export class ManageUngitComponent implements OnInit {
 @Component({
   selector: 'dialog-result-example-dialog',
   template: `
+  <div class="dialog-header">
+    <h4 class="modal-title"><i class="material-icons">priority_high</i>Warning</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
   <div mat-dialog-content class="content">
     <p>Account <strong>{{ data.hostname }}</strong> will be decommissioned.</p>
     <p class="m-top-20"><strong>Do you want to proceed?</strong></p>

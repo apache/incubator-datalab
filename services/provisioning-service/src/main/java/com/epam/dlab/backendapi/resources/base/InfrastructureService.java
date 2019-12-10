@@ -19,7 +19,7 @@
 
 package com.epam.dlab.backendapi.resources.base;
 
-import com.epam.dlab.auth.SystemUserInfoService;
+
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
@@ -54,8 +54,6 @@ public abstract class InfrastructureService implements DockerCommands {
 	private ICommandExecutor commandExecutor;
 	@Inject
 	private CommandBuilder commandBuilder;
-	@Inject
-	private SystemUserInfoService systemUserInfoService;
 
 	private static final String CONTAINER_NAME_REGEX_FORMAT = "%s_[^_\\W]+_%s(|_%s)_\\d+";
 
@@ -141,7 +139,7 @@ public abstract class InfrastructureService implements DockerCommands {
 	}
 
 	protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user) {
-		return new ResourcesStatusCallbackHandler(systemUserInfoService, selfService, action, uuid, user);
+		return new ResourcesStatusCallbackHandler(selfService, action, uuid, user);
 	}
 
 	private String nameContainer(String user, DockerAction action, String name) {

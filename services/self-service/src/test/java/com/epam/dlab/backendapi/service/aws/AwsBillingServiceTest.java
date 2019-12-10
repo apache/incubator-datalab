@@ -117,7 +117,7 @@ public class AwsBillingServiceTest {
 
 	@Test
 	public void downloadReportWithInapproprietaryDateFormatInDocument() {
-		basicDocument.put("usage_date_start", "someDateStart");
+		basicDocument.put("from", "someDateStart");
 		when(billingDAO.getReport(any(UserInfo.class), any(AwsBillingFilter.class))).thenReturn(basicDocument);
 
 		try {
@@ -155,7 +155,7 @@ public class AwsBillingServiceTest {
 
 	@Test
 	public void getFirstLineWithException() throws ParseException {
-		basicDocument.put("usage_date_start", "someStartDate");
+		basicDocument.put("from", "someStartDate");
 
 		expectedException.expect(ParseException.class);
 		expectedException.expectMessage("Unparseable date: \"someStartDate\"");
@@ -207,8 +207,8 @@ public class AwsBillingServiceTest {
 	private Document getBasicDocument() {
 		return new Document().append("service_base_name", "someSBN").append("user", "someUser")
 				.append("dlab_id", "someId").append("dlab_resource_type", "someResType")
-				.append("tag_resource_id", "someTagResourceId").append("usage_date_start", "2018-03-21")
-				.append("usage_date_end", "2018-03-22").append("full_report", false)
+				.append("tag_resource_id", "someTagResourceId").append("from", "2018-03-21")
+				.append("to", "2018-03-22").append("full_report", false)
 				.append("shape", "someShape").append("product", "someProduct").append("cost", "someCost")
 				.append("cost_total", "someCostTotal").append("currency_code", "someCode")
 				.append("lines", Collections.singletonList(new Document()));

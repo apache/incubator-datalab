@@ -19,32 +19,25 @@
 
 package com.epam.dlab.backendapi.resources.dto.aws;
 
-import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Stores info about billing report filter.
  */
 @Data
-public class AwsBillingFilter {
-	@JsonProperty
-	private List<String> user;
-	@JsonProperty("dlab_id")
-	private String dlabId;
+public class AwsBillingFilter extends BillingFilter {
 	@JsonProperty
 	private List<String> product;
-	@JsonProperty("resource_type")
-	private List<String> resourceType;
 	@JsonProperty
 	private List<String> shape;
-	@JsonProperty("date_start")
-	private String dateStart;
-	@JsonProperty("date_end")
-	private String dateEnd;
-	@JsonProperty("status")
-	private List<UserInstanceStatus> statuses = Collections.emptyList();
+
+
+	@Override
+	public List<String> getShapes() {
+		return shape;
+	}
 }

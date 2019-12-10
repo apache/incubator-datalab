@@ -36,7 +36,7 @@ def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_us
         cluster = meta_lib.GCPMeta().get_list_cluster_statuses([dataproc_name])
         if cluster[0]['status'] == 'running':
             computational_name = meta_lib.GCPMeta().get_cluster(dataproc_name).get('labels').get('computational_name')
-            actions_lib.GCPActions().bucket_cleanup(bucket_name, os.environ['edge_user_name'], dataproc_name)
+            actions_lib.GCPActions().bucket_cleanup(bucket_name, os.environ['project_name'], dataproc_name)
             print('The bucket {} has been cleaned successfully'.format(bucket_name))
             actions_lib.GCPActions().delete_dataproc_cluster(dataproc_name, os.environ['gcp_region'])
             print('The Dataproc cluster {} has been terminated successfully'.format(dataproc_name))
@@ -50,7 +50,7 @@ def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_us
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -62,12 +62,16 @@ if __name__ == "__main__":
     dataproc_conf = dict()
     dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
     dataproc_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    dataproc_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     dataproc_conf['dataproc_name'] = os.environ['dataproc_cluster_name']
     dataproc_conf['gcp_project_id'] = os.environ['gcp_project_id']
     dataproc_conf['gcp_region'] = os.environ['gcp_region']
     dataproc_conf['gcp_zone'] = os.environ['gcp_zone']
     dataproc_conf['notebook_name'] = os.environ['notebook_instance_name']
-    dataproc_conf['bucket_name'] = '{}-{}-bucket'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
+    dataproc_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(dataproc_conf['service_base_name'],
+                                                               dataproc_conf['project_name'],
+                                                               dataproc_conf['endpoint_name'])
     dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
     try:

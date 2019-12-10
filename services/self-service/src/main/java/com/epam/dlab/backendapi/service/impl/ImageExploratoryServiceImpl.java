@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
@@ -53,32 +54,31 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
-	private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist";
+	private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist in project %s";
 	private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
+
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
-
 	@Inject
 	private ImageExploratoryDao imageExploratoryDao;
-
 	@Inject
 	private ExploratoryLibDAO libDAO;
-
 	@Inject
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
-
 	@Inject
 	private RequestBuilder requestBuilder;
+	@Inject
+	private EndpointService endpointService;
 
 	@Override
 	public String createImage(UserInfo user, String exploratoryName, String imageName, String imageDescription) {
 
 		UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), exploratoryName);
 
-		if (imageExploratoryDao.exist(user.getName(), imageName)) {
-			log.error(String.format(IMAGE_EXISTS_MSG, imageName));
-			throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName));
+		if (imageExploratoryDao.exist(imageName, userInstance.getProject())) {
+			log.error(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
+			throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
 		}
 		final List<Library> libraries = libDAO.getLibraries(user.getName(), exploratoryName);
 
@@ -90,14 +90,17 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 				.libraries(fetchExploratoryLibs(libraries))
 				.computationalLibraries(fetchComputationalLibs(libraries))
 				.dockerImage(userInstance.getImageName())
-				.exploratoryId(userInstance.getId()).build());
+				.exploratoryId(userInstance.getId())
+				.project(userInstance.getProject())
+				.endpoint(userInstance.getEndpoint())
+				.build());
 
 		exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
 				.withUser(user.getName())
 				.withExploratoryName(exploratoryName)
 				.withStatus(UserInstanceStatus.CREATING_IMAGE));
 
-		return provisioningService.post(ExploratoryAPI.EXPLORATORY_IMAGE, user.getAccessToken(),
+		return provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ExploratoryAPI.EXPLORATORY_IMAGE, user.getAccessToken(),
 				requestBuilder.newExploratoryImageCreate(user, userInstance, imageName), String.class);
 	}
 
@@ -119,14 +122,19 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	}
 
 	@Override
-	public List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage) {
-		return imageExploratoryDao.getImages(user, dockerImage, ImageStatus.CREATED, ImageStatus.CREATING);
+	public List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project, String endpoint) {
+		return imageExploratoryDao.getImages(user, dockerImage, project, endpoint, ImageStatus.CREATED, ImageStatus.CREATING);
 	}
 
 	@Override
 	public ImageInfoRecord getImage(String user, String name) {
 		return imageExploratoryDao.getImage(user, name).orElseThrow(() ->
 				new ResourceNotFoundException(String.format(IMAGE_NOT_FOUND_MSG, name, user)));
+	}
+
+	@Override
+	public List<ImageInfoRecord> getImagesForProject(String project) {
+		return imageExploratoryDao.getImagesForProject(project);
 	}
 
 	private Map<String, List<Library>> fetchComputationalLibs(List<Library> libraries) {

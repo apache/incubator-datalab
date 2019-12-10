@@ -17,12 +17,12 @@
  * under the License.
  */
 
-import { Component, ViewChild, OnInit, ViewContainerRef, Output, EventEmitter } from '@angular/core';
-import { DateUtils } from '../../../core/util';
+import { Component, ViewChild, OnInit, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { ToastsManager } from 'ng2-toastr';
+import { ToastrService } from 'ngx-toastr';
 
-import { CheckUtils } from '../../../core/util';
+import { DateUtils, CheckUtils } from '../../../core/util';
 import { DataengineConfigurationService } from '../../../core/services';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../computational-resource-create-dialog/cluster-configuration-templates';
@@ -38,8 +38,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   resource: any;
   environment: any;
-  @ViewChild('bindDialog') bindDialog;
-  @ViewChild('configurationNode') configuration;
+  @ViewChild('configurationNode', { static: false }) configuration;
 
   upTimeInHours: number;
   upTimeSince: string = '';
@@ -47,22 +46,19 @@ export class DetailComputationalResourcesComponent implements OnInit {
   config: Array<{}> = [];
   public configurationForm: FormGroup;
 
-  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
-
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public toastr: ToastrService,
+    public dialogRef: MatDialogRef<DetailComputationalResourcesComponent>,
     private dataengineConfigurationService: DataengineConfigurationService,
-    private _fb: FormBuilder,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
-  ) {
-    this.toastr.setRootViewContainerRef(vcr);
-  }
+    private _fb: FormBuilder
+  ) { }
 
   ngOnInit() {
-    this.bindDialog.onClosing = () => this.resetDialog();
+    this.open(this.data.environment, this.data.resource)
   }
 
-  public open(param, environment, resource): void {
+  public open(environment, resource): void {
     this.tooltip = false;
     this.resource = resource;
     this.environment = environment;
@@ -72,7 +68,6 @@ export class DetailComputationalResourcesComponent implements OnInit {
     this.initFormModel();
 
     if (this.resource.image === 'docker.dlab-dataengine') this.getClusterConfiguration();
-    this.bindDialog.open(param);
   }
 
   public isEllipsisActive($event): void {
@@ -94,23 +89,16 @@ export class DetailComputationalResourcesComponent implements OnInit {
     this.dataengineConfigurationService
       .getClusterConfiguration(this.environment.name, this.resource.computational_name)
       .subscribe((result: any) => this.config = result,
-      error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!', { toastLife: 5000 }));
+        error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!'));
   }
 
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
       .editClusterConfiguration(data.configuration_parameters, this.environment.name, this.resource.computational_name)
       .subscribe(result => {
-        this.bindDialog.close();
-        this.buildGrid.emit();
+        this.dialogRef.close();
       },
-      error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!', { toastLife: 5000 }));
-  }
-
-  public resetDialog() {
-    this.initFormModel();
-
-    if (this.configuration) this.configuration.nativeElement['checked'] = false;
+        error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
   }
 
   private initFormModel(): void {

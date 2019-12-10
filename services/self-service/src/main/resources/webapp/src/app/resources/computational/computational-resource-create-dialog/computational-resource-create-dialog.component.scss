@@ -32,10 +32,11 @@
       }
     }
     span {
-      &.danger_color {
+      &.error {
         position: absolute;
         padding-left: 5px;
         right: 0;
+        top: 36px;
       }
     }
     .alias-name {
@@ -72,7 +73,7 @@
       opacity: 1;
     }
   }
-  .preemptible-details {
+  .preemptible {
     .label {
       padding-left: 10px;
     }
@@ -80,7 +81,15 @@
       position: relative;
     }
   }
-  .spot-details {
+  .align {
+    margin-left: 25px;
+  }
+  .spot-details, .preemptible-details {
+    position: relative;
+    .error {
+      bottom: -5px;
+    }
+
     &.show {
       height: 50px;
       text-align: right;
@@ -109,7 +118,7 @@
     cursor: pointer;
   }
   span {
-    &.danger_color {
+    &.error {
       position: absolute;
       bottom: -20px;
       left: 0;
@@ -126,7 +135,7 @@
       padding-bottom: 10px;
     }
     span {
-      &.danger_color {
+      &.error {
         position: absolute;
         bottom: -15px;
         right: 0;

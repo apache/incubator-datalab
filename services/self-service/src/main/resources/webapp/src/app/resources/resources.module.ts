@@ -24,25 +24,17 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../shared/material.module';
 import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
-import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/exploratory-environment-create-dialog';
+import { ExploratoryEnvironmentCreateModule } from './exploratory/create-environment';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
-import {
-  ModalModule,
-  ProgressDialogModule,
-  UploadKeyDialogModule
-} from '../shared';
 
 @NgModule({
   imports: [
     CommonModule,
-    ModalModule,
     FormsModule,
     ReactiveFormsModule,
     ResourcesGridModule,
-    ProgressDialogModule,
-    UploadKeyDialogModule,
-    ExploratoryEnvironmentCreateDialogModule,
+    ExploratoryEnvironmentCreateModule,
     MaterialModule
   ],
   declarations: [
@@ -50,7 +42,7 @@ import {
     ManageUngitComponent,
     ConfirmDeleteAccountDialog
   ],
-  entryComponents: [ConfirmDeleteAccountDialog],
+  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog],
   exports: [ResourcesComponent]
 })
-export class ResourcesModule {}
+export class ResourcesModule { }

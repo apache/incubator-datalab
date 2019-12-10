@@ -21,8 +21,8 @@ export const NAMING_CONVENTION = {
     'cloud_provider': 'aws',
     'use_ldap': true,
     'notebook_instance_size': 'Instance shape',
-    'personal_storage': 'Data bucket',
-    'collaboration_storage': 'Collaboration bucket',
+    'personal_storage': 'Shared bucket',
+    'collaboration_storage': 'Shared project bucket',
     'account': '',
     'container': '',
     'data_engine': 'Deploy Spark Server / Deploy EMR',
@@ -33,13 +33,15 @@ export const NAMING_CONVENTION = {
     'slave_node_shape': 'slave_node_shape',
     'total_instance_number': 'total_instance_number',
     'spot_instance': 'Spot instance',
+    'cluster_version': 'emr_version',
+    'max_cluster_name_length': 64,
     'billing': {
         'resourceName': 'resource_name',
         'cost': 'cost',
         'costTotal': 'cost_total',
         'currencyCode': 'currency_code',
-        'dateFrom': 'usage_date_start',
-        'dateTo': 'usage_date_end',
+        'dateFrom': 'from',
+        'dateTo': 'to',
         'service': 'product',
         'service_filter_key': 'product',
         'type': 'resource_type',
@@ -77,13 +79,14 @@ export const NAMING_CONVENTION = {
         'instance_number': 'Total node number',
         'master_node_shape': 'dataengine_instance_shape',
         'total_instance_number': 'dataengine_instance_count',
-    }
+    },
+    'max_project_name_length': 40
 };
 
 export class ReportingConfigModel {
 
     static getDefault(): ReportingConfigModel {
-        return new ReportingConfigModel([], [], [], [], [], '', '', '');
+        return new ReportingConfigModel([], [], [], [], [], '', '', '', []);
     }
 
     constructor(
@@ -94,7 +97,8 @@ export class ReportingConfigModel {
         public shape: Array<string>,
         public date_start: string,
         public date_end: string,
-        public dlab_id: string
+        public dlab_id: string,
+        public project?: Array<string>
     ) { }
 
     defaultConfigurations(): void {
@@ -106,5 +110,6 @@ export class ReportingConfigModel {
         this.date_start = '';
         this.date_end = '';
         this.dlab_id = '';
+        this.project = [];
     }
 }

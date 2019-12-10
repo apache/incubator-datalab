@@ -40,6 +40,7 @@ under the License.
               <string>rstudio</string>
               <string>zeppelin</string>
               <string>tensor</string>
+              <string>tensor-rstudio</string>
               <string>deeplearning</string>
             </a>
           </choices>
@@ -63,7 +64,6 @@ under the License.
           </description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>n1-standard-1</string>
               <string>n1-standard-2</string>
             </a>
           </choices>

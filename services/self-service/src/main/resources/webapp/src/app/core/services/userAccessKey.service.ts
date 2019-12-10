@@ -18,15 +18,16 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
-import { ApplicationServiceFacade } from '.';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
 
 @Injectable()
 export class UserAccessKeyService {
   _accessKeyEmitter: BehaviorSubject<any> = new BehaviorSubject<boolean>(null);
+  _keyUploadProccessEmitter: BehaviorSubject<any> = new BehaviorSubject<boolean>(null);
 
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
@@ -34,57 +35,67 @@ export class UserAccessKeyService {
     return this._accessKeyEmitter.asObservable();
   }
 
+  get keyUploadProccessEmitter() {
+    return this._keyUploadProccessEmitter.asObservable();
+  }
+
   public initialUserAccessKeyCheck() {
     this.checkUserAccessKey().subscribe(
       response => {
-      this._accessKeyEmitter.next(response);
-    }, error => {
-      this._accessKeyEmitter.next(error);
-    });
+        this._accessKeyEmitter.next(response);
+      }, error => {
+        this._accessKeyEmitter.next(error);
+      });
   }
 
   public checkUserAccessKey(): Observable<{}> {
     console.log('checkUserAccessKey');
     return this.applicationServiceFacade
       .buildCheckUserAccessKeyRequest()
-      .map(response => {
-        return response;
-      })
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => {
+          return response;
+        }),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public emitActionOnKeyUploadComplete() {
     console.log('key uploaded!!!!!!!!!!!!!');
+    this._keyUploadProccessEmitter.next(true);
   }
 
   public generateAccessKey(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGenerateAccessKey()
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public regenerateAccessKey(): Observable<{}> {
     const param = '?is_primary_uploading=false';
     return this.applicationServiceFacade
       .buildRegenerateAccessKey(param)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public uploadUserAccessKey(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildUploadUserAccessKeyRequest(data)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public reuploadUserAccessKey(data): Observable<{}> {
     const param = '?is_primary_uploading=false';
     return this.applicationServiceFacade
       .buildReuploadUserAccessKeyRequest(data, param)
-      .map(response => response)
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public resetUserAccessKey() {

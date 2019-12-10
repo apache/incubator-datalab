@@ -495,7 +495,7 @@ class AzureActions:
 
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
-                        image_full_name, tags, user_name='', create_option='fromImage', disk_id='',
+                        image_full_name, tags, project_name='', create_option='fromImage', disk_id='',
                         instance_storage_account_type='Premium_LRS', image_type='default'):
         if image_type == 'pre-configured':
             image_id = meta_lib.AzureMeta().get_image(resource_group_name, image_full_name).id
@@ -568,7 +568,7 @@ class AzureActions:
                             },
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
+                                'name': '{}-{}-edge-disk0'.format(service_base_name, project_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'tags': tags,
@@ -608,7 +608,7 @@ class AzureActions:
                         'storage_profile': {
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
+                                'name': '{}-{}-edge-disk0'.format(service_base_name, project_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'tags': tags,
@@ -1082,9 +1082,10 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
             except:
                 spark_jars_paths = None
-        user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
-            replace('_', '-') + '-storage'
-        shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
+        user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['project_name'].lower().replace('_', '-')).\
+            replace('_', '-') + '-' + os.environ['endpoint_name'].lower().replace('_', '-') + '-storage'
+        shared_storage_account_tag = '{0}-{1}-shared-storage'.format(os.environ['conf_service_base_name'],
+                                                                     os.environ['endpoint_name'])
         for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if user_storage_account_tag == storage_account.tags["Name"]:
                 user_storage_account_name = storage_account.name
@@ -1123,21 +1124,23 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
         if 'spark_configurations' in os.environ:
+            dlab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])
             new_spark_defaults = list()
             spark_defaults = sudo('cat /opt/spark/conf/spark-defaults.conf')
             current_spark_properties = spark_defaults.split('\n')
             for param in current_spark_properties:
-                for config in spark_configurations:
-                    if config['Classification'] == 'spark-defaults':
-                        for property in config['Properties']:
-                            if property == param.split(' ')[0]:
-                                param = property + ' ' + config['Properties'][property]
-                            else:
-                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
-                new_spark_defaults.append(param)
+                if param.split(' ')[0] != '#':
+                    for config in spark_configurations:
+                        if config['Classification'] == 'spark-defaults':
+                            for property in config['Properties']:
+                                if property == param.split(' ')[0]:
+                                    param = property + ' ' + config['Properties'][property]
+                                else:
+                                    new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                    new_spark_defaults.append(param)
             new_spark_defaults = set(new_spark_defaults)
-            sudo('echo "" > /opt/spark/conf/spark-defaults.conf')
+            sudo("echo '{}' > /opt/spark/conf/spark-defaults.conf".format(dlab_header))
             for prop in new_spark_defaults:
                 prop = prop.rstrip()
                 sudo('echo "{}" >> /opt/spark/conf/spark-defaults.conf'.format(prop))
@@ -1150,13 +1153,13 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
 
 
 def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_enabled, spark_configs=''):
-    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars   $jar_list\" >> \
+    local("jar_list=`find {0} -name '*.jar' | tr '\\n' ',' | sed 's/,$//'` ; echo \"spark.jars $jar_list\" >> \
           /tmp/{1}/notebook_spark-defaults_local.conf".format(jars_dir, cluster_name))
     if os.path.exists('{0}spark/conf/spark-defaults.conf'.format(cluster_dir)):
         additional_spark_properties = local('diff --changed-group-format="%>" --unchanged-group-format="" '
                                             '/tmp/{0}/notebook_spark-defaults_local.conf '
                                             '{1}spark/conf/spark-defaults.conf | grep -v "^#"'.format(
-            cluster_name, cluster_dir), capture=True)
+                                             cluster_name, cluster_dir), capture=True)
         for property in additional_spark_properties.split('\n'):
             local('echo "{0}" >> /tmp/{1}/notebook_spark-defaults_local.conf'.format(property, cluster_name))
     local('cp -f /tmp/{0}/notebook_spark-defaults_local.conf  {1}spark/conf/spark-defaults.conf'.format(cluster_name,
@@ -1166,21 +1169,24 @@ def configure_dataengine_spark(cluster_name, jars_dir, cluster_dir, datalake_ena
     else:
         local('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir))
     if spark_configs:
+        dlab_header = local('cat /tmp/{0}/notebook_spark-defaults_local.conf | grep "^#"'.format(cluster_name),
+                            capture=True)
         spark_configurations = ast.literal_eval(spark_configs)
         new_spark_defaults = list()
         spark_defaults = local('cat {0}spark/conf/spark-defaults.conf'.format(cluster_dir), capture=True)
         current_spark_properties = spark_defaults.split('\n')
         for param in current_spark_properties:
-            for config in spark_configurations:
-                if config['Classification'] == 'spark-defaults':
-                    for property in config['Properties']:
-                        if property == param.split(' ')[0]:
-                            param = property + ' ' + config['Properties'][property]
-                        else:
-                            new_spark_defaults.append(property + ' ' + config['Properties'][property])
-            new_spark_defaults.append(param)
+            if param.split(' ')[0] != '#':
+                for config in spark_configurations:
+                    if config['Classification'] == 'spark-defaults':
+                        for property in config['Properties']:
+                            if property == param.split(' ')[0]:
+                                param = property + ' ' + config['Properties'][property]
+                            else:
+                                new_spark_defaults.append(property + ' ' + config['Properties'][property])
+                new_spark_defaults.append(param)
         new_spark_defaults = set(new_spark_defaults)
-        local('echo "" > {0}/spark/conf/spark-defaults.conf'.format(cluster_dir))
+        local("echo '{0}' > {1}/spark/conf/spark-defaults.conf".format(dlab_header, cluster_dir))
         for prop in new_spark_defaults:
             prop = prop.rstrip()
             local('echo "{0}" >> {1}/spark/conf/spark-defaults.conf'.format(prop, cluster_dir))

@@ -31,18 +31,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
+import static com.epam.dlab.backendapi.dao.ComputationalDAO.PROJECT;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.IMAGE;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
+import static com.epam.dlab.dto.base.DataEngineType.fromDockerImageName;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static java.util.stream.Collectors.toList;
@@ -55,9 +54,12 @@ import static java.util.stream.Collectors.toList;
 public class SchedulerJobDAO extends BaseDAO {
 
 	static final String SCHEDULER_DATA = "scheduler_data";
+	private static final String CONSIDER_INACTIVITY_FLAG = SCHEDULER_DATA + ".consider_inactivity";
 	public static final String TIMEZONE_PREFIX = "UTC";
+	private static final String LAST_ACTIVITY = "last_activity";
 	private static final String CHECK_INACTIVITY_REQUIRED = "check_inactivity_required";
 	private static final String CHECK_INACTIVITY_FLAG = SCHEDULER_DATA + "." + CHECK_INACTIVITY_REQUIRED;
+
 
 	public SchedulerJobDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -124,6 +126,25 @@ public class SchedulerJobDAO extends BaseDAO {
 				.collect(toList());
 	}
 
+	public List<SchedulerJobData> getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(UserInstanceStatus status,
+																								  Date lastActivity) {
+		return stream(find(USER_INSTANCES,
+				and(
+						eq(STATUS, status.toString()),
+						schedulerNotNullCondition(),
+						or(and(eq(CONSIDER_INACTIVITY_FLAG, true),
+								or(eq(COMPUTATIONAL_RESOURCES, Collections.emptyList()),
+										and(ne(COMPUTATIONAL_RESOURCES, Collections.emptyList()),
+												Filters.elemMatch(COMPUTATIONAL_RESOURCES,
+														lte(LAST_ACTIVITY, lastActivity))))),
+								eq(CONSIDER_INACTIVITY_FLAG, false)
+						)
+				),
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA))))
+				.map(d -> convertFromDocument(d, SchedulerJobData.class))
+				.collect(toList());
+	}
+
 	public List<SchedulerJobData> getExploratorySchedulerDataWithOneOfStatus(UserInstanceStatus... statuses) {
 		FindIterable<Document> userInstances = userInstancesWithScheduler(in(STATUS,
 				Arrays.stream(statuses).map(UserInstanceStatus::toString).collect(toList())));
@@ -135,16 +156,27 @@ public class SchedulerJobDAO extends BaseDAO {
 	public List<SchedulerJobData> getComputationalSchedulerDataWithOneOfStatus(UserInstanceStatus exploratoryStatus,
 																			   DataEngineType dataEngineType,
 																			   UserInstanceStatus... statuses) {
-		final Bson computationalSchedulerCondition = Filters.elemMatch(COMPUTATIONAL_RESOURCES,
-				and(schedulerNotNullCondition(), eq(CHECK_INACTIVITY_FLAG, false)));
-		FindIterable<Document> userInstances = find(USER_INSTANCES,
-				and(eq(STATUS, exploratoryStatus.toString()), computationalSchedulerCondition),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES + ".$")));
-
-		return stream(userInstances)
+		return stream(computationalResourcesWithScheduler(exploratoryStatus))
 				.map(doc -> computationalSchedulerDataStream(doc, dataEngineType, statuses))
 				.flatMap(Function.identity())
 				.collect(toList());
+	}
+
+	public List<SchedulerJobData> getComputationalSchedulerDataWithOneOfStatus(UserInstanceStatus exploratoryStatus,
+																			   UserInstanceStatus... statuses) {
+		return stream(computationalResourcesWithScheduler(exploratoryStatus))
+				.map(doc -> computationalSchedulerData(doc, statuses).map(compResource -> toSchedulerData(doc,
+						compResource)))
+				.flatMap(Function.identity())
+				.collect(toList());
+	}
+
+	private FindIterable<Document> computationalResourcesWithScheduler(UserInstanceStatus exploratoryStatus) {
+		final Bson computationalSchedulerCondition = Filters.elemMatch(COMPUTATIONAL_RESOURCES,
+				and(schedulerNotNullCondition()));
+		return find(USER_INSTANCES,
+				and(eq(STATUS, exploratoryStatus.toString()), computationalSchedulerCondition),
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
 	}
 
 	public void removeScheduler(String user, String exploratory) {
@@ -164,13 +196,13 @@ public class SchedulerJobDAO extends BaseDAO {
 						statusCondition,
 						schedulerNotNullCondition(), eq(CHECK_INACTIVITY_FLAG, false)
 				),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
+				fields(excludeId(), include(USER, EXPLORATORY_NAME, PROJECT, SCHEDULER_DATA)));
 	}
 
 	private Stream<SchedulerJobData> computationalSchedulerDataStream(Document doc, DataEngineType computationalType,
 																	  UserInstanceStatus... computationalStatuses) {
-		return computationalSchedulerData(doc, computationalType, computationalStatuses)
-				.stream()
+		return computationalSchedulerData(doc, computationalStatuses)
+				.filter(compResource -> fromDockerImageName(compResource.getString(IMAGE)) == computationalType)
 				.map(compResource -> toSchedulerData(doc, compResource));
 	}
 
@@ -178,23 +210,21 @@ public class SchedulerJobDAO extends BaseDAO {
 		final String user = userInstanceDocument.getString(USER);
 		final String exploratoryName = userInstanceDocument.getString(EXPLORATORY_NAME);
 		final String computationalName = compResource.getString(COMPUTATIONAL_NAME);
+		final String project = compResource.getString(PROJECT);
 		final SchedulerJobDTO schedulerData = convertFromDocument((Document) compResource.get(SCHEDULER_DATA),
 				SchedulerJobDTO.class);
-		return new SchedulerJobData(user, exploratoryName, computationalName, schedulerData);
+		return new SchedulerJobData(user, exploratoryName, computationalName, project, schedulerData);
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Document> computationalSchedulerData(Document doc, DataEngineType computationalType,
-													  UserInstanceStatus... computationalStatuses) {
+	private Stream<Document> computationalSchedulerData(Document doc, UserInstanceStatus... computationalStatuses) {
 		final Set<String> statusSet = Arrays.stream(computationalStatuses)
 				.map(UserInstanceStatus::toString)
 				.collect(Collectors.toSet());
 		return ((List<Document>) doc.get(COMPUTATIONAL_RESOURCES))
 				.stream()
-				.filter(compResource ->
-						DataEngineType.fromDockerImageName(compResource.getString(IMAGE)) ==
-								computationalType && statusSet.contains(compResource.getString(STATUS)))
-				.collect(toList());
+				.filter(compResource -> Objects.nonNull(compResource.get(SCHEDULER_DATA)) &&
+						statusSet.contains(compResource.getString(STATUS)));
 	}
 }
 

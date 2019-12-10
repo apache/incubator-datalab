@@ -18,13 +18,11 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
-import { ApplicationServiceFacade } from '.';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
-
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
 
 @Injectable()
 export class ManageUngitService {
@@ -33,14 +31,16 @@ export class ManageUngitService {
   public getGitCreds(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetGitCreds()
-      .map(response => response.json())
-      .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 
   public updateGitCredentials(data): Observable<{}> {
     return this.applicationServiceFacade
       .buildUpdateGitCredentials(data)
-      .map(response => response)
-     .catch(ErrorUtils.handleServiceError);
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 }

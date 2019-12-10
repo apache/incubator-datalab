@@ -44,58 +44,58 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class LibraryCallback {
 
-    @Inject
-    private ExploratoryLibDAO libraryDAO;
+	@Inject
+	private ExploratoryLibDAO libraryDAO;
 	@Inject
 	private RequestId requestId;
 
-    /**
-     * Changes the status of installed libraries for exploratory environment.
-     *
-     * @param dto description of status.
-     * @return 200 OK - if request success.
-     */
-    @POST
-    @Path("/lib_status")
-    public Response libInstallStatus(@Auth UserInfo userInfo, LibInstallStatusDTO dto) {
-        log.debug("Updating status of libraries for exploratory environment {} for user {} to {}",
-                dto.getExploratoryName(), dto.getUser(), dto);
+	/**
+	 * Changes the status of installed libraries for exploratory environment.
+	 *
+	 * @param dto description of status.
+	 * @return 200 OK - if request success.
+	 */
+	@POST
+	@Path("/lib_status")
+	public Response libInstallStatus(LibInstallStatusDTO dto) {
+		log.debug("Updating status of libraries for exploratory environment {} for user {} to {}",
+				dto.getExploratoryName(), dto.getUser(), dto);
 		requestId.checkAndRemove(dto.getRequestId());
-        try {
-            libraryDAO.updateLibraryFields(dto);
-        } catch (DlabException e) {
-            log.error("Cannot update status of libraries for exploratory environment {} for user {} to {}",
-                    dto.getExploratoryName(), dto.getUser(), dto, e);
-            throw new DlabException("Cannot update status of libaries for exploratory environment " + dto.getExploratoryName() +
-                    " for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
-        }
+		try {
+			libraryDAO.updateLibraryFields(dto);
+		} catch (DlabException e) {
+			log.error("Cannot update status of libraries for exploratory environment {} for user {} to {}",
+					dto.getExploratoryName(), dto.getUser(), dto, e);
+			throw new DlabException("Cannot update status of libaries for exploratory environment " + dto.getExploratoryName() +
+					" for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
+		}
 
-        return Response.ok().build();
-    }
+		return Response.ok().build();
+	}
 
 
-    /**
-     * Updates the list of libraries.
-     *
-     * @param dto DTO the list of libraries.
-     * @return Always return code 200 (OK).
-     */
-    @POST
-    @Path("/update_lib_list")
-    public Response updateLibList(@Auth UserInfo userInfo, LibListStatusDTO dto) {
-        log.debug("Updating the list of libraries for image {}", dto.getImageName());
+	/**
+	 * Updates the list of libraries.
+	 *
+	 * @param dto DTO the list of libraries.
+	 * @return Always return code 200 (OK).
+	 */
+	@POST
+	@Path("/update_lib_list")
+	public Response updateLibList(LibListStatusDTO dto) {
+		log.debug("Updating the list of libraries for image {}", dto.getImageName());
 		requestId.checkAndRemove(dto.getRequestId());
-        try {
-            if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
-                log.warn("Request for the list of libraries fails: {}", dto.getErrorMessage());
-                ExploratoryLibCache.getCache().removeLibList(dto.getImageName());
-            } else {
-                ExploratoryLibCache.getCache().updateLibList(dto.getImageName(), dto.getLibs());
-            }
-        } catch (Exception e) {
-            log.warn("Cannot update the list of libs: {}", e.getLocalizedMessage(), e);
-        }
-        // Always necessary send OK for status request
-        return Response.ok().build();
-    }
+		try {
+			if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
+				log.warn("Request for the list of libraries fails: {}", dto.getErrorMessage());
+				ExploratoryLibCache.getCache().removeLibList(dto.getImageName());
+			} else {
+				ExploratoryLibCache.getCache().updateLibList(dto.getImageName(), dto.getLibs());
+			}
+		} catch (Exception e) {
+			log.warn("Cannot update the list of libs: {}", e.getLocalizedMessage(), e);
+		}
+		// Always necessary send OK for status request
+		return Response.ok().build();
+	}
 }

@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.StatusBaseDTO;
@@ -51,8 +50,6 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
 
 	@JsonIgnore
 	private final RESTService selfService;
-	@JsonIgnore
-	private final SystemUserInfoService systemUserInfoService;
 	@JsonProperty
 	private final String user;
 	@JsonProperty
@@ -63,9 +60,8 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
 	private final Class<T> resultType;
 
 	@SuppressWarnings("unchecked")
-	public ResourceCallbackHandler(SystemUserInfoService systemUserInfoService, RESTService selfService, String user,
+	public ResourceCallbackHandler(RESTService selfService, String user,
 								   String uuid, DockerAction action) {
-		this.systemUserInfoService = systemUserInfoService;
 		this.selfService = selfService;
 		this.user = user;
 		this.uuid = uuid;
@@ -74,11 +70,10 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
 				(Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 	}
 
-	public ResourceCallbackHandler(SystemUserInfoService systemUserInfoService, RESTService selfService, String user,
+	public ResourceCallbackHandler(RESTService selfService, String user,
 								   String uuid,
 								   DockerAction action,
 								   Class<T> resultType) {
-		this.systemUserInfoService = systemUserInfoService;
 		this.selfService = selfService;
 		this.user = user;
 		this.uuid = uuid;
@@ -109,8 +104,7 @@ public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
 		debugMessage("Send post request to self service {} for UUID {}, object is {}",
 				getCallbackURI(), uuid, object);
 		try {
-			selfService.post(getCallbackURI(), systemUserInfoService.create(user).getAccessToken(), object,
-					resultType);
+			selfService.post(getCallbackURI(), object, resultType);
 		} catch (Exception e) {
 			log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
 			throw new DlabException("Send request or responce error for UUID " + uuid + ": " + e.getLocalizedMessage()

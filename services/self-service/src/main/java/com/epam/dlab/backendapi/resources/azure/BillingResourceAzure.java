@@ -57,7 +57,7 @@ public class BillingResourceAzure {
     @Produces(MediaType.APPLICATION_JSON)
     @SuppressWarnings("unchecked")
     public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull AzureBillingFilter filter) {
-        return billingService.getReport(userInfo, filter);
+        return billingService.getBillingReport(userInfo, filter);
     }
 
     /**

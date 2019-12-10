@@ -38,11 +38,14 @@ parser.add_argument('--conf_user_subnets_range', type=str, default='', help='Ran
                                                                             '10.10.0.0/24 - 10.10.10.0/24')
 parser.add_argument('--conf_additional_tags', type=str, default='', help='Additional tags in format '
                                                                          '"Key1:Value1;Key2:Value2"')
+parser.add_argument('--conf_image_enabled', type=str, default='', help='Enable or Disable creating image at first time')
+parser.add_argument('--conf_shared_image_enabled', type=str, default='', help='Enable or Disable shared images')
 parser.add_argument('--aws_user_predefined_s3_policies', type=str, default='', help='Predefined policies for users '
                                                                                     'instances')
 parser.add_argument('--aws_access_key', type=str, default='', help='AWS Access Key ID')
 parser.add_argument('--aws_secret_access_key', type=str, default='', help='AWS Secret Access Key')
 parser.add_argument('--aws_region', type=str, default='', help='AWS region')
+parser.add_argument('--aws_zone', type=str, default='', help='AWS zone')
 parser.add_argument('--azure_region', type=str, default='', help='Azure region')
 parser.add_argument('--gcp_region', type=str, default='', help='GCP region')
 parser.add_argument('--gcp_zone', type=str, default='', help='GCP zone')
@@ -56,7 +59,7 @@ parser.add_argument('--ssn_subdomain', type=str, default='', help='Subdomain nam
 parser.add_argument('--ssn_assume_role_arn', type=str, default='', help='Role ARN for creating Route53 record in '
                                                                         'different AWS account')
 parser.add_argument('--ssl_cert_path', type=str, default='', help='Full path to SSL certificate')
-parser.add_argument('--ssl_key_path', type=str, default='', help='Full path to SSL certificate')
+parser.add_argument('--ssl_key_path', type=str, default='', help='Full path to key for SSL certificate')
 parser.add_argument('--aws_vpc_id', type=str, default='', help='AWS VPC ID')
 parser.add_argument('--conf_duo_vpc_enable', type=str, default='false', help='Duo VPC scheme enable(true|false)')
 parser.add_argument('--aws_vpc2_id', type=str, default='', help='Secondary AWS VPC ID')
@@ -76,6 +79,7 @@ parser.add_argument('--key_path', type=str, default='', help='Path to admin key 
 parser.add_argument('--conf_key_name', type=str, default='', help='Admin key name (WITHOUT ".pem")')
 parser.add_argument('--workspace_path', type=str, default='', help='Admin key name (WITHOUT ".pem")')
 parser.add_argument('--conf_tag_resource_id', type=str, default='dlab', help='The name of user tag')
+parser.add_argument('--conf_billing_tag', type=str, default='dlab', help='Billing tag')
 parser.add_argument('--aws_ssn_instance_size', type=str, default='t2.large', help='The SSN instance shape')
 parser.add_argument('--azure_ssn_instance_size', type=str, default='Standard_DS2_v2', help='The SSN instance shape')
 parser.add_argument('--gcp_ssn_instance_size', type=str, default='n1-standard-2', help='The SSN instance shape')
@@ -102,18 +106,18 @@ parser.add_argument('--azure_source_vpc_name', type=str, default='', help='Azure
 parser.add_argument('--azure_source_resource_group_name', type=str, default='', help='Azure source resource group')
 parser.add_argument('--gcp_project_id', type=str, default='', help='The project ID in Google Cloud Platform')
 parser.add_argument('--gcp_service_account_path', type=str, default='', help='The project ID in Google Cloud Platform')
-parser.add_argument('--dlab_id', type=str, default="'user:user:tag'", help='Column name in report file that contains '
+parser.add_argument('--dlab_id', type=str, default="'resource_tags_user_user_tag'", help='Column name in report file that contains '
                                                                            'dlab id tag')
-parser.add_argument('--usage_date', type=str, default='UsageStartDate', help='Column name in report file that contains '
+parser.add_argument('--usage_date', type=str, default='line_item_usage_start_date', help='Column name in report file that contains '
                                                                              'usage date tag')
-parser.add_argument('--product', type=str, default='ProductName', help='Column name in report file that contains '
+parser.add_argument('--product', type=str, default='product_product_name', help='Column name in report file that contains '
                                                                        'product name tag')
-parser.add_argument('--usage_type', type=str, default='UsageType', help='Column name in report file that contains '
+parser.add_argument('--usage_type', type=str, default='line_item_usage_type', help='Column name in report file that contains '
                                                                         'usage type tag')
-parser.add_argument('--usage', type=str, default='UsageQuantity', help='Column name in report file that contains '
+parser.add_argument('--usage', type=str, default='line_item_usage_amount', help='Column name in report file that contains '
                                                                        'usage tag')
-parser.add_argument('--cost', type=str, default='BlendedCost', help='Column name in report file that contains cost tag')
-parser.add_argument('--resource_id', type=str, default='ResourceId', help='Column name in report file that contains '
+parser.add_argument('--cost', type=str, default='line_item_blended_cost', help='Column name in report file that contains cost tag')
+parser.add_argument('--resource_id', type=str, default='line_item_resource_id', help='Column name in report file that contains '
                                                                           'dlab resource id tag')
 parser.add_argument('--ldap_hostname', type=str, default='localhost', help='Ldap instance hostname')
 parser.add_argument('--ldap_dn', type=str, default='dc=example,dc=com',
@@ -122,8 +126,16 @@ parser.add_argument('--ldap_ou', type=str, default='ou=People', help='Ldap organ
 parser.add_argument('--ldap_service_username', type=str, default='cn=service-user', help='Ldap service user name')
 parser.add_argument('--ldap_service_password', type=str, default='service-user-password',
                     help='Ldap password for admin user')
-parser.add_argument('--tags', type=str, default='Operation,ItemDescription', help='Column name in report file that '
+parser.add_argument('--keycloak_realm_name', type=str, default='dlab', help='Keycloak Realm name')
+parser.add_argument('--keycloak_auth_server_url', type=str, default='dlab', help='Keycloak auth server URL')
+parser.add_argument('--keycloak_client_name', type=str, default='dlab', help='Keycloak client name')
+parser.add_argument('--keycloak_client_secret', type=str, default='dlab', help='Keycloak client secret')
+parser.add_argument('--tags', type=str, default='line_item_operation,line_item_line_item_description', help='Column name in report file that '
                                                                                   'contains tags')
+parser.add_argument('--billing_dataset_name', type=str, default='', help='Name of GCP dataset (BigQuery service)'
+                                                                         ' for billing')
+parser.add_argument('--default_endpoint_name', type=str, default='local', help='Name of localhost provisioning service,'
+                                                                               'that created by default')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()

@@ -6,5 +6,6 @@
     "resourcemanager.projectIamAdmin",
     "iam.roleAdmin",
     "compute.instanceAdmin",
-    "bigquery.dataViewer"
+    "bigquery.dataViewer",
+    "bigquery.jobUser"
 ]

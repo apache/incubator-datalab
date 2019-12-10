@@ -17,9 +17,10 @@
  * under the License.
  */
 
+html, body { height: 100%; }
 body {
   font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   overflow-x: hidden;
   font-weight: 300;
 }
@@ -44,7 +45,7 @@ input[type='password']:not(.mat-input-element),
 textarea {
   width: 100%;
   height: 36px;
-  padding: 0 20px;
+  padding: 0 10px;
   color: #455c74;
   color: #6e7ca0;
   border: 1px solid transparent;
@@ -75,7 +76,7 @@ input[type='text']:not(.mat-input-element)::placeholder,
 input[type='number']:not(.mat-input-element)::placeholder,
 input[type='email']:not(.mat-input-element)::placeholder,
 input[type='password']:not(.mat-input-element)::placeholder,
-textarea::placeholder, {
+textarea::placeholder {
   color: #718ba6;
 }
 
@@ -83,6 +84,7 @@ textarea::placeholder, {
   display: flex;
   flex-flow: row wrap;
   padding-bottom: 20px;
+  position: relative;
 }
 .row-wrap {
   padding-bottom: 0;
@@ -99,6 +101,7 @@ textarea::placeholder, {
   font-weight: 600;
   align-self: center;
   text-align: left;
+  font-family: 'Open Sans', sans-serif;
 }
 .control-group .control {
   width: 65%;
@@ -137,4 +140,29 @@ button {
     margin-right: 0px;
     font-style: normal;
   }
+}
+
+.helper_instruction {
+  color: #35afd5;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all .45s ease-in-out;
+  &:hover {
+    color: #3392b0;
+  }
+  .material-icons {
+    font-size: 20px;
+    vertical-align: top;
+    padding-right: 5px;
+    overflow: hidden;
+  }
+}
+
+.icon-label {
+  display: inline-block;
+  width: 30px;
+  text-align: center;
+  vertical-align: middle;
+  color: #35afd5;
+  line-height: 26px;
 }

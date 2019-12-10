@@ -39,12 +39,16 @@ if __name__ == "__main__":
     try:
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
-        service_base_name = os.environ['conf_service_base_name']
+        service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-        user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-        shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
+        ssn_bucket_name_tag = service_base_name + '-ssn-bucket'
+        default_endpoint_name = os.environ['default_endpoint_name']
+        shared_bucket_name_tag = '{0}-{1}-shared-bucket'.format(service_base_name, default_endpoint_name)
+        ssn_bucket_name = ssn_bucket_name_tag.lower().replace('_', '-')
+        shared_bucket_name = shared_bucket_name_tag.lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         tag2_name = service_base_name + '-secondary-Tag'
         instance_name = service_base_name + '-ssn'
@@ -54,7 +58,7 @@ if __name__ == "__main__":
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
         vpc2_cidr = os.environ['conf_vpc2_cidr']
-        sg_name = instance_name + '-SG'
+        sg_name = instance_name + '-sg'
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_sg = False
@@ -160,6 +164,14 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -192,6 +204,14 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -229,6 +249,14 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -236,6 +264,7 @@ if __name__ == "__main__":
         print('[CONFIGURING DOCKER AT SSN INSTANCE]')
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
+                             {"name": "project", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
@@ -274,33 +303,191 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
-        mongo_parameters = {
-            "aws_region": os.environ['aws_region'],
-            "aws_vpc_id": os.environ['aws_vpc_id'],
-            "aws_subnet_id": os.environ['aws_subnet_id'],
-            "conf_service_base_name": os.environ['conf_service_base_name'],
-            "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
-            "conf_os_family": os.environ['conf_os_family'],
-            "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
-            "conf_key_dir": os.environ['conf_key_dir'],
-            "ssn_instance_size": os.environ['aws_ssn_instance_size'],
-            "edge_instance_size": os.environ['aws_edge_instance_size']
-        }
+        # mongo_parameters = {
+        #     "aws_region": os.environ['aws_region'],
+        #     "aws_vpc_id": os.environ['aws_vpc_id'],
+        #     "aws_subnet_id": os.environ['aws_subnet_id'],
+        #     "conf_service_base_name": service_base_name,
+        #     "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
+        #     "conf_os_family": os.environ['conf_os_family'],
+        #     "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
+        #     "conf_key_dir": os.environ['conf_key_dir'],
+        #     "ssn_instance_size": os.environ['aws_ssn_instance_size'],
+        #     "edge_instance_size": os.environ['aws_edge_instance_size']
+        # }
+        # if os.environ['conf_duo_vpc_enable'] == 'true':
+        #     secondary_parameters = {
+        #         "aws_notebook_vpc_id": os.environ['aws_vpc2_id'],
+        #         "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
+        #         "aws_peering_id": os.environ['aws_peering_id']
+        #     }
+        # else:
+        #     secondary_parameters = {
+        #         "aws_notebook_vpc_id": os.environ['aws_vpc_id'],
+        #         "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
+        #     }
+        # mongo_parameters.update(secondary_parameters)
+        cloud_params = [
+            {
+                'key': 'KEYCLOAK_REDIRECT_URI',
+                'value': "http://{0}/".format(get_instance_hostname(tag_name, instance_name))
+            },
+            {
+                'key': 'KEYCLOAK_REALM_NAME',
+                'value': os.environ['keycloak_realm_name']
+            },
+            {
+                'key': 'KEYCLOAK_AUTH_SERVER_URL',
+                'value': os.environ['keycloak_auth_server_url']
+            },
+            {
+                'key': 'KEYCLOAK_CLIENT_NAME',
+                'value': os.environ['keycloak_client_name']
+            },
+            {
+                'key': 'KEYCLOAK_CLIENT_SECRET',
+                'value': os.environ['keycloak_client_secret']
+            },
+            {
+                'key': 'CONF_OS',
+                'value': os.environ['conf_os_family']
+            },
+            {
+                'key': 'SERVICE_BASE_NAME',
+                'value': os.environ['conf_service_base_name']
+            },
+            {
+                'key': 'EDGE_INSTANCE_SIZE',
+                'value': os.environ['aws_edge_instance_size']
+            },
+            {
+                'key': 'SUBNET_ID',
+                'value': os.environ['aws_subnet_id']
+            },
+            {
+                'key': 'REGION',
+                'value': os.environ['aws_region']
+            },
+            {
+                'key': 'ZONE',
+                'value': os.environ['aws_zone']
+            },
+            {
+                'key': 'TAG_RESOURCE_ID',
+                'value': os.environ['conf_tag_resource_id']
+            },
+            {
+                'key': 'SG_IDS',
+                'value': os.environ['aws_security_groups_ids']
+            },
+            {
+                'key': 'SSN_INSTANCE_SIZE',
+                'value': os.environ['aws_ssn_instance_size']
+            },
+            {
+                'key': 'VPC_ID',
+                'value': os.environ['aws_vpc_id']
+            },
+            {
+                'key': 'CONF_KEY_DIR',
+                'value': os.environ['conf_key_dir']
+            },
+            {
+                'key': 'LDAP_HOST',
+                'value': os.environ['ldap_hostname']
+            },
+            {
+                'key': 'LDAP_DN',
+                'value': os.environ['ldap_dn']
+            },
+            {
+                'key': 'LDAP_OU',
+                'value': os.environ['ldap_ou']
+            },
+            {
+                'key': 'LDAP_USER_NAME',
+                'value': os.environ['ldap_service_username']
+            },
+            {
+                'key': 'LDAP_USER_PASSWORD',
+                'value': os.environ['ldap_service_password']
+            },
+            {
+                'key': 'AZURE_RESOURCE_GROUP_NAME',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_SSN_STORAGE_ACCOUNT_TAG',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_SHARED_STORAGE_ACCOUNT_TAG',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_DATALAKE_TAG',
+                'value': ''
+            },
+            {
+                'key': 'GCP_PROJECT_ID',
+                'value': ''
+            },
+            {
+                'key': 'AZURE_CLIENT_ID',
+                'value': ''
+            },
+            {
+                'key': 'CONF_IMAGE_ENABLED',
+                'value': os.environ['conf_image_enabled']
+            },
+            {
+                'key': 'SHARED_IMAGE_ENABLED',
+                'value': os.environ['conf_shared_image_enabled']
+            }
+        ]
         if os.environ['conf_duo_vpc_enable'] == 'true':
-            secondary_parameters = {
-                "aws_notebook_vpc_id": os.environ['aws_vpc2_id'],
-                "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
-                "aws_peering_id": os.environ['aws_peering_id']
-            }
+            cloud_params.append(
+                {
+                    'key': 'SUBNET2_ID',
+                    'value': os.environ['aws_subnet_id']
+                })
+            cloud_params.append(
+                {
+                    'key': 'VPC2_ID',
+                    'value': os.environ['aws_vpc2_id']
+                })
+            cloud_params.append(
+                {
+                    'key': 'PEERING_ID',
+                    'value': os.environ['aws_peering_id']
+                })
         else:
-            secondary_parameters = {
-                "aws_notebook_vpc_id": os.environ['aws_vpc_id'],
-                "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
-            }
-        mongo_parameters.update(secondary_parameters)
+            cloud_params.append(
+                {
+                    'key': 'SUBNET2_ID',
+                    'value': os.environ['aws_subnet_id']
+                })
+            cloud_params.append(
+                {
+                    'key': 'VPC2_ID',
+                    'value': os.environ['aws_vpc_id']
+                })
+            cloud_params.append(
+                {
+                    'key': 'PEERING_ID',
+                    'value': ''
+                })
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
         params = "--hostname {} " \
@@ -312,13 +499,14 @@ if __name__ == "__main__":
                  "--resource {} " \
                  "--service_base_name {} " \
                  "--tag_resource_id {} " \
+                 "--billing_tag {} " \
                  "--cloud_provider {} " \
                  "--account_id {} " \
                  "--billing_bucket {} " \
                  "--aws_job_enabled {} " \
                  "--report_path '{}' " \
                  "--billing_enabled {} " \
-                 "--mongo_parameters '{}' " \
+                 "--cloud_params '{}' " \
                  "--dlab_id '{}' " \
                  "--usage_date {} " \
                  "--product {} " \
@@ -326,6 +514,7 @@ if __name__ == "__main__":
                  "--usage {} " \
                  "--cost {} " \
                  "--resource_id {} " \
+                 "--default_endpoint_name {} " \
                  "--tags {}". \
             format(instance_hostname,
                    "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
@@ -334,15 +523,16 @@ if __name__ == "__main__":
                    os.environ['conf_os_family'],
                    os.environ['request_id'],
                    os.environ['conf_resource'],
-                   os.environ['conf_service_base_name'],
+                   service_base_name,
                    os.environ['conf_tag_resource_id'],
+                   os.environ['conf_billing_tag'],
                    os.environ['conf_cloud_provider'],
                    os.environ['aws_account_id'],
                    os.environ['aws_billing_bucket'],
                    os.environ['aws_job_enabled'],
                    os.environ['aws_report_path'],
                    billing_enabled,
-                   json.dumps(mongo_parameters),
+                   json.dumps(cloud_params),
                    os.environ['dlab_id'],
                    os.environ['usage_date'],
                    os.environ['product'],
@@ -350,6 +540,7 @@ if __name__ == "__main__":
                    os.environ['usage'],
                    os.environ['cost'],
                    os.environ['resource_id'],
+                   os.environ['default_endpoint_name'],
                    os.environ['tags'])
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
@@ -374,6 +565,14 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)
 
     try:
@@ -391,13 +590,15 @@ if __name__ == "__main__":
         print("Security IDs: {}".format(os.environ['aws_security_groups_ids']))
         print("SSN instance shape: {}".format(os.environ['aws_ssn_instance_size']))
         print("SSN AMI name: {}".format(ssn_image_name))
-        print("SSN bucket name: {}".format(user_bucket_name))
+        print("SSN bucket name: {}".format(ssn_bucket_name))
         print("Shared bucket name: {}".format(shared_bucket_name))
         print("Region: {}".format(region))
         jenkins_url = "http://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
         jenkins_url_https = "https://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
+        print("DLab UI HTTP URL: http://{}".format(get_instance_hostname(tag_name, instance_name)))
+        print("DLab UI HTTPS URL: https://{}".format(get_instance_hostname(tag_name, instance_name)))
         try:
             with open('jenkins_creds.txt') as f:
                 print(f.read())
@@ -416,7 +617,7 @@ if __name__ == "__main__":
                    "subnet_id": os.environ['aws_subnet_id'],
                    "security_id": os.environ['aws_security_groups_ids'],
                    "instance_shape": os.environ['aws_ssn_instance_size'],
-                   "bucket_name": user_bucket_name,
+                   "bucket_name": ssn_bucket_name,
                    "shared_bucket_name": shared_bucket_name,
                    "region": region,
                    "action": "Create SSN instance"}
@@ -449,4 +650,12 @@ if __name__ == "__main__":
             remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
+        if pre_defined_vpc2:
+            remove_peering('*')
+            try:
+                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            remove_route_tables(tag2_name, True)
+            remove_vpc(os.environ['aws_vpc2_id'])
         sys.exit(1)

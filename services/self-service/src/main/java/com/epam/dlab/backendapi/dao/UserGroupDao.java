@@ -29,4 +29,6 @@ public interface UserGroupDao {
 
 	void removeGroup(String groupId);
 
+	Set<String> getUserGroups(String user);
+
 }

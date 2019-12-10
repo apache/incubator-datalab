@@ -44,6 +44,7 @@ RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
 # Configuring log directories
 RUN mkdir -p /response; chmod a+rwx /response && \
     mkdir -p /logs/ssn; chmod a+rwx /logs/ssn && \
+    mkdir -p /logs/project; chmod a+rwx /logs/project && \
     mkdir -p /logs/edge; chmod a+rwx /logs/edge && \
     mkdir -p /logs/notebook; chmod a+rwx /logs/notebook && \
     mkdir -p /logs/dataengine; chmod a+rwx /logs/dataengine && \
@@ -69,6 +70,8 @@ COPY ${SRC_PATH}general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/commo
 COPY ${SRC_PATH}general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
 COPY ${SRC_PATH}general/files/os/${OS}/sources.list /root/files/
 COPY ${SRC_PATH}general/files/os/ivysettings.xml /root/templates/
+COPY ${SRC_PATH}general/files/os/local_endpoint.json /root/files/
+COPY ${SRC_PATH}project/templates/locations/ /root/locations/
 
 RUN chmod a+x /root/*.py && \
     chmod a+x /root/scripts/* && \

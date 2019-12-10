@@ -1,4 +1,5 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "sourceMap": true,
     "declaration": false,
@@ -10,13 +11,16 @@
       "dom"
     ],
     "outDir": "../out-tsc/app",
-    "target": "es5",
-    "module": "es2015",
     "baseUrl": "",
     "types": []
   },
+  "typeRoots": [
+    "node_modules/@types"
+  ],
+  "types": ["jest"],
   "exclude": [
     "test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "..node_modules",
   ]
 }

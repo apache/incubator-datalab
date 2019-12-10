@@ -218,7 +218,7 @@ def ensure_python2_libraries(os_user):
         try:
             sudo('pip2 install pyparsing==2.0.3')
             sudo('yum install -y python-setuptools python-wheel')
-            sudo('yum install -y python-virtualenv openssl-devel python-devel openssl-libs libxml2-devel libxslt-devel --nogpgcheck')
+            sudo('yum install -y python-virtualenv openssl-devel python-devel openssl-libs libxslt-devel --nogpgcheck')
             try:
                 sudo('python2 -m pip install backports.shutil_get_terminal_size tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
@@ -245,7 +245,7 @@ def ensure_python3_libraries(os_user):
             sudo('python3.5 -m pip install boto3 --no-cache-dir')
             sudo('python3.5 -m pip install fabvenv fabric-virtualenv future --no-cache-dir')
             try:
-                sudo('python3.5 -m pip install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
+                sudo('python3.5 -m pip install tornado=={0} ipython==7.9.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
                 sudo('python3.5 -m pip install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
@@ -400,52 +400,6 @@ def install_opencv(os_user):
             run('make -j$(nproc)')
             sudo('make install')
         sudo('touch /home/' + os_user + '/.ensure_dir/opencv_ensured')
-
-
-def install_caffe(os_user, region, caffe_version):
-    if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
-        env.shell = "/bin/bash -l -c -i"
-        install_opencv(os_user)
-        with cd('/etc/yum.repos.d/'):
-            if region == 'cn-north-1':
-                mirror = 'mirror.lzu.edu.cn'
-            else:
-                mirror = 'mirror.centos.org'
-            sudo('echo "[centosrepo]" > centos.repo')
-            sudo('echo "name=Centos 7 Repository" >> centos.repo')
-            sudo('echo "baseurl=http://{}/centos/7/os/x86_64/" >> centos.repo'.format(mirror))
-            sudo('echo "enabled=1" >> centos.repo')
-            sudo('echo "gpgcheck=1" >> centos.repo')
-            sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
-        sudo('yum update-minimal --security -y')
-        sudo('yum install -y --nogpgcheck protobuf-devel leveldb-devel snappy-devel boost-devel hdf5-devel gcc gcc-c++')
-        sudo('yum install -y gflags-devel glog-devel lmdb-devel yum-utils && package-cleanup --cleandupes')
-        sudo('yum install -y openblas-devel gflags-devel glog-devel lmdb-devel')
-        sudo('git clone https://github.com/BVLC/caffe.git')
-        with cd('/home/{}/caffe/'.format(os_user)):
-            sudo('git checkout {}'.format(caffe_version))
-            sudo('pip2 install -r python/requirements.txt --no-cache-dir')
-            sudo('pip3.5 install -r python/requirements.txt --no-cache-dir')
-            sudo('echo "CUDA_DIR := /usr/local/cuda" > Makefile.config')
-            cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
-            sudo('echo "CUDA_ARCH := -gencode arch=compute_{0},code=sm_{0}" >> Makefile.config'.format(cuda_arch.replace('.', '')))
-            sudo('echo "PYTHON_INCLUDE := /usr/include/python2.7 /usr/lib64/python2.7/site-packages/numpy/core/include" >> Makefile.config')
-            sudo('echo "BLAS := open" >> Makefile.config')
-            sudo('echo "BLAS_INCLUDE := /usr/include/openblas" >> Makefile.config')
-            sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
-            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" >> Makefile.config')
-            sudo('echo "PYTHON_LIB := /usr/lib" >> Makefile.config')
-            sudo('echo "INCLUDE_DIRS := \\\$(PYTHON_INCLUDE) /usr/local/include /usr /usr/lib64 /usr/include/python2.7 /usr/lib64/python2.7/site-packages/numpy/core/include" >> Makefile.config')
-            sudo('echo "LIBRARY_DIRS := \\\$(PYTHON_LIB) /usr/local/lib /usr/lib /usr /usr/lib64" >> Makefile.config')
-            sudo('echo "BUILD_DIR := build" >> Makefile.config')
-            sudo('echo "DISTRIBUTE_DIR := distribute" >> Makefile.config')
-            sudo('echo "TEST_GPUID := 0" >> Makefile.config')
-            sudo('echo "Q ?= @" >> Makefile.config')
-            sudo('make all -j$(nproc)')
-            sudo('make test -j$(nproc)')
-            run('make runtest')
-            sudo('make pycaffe')
-        sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
 
 
 def install_caffe2(os_user, caffe2_version, cmake_version):

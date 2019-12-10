@@ -19,16 +19,19 @@
 
 package com.epam.dlab.backendapi;
 
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.dropwizard.bundles.DlabKeycloakBundle;
+import com.epam.dlab.backendapi.dropwizard.listeners.MongoStartupListener;
+import com.epam.dlab.backendapi.dropwizard.listeners.RestoreHandlerStartupListener;
 import com.epam.dlab.backendapi.healthcheck.MongoHealthCheck;
-import com.epam.dlab.backendapi.healthcheck.ProvisioningServiceHealthCheck;
-import com.epam.dlab.backendapi.listeners.RestoreHandlerStartupListener;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.backendapi.schedulers.internal.ManagedScheduler;
+import com.epam.dlab.backendapi.servlet.guacamole.GuacamoleServlet;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.migration.mongo.DlabMongoMigration;
@@ -46,17 +49,20 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
+import io.dropwizard.jetty.BiDiGzipHandler;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.federecio.dropwizard.swagger.SwaggerBundle;
-import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
 
 /**
  * Self Service based on Dropwizard application.
  */
 @Slf4j
 public class SelfServiceApplication extends Application<SelfServiceApplicationConfiguration> {
+	public static final String GUACAMOLE_SERVLET_PATH = "/api/tunnel";
 	private static Injector appInjector;
 
 	public static Injector getInjector() {
@@ -82,12 +88,8 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		bootstrap.addBundle(new TemplateConfigBundle(
 				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
 		));
-		bootstrap.addBundle(new SwaggerBundle<SelfServiceApplicationConfiguration>() {
-			@Override
-			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(SelfServiceApplicationConfiguration configuration) {
-				return configuration.getSwaggerConfiguration();
-			}
-		});
+
+		bootstrap.addBundle(new DlabKeycloakBundle());
 	}
 
 	@Override
@@ -101,19 +103,24 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		if (configuration.isMongoMigrationEnabled()) {
 			environment.lifecycle().addServerLifecycleListener(server -> applyMongoMigration(configuration));
 		}
+		environment.lifecycle().addServerLifecycleListener(injector.getInstance(MongoStartupListener.class));
 		final RestoreHandlerStartupListener restoreHandlerStartupListener =
 				new RestoreHandlerStartupListener(injector.getInstance(Key.get(RESTService.class,
 						Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))));
 		environment.lifecycle().addServerLifecycleListener(restoreHandlerStartupListener);
+		environment.lifecycle().addServerLifecycleListener(this::disableGzipHandlerForGuacamoleServlet);
 		environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
 		environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
 		environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
 		environment.lifecycle().manage(injector.getInstance(ManagedScheduler.class));
 		environment.healthChecks().register(ServiceConsts.MONGO_NAME, injector.getInstance(MongoHealthCheck.class));
-		environment.healthChecks().register(
-				ServiceConsts.PROVISIONING_SERVICE_NAME, injector.getInstance(ProvisioningServiceHealthCheck.class));
+
+		environment.servlets().addServlet("GuacamoleServlet", injector.getInstance(GuacamoleServlet.class))
+				.addMapping(GUACAMOLE_SERVLET_PATH);
+
 
 		JerseyEnvironment jersey = environment.jersey();
+
 		jersey.register(new RuntimeExceptionMapper());
 		jersey.register(new JsonProcessingExceptionMapper());
 		jersey.register(new ResourceConflictExceptionMapper());
@@ -154,6 +161,21 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(injector.getInstance(UserGroupResource.class));
 		jersey.register(injector.getInstance(UserRoleResource.class));
 		jersey.register(injector.getInstance(ApplicationSettingResource.class));
+		jersey.register(injector.getInstance(KeycloakResource.class));
+		jersey.register(injector.getInstance(EndpointResource.class));
+		jersey.register(injector.getInstance(ProjectResource.class));
+		jersey.register(injector.getInstance(ProjectCallback.class));
+	}
+
+	private void disableGzipHandlerForGuacamoleServlet(Server server) {
+		Handler handler = server.getHandler();
+		while (handler instanceof HandlerWrapper) {
+			handler = ((HandlerWrapper) handler).getHandler();
+			if (handler instanceof BiDiGzipHandler) {
+				log.debug("Disabling Gzip handler for guacamole servlet");
+				((BiDiGzipHandler) handler).setExcludedPaths(GUACAMOLE_SERVLET_PATH);
+			}
+		}
 	}
 
 	private void applyMongoMigration(SelfServiceApplicationConfiguration configuration) {

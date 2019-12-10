@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { LibrariesInstallationService } from '../../../core/services';
 

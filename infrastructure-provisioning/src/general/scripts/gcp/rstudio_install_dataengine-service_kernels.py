@@ -37,6 +37,7 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--edge_user_name', type=str, default='')
+parser.add_argument('--project_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--edge_hostname', type=str, default='')
 parser.add_argument('--proxy_port', type=str, default='')
@@ -65,10 +66,10 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
     configure_notebook(args)
-    spark_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.edge_user_name, args.cluster_name, 'spark')
-    hadoop_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.edge_user_name, args.cluster_name, 'hadoop')
+    spark_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'spark')
+    hadoop_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name, args.cluster_name, 'hadoop')
     sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
     sudo('echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc')
     sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} --application {11}'
          .format(os.environ['gcp_project_id'], os.environ['conf_resource'], args.bucket, args.cluster_name, args.dataproc_version, spark_version, hadoop_version,
-                 args.region, args.edge_user_name, args.os_user, args.pip_mirror, args.application))
+                 args.region, args.project_name, args.os_user, args.pip_mirror, args.application))

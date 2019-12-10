@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, Inject, Input, Output, EventEmitter } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { CLOCK_TYPE, TimeFormat } from './ticker.component';
 type TimeFormatAlias = TimeFormat;
@@ -27,10 +27,10 @@ type TimeFormatAlias = TimeFormat;
   selector: 'dlab-time-picker',
   template: `
     <div class="time-picker">
-      <mat-input-container class="time-select">
+      <mat-form-field class="time-select">
         <input matInput placeholder="{{ label }}" [value]="selectedTime" (input)="checkEmpty($event.target.value)" [disabled]="disable">
         <mat-icon matSuffix [ngClass]="{'not-allowed': disable}" (click)="openDatePickerDialog($event)" disabled="disable">access_time</mat-icon>
-      </mat-input-container>
+      </mat-form-field>
     </div>`,
   styleUrls: ['./time-picker.component.scss']
 })
@@ -44,7 +44,7 @@ export class TimePickerComponent implements OnInit {
 
   ngOnInit() { }
 
-  private get selectedTime(): string {
+  public get selectedTime(): string {
     return !this.pickTime ? '' : `${this.pickTime.hour}:${this.getFullMinutes()} ${this.pickTime.meridiem}`;
   }
 

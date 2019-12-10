@@ -1,0 +1,980 @@
+{
+  "openapi": "3.0.0",
+  "servers": [
+  {
+    "description": "SwaggerHub API Auto Mocking",
+    "url": "https://virtserver.swaggerhub.com/bhliva/DLabEndpointAPI/0.0.1"
+  }
+  ],
+  "info": {
+    "description": "DLab cloud endpoint API",
+    "version": "0.0.1",
+    "title": "DLab cloud endpoint API",
+    "contact": {
+      "email": "bohdan_hliva@epam.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "tags": [
+  {
+    "name": "notebooks",
+    "description": "API connected with notebook actions"
+  },
+  {
+    "name": "templates",
+    "description": "API that describes available templates"
+  },
+  {
+    "name": "projects",
+    "description": "API for managing projects"
+  }
+  ],
+  "paths": {
+    "/notebook": {
+      "post": {
+        "tags": [
+          "notebooks"
+        ],
+        "summary": "Creates new notebook",
+        "operationId": "createNotebook",
+        "requestBody": {
+          "description": "Notebook object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNotebookDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Request for notebook creation was accepted",
+            "headers": {
+              "Location": {
+                "description": "URI for checking notebook status",
+                "required": true,
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/{project}/{name}/status": {
+      "get": {
+        "tags": [
+          "notebooks"
+        ],
+        "summary": "Get notebook status",
+        "operationId": "getStatus",
+        "parameters": [
+        {
+          "name": "project",
+          "in": "path",
+          "description": "Project associated with the notebook",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "name",
+          "in": "path",
+          "description": "Notebook name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actual notebook status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/{project}/{name}/start": {
+      "put": {
+        "tags": [
+          "notebooks"
+        ],
+        "summary": "Start stopped notebook instance",
+        "operationId": "startNotebook",
+        "parameters": [
+        {
+          "name": "project",
+          "in": "path",
+          "description": "Project associated with the notebook",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "name",
+          "in": "path",
+          "description": "Notebook name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+        ],
+        "responses": {
+          "202": {
+            "description": "Request for starting notebook was accepted",
+            "headers": {
+              "Location": {
+                "description": "URI for checking notebook status",
+                "required": true,
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no instance stopped instance with provided name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/{project}/{name}/stop": {
+      "put": {
+        "tags": [
+          "notebooks"
+        ],
+        "summary": "Stop stopped notebook instance",
+        "operationId": "stopNotebook",
+        "parameters": [
+        {
+          "name": "project",
+          "in": "path",
+          "description": "Project associated with the notebook",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "name",
+          "in": "path",
+          "description": "Notebook name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+        ],
+        "responses": {
+          "202": {
+            "description": "Request for stopping notebook was accepted",
+            "headers": {
+              "Location": {
+                "description": "URI for checking notebook status",
+                "required": true,
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no instance started instance with provided name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/{project}/{name}": {
+      "delete": {
+        "tags": [
+          "notebooks"
+        ],
+        "summary": "Terminates notebook",
+        "operationId": "removeNotebook",
+        "parameters": [
+        {
+          "name": "project",
+          "in": "path",
+          "description": "Project associated with the notebook",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "name",
+          "in": "path",
+          "description": "Notebook name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+        ],
+        "responses": {
+          "202": {
+            "description": "Request for notebook deletion was accepted",
+            "headers": {
+              "Location": {
+                "description": "URI for checking notebook status",
+                "required": true,
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notebook with passed name not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/{project}/{name}/lib": {
+      "parameters": [
+      {
+        "name": "project",
+        "in": "path",
+        "description": "Project associated with the notebook",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "name",
+        "in": "path",
+        "description": "Notebook name",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+      ],
+      "get": {
+        "tags": [
+          "notebooks"
+        ],
+        "summary": "Get installed libraries for notebook",
+        "operationId": "getIntalledLibs",
+        "responses": {
+          "200": {
+            "description": "List of installed libraries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "notebooks"
+        ],
+        "summary": "Install new libs on notebook",
+        "operationId": "installLibs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibList"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Lib installation in progress",
+            "headers": {
+              "Location": {
+                "description": "URI for getting status of library installation",
+                "required": true,
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/{type}/lib": {
+      "get": {
+        "summary": "Get available libraries",
+        "operationId": "getAvailableLibs",
+        "tags": [
+          "notebooks"
+        ],
+        "parameters": [
+        {
+          "name": "type",
+          "in": "path",
+          "description": "Project associated with the notebook",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "jupyter",
+              "rstudio",
+              "tensor",
+              "zeppelin",
+              "jupyter_tensor",
+              "rstudio_tensor",
+              "deep_learning"
+            ]
+          }
+        }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return information about available libaries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/template/{type}": {
+      "get": {
+        "tags": [
+          "templates"
+        ],
+        "summary": "Get available templates",
+        "operationId": "getTemplates",
+        "parameters": [
+        {
+          "name": "type",
+          "in": "path",
+          "description": "Template type",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "exploratory",
+              "computational"
+            ]
+          }
+        }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return information about available templates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project": {
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Creates new project",
+        "operationId": "createProject",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Project creation in progress",
+            "headers": {
+              "Location": {
+                "description": "URI of status project resource",
+                "required": true,
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{name}/status": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get project status",
+        "operationId": "getProjectStatus",
+        "parameters": [
+        {
+          "name": "name",
+          "in": "path",
+          "description": "Project name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actual project status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{name}": {
+      "delete": {
+        "summary": "Remove existing project",
+        "operationId": "removeProject",
+        "tags": [
+          "projects"
+        ],
+        "parameters": [
+        {
+          "name": "name",
+          "in": "path",
+          "description": "Project name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+        ],
+        "responses": {
+          "202": {
+            "description": "Project remove in progress",
+            "headers": {
+              "Location": {
+                "description": "URI for checking resource status",
+                "required": true,
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project with passed name not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{name}/start": {
+      "put": {
+        "summary": "Start existing project",
+        "operationId": "startProject",
+        "tags": [
+          "projects"
+        ],
+        "parameters": [
+        {
+          "name": "name",
+          "in": "path",
+          "description": "Project name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+        ],
+        "responses": {
+          "202": {
+            "description": "Start existing project",
+            "headers": {
+              "Location": {
+                "description": "URI for checking resource status",
+                "required": true,
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project with passed name not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{name}/stop": {
+      "put": {
+        "summary": "Stop existing project",
+        "operationId": "stopProject",
+        "tags": [
+          "projects"
+        ],
+        "parameters": [
+        {
+          "name": "name",
+          "in": "path",
+          "description": "Project name",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+        ],
+        "responses": {
+          "202": {
+            "description": "Stop existing project",
+            "headers": {
+              "Location": {
+                "description": "URI for checking resource status",
+                "required": true,
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project with passed name not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Status": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "creating",
+              "configuring",
+              "failed",
+              "starting",
+              "stopping",
+              "stopped",
+              "installing"
+            ]
+          },
+          "error_message": {
+            "type": "string",
+            "description": "in case of error should be filled"
+          }
+        }
+      },
+      "LibList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Library"
+        }
+      },
+      "LibraryGroup": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Group name"
+          },
+          "desription": {
+            "type": "string",
+            "description": "Group description"
+          }
+        }
+      },
+      "Library": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateProjectDTO": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "$ref": "#/components/schemas/ProjectDTO"
+          },
+          "cloudProperties": {
+            "$ref": "#/components/schemas/CloudConfig"
+          }
+        }
+      },
+      "ProjectDTO": {
+        "type": "object",
+        "properties": {
+          "useSharedImages": {
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string",
+            "description": "Project public key"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "TemplateList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TemplateDTO"
+        }
+      },
+      "TemplateDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "vendor": {
+            "type": "string"
+          },
+          "shapes": {
+            "$ref": "#/components/schemas/ShapeList"
+          }
+        }
+      },
+      "ShapeList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ShapeDTO"
+        }
+      },
+      "ShapeDTO": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "ram": {
+            "type": "string"
+          },
+          "cpu": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "For testing",
+              "Compute optimized",
+              "GPU optimized",
+              "Memory optimized"
+            ]
+          }
+        }
+      },
+      "CloudConfig": {
+        "type": "object",
+        "required": [
+          "os"
+        ],
+        "properties": {
+          "os": {
+            "type": "string",
+            "description": "Operation system"
+          },
+          "sbn": {
+            "type": "string",
+            "example": "dlab-sbn",
+            "description": "service base name"
+          },
+          "subnetId": {
+            "type": "string",
+            "description": "subnet id/name"
+          },
+          "vpcId": {
+            "type": "string",
+            "description": "vpc id/name"
+          },
+          "region": {
+            "type": "string"
+          },
+          "zone": {
+            "type": "string"
+          },
+          "securityGroupIds": {
+            "type": "string"
+          },
+          "confTagResourceId": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateNotebookDTO": {
+        "type": "object",
+        "properties": {
+          "notebook": {
+            "$ref": "#/components/schemas/Notebook"
+          },
+          "cloudConfig": {
+            "$ref": "#/components/schemas/CloudConfig"
+          }
+        }
+      },
+      "Notebook": {
+        "type": "object",
+        "required": [
+          "type",
+          "notebook_name",
+          "git_creds",
+          "spark_config",
+          "project"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "jupyter",
+              "rstudio",
+              "tensor",
+              "zeppelin",
+              "jupyter_tensor",
+              "rstudio_tensor",
+              "deep_learning"
+            ]
+          },
+          "notebook_name": {
+            "type": "string",
+            "example": "Jup"
+          },
+          "spark_config": {
+            "$ref": "#/components/schemas/ClusterConfig"
+          },
+          "git_creds": {
+            "$ref": "#/components/schemas/GitCredentials"
+          },
+          "project": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "GitCredentials": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/GitCredential"
+        }
+      },
+      "GitCredential": {
+        "type": "object",
+        "required": [
+          "name",
+          "hostname",
+          "email",
+          "login",
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "hostname": {
+            "type": "string",
+            "format": "url"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "login": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ClusterConfig": {
+        "required": [
+          "Properties"
+        ],
+        "type": "object",
+        "properties": {
+          "Classification": {
+            "type": "string",
+            "example": "test"
+          },
+          "Properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "Configurations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClusterConfig"
+            }
+          }
+        }
+      }
+    }
+  }
+}

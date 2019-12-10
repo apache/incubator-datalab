@@ -43,6 +43,7 @@ if __name__ == "__main__":
         edge_conf['service_base_name'] = os.environ['conf_service_base_name']
         edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+        edge_conf['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-')
         edge_conf['azure_ad_user_name'] = os.environ['azure_iam_user']
         edge_conf['key_name'] = os.environ['conf_key_name']
         edge_conf['user_keyname'] = os.environ['edge_user_name']
@@ -66,8 +67,9 @@ if __name__ == "__main__":
                                                     + edge_conf['user_name'] + '-dataengine-master-sg'
         edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
                                                    + edge_conf['user_name'] + '-dataengine-slave-sg'
-        edge_conf['edge_storage_account_name'] = edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + \
-                                                 '-storage'
+        edge_conf['edge_storage_account_name'] = ('{0}-{1}-{2}-storage'.format(edge_conf['service_base_name'],
+                                                                               edge_conf['user_name'],
+                                                                               edge_conf['endpoint_name']))
         edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] +
                                             '-container').lower()
         edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'
@@ -164,12 +166,23 @@ if __name__ == "__main__":
                 "direction": "Inbound"
             },
             {
+                "name": "in-4",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "80",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 130,
+                "direction": "Inbound"
+            },
+            {
                 "name": "out-1",
                 "protocol": "Tcp",
                 "source_port_range": "*",
                 "destination_port_range": "22",
                 "source_address_prefix": "*",
-                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
                 "access": "Allow",
                 "priority": 100,
                 "direction": "Outbound"
@@ -288,7 +301,7 @@ if __name__ == "__main__":
                 "name": "out-12",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "4040-4045",
+                "destination_port_range": "4040-4140",
                 "source_address_prefix": "*",
                 "destination_address_prefix": edge_conf['private_subnet_cidr'],
                 "access": "Allow",
@@ -341,6 +354,28 @@ if __name__ == "__main__":
             },
             {
                 "name": "out-17",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "8042",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 260,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-18",
+                "protocol": "Udp",
+                "source_port_range": "*",
+                "destination_port_range": "123",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 270,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-19",
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",

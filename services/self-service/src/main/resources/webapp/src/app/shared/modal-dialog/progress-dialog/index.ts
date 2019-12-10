@@ -19,14 +19,15 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ModalModule } from '..';
+
 import { ProgressDialogComponent } from './progress-dialog.component';
 
 export * from './progress-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, ModalModule],
+  imports: [CommonModule],
   declarations: [ProgressDialogComponent],
+  entryComponents: [ProgressDialogComponent],
   exports: [ProgressDialogComponent],
 })
 

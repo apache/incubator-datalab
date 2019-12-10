@@ -18,10 +18,14 @@
  */
 package com.epam.dlab.backendapi.service.impl;
 
+import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.service.UserGroupService;
+import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -40,6 +44,8 @@ public class UserGroupServiceImpl implements UserGroupService {
 	private UserGroupDao userGroupDao;
 	@Inject
 	private UserRoleDao userRoleDao;
+	@Inject
+	private ProjectDAO projectDAO;
 
 	@Override
 	public void createGroup(String group, Set<String> roleIds, Set<String> users) {
@@ -83,8 +89,15 @@ public class UserGroupServiceImpl implements UserGroupService {
 
 	@Override
 	public void removeGroup(String groupId) {
-		if (userRoleDao.removeGroup(groupId)) {
+		if (projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.TERMINATING)
+				.stream()
+				.map(ProjectDTO::getGroups)
+				.noneMatch(groups -> groups.contains(groupId))) {
+			userRoleDao.removeGroup(groupId);
 			userGroupDao.removeGroup(groupId);
+		} else {
+			throw new ResourceConflictException("Group can not be removed because it is used in some project");
 		}
 	}
 

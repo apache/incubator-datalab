@@ -17,36 +17,51 @@
   ~ under the License.
   -->
 
-<div class="sub-nav base-retreat">
-  <div>
-    <button mat-raised-button class="butt butt-create" [disabled]="userUploadAccessKeyState == 202 || healthStatus?.status === 'error'" (click)="createNotebook_btnClick()">
-      <i class="material-icons">add</i>Create new
-    </button>
+<div class="base-retreat">
+  <div class="sub-nav">
+    <div class="selection">
+      <button mat-raised-button class="butt butt-create" (click)="createEnvironment()"
+        [disabled]="!healthStatus?.projectAssigned">
+        <i class="material-icons">add</i>Create new
+      </button>
+
+      <div class="mat-reset">
+        <div class="control selector-wrapper" *ngIf="projects.length">
+          <mat-form-field>
+            <mat-label>Select active project</mat-label>
+            <mat-select [(value)]="resourcesGrid.activeProject">
+              <mat-option *ngIf="projects.length > 1" (click)="setActiveProject()">Show all</mat-option>
+              <mat-option *ngFor="let project of projects" [value]="project.name"
+                (click)="setActiveProject(project.name)">
+                {{ project.name }}</mat-option>
+              <mat-option *ngIf="!projects.length" class="multiple-select ml-10" disabled>Projects list is empty
+              </mat-option>
+            </mat-select>
+            <button class="caret">
+              <i class="material-icons">keyboard_arrow_down</i>
+            </button>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <button mat-raised-button class="butt butt-tool" (click)="manageUngit()">
+        <i class="material-icons"></i>Git credentials
+      </button>
+      <button mat-raised-button class="butt butt-tool" (click)="toggleFiltering()">
+        <span *ngIf="!resourcesGrid.activeFiltering">
+          <i class="material-icons">visibility_off</i> Show active
+        </span>
+        <span *ngIf="resourcesGrid.activeFiltering">
+          <i class="material-icons">visibility</i> Show all
+        </span>
+      </button>
+      <button mat-raised-button class="butt" (click)="refreshGrid()">
+        <i class="material-icons">autorenew</i>Refresh
+      </button>
+    </div>
   </div>
-  <div>
-    <button mat-raised-button class="butt butt-tool" (click)="manageUngit()">
-      <i class="material-icons"></i>Git credentials
-    </button>
-    <button mat-raised-button class="butt butt-tool" (click)="toggleFiltering()">
-      <span *ngIf="!resourcesGrid.activeFiltering">
-        <i class="material-icons">visibility_off</i> Show active
-      </span>
-      <span *ngIf="resourcesGrid.activeFiltering">
-        <i class="material-icons">visibility</i> Show all
-      </span>
-    </button>
-    <button mat-raised-button class="butt" (click)="refreshGrid()">
-      <i class="material-icons">autorenew</i>Refresh
-    </button>
-  </div>
+  <mat-divider></mat-divider>
+  <resources-grid></resources-grid>
 </div>
-
-<div *ngIf="userUploadAccessKeyState == 500" class="warning-alert base-retreat">
-  <span class="material-icons">priority_high</span>
-  Error happened during user access key upload. Please try to reupload the key.
-</div>
-
-<resources-grid></resources-grid>
-
-<exploratory-environment-create-dialog #createAnalyticalModal (buildGrid)="refreshGrid($event)"></exploratory-environment-create-dialog>
-<dlab-manage-ungit #manageUngitDialog></dlab-manage-ungit>

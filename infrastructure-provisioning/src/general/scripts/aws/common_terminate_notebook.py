@@ -42,7 +42,7 @@ def terminate_nb(nb_tag_value, bucket_name, tag_name):
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
                 print('Cleaning bucket from configs for cluster {}'.format(emr_name))
-                s3_cleanup(bucket_name, emr_name, os.environ['edge_user_name'])
+                s3_cleanup(bucket_name, emr_name, os.environ['project_name'])
                 print("The bucket {} has been cleaned successfully".format(bucket_name))
                 print('Terminating cluster {}'.format(emr_name))
                 terminate_emr(cluster_id)
@@ -66,7 +66,7 @@ def terminate_nb(nb_tag_value, bucket_name, tag_name):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -76,9 +76,14 @@ if __name__ == "__main__":
     create_aws_config_files()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['service_base_name'] = notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-    notebook_config['bucket_name'] = (notebook_config['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+    notebook_config['project_name'] = os.environ['project_name']
+    notebook_config['endpoint_name'] = os.environ['endpoint_name']
+    notebook_config['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(notebook_config['service_base_name'],
+                                                                  notebook_config['project_name'],
+                                                                  notebook_config['endpoint_name'])).lower().replace('_', '-')
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
 
     try:

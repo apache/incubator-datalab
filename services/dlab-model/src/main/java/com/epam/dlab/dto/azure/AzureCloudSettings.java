@@ -28,6 +28,8 @@ import lombok.*;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AzureCloudSettings extends CloudSettings {
 
     @JsonProperty("azure_region")
@@ -42,18 +44,12 @@ public class AzureCloudSettings extends CloudSettings {
     private String azureResourceGroupName;
     @JsonProperty("azure_security_group_name")
     private String azureSecurityGroupName;
-
-    @Builder
-    public AzureCloudSettings(String azureRegion, String azureIamUser, String azureVpcName, String azureSubnetName,
-                              String azureResourceGroupName, String azureSecurityGroupName) {
-
-        this.azureRegion = azureRegion;
-        this.azureIamUser = azureIamUser;
-        this.azureVpcName = azureVpcName;
-        this.azureSubnetName = azureSubnetName;
-        this.azureResourceGroupName = azureResourceGroupName;
-        this.azureSecurityGroupName = azureSecurityGroupName;
-    }
+    @JsonProperty("conf_key_dir")
+    protected String confKeyDir;
+    @JsonProperty("conf_image_enabled")
+    private String imageEnabled;
+    @JsonProperty("conf_shared_image_enabled")
+    private String sharedImageEnabled;
 
     @Override
     @JsonIgnore

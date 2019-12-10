@@ -406,7 +406,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sys.exit(1)
 
 
-def install_ungit(os_user, notebook_name):
+def install_ungit(os_user, notebook_name, edge_ip):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
             sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
@@ -428,6 +428,15 @@ def install_ungit(os_user, notebook_name):
             run('echo "spark-warehouse/" >> ~/.gitignore')
             run('echo "metastore_db/" >> ~/.gitignore')
             run('echo "derby.log" >> ~/.gitignore')
+            sudo(
+                'echo -e "Host git.epam.com\n   HostName git.epam.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p\n" > /home/{}/.ssh/config'.format(
+                    edge_ip, os_user))
+            sudo(
+                'echo -e "Host github.com\n   HostName github.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(
+                    edge_ip, os_user))
+            sudo(
+                'echo -e "Host gitlab.com\n   HostName gitlab.com\n   ProxyCommand nc -X connect -x {}:3128 %h %p" >> /home/{}/.ssh/config'.format(
+                    edge_ip, os_user))
             sudo('systemctl daemon-reload')
             sudo('systemctl enable ungit.service')
             sudo('systemctl start ungit.service')
@@ -447,6 +456,31 @@ def install_ungit(os_user, notebook_name):
             sys.exit(1)
     run('git config --global http.proxy $http_proxy')
     run('git config --global https.proxy $https_proxy')
+
+
+def install_inactivity_checker(os_user, ip_adress, rstudio=False):
+    if not exists('/home/{}/.ensure_dir/inactivity_ensured'.format(os_user)):
+        try:
+            if not exists('/opt/inactivity'):
+                sudo('mkdir /opt/inactivity')
+            put('/root/templates/inactive.service', '/etc/systemd/system/inactive.service', use_sudo=True)
+            put('/root/templates/inactive.timer', '/etc/systemd/system/inactive.timer', use_sudo=True)
+            if rstudio:
+                put('/root/templates/inactive_rs.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
+            else:
+                put('/root/templates/inactive.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
+            sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_adress))
+            sudo("chmod 755 /opt/inactivity/inactive.sh")
+            sudo("chown root:root /etc/systemd/system/inactive.service")
+            sudo("chown root:root /etc/systemd/system/inactive.timer")
+            sudo("date +%s > /opt/inactivity/local_inactivity")
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable inactive.timer')
+            sudo('systemctl start inactive.timer')
+            sudo('touch /home/{}/.ensure_dir/inactive_ensured'.format(os_user))
+        except Exception as err:
+            print('Failed to setup inactivity check service!', str(err))
+            sys.exit(1)
 
 
 def set_git_proxy(os_user, hostname, keyfile, proxy_host):

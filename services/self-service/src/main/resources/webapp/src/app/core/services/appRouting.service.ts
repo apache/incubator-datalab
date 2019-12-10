@@ -38,10 +38,14 @@ export class AppRoutingService {
   }
 
   redirectToHealthStatusPage(): void {
-    this.router.navigate(['/environment_health_status']);
+    this.router.navigate(['/environment_management']);
   }
 
   redirectToAzure(): void {
-    window.location.href =  `${ window.location.origin }/api/user/azure/init`;
+    window.location.href = `${window.location.origin}/api/user/azure/init`;
+  }
+
+  redirectToUrl(url: string): void {
+    window.location.href = url;
   }
 }

@@ -19,19 +19,26 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import org.bson.Document;
 
-public interface BillingDAO<T> {
+public interface BillingDAO<T extends BillingFilter> {
 	Double getTotalCost();
 
 	Double getUserCost(String user);
 
+	Double getProjectCost(String project);
+
 	int getBillingQuoteUsed();
+
 	int getBillingUserQuoteUsed(String user);
+	int getBillingProjectQuoteUsed(String project);
 
 	boolean isBillingQuoteReached();
 
 	boolean isUserQuoteReached(String user);
+
+	boolean isProjectQuoteReached(String project);
 
 	Document getReport(UserInfo userInfo, T filter);
 }

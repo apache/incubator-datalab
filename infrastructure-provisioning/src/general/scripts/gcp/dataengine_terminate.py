@@ -51,7 +51,7 @@ def terminate_data_engine(zone, notebook_name, os_user, key_path, cluster_name):
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -70,9 +70,10 @@ if __name__ == "__main__":
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
     data_engine['zone'] = os.environ['gcp_zone']
-    data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+    data_engine['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
+    data_engine['project_name'] = os.environ['project_name'].lower().replace('_', '-')
     data_engine['cluster_name'] = \
-        data_engine['service_base_name'] + '-' + data_engine['user_name'] + '-de-' + \
+        data_engine['service_base_name'] + '-' + data_engine['project_name'] + '-de-' + \
         data_engine['exploratory_name'] + '-' + data_engine['computational_name']
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
     data_engine['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'

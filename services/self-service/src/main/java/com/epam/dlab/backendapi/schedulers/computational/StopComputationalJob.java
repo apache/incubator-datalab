@@ -22,7 +22,6 @@ package com.epam.dlab.backendapi.schedulers.computational;
 import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.google.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
@@ -30,7 +29,6 @@ import org.quartz.JobExecutionContext;
  * There realized integration with Quartz scheduler framework and defined stop computational resource scheduler job
  * which executes every time specified.
  */
-@Slf4j
 @Scheduled("stopComputationalScheduler")
 public class StopComputationalJob implements Job {
 

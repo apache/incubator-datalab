@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.resources;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
@@ -30,7 +29,6 @@ import com.epam.dlab.backendapi.service.impl.DockerService;
 import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,16 +45,12 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class ImageResource extends DockerService implements DockerCommands {
 
-	@Inject
-	private SystemUserInfoService systemUserInfoService;
-
 	@POST
 	public Response createImage(@Auth UserInfo ui, ExploratoryImageDTO image) throws JsonProcessingException {
 		final String uuid = DockerCommands.generateUUID();
 
 		folderListenerExecutor.start(configuration.getImagesDirectory(), configuration.getResourceStatusPollTimeout(),
-				new ImageCreateCallbackHandler(systemUserInfoService, selfService, uuid,
-						DockerAction.CREATE_IMAGE, image));
+				new ImageCreateCallbackHandler(selfService, uuid, DockerAction.CREATE_IMAGE, image));
 		String command = commandBuilder.buildCommand(getDockerCommand(DockerAction.CREATE_IMAGE, uuid, image), image);
 		commandExecutor.executeAsync(ui.getName(), uuid, command);
 		log.debug("Docker command: " + command);

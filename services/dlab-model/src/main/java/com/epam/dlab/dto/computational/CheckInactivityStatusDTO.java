@@ -19,32 +19,12 @@
 package com.epam.dlab.dto.computational;
 
 import com.epam.dlab.dto.StatusBaseDTO;
-import com.epam.dlab.dto.status.EnvResource;
-import com.google.common.base.MoreObjects;
-import lombok.Getter;
+import lombok.Data;
 
-import java.util.List;
-
-@Getter
+@Data
 public class CheckInactivityStatusDTO extends StatusBaseDTO<CheckInactivityStatusDTO> {
 
-	private List<EnvResource> resources;
-	private CheckInactivityStatus checkInactivityStatus;
-
-	public CheckInactivityStatusDTO withResources(List<EnvResource> clusters) {
-		this.resources = clusters;
-		return this;
-	}
-
-	public CheckInactivityStatusDTO withStatus(CheckInactivityStatus checkInactivityStatus) {
-		this.checkInactivityStatus = checkInactivityStatus;
-		return this;
-	}
-
-	@Override
-	public MoreObjects.ToStringHelper toStringHelper(Object self) {
-		return super.toStringHelper(self)
-				.add("resources", resources)
-				.add("checkInactivityStatus", checkInactivityStatus);
-	}
+	private String exploratoryName;
+	private String computationalName;
+	private long lastActivityUnixTime;
 }

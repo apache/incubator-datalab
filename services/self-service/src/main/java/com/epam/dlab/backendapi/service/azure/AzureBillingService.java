@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.service.azure;
 
+import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.dao.BillingDAO;
@@ -26,8 +27,6 @@ import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
-import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.MongoKeyWords;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -40,27 +39,10 @@ import java.util.List;
 
 @Slf4j
 @Singleton
-public class AzureBillingService implements BillingService<AzureBillingFilter> {
+public class AzureBillingService extends BillingService<AzureBillingFilter> {
 
     @Inject
     private BillingDAO billingDAO;
-
-    @Override
-    public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
-        log.trace("Get billing report for user {} with filter {}", userInfo.getName(), filter);
-        try {
-            return billingDAO.getReport(userInfo, filter);
-        } catch (RuntimeException t) {
-            log.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), filter, t);
-            throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);
-        }
-    }
-
-    @Override
-    public byte[] downloadReport(UserInfo userInfo, AzureBillingFilter filter) {
-        log.trace("Download billing report for user {} with filter {}", userInfo.getName(), filter);
-        return BillingService.super.downloadReport(userInfo, filter);
-    }
 
     @Override
     public String getReportFileName(UserInfo userInfo, AzureBillingFilter filter) {

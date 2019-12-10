@@ -1,7 +1,0 @@
-{
-  "image" : "docker.dlab-rstudio",
-  "name" : "set the name",
-  "shape" : "t2.medium",
-  "version" : "RStudio-1.0.136",
-  "template_name" : "RStudio 1.0.136"
-}

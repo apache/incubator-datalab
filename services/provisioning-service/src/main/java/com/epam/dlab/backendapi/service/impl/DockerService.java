@@ -28,15 +28,15 @@ import com.google.inject.Inject;
 
 public abstract class DockerService {
 
-    @Inject
-    protected ProvisioningServiceApplicationConfiguration configuration;
-    @Inject
-    protected FolderListenerExecutor folderListenerExecutor;
-    @Inject
-    protected ICommandExecutor commandExecutor;
-    @Inject
-    protected CommandBuilder commandBuilder;
-    @Inject
-    protected RESTService selfService;
+	@Inject
+	protected ProvisioningServiceApplicationConfiguration configuration;
+	@Inject
+	protected FolderListenerExecutor folderListenerExecutor;
+	@Inject
+	protected ICommandExecutor commandExecutor;
+	@Inject
+	protected CommandBuilder commandBuilder;
+	@Inject
+	protected RESTService selfService;
 
 }

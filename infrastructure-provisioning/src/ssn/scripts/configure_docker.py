@@ -27,6 +27,7 @@ import json
 import sys
 from dlab.ssn_lib import *
 import os
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -105,6 +106,45 @@ def build_docker_images(image_list, region, dlab_path):
     except:
         return False
 
+def configure_guacamole():
+    try:
+        mysql_pass = id_generator()
+        sudo('docker run --name guacd --restart unless-stopped -d -p 4822:4822 guacamole/guacd')
+        sudo('docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > initdb.sql')
+        sudo('mkdir /tmp/scripts')
+        sudo('cp initdb.sql /tmp/scripts')
+        sudo('mkdir /opt/mysql')
+        sudo('docker run --name guac-mysql --restart unless-stopped -v /tmp/scripts:/tmp/scripts '\
+             ' -v /opt/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD={} -d mysql:latest'.format(mysql_pass))
+        time.sleep(180)
+        sudo('touch /opt/mysql/dock-query.sql')
+        sudo("""echo "CREATE DATABASE guacamole; CREATE USER 'guacamole' IDENTIFIED BY '{}';"""\
+             """ GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole.* TO 'guacamole';" > /opt/mysql/dock-query.sql"""\
+             .format(mysql_pass))
+        sudo('docker exec -i guac-mysql /bin/bash -c "mysql -u root -p{} < /var/lib/mysql/dock-query.sql"'\
+             .format(mysql_pass))
+        sudo('docker exec -i guac-mysql /bin/bash -c "cat /tmp/scripts/initdb.sql | mysql -u root -p{} guacamole"'\
+             .format(mysql_pass))
+        sudo("docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql"\
+             " -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='{}'"\
+             " -d -p 8080:8080 guacamole/guacamole".format(mysql_pass))
+        #create cronjob for run containers on reboot
+        sudo('mkdir /opt/dlab/cron')
+        sudo('touch /opt/dlab/cron/mysql.sh')
+        sudo('chmod 755 /opt/dlab/cron/mysql.sh')
+        sudo('echo "docker start guacd" >> /opt/dlab/cron/mysql.sh')
+        sudo('echo "docker start guac-mysql" >> /opt/dlab/cron/mysql.sh')
+        sudo('echo "docker rm guacamole" >> /opt/dlab/cron/mysql.sh')
+        sudo("""echo "docker run --name guacamole --restart unless-stopped --link guacd:guacd --link guac-mysql:mysql"""\
+             """ -e MYSQL_DATABASE='guacamole' -e MYSQL_USER='guacamole' -e MYSQL_PASSWORD='{}' -d"""\
+             """ -p 8080:8080 guacamole/guacamole" >> /opt/dlab/cron/mysql.sh""".format(mysql_pass))
+        sudo('(crontab -l 2>/dev/null; echo "@reboot sh /opt/dlab/cron/mysql.sh") | crontab -')
+        return True
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure guacamole: ', str(err))
+        return False
+
 
 ##############
 # Run script #
@@ -135,6 +175,10 @@ if __name__ == "__main__":
 
     print("Building dlab images")
     if not build_docker_images(deeper_config, args.region, args.dlab_path):
+        sys.exit(1)
+
+    print("Configuring guacamole")
+    if not configure_guacamole():
         sys.exit(1)
 
     sys.exit(0)

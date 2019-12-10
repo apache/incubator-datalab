@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
@@ -29,17 +28,16 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
+import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -47,17 +45,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.TIMEZONE_PREFIX;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.dto.UserInstanceStatus.*;
 import static com.epam.dlab.dto.base.DataEngineType.getDockerImageName;
+import static java.time.ZoneId.systemDefault;
 import static java.util.Collections.singletonList;
+import static java.util.Date.from;
 
 @Slf4j
 @Singleton
@@ -65,6 +67,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private static final String SCHEDULER_NOT_FOUND_MSG =
 			"Scheduler job data not found for user %s with exploratory %s";
+	private static final long ALLOWED_INACTIVITY_MINUTES = 1L;
 
 	@Inject
 	private SchedulerJobDAO schedulerJobDAO;
@@ -82,7 +85,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private ComputationalService computationalService;
 
 	@Inject
-	private SystemUserInfoService systemUserService;
+	private SecurityService securityService;
 
 	@Inject
 	private EnvDAO envDAO;
@@ -116,9 +119,10 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		log.debug("Updating exploratory {} for user {} with new scheduler job data: {}...", exploratoryName, user,
 				dto);
 		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user, exploratoryName, dto);
-		if (dto.isSyncStartRequired()) {
+
+		if (!dto.inactivityScheduler() && dto.isSyncStartRequired()) {
 			shareSchedulerJobDataToSparkClusters(user, exploratoryName, dto);
-		} else {
+		} else if (!dto.inactivityScheduler()) {
 			computationalDAO.updateSchedulerSyncFlag(user, exploratoryName, dto.isSyncStartRequired());
 		}
 	}
@@ -136,13 +140,13 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	@Override
 	public void stopComputationalByScheduler() {
-		getComputationalSchedulersForStopping(OffsetDateTime.now())
+		getComputationalSchedulersForStopping(OffsetDateTime.now(), true)
 				.forEach(this::stopComputational);
 	}
 
 	@Override
 	public void stopExploratoryByScheduler() {
-		getExploratorySchedulersForStopping(OffsetDateTime.now())
+		getExploratorySchedulersForStopping(OffsetDateTime.now(), true)
 				.forEach(this::stopExploratory);
 	}
 
@@ -155,7 +159,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	@Override
 	public void startComputationalByScheduler() {
 		getComputationalSchedulersForStarting(OffsetDateTime.now())
-				.forEach(job -> startSpark(job.getUser(), job.getExploratoryName(), job.getComputationalName()));
+				.forEach(job -> startSpark(job.getUser(), job.getExploratoryName(), job.getComputationalName(),
+						job.getProject()));
 	}
 
 	@Override
@@ -169,16 +174,6 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	public void terminateComputationalByScheduler() {
 		getComputationalSchedulersForTerminating(OffsetDateTime.now()).forEach(this::terminateComputational);
 
-	}
-
-	@Override
-	public void updateRunningResourcesLastActivity(UserInfo userInfo) {
-		List<EnvResource> resources = envDAO.findRunningResourcesForCheckInactivity();
-		if (!resources.isEmpty()) {
-			String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_CHECK_INACTIVITY,
-					userInfo.getAccessToken(), resources, String.class);
-			requestId.put(userInfo.getName(), uuid);
-		}
 	}
 
 	@Override
@@ -196,11 +191,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final OffsetDateTime desiredDateTime = OffsetDateTime.now().plusMinutes(minutesOffset);
 		final Predicate<SchedulerJobData> userPredicate = s -> user.equals(s.getUser());
 		final Stream<SchedulerJobData> computationalSchedulersStream =
-				getComputationalSchedulersForStopping(desiredDateTime)
+				getComputationalSchedulersForStopping(desiredDateTime, false)
 						.stream()
 						.filter(userPredicate);
 		final Stream<SchedulerJobData> exploratorySchedulersStream =
-				getExploratorySchedulersForStopping(desiredDateTime)
+				getExploratorySchedulersForStopping(desiredDateTime, false)
 						.stream()
 						.filter(userPredicate);
 		return Stream.concat(computationalSchedulersStream, exploratorySchedulersStream)
@@ -212,14 +207,14 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String compName = job.getComputationalName();
 		final String user = job.getUser();
 		log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.stopSparkCluster(systemUserService.create(user), expName, compName);
+		computationalService.stopSparkCluster(securityService.getServiceAccountInfo(user), expName, compName);
 	}
 
 	private void terminateComputational(SchedulerJobData job) {
 		final String user = job.getUser();
 		final String expName = job.getExploratoryName();
 		final String compName = job.getComputationalName();
-		final UserInfo userInfo = systemUserService.create(user);
+		final UserInfo userInfo = securityService.getServiceAccountInfo(user);
 		log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
 		computationalService.terminateComputational(userInfo, expName, compName);
 	}
@@ -228,8 +223,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String expName = job.getExploratoryName();
 		final String user = job.getUser();
 		log.debug("Stopping exploratory {} for user {} by scheduler", expName, user);
-		exploratoryService.stop(systemUserService.create(job.getUser()),
-				job.getExploratoryName());
+		exploratoryService.stop(securityService.getServiceAccountInfo(user), expName);
 	}
 
 	private List<SchedulerJobData> getExploratorySchedulersForTerminating(OffsetDateTime now) {
@@ -240,8 +234,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	private List<SchedulerJobData> getComputationalSchedulersForTerminating(OffsetDateTime now) {
-		return schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(RUNNING,
-				DataEngineType.SPARK_STANDALONE, STOPPED, RUNNING)
+		return schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING)
 				.stream()
 				.filter(canSchedulerForTerminatingBeApplied(now))
 				.collect(Collectors.toList());
@@ -250,8 +243,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private void startExploratory(SchedulerJobData schedulerJobData) {
 		final String user = schedulerJobData.getUser();
 		final String exploratoryName = schedulerJobData.getExploratoryName();
+		final String project = schedulerJobData.getProject();
 		log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
-		exploratoryService.start(systemUserService.create(user), exploratoryName);
+		exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, project);
 		if (schedulerJobData.getJobDTO().isSyncStartRequired()) {
 			log.trace("Starting computational for exploratory {} for user {} by scheduler", exploratoryName, user);
 			final DataEngineType sparkCluster = DataEngineType.SPARK_STANDALONE;
@@ -261,7 +255,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			compToBeStarted
 					.stream()
 					.filter(compResource -> shouldClusterBeStarted(sparkCluster, compResource))
-					.forEach(comp -> startSpark(user, exploratoryName, comp.getComputationalName()));
+					.forEach(comp -> startSpark(user, exploratoryName, comp.getComputationalName(), project));
 		}
 	}
 
@@ -269,12 +263,12 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String user = job.getUser();
 		final String expName = job.getExploratoryName();
 		log.debug("Terminating exploratory {} for user {} by scheduler", expName, user);
-		exploratoryService.terminate(systemUserService.create(user), expName);
+		exploratoryService.terminate(securityService.getUserInfoOffline(user), expName);
 	}
 
-	private void startSpark(String user, String expName, String compName) {
+	private void startSpark(String user, String expName, String compName, String project) {
 		log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.startSparkCluster(systemUserService.create(user), expName, compName);
+		computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, project);
 	}
 
 	private boolean shouldClusterBeStarted(DataEngineType sparkCluster, UserComputationalResource compResource) {
@@ -304,10 +298,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 	}
 
-	private List<SchedulerJobData> getExploratorySchedulersForStopping(OffsetDateTime currentDateTime) {
-		return schedulerJobDAO.getExploratorySchedulerDataWithStatus(RUNNING)
+	private List<SchedulerJobData> getExploratorySchedulersForStopping(OffsetDateTime currentDateTime,
+																	   boolean checkInactivity) {
+
+		final Date clusterMaxInactivityAllowedDate =
+				from(LocalDateTime.now().minusMinutes(ALLOWED_INACTIVITY_MINUTES).atZone(systemDefault()).toInstant());
+		return schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(RUNNING,
+				clusterMaxInactivityAllowedDate)
 				.stream()
-				.filter(canSchedulerForStoppingBeApplied(currentDateTime))
+				.filter(canSchedulerForStoppingBeApplied(currentDateTime)
+						.or(schedulerJobData -> checkInactivity && exploratoryInactivityCondition(schedulerJobData)))
 				.collect(Collectors.toList());
 	}
 
@@ -344,17 +344,60 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private boolean shouldBeTerminated(OffsetDateTime currentDateTime, SchedulerJobData schedulerJobData) {
 		final SchedulerJobDTO jobDTO = schedulerJobData.getJobDTO();
-		final LocalDateTime convertedCurrentTime = schedulerExecutionDate(jobDTO, currentDateTime);
-		return isSchedulerActive(schedulerJobData.getJobDTO(), convertedCurrentTime) && Objects.nonNull(jobDTO.getTerminateDateTime()) &&
-				convertedCurrentTime.equals(jobDTO.getTerminateDateTime());
+		final ZoneOffset timeZoneOffset = jobDTO.getTimeZoneOffset();
+		final LocalDateTime convertedCurrentTime = localDateTimeAtZone(currentDateTime, timeZoneOffset);
+		final LocalDateTime terminateDateTime = jobDTO.getTerminateDateTime();
+		return Objects.nonNull(terminateDateTime) && isSchedulerActive(jobDTO, convertedCurrentTime) &&
+				convertedCurrentTime.equals(terminateDateTime.atOffset(timeZoneOffset).toLocalDateTime());
 	}
 
-	private List<SchedulerJobData> getComputationalSchedulersForStopping(OffsetDateTime currentDateTime) {
+	private List<SchedulerJobData> getComputationalSchedulersForStopping(OffsetDateTime currentDateTime,
+																		 boolean checkInactivity) {
 		return schedulerJobDAO
 				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, RUNNING)
 				.stream()
-				.filter(canSchedulerForStoppingBeApplied(currentDateTime))
+				.filter(canSchedulerForStoppingBeApplied(currentDateTime)
+						.or(schedulerJobData -> checkInactivity && computationalInactivityCondition(schedulerJobData)))
 				.collect(Collectors.toList());
+	}
+
+	private boolean computationalInactivityCondition(SchedulerJobData jobData) {
+		final SchedulerJobDTO schedulerData = jobData.getJobDTO();
+		return schedulerData.isCheckInactivityRequired() && computationalInactivityExceed(jobData, schedulerData);
+	}
+
+	private boolean computationalInactivityExceed(SchedulerJobData schedulerJobData, SchedulerJobDTO schedulerData) {
+		final String explName = schedulerJobData.getExploratoryName();
+		final String compName = schedulerJobData.getComputationalName();
+		final String user = schedulerJobData.getUser();
+		final UserComputationalResource c = computationalDAO.fetchComputationalFields(user, explName, compName);
+		final Long maxInactivity = schedulerData.getMaxInactivity();
+		return inactivityCondition(maxInactivity, c.getStatus(), c.getLastActivity());
+	}
+
+	private boolean exploratoryInactivityCondition(SchedulerJobData jobData) {
+		final SchedulerJobDTO schedulerData = jobData.getJobDTO();
+		return schedulerData.isCheckInactivityRequired() && exploratoryInactivityExceed(jobData, schedulerData);
+	}
+
+	private boolean exploratoryInactivityExceed(SchedulerJobData schedulerJobData, SchedulerJobDTO schedulerData) {
+		final String expName = schedulerJobData.getExploratoryName();
+		final String user = schedulerJobData.getUser();
+		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchExploratoryFields(user, expName, true);
+		final boolean canBeStopped = userInstanceDTO.getResources()
+				.stream()
+				.map(UserComputationalResource::getStatus)
+				.map(UserInstanceStatus::of)
+				.noneMatch(status -> status.in(TERMINATING, CONFIGURING, CREATING, CREATING));
+		return canBeStopped && inactivityCondition(schedulerData.getMaxInactivity(), userInstanceDTO.getStatus(),
+				userInstanceDTO.getLastActivity());
+	}
+
+	private boolean inactivityCondition(Long maxInactivity, String status, LocalDateTime lastActivity) {
+		return UserInstanceStatus.RUNNING.toString().equals(status) &&
+				Optional.ofNullable(lastActivity)
+						.map(la -> la.plusMinutes(maxInactivity).isBefore(LocalDateTime.now()))
+						.orElse(Boolean.FALSE);
 	}
 
 	private void populateDefaultSchedulerValues(SchedulerJobDTO dto) {
@@ -362,7 +405,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 			dto.setBeginDate(LocalDate.now());
 		}
 		if (Objects.isNull(dto.getTimeZoneOffset()) || StringUtils.isBlank(dto.getTimeZoneOffset().toString())) {
-			dto.setTimeZoneOffset(OffsetDateTime.now(ZoneId.systemDefault()).getOffset());
+			dto.setTimeZoneOffset(OffsetDateTime.now(systemDefault()).getOffset());
 		}
 	}
 
@@ -380,7 +423,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private void validateResourceStatus(String resourceStatus) {
 		final UserInstanceStatus status = UserInstanceStatus.of(resourceStatus);
-		if (Objects.isNull(status) || status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING,
+		if (Objects.isNull(status) || status.in(UserInstanceStatus.TERMINATED, TERMINATING,
 				UserInstanceStatus.FAILED)) {
 			throw new ResourceInappropriateStateException(String.format("Can not create/update scheduler for user " +
 					"instance with status: %s", status));
@@ -389,7 +432,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 
 	private boolean shouldSchedulerBeExecuted(SchedulerJobDTO dto, OffsetDateTime dateTime, List<DayOfWeek> daysRepeat,
 											  LocalTime time) {
-		LocalDateTime convertedDateTime = schedulerExecutionDate(dto, dateTime);
+		LocalDateTime convertedDateTime = localDateTimeAtZone(dateTime, dto.getTimeZoneOffset());
 
 		return isSchedulerActive(dto, convertedDateTime)
 				&& daysRepeat.contains(convertedDateTime.toLocalDate().getDayOfWeek())
@@ -401,15 +444,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 				&& finishDateAfterCurrentDate(dto, convertedDateTime);
 	}
 
-	private LocalDateTime schedulerExecutionDate(SchedulerJobDTO dto, OffsetDateTime dateTime) {
-		ZoneOffset zOffset = dto.getTimeZoneOffset();
-		OffsetDateTime roundedDateTime = OffsetDateTime.of(
-				dateTime.toLocalDate(),
-				LocalTime.of(dateTime.toLocalTime().getHour(), dateTime.toLocalTime().getMinute()),
-				dateTime.getOffset());
-
-		return ZonedDateTime.ofInstant(roundedDateTime.toInstant(),
-				ZoneId.ofOffset(TIMEZONE_PREFIX, zOffset)).toLocalDateTime();
+	private LocalDateTime localDateTimeAtZone(OffsetDateTime dateTime, ZoneOffset timeZoneOffset) {
+		return dateTime.atZoneSameInstant(ZoneOffset.UTC)
+				.truncatedTo(ChronoUnit.MINUTES)
+				.withZoneSameInstant(timeZoneOffset)
+				.toLocalDateTime();
 	}
 
 	private boolean finishDateAfterCurrentDate(SchedulerJobDTO dto, LocalDateTime currentDateTime) {

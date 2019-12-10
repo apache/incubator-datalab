@@ -50,7 +50,7 @@ public class ReuploadKeyCallback {
 
 	@POST
 	@Path("/callback")
-	public Response reuploadKeyResponse(@Auth UserInfo userInfo, ReuploadKeyStatusDTO dto) {
+	public Response reuploadKeyResponse(ReuploadKeyStatusDTO dto) {
 		requestId.remove(dto.getRequestId());
 		reuploadKeyService.updateResourceData(dto);
 		return Response.ok(uriInfo.getRequestUri()).build();

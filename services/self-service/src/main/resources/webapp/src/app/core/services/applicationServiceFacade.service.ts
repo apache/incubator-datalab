@@ -18,10 +18,16 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Http, Response, RequestOptions, RequestMethod, Headers } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
-import { Dictionary } from '../util';
+import { Dictionary } from '../collections';
+
+import { environment } from '../../../environments/environment';
+import { HTTPMethod } from '../util';
+
+// we can now access environment.apiUrl
+const API_URL = environment.apiUrl;
 
 @Injectable()
 export class ApplicationServiceFacade {
@@ -29,17 +35,18 @@ export class ApplicationServiceFacade {
   private static readonly LOGIN = 'login';
   private static readonly LOGOUT = 'logout';
   private static readonly AUTHORIZE = 'authorize';
+  private static readonly REFRESH_TOKEN = 'refresh_token';
   private static readonly OAUTH = 'oauth';
   private static readonly ACCESS_KEY = 'access_key';
   private static readonly ACTIVE_LIST = 'active_list';
   private static readonly FULL_ACTIVE_LIST = 'full_active_list';
   private static readonly ENV = 'environment';
-  private static readonly ACCESS_KEY_GENERATE = 'access_key_generate';
+  private static readonly PROJECT_KEY_GENERATE = 'access_key_generate';
   private static readonly PROVISIONED_RESOURCES = 'provisioned_resources';
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
   private static readonly IMAGE = 'image';
   private static readonly SCHEDULER = 'scheduler';
-  private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_templates';
+  private static readonly TEMPLATES = 'templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
@@ -47,6 +54,7 @@ export class ApplicationServiceFacade {
   private static readonly USER_PREFERENCES = 'user_preferences';
   private static readonly BUDGET = 'budget';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
+  private static readonly META_DATA = 'meta';
   private static readonly ROLES = 'roles';
   private static readonly GROUPS = 'groups';
   private static readonly GROUP_ROLE = 'group_role';
@@ -65,472 +73,519 @@ export class ApplicationServiceFacade {
   private static readonly BILLING = 'billing';
   private static readonly DOWNLOAD_REPORT = 'download_report';
   private static readonly SETTINGS = 'settings';
-  private accessTokenKey: string = 'access_token';
+  private static readonly PROJECT = 'project';
+  private static readonly USER_PROJECT = 'user_project';
+  private static readonly ENDPOINT = 'endpoint';
+
   private requestRegistry: Dictionary<string>;
 
-  constructor(private http: Http) {
+  constructor(private http: HttpClient) {
     this.setupRegistry();
   }
 
-  public buildLoginRequest(body: any): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildLoginRequest(body: any): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.LOGIN),
       body,
-      this.getRequestOptions(true, false));
+      { responseType: 'text', observe: 'response' });
   }
 
-  public buildLogoutRequest(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildLogoutRequest(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.LOGOUT),
       '',
-      this.getRequestOptions(true, true));
+      { observe: 'response' });
   }
 
-  public buildAuthorizeRequest(body: any): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildAuthorizeRequest(body: any): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE),
       body,
-      this.getRequestOptions(false, true));
+      {
+        responseType: 'text',
+        headers: { 'Content-Type': 'text/plain' },
+        observe: 'response'
+      });
   }
 
-  public buildGetAuthToken(body: any): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildRefreshToken(param: any): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.REFRESH_TOKEN) + param,
+      null);
+  }
+
+  public buildLocationCheck(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.OAUTH),
-      body,
-      this.getRequestOptions(true, true));
+      null,
+      { responseType: 'text' });
   }
 
-  public buildCheckUserAccessKeyRequest(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetAuthToken(body: any): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.OAUTH) + body,
+      null,
+      { observe: 'response' });
+  }
+
+  public buildCheckUserAccessKeyRequest(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY),
       null,
-      this.getRequestOptions(true, true));
+      { observe: 'response' });
   }
 
-  public buildGenerateAccessKey(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
-      this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY_GENERATE),
+  public buildGenerateAccessKey(): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT_KEY_GENERATE),
       null,
-      this.getRequestOptions(true, true));
+      { observe: 'response', responseType: 'text' });
   }
 
-  public buildRegenerateAccessKey(option): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
-      this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY_GENERATE) + option,
+  public buildRegenerateAccessKey(option): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT_KEY_GENERATE) + option,
       null,
-      this.getRequestOptions(true, true));
+      { observe: 'response', responseType: 'text' });
   }
 
-  public buildUploadUserAccessKeyRequest(body: any): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildUploadUserAccessKeyRequest(body: any): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY),
       body,
-      this.getRequestOptions(false, true));
+      {
+        observe: 'response',
+        headers: { 'Upload': 'true' }
+      });
   }
 
-  public buildReuploadUserAccessKeyRequest(body: any, option: string): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildReuploadUserAccessKeyRequest(body: any, option: string): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.ACCESS_KEY) + option,
       body,
-      this.getRequestOptions(false, true));
+      {
+        observe: 'response',
+        headers: { 'Upload': 'true' }
+      });
   }
 
-  public buildGetUserProvisionedResourcesRequest(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetUserProvisionedResourcesRequest(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.PROVISIONED_RESOURCES),
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildGetExploratoryEnvironmentTemplatesRequest(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
-      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES),
-      null,
-      this.getRequestOptions(true, true));
+  public buildGetTemplatesRequest(params): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.TEMPLATES) + params,
+      null);
   }
 
-  public buildGetComputationalResourcesTemplatesRequest(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES),
-      null,
-      this.getRequestOptions(true, true));
-  }
-
-  public buildCreateExploratoryEnvironmentRequest(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildCreateExploratoryEnvironmentRequest(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
       data,
-      this.getRequestOptions(true, true));
+      { responseType: 'text', observe: 'response' });
   }
 
-  public buildRunExploratoryEnvironmentRequest(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildRunExploratoryEnvironmentRequest(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
       data,
-      this.getRequestOptions(true, true));
+      { responseType: 'text', observe: 'response' });
   }
 
-  public buildSuspendExploratoryEnvironmentRequest(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Delete,
+  public buildSuspendExploratoryEnvironmentRequest(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
-      data,
-      this.getRequestOptions(true, true));
+      data, { responseType: 'text', observe: 'response' });
   }
 
-  public buildCreateComputationalResources_DataengineServiceRequest(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildCreateComputationalResources_DataengineServiceRequest(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE),
       data,
-      this.getRequestOptions(true, true));
+      { observe: 'response' });
   }
 
-  public buildCreateComputationalResources_DataengineRequest(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildCreateComputationalResources_DataengineRequest(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE),
       data,
-      this.getRequestOptions(true, true));
+      { observe: 'response' });
   }
 
-  public buildDeleteComputationalResourcesRequest(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Delete,
+  public buildDeleteComputationalResourcesRequest(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildStopSparkClusterAction(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Delete,
+  public buildStopSparkClusterAction(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildStartSparkClusterAction(params): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildStartSparkClusterAction(params): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + params,
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildGetUserPreferences(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetUserPreferences(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.USER_PREFERENCES),
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildUpdateUserPreferences(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildUpdateUserPreferences(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.USER_PREFERENCES),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildGetEnvironmentHealthStatus(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetEnvironmentHealthStatus(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS),
       null,
-      this.getRequestOptions(true, true));
+      { observe: 'response' });
   }
 
-  public buildGetEnvironmentStatuses(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetEnvironmentStatuses(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildRunEdgeNodeRequest(): Observable<Response>  {
-    return this.buildRequest(RequestMethod.Post,
+  public buildRunEdgeNodeRequest(): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.EDGE_NODE_START),
       null,
-      this.getRequestOptions(true, true));
+      { responseType: 'text' });
   }
 
-  public buildSuspendEdgeNodeRequest(): Observable<Response>  {
-    return this.buildRequest(RequestMethod.Post,
+  public buildSuspendEdgeNodeRequest(): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.EDGE_NODE_STOP),
       null,
-      this.getRequestOptions(true, true));
+      { responseType: 'text', observe: 'response' });
   }
 
-  public buildRecreateEdgeNodeRequest(): Observable<Response>  {
-    return this.buildRequest(RequestMethod.Post,
+  public buildRecreateEdgeNodeRequest(): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.EDGE_NODE_RECREATE),
       null,
-      this.getRequestOptions(true, true));
+      { responseType: 'text' });
   }
 
-  public buildGetGroupsList(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetGroupsList(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_GROUPS),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildGetAvailableLibrariesList(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildGetAvailableLibrariesList(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_LIST),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildGetAvailableDependenciest(params): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetAvailableDependenciest(params): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_LIST) + params,
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildInstallLibraries(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildInstallLibraries(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_INSTALL),
       data,
-      this.getRequestOptions(true, true));
+      { observe: 'response', responseType: 'text' });
   }
 
-  public buildGetInstalledLibrariesList(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetInstalledLibrariesList(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.INSTALLED_LIBS_FORMAT),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildGetInstalledLibsByResource(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetInstalledLibsByResource(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.INSTALLED_LIBS),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildGetGitCreds(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetGitCreds(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.GIT_CREDS),
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildUpdateGitCredentials(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildUpdateGitCredentials(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.GIT_CREDS),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildGetGeneralBillingData(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildGetGeneralBillingData(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.BILLING),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildDownloadReportData(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildDownloadReportData(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.DOWNLOAD_REPORT),
       data,
-      this.getRequestOptions(true, true));
+      { observe: 'response', responseType: 'text' });
   }
 
-  public buildCreateBackupRequest(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildCreateBackupRequest(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.BACKUP),
       data,
-      this.getRequestOptions(true, true));
+      { responseType: 'text', observe: 'response' });
   }
-  public buildGetBackupStatusRequest(uuid): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetBackupStatusRequest(uuid): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.BACKUP),
-      uuid,
-      this.getRequestOptions(true, true));
+      uuid);
   }
 
-  public buildGetUserImages(image): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetUserImages(image): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
-      image,
-      this.getRequestOptions(true, true));
+      image);
   }
 
-  public buildGetImagesList(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetImagesList(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildCreateAMI(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildCreateAMI(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
       data,
-      this.getRequestOptions(true, true));
+      { observe: 'response', responseType: 'text' });
   }
 
-  public buildGetExploratorySchedule(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetExploratorySchedule(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildSetExploratorySchedule(param, data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildSetExploratorySchedule(param, data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER) + param,
       data,
-      this.getRequestOptions(true, true));
+      { observe: 'response' });
   }
 
-  public buildResetScheduleSettings(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Delete,
+  public buildResetScheduleSettings(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
       this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER),
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public BuildGetActiveSchcedulersData(param): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public BuildGetActiveSchcedulersData(param): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.SCHEDULER) + param,
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildGetActiveUsers(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetActiveUsers(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.ACTIVE_LIST),
-      null,
-      this.getRequestOptions(true, true));
-    }
+      null);
+  }
 
-  public buildManageEnvironment(action, data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildManageEnvironment(action, data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.ENV) + action,
       data,
-      this.getRequestOptions(false, true));
-    }
+      {
+        observe: 'response',
+        headers: { 'Content-Type': 'text/plain' }
+      });
+  }
 
-  public buildGetAllEnvironmentData(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetAllEnvironmentData(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.FULL_ACTIVE_LIST),
-      null,
-      this.getRequestOptions(true, true));
-    }
+      null);
+  }
 
-  public buildEnvironmentManagement(param, data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildEnvironmentManagement(param, data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.ENV) + param,
       data,
-      this.getRequestOptions(false, true));
+      {
+        observe: 'response',
+        headers: { 'Content-Type': 'text/plain' }
+      });
   }
 
-  public buildUpdateUsersBudget(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
-      this.requestRegistry.Item(ApplicationServiceFacade.BUDGET),
-      data,
-      this.getRequestOptions(false, true));
-  }
-
-  public buildGetSsnMonitorData(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetSsnMonitorData(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.SNN_MONITOR),
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildGetTotalBudgetData(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetTotalBudgetData(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.SETTINGS),
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildUpdateTotalBudgetData(param, method: number): Observable<Response> {
+  public buildUpdateTotalBudgetData(param, method: number): Observable<any> {
+
     return this.buildRequest(method,
       this.requestRegistry.Item(ApplicationServiceFacade.SETTINGS) + param,
       null,
-      this.getRequestOptions(true, true));
+      { observe: 'response' });
   }
 
-  public buildGetGroupsData(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetGroupsData(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildGetRolesData(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetRolesData(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.ROLES),
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildSetupNewGroup(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+  public buildSetupNewGroup(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
-  public buildUpdateGroupData(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildUpdateGroupData(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
-  public buildSetupRolesForGroup(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildSetupRolesForGroup(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_ROLE),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
-  public buildSetupUsersForGroup(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildSetupUsersForGroup(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
-  public buildRemoveUsersForGroup(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Delete,
+  public buildRemoveUsersForGroup(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUP_USER),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
-  public buildRemoveGroupById(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Delete,
+  public buildRemoveGroupById(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
       this.requestRegistry.Item(ApplicationServiceFacade.GROUPS),
-      data,
-      this.getRequestOptions(false, true));
+      data);
   }
 
-  public buildGetClusterConfiguration(param): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetClusterConfiguration(param): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildEditClusterConfiguration(param, data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildEditClusterConfiguration(param, data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
-      data,
-      this.getRequestOptions(true, true));
+      data);
   }
 
-  public buildGetExploratorySparkConfiguration(param): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetExploratorySparkConfiguration(param): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT) + param,
-      null,
-      this.getRequestOptions(true, true));
+      null);
   }
 
-  public buildEditExploratorySparkConfiguration(param, data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Put,
+  public buildEditExploratorySparkConfiguration(param, data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT) + param,
+      data);
+  }
+
+  public buildGetAppMetaData(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.META_DATA),
+      null);
+  }
+
+  public buildCreateProject(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
+      data);
+  }
+
+  public buildUpdateProject(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
+      data);
+  }
+
+  public buildGetProjectsList(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
+      null);
+  }
+
+  public buildGetUserProjectsList(params?): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.USER_PROJECT) + params,
+      null);
+  }
+
+  public buildDeleteProject(param): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
+      null);
+  }
+
+  public buildToggleProjectStatus(param, data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
+      data);
+  }
+
+  public buildUpdateProjectsBudget(param, data): Observable<any> {
+    return this.buildRequest(HTTPMethod.PUT,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
       data,
-      this.getRequestOptions(true, true));
+      { observe: 'response' });
+  }
+
+  public buildGetEndpointsData(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),
+      null);
+  }
+
+  public buildCreateEndpoint(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),
+      data);
+  }
+
+  public buildDeleteEndpoint(param): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT) + param,
+      null);
   }
 
   private setupRegistry(): void {
@@ -538,23 +593,24 @@ export class ApplicationServiceFacade {
 
     // Security
     this.requestRegistry.Add(ApplicationServiceFacade.LOGIN, '/api/user/login');
-    this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
-    this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/user/authorize');
+    this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/oauth/logout');
+    this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/oauth/authorize');
+    this.requestRegistry.Add(ApplicationServiceFacade.REFRESH_TOKEN, '/api/oauth/refresh');
     this.requestRegistry.Add(ApplicationServiceFacade.ACTIVE_LIST, '/api/environment/user');
     this.requestRegistry.Add(ApplicationServiceFacade.FULL_ACTIVE_LIST, '/api/environment/all');
     this.requestRegistry.Add(ApplicationServiceFacade.ENV, '/api/environment');
 
-    this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/azure/oauth');
+    this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/oauth');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY, '/api/user/access_key');
-    this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY_GENERATE, '/api/user/access_key/generate');
+    this.requestRegistry.Add(ApplicationServiceFacade.PROJECT_KEY_GENERATE, '/api/project/keys');
 
     // Exploratory Environment
     this.requestRegistry.Add(ApplicationServiceFacade.PROVISIONED_RESOURCES,
       '/api/infrastructure/info');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT,
       '/api/infrastructure_provision/exploratory_environment');
-    this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES,
-      '/api/infrastructure_templates/exploratory_templates');
+    this.requestRegistry.Add(ApplicationServiceFacade.TEMPLATES,
+      '/api/infrastructure_templates');
     this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
       '/api/infrastructure_provision/exploratory_environment/image');
     this.requestRegistry.Add(ApplicationServiceFacade.SCHEDULER,
@@ -578,6 +634,7 @@ export class ApplicationServiceFacade {
 
     // Environment Health Status
     this.requestRegistry.Add(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS, '/api/infrastructure/status');
+    this.requestRegistry.Add(ApplicationServiceFacade.META_DATA, '/api/infrastructure/meta');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_START, '/api/infrastructure/edge/start');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_STOP, '/api/infrastructure/edge/stop');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_RECREATE, '/api/user/access_key/recover');
@@ -603,25 +660,23 @@ export class ApplicationServiceFacade {
     // billing report
     this.requestRegistry.Add(ApplicationServiceFacade.BILLING, '/api/billing/report');
     this.requestRegistry.Add(ApplicationServiceFacade.DOWNLOAD_REPORT, '/api/billing/report/download');
+
+    // project
+    this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
+    this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
+    this.requestRegistry.Add(ApplicationServiceFacade.USER_PROJECT, '/api/project/me');
   }
 
-  private buildRequest(method: RequestMethod, url: string, body: any, opt: RequestOptions): Observable<Response> {
-    if (method === RequestMethod.Post) {
+  private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {
+    // added to simplify development process
+    const url = environment.production ? url_path : API_URL + url_path;
+
+    if (method === HTTPMethod.POST) {
       return this.http.post(url, body, opt);
-    } else if (method === RequestMethod.Delete) {
+    } else if (method === HTTPMethod.DELETE) {
       return this.http.delete(body ? url + JSON.parse(body) : url, opt);
-    } else if (method === RequestMethod.Put) {
+    } else if (method === HTTPMethod.PUT) {
       return this.http.put(url, body, opt);
     } else return this.http.get(body ? (url + body) : url, opt);
-  }
-
-  private getRequestOptions(json: boolean, auth: boolean): RequestOptions {
-    const headers = new Headers();
-    if (json)
-      headers.append('Content-type', 'application/json; charset=utf-8');
-    if (auth)
-      headers.append('Authorization', 'Bearer ' + localStorage.getItem(this.accessTokenKey));
-    const reqOpt = new RequestOptions({ headers: headers });
-    return reqOpt;
   }
 }

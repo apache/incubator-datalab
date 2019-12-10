@@ -11,7 +11,7 @@
       "template_name": "Jupyter with TensorFlow 1.8.0",
       "description": "Base image with TensorFlow and Jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "tensorflow_gpu-1.4.0",
+      "version": "tensorflow_gpu-1.8.0",
       "vendor": "AWS"
     }
   ]

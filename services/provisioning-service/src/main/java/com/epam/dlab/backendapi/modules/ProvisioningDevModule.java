@@ -20,8 +20,6 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
-import com.epam.dlab.auth.SystemUserInfoService;
-import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.auth.dto.UserCredentialDTO;
@@ -32,10 +30,14 @@ import com.epam.dlab.backendapi.core.commands.CommandExecutorMock;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
 import com.epam.dlab.backendapi.core.response.handlers.dao.FileSystemCallbackHandlerDao;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
+import com.epam.dlab.backendapi.service.CheckInactivityService;
+import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
+import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
+import com.epam.dlab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
 import com.fasterxml.jackson.core.JsonParser;
@@ -73,11 +75,11 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 				.SELF_SERVICE_NAME));
 		bind(MetadataHolder.class).to(DockerWarmuper.class);
 		bind(ICommandExecutor.class).toInstance(new CommandExecutorMock(configuration.getCloudProvider()));
-		bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
-		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
 		bind(ObjectMapper.class).toInstance(new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true));
 		bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
 		bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
+		bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
+		bind(ProjectService.class).to(ProjectServiceImpl.class);
 	}
 
 	/**
@@ -101,7 +103,7 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 					return (T) Response.ok(TOKEN).build();
 				} else {
 					return (T) Response.status(Response.Status.UNAUTHORIZED)
-							.entity("Username or password are not valid")
+							.entity("Username or password is invalid")
 							.build();
 				}
 			}

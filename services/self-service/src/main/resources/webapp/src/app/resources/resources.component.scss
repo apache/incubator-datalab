@@ -23,14 +23,16 @@
 
 .butt {
   &.butt-create {
-    color: #35afd5;
+    margin-right: 10px;
   }
-  &.butt-create {
-    &:disabled{
-      color: #577289!important;
-    }
-  }
+
   &.butt-tool {
     margin-right: 10px;
+  }
+}
+
+.base-retreat {
+  .selector-wrapper {
+    height: 38px;
   }
 }

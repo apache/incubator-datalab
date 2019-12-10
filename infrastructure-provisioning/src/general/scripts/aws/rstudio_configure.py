@@ -37,7 +37,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -49,35 +49,50 @@ if __name__ == "__main__":
         notebook_config['exploratory_name'] = os.environ['exploratory_name']
     except:
         notebook_config['exploratory_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:12], '-', True)
     notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
     notebook_config['key_name'] = os.environ['conf_key_name']
-    notebook_config['user_keyname'] = os.environ['edge_user_name']
+    notebook_config['user_keyname'] = os.environ['project_name']
     notebook_config['network_type'] = os.environ['conf_network_type']
     notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
-                                                               os.environ['edge_user_name'],
+                                                               os.environ['project_name'],
                                                                notebook_config['exploratory_name'], args.uuid)
-    notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
-                                                                           os.environ['application'])
+    notebook_config['image_enabled'] = os.environ['conf_image_enabled']
+    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    if os.environ['conf_shared_image_enabled'] == 'false':
+        notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+            notebook_config['service_base_name'],
+            os.environ['endpoint_name'],
+            os.environ['project_name'],
+            os.environ['application'])
+    else:
+        notebook_config['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(
+            notebook_config['service_base_name'],
+            os.environ['endpoint_name'],
+            os.environ['application'])
     notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
     notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
-        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
-                                                                  os.environ['edge_user_name'])
+        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
+    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
+                                                                  os.environ['project_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['rstudio_pass'] = id_generator()
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
-    edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_instance_name = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
+                                                os.environ['project_name'], os.environ['endpoint_name'])
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
+    edge_instance_private_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     if notebook_config['network_type'] == 'private':
         edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     else:
         edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Public')
     keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+    edge_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
 
     try:
         if os.environ['conf_os_family'] == 'debian':
@@ -127,8 +142,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['aws_region'])
+        params = "--hostname {} --keyfile {} --user {} --region {} --edge_private_ip {}".\
+            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['aws_region'],
+                   edge_instance_private_ip)
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -144,14 +160,15 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
         print('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {}  --keyfile {} " \
-                 "--region {} --rstudio_pass {} " \
-                 "--rstudio_version {} --os_user {} " \
-                 "--r_mirror {} --exploratory_name {}" \
+        params = "--hostname {0}  --keyfile {1} " \
+                 "--region {2} --rstudio_pass {3} " \
+                 "--rstudio_version {4} --os_user {5} " \
+                 "--r_mirror {6} --ip_adress {7} --exploratory_name {8} --edge_ip {9}" \
             .format(instance_hostname, keyfile_name,
                     os.environ['aws_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'],
-                    os.environ['notebook_r_mirror'], notebook_config['exploratory_name'])
+                    os.environ['notebook_r_mirror'], notebook_config['ip_address'],
+                    notebook_config['exploratory_name'], edge_ip)
         try:
             local("~/scripts/{}.py {}".format('configure_rstudio_node', params))
         except:
@@ -235,12 +252,32 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    if notebook_config['shared_image_enabled'] == 'true':
+    if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
-            ami_id = get_ami_id_by_name(notebook_config['expected_image_name'])
-            if ami_id == '':
+            ami_id = get_ami_id_by_name(`notebook_config['expected_image_name']`)
+            if ami_id == '' and notebook_config['shared_image_enabled'] == 'false':
                 print("Looks like it's first time we configure notebook server. Creating image.")
+                try:
+                    os.environ['conf_additional_tags'] = os.environ[
+                                                             'conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(
+                        os.environ['project_name'], os.environ['endpoint_name'])
+                except KeyError:
+                    os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(
+                        os.environ['project_name'], os.environ['endpoint_name'])
+                image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
+                                                      instance_name=notebook_config['instance_name'],
+                                                      image_name=notebook_config['expected_image_name'])
+                if image_id != '':
+                    print("Image was successfully created. It's ID is {}".format(image_id))
+            else:
+                try:
+                    os.environ['conf_additional_tags'] = os.environ[
+                                                             'conf_additional_tags'] + ';ami:shared;endpoint_tag:{};'.format(
+                        os.environ['endpoint_name'])
+                except KeyError:
+                    os.environ['conf_additional_tags'] = 'ami:shared;endpoint_tag:{}'.format(
+                        os.environ['endpoint_name'])
                 image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
                                                       instance_name=notebook_config['instance_name'],
                                                       image_name=notebook_config['expected_image_name'])
@@ -294,11 +331,11 @@ if __name__ == "__main__":
                    {"description": "RStudio",
                     "url": rstudio_notebook_acces_url},
                    {"description": "Ungit",
-                    "url": rstudio_ungit_acces_url},
-                   {"description": "RStudio (via tunnel)",
-                    "url": rstudio_ip_url},
-                   {"description": "Ungit (via tunnel)",
-                    "url": ungit_ip_url}
+                    "url": rstudio_ungit_acces_url}#,
+                   #{"description": "RStudio (via tunnel)",
+                   # "url": rstudio_ip_url},
+                   #{"description": "Ungit (via tunnel)",
+                   # "url": ungit_ip_url}
                ],
                "exploratory_user": notebook_config['dlab_ssh_user'],
                "exploratory_pass": notebook_config['rstudio_pass']}

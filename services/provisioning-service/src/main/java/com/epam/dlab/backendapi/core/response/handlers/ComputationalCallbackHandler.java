@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -54,14 +53,13 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 	private ComputationalConfigure computationalConfigure;
 
 	@JsonCreator
-	public ComputationalCallbackHandler(@JacksonInject SystemUserInfoService systemUserInfoService,
-										@JacksonInject ComputationalConfigure computationalConfigure,
+	public ComputationalCallbackHandler(@JacksonInject ComputationalConfigure computationalConfigure,
 										@JacksonInject RESTService selfService,
 										@JsonProperty("action") DockerAction action,
 										@JsonProperty("uuid") String uuid,
 										@JsonProperty("dto") ComputationalBase<?> dto) {
 
-		super(systemUserInfoService, selfService, dto.getCloudSettings().getIamUser(), uuid, action);
+		super(selfService, dto.getCloudSettings().getIamUser(), uuid, action);
 		this.computationalConfigure = computationalConfigure;
 		this.dto = dto;
 	}

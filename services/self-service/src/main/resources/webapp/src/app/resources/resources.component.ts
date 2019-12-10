@@ -17,14 +17,16 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
-import { ToastsManager } from 'ng2-toastr';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material/dialog';
 
-import { ResourcesGridComponent } from './resources-grid';
-import { UserAccessKeyService, HealthStatusService } from '../core/services';
-import { ExploratoryEnvironmentVersionModel, ComputationalResourceImage } from '../core/models';
-import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
+import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
+import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';
+import { Exploratory } from './resources-grid/resources-grid.model';
+import { HealthStatusService, ProjectService } from '../core/services';
+import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
+import { Project } from './../administration/project/project.component';
 
 @Component({
   selector: 'dlab-resources',
@@ -32,55 +34,36 @@ import { HTTP_STATUS_CODES, FileUtils } from '../core/util';
   styleUrls: ['./resources.component.scss']
 })
 
-export class ResourcesComponent implements OnInit, OnDestroy {
-
-  public userUploadAccessKeyState: number;
-  public exploratoryEnvironments: Array<ExploratoryEnvironmentVersionModel> = [];
-  public computationalResources: Array<ComputationalResourceImage> = [];
+export class ResourcesComponent implements OnInit {
+  public exploratoryEnvironments: Exploratory[] = [];
   public healthStatus: any;
-  // public billingEnabled: boolean;
-  // public admin: boolean;
+  projects: Project[] = [];
 
-  @ViewChild('createAnalyticalModal') createAnalyticalModal;
-  @ViewChild('manageUngitDialog') manageUngitDialog;
-  @ViewChild(ResourcesGridComponent) resourcesGrid: ResourcesGridComponent;
-
-  subscriptions: Subscription = new Subscription();
+  @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
 
   constructor(
-    private userAccessKeyService: UserAccessKeyService,
+    public toastr: ToastrService,
     private healthStatusService: HealthStatusService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef
-  ) {
-    this.userUploadAccessKeyState = HTTP_STATUS_CODES.NOT_FOUND;
-    this.toastr.setRootViewContainerRef(vcr);
-  }
+    private dialog: MatDialog,
+    private projectService: ProjectService
+  ) { }
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.createAnalyticalModal.resourceGrid = this.resourcesGrid;
-
-    this.subscriptions.add(this.userAccessKeyService.accessKeyEmitter.subscribe(response => {
-      if (response) this.userUploadAccessKeyState = response.status;
-    }));
+    this.getProjects();
+    this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
-
-  public createNotebook_btnClick(): void {
-    if (this.userUploadAccessKeyState === HTTP_STATUS_CODES.OK) {
-      if (!this.createAnalyticalModal.isOpened) this.createAnalyticalModal.open({ isFooter: false });
-    } else {
-      this.userAccessKeyService.initialUserAccessKeyCheck();
-    }
+  public createEnvironment(): void {
+    this.dialog.open(ExploratoryEnvironmentCreateComponent, { data: this.resourcesGrid, panelClass: 'modal-lg' })
+      .afterClosed().subscribe(() => this.refreshGrid());
   }
 
   public refreshGrid(): void {
     this.resourcesGrid.buildGrid();
+    this.getProjects();
     this.getEnvironmentHealthStatus();
+    this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
   public toggleFiltering(): void {
@@ -92,17 +75,31 @@ export class ResourcesComponent implements OnInit, OnDestroy {
   }
 
   public manageUngit(): void {
-    if (!this.manageUngitDialog.isOpened)
-        this.manageUngitDialog.open({ isFooter: false });
+    this.dialog.open(ManageUngitComponent, { panelClass: 'modal-xxl' })
+      .afterClosed().subscribe(() => this.refreshGrid());
   }
+
+  public setActiveProject(project): void {
+    this.resourcesGrid.selectActiveProject(project);
+  }
+
+  public getActiveProject() {
+    console.log('activeProject: ', this.resourcesGrid.activeProject);
+
+    return this.resourcesGrid.activeProject;
+  }
+
+  private getProjects() {
+    this.projectService.getUserProjectsList().subscribe((projects: any) => this.projects = projects);
+  }
+
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus().subscribe(
-        (result: any) => {
-          this.healthStatus = result;
-          this.resourcesGrid.healthStatus = this.healthStatus;
-          this.userAccessKeyService.initialUserAccessKeyCheck();
-        },
-      error => this.toastr.error(error.message, 'Oops!', { toastLife: 5000 }));
+      (result: any) => {
+        this.healthStatus = result;
+        this.resourcesGrid.healthStatus = this.healthStatus;
+      },
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 }

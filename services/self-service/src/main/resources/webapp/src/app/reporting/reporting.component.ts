@@ -18,27 +18,27 @@
  */
 
 
-import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
-import { BillingReportService, HealthStatusService, UserAccessKeyService } from '../core/services';
+import { BillingReportService, HealthStatusService } from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
-import { FileUtils, HTTP_STATUS_CODES } from '../core/util';
+import { FileUtils } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)"
-                (exportReport)="exportBillingReport()"
-                (setRangeOption)="setRangeOption($event)">
-  </dlab-toolbar>
-  <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
-  <footer *ngIf="data">
-    Total {{ data[DICTIONARY.billing.costTotal] }} {{ data[DICTIONARY.billing.currencyCode] }}
-  </footer>
+  <div class="base-retreat">
+    <dlab-toolbar (rebuildReport)="rebuildBillingReport()"
+                  (exportReport)="exportBillingReport()"
+                  (setRangeOption)="setRangeOption($event)">
+    </dlab-toolbar>
+    <mat-divider></mat-divider>
+    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
+  </div>
 
   `,
   styles: [`
@@ -59,24 +59,20 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
 export class ReportingComponent implements OnInit, OnDestroy {
   readonly DICTIONARY = DICTIONARY;
 
-  @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
-  @ViewChild(ToolbarComponent) reportingToolbar: ToolbarComponent;
+  @ViewChild(ReportingGridComponent, { static: false }) reportingGrid: ReportingGridComponent;
+  @ViewChild(ToolbarComponent, { static: true }) reportingToolbar: ToolbarComponent;
 
   reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
   data: any;
-  healthStatus: any;
   billingEnabled: boolean;
   admin: boolean;
 
   constructor(
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
-    private userAccessKeyService: UserAccessKeyService,
-    public toastr: ToastsManager,
-    public vcr: ViewContainerRef) {
-      this.toastr.setRootViewContainerRef(vcr);
-    }
+    public toastr: ToastrService
+  ) { }
 
   ngOnInit() {
     this.rebuildBillingReport();
@@ -91,14 +87,15 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
-        this.reportingGrid.reportData = this.data.lines;
-        this.reportingGrid.full_report = this.data.full_report;
+        this.reportingGrid.refreshData(this.data, this.data.lines);
+        this.reportingGrid.setFullReport(this.data.full_report);
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
-          localStorage.setItem('report_period' , JSON.stringify({
+          localStorage.setItem('report_period', JSON.stringify({
             start_date: this.data[DICTIONARY.billing.dateFrom],
-            end_date: this.data[DICTIONARY.billing.dateTo]}));
+            end_date: this.data[DICTIONARY.billing.dateTo]
+          }));
           this.reportingToolbar.setDateRange();
         }
 
@@ -108,7 +105,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
         } else {
           this.getDefaultFilterConfiguration(this.data);
         }
-     });
+      });
   }
 
   rebuildBillingReport($event?): void {
@@ -120,15 +117,15 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.getGeneralBillingData();
   }
 
-  exportBillingReport($event): void {
+  exportBillingReport(): void {
     this.billingReportService.downloadReport(this.reportData)
       .subscribe(
         data => FileUtils.downloadFile(data),
-        error => this.toastr.error('Billing report export failed!', 'Oops!', { toastLife: 5000 }));
+        error => this.toastr.error('Billing report export failed!', 'Oops!'));
   }
 
   getDefaultFilterConfiguration(data): void {
-    const users = [], types = [], shapes = [], services = [], statuses = [];
+    const users = [], types = [], shapes = [], services = [], statuses = [], projects = [];
 
     data.lines.forEach((item: any) => {
       if (item.user && users.indexOf(item.user) === -1)
@@ -137,17 +134,20 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1)
         statuses.push(item.status.toLowerCase());
 
+      if (item.project && projects.indexOf(item.project) === -1)
+        projects.push(item.project);
+
       if (item[DICTIONARY.billing.resourceType] && types.indexOf(item[DICTIONARY.billing.resourceType]) === -1)
         types.push(item[DICTIONARY.billing.resourceType]);
 
       if (item[DICTIONARY.billing.instance_size]) {
         if (item[DICTIONARY.billing.instance_size].indexOf('Master') > -1) {
           for (let shape of item[DICTIONARY.billing.instance_size].split('\n')) {
-              shape = shape.replace('Master: ', '');
-              shape = shape.replace(/Slave:\s+\d+ x /, '');
-              shape = shape.replace(/\s+/g, '');
+            shape = shape.replace('Master: ', '');
+            shape = shape.replace(/Slave:\s+\d+ x /, '');
+            shape = shape.replace(/\s+/g, '');
 
-              shapes.indexOf(shape) === -1 && shapes.push(shape);
+            shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
         } else if (item[DICTIONARY.billing.instance_size].match(/\d x \S+/)) {
           const parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
@@ -164,9 +164,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
     });
 
     if (!this.reportingGrid.filterConfiguration || !localStorage.getItem('report_config')) {
-      this.filterConfiguration = new ReportingConfigModel(users, services, types, statuses, shapes, '', '', '');
+      this.filterConfiguration = new ReportingConfigModel(users, services, types, statuses, shapes, '', '', '', projects);
       this.reportingGrid.setConfiguration(this.filterConfiguration);
-      localStorage.setItem('report_config' , JSON.stringify(this.filterConfiguration));
+      localStorage.setItem('report_config', JSON.stringify(this.filterConfiguration));
     }
   }
 
@@ -179,25 +179,22 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.reportingToolbar.clearRangePicker();
   }
 
-  clearStorage(): void {
-    localStorage.removeItem('report_config');
-    localStorage.removeItem('report_period');
-  }
-
   setRangeOption(dateRangeOption: any): void {
     this.reportData.date_start = dateRangeOption.start_date;
     this.reportData.date_end = dateRangeOption.end_date;
     this.getGeneralBillingData();
   }
 
+  private clearStorage(): void {
+    localStorage.removeItem('report_config');
+    localStorage.removeItem('report_period');
+  }
+
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => {
-        this.healthStatus = result.status;
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
-
-        this.userAccessKeyService.initialUserAccessKeyCheck();
       });
   }
 }

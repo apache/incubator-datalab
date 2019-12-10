@@ -20,14 +20,11 @@
 package com.epam.dlab.backendapi.service.aws;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.aws.ReportLine;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -39,27 +36,7 @@ import java.util.List;
 
 @Slf4j
 @Singleton
-public class AwsBillingService implements BillingService<AwsBillingFilter> {
-
-	@Inject
-	private BillingDAO billingDAO;
-
-	@Override
-	public Document getReport(UserInfo userInfo, AwsBillingFilter filter) {
-		log.trace("Get billing report for user {} with filter {}", userInfo.getName(), filter);
-		try {
-			return billingDAO.getReport(userInfo, filter);
-		} catch (RuntimeException t) {
-			log.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), filter, t);
-			throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);
-		}
-	}
-
-	@Override
-	public byte[] downloadReport(UserInfo userInfo, AwsBillingFilter filter) {
-		log.trace("Download billing report for user {} with filter {}", userInfo.getName(), filter);
-		return BillingService.super.downloadReport(userInfo, filter);
-	}
+public class AwsBillingService extends BillingService<AwsBillingFilter> {
 
 	@Override
 	public String getReportFileName(UserInfo userInfo, AwsBillingFilter filter) {

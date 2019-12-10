@@ -38,6 +38,10 @@ args = parser.parse_args()
 def general_clean():
     try:
         sudo('systemctl stop ungit')
+        sudo('systemctl stop inactive.timer')
+        sudo('rm -f /etc/systemd/system/inactive.service')
+        sudo('rm -f /etc/systemd/system/inactive.timer')
+        sudo('rm -rf /opt/inactivity')
         sudo('npm -g uninstall ungit')
         sudo('rm -f /etc/systemd/system/ungit.service')
         sudo('systemctl daemon-reload')
@@ -115,7 +119,7 @@ if __name__ == "__main__":
     if os.environ['conf_cloud_provider'] == 'azure':
          de_master_name = '{}-{}-de-{}-{}-m'.format(
             os.environ['conf_service_base_name'],
-            os.environ['edge_user_name'].replace("_", "-"),
+            os.environ['project_name'].replace("_", "-"),
             os.environ['exploratory_name'].replace("_", "-"),
             os.environ['computational_name'].replace("_", "-"))
          de_ami_id = AzureMeta().get_instance_image(os.environ['azure_resource_group_name'],
@@ -124,7 +128,7 @@ if __name__ == "__main__":
     else:
         de_master_name = '{}-{}-de-{}-{}-m'.format(
             os.environ['conf_service_base_name'],
-            os.environ['edge_user_name'],
+            os.environ['project_name'],
             os.environ['exploratory_name'],
             os.environ['computational_name'])
         de_ami_id = get_ami_id_by_instance_name(de_master_name)

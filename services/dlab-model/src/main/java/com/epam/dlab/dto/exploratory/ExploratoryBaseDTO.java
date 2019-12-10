@@ -24,32 +24,61 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends ResourceEnvBaseDTO<T> {
-    @SuppressWarnings("unchecked")
-    private final T self = (T) this;
-    @JsonProperty("notebook_image")
-    private String notebookImage;
+	@SuppressWarnings("unchecked")
+	private final T self = (T) this;
+	@JsonProperty("notebook_image")
+	private String notebookImage;
+	@JsonProperty("project_name")
+	private String project;
+	@JsonProperty("endpoint_name")
+	private String endpoint;
 
-    public String getNotebookImage() {
-        return notebookImage;
-    }
+	public String getNotebookImage() {
+		return notebookImage;
+	}
 
-    public void setNotebookImage(String notebookImage) {
-        this.notebookImage = notebookImage;
-    }
+	public void setNotebookImage(String notebookImage) {
+		this.notebookImage = notebookImage;
+	}
 
-    public T withNotebookImage(String notebookImage) {
-        setNotebookImage(notebookImage);
-        return self;
-    }
+	public T withNotebookImage(String notebookImage) {
+		setNotebookImage(notebookImage);
+		return self;
+	}
 
-    @Override
-    public ToStringHelper toStringHelper(Object self) {
-        return super.toStringHelper(self)
-                .add("notebookImage", notebookImage);
-    }
+	public T withProject(String project) {
+		setProject(project);
+		return self;
+	}
+	public T withEndpoint(String endpoint) {
+		setEndpoint(endpoint);
+		return self;
+	}
 
-    @Override
-    public String toString() {
-        return toStringHelper(this).toString();
-    }
+	@Override
+	public ToStringHelper toStringHelper(Object self) {
+		return super.toStringHelper(self)
+				.add("notebookImage", notebookImage);
+	}
+
+	public String getProject() {
+		return project;
+	}
+
+	public void setProject(String project) {
+		this.project = project;
+	}
+
+	public String getEndpoint() {
+		return endpoint;
+	}
+
+	public void setEndpoint(String endpoint) {
+		this.endpoint = endpoint;
+	}
+
+	@Override
+	public String toString() {
+		return toStringHelper(this).toString();
+	}
 }

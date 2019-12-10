@@ -18,10 +18,12 @@
  */
 
 import { Injectable } from '@angular/core';
-import {  CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { ApplicationSecurityService, AuthorizationGuard } from '.';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import 'rxjs/add/operator/toPromise';
+import { ApplicationSecurityService } from './applicationSecurity.service';
+import { AppRoutingService } from './appRouting.service';
 
 @Injectable()
 export class CheckParamsGuard implements CanActivate {
@@ -29,18 +31,16 @@ export class CheckParamsGuard implements CanActivate {
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private _authGuard: AuthorizationGuard
-  ) {}
+    private appRoutingService: AppRoutingService
+  ) { }
 
-  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this._authGuard
-      .canActivate(next, state)
-      .toPromise()
-      .then((auth: boolean) => {
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> | Promise<boolean> | boolean {
+    return this.applicationSecurityService.isLoggedIn().pipe(
+      map(authState => {
         const search = document.URL.split('?')[1];
 
         if (search && this.checkParamsCoincidence(search)) {
-          this.result = search.split('&').reduce(function(prev, curr) {
+          this.result = search.split('&').reduce(function (prev, curr) {
             const params = curr.split('=');
             prev[decodeURIComponent(params[0])] = decodeURIComponent(params[1]);
             return prev;
@@ -50,9 +50,10 @@ export class CheckParamsGuard implements CanActivate {
             .redirectParams(this.result)
             .toPromise();
         }
-
-        return Promise.resolve(!!auth);
-      });
+        if (!authState)
+          this.applicationSecurityService.locationCheck().subscribe(location => window.location.href = location);
+        return !!authState;
+      }));
   }
 
   private checkParamsCoincidence(search): boolean {

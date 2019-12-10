@@ -42,14 +42,20 @@ public class EnvResource {
 	private String name;
 	@JsonProperty
 	private ResourceType resourceType;
+	@JsonProperty("project_name")
+	private String project;
+	@JsonProperty("endpoint_name")
+	private String endpoint;
 	@JsonDeserialize(using = IsoLocalDateTimeDeSerializer.class)
 	@JsonProperty
 	private LocalDateTime lastActivity;
 
-	public EnvResource(String id, String name, ResourceType resourceType) {
+	public EnvResource(String id, String name, ResourceType resourceType, String project, String endpoint) {
 		this.id = id;
 		this.name = name;
 		this.resourceType = resourceType;
+		this.project = project;
+		this.endpoint = endpoint;
 	}
 
 	/**
@@ -133,6 +139,10 @@ public class EnvResource {
 	public EnvResource withLastActivity(LocalDateTime lastActivity) {
 		setLastActivity(lastActivity);
 		return this;
+	}
+
+	public String getEndpoint() {
+		return endpoint;
 	}
 
 	public ToStringHelper toStringHelper(Object self) {
