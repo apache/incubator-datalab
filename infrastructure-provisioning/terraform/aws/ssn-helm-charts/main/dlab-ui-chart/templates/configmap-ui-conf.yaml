@@ -170,17 +170,6 @@ data:
         archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
         archivedFileCount: 10
 
-    swaggerConfiguration:
-      resourcePackage: com.epam.dlab.backendapi.resources
-      title: DLab API
-      description: Essential toolset for analytics. Deployed on ${CLOUD_TYPE} provider
-      schemes: [https, http]
-      version: 2.0
-      contact: DLab
-      contactUrl: http://dlab.opensource.epam.com/
-      license: Apache 2.0
-      licenseUrl: https://www.apache.org/licenses/LICENSE-2.0
-
     mavenSearchService:
       protocol: http
       host: search.maven.org
