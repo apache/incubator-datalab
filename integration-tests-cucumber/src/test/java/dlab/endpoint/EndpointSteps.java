@@ -9,7 +9,6 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import dlab.util.KeycloakUtil;
 import org.apache.dlab.dto.EndpointDTO;
-import org.apache.dlab.mongo.MongoDBHelper;
 import org.apache.dlab.util.JacksonMapper;
 
 import java.net.URI;
@@ -40,10 +39,9 @@ public class EndpointSteps {
 		response = request.post(API_URI + "endpoint");
 	}
 
-	@Given("There is no endpoints in DLab")
-	public void thereIsNoEndpointsInDLab() {
-		MongoDBHelper.cleanCollection("endpoints");
-
+	@Given("There is no endpoint with name {string} in DLab")
+	public void thereIsNoEndpointWithNameInDLab(String name) throws URISyntaxException {
+		assertThat(authenticatedRequest().get(new URI(API_URI + "endpoint/" + name)).getStatusCode(), equalTo(404));
 	}
 
 	@Then("Response status code is {int}")
@@ -88,6 +86,12 @@ public class EndpointSteps {
 		assertThat(2, equalTo(endpoints.length));
 		assertThat("test1", equalTo(endpoints[0].getName()));
 		assertThat("test2", equalTo(endpoints[1].getName()));
+	}
+
+	@And("Remove endpoint with name {string}")
+	public void removeEndpointWithName(String name) {
+		final Response response = authenticatedRequest().delete(API_URI + "endpoint/" + name);
+		assertThat(response.getStatusCode(), equalTo(200));
 	}
 
 	private RequestSpecification authenticatedRequest() {
