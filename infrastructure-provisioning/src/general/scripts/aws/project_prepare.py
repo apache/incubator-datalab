@@ -99,7 +99,6 @@ if __name__ == "__main__":
     project_conf['zone'] = os.environ['aws_region'] + os.environ['aws_zone']
     project_conf['elastic_ip_name'] = '{0}-{1}-edge-EIP'.format(project_conf['service_base_name'],
                                                              os.environ['project_name'])
-    project_conf['keycloak_host'] = ''.join(re.findall(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", os.environ['keycloak_auth_server_url'])) + "/32"
     project_conf['provision_instance_ip'] = None
     try:
         project_conf['provision_instance_ip'] = get_instance_ip_address(
@@ -369,12 +368,6 @@ if __name__ == "__main__":
                 "FromPort": 389,
                 "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
                 "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8080,
-                "IpRanges": [{"CidrIp": project_conf['keycloak_host']}],
-                "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ])
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
