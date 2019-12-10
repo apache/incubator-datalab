@@ -18,6 +18,8 @@ var macSwiper,
 $(document).ready(function() {
     $('body').show();
     $('#msg').hide();
+    window.scrollTo(window.scrollX, window.scrollY + 1);
+    window.scrollTo(window.scrollX, window.scrollY - 1);
 });
 
 function stopMacVideos() {
@@ -80,7 +82,7 @@ $(document).ready(function () {
     });
 });
 
-$(window).on('load', function () {
+$(document).ready(function () {
     'use strict';
 
     macSwiper = new Swiper('.mac-wrap .swiper-container', {
