@@ -21,11 +21,10 @@
 #
 # ******************************************************************************
 
-import sys
-import os
-from dlab.notebook_lib import *
-from dlab.fab import *
 from fabric.api import *
+import sys
+import argparse
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -33,30 +32,29 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
-jupyterlab_dir = '/home/' + args.os_user + '/.jupyterlab/'
-
-def start_jupyterlab_container(jupyterlab_dir):
-    try:
-        with cd('{}'.format(jupyterlab_dir)):
-            run('docker build --file Dockerfile_jupyterlab -t jupyter-lab .'.format(args.os_user))
-            container_id = run('docker ps | awk \'NR==2{print $1}\'')
-            if container_id != '':
-                run('docker stop ' + container_id)
-            run('docker run -d --restart unless-stopped -p 8888:8888 \
-                     -v /home/{0}:/opt/legion/repository \
-                     -v /home/{0}/.ssh/:/home/{0}/.ssh/ \
-                     jupyter-lab:latest'.format(args.os_user))
-    except: sys.exit(1)
+http_file = '/etc/systemd/system/docker.service.d/http-proxy.conf'
+https_file = '/etc/systemd/system/docker.service.d/https-proxy.conf'
 
 if __name__ == "__main__":
     print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
-    print("Starting Jupyter container")
+    print("Configuring proxy for docker")
     try:
-        start_jupyterlab_container(jupyterlab_dir)
+        sudo('mkdir -p /etc/systemd/system/docker.service.d')
+        sudo('touch {}'.format(http_file))
+        sudo('echo -e \'[Service] \nEnvironment=\"HTTP_PROXY=\'$http_proxy\'\"\' > {}'.format(http_file))
+        sudo('touch {}'.format(https_file))
+        sudo('echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > {}'.format(https_file))
+        sudo('mkdir /home/{}/.docker'.format(args.os_user))
+        sudo('touch /home/{}/.docker/config.json'.format(args.os_user))
+        sudo(
+            'echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/dlab-user/.docker/config.json')
+        sudo('usermod -a -G docker ' + args.os_user)
+        sudo('update-rc.d docker defaults')
+        sudo('update-rc.d docker enable')
+        sudo('systemctl restart docker')
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
-

@@ -33,19 +33,18 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
-jupyterlab_dir = '/home/' + args.os_user + '/.jupyterlab/'
+superset_dir = '/home/' + args.os_user + '/incubator-superset/contrib/docker'
 
-def start_jupyterlab_container(jupyterlab_dir):
+def start_superset(superset_dir):
     try:
-        with cd('{}'.format(jupyterlab_dir)):
-            run('docker build --file Dockerfile_jupyterlab -t jupyter-lab .'.format(args.os_user))
-            container_id = run('docker ps | awk \'NR==2{print $1}\'')
-            if container_id != '':
-                run('docker stop ' + container_id)
-            run('docker run -d --restart unless-stopped -p 8888:8888 \
-                     -v /home/{0}:/opt/legion/repository \
-                     -v /home/{0}/.ssh/:/home/{0}/.ssh/ \
-                     jupyter-lab:latest'.format(args.os_user))
+        with cd('{}'.format(superset_dir)):
+            sudo('docker-compose run --rm superset ./docker-init.sh')
+        sudo('cp /opt/dlab/templates/superset-notebook.service /tmp/')
+        sudo('sed -i \'s/OS_USER/{}/g\' /tmp/superset-notebook.service'.format(args.os_user))
+        sudo('cp /tmp/superset-notebook.service /etc/systemd/system/')
+        sudo('systemctl daemon-reload')
+        sudo('systemctl enable superset-notebook')
+        sudo('systemctl start superset-notebook')
     except: sys.exit(1)
 
 if __name__ == "__main__":
@@ -53,9 +52,9 @@ if __name__ == "__main__":
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
-    print("Starting Jupyter container")
+    print("Starting Superset")
     try:
-        start_jupyterlab_container(jupyterlab_dir)
+        start_superset(superset_dir)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
