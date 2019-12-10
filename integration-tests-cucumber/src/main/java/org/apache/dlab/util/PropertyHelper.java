@@ -2,6 +2,7 @@ package org.apache.dlab.util;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.Properties;
 
 public class PropertyHelper {
@@ -10,6 +11,7 @@ public class PropertyHelper {
 
 	static {
 		PROPERTIES = new Properties();
+
 		try (InputStream inputStream = new FileInputStream(System.getProperty("config.file"))) {
 			PROPERTIES.load(inputStream);
 		} catch (Exception e) {

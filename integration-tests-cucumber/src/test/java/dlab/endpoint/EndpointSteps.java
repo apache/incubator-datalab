@@ -7,6 +7,7 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import dlab.util.KeycloakUtil;
 import org.apache.dlab.dto.EndpointDTO;
 import org.apache.dlab.mongo.MongoDBHelper;
 import org.apache.dlab.util.JacksonMapper;
@@ -29,7 +30,7 @@ public class EndpointSteps {
 		this.name = name;
 		request = given().body(JacksonMapper.marshall(new EndpointDTO(name, uri, account, tag)))
 				.auth()
-				.oauth2("token123")
+				.oauth2(KeycloakUtil.getToken())
 				.contentType(ContentType.JSON);
 
 	}
@@ -92,6 +93,6 @@ public class EndpointSteps {
 	private RequestSpecification authenticatedRequest() {
 		return given()
 				.auth()
-				.oauth2("token123");
+				.oauth2(KeycloakUtil.getToken());
 	}
 }
