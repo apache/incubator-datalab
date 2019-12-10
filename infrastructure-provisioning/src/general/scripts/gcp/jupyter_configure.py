@@ -273,8 +273,8 @@ if __name__ == "__main__":
     print("User key name: {}".format(os.environ['project_name']))
     print("Jupyter URL: {}".format(jupyter_ip_url))
     print("Ungit URL: {}".format(ungit_ip_url))
-    print("ReverseProxyNotebook".format(jupyter_notebook_acces_url))
-    print("ReverseProxyUngit".format(jupyter_ungit_acces_url))
+    print("ReverseProxyNotebook".format(jupyter_notebook_access_url))
+    print("ReverseProxyUngit".format(jupyter_ungit_access_url))
     print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'],
                                                                                        notebook_config['dlab_ssh_user'],
                                                                                        ip_address))
