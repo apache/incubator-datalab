@@ -66,7 +66,7 @@ if __name__ == "__main__":
             "clientId": keycloak_client_name,
             "id": keycloak_client_id,
             "enabled": "true",
-            "redirectUris": ["http://{}/*".format(args.edge_public_ip)],
+            "redirectUris": ["https://{}/*".format(args.edge_public_ip)],
             "publicClient": "false",
             "secret": args.keycloak_client_secret,
             "protocol": "openid-connect",
