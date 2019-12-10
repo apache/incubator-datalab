@@ -6,8 +6,8 @@ Feature: Project management in DLab
     Given There is no project with name "<name>" in DLab
     And User try to create new project with name "<name>", endpoints "<endpoints>", groups "<groups>" and key "<key>"
     When User send create new project request
-    Then User wait maximum <timeout> minutes while project is creating
-    Then Response status code is 200
+    Then User wait maximum "<timeout>" minutes while project is creating
+    Then Status code is 200
     Examples:
       | name | endpoints | groups   | key              | timeout |
-      | prj1 | test      | $anyyser | publicKeyContent | 10
+      | prj1 | test      | $anyyser | publicKeyContent | 10      |
