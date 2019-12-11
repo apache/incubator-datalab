@@ -881,6 +881,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.output_terraform_result()
 
     def destroy(self):
+        self.select_master_ip()
         self.destroy_remote_terraform()
         super(AWSK8sSourceBuilder, self).destroy()
         if self.output_dir is not None:
