@@ -55,25 +55,35 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
         <ng-template #label>
           <p>
             <span class="ellipsis label-name strong" matTooltip="{{ data.item.name }}" matTooltipPosition="above" [matTooltipDisabled]="data.item.name.length > 35">
-            {{ data.item.name }}</span> will be {{ data.action || 'decommissioned' }}.
+             {{ data.item.name }}</span> will be {{ data.action || 'disconnected' }}.
           </p>
         </ng-template>
           
-        <mat-list *ngIf="data.list && data.list.length && data.type === 'confirmation'">
-            <mat-list-item class="list-header sans">
-                <div class="endpoint">Project</div>
-                <div class="status">Resource</div>
-            </mat-list-item>
-            <div class="scrolling-content">
-                <mat-list-item *ngFor="let project of data.list" class="sans node">
-                    <div class="endpoint ellipsis">
+        <div *ngIf="data.list && data.list.length && data.type === 'confirmation'">
+          <div class="resource-list">
+            <div class="resource-list-header">
+                <div class="resource-name">Resource</div>
+                <div class="project">Project</div>
+            </div>
+            <div class="scrolling-content resource-heigth" >
+                <div class="resource-list-row sans node" *ngFor="let project of data.list">
+                    <div class="resource-name ellipsis">
                         <div *ngFor="let notebook of project.filtredExploratory">{{notebook.name}}</div>
                     </div>
-                    <div class="status ellipsis">{{project.project}}</div>                    
-                </mat-list-item>
+                    <div class="project ellipsis">{{project.project}}</div>                    
+                </div>
             </div>
-          </mat-list>
-          
+          </div>
+          <div class="confirm-resource-terminating">
+              <label>
+                  <input class="checkbox" type="checkbox"
+                         (change)="terminateResource()"/>Terminate all related resources
+              </label>              
+          </div>
+          <p class="confirm-message">
+              <span *ngIf="willResourceTermineted">All connected computational resources will be terminated as well</span>
+          </p>
+        </div>            
           <mat-list *ngIf="data.item.endpoints?.length">
             <mat-list-item class="list-header sans">
                 <div class="endpoint">Edge node in endpoint</div>
@@ -90,8 +100,9 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
           
         <div class="text-center m-top-30 m-bott-10">
           <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
-          <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
-        </div>
+          <button *ngIf="!this.willResourceTermineted" type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close('noTerminate')">Yes</button>
+          <button *ngIf="this.willResourceTermineted" type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close('terminate')">Yes</button>
+        </div>          
       </div>
     </div>
   </div>
@@ -110,17 +121,31 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     .endpoint { width: 70%; text-align: left; color: #577289;}
     .status { width: 30%;text-align: left;}
     .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
-    .node { font-weight: 300;}
-    .label-name { display: inline-block; width: 100%}
-    .scrolling-content{overflow-y: auto; max-height: 200px;}
-    .endpoint { width: 280px;text-align: left;}    
+    .node { font-weight: 300;}    
+    .label-name { display: inline-block; width: 100%}    
+    .resource-name { width: 280px;text-align: left; padding: 10px 0;line-height: 26px;}
+    .project { width: 30%;text-align: left; padding: 10px 0;line-height: 26px;}    
+    .resource-list{max-width: 100%; margin: 0 auto;margin-top: 20px; }
+    .resource-list-header{display: flex; font-weight: 600; font-size: 16px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
+    .resource-list-row{display: flex; border-bottom: 1px solid #edf1f5;padding: 0 20px;}
+    .confirm-resource-terminating{text-align: left; padding: 10px 20px;}
+    .confirm-message{color: #35afd5;font-size: 13px;min-height: 18px; text-align: center;}
+    .checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
+    label{cursor: pointer}
+    
+    
   `]
 })
 export class NotificationDialogComponent {
+  public willResourceTermineted: boolean = false;
   constructor(
     public dialogRef: MatDialogRef<NotificationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     console.log(data);
+  }
+
+  public terminateResource(): void{
+    this.willResourceTermineted = !this.willResourceTermineted;
   }
 }

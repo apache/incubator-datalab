@@ -75,13 +75,13 @@ export class EndpointsComponent implements OnInit {
 
   public deleteEndpoint(data) {
     this.filtredResource = this.resources.filter(project => {
-      project.filtredExploratory =  project.exploratory.filter(resource => resource.endpoint === data.name);
+      project.filtredExploratory =  project.exploratory.filter(resource => resource.endpoint === data.name && resource.status !== 'terminated');
       return project.filtredExploratory.length
     });
 
     this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data, list: this.filtredResource }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
-        result && this.endpointService.deleteEndpoint(data.name).subscribe(() => {
+        result === 'noTerminate' && this.endpointService.deleteEndpoint(data.name).subscribe(() => {
           this.toastr.success('Endpoint successfully deleted!', 'Success!');
           this.getEndpointList();
         }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
