@@ -88,26 +88,6 @@ variable "service_account_iam_roles" {
   ]
 }
 
-variable "k8s_gke_endpoint" {
-    default = ""
-}
-
-variable "k8s_gke_client_access_token" {
-    default = ""
-}
-
-variable "k8s_gke_clinet_cert" {
-    default = ""
-}
-
-variable "k8s_gke_client_key" {
-    default = ""
-}
-
-variable "k8s_gke_cluster_ca" {
-    default = ""
-}
-
 variable "ssn_k8s_alb_dns_name" {
     default = ""
 }

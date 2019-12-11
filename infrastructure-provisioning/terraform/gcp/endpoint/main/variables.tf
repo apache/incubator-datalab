@@ -47,7 +47,7 @@ variable "endpoint_id" {
   default = ""
 }
 
-variable "vpc_name" {
+variable "vpc_id" {
   default = ""
 }
 

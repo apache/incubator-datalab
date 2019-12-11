@@ -20,20 +20,20 @@
 # ******************************************************************************
 
 locals {
-  vpc_name              = "${var.service_base_name}-${var.endpoint_id}-endpoint-vpc"
+  vpc_id              = "${var.service_base_name}-${var.endpoint_id}-endpoint-vpc"
   subnet_name           = "${var.service_base_name}-${var.endpoint_id}-endpoint-subnet"
   firewall_ingress_name = "${var.service_base_name}-${var.endpoint_id}-ing-rule"
   firewall_egress_name  = "${var.service_base_name}-${var.endpoint_id}-eg-rule"
 }
 
 resource "google_compute_network" "endpoint_vpc" {
-  count = var.vpc_name == "" ? 1 : 0
-  name                    = local.vpc_name
+  count = var.vpc_id == "" ? 1 : 0
+  name                    = local.vpc_id
   auto_create_subnetworks = false
 }
 
 data "google_compute_network" "endpoint_vpc_data" {
-  name = var.vpc_name == "" ? google_compute_network.endpoint_vpc.0.name : var.vpc_name
+  name = var.vpc_id == "" ? google_compute_network.endpoint_vpc.0.name : var.vpc_id
 }
 
 resource "google_compute_subnetwork" "endpoint_subnet" {
