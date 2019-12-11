@@ -850,6 +850,18 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             else:
                 break
 
+    def destroy_remote_terraform(self):
+        logging.info('destroy helm charts')
+        with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
+            with conn.cd('terraform/ssn-helm-charts/main'):
+                init = conn.run('terraform init').stdout.lower()
+                validate = conn.run('terraform validate').stdout.lower()
+                if 'success' not in init or 'success' not in validate:
+                    raise TerraformProviderError
+                command = 'terraform destroy -auto-approve'
+                logging.info(command)
+                conn.run(command)
+
     def deploy(self):
         logging.info('deploy')
         output = ' '.join(
@@ -868,6 +880,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.output_terraform_result()
 
     def destroy(self):
+        self.destroy_remote_terraform()
         super(AWSK8sSourceBuilder, self).destroy()
         if self.output_dir is not None:
             shutil.rmtree(self.output_dir)
