@@ -211,32 +211,10 @@ subcomponents is subject to the terms and conditions of the following
 licenses.
 
 ========================================================================
-MIT licenses
-========================================================================
-
-The following components are provided under the MIT License. See project link for details.
-
-(MIT License) Mockito (https://github.com/mockito/mockito)
-(MIT License) SLF4J (http://www.slf4j.org/)
-
-========================================================================
 Apache 2.0 licenses
 ========================================================================
 
 The following components are provided under the Apache 2.0 License. See project link for details.
 
-(Apache 2.0 License) MongoDB Java Driver - org.mongodb:mongo-java-driver (http://mongodb.github.io/mongo-java-driver/3.2/driver)
-(Apache 2.0 License) Dropwizard (https://github.com/dropwizard/dropwizard)
-(Apache 2.0 License) Dropwizard Template Config (https://github.com/tkrille/dropwizard-template-config)
-(Apache 2.0 License) directory server (https://github.com/apache/directory-server)
-(Apache 2.0 License) jackson (https://github.com/FasterXML/jackson)
-(Apache 2.0 License) aws java sdk (https://github.com/aws/aws-sdk-java)
-(Apache 2.0 License) boto3 (https://github.com/boto/boto3)
-
-========================================================================
-PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2 licenses
-========================================================================
-
-The following components are provided under the PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2 License. See project link for details.
-
-(PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2) jython (https://github.com/jythontools/jython)
+(Apache 2.0 License) Material design icons (https://github.com/google/material-design-icons)
+(Apache 2.0 License) Google Fonts Files, Open Sans (https://github.com/google/fonts/tree/master/apache/opensans)
