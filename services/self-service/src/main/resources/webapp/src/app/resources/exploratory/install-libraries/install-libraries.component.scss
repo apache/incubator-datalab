@@ -264,7 +264,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     width: 100%;
 
     .scrollingList {
-      max-height: 80%;
+      max-height: 300px;
       height: 80%;
       overflow-y: auto;
       overflow-x: hidden;
@@ -398,6 +398,10 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     }
   }
 }
+.dropdown-multiselect .list-menu li a{
+  color: #4a5c89 !important;
+  font-size: 13px;
+}
 
 
 @media screen and (min-width: 1281px) {
@@ -406,8 +410,8 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
     .mat-list {
       .scrollingList {
-        max-height: 85%;
-        height: 85%;
+        max-height: 300px;
+        height: 65%;
       }
     }
   }

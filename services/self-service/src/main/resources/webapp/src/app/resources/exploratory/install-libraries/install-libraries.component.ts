@@ -247,7 +247,7 @@ export class InstallLibrariesComponent implements OnInit {
         this.filtredNotebookLibs = [...this.notebookLibs];
         this.notebookLibs.forEach(v => v.filteredStatus = v.status);
         this.changeDetector.markForCheck();
-        this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v=>v.group));
+        this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v=>this.groupsListMap[v.group]));
         this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.resource)));
         this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.resourceType)));
         this.filterConfiguration.status = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.status)));
@@ -325,11 +325,11 @@ export class InstallLibrariesComponent implements OnInit {
   public toggleFilterRow(): void {
     this.filtered = !this.filtered
   }
-  
+
   public filterLibs(): void {
     this.filtredNotebookLibs = this.notebookLibs.filter((lib) => {
-      const isName = this.filterModel.name ? lib.name.toLowerCase().indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 : true;
-      const isGroup = this.filterModel.group.length ? this.filterModel.group.includes(lib.group) : true;
+      const isName = this.filterModel.name ? lib.name.toLowerCase().indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 || lib.version.indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 : true;
+      const isGroup = this.filterModel.group.length ? this.filterModel.group.includes(this.groupsListMap[lib.group]) : true;
       lib.filteredStatus = lib.status.filter(status => {
         const isResource = this.filterModel.resource.length ? this.filterModel.resource.includes(status.resource) :true;
         const isResourceType = this.filterModel.resourceType.length ? this.filterModel.resourceType.includes(status.resourceType) : true;
