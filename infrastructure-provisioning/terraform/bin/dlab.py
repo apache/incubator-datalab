@@ -852,7 +852,6 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
     def destroy_remote_terraform(self):
         logging.info('destroy helm charts')
-        print("IP--->> {}".format(self.ip))
         with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
             with conn.cd('terraform/ssn-helm-charts/main'):
                 init = conn.run('terraform init').stdout.lower()
