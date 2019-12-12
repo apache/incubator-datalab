@@ -1,6 +1,5 @@
 package dlab.project;
 
-
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -20,6 +19,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -29,14 +29,17 @@ import static dlab.Constants.API_URI;
 import static dlab.Constants.LOCAL_ENDPOINT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 public class ProjectSteps {
 
 	private RequestSpecification createProjectRequest;
-	private RequestSpecification generateKeysRequest;
 	private Response response;
 	private String projectName;
+	private String publicKey;
+	private Set<String> endpoints;
+	private Set<String> groups;
 
 
 	@Given("There is no project with name {string} in DLab")
@@ -46,23 +49,34 @@ public class ProjectSteps {
 				.getStatusCode(), equalTo(404));
 	}
 
+	@And("There are the following endpoints")
+	public void thereAreTheFollowingEndpoints(List<String> endpoints) {
+		this.endpoints = new HashSet<>(endpoints);
+	}
+
+	@And("There are the following groups")
+	public void thereAreTheFollowingGroups(List<String> groups) {
+		this.groups = new HashSet<>(groups);
+	}
+
+	@And("User generate new publicKey")
+	public void userTryToGenerateNewPublicKey() {
+		this.publicKey = authenticatedRequest().contentType(ContentType.JSON)
+				.post(API_URI + "project/keys")
+				.getBody().as(ProjectKeyDTO.class)
+				.getPublicKey();
+	}
+
 	@When("User send create new project request")
 	public void userSendCreateNewProjectRequest() {
 		response = createProjectRequest.post(API_URI + "project");
 	}
 
-	@And("User try to create new project with name {string}, endpoints {string}, groups {string} and publicKey")
-	public void userTryToCreateNewProjectWithNameEndpointsGroupsAndKey(String projectName, String endpoints,
-																	   String groups) {
+	@And("User try to create new project with name {string}, endpoints, groups and publicKey")
+	public void userTryToCreateNewProjectWithNameEndpointsGroupsAndKey(String projectName) {
 		this.projectName = projectName;
-		String publicKey = generateKeysRequest.post(API_URI + "project/keys")
-				.getBody().as(ProjectKeyDTO.class)
-				.getPublicKey();
-		Set<String> endpointSet = getSetFromString(endpoints);
-		Set<String> groupSet = getSetFromString(groups);
-
 		createProjectRequest = given()
-				.body(JacksonMapper.marshall(new CreateProjectDTO(projectName, groupSet, endpointSet, publicKey, projectName)))
+				.body(JacksonMapper.marshall(new CreateProjectDTO(projectName, groups, endpoints, publicKey, projectName)))
 				.auth()
 				.oauth2(KeycloakUtil.getToken())
 				.contentType(ContentType.JSON);
@@ -89,20 +103,15 @@ public class ProjectSteps {
 					.stream()
 					.filter(e -> LOCAL_ENDPOINT.equals(e.getName()))
 					.findAny();
-			isRunning = localEndpoint.isPresent() && EndpointStatusDTO.Status.RUNNING == localEndpoint.get().getStatus();
+
+			assertTrue("local endpoint does not exist!", localEndpoint.isPresent());
+			assertNotSame("Endpoint with status FAILED", EndpointStatusDTO.Status.FAILED, localEndpoint.get().getStatus());
+
+			isRunning = EndpointStatusDTO.Status.RUNNING == localEndpoint.get().getStatus();
 			TimeUnit.MINUTES.sleep(1);
 		}
 
-		if (!isRunning) {
-			fail("Timeout for project status check reached!");
-		}
-	}
-
-	@And("User try to generate new publicKey")
-	public void userTryToGenerateNewPublicKey() {
-		generateKeysRequest = given().auth()
-				.oauth2(KeycloakUtil.getToken())
-				.contentType(ContentType.JSON);
+		assertTrue("Timeout for project status check reached!", isRunning);
 	}
 
 	private HashSet<String> getSetFromString(String string) {

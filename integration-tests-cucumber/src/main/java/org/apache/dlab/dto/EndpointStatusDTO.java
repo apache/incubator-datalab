@@ -18,6 +18,7 @@ public class EndpointStatusDTO {
         STOPPING,
         STOPPED,
         TERMINATING,
-        TERMINATED
+        TERMINATED,
+        FAILED
     }
 }
