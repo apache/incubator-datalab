@@ -143,7 +143,7 @@ if __name__ == "__main__":
                                                                                        project_conf['endpoint_tag'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
-    if project_conf['local_endpoint']:
+    if not project_conf['local_endpoint']:
         # attach project_tag and endpoint_tag to endpoint
         try:
             endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
