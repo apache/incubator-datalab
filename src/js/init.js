@@ -71,6 +71,9 @@ $(document).ready(function () {
             'left': 0,
             'opacity': 1
         });
+        $('.overlay-wrap').css({
+            display: "flex"
+        });
     });
 
     $('.close-butt').on('click', function () {
