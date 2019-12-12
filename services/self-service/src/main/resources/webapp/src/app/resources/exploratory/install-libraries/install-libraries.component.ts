@@ -72,8 +72,7 @@ export class InstallLibrariesComponent implements OnInit {
   public filterConfiguration: FilterLibsModel = new FilterLibsModel('',[],[],[],[]);
   public filterModel: FilterLibsModel = new FilterLibsModel('', [], [], [],[]);
   public filtered: boolean;
-
-  public filtredNotebookLibs:any;
+  public filtredNotebookLibs: Array<any> = [];
 
   @ViewChild('groupSelect', { static: false }) group_select;
   @ViewChild('resourceSelect', { static: false }) resource_select;
@@ -243,8 +242,10 @@ export class InstallLibrariesComponent implements OnInit {
   private getInstalledLibrariesList(init?: boolean) {
     this.model.getInstalledLibrariesList(this.notebook)
       .subscribe((data: any) => {
+        if(!this.filtredNotebookLibs.length || data.length !== this.notebookLibs.length){
+          this.filtredNotebookLibs = [...data];
+        }
         this.notebookLibs = data ? data : [];
-        this.filtredNotebookLibs = [...this.notebookLibs];
         this.notebookLibs.forEach(v => v.filteredStatus = v.status);
         this.changeDetector.markForCheck();
         this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v=>this.groupsListMap[v.group]));
