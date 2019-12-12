@@ -132,7 +132,7 @@
         </mat-list-item>
 
         <ng-container *ngIf="filtered" >
-         <mat-list-item class="lib-col">
+         <mat-list-item class="lib-col filter-row">
           <th class="lib-name lib-input">
             <input placeholder="Filter by library name" [value]="filterModel.name" (input)="filterModel.name = $event.target.value" type="text" class="form-control filter-field "/>
           </th>
@@ -158,7 +158,7 @@
               <multi-select-dropdown
                 (selectionChange)="onFilterUpdate($event)"
                 [items]="this.filterConfiguration.resourceType"
-                [type]="'resourceType'"
+                [type]="'resource type'"
                 [model]="this.filterModel.resourceType"
               >
               </multi-select-dropdown>
@@ -188,12 +188,11 @@
         </ng-container>
 
         <div class="scrollingList" id="scrolling" *ngIf="notebookLibs?.length">
-          <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">
-            <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>
-          </div>
-
-          <mat-list-item *ngFor="let lib of filtredNotebookLibs">
-            <div class="lib-name">
+<!--          <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">-->
+<!--            <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>-->
+<!--          </div>-->
+          <mat-list-item  *ngFor="let lib of filtredNotebookLibs">
+            <div class="lib-name ellipsis">
               <strong>{{ lib.name }}</strong>&nbsp;
               <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
             </div>
