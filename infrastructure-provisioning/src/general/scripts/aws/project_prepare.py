@@ -100,6 +100,7 @@ if __name__ == "__main__":
     project_conf['elastic_ip_name'] = '{0}-{1}-edge-EIP'.format(project_conf['service_base_name'],
                                                              os.environ['project_name'])
     project_conf['provision_instance_ip'] = None
+    project_conf['local_endpoint'] = False
     try:
         project_conf['provision_instance_ip'] = get_instance_ip_address(
             project_conf['tag_name'], '{0}-{1}-endpoint'.format(project_conf['service_base_name'],
@@ -107,6 +108,7 @@ if __name__ == "__main__":
     except:
         project_conf['provision_instance_ip'] = get_instance_ip_address(project_conf['tag_name'], '{0}-ssn'.format(
             project_conf['service_base_name'])).get('Private') + "/32"
+        project_conf['local_endpoint'] = True
     if 'aws_user_predefined_s3_policies' not in os.environ:
         os.environ['aws_user_predefined_s3_policies'] = 'None'
 
@@ -141,17 +143,18 @@ if __name__ == "__main__":
                                                                                        project_conf['endpoint_tag'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
-    # attach project_tag and endpoint_tag to endpoint
-    try:
-        endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
-        print("Endpoint id: " + endpoint_id)
-        ec2 = boto3.client('ec2')
-        ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']},
-                                                       {'Key': 'endpoint_tag', 'Value': project_conf['endpoint_tag']}])
-    except Exception as err:
-        print("Failed to attach Project tag to Endpoint", str(err))
-#        traceback.print_exc()
-#        sys.exit(1)
+    if project_conf['local_endpoint']:
+        # attach project_tag and endpoint_tag to endpoint
+        try:
+            endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
+            print("Endpoint id: " + endpoint_id)
+            ec2 = boto3.client('ec2')
+            ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']},
+                                                           {'Key': 'endpoint_tag', 'Value': project_conf['endpoint_tag']}])
+        except Exception as err:
+            print("Failed to attach Project tag to Endpoint", str(err))
+            traceback.print_exc()
+            sys.exit(1)
 
     try:
         project_conf['vpc2_id'] = os.environ['aws_vpc2_id']
