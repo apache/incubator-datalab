@@ -74,10 +74,14 @@ export class EndpointsComponent implements OnInit {
   }
 
   public deleteEndpoint(data) {
-    this.filtredResource = this.resources.filter(project => {
-      project.filtredExploratory =  project.exploratory.filter(resource => resource.endpoint === data.name && resource.status !== 'terminated');
-      return project.filtredExploratory.length
-    });
+    if(this.resources.length){
+      this.filtredResource = this.resources.filter(project => {
+        project.filtredExploratory =  project.exploratory.filter(resource => resource.endpoint === data.name && resource.status !== 'terminated');
+        return project.filtredExploratory.length
+      });
+    }else{
+      this.filtredResource = this.resources
+    }
 
     this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data, list: this.filtredResource }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
