@@ -179,8 +179,8 @@ class Console:
             print(nextline)
             if nextline == '' and process.poll() is not None:
                 break
-            if 'error' in nextline.lower():
-                sys.exit(0)
+            # if 'error' in nextline.lower():
+            #     sys.exit(0)
 
     @staticmethod
     def execute(command):
