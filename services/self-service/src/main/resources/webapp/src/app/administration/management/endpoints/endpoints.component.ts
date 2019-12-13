@@ -85,14 +85,8 @@ export class EndpointsComponent implements OnInit {
 
     this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data, list: this.filtredResource }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
-        result === 'noTerminate' && this.endpointService.deleteEndpoint(`${data.name}?with-resources=false`).subscribe(() => {
-          this.toastr.success('Endpoint successfully deleted!', 'Success!');
-          this.getEndpointList();
-        }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
-        result === 'terminate' && this.endpointService.deleteEndpoint(`${data.name}?with-resources=true`).subscribe(() => {
-          this.toastr.success('Endpoint successfully deleted. All related resources are terminated!', 'Success!');
-          this.getEndpointList();
-        }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
+        result === 'noTerminate' && this.deleteEndpointOption(data, false);
+        result === 'terminate' && this.deleteEndpointOption(data, true);
       });
   }
 
@@ -103,6 +97,13 @@ export class EndpointsComponent implements OnInit {
       account: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
       endpoint_tag: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])]
     });
+  }
+
+  private deleteEndpointOption(data, option){
+    this.endpointService.deleteEndpoint(`${data.name}?with-resources=${option}`).subscribe(() => {
+      this.toastr.success(option ? 'Endpoint successfully disconnected. All related resources are terminated!' : 'Endpoint successfully disconnected!' , 'Success!');
+      this.getEndpointList();
+    }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
   }
 
   private getEndpointList() {
