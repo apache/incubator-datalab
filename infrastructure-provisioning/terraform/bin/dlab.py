@@ -1058,9 +1058,8 @@ class GCPK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--mongo_service_port', 'Mongo service port', group='k8s')
          .add_str('--mongo_node_port', 'Mongo node port', group='k8s')
          .add_str('--mongo_service_name', 'Mongo service name', group='k8s')
-         .add_str('--env_os', 'Environment Operating system', group='k8s', required=True, default='debian')
-         .add_str('--big_query_dataset', 'Big query dataset name for billing', group='k8s', required=True,
-                  default='test')
+         .add_str('--env_os', 'Environment Operating system', group='k8s', default='debian')
+         .add_str('--big_query_dataset', 'Big query dataset name for billing', group='k8s', default='test')
          .add_str('--custom_certs_enabled', 'If custom certs enabled', group='k8s')
          .add_str('--custom_cert_path', 'Custom cert path', group='k8s')
          .add_str('--custom_key_path', 'Custom key path', group='k8s')
