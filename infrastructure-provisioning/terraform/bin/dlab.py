@@ -179,8 +179,8 @@ class Console:
             print(nextline)
             if nextline == '' and process.poll() is not None:
                 break
-            # if 'error' in nextline.lower():
-            #     sys.exit(0)
+            if 'error' in nextline.lower():
+                sys.exit(0)
 
     @staticmethod
     def execute(command):
@@ -1091,10 +1091,7 @@ class GCPK8sSourceBuilder(AbstractDeployBuilder):
         gke_params['-target'] = 'module.gke_cluster'
         helm_charts_params['-target'] = 'module.helm_charts'
 
-        try:
-            terraform.destroy(helm_charts_params, self.terraform_args)
-        except Exception as err:
-            print("Destroying of Helm charts failed: {}".format(str(err)))
+        terraform.destroy(helm_charts_params, self.terraform_args)
         time.sleep(60)
         terraform.destroy(gke_params, self.terraform_args)
 
