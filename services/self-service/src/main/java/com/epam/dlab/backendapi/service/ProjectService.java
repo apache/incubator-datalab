@@ -16,6 +16,8 @@ public interface ProjectService {
 
 	List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status);
 
+	List<ProjectDTO> getProjectsByEndpoint(String endpointName);
+
 	void create(UserInfo userInfo, ProjectDTO projectDTO);
 
 	ProjectDTO get(String name);
@@ -37,4 +39,6 @@ public interface ProjectService {
 	void updateBudget(List<ProjectDTO> projects);
 
 	boolean isAnyProjectAssigned(UserInfo userInfo);
+
+	boolean checkExploratoriesAndComputationalProgress(String projectName, List<String> endpoints);
 }
