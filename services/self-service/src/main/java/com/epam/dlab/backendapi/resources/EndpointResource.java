@@ -103,7 +103,7 @@ public class EndpointResource {
 								   @Parameter(description = "Endpoint name")
 								   @PathParam("name") String name,
 								   @Parameter(description = "Delete endpoint only or with related resources")
-								   @QueryParam("with-resources") @DefaultValue("true") boolean withResources) {
+								   @QueryParam("with-resources") @DefaultValue("false") boolean withResources) {
 		endpointService.remove(userInfo, name, withResources);
 		return Response.ok().build();
 	}
