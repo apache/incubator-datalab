@@ -28,6 +28,8 @@ public interface ProjectDAO {
 
 	Optional<ProjectDTO> get(String name);
 
+	List<ProjectDTO> getProjectsByEndpoint(String endpointName);
+
 	boolean update(ProjectDTO projectDTO);
 
 	void remove(String name);

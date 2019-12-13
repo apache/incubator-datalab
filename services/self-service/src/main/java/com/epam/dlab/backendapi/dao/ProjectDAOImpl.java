@@ -99,6 +99,11 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
+	public List<ProjectDTO> getProjectsByEndpoint(String endpointName) {
+		return find(PROJECTS_COLLECTION, elemMatch(ENDPOINTS, eq("name", endpointName)), ProjectDTO.class);
+	}
+
+	@Override
 	public boolean update(ProjectDTO projectDTO) {
 		BasicDBObject updateProject = new BasicDBObject();
 		updateProject.put(GROUPS, projectDTO.getGroups());
