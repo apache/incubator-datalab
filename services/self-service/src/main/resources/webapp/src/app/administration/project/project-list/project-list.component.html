@@ -73,18 +73,59 @@
 
   <ng-container matColumnDef="actions">
     <th mat-header-cell *matHeaderCellDef class="project-actions"></th>
-    <td mat-cell *matCellDef="let element" class="project-actions">
-      <span>
-        <a (click)="editProject(element)">
-          <mat-icon>mode_edit</mat-icon>
-        </a>
-      </span>
-      <span>
-        <a (click)="deleteProject(element)" class="action"
-          [ngClass]="{'not-allowed' : isInProgress(element) || !isActiveEndpoint(element) }">
-          <mat-icon>delete_forever</mat-icon>
-        </a>
-      </span>
+    <td mat-cell *matCellDef="let element" class="settings">
+<!--      <span>-->
+<!--        <a (click)="editProject(element)">-->
+<!--          <mat-icon>mode_edit</mat-icon>-->
+<!--        </a>-->
+<!--      </span>-->
+<!--      <span>-->
+<!--        <a (click)="deleteProject(element)" class="action"-->
+<!--          [ngClass]="{'not-allowed' : isInProgress(element) || !isActiveEndpoint(element) }">-->
+<!--          <mat-icon>delete_forever</mat-icon>-->
+<!--        </a>-->
+<!--      </span>-->
+
+      <span #settings (click)="actions.toggle($event, settings)" class="actions"></span>
+      <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+        <ul class="list-unstyled">
+          <div class="active-items"></div>
+          <li class="project-seting-item">
+            <i class="material-icons">play_circle_outline</i>
+            <a class="action">
+              Start edge node
+            </a>
+          </li>
+          <li class="project-seting-item">
+            <i class="material-icons">pause_circle_outline</i>
+            <a class="action">
+              Stop edge node
+            </a>
+          </li>
+          <li class="project-seting-item">
+            <i class="material-icons">highlight_off</i>
+            <a class="action">
+              Terminate edge node
+            </a>
+          </li>
+          <li class="project-seting-item">
+            <mat-icon>mode_edit</mat-icon>
+            <a (click)="editProject(element)">
+              Edit {{element.name }}
+            </a>
+          </li>
+          <li class="project-seting-item" *ngIf="!isInProgress(element) && isActiveEndpoint(element)">
+            <mat-icon>delete_forever</mat-icon>
+            <a (click)="deleteProject(element)" class="action"
+               [ngClass]="{'not-allowed' : isInProgress(element) || !isActiveEndpoint(element) }">
+              Delete {{element.name }}
+            </a>
+          </li>
+        </ul>
+      </bubble-up>
+    </td>
+    <td class="settings">
+
     </td>
 
   </ng-container>

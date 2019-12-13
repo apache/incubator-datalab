@@ -87,3 +87,29 @@ table {
     }
   }
 }
+
+td.settings {
+  position: relative;
+  vertical-align: middle !important;
+  text-align: right;
+  .actions {
+    background-image: url(../../../../assets/svg/settings_icon.svg);
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+  }
+}
+.project-seting-item{
+  display: flex;
+  padding: 10px;
+  align-items: center;
+  border-bottom: 1px solid #edf1f5;
+  cursor: pointer;
+  color: #577289;
+  a{
+    padding-left: 5px;
+  }
+}
+
