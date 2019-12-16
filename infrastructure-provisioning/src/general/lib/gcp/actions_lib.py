@@ -578,7 +578,8 @@ class GCPActions:
                 ]
             }
         }
-        request = self.service_resource.projects().serviceAccounts().setIamPolicy(resource=resource, body=params)
+
+        request = self.service_iam.projects().serviceAccounts().setIamPolicy(resource=resource, body=params)
         try:
             return request.execute()
         except Exception as err:
