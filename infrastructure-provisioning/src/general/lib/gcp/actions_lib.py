@@ -557,7 +557,7 @@ class GCPActions:
         resource = "projects/{}/serviceAccounts/{}".format(self.project, service_account_email)
         request = GCPActions().service_iam.projects().serviceAccounts().getIamPolicy(resource=resource)
         serviceAccounts_policy = request.execute()
-
+        print(serviceAccounts_policy)
         params = {
             "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
             "members": [
