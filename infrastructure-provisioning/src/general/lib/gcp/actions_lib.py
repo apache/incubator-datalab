@@ -554,21 +554,28 @@ class GCPActions:
 
     def set_role_to_service_account(self, service_account_name, role_name, role_type='custom'):
         resource = "projects/{}/serviceAccounts/{}".format(self.project, service_account_name)
-        request = GCPActions().service_resource.projects().serviceAccounts().getIamPolicy(resource=resource)
-        serviceAccounts_policy = request.execute()
+#        request = GCPActions().service_resource.projects().serviceAccounts().getIamPolicy(resource=resource)
+#        serviceAccounts_policy = request.execute()
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
-        params = {
-            "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
-            "members": [
-                "serviceAccount:{}".format(service_account_email)
-            ]
-        }
-        if role_type == 'predefined':
-            params['role'] = "roles/{}".format(role_name)
-        serviceAccounts_policy['bindings'].append(params)
+#        params = {
+#            "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
+#            "members": [
+#               "serviceAccount:{}".format(service_account_email)
+#            ]
+#        }
+#        if role_type == 'predefined':
+#            params['role'] = "roles/{}".format(role_name)
+#        serviceAccounts_policy['bindings'].append(params)
         params = {
             "policy": {
-                "bindings": serviceAccounts_policy['bindings']
+                "bindings": [
+                    {
+                        "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
+                        "members": [
+                        "serviceAccount:{}".format(service_account_email)
+                        ]
+                    }
+                ]
             }
         }
         request = self.service_resource.projects().serviceAccounts().setIamPolicy(resource=resource, body=params)
