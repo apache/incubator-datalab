@@ -553,33 +553,25 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def set_role_to_service_account(self, service_account_name, role_name, role_type='custom'):
-
-#        request = GCPActions().service_resource.projects().serviceAccounts().getIamPolicy(resource=resource)
-#        serviceAccounts_policy = request.execute()
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         resource = "projects/{}/serviceAccounts/{}".format(self.project, service_account_email)
-#        params = {
-#            "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
-#            "members": [
-#               "serviceAccount:{}".format(service_account_email)
-#            ]
-#        }
-#        if role_type == 'predefined':
-#            params['role'] = "roles/{}".format(role_name)
-#        serviceAccounts_policy['bindings'].append(params)
+        request = GCPActions()self.service_iam.projects().serviceAccounts().getIamPolicy(resource=resource)
+        serviceAccounts_policy = request.execute()
+
+        params = {
+            "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
+            "members": [
+                "serviceAccount:{}".format(service_account_email)
+            ]
+        }
+        if role_type == 'predefined':
+            params['role'] = "roles/{}".format(role_name)
+        serviceAccounts_policy['bindings'].append(params)
         params = {
             "policy": {
-                "bindings": [
-                    {
-                        "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
-                        "members": [
-                        "serviceAccount:{}".format(service_account_email)
-                        ]
-                    }
-                ]
+                "bindings": serviceAccounts_policy['bindings']
             }
         }
-        print(params)
         request = self.service_iam.projects().serviceAccounts().setIamPolicy(resource=resource, body=params)
         try:
             return request.execute()
