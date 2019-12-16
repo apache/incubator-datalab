@@ -98,7 +98,6 @@ export class ResourcesGridComponent implements OnInit {
         this.environments = ExploratoryModel.loadEnvironments(result);
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
-
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
       });
   }
