@@ -555,23 +555,23 @@ class GCPActions:
     def set_role_to_service_account(self, service_account_name, role_name, role_type='custom'):
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         resource = "projects/{}/serviceAccounts/{}".format(self.project, service_account_email)
-        request = GCPActions().service_iam.projects().serviceAccounts().getIamPolicy(resource=resource)
-        serviceAccounts_policy = request.execute()
+
         print(serviceAccounts_policy)
-        params = {
-            "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
-            "members": [
-                "serviceAccount:{}".format(service_account_email)
-            ]
+        params =  {
+            "policy": {
+                "bindings": [
+                    {
+                        "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
+                        "members": [
+                            "serviceAccount:{}".format(service_account_email)
+                        ]
+                    }
+                ]
+            }
         }
         if role_type == 'predefined':
             params['role'] = "roles/{}".format(role_name)
-        serviceAccounts_policy['bindings'].append(params)
-        params = {
-            "policy": {
-                "bindings": serviceAccounts_policy['bindings']
-            }
-        }
+
         request = self.service_iam.projects().serviceAccounts().setIamPolicy(resource=resource, body=params)
         try:
             return request.execute()
