@@ -570,7 +570,8 @@ class GCPActions:
         }
         if role_type == 'predefined':
             params['role'] = "roles/{}".format(role_name)
-
+        print('Parameters')
+        print(params)
         request = self.service_iam.projects().serviceAccounts().setIamPolicy(resource=resource, body=params)
         try:
             return request.execute()
