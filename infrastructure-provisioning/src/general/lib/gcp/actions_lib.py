@@ -556,7 +556,6 @@ class GCPActions:
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         resource = "projects/{}/serviceAccounts/{}".format(self.project, service_account_email)
 
-        print(serviceAccounts_policy)
         params =  {
             "policy": {
                 "bindings": [
