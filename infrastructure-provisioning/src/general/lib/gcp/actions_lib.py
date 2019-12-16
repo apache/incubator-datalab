@@ -556,7 +556,7 @@ class GCPActions:
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         resource = "projects/{}/serviceAccounts/{}".format(self.project, service_account_email)
         if role_type == 'predefined':
-            role = "roles/{}".format(role_name)
+            role = "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_'))
         else:
             role = "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_'))
         params =  {
