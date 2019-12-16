@@ -553,8 +553,9 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def set_role_to_service_account(self, service_account_name, role_name, role_type='custom'):
-        request = GCPActions().service_resource.projects().getIamPolicy(resource=self.project, body={})
-        project_policy = request.execute()
+        resource = "projects/{}/serviceAccounts/{}".format(self.project, service_account_name)
+        request = GCPActions().service_resource.projects().serviceAccounts().getIamPolicy(resource=resource, body={})
+        serviceAccounts_policy = request.execute()
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         params = {
             "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
@@ -564,13 +565,13 @@ class GCPActions:
         }
         if role_type == 'predefined':
             params['role'] = "roles/{}".format(role_name)
-        project_policy['bindings'].append(params)
+        serviceAccounts_policy['bindings'].append(params)
         params = {
             "policy": {
-                "bindings": project_policy['bindings']
+                "bindings": serviceAccounts_policy['bindings']
             }
         }
-        request = self.service_resource.projects().setIamPolicy(resource=self.project, body=params)
+        request = self.service_resource.projects().serviceAccounts().setIamPolicy(resource=resource, body=params)
         try:
             return request.execute()
         except Exception as err:
