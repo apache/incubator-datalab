@@ -90,21 +90,21 @@
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
           <div class="active-items"></div>
-          <li class="project-seting-item">
+          <li class="project-seting-item" *ngIf="areStoppedEndpoints(element)">
             <i class="material-icons">play_circle_outline</i>
-            <a class="action">
+            <a class="action" (click)="openEdgeDialog('start', element)">
               Start edge node
             </a>
           </li>
-          <li class="project-seting-item">
+          <li class="project-seting-item" *ngIf="areStartedEndpoints(element)">
             <i class="material-icons">pause_circle_outline</i>
-            <a class="action">
+            <a class="action" (click)="openEdgeDialog('stop', element )">
               Stop edge node
             </a>
           </li>
-          <li class="project-seting-item">
+          <li class="project-seting-item" *ngIf="areStoppedEndpoints(element) || areStartedEndpoints(element)">
             <i class="material-icons">highlight_off</i>
-            <a class="action">
+            <a class="action" (click)="openEdgeDialog('terminate', element)">
               Terminate edge node
             </a>
           </li>

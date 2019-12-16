@@ -19,28 +19,16 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { MaterialModule } from '../material.module';
-import { ProgressDialogModule, BubbleModule } from '../index';
+import { EdgeActionDialogComponent } from './edge-action-dialog.component';
+import { MaterialModule } from '../../material.module';
+import {FormsModule} from "@angular/forms";
 
-import { NavbarComponent } from './navbar.component';
-import { NotificationDialogModule } from '../modal-dialog/notification-dialog';
-import {EdgeActionDialogModule} from "../modal-dialog/edge-action-dialog";
-
-export * from './navbar.component';
+export * from './edge-action-dialog.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    RouterModule,
-    MaterialModule,
-    NotificationDialogModule,
-    EdgeActionDialogModule,
-    ProgressDialogModule,
-    BubbleModule,
-    EdgeActionDialogModule
-  ],
-  declarations: [NavbarComponent],
-  exports: [NavbarComponent, RouterModule]
+  imports: [CommonModule, MaterialModule, FormsModule],
+  declarations: [EdgeActionDialogComponent],
+  entryComponents: [EdgeActionDialogComponent],
+  exports: [EdgeActionDialogComponent]
 })
-export class NavbarModule { }
+export class EdgeActionDialogModule {}

@@ -52,6 +52,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DateAdapter } from '@angular/material/core';
+import { EdgeActionDialogComponent } from './modal-dialog/edge-action-dialog/edge-action-dialog.component';
 
 @NgModule({
   exports: [

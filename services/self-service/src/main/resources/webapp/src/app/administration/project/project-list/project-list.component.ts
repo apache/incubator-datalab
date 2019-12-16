@@ -17,14 +17,16 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, OnDestroy, Inject} from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
 import { ProjectDataService } from '../project-data.service';
 import { Project, Endpoint } from '../project.component';
 import { CheckUtils } from '../../../core/util';
+import {EdgeActionDialogComponent} from "../../../shared/modal-dialog/edge-action-dialog";
 
 @Component({
   selector: 'project-list',
@@ -45,8 +47,12 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   constructor(
     public toastr: ToastrService,
-    private projectDataService: ProjectDataService
-  ) { }
+    private projectDataService: ProjectDataService,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<ProjectListComponent>,
+    public dialog: MatDialog,
+  ) {
+  }
 
 
   ngOnInit() {
@@ -65,13 +71,13 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     const filteredList = this.projectList.map(project => {
       project.endpoints = project.endpoints.filter((endpoint: Endpoint) => endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING' && endpoint.status !== 'FAILED')
       return project;
-    })
+    });
 
     this.dataSource = new MatTableDataSource(filteredList);
   }
 
   public toggleEndpointAction(project, action, endpoint) {
-    this.toggleStatus.emit({ project, endpoint, action });
+    this.toggleStatus.emit({project, endpoint, action});
   }
 
   public editProject(item: Project[]) {
@@ -94,5 +100,36 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   public toEndpointStatus(status) {
     return CheckUtils.endpointStatus[status] || status;
+  }
+
+  public openEdgeDialog(action, project) {
+      const endpoints = project.endpoints.filter(endpoint => {
+        if(action === "stop"){
+          return endpoint.status == 'RUNNING'
+        }
+        if(action === "start"){
+          return endpoint.status == 'STOPPED'
+        }
+        if(action === "terminate"){
+          return endpoint.status == 'RUNNING' || endpoint.status == 'STOPPED'
+        }
+      });
+      this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})
+        .afterClosed().subscribe(endpoint => {
+        this.toggleStatus.emit({project, endpoint, action});
+        console.log(endpoint)
+        // result && this.endpointService.deleteEndpoint(data.name).subscribe(() => {
+        //   this.toastr.success('Endpoint successfully deleted!', 'Success!');
+
+        // }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
+      });
+    }
+
+  public areStartedEndpoints(project) {
+    return project.endpoints.filter(endpoint => endpoint.status == 'RUNNING').length > 0;
+  }
+
+  public areStoppedEndpoints(project) {
+    return project.endpoints.filter(endpoint => endpoint.status == 'STOPPED').length > 0;
   }
 }
