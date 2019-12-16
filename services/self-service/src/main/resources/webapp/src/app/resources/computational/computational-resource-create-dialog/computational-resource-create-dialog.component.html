@@ -79,7 +79,7 @@
                                             && resourceForm?.controls['cluster_alias_name'].dirty
                                             && !resourceForm?.controls['cluster_alias_name'].hasError('duplication')">
                   Cluster name cannot be longer than {{DICTIONARY.max_cluster_name_length}} characters
-                    and can only contain letters, numbers, hyphens and '_' but can not end with special
+                  and can only contain letters, numbers, hyphens and '_' but can not end with special
                   characters
                 </span>
               </div>
@@ -231,8 +231,8 @@
 
     </div>
     <ng-template #placeholder>
-      <div *ngIf="!loading" class="info message">Computational resource creations are not available.<br>Please, check
-        your permissions.</div>
+      <div *ngIf="!loading && !clusterTypes?.length" class="info message">
+        Computational resource creations are not available.<br>Please, check your permissions.</div>
       <div *ngIf="loading" class="info message">
         Computational resource data is processing
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>

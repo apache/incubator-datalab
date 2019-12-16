@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
     # INSTALL DOCKER
     print ("Install Docker")
-    configure_docker(args.os_user, http_file, https_file)
+    configure_docker(args.os_user)
 
     # CONFIGURE JUPYTER FILES
     print("Configure jupyter files")

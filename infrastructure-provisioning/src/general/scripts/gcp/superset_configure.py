@@ -54,10 +54,27 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                notebook_config['project_name'],
                                                                notebook_config['exploratory_name'])
-    notebook_config['expected_primary_image_name'] = '{}-{}-notebook-primary-image'.format(
-                                                        notebook_config['service_base_name'], os.environ['application'])
-    notebook_config['expected_secondary_image_name'] = '{}-{}-notebook-secondary-image'.format(
-                                                        notebook_config['service_base_name'], os.environ['application'])
+    notebook_config['image_enabled'] = os.environ['conf_image_enabled']
+    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+    if notebook_config['shared_image_enabled'] == 'false':
+        notebook_config['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], notebook_config['project_name'],
+            os.environ['application'])
+        notebook_config['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], notebook_config['project_name'],
+            os.environ['application'])
+        notebook_config['image_labels'] = {"sbn": notebook_config['service_base_name'],
+                                           "endpoint_tag": notebook_config['endpoint_tag'],
+                                           "project_tag": notebook_config['project_tag'],
+                                           "product": "dlab"}
+    else:
+        notebook_config['expected_primary_image_name'] = '{}-{}-{}-primary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], os.environ['application'])
+        notebook_config['expected_secondary_image_name'] = '{}-{}-{}-secondary-image'.format(
+            notebook_config['service_base_name'], notebook_config['endpoint_tag'], os.environ['application'])
+        notebook_config['image_labels'] = {"sbn": notebook_config['service_base_name'],
+                                           "endpoint_tag": notebook_config['endpoint_tag'],
+                                           "product": "dlab"}
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
                                                    notebook_config['project_name'], notebook_config['endpoint_tag'])
@@ -274,6 +291,46 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to set edge reverse proxy template.", str(err))
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        sys.exit(1)
+
+    try:
+        print('[CONFIGURING PROXY FOR DOCKER]')
+        logging.info('[CONFIGURING PROXY FOR DOCKER]')
+        params = "--hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} ". \
+            format(instance_hostname,
+                   notebook_config['ssh_key_path'],
+                   notebook_config['dlab_ssh_user'])
+        try:
+            local("~/scripts/configure_proxy_for_docker.py {}".format(params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to configure proxy for docker.", str(err))
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        sys.exit(1)
+
+    try:
+        print('[STARTING SUPERSET]')
+        logging.info('[STARTING SUPERSET]')
+        params = "--hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} ". \
+            format(instance_hostname,
+                   notebook_config['ssh_key_path'],
+                   notebook_config['dlab_ssh_user'])
+        try:
+           local("~/scripts/superset_start.py {}".format(params))
+        except:
+             traceback.print_exc()
+             raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to start Superset.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 

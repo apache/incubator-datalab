@@ -156,7 +156,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 					.orElse(StringUtils.EMPTY);
 
 			Document item = new Document()
-					.append(MongoKeyWords.DLAB_USER, getUserOrDefault(id.getString(USER)))
+					.append(MongoKeyWords.DLAB_USER, getOrDefault(id.getString(USER)))
 					.append(dlabIdFieldName(), resourceId)
 					.append(shapeFieldName(), Optional.ofNullable(shape).map(BaseShape::format)
 							.orElse(StringUtils.EMPTY))
@@ -165,14 +165,13 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 					.append(STATUS, statusString)
 					.append(FIELD_RESOURCE_TYPE, resourceType(id))
 					.append(productFieldName(), id.getString(productFieldName()))
-					.append(PROJECT, id.getString(PROJECT))
+					.append(PROJECT, getOrDefault(id.getString(PROJECT)))
 					.append(MongoKeyWords.COST, d.getDouble(MongoKeyWords.COST))
 					.append(costFieldName(), BillingCalculationUtils.formatDouble(d.getDouble(MongoKeyWords
 							.COST)))
 					.append(currencyCodeFieldName(), id.getString(currencyCodeFieldName()))
 					.append(usageDateFromFieldName(), dateStart)
-					.append(usageDateToFieldName(), dateEnd)
-					.append(TAGS, Optional.ofNullable(shape).map(BaseShape::getTags));
+					.append(usageDateToFieldName(), dateEnd);
 
 			reportItems.add(item);
 		}
@@ -310,8 +309,8 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		return toPercentage(() -> projectDAO.getAllowedBudget(project), getProjectCost(project));
 	}
 
-	protected String getUserOrDefault(String user) {
-		return StringUtils.isNotBlank(user) ? user : SHARED_RESOURCE_NAME;
+	private String getOrDefault(String value) {
+		return StringUtils.isNotBlank(value) ? value : SHARED_RESOURCE_NAME;
 	}
 
 	private Integer toPercentage(Supplier<Optional<Integer>> allowedBudget, Double totalCost) {

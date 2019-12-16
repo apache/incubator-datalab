@@ -145,10 +145,12 @@ public class DlabResourceTypeDAO implements MongoConstants {
 					.stream()
 					.map(endpoint -> endpoint.getString("name"))
 					.forEach(endpoint -> {
+						resourceList.append(sbName + "-" + endpoint + "-shared-bucket", "Shared endpoint bucket",
+								DlabResourceType.COLLABORATION_BUCKET);
+						resourceList.append(sbName + "-" + projectName + "-" + endpoint + "-bucket", "Project bucket",
+								DlabResourceType.COLLABORATION_BUCKET, null, null, projectName);
 						resourceList.append(sbName + "-" + projectName + "-" + endpoint + "-edge", "EDGE Node",
 								DlabResourceType.EDGE, null, null, projectName);
-						resourceList.append(sbName + "-" + projectName+ "-" + endpoint + "-bucket", "Project bucket",
-								DlabResourceType.COLLABORATION_BUCKET, null, null, projectName);
 						resourceList.append(sbName + "-" + projectName+ "-" + endpoint + "-edge-volume-primary",
 								"EDGE Volume", DlabResourceType.VOLUME, null, null, projectName);
 					});

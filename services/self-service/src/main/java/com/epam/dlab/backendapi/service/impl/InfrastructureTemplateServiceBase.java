@@ -23,6 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
@@ -57,13 +58,14 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
-
 	@Inject
 	private SettingsDAO settingsDAO;
 	@Inject
 	private ProjectDAO projectDAO;
 	@Inject
 	private EndpointService endpointService;
+	@Inject
+	private UserGroupDao userGroupDao;
 
 
 	@Inject
@@ -80,7 +82,7 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 							user.getAccessToken(),
 							ExploratoryMetadataDTO[].class);
 
-			final Set<String> roles = getRoles(user, project);
+			final Set<String> roles = userGroupDao.getUserGroups(user.getName());
 			return Arrays.stream(array)
 					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
 					.filter(e -> exploratoryGpuIssuesAzureFilter(e) &&

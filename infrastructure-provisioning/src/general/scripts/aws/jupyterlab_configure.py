@@ -290,6 +290,26 @@ if __name__ == "__main__":
             sys.exit(1)
 
     try:
+        print('[CONFIGURING PROXY FOR DOCKER]')
+        logging.info('[CONFIGURING PROXY FOR DOCKER]')
+        params = "--hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} ". \
+            format(instance_hostname,
+                   keyfile_name,
+                   notebook_config['dlab_ssh_user'])
+        try:
+            local("~/scripts/configure_proxy_for_docker.py {}".format(params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to configure proxy for docker.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
+    try:
         print('[STARTING JUPYTER CONTAINER]')
         logging.info('[STARTING JUPYTER CONTAINER]')
         params = "--hostname {} " \

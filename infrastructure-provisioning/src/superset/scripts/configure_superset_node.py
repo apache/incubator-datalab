@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     # INSTALL DOCKER COMPOSE
     print("Installing docker compose")
-    if not ensure_docker_compose(args.dlab_path, args.os_user):
+    if not ensure_docker_compose(args.os_user):
         sys.exit(1)
 
     # INSTALL UNGIT

@@ -252,7 +252,8 @@ public class ProjectServiceImpl implements ProjectService {
         return !endpoints.stream().allMatch(e -> exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(
                 projectDTO.getName(), e.getName(), UserInstanceStatus.STOPPED, UserInstanceStatus.TERMINATED,
                 UserInstanceStatus.TERMINATING).isEmpty()) ||
-                endpoints.stream().anyMatch(e -> e.getStatus() == UserInstanceStatus.RUNNING);
+				endpoints.stream().anyMatch(e -> Arrays.asList(UserInstanceStatus.RUNNING, UserInstanceStatus.STARTING)
+						.contains(e.getStatus()));
 	}
 
 	private boolean isCanBeTerminated(ProjectDTO projectDTO) {
