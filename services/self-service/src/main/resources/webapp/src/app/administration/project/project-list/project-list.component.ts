@@ -67,7 +67,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   public showActiveInstances(): void {
-    console.log(this.projectList);
     const filteredList = this.projectList.map(project => {
       project.endpoints = project.endpoints.filter((endpoint: Endpoint) => endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING' && endpoint.status !== 'FAILED')
       return project;
@@ -116,8 +115,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       });
       this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})
         .afterClosed().subscribe(endpoint => {
+        if(endpoint && endpoint.length){
         this.toggleStatus.emit({project, endpoint, action});
-        console.log(endpoint)
+        }console.log(endpoint)
         // result && this.endpointService.deleteEndpoint(data.name).subscribe(() => {
         //   this.toastr.success('Endpoint successfully deleted!', 'Success!');
 

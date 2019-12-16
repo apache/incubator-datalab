@@ -380,7 +380,8 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     padding: 0;
     border: none;
   }
-  .actions {
+
+  .filter-actions {
     display: flex;
 
     .btn {
@@ -405,8 +406,9 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   }
 }
 
-.filter-row .actions {
+.filter-row .filter-actions {
   margin-left: 6px;
+
   .reset{
       &:hover {
       border-color: #f1696e;
