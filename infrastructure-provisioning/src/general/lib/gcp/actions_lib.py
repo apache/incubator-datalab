@@ -555,7 +555,7 @@ class GCPActions:
     def set_role_to_service_account(self, service_account_name, role_name, role_type='custom'):
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         resource = "projects/{}/serviceAccounts/{}".format(self.project, service_account_email)
-        request = GCPActions()self.service_iam.projects().serviceAccounts().getIamPolicy(resource=resource)
+        request = GCPActions().service_iam.projects().serviceAccounts().getIamPolicy(resource=resource)
         serviceAccounts_policy = request.execute()
 
         params = {
