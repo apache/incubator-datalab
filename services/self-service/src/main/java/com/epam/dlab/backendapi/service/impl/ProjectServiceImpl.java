@@ -203,8 +203,7 @@ public class ProjectServiceImpl implements ProjectService {
 				UserInstanceStatus.RECONFIGURING, UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING),
 				UserInstanceStatus.CREATING, UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING,
 				UserInstanceStatus.RECONFIGURING, UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.STOPPING,
-				UserInstanceStatus.TERMINATING)
-				.isEmpty();
+				UserInstanceStatus.TERMINATING).isEmpty();
 	}
 
 	private void createProjectOnCloud(UserInfo user, ProjectDTO projectDTO) {
