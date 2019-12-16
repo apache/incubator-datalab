@@ -579,7 +579,7 @@ class GCPActions:
                 ]
             }
         }
-
+        print(params)
         request = self.service_iam.projects().serviceAccounts().setIamPolicy(resource=resource, body=params)
         try:
             return request.execute()
