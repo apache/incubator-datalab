@@ -22,11 +22,17 @@ public interface ProjectService {
 
 	void terminateEndpoint(UserInfo userInfo, String endpoint, String name);
 
+	void terminateEndpoint(UserInfo userInfo, List<String> endpoints, String name);
+
 	void terminateProject(UserInfo userInfo, String name);
 
 	void start(UserInfo userInfo, String endpoint, String name);
 
+	void start(UserInfo userInfo, List<String> endpoints, String name);
+
 	void stop(UserInfo userInfo, String endpoint, String name);
+
+	void stop(UserInfo userInfo, List<String> endpoints, String name);
 
 	void stopWithResources(UserInfo userInfo, String projectName);
 
