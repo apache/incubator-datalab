@@ -38,6 +38,12 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
+    print('Generating infrastructure names and tags')
+    odahu_conf = dict()
+    odahu_conf['odahu_cluster_name'] = (os.environ['odahu_cluster_name']).lower().replace('_', '-')
+    odahu_conf['region'] = (os.environ['gcp_region'])
+
+
     print('Removing Odahu cluster')
     try:
         local('tf_runner destroy')
@@ -47,10 +53,19 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        buckets = GCPMeta().get_list_buckets(args.service_base_name)
+        buckets = GCPMeta().get_list_buckets(odahu_conf['odahu_cluster_name'])
         if 'items' in buckets:
             for i in buckets['items']:
                 GCPActions().remove_bucket(i['name'])
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        sys.exit(1)
+
+    try:
+        static_addresses = GCPMeta().get_list_static_addresses(odahu_conf['region'], odahu_conf['odahu_cluster_name'])
+        if 'items' in static_addresses:
+            for i in static_addresses['items']:
+                GCPActions().remove_static_address(i['name'], odahu_conf['region'])
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
