@@ -277,12 +277,13 @@ class TerraformProvider:
         logging.info(command)
         Console.execute_to_command_line(command)
 
-    def destroy(self, tf_params, cli_args):
+    def destroy(self, tf_params, cli_args, keep_state_file=False):
         """Destroy terraform
 
         Args:
             tf_params: dict of terraform parameters
             cli_args: dict of parameters
+            keep_state_file: Boolean
         Returns:
              None
         """
@@ -293,6 +294,13 @@ class TerraformProvider:
                    .format(self.no_color, params_str, args_str))
         logging.info(command)
         Console.execute_to_command_line(command)
+        if keep_state_file:
+            state_file = tf_params['-state']
+            state_file_backup = tf_params['-state'] + '.backup'
+            if os.path.isfile(state_file):
+                os.remove(state_file)
+            if os.path.isfile(state_file_backup):
+                os.remove(state_file_backup)
 
     @staticmethod
     def output(tf_params, *args):
@@ -1085,7 +1093,7 @@ class GCPK8sSourceBuilder(AbstractDeployBuilder):
         gke_params['-target'] = 'module.gke_cluster'
         helm_charts_params['-target'] = 'module.helm_charts'
 
-        terraform.destroy(helm_charts_params, self.terraform_args)
+        terraform.destroy(helm_charts_params, self.terraform_args, True)
         time.sleep(60)
         terraform.destroy(gke_params, self.terraform_args)
 
