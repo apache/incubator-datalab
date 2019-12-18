@@ -117,12 +117,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
         .afterClosed().subscribe(endpoint => {
         if(endpoint && endpoint.length){
         this.toggleStatus.emit({project, endpoint, action});
-        }console.log(endpoint)
-        // result && this.endpointService.deleteEndpoint(data.name).subscribe(() => {
-        //   this.toastr.success('Endpoint successfully deleted!', 'Success!');
-
-        // }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
-      });
+        }
+      }, error => this.toastr.error(error.message || `Endpoint ${action} failed!`, 'Oops!')
+      );
     }
 
   public areStartedEndpoints(project) {
