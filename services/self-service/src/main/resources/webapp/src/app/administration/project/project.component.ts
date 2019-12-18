@@ -105,7 +105,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   public deleteProject($event) {
-    this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: $event, list: [] }, panelClass: 'modal-sm' })
+    this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: $event }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
         result && this.projectService.deleteProject($event.name).subscribe(() => {
           this.refreshGrid();
