@@ -68,9 +68,9 @@ export class EndpointsComponent implements OnInit {
 
   public assignChanges(data) {
     this.endpointService.createEndpoint(data).subscribe(() => {
-      this.toastr.success('Endpoint created successfully!', 'Success!');
+      this.toastr.success('Endpoint connected successfully!', 'Success!');
       this.dialogRef.close(true);
-    }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
+    }, error => this.toastr.error(error.message || 'Endpoint connection failed!', 'Oops!'));
   }
 
   public deleteEndpoint(data) {
@@ -101,7 +101,7 @@ export class EndpointsComponent implements OnInit {
 
   private deleteEndpointOption(data, option){
     this.endpointService.deleteEndpoint(`${data.name}?with-resources=${option}`).subscribe(() => {
-      this.toastr.success(option ? 'Endpoint successfully disconnected. All related resources are terminated!' : 'Endpoint successfully disconnected!' , 'Success!');
+      this.toastr.success(option ? 'Endpoint successfully disconnected. All related resources are terminating!' : 'Endpoint successfully disconnected!' , 'Success!');
       this.getEndpointList();
     }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
   }

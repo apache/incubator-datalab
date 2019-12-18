@@ -33,9 +33,9 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
                   <div *ngIf="data.template.notebook.length > 0">
                       Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
                       <span *ngFor="let item of data.template.notebook">
-            <span class="strong">{{ item.exploratory_name }}</span>
-            <span *ngIf="data.template.notebook.length > 1">, </span>
-          </span> will be stopped and all computational resources will be stopped/terminated
+                        <span class="strong">{{ item.exploratory_name }}</span>
+                        <span *ngIf="data.template.notebook.length > 1">, </span>
+                      </span> will be stopped and all computational resources will be stopped/terminated
                   </div>
 
                   <div *ngIf="data.template.cluster.length > 0">
@@ -55,7 +55,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
                   </p>
                   <ng-template #label>
                       <p>
-            <span class="ellipsis label-name strong" matTooltip="{{ data.item.name }}" matTooltipPosition="above"
+            <span *ngIf="!!data.list">Endpoint</span>
+            <span class="ellipsis strong" matTooltip="{{ data.item.name }}" matTooltipPosition="above"
                   [matTooltipDisabled]="data.item.name.length > 35">
              {{ data.item.name }}</span> will be {{ data.action || 'disconnected' }}.
                       </p>
@@ -121,14 +122,12 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     header h4 i { vertical-align: bottom; }
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
-    .plur { font-style: normal; }
-    .label-name { display: inline-block; width: 100% } 
+    .plur { font-style: normal; }    
     .scrolling-content{overflow-y: auto; max-height: 200px; }
     .endpoint { width: 70%; text-align: left; color: #577289;}
     .status { width: 30%;text-align: left;}
     .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
-    .node { font-weight: 300;}    
-    .label-name { display: inline-block; width: 100%}    
+    .node { font-weight: 300;}     
     .resource-name { width: 280px;text-align: left; padding: 10px 0;line-height: 26px;}
     .project { width: 30%;text-align: left; padding: 10px 0;line-height: 26px;}    
     .resource-list{max-width: 100%; margin: 0 auto;margin-top: 20px; }
@@ -142,8 +141,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     
   `]
 })
-export class NotificationDialogComponent {
-  public willNotTerminate: boolean = false;
+export class NotificationDialogComponent{
+  public willNotTerminate: boolean = !this.data.list.length;
   constructor(
     public dialogRef: MatDialogRef<NotificationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
