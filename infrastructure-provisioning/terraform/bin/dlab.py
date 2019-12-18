@@ -943,8 +943,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          .add_str('--vpc_cidr',
                   'CIDR for VPC creation. Conflicts with vpc_id.',
                   default='172.31.0.0/16', group='endpoint')
-         .add_str('--ssn_subnet',
-                  'ID of AWS Subnet if you already have subnet created.',
+         .add_str('--subnet_id',
+                  'ID of Subnet if you already have subnet created.',
                   group='endpoint')
          .add_str('--ssn_k8s_sg_id', 'ID of SSN SG.', group='endpoint')
          .add_str('--subnet_cidr',

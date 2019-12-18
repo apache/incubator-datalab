@@ -27,7 +27,7 @@ output "vpc_id" {
   value = module.gke_cluster.vpc_name
 }
 
-output "subnet_name" {
+output "subnet_id" {
   value = module.gke_cluster.subnet_name
 }
 

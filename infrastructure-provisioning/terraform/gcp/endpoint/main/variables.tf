@@ -55,7 +55,7 @@ variable "ami" {
   default = "/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20190628"
 }
 
-variable "subnet_name" {
+variable "subnet_id" {
   default = ""
 }
 

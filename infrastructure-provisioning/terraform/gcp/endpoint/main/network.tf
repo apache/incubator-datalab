@@ -37,7 +37,7 @@ data "google_compute_network" "endpoint_vpc_data" {
 }
 
 resource "google_compute_subnetwork" "endpoint_subnet" {
-  count         = var.subnet_name == "" ? 1 : 0
+  count         = var.subnet_id == "" ? 1 : 0
   name          = local.subnet_name
   ip_cidr_range = var.subnet_cidr
   region        = var.region
@@ -45,7 +45,7 @@ resource "google_compute_subnetwork" "endpoint_subnet" {
 }
 
 data "google_compute_subnetwork" "endpoint_subnet_data" {
-  name = var.subnet_name == "" ? google_compute_subnetwork.endpoint_subnet.0.name : var.subnet_name
+  name = var.subnet_id == "" ? google_compute_subnetwork.endpoint_subnet.0.name : var.subnet_id
 }
 
 resource "google_compute_firewall" "firewall-ingress" {
