@@ -1091,8 +1091,8 @@ class GCPK8sSourceBuilder(AbstractDeployBuilder):
         gke_params['-target'] = 'module.gke_cluster'
         helm_charts_params['-target'] = 'module.helm_charts'
 
-        # terraform.destroy(helm_charts_params, self.terraform_args)
-        # time.sleep(60)
+        terraform.destroy(helm_charts_params, self.terraform_args)
+        time.sleep(60)
         terraform.destroy(gke_params, self.terraform_args)
 
 
