@@ -147,3 +147,13 @@ variable "bucket_region" {
 variable "additional_tag" {
   default = "product:dlab"
 }
+
+variable "ldap_host" {}
+
+variable "ldap_dn" {}
+
+variable "ldap_user" {}
+
+variable "ldap_bind_creds" {}
+
+variable "ldap_users_group" {}
