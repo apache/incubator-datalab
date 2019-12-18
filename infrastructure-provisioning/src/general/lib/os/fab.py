@@ -146,7 +146,7 @@ def put_resource_status(resource, status, dlab_path, os_user, hostname):
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
-            sudo('pip2 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            sudo('pip2 install notebook==5.7.8 --no-cache-dir')
             sudo('pip2 install jupyter --no-cache-dir')
             sudo('pip3.5 install notebook=={} --no-cache-dir'.format(jupyter_version))
             sudo('pip3.5 install jupyter --no-cache-dir')
@@ -636,6 +636,8 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile):
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and sudo("python3.6 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
     sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     sudo('source /etc/profile')
     run('source /etc/profile')
