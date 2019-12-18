@@ -231,6 +231,18 @@ public class ExploratoryDAO extends BaseDAO {
 				false);
 	}
 
+	public List<UserInstanceDTO> fetchExploratoriesByEndpointWhereStatusNotIn(String endpoint,
+																			  List<UserInstanceStatus> statuses) {
+		final List<String> exploratoryStatusList = statusList(statuses);
+
+		return getUserInstances(
+				and(
+						eq(ENDPOINT, endpoint),
+						not(in(STATUS, exploratoryStatusList))
+				),
+				false);
+	}
+
 	private List<UserInstanceDTO> getUserInstances(Bson condition, boolean computationalFieldsRequired) {
 		return stream(getCollection(USER_INSTANCES)
 				.find(condition)

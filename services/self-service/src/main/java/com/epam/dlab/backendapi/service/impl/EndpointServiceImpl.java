@@ -2,10 +2,13 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EndpointDAO;
+import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.EndpointResourcesDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -18,16 +21,28 @@ import java.util.List;
 public class EndpointServiceImpl implements EndpointService {
 	private final EndpointDAO endpointDAO;
 	private final ProjectService projectService;
+	private final ExploratoryDAO exploratoryDAO;
 
 	@Inject
-	public EndpointServiceImpl(EndpointDAO endpointDAO, ProjectService projectService) {
+	public EndpointServiceImpl(EndpointDAO endpointDAO, ProjectService projectService, ExploratoryDAO exploratoryDAO) {
 		this.endpointDAO = endpointDAO;
 		this.projectService = projectService;
+		this.exploratoryDAO = exploratoryDAO;
 	}
 
 	@Override
 	public List<EndpointDTO> getEndpoints() {
 		return endpointDAO.getEndpoints();
+	}
+
+	@Override
+	public EndpointResourcesDTO getEndpointResources(String endpoint) {
+		List<UserInstanceDTO> exploratories = exploratoryDAO.fetchExploratoriesByEndpointWhereStatusNotIn(endpoint,
+				Arrays.asList(UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED));
+
+		List<ProjectDTO> projects = projectService.getProjectsByEndpoint(endpoint);
+
+		return new EndpointResourcesDTO(exploratories, projects);
 	}
 
 	@Override

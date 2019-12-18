@@ -200,7 +200,8 @@ public class ProjectServiceImpl implements ProjectService {
 	public boolean checkExploratoriesAndComputationalProgress(String projectName, List<String> endpoints) {
 		return exploratoryDAO.fetchProjectEndpointExploratoriesWhereStatusIn(projectName, endpoints, Arrays.asList(
 				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE,
-				UserInstanceStatus.RECONFIGURING, UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING),
+				UserInstanceStatus.CONFIGURING, UserInstanceStatus.RECONFIGURING, UserInstanceStatus.STOPPING,
+				UserInstanceStatus.TERMINATING),
 				UserInstanceStatus.CREATING, UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING,
 				UserInstanceStatus.RECONFIGURING, UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.STOPPING,
 				UserInstanceStatus.TERMINATING).isEmpty();

@@ -2,11 +2,14 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.EndpointResourcesDTO;
 
 import java.util.List;
 
 public interface EndpointService {
 	List<EndpointDTO> getEndpoints();
+
+	EndpointResourcesDTO getEndpointResources(String endpoint);
 
 	EndpointDTO get(String name);
 

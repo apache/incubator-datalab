@@ -2,6 +2,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.EndpointResourcesDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.Inject;
@@ -89,6 +90,20 @@ public class EndpointResource {
 		return Response.ok(endpointService.getEndpoints()).build();
 	}
 
+	@Operation(summary = "Get resources related to the endpoint", tags = "endpoint")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Return information about resources of endpoint",
+					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+					@Schema(implementation = EndpointResourcesDTO.class)))
+	})
+	@GET
+	@Path("{name}/resources")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getEndpointResources(@Parameter(hidden = true) @Auth UserInfo userInfo,
+										 @Parameter(description = "Endpoint name")
+										 @PathParam("name") String name) {
+		return Response.ok(endpointService.getEndpointResources(name)).build();
+	}
 
 	@Operation(summary = "Remove endpoint", tags = "endpoint")
 	@ApiResponses({
