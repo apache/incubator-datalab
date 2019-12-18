@@ -23,7 +23,7 @@ output "service_base_name" {
   value = var.service_base_name
 }
 
-output "vpc_name" {
+output "vpc_id" {
   value = module.gke_cluster.vpc_name
 }
 
