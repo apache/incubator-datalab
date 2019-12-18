@@ -1144,7 +1144,7 @@ class GCPEndpointBuilder(AbstractDeployBuilder):
                   group='endpoint')
          .add_str('--ssn_subnet', 'ID of AWS Subnet if you already have subnet created.', group='endpoint')
          .add_str('--subnet_id', 'ID of subnet', group='endpoint')
-         .add_str('--ami', 'ID of EC2 AMI.', required=True, group='endpoint')
+         .add_str('--ami', 'ID of EC2 AMI.', group='endpoint')
          .add_str('--path_to_pub_key', 'Path to public key', required=True, group='endpoint')
          .add_str('--endpoint_id', 'Endpoint id.', required=True, group='endpoint')
          .add_str('--region', 'Name of region.', group='endpoint')
