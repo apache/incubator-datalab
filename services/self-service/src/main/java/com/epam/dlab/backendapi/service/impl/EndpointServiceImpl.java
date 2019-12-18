@@ -62,17 +62,17 @@ public class EndpointServiceImpl implements EndpointService {
 
 	@Override
 	public void remove(UserInfo userInfo, String name, boolean withResources) {
+		List<ProjectDTO> projects = projectService.getProjectsByEndpoint(name);
+		checkProjectEndpointResourcesStatuses(projects, name);
+
 		if (withResources) {
-			removeEndpointInAllProjects(userInfo, name);
+			removeEndpointInAllProjects(userInfo, name, projects);
 		}
 		endpointDAO.remove(name);
 	}
 
 	@Override
-	public void removeEndpointInAllProjects(UserInfo userInfo, String endpointName) {
-		List<ProjectDTO> projects = projectService.getProjectsByEndpoint(endpointName);
-		checkProjectEndpointResourcesStatuses(projects, endpointName);
-
+	public void removeEndpointInAllProjects(UserInfo userInfo, String endpointName, List<ProjectDTO> projects) {
 		projects.forEach(project -> projectService.terminateEndpoint(userInfo, endpointName, project.getName()));
 	}
 
