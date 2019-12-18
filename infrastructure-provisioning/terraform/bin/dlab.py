@@ -293,12 +293,6 @@ class TerraformProvider:
                    .format(self.no_color, params_str, args_str))
         logging.info(command)
         Console.execute_to_command_line(command)
-        state_file = tf_params['-state']
-        state_file_backup = tf_params['-state'] + '.backup'
-        if os.path.isfile(state_file):
-            os.remove(state_file)
-        if os.path.isfile(state_file_backup):
-            os.remove(state_file_backup)
 
     @staticmethod
     def output(tf_params, *args):
