@@ -294,7 +294,7 @@ class TerraformProvider:
                    .format(self.no_color, params_str, args_str))
         logging.info(command)
         Console.execute_to_command_line(command)
-        if keep_state_file:
+        if not keep_state_file:
             state_file = tf_params['-state']
             state_file_backup = tf_params['-state'] + '.backup'
             if os.path.isfile(state_file):
