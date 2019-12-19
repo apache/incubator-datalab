@@ -24,7 +24,7 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 @Component({
   selector: 'dlab-toolbar',
   templateUrl: './toolbar.component.html',
-  styleUrls: ['./toolbar.component.css'],
+  styleUrls: ['./toolbar.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class ToolbarComponent implements OnInit, AfterViewInit {
@@ -34,7 +34,7 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   availablePeriodFrom: string;
   availablePeriodTo: string;
 
-  rangeOptions = {'YTD': 'Year To Date', 'QTD': 'Quarter To Date', 'MTD': 'Month To Date', 'reset': 'All Period Report'};
+  rangeOptions = { 'YTD': 'Year To Date', 'QTD': 'Quarter To Date', 'MTD': 'Month To Date', 'reset': 'All Period Report' };
   options: NgDateRangePickerOptions;
   rangeLabels: any;
 
@@ -55,11 +55,11 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-     if (localStorage.getItem('report_period')) {
-        const availableRange = JSON.parse(localStorage.getItem('report_period'));
-        this.availablePeriodFrom = availableRange.start_date;
-        this.availablePeriodTo = availableRange.end_date;
-     }
+    if (localStorage.getItem('report_period')) {
+      const availableRange = JSON.parse(localStorage.getItem('report_period'));
+      this.availablePeriodFrom = availableRange.start_date;
+      this.availablePeriodTo = availableRange.end_date;
+    }
   }
 
   ngAfterViewInit() {
@@ -86,11 +86,13 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
     for (let label = 0; label < rangeLabels.length; ++label)
       if (rangeLabels[label].classList.contains('untouched')) {
         rangeLabels[label].classList.remove('untouched');
-    }
+      }
 
     const reportDateRange = dateRange.split('-');
-    this.setRangeOption.emit({start_date: reportDateRange[0].split('/').join('-'),
-      end_date: reportDateRange[1].split('/').join('-')});
+    this.setRangeOption.emit({
+      start_date: reportDateRange[0].split('/').join('-'),
+      end_date: reportDateRange[1].split('/').join('-')
+    });
   }
 
   rebuild($event): void {

@@ -40,10 +40,10 @@ import { ReportingModule } from './reporting/reporting.module';
 import { AdministrationModule } from './administration/administration.module';
 import { WebterminalModule } from './webterminal';
 import { CoreModule } from './core/core.module';
-import { SwaggerComponent } from './swagger/swagger.component';
+import { SwaggerAPIModule } from './swagger';
 
 @NgModule({
-  declarations: [AppComponent, SwaggerComponent],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -58,6 +58,7 @@ import { SwaggerComponent } from './swagger/swagger.component';
     ReportingModule,
     AdministrationModule,
     WebterminalModule,
+    SwaggerAPIModule,
     RouterModule,
     AppRoutingModule,
     CoreModule.forRoot(),
