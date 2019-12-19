@@ -168,6 +168,10 @@ a.nav-item {
   color: #577289 !important;
   outline: none;
 
+  span {
+    vertical-align: middle;
+  }
+
   i {
     vertical-align: middle;
     padding-left: 8px;
@@ -284,6 +288,26 @@ a.nav-item {
   -ms-transform: translateY(-4px) translateX(6px) rotate(-45deg);
   -o-transform: translateY(-4px) translateX(6px) rotate(-45deg);
   transform: translateY(-4px) translateX(6px) rotate(-45deg);
+}
+
+mat-sidenav {
+
+  mat-nav-list {
+    height: 100%;
+
+    nav {
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+
+      .swagger-logo {
+        vertical-align: middle;
+        width: 30px;
+        padding: 0 2px 0 5px;
+      }
+    }
+  }
 }
 
 mat-sidenav-content {
