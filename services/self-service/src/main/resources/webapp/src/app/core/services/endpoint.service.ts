@@ -47,6 +47,14 @@ export class EndpointService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+  public getEndpointsResource(endpoint): Observable<any> {
+    return this.applicationServiceFacade
+      .getEndpointsResource(endpoint)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public deleteEndpoint(data): Observable<any> {
     const url = `/${data}`;
     return this.applicationServiceFacade

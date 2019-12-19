@@ -22,10 +22,10 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
-import {EndpointService, UserResourceService} from '../../../core/services';
+import { EndpointService } from '../../../core/services';
 import { NotificationDialogComponent } from '../../../shared/modal-dialog/notification-dialog';
 import { PATTERNS } from '../../../core/util';
-import {ExploratoryModel} from "../../../resources/resources-grid/resources-grid.model";
+import { map } from "rxjs/operators";
 
 export interface Endpoint {
   name: string;
@@ -42,8 +42,6 @@ export class EndpointsComponent implements OnInit {
   public createEndpointForm: FormGroup;
   endpoints: Endpoint[] = [];
   displayedColumns: string[] = ['name', 'url', 'account', 'endpoint_tag', 'actions'];
-  private resources: any;
-  private filtredResource: Array<any>;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -52,14 +50,11 @@ export class EndpointsComponent implements OnInit {
     public dialog: MatDialog,
     private endpointService: EndpointService,
     private _fb: FormBuilder,
-    private userResourceService: UserResourceService,
-
   ) { }
 
   ngOnInit() {
     this.initFormModel();
     this.getEndpointList();
-    this.getResource();
   }
 
   public generateEndpointTag($event) {
@@ -73,21 +68,26 @@ export class EndpointsComponent implements OnInit {
     }, error => this.toastr.error(error.message || 'Endpoint connection failed!', 'Oops!'));
   }
 
-  public deleteEndpoint(data) {
-    if(this.resources.length){
-      this.filtredResource = this.resources.filter(project => {
-        project.filtredExploratory =  project.exploratory.filter(resource => resource.endpoint === data.name && resource.status !== 'terminated');
-        return project.filtredExploratory.length
-      });
-    }else{
-      this.filtredResource = this.resources
-    }
+  public deleteEndpoint(data): void {
+    this.endpointService.getEndpointsResource(data.name)
+      .pipe(map(resource =>
+        resource.projects.map(project =>
+          EndpointsComponent.createResourceList(
+            project.name,
+            resource.exploratories.filter(notebook => notebook.project === project.name),
+            project.endpoints.filter(endpoint => endpoint.name === data.name)[0].status))
+          .filter(project => project.nodeStatus !== "TERMINATED" && project.nodeStatus !== "TERMINATING" && project.nodeStatus !== "FAILED")))
+      .subscribe((resource: any) => {
+         this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data, list:  resource }, panelClass: 'modal-sm' })
+         .afterClosed().subscribe(result => {
+         result === 'noTerminate' && this.deleteEndpointOption(data, false);
+         result === 'terminate' && this.deleteEndpointOption(data, true);
+       });
+    });
+  }
 
-    this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data, list: this.filtredResource }, panelClass: 'modal-sm' })
-      .afterClosed().subscribe(result => {
-        result === 'noTerminate' && this.deleteEndpointOption(data, false);
-        result === 'terminate' && this.deleteEndpointOption(data, true);
-      });
+  private static createResourceList(name: string, resource: Array<any>, nodeStatus: string): Object {
+    return {name, resource, nodeStatus}
   }
 
   private initFormModel(): void {
@@ -99,21 +99,14 @@ export class EndpointsComponent implements OnInit {
     });
   }
 
-  private deleteEndpointOption(data, option){
+  private deleteEndpointOption(data, option): void{
     this.endpointService.deleteEndpoint(`${data.name}?with-resources=${option}`).subscribe(() => {
       this.toastr.success(option ? 'Endpoint successfully disconnected. All related resources are terminating!' : 'Endpoint successfully disconnected!' , 'Success!');
       this.getEndpointList();
     }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
   }
 
-  private getEndpointList() {
+  private getEndpointList() : void{
     this.endpointService.getEndpointsData().subscribe((endpoints: any) => this.endpoints = endpoints);
-  }
-
-  private getResource(): void{
-  this.userResourceService.getUserProvisionedResources()
-   .subscribe((result: any) => {
-     this.resources = ExploratoryModel.loadEnvironments(result);
-    })
   }
 }
