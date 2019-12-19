@@ -76,7 +76,7 @@ export class EndpointsComponent implements OnInit {
             project.name,
             resource.exploratories.filter(notebook => notebook.project === project.name),
             project.endpoints.filter(endpoint => endpoint.name === data.name)[0].status))
-          .filter(project => project.nodeStatus !== "TERMINATED")))
+          .filter(project => project.nodeStatus !== "TERMINATED" && project.nodeStatus !== "TERMINATING" && project.nodeStatus !== "FAILED")))
       .subscribe((resource: any) => {
          this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data, list:  resource }, panelClass: 'modal-sm' })
          .afterClosed().subscribe(result => {
