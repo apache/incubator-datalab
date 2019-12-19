@@ -71,9 +71,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
                           <div class="scrolling-content resource-heigth">
                               <div class="resource-list-row sans node" *ngFor="let project of data.list">
                                   <div class="resource-name ellipsis">
-                                      <div *ngFor="let notebook of project.filtredExploratory">{{notebook.name}}</div>
+                                      <div>Edge node</div>
+                                      <div *ngFor="let notebook of project.resource">{{notebook.exploratory_name}}</div>
                                   </div>
-                                  <div class="project ellipsis">{{project.project}}</div>
+                                  <div class="project ellipsis">{{project.name}}</div>
                               </div>
                           </div>
                       </div>
@@ -142,11 +143,15 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   `]
 })
 export class NotificationDialogComponent{
-  public willNotTerminate: boolean = !this.data.list.length;
+  public willNotTerminate: boolean = false;
   constructor(
     public dialogRef: MatDialogRef<NotificationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
+    if(this.data.list){
+    this.willNotTerminate = !this.data.list.length;
+    }
+    console.log(this.data.list)
   }
 
   public terminateResource(): void{

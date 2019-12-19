@@ -26,6 +26,7 @@ import {EndpointService, UserResourceService} from '../../../core/services';
 import { NotificationDialogComponent } from '../../../shared/modal-dialog/notification-dialog';
 import { PATTERNS } from '../../../core/util';
 import {ExploratoryModel} from "../../../resources/resources-grid/resources-grid.model";
+import {map} from "rxjs/operators";
 
 export interface Endpoint {
   name: string;
@@ -43,7 +44,8 @@ export class EndpointsComponent implements OnInit {
   endpoints: Endpoint[] = [];
   displayedColumns: string[] = ['name', 'url', 'account', 'endpoint_tag', 'actions'];
   private resources: any;
-  private filtredResource: Array<any>;
+  private filtredResource: {projectName, resourceList, nodeStatus};
+
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -73,21 +75,34 @@ export class EndpointsComponent implements OnInit {
     }, error => this.toastr.error(error.message || 'Endpoint connection failed!', 'Oops!'));
   }
 
+
+
   public deleteEndpoint(data) {
-    if(this.resources.length){
-      this.filtredResource = this.resources.filter(project => {
-        project.filtredExploratory =  project.exploratory.filter(resource => resource.endpoint === data.name && resource.status !== 'terminated');
-        return project.filtredExploratory.length
-      });
-    }else{
-      this.filtredResource = this.resources
-    }
+    this.endpointService.getEndpointsResource(data.name)
+      .pipe(map(resource =>
+        resource.projects.map(project =>
+          this.createFilterList(
+            project.name,
+            resource.exploratories.filter(notebook => notebook.project === project.name),
+            project.endpoints.filter(endpoint => endpoint.name === data.name)[0].status))
+          .filter(project => project.nodeStatus !== "TERMINATED")))
+      .subscribe((resource: any) => {
+       //   this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data, list:  resource }, panelClass: 'modal-sm' })
+       //   .afterClosed().subscribe(result => {
+       //   result === 'noTerminate' && this.deleteEndpointOption(data, false);
+       //   result === 'terminate' && this.deleteEndpointOption(data, true);
+       // });
+    });
 
     this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data, list: this.filtredResource }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(result => {
         result === 'noTerminate' && this.deleteEndpointOption(data, false);
         result === 'terminate' && this.deleteEndpointOption(data, true);
       });
+  }
+
+  createFilterList(name, resource, nodeStatus){
+    return {name, resource, nodeStatus}
   }
 
   private initFormModel(): void {
@@ -110,10 +125,19 @@ export class EndpointsComponent implements OnInit {
     this.endpointService.getEndpointsData().subscribe((endpoints: any) => this.endpoints = endpoints);
   }
 
+  private getResourceList(endpoint) {
+    console.log(endpoint);
+    this.endpointService.getEndpointsResource(endpoint).subscribe((resource: any) => {
+      this.filtredResource = resource.exploratories;
+
+    });
+  }
+
   private getResource(): void{
   this.userResourceService.getUserProvisionedResources()
    .subscribe((result: any) => {
      this.resources = ExploratoryModel.loadEnvironments(result);
+     console.log(this.resources)
     })
   }
 }
