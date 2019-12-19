@@ -17,20 +17,29 @@
  * under the License.
  */
 
-import { ElementRef, HostBinding, Input } from '@angular/core';
-import { Directive } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
-@Directive({
-  selector: '[scrollTo]'
+declare const SwaggerUIBundle: any;
+
+@Component({
+  selector: 'dlab-swagger',
+  templateUrl: './swagger.component.html',
+  styleUrls: ['./swagger.component.scss']
 })
-export class ScrollDirective {
-  constructor(private elRef: ElementRef) { }
+export class SwaggerComponent implements OnInit {
 
-  @Input()
-  set scrollTo(condition) {
-    if (condition) {
-      const scrollable = this.elRef.nativeElement;
-      scrollable.scrollIntoView(false);
-    }
+  ngOnInit(): void {
+    const ui = SwaggerUIBundle({
+      dom_id: '#swagger-ui',
+      layout: 'BaseLayout',
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIBundle.SwaggerUIStandalonePreset
+      ],
+      url: '../assets/endpoint-api.json',
+      docExpansion: 'none',
+      operationsSorter: 'alpha'
+    });
   }
+
 }
