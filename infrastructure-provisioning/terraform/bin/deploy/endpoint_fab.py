@@ -341,7 +341,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 },
                 {
                     'key': "EDGE_INSTANCE_SIZE",
-                    'value': args.edge_instence_size
+                    'value': "" # args.edge_instence_size
                 },
                 {
                     'key': "SUBNET_ID",
