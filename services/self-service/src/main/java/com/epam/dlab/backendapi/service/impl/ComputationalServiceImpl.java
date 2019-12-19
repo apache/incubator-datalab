@@ -25,11 +25,13 @@ import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EndpointService;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.TagService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
@@ -76,11 +78,11 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	@Inject
+	private ProjectService projectService;
+	@Inject
 	private ExploratoryDAO exploratoryDAO;
-
 	@Inject
 	private ComputationalDAO computationalDAO;
-
 	@Inject
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
@@ -96,10 +98,9 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@BudgetLimited
 	@Override
-	public boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form,
-									  @Project String project) {
+	public boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form, @Project String project) {
 
-
+		final ProjectDTO projectDTO = projectService.get(project);
 		final UserInstanceDTO instance =
 				exploratoryDAO.fetchExploratoryFields(userInfo.getName(), form.getNotebookName());
 		final SparkStandaloneClusterResource compResource = createInitialComputationalResource(form);
@@ -107,10 +108,11 @@ public class ComputationalServiceImpl implements ComputationalService {
 				form.getCustomTag()));
 		if (computationalDAO.addComputational(userInfo.getName(), form.getNotebookName(), compResource)) {
 			try {
-				ComputationalBase<?> dto = requestBuilder.newComputationalCreate(userInfo, instance, form);
+				ComputationalBase<?> dto = requestBuilder.newComputationalCreate(userInfo, projectDTO, instance, form);
 
 				String uuid =
-						provisioningService.post(endpointService.get(instance.getEndpoint()).getUrl() + ComputationalAPI.COMPUTATIONAL_CREATE_SPARK,
+						provisioningService.post(endpointService.get(instance.getEndpoint()).getUrl() +
+										ComputationalAPI.COMPUTATIONAL_CREATE_SPARK,
 								userInfo.getAccessToken(), dto, String.class);
 				requestId.put(userInfo.getName(), uuid);
 				return true;
@@ -166,6 +168,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	public boolean createDataEngineService(UserInfo userInfo, ComputationalCreateFormDTO formDTO,
 										   UserComputationalResource computationalResource, @Project String project) {
 
+		final ProjectDTO projectDTO = projectService.get(project);
 		final UserInstanceDTO instance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO
 				.getNotebookName());
 		final Map<String, String> tags = tagService.getResourceTags(userInfo, instance.getEndpoint(), project,
@@ -177,8 +180,10 @@ public class ComputationalServiceImpl implements ComputationalService {
 		if (isAdded) {
 			try {
 				String uuid =
-						provisioningService.post(endpointService.get(instance.getEndpoint()).getUrl() + COMPUTATIONAL_CREATE_CLOUD_SPECIFIC, userInfo.getAccessToken(),
-								requestBuilder.newComputationalCreate(userInfo, instance, formDTO), String.class);
+						provisioningService.post(endpointService.get(instance.getEndpoint()).getUrl() +
+										COMPUTATIONAL_CREATE_CLOUD_SPECIFIC, userInfo.getAccessToken(),
+								requestBuilder.newComputationalCreate(userInfo, projectDTO, instance, formDTO),
+								String.class);
 				requestId.put(userInfo.getName(), uuid);
 				return true;
 			} catch (Exception t) {
