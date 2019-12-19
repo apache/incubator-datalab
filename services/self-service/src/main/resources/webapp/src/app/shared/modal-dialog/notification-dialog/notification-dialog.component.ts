@@ -151,7 +151,6 @@ export class NotificationDialogComponent{
     if(this.data.list){
     this.willNotTerminate = !this.data.list.length;
     }
-    console.log(this.data.list)
   }
 
   public terminateResource(): void{
