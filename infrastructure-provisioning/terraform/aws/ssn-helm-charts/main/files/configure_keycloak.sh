@@ -79,6 +79,7 @@
           -s 'config."claim.name"="groups"' -s 'config."userinfo.token.claim"="true"'
       }
       main_func () {
+          microdnf install jq
           hostname=$(hostname)
           # Authentication
           count=0
