@@ -17,19 +17,20 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+export class FilterLibsModel {
+  constructor(
+    public name: string,
+    public group: Array<any>,
+    public resource: Array<any>,
+    public resourceType: Array<any>,
+    public status: Array<any>,
+  ) { }
 
-import { NotificationDialogComponent } from './notification-dialog.component';
-import { MaterialModule } from '../../material.module';
-import {FormsModule} from "@angular/forms";
-
-export * from './notification-dialog.component';
-
-@NgModule({
-  imports: [CommonModule, MaterialModule, FormsModule],
-  declarations: [NotificationDialogComponent],
-  entryComponents: [NotificationDialogComponent],
-  exports: [NotificationDialogComponent]
-})
-export class NotificationDialogModule {}
+  resetFilterLibs(): void {
+    this.name = '';
+    this.group = [];
+    this.resource = [];
+    this.resourceType = [];
+    this.status = [];
+  }
+}

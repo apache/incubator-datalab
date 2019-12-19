@@ -17,19 +17,17 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+package com.epam.dlab.backendapi.domain;
 
-import { NotificationDialogComponent } from './notification-dialog.component';
-import { MaterialModule } from '../../material.module';
-import {FormsModule} from "@angular/forms";
+import com.epam.dlab.dto.UserInstanceDTO;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-export * from './notification-dialog.component';
+import java.util.List;
 
-@NgModule({
-  imports: [CommonModule, MaterialModule, FormsModule],
-  declarations: [NotificationDialogComponent],
-  entryComponents: [NotificationDialogComponent],
-  exports: [NotificationDialogComponent]
-})
-export class NotificationDialogModule {}
+@Data
+@AllArgsConstructor
+public class EndpointResourcesDTO {
+    private List<UserInstanceDTO> exploratories;
+    private List<ProjectDTO> projects;
+}

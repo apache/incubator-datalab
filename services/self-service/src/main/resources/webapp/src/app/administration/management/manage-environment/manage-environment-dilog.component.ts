@@ -115,11 +115,11 @@ export class ManageEnvironmentComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p>Environment of <b>{{ data.project }}</b> will be
+    <p>Environment of <span class="strong">{{ data.project }}</span> will be
       <span *ngIf="data.action === 'terminate'"> terminated.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </p>
-    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+    <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
   </div>
   <div class="text-center">
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
