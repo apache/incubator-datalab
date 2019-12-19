@@ -31,6 +31,7 @@ import { WebterminalComponent } from './webterminal/webterminal.component';
 import { ManagementComponent } from './administration/management/management.component';
 import { ProjectComponent } from './administration/project/project.component';
 import { RolesComponent } from './administration/roles/roles.component';
+import { SwaggerComponent } from './swagger/swagger.component';
 
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard } from './core/services';
 
@@ -66,6 +67,10 @@ const routes: Routes = [{
       path: 'environment_management',
       component: ManagementComponent,
       canActivate: [AuthorizationGuard, AdminGuard]
+    }, {
+      path: 'swagger',
+      component: SwaggerComponent,
+      canActivate: [AuthorizationGuard]
     }, {
       path: 'help/publickeyguide',
       component: PublicKeyGuideComponent,

@@ -68,36 +68,45 @@
   <mat-sidenav #drawer mode="side" opened role="navigation" [style.width]="isExpanded ? '220px' : '60px'" disableClose>
     <mat-nav-list>
       <nav>
-        <a class="nav-item" [routerLink]="['/resources_list']" [routerLinkActive]="['active']"
-          [routerLinkActiveOptions]="{exact:true}">
-          <span *ngIf="isExpanded; else resources">List of Resources</span>
-          <ng-template #resources><i class="material-icons">dashboard</i></ng-template>
-        </a>
-        <a class="nav-item has-children" *ngIf="healthStatus?.admin">
-          <span *ngIf="isExpanded">Administration</span>
-
-          <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/roles']"
-            [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-            <span *ngIf="isExpanded; else roles">Roles</span>
-            <ng-template #roles><i class="material-icons">account_box</i></ng-template>
-          </a>
-          <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/projects']"
-            [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-            <span *ngIf="isExpanded; else projects">Projects</span>
-            <ng-template #projects><i class="material-icons">dns</i></ng-template>
-          </a>
-          <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'"
-            [routerLink]="['/environment_management']" [routerLinkActive]="['active']"
+        <div>
+          <a class="nav-item" [routerLink]="['/resources_list']" [routerLinkActive]="['active']"
             [routerLinkActiveOptions]="{exact:true}">
-            <span *ngIf="isExpanded; else env">Environment Management</span>
-            <ng-template #env><i class="material-icons">settings</i></ng-template>
+            <span *ngIf="isExpanded; else resources">List of Resources</span>
+            <ng-template #resources><i class="material-icons">dashboard</i></ng-template>
           </a>
-        </a>
-        <a *ngIf="healthStatus?.billingEnabled" class="nav-item" [routerLink]="['/billing_report']"
-          [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-          <span *ngIf="isExpanded; else billing">Billing Report</span>
-          <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
-        </a>
+          <a class="nav-item has-children" *ngIf="healthStatus?.admin">
+            <span *ngIf="isExpanded">Administration</span>
+
+            <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/roles']"
+              [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+              <span *ngIf="isExpanded; else roles">Roles</span>
+              <ng-template #roles><i class="material-icons">account_box</i></ng-template>
+            </a>
+            <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/projects']"
+              [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+              <span *ngIf="isExpanded; else projects">Projects</span>
+              <ng-template #projects><i class="material-icons">dns</i></ng-template>
+            </a>
+            <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'"
+              [routerLink]="['/environment_management']" [routerLinkActive]="['active']"
+              [routerLinkActiveOptions]="{exact:true}">
+              <span *ngIf="isExpanded; else env">Environment Management</span>
+              <ng-template #env><i class="material-icons">settings</i></ng-template>
+            </a>
+          </a>
+          <a *ngIf="healthStatus?.billingEnabled" class="nav-item" [routerLink]="['/billing_report']"
+            [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+            <span *ngIf="isExpanded; else billing">Billing Report</span>
+            <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
+          </a>
+        </div>
+        <div>
+          <a class="nav-item" [routerLink]="['/swagger']" [routerLinkActive]="['active']"
+            [routerLinkActiveOptions]="{exact:true}">
+            <img class="swagger-logo" src="../../../assets/svg/swagger-logo.svg" alt="Swagger Logo">
+            <span *ngIf="isExpanded; else resources">Cloud endpoint API</span>
+          </a>
+        </div>
       </nav>
     </mat-nav-list>
   </mat-sidenav>

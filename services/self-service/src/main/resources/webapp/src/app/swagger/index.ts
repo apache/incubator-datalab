@@ -17,20 +17,16 @@
  * under the License.
  */
 
-import { ElementRef, HostBinding, Input } from '@angular/core';
-import { Directive } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
-@Directive({
-  selector: '[scrollTo]'
+import { SwaggerComponent } from './swagger.component';
+
+export * from './swagger.component';
+
+@NgModule({
+  imports: [CommonModule],
+  declarations: [SwaggerComponent],
+  exports: [SwaggerComponent]
 })
-export class ScrollDirective {
-  constructor(private elRef: ElementRef) { }
-
-  @Input()
-  set scrollTo(condition) {
-    if (condition) {
-      const scrollable = this.elRef.nativeElement;
-      scrollable.scrollIntoView(false);
-    }
-  }
-}
+export class SwaggerAPIModule { }
