@@ -19,7 +19,6 @@ public class CreateProjectDTO {
 	private final String key;
 	@NotNull
 	private final String tag;
-	@NotNull
 	@JsonProperty("shared_image_enabled")
 	private boolean sharedImageEnabled;
 }

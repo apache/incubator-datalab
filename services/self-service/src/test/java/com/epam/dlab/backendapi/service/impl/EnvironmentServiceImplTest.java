@@ -384,6 +384,6 @@ public class EnvironmentServiceImplTest {
 	private ProjectDTO getProjectDTO() {
 		return new ProjectDTO(PROJECT_NAME, Collections.emptySet(), "", "", null,
 				Collections.singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.RUNNING,
-						new EdgeInfo())));
+						new EdgeInfo())), true);
 	}
 }

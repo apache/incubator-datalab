@@ -126,7 +126,7 @@ public class InfrastructureTemplateServiceBaseTest {
 				computationalMetadataDTO
 		);
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				null, null, null, null)));
+				null, null, null, null, true)));
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
@@ -171,7 +171,7 @@ public class InfrastructureTemplateServiceBaseTest {
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(computationalMetadataDTO);
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				null, null, null, null)));
+				null, null, null, null, true)));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {

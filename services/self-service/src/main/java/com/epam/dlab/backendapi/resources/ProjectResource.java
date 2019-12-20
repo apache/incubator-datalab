@@ -60,11 +60,10 @@ public class ProjectResource {
 	@RolesAllowed("/api/project")
 	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								  @Valid CreateProjectDTO projectDTO) {
-
 		projectService.create(userInfo, new ProjectDTO(projectDTO.getName(), projectDTO.getGroups(),
 				projectDTO.getKey(), projectDTO.getTag(), null,
 				projectDTO.getEndpoints().stream().map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING,
-						null)).collect(Collectors.toList())));
+						null)).collect(Collectors.toList()), projectDTO.isSharedImageEnabled()));
 		final URI uri = uriInfo.getRequestUriBuilder().path(projectDTO.getName()).build();
 		return Response
 				.ok()
@@ -262,7 +261,7 @@ public class ProjectResource {
 					List<UpdateProjectBudgetDTO> dtos) {
 		final List<ProjectDTO> projects = dtos
 				.stream()
-				.map(dto -> new ProjectDTO(dto.getProject(), null, null, null, dto.getBudget(), null))
+				.map(dto -> ProjectDTO.builder().name(dto.getProject()).budget(dto.getBudget()).build())
 				.collect(Collectors.toList());
 		projectService.updateBudget(projects);
 		return Response.ok().build();

@@ -757,10 +757,8 @@ public class ComputationalServiceImplTest {
 	}
 
 	private ProjectDTO getProjectDTO() {
-		ProjectDTO projectDTO = new ProjectDTO("project", Collections.emptySet(), "", "", null,
+		return new ProjectDTO("project", Collections.emptySet(), "", "", null,
 				singletonList(new ProjectEndpointDTO("endpoint", UserInstanceStatus.RUNNING,
-						new EdgeInfo())));
-		projectDTO.setSharedImageEnabled(true);
-		return projectDTO;
+						new EdgeInfo())), true);
 	}
 }

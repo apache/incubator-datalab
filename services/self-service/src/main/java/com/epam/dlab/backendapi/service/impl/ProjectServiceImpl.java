@@ -174,7 +174,7 @@ public class ProjectServiceImpl implements ProjectService {
 				.collect(Collectors.toList());
 		project.getEndpoints().addAll(endpointsToBeCreated);
 		projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
-				project.getTag(), project.getBudget(), project.getEndpoints()));
+				project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
 		endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, project, e.getName()));
 	}
 

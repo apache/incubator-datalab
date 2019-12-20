@@ -593,10 +593,8 @@ public class ExploratoryServiceImplTest {
 	}
 
 	private ProjectDTO getProjectDTO() {
-		ProjectDTO projectDTO = new ProjectDTO("project", Collections.emptySet(), "", "", null,
+		return new ProjectDTO("project", Collections.emptySet(), "", "", null,
 				singletonList(new ProjectEndpointDTO(ENDPOINT_NAME, UserInstanceStatus.RUNNING,
-						new EdgeInfo())));
-		projectDTO.setSharedImageEnabled(true);
-		return projectDTO;
+						new EdgeInfo())), true);
 	}
 }
