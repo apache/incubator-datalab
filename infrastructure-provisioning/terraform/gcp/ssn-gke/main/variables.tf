@@ -194,3 +194,11 @@ variable "mysql_disk_size" {
 variable "domain" {
   default = ""
 }
+
+variable "keycloak_realm_name" {
+  default = "dlab"
+}
+
+variable "keycloak_client_id" {
+  default = "dlab-ui"
+}

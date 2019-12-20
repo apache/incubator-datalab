@@ -82,3 +82,7 @@ variable "custom_certs_host" {}
 variable "mysql_disk_size" {}
 
 variable "domain" {}
+
+variable "keycloak_realm_name" {}
+
+variable "keycloak_client_id" {}

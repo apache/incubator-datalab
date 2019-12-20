@@ -75,4 +75,6 @@ module "helm_charts" {
   custom_key_path            = var.custom_key_path
   mysql_disk_size            = var.mysql_disk_size
   domain                     = var.domain
+  keycloak_realm_name        = var.keycloak_realm_name
+  keycloak_client_id         = var.keycloak_client_id
 }

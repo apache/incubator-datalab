@@ -56,6 +56,8 @@ ui:
   keycloak:
     auth_server_url: https://${ssn_k8s_alb_dns_name}/auth
     redirect_uri: https://${ssn_k8s_alb_dns_name}/
+    realm_name: ${keycloak_realm_name}
+    client_id: ${keycloak_client_id}
 
   custom_certs:
     enabled: ${custom_certs_enabled}

@@ -216,13 +216,13 @@ data:
 
     keycloakConfiguration:
       redirectUri: {{ .Values.ui.keycloak.redirect_uri }}
-      realm: dlab
+      realm: {{ .Values.ui.keycloak.realm_name }}
       bearer-only: true
       auth-server-url: ${KEYCLOAK_AUTH_URL}
       ssl-required: none
       register-node-at-startup: true
       register-node-period: 600
-      resource: dlab-ui
+      resource: {{ .Values.ui.keycloak.client_id }}
       credentials:
         secret: ${KEYCLOAK_CLIENT_SECRET}
 

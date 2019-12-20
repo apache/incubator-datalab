@@ -34,6 +34,8 @@ data "template_file" "configure_keycloak" {
     ldap_dn                = var.ldap_dn
     ldap_user              = var.ldap_user
     ldap_bind_creds        = var.ldap_bind_creds
+    keycloak_realm_name    = var.keycloak_realm_name
+    keycloak_client_id     = var.keycloak_client_id
   }
 }
 
