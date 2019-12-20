@@ -1030,7 +1030,7 @@ class GCPK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--state', 'State file path', group='service')
          .add_str('--namespace', 'Name of namespace', group='k8s')
          .add_str('--credentials_file_path', 'Path to creds file', group='k8s', required=True)
-         .add_str('--project_id', 'Project ID', group='k8s', required=True)
+         .add_str('--gcp_project_id', 'Project ID', group='k8s', required=True)
          .add_str('--region', 'Region name', group='k8s', required=True)
          .add_str('--zone', 'Zone name', group='k8s', required=True)
          .add_str('--vpc_name', 'VPC name', group='k8s')
