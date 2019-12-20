@@ -36,7 +36,7 @@ output "keycloak_client_secret" {
 }
 
 output "keycloak_client_id" {
-    value = module.helm_charts.keycloak_client_id
+    value = "dlab-ui"
 }
 
 output "ssn_ui_host" {
