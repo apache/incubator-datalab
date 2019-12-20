@@ -28,7 +28,7 @@ output "keycloak_auth_server_url" {
 }
 
 output "keycloak_realm_name" {
-    value = "dlab"
+    value = var.keycloak_realm_name
 }
 
 output "keycloak_user_name" {
@@ -40,7 +40,7 @@ output "keycloak_user_password" {
 }
 
 output "keycloak_client_id" {
-    value = "dlab-ui"
+    value = var.keycloak_client_id
 }
 
 output "ssn_ui_host" {

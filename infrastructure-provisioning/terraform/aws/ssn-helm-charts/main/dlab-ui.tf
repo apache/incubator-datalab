@@ -43,6 +43,8 @@ data "template_file" "dlab_ui_values" {
       custom_certs_crt       = local.custom_cert
       custom_certs_key       = local.custom_key
       step_ca_crt            = lookup(data.external.step-ca-config-values.result, "rootCa")
+      keycloak_realm_name    = var.keycloak_realm_name
+      keycloak_client_id     = var.keycloak_client_id
   }
 }
 

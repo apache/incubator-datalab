@@ -185,6 +185,14 @@ variable "custom_key_path" {
 variable "custom_certs_host" {
     default = ""
 }
+
+variable "keycloak_realm_name" {
+  default = "dlab"
+}
+
+variable "keycloak_client_id" {
+  default = "dlab-ui"
+}
 //variable "nginx_http_port" {
 //    default = "31080"
 //    description = "Sets the nodePort that maps to the Ingress' port 80"
