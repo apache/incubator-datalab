@@ -1030,7 +1030,7 @@ class GCPK8sSourceBuilder(AbstractDeployBuilder):
          .add_str('--state', 'State file path', group='service')
          .add_str('--namespace', 'Name of namespace', group='k8s')
          .add_str('--credentials_file_path', 'Path to creds file', group='k8s', required=True)
-         .add_str('--gcp_project_id', 'Project ID', group='k8s', required=True)
+         .add_str('--project_id', 'Project ID', group='k8s', required=True)
          .add_str('--region', 'Region name', group='k8s', required=True)
          .add_str('--zone', 'Zone name', group='k8s', required=True)
          .add_str('--vpc_name', 'VPC name', group='k8s')
@@ -1135,7 +1135,7 @@ class GCPEndpointBuilder(AbstractDeployBuilder):
          .add_bool('--no_color', 'no color console_output', group='service',
                    default=False)
          .add_str('--state', 'State file path', group='service')
-         .add_str('--project_id', 'GCP project ID', required=True, group='endpoint')
+         .add_str('--gcp_project_id', 'GCP project ID', required=True, group='endpoint')
          .add_str('--creds_file', 'Path to crdes file', required=True, group='endpoint')
          .add_str('--pkey', 'path to key', required=True, group='service')
          .add_str('--service_base_name', 'Service base name', group='endpoint')
