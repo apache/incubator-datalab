@@ -153,7 +153,7 @@ export class ProjectFormComponent implements OnInit {
     });
   }
 
-  public editSpecificProject(item: Project) {
+  public editSpecificProject(item) {
     let endpoints = item.endpoints.map((item: any) => item.name);
 
     this.projectForm = this._fb.group({
@@ -162,7 +162,7 @@ export class ProjectFormComponent implements OnInit {
       'endpoints': [endpoints],
       'tag': [item.tag, Validators.required],
       'groups': [item.groups, Validators.required],
-      'shared_image_enabled': [item.shared_image_enabled, Validators.required]
+      'shared_image_enabled': [item.sharedImageEnabled, Validators.required]
     });
   }
 
