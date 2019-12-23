@@ -883,7 +883,10 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
 
     def destroy(self):
         self.select_master_ip()
-        self.destroy_remote_terraform()
+        try:
+            self.destroy_remote_terraform()
+        except:
+            print("Error with destroying helm charts.")
         super(AWSK8sSourceBuilder, self).destroy()
         if self.output_dir is not None:
             shutil.rmtree(self.output_dir)
