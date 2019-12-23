@@ -72,7 +72,7 @@ resource "aws_subnet" "endpoint_subnet" {
 }
 
 data "aws_subnet" "data_subnet" {
-  id = var.ssn_subnet == "" ? aws_subnet.endpoint_subnet.0.id : var.ssn_subnet
+  id = var.subnet_id == "" ? aws_subnet.endpoint_subnet.0.id : var.subnet_id
 }
 
 resource "aws_route" "route" {
