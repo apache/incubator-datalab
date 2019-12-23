@@ -38,6 +38,7 @@ import {
   animateChild,
   state
 } from '@angular/animations';
+import {skip} from "rxjs/operators";
 
 @Component({
   selector: 'dlab-navbar',
@@ -104,7 +105,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       this.isLoggedIn = response;
       if (this.isLoggedIn) {
-        this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
+        this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
           this.healthStatus = result;
           result.status && this.checkQuoteUsed(this.healthStatus);
           result.status && !result.projectAssigned && this.checkAssignment(this.healthStatus);
