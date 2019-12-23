@@ -896,6 +896,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
     def update_extracted_file_data(self, obj):
         if 'ssn_vpc_id' in obj:
             obj['vpc_id'] = obj['ssn_vpc_id']
+        if 'ssn_subnet_id' in obj:
+            obj['subnet_id'] = obj['ssn_subnet_id']
 
     @property
     def name(self):
