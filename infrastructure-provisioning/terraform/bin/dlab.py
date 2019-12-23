@@ -812,7 +812,7 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                                                     '-json ssn_k8s_sg_id'))
         ssn_subnet = json.loads(
             TerraformProvider(self.no_color).output(self.tf_params,
-                                                    '-json ssn_subnet'))
+                                                    '-json subnet_id'))
         ssn_vpc_id = json.loads(
             TerraformProvider(self.no_color).output(self.tf_params,
                                                     '-json ssn_vpc_id'))
