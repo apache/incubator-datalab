@@ -18,6 +18,7 @@
   -->
 
 <div class="nav-bar" [hidden]="!isLoggedIn">
+  <mat-progress-bar *ngIf="showProgressBar" mode="indeterminate" ></mat-progress-bar>
   <div class="menu-area" *ngIf="healthStatus">
 
     <button class="hamburger" (click)="collapse()">
