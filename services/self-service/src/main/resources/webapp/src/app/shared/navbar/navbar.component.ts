@@ -50,7 +50,7 @@ import {
       ], { optional: true }),
       group([
         query(':leave', [
-          animate('.3s ease-in-out',
+          animate('0s',
             style({
               opacity: 0,
             })
