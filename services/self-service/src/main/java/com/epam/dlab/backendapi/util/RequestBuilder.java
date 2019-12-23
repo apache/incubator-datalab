@@ -186,7 +186,8 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ExploratoryCreateDTO<T>> T newExploratoryCreate(Exploratory exploratory, UserInfo userInfo,
+	public <T extends ExploratoryCreateDTO<T>> T newExploratoryCreate(ProjectDTO projectDTO, Exploratory exploratory,
+																	  UserInfo userInfo,
 																	  ExploratoryGitCredsDTO exploratoryGitCredsDTO,
 																	  Map<String, String> tags) {
 
@@ -224,6 +225,7 @@ public class RequestBuilder {
 				.withClusterConfig(exploratory.getClusterConfig())
 				.withProject(exploratory.getProject())
 				.withEndpoint(exploratory.getEndpoint())
+				.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()))
 				.withTags(tags);
 	}
 
@@ -363,7 +365,7 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo,
+	public <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo, ProjectDTO projectDTO,
 																	 UserInstanceDTO userInstance,
 																	 ComputationalCreateFormDTO form) {
 		T computationalCreate;
@@ -380,7 +382,8 @@ public class RequestBuilder {
 						.withSlaveInstanceSpot(awsForm.getSlaveInstanceSpot())
 						.withSlaveInstanceSpotPctPrice(awsForm.getSlaveInstanceSpotPctPrice())
 						.withVersion(awsForm.getVersion())
-						.withConfig((awsForm.getConfig()));
+						.withConfig((awsForm.getConfig()))
+						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				break;
 			case GCP:
 				GcpComputationalCreateForm gcpForm = (GcpComputationalCreateForm) form;
@@ -390,7 +393,8 @@ public class RequestBuilder {
 						.withPreemptibleCount(gcpForm.getPreemptibleCount())
 						.withMasterInstanceType(gcpForm.getMasterInstanceType())
 						.withSlaveInstanceType(gcpForm.getSlaveInstanceType())
-						.withVersion(gcpForm.getVersion());
+						.withVersion(gcpForm.getVersion())
+						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				break;
 
 			default:
@@ -409,7 +413,7 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo,
+	public <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo, ProjectDTO projectDTO,
 																	 UserInstanceDTO userInstance,
 																	 SparkStandaloneClusterCreateForm form) {
 
@@ -421,14 +425,16 @@ public class RequestBuilder {
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterShape(form.getDataEngineInstanceShape())
 						.withDataEngineSlaveShape(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withConfig(form.getConfig())
+						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				break;
 			case AZURE:
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
 						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withConfig(form.getConfig())
+						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((SparkComputationalCreateAzure) computationalCreate)
 							.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
@@ -443,7 +449,8 @@ public class RequestBuilder {
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
 						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withConfig(form.getConfig())
+						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				break;
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
@@ -625,7 +632,6 @@ public class RequestBuilder {
 				.name(projectDTO.getName())
 				.tag(projectDTO.getTag())
 				.endpoint(endpoint)
-				.useSharedImage(String.valueOf(projectDTO.isUseSharedImage()))
 				.build()
 				.withCloudSettings(cloudSettings(userInfo));
 	}

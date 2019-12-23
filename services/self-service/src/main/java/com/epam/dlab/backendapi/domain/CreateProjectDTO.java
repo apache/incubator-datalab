@@ -1,5 +1,6 @@
 package com.epam.dlab.backendapi.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -18,4 +19,6 @@ public class CreateProjectDTO {
 	private final String key;
 	@NotNull
 	private final String tag;
+	@JsonProperty("shared_image_enabled")
+	private boolean sharedImageEnabled;
 }

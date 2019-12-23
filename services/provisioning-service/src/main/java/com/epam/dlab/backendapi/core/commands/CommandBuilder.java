@@ -90,7 +90,6 @@ public class CommandBuilder {
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
 				.azureIamUser(settings.getIamUser())
 				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
-				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
 				.build();
 	}
 
@@ -113,7 +112,6 @@ public class CommandBuilder {
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
 				.gcpIamUser(settings.getIamUser())
 				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
-				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
 				.build();
 	}
 
@@ -139,7 +137,6 @@ public class CommandBuilder {
 				.os(cloudConfiguration.getOs())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
 				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
-				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
 				.build();
 	}
 }

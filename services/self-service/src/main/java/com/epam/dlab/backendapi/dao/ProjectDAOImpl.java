@@ -26,6 +26,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String GROUPS = "groups";
 	private static final String ENDPOINTS = "endpoints";
 	private static final String STATUS_FIELD = "status";
+	private static final String SHARED_IMAGE_FIELD = "sharedImageEnabled";
 	private static final String ENDPOINT_STATUS_FIELD = "endpoints." + STATUS_FIELD;
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
 	private static final String ENDPOINT_FIELD = "endpoints.$.";
@@ -109,6 +110,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 		updateProject.put(GROUPS, projectDTO.getGroups());
 		updateProject.put(ENDPOINTS,
 				projectDTO.getEndpoints().stream().map(this::convertToBson).collect(Collectors.toList()));
+		updateProject.put(SHARED_IMAGE_FIELD, projectDTO.isSharedImageEnabled());
 		return updateOne(PROJECTS_COLLECTION, projectCondition(projectDTO.getName()),
 				new Document(SET, updateProject)).getMatchedCount() > 0L;
 	}
