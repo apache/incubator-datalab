@@ -108,7 +108,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
 def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
     if not exists('/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
         try:
-            sudo('yum install -y --nogpgcheck https://download2.rstudio.org/rstudio-server-rhel-{}-x86_64.rpm'.format(rstudio_version))
+            sudo('yum install -y --nogpgcheck https://download2.rstudio.org/server/centos6/x86_64/rstudio-server-rhel-{}-x86_64.rpm'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             sudo("sed -i '/Type=forking/a \Environment=USER=dlab-user' /etc/systemd/system/rstudio-server.service")

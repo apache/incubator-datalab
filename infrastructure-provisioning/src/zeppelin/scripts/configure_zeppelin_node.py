@@ -89,6 +89,7 @@ def configure_zeppelin(os_user):
             sudo('sed -i \"/# export ZEPPELIN_PID_DIR/c\export ZEPPELIN_PID_DIR=/var/run/zeppelin\" /opt/zeppelin/conf/zeppelin-env.sh')
             sudo('sed -i \"/# export ZEPPELIN_IDENT_STRING/c\export ZEPPELIN_IDENT_STRING=notebook\" /opt/zeppelin/conf/zeppelin-env.sh')
             sudo('sed -i \"/# export SPARK_HOME/c\export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+            sudo('sed -i \'s/127.0.0.1/0.0.0.0/g\' /opt/zeppelin/conf/zeppelin-site.xml')
             sudo('mkdir /var/log/zeppelin')
             sudo('mkdir /var/run/zeppelin')
             sudo('ln -s /var/log/zeppelin /opt/zeppelin-' + zeppelin_version + '-bin-netinst/logs')
