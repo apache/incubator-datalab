@@ -19,10 +19,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter notebook 5.7.4",
+      "template_name": "Jupyter notebook 6.0.2",
       "description": "Base image with Jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter_notebook-5.7.4",
+      "version": "jupyter_notebook-6.0.2",
       "vendor": "AWS"
     }
   ]
