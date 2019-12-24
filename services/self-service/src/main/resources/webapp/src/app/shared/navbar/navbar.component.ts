@@ -84,7 +84,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   metadata: any;
   isExpanded: boolean = true;
-  public showProgressBar: any;
+  public showProgressBar: any = false;
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
   showProgressBarSubscr = new Subscription();
@@ -101,7 +101,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.showProgressBarSubscr =  this.progressBarService.showProgressBar.subscribe(isProgressBarVissible => this.showProgressBar = isProgressBarVissible);
+    this.showProgressBarSubscr = this.progressBarService.showProgressBar.subscribe(isProgressBarVissible => this.showProgressBar = isProgressBarVissible);
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
       this.subscriptions.unsubscribe();
       this.subscriptions.closed = false;

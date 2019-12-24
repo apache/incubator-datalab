@@ -25,6 +25,7 @@ import { Subscription } from 'rxjs';
 import { ProjectDataService } from '../project-data.service';
 import { Project, Endpoint } from '../project.component';
 import { CheckUtils } from '../../../core/util';
+import {ProgressBarService} from "../../../core/services/progress-bar.service";
 
 @Component({
   selector: 'project-list',
@@ -45,27 +46,33 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   constructor(
     public toastr: ToastrService,
-    private projectDataService: ProjectDataService
+    private projectDataService: ProjectDataService,
+    private progressBarService: ProgressBarService,
   ) { }
 
 
   ngOnInit() {
-    this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
-      this.projectList = value;
-      if (value) this.dataSource = new MatTableDataSource(value)
-    }));
+    this.getProjectList();
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
 
+  private getProjectList(){
+    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
+    this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
+      this.projectList = value;
+      if (value) this.dataSource = new MatTableDataSource(value);
+      this.progressBarService.stopProgressBar();
+    }, () => this.progressBarService.stopProgressBar()));
+  }
+
   public showActiveInstances(): void {
-    console.log(this.projectList);
     const filteredList = this.projectList.map(project => {
       project.endpoints = project.endpoints.filter((endpoint: Endpoint) => endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING' && endpoint.status !== 'FAILED')
       return project;
-    })
+    });
 
     this.dataSource = new MatTableDataSource(filteredList);
   }

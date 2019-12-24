@@ -27,6 +27,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 
 import { FileUtils } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
+import {ProgressBarService} from "../core/services/progress-bar.service";
 
 @Component({
   selector: 'dlab-reporting',
@@ -71,7 +72,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
   constructor(
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
-    public toastr: ToastrService
+    public toastr: ToastrService,
+    private progressBarService: ProgressBarService,
   ) { }
 
   ngOnInit() {
@@ -83,7 +85,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getGeneralBillingData() {
-
+    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
@@ -105,7 +107,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
         } else {
           this.getDefaultFilterConfiguration(this.data);
         }
-      });
+        this.progressBarService.stopProgressBar();
+      }, () => this.progressBarService.stopProgressBar());
   }
 
   rebuildBillingReport($event?): void {
