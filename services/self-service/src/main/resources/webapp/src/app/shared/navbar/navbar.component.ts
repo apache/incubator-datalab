@@ -38,6 +38,7 @@ import {
   animateChild,
   state
 } from '@angular/animations';
+import {skip} from "rxjs/operators";
 import {ProgressBarService} from "../../core/services/progress-bar.service";
 
 @Component({

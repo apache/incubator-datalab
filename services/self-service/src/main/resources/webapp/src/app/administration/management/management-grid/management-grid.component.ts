@@ -53,7 +53,6 @@ export class ManagementGridComponent implements OnInit {
   filtering: boolean = false;
   collapsedFilterRow: boolean = false;
 
-
   @Input() environmentsHealthStatuses: Array<any>;
   @Input() resources: Array<any>;
   @Input() isAdmin: boolean;
