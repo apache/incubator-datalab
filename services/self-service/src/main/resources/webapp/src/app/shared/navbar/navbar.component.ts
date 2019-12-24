@@ -52,7 +52,7 @@ import {ProgressBarService} from "../../core/services/progress-bar.service";
       ], { optional: true }),
       group([
         query(':leave', [
-          animate('.3s ease-in-out',
+          animate('0s',
             style({
               opacity: 0,
             })
@@ -109,7 +109,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
       this.isLoggedIn = response;
       if (this.isLoggedIn) {
-        this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
+        this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
           this.healthStatus = result;
           result.status && this.checkQuoteUsed(this.healthStatus);
           result.status && !result.projectAssigned && this.checkAssignment(this.healthStatus);
@@ -132,14 +132,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   getUserName(): string {
     return this.storage.getUserName() || '';
-  }
-
-  public startProgressBar() {
-    this.progressBarService.startProgressBar()
-  }
-
-  public stopProgressBar() {
-    this.progressBarService.stopProgressBar()
   }
 
   logout_btnClick(): void {
