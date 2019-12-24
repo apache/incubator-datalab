@@ -8,31 +8,48 @@ import com.epam.dlab.backendapi.domain.EndpointResourcesDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
+import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import lombok.extern.slf4j.Slf4j;
 
+import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 public class EndpointServiceImpl implements EndpointService {
+	private static final String HEALTHCHECK = "healthcheck";
 	private final EndpointDAO endpointDAO;
 	private final ProjectService projectService;
 	private final ExploratoryDAO exploratoryDAO;
+	private final RESTService provisioningService;
 
 	@Inject
-	public EndpointServiceImpl(EndpointDAO endpointDAO, ProjectService projectService, ExploratoryDAO exploratoryDAO) {
+	public EndpointServiceImpl(EndpointDAO endpointDAO, ProjectService projectService, ExploratoryDAO exploratoryDAO,
+							   @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService) {
+
 		this.endpointDAO = endpointDAO;
 		this.projectService = projectService;
 		this.exploratoryDAO = exploratoryDAO;
+		this.provisioningService = provisioningService;
 	}
 
 	@Override
 	public List<EndpointDTO> getEndpoints() {
 		return endpointDAO.getEndpoints();
+	}
+
+	@Override
+	public List<EndpointDTO> getEndpointsWithStatus(EndpointDTO.EndpointStatus status) {
+		return endpointDAO.getEndpointsWithStatus(status.name());
 	}
 
 	@Override
@@ -52,12 +69,18 @@ public class EndpointServiceImpl implements EndpointService {
 	}
 
 	@Override
-	public void create(EndpointDTO endpointDTO) {
+	public void create(UserInfo userInfo, EndpointDTO endpointDTO) {
+		checkEndpointUrl(userInfo, endpointDTO.getUrl());
 		if (!endpointDAO.get(endpointDTO.getName()).isPresent()) {
-			endpointDAO.create(endpointDTO);
+			endpointDAO.create(EndpointDTO.withEndpointStatus(endpointDTO));
 		} else {
 			throw new ResourceConflictException("Endpoint with passed name already exist in system");
 		}
+	}
+
+	@Override
+	public void updateEndpointStatus(String name, EndpointDTO.EndpointStatus status) {
+		endpointDAO.updateEndpointStatus(name, status.name());
 	}
 
 	@Override
@@ -74,6 +97,21 @@ public class EndpointServiceImpl implements EndpointService {
 	@Override
 	public void removeEndpointInAllProjects(UserInfo userInfo, String endpointName, List<ProjectDTO> projects) {
 		projects.forEach(project -> projectService.terminateEndpoint(userInfo, endpointName, project.getName()));
+	}
+
+	@Override
+	public void checkEndpointUrl(UserInfo userInfo, String url) {
+		Response response;
+		try {
+			response = provisioningService.get(url + HEALTHCHECK, userInfo.getAccessToken(), Response.class);
+		} catch (Exception e) {
+			log.error("Cannot connect to url \'{}\'", url);
+			throw new DlabException(String.format("Cannot connect to url \'%s\'", url), e);
+		}
+		if (response.getStatus() != 200) {
+			log.warn("Endpoint url {} is not valid", url);
+			throw new ResourceNotFoundException(String.format("Endpoint url \'%s\' is not valid", url));
+		}
 	}
 
 	private void checkProjectEndpointResourcesStatuses(List<ProjectDTO> projects, String endpoint) {

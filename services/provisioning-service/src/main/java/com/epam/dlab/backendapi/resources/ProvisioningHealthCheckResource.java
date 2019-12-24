@@ -17,23 +17,31 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.dao;
+package com.epam.dlab.backendapi.resources;
 
-import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.epam.dlab.auth.UserInfo;
+import io.dropwizard.auth.Auth;
 
-import java.util.List;
-import java.util.Optional;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-public interface EndpointDAO {
-	List<EndpointDTO> getEndpoints();
+@Path("/healthcheck")
+@Produces(MediaType.APPLICATION_JSON)
+public class ProvisioningHealthCheckResource {
+    private static final String HEALTH_CHECK= "ProvisioningHealthCheck";
 
-	List<EndpointDTO> getEndpointsWithStatus(String status);
+    private HealthCheckRegistry registry;
 
-	Optional<EndpointDTO> get(String name);
+    public ProvisioningHealthCheckResource(HealthCheckRegistry registry) {
+        this.registry = registry;
+    }
 
-	void create(EndpointDTO endpointDTO);
-
-	void updateEndpointStatus(String name, String status);
-
-	void remove(String name);
+    @GET
+    public Response status(@Auth UserInfo ui) {
+        return Response.ok(registry.runHealthCheck(HEALTH_CHECK)).build();
+    }
 }
