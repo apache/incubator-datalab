@@ -80,7 +80,7 @@ parser.add_argument('--conf_key_name', type=str, default='', help='Admin key nam
 parser.add_argument('--workspace_path', type=str, default='', help='Admin key name (WITHOUT ".pem")')
 parser.add_argument('--conf_tag_resource_id', type=str, default='dlab', help='The name of user tag')
 parser.add_argument('--conf_billing_tag', type=str, default='dlab', help='Billing tag')
-parser.add_argument('--aws_ssn_instance_size', type=str, default='t2.large', help='The SSN instance shape')
+parser.add_argument('--aws_ssn_instance_size', type=str, default='t2.xlarge', help='The SSN instance shape')
 parser.add_argument('--azure_ssn_instance_size', type=str, default='Standard_DS2_v2', help='The SSN instance shape')
 parser.add_argument('--gcp_ssn_instance_size', type=str, default='n1-standard-2', help='The SSN instance shape')
 parser.add_argument('--aws_account_id', type=str, default='', help='The ID of Amazon account')
