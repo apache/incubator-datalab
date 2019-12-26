@@ -736,7 +736,7 @@ public class ComputationalServiceImplTest {
 	}
 
 	private EndpointDTO endpointDTO() {
-		return new EndpointDTO("test", "url", "", null);
+		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE);
 	}
 
 

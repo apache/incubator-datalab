@@ -17,23 +17,14 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.dao;
+package com.epam.dlab.backendapi.healthcheck;
 
-import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.codahale.metrics.health.HealthCheck;
 
-import java.util.List;
-import java.util.Optional;
+public class ProvisioningHealthCheck extends HealthCheck {
 
-public interface EndpointDAO {
-	List<EndpointDTO> getEndpoints();
-
-	List<EndpointDTO> getEndpointsWithStatus(String status);
-
-	Optional<EndpointDTO> get(String name);
-
-	void create(EndpointDTO endpointDTO);
-
-	void updateEndpointStatus(String name, String status);
-
-	void remove(String name);
+    @Override
+    protected Result check() {
+        return Result.healthy();
+    }
 }

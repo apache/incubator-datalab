@@ -24,6 +24,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.DirectoriesCreator;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
+import com.epam.dlab.backendapi.healthcheck.ProvisioningHealthCheck;
 import com.epam.dlab.backendapi.modules.CloudModuleConfigurator;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
@@ -128,6 +129,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 			environment.lifecycle().manage(injector.getInstance(RestoreCallbackHandlerServiceImpl.class));
 		}
 		environment.lifecycle().manage(injector.getInstance(DockerWarmuper.class));
+		environment.healthChecks().register("ProvisioningHealthCheck", new ProvisioningHealthCheck());
 
 
 		JerseyEnvironment jersey = environment.jersey();
@@ -144,6 +146,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 		jersey.register(injector.getInstance(KeyResource.class));
 		jersey.register(injector.getInstance(CallbackHandlerResource.class));
 		jersey.register(injector.getInstance(ProjectResource.class));
+		jersey.register(new ProvisioningHealthCheckResource(environment.healthChecks()));
 
 	}
 }
