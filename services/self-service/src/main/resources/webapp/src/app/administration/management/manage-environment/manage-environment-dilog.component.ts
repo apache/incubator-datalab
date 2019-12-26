@@ -95,12 +95,18 @@ export class ManageEnvironmentComponent implements OnInit {
   }
 
   private totalValidityCheck(control) {
+    if(control && control.value === null && control.dirty){
+      return { integerError: true }
+    }
     return (control && control.value)
       ? (control.value >= this.getCurrentUsersTotal() ? null : { overrun: true })
       : null;
   }
 
   private userValidityCheck(control) {
+    if(control && isNaN(control.value)){
+      return { budget: true }
+    }
     if (control && control.value) {
       return (this.getCurrentTotalValue() && this.getCurrentTotalValue() < this.getCurrentUsersTotal()) ? { overrun: true } : null;
     }
