@@ -177,8 +177,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Building dlab images")
-    if not build_docker_images(deeper_config, args.region, args.dlab_path):
-        sys.exit(1)
+    # if not build_docker_images(deeper_config, args.region, args.dlab_path):
+    #     sys.exit(1)
     count = 0
     while not build_docker_images(deeper_config, args.region, args.dlab_path) or count < 5:
         count += 1
