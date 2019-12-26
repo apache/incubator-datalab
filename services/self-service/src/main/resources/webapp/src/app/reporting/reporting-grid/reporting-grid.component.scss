@@ -49,6 +49,7 @@
     }
 
     &.filter-row {
+      background: transparent;
       th {
         padding: 5px;
         font-size: 13px;
@@ -61,6 +62,7 @@
     }
 
     &.header-row {
+      background: transparent;
       th {
         font-size: 11px;
       }

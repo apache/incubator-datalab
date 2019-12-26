@@ -49,9 +49,11 @@
   .endpoints {
     height: 265px;
 
-    table {
+    table.mat-table {
       width: 100%;
-
+      thead{
+        background: transparent;
+      }
       tr {
         td {
           vertical-align: middle;
