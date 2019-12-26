@@ -180,7 +180,7 @@ if __name__ == "__main__":
     # if not build_docker_images(deeper_config, args.region, args.dlab_path):
     #     sys.exit(1)
     count = 0
-    while not build_docker_images(deeper_config, args.region, args.dlab_path) or count < 5:
+    while not build_docker_images(deeper_config, args.region, args.dlab_path) and count < 5:
         count += 1
         time.sleep(5)
 
