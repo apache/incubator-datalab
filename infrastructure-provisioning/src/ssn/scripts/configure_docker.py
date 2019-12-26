@@ -104,6 +104,7 @@ def build_docker_images(image_list, region, dlab_path):
         sudo('rm -f {}sources/infrastructure-provisioning/src/base/azure_auth.json'.format(args.dlab_path))
         return True
     except:
+        time.sleep(600)
         return False
 
 def configure_guacamole():
