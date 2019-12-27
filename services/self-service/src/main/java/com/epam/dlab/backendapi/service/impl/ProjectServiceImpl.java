@@ -125,6 +125,11 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	public void terminateEndpoint(UserInfo userInfo, List<String> endpoints, String name) {
+		endpoints.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
+	}
+
+	@Override
 	public void terminateProject(UserInfo userInfo, String name) {
 		List<ProjectEndpointDTO> endpoints = get(name).getEndpoints();
 		checkProjectRelatedResourcesInProgress(name, endpoints, TERMINATE_ACTION);
@@ -142,9 +147,19 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	public void start(UserInfo userInfo, List<String> endpoints, String name) {
+		endpoints.forEach(endpoint -> start(userInfo, endpoint, name));
+	}
+
+	@Override
 	public void stop(UserInfo userInfo, String endpoint, String name) {
 		projectActionOnCloud(userInfo, name, STOP_PRJ_API, endpoint);
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STOPPING);
+	}
+
+	@Override
+	public void stop(UserInfo userInfo, List<String> endpoints, String name) {
+		endpoints.forEach(endpoint -> stop(userInfo, endpoint, name));
 	}
 
 	@Override
