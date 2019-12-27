@@ -12,6 +12,7 @@
     <properties>
         <cucumber.version>4.2.6</cucumber.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <logback.version>1.2.3</logback.version>
     </properties>
 
     <dependencies>
@@ -61,6 +62,12 @@
             <artifactId>rest-assured</artifactId>
             <version>2.9.0</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
 
     </dependencies>

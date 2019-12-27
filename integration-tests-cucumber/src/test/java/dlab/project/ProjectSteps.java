@@ -1,5 +1,7 @@
 package dlab.project;
 
+import com.jayway.restassured.config.HttpClientConfig;
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -8,16 +10,17 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import dlab.util.KeycloakUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dlab.dto.CreateProjectDTO;
 import org.apache.dlab.dto.EndpointStatusDTO;
 import org.apache.dlab.dto.ProjectKeyDTO;
 import org.apache.dlab.dto.ProjectStatusDTO;
 import org.apache.dlab.util.JacksonMapper;
+import org.apache.http.HttpStatus;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -25,13 +28,13 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.restassured.RestAssured.given;
-import static dlab.Constants.API_URI;
-import static dlab.Constants.LOCAL_ENDPOINT;
+import static dlab.Constants.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
+@Slf4j
 public class ProjectSteps {
 
 	private RequestSpecification createProjectRequest;
@@ -44,9 +47,10 @@ public class ProjectSteps {
 
 	@Given("There is no project with name {string} in DLab")
 	public void thereIsNoProjectWithNameInDLab(String projectName) throws URISyntaxException {
-		assertThat(authenticatedRequest()
+		authenticatedRequest()
 				.get(new URI(API_URI + "project/" + projectName))
-				.getStatusCode(), equalTo(404));
+				.then()
+				.statusCode(HttpStatus.SC_NOT_FOUND);
 	}
 
 	@And("There are the following endpoints")
@@ -80,7 +84,6 @@ public class ProjectSteps {
 				.auth()
 				.oauth2(KeycloakUtil.getToken())
 				.contentType(ContentType.JSON);
-
 	}
 
 	@Then("Status code is {int}")
@@ -92,6 +95,7 @@ public class ProjectSteps {
 	public void userWaitMaximumMinutesWhileProjectIsCreating(int timeout) throws URISyntaxException, InterruptedException {
 		boolean isRunning = false;
 		LocalDateTime withTimeout = LocalDateTime.now().plusMinutes(timeout);
+		log.info("User wait till {}", withTimeout);
 		while (!isRunning && LocalDateTime.now().isBefore(withTimeout)) {
 			ProjectStatusDTO projectDTO = authenticatedRequest()
 					.get(new URI(API_URI + "project/" + projectName))
@@ -112,15 +116,15 @@ public class ProjectSteps {
 		}
 
 		assertTrue("Timeout for project status check reached!", isRunning);
-	}
-
-	private HashSet<String> getSetFromString(String string) {
-		return new HashSet<>(Arrays.asList(string.split(",")));
+		log.info("Project {} successfully created", projectName);
 	}
 
 	private RequestSpecification authenticatedRequest() {
 		return given()
 				.auth()
-				.oauth2(KeycloakUtil.getToken());
+				.oauth2(KeycloakUtil.getToken())
+				.config(RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
+						.setParam(CONNECTION_TIMEOUT_LABEL, CONNECTION_TIMEOUT)
+						.setParam(SOCKET_TIMEOUT_LABEL, SOCKET_TIMEOUT)));
 	}
 }
