@@ -17,15 +17,18 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, OnDestroy, Inject} from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subscription } from 'rxjs';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
 import { ProjectDataService } from '../project-data.service';
 import { Project, Endpoint } from '../project.component';
 import { CheckUtils } from '../../../core/util';
 import {ProgressBarService} from "../../../core/services/progress-bar.service";
+import {EdgeActionDialogComponent} from "../../../shared/modal-dialog/edge-action-dialog";
+import {EndpointService} from "../../../core/services";
 
 @Component({
   selector: 'project-list',
@@ -41,14 +44,18 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
   @Output() deleteItem: EventEmitter<{}> = new EventEmitter();
   @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
-
   private subscriptions: Subscription = new Subscription();
 
   constructor(
     public toastr: ToastrService,
     private projectDataService: ProjectDataService,
     private progressBarService: ProgressBarService,
-  ) { }
+    private endpointService: EndpointService,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<ProjectListComponent>,
+    public dialog: MatDialog,
+  ) {
+  }
 
 
   ngOnInit() {
@@ -63,6 +70,13 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
     this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
       this.projectList = value;
+      this.endpointService.getEndpointsData().subscribe((endpoints: any) => {
+        if(this.projectList){
+          this.projectList.forEach(project => project.endpoints.forEach(endpoint => {
+            endpoint.endpointStatus = endpoints.filter(v => v.name === endpoint.name)[0].status;
+          }))
+        }
+       });
       if (value) this.dataSource = new MatTableDataSource(value);
       this.progressBarService.stopProgressBar();
     }, () => this.progressBarService.stopProgressBar()));
@@ -70,7 +84,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   public showActiveInstances(): void {
     const filteredList = this.projectList.map(project => {
-      project.endpoints = project.endpoints.filter((endpoint: Endpoint) => endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING' && endpoint.status !== 'FAILED')
+      project.endpoints = project.endpoints.filter((endpoint: Endpoint) => endpoint.status !== 'TERMINATED' && endpoint.status !== 'TERMINATING' && endpoint.status !== 'FAILED');
       return project;
     });
 
@@ -78,7 +92,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   public toggleEndpointAction(project, action, endpoint) {
-    this.toggleStatus.emit({ project, endpoint, action });
+    this.toggleStatus.emit({project, endpoint, action});
   }
 
   public editProject(item: Project[]) {
@@ -101,5 +115,34 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   public toEndpointStatus(status) {
     return CheckUtils.endpointStatus[status] || status;
+  }
+
+  public openEdgeDialog(action, project) {
+      const endpoints = project.endpoints.filter(endpoint => {
+        if(action === "stop"){
+          return endpoint.status == 'RUNNING'
+        }
+        if(action === "start"){
+          return endpoint.status == 'STOPPED'
+        }
+        if(action === "terminate"){
+          return endpoint.status == 'RUNNING' || endpoint.status == 'STOPPED'
+        }
+      });
+      this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})
+        .afterClosed().subscribe(endpoint => {
+        if(endpoint && endpoint.length){
+        this.toggleStatus.emit({project, endpoint, action});
+        }
+      }, error => this.toastr.error(error.message || `Endpoint ${action} failed!`, 'Oops!')
+      );
+    }
+
+  public areStartedEndpoints(project) {
+    return project.endpoints.filter(endpoint => endpoint.status == 'RUNNING').length > 0;
+  }
+
+  public areStoppedEndpoints(project) {
+    return project.endpoints.filter(endpoint => endpoint.status == 'STOPPED').length > 0;
   }
 }
