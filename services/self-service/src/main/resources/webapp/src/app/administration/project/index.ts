@@ -30,6 +30,7 @@ import { ProjectListComponent } from './project-list/project-list.component';
 
 import { ProjectComponent, EditProjectComponent } from './project.component';
 import { ProjectDataService } from './project-data.service';
+import {BubbleModule} from "../../shared/bubble";
 
 @NgModule({
   imports: [
@@ -38,7 +39,8 @@ import { ProjectDataService } from './project-data.service';
     ReactiveFormsModule,
     MaterialModule,
     FormControlsModule,
-    UnderscorelessPipeModule
+    UnderscorelessPipeModule,
+    BubbleModule
   ],
   declarations: [ProjectComponent, EditProjectComponent, ProjectFormComponent, ProjectListComponent],
   entryComponents: [EditProjectComponent],

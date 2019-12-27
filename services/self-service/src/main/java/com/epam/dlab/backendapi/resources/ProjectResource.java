@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -83,8 +84,8 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response startProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								 @Valid ProjectActionFormDTO startProjectDto) {
-		projectService.start(userInfo, startProjectDto.getEndpoint(), startProjectDto.getProjectName());
+								 @NotNull @Valid ProjectActionFormDTO startProjectDto) {
+		projectService.start(userInfo, startProjectDto.getEndpoints(), startProjectDto.getProjectName());
 		return Response
 				.accepted()
 				.build();
@@ -102,8 +103,8 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								@Valid ProjectActionFormDTO stopProjectDTO) {
-		projectService.stop(userInfo, stopProjectDTO.getEndpoint(), stopProjectDTO.getProjectName());
+								@NotNull @Valid ProjectActionFormDTO stopProjectDTO) {
+		projectService.stop(userInfo, stopProjectDTO.getEndpoints(), stopProjectDTO.getProjectName());
 		return Response
 				.accepted()
 				.build();
@@ -227,10 +228,9 @@ public class ProjectResource {
 	@POST
 	@Path("terminate")
 	@RolesAllowed("/api/project")
-	public Response removeProjectEndpoint(
-			@Parameter(hidden = true) @Auth UserInfo userInfo,
-			ProjectActionFormDTO projectActionDTO) {
-		projectService.terminateEndpoint(userInfo, projectActionDTO.getEndpoint(), projectActionDTO.getProjectName());
+	public Response removeProjectEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo,
+										  @NotNull @Valid ProjectActionFormDTO projectActionDTO) {
+		projectService.terminateEndpoint(userInfo, projectActionDTO.getEndpoints(), projectActionDTO.getProjectName());
 		return Response.ok().build();
 	}
 

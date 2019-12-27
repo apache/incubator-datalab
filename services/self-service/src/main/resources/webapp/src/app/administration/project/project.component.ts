@@ -35,7 +35,7 @@ export interface Endpoint {
 
 export interface Project {
   name: string;
-  endpoints: Endpoint[];
+  endpoints: any;
   tag: string;
   groups: string[];
   shared_image_enabled?: boolean;
@@ -114,21 +114,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   public toggleStatus($event) {
-    const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.name };
-    if ($event.action === 'stop' || $event.action === 'terminate') {
-      this.dialog.open(NotificationDialogComponent, {
-        data: {
-          type: 'confirmation',
-          template: `Edge node in endpoint <span class="strong">${$event.endpoint.name}</span> will be ${$event.action === 'stop' ? 'stopped' : 'terminated'} for <span class="strong">${$event.project.name}</span>`,
-          item: $event.endpoint, action: $event.action === 'stop' ? 'stopped' : 'terminated'
-        }, panelClass: 'modal-sm'
-      })
-        .afterClosed().subscribe(result => {
-          result && this.toggleStatusRequest(data, $event.action);
-        }, error => this.toastr.error(error.message, 'Oops!'));
-    } else {
+    const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.map(endpoint => endpoint.name)};
       this.toggleStatusRequest(data, $event.action);
-    }
   }
 
   private toggleStatusRequest(data, action) {

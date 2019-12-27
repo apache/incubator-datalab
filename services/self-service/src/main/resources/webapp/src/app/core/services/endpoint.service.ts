@@ -35,7 +35,10 @@ export class EndpointService {
     return this.applicationServiceFacade
       .buildGetEndpointsData()
       .pipe(
-        map(response => response),
+        map(response => {
+          console.log(response);
+          return response
+        }),
         catchError(ErrorUtils.handleServiceError));
   }
 

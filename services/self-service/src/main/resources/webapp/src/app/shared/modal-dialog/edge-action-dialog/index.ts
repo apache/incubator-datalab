@@ -17,23 +17,18 @@
  * under the License.
  */
 
-.bubble-up {
-  width: 100%;
-  background: #fff;
-  border: none;
-  display: none;
-  overflow: visible;
-  position: absolute;
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 1px -2px,
-              rgba(0, 0, 0, 0.14) 0px 2px 2px 0px,
-              rgba(0, 0, 0, 0.12) 0px 1px 5px 0px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  word-break: break-word;
-  text-align: left;
-}
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { EdgeActionDialogComponent } from './edge-action-dialog.component';
+import { MaterialModule } from '../../material.module';
+import {FormsModule} from "@angular/forms";
 
-.bubble-up.is-visible {
-  display: block;
-  z-index: 999;
-}
+export * from './edge-action-dialog.component';
+
+@NgModule({
+  imports: [CommonModule, MaterialModule, FormsModule],
+  declarations: [EdgeActionDialogComponent],
+  entryComponents: [EdgeActionDialogComponent],
+  exports: [EdgeActionDialogComponent]
+})
+export class EdgeActionDialogModule {}
