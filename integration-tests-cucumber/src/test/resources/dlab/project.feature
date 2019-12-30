@@ -9,7 +9,7 @@ Feature: Project management in DLab
     And There are the following groups
       | $anyuser |
     And User generates new publicKey
-    When User tries to create new project with name "<name>", endpoints, groups, publicKey and use shared image "true"
+    When User tries to create new project with name "<name>", endpoints, groups, publicKey and use shared image "enable"
     And User sends create new project request
     Then User waits maximum <timeout> minutes while project is creating
     Then Status code is 200
@@ -27,7 +27,7 @@ Feature: Project management in DLab
     And There are the following groups
       | $anyuser |
     And User generates new publicKey
-    When User tries to create new project with name "<name>", endpoints, groups, publicKey and use shared image "true"
+    When User tries to create new project with name "<name>", endpoints, groups, publicKey and use shared image "enable"
     And User sends create new project request
     Then Response status code is 409
     Examples:
@@ -35,7 +35,7 @@ Feature: Project management in DLab
       | prj1 |
 
 
-  Scenario Outline: Get information about a projects that exits
+  Scenario Outline: Get information about projects that exits
 
     Given There are the following projects
       | prj1 |
@@ -69,7 +69,7 @@ Feature: Project management in DLab
    And There are the following groups
      | $anyuser |
    And Use shared image
-     | true |
+     | enable |
    When User tries to create a new group with name "admin"
    And User adds new group with name "admin"
    And User changes use shared image to "false"
@@ -87,7 +87,7 @@ Feature: Project management in DLab
    And There are the following groups
      | $anyuser |
    And Use shared image
-     | true |
+     | enable |
    When User tries to remove endpoint with name "local"
    And User sends request for updating
    Then Response status code is 403
@@ -101,7 +101,7 @@ Feature: Project management in DLab
    And There are the following groups
      | $anyuser |
    And Use shared image
-     | true |
+     | enable |
    And There is no group with name "global"
    When User tries to add group with name "global"
    And User sends request for updating
@@ -116,7 +116,7 @@ Feature: Project management in DLab
    And There are the following groups
      | $anyuser |
    And Use shared image
-     | true |
+     | enable |
    And There is no endpoint with name "exploring"
    When User tries to add endpoint with name "exploring"
    And User sends request for updating
