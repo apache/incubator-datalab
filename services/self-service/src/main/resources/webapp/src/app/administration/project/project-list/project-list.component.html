@@ -69,35 +69,34 @@
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
           <div class="active-items"></div>
-          <li class="project-seting-item" *ngIf="areStoppedEndpoints(element)">
+          <li class="project-seting-item" *ngIf="areStoppedEndpoints(element)" (click)="openEdgeDialog('start', element)">
             <i class="material-icons">play_circle_outline</i>
-            <a class="action" (click)="openEdgeDialog('start', element)">
+            <a class="action">
               Start edge node
             </a>
           </li>
-          <li class="project-seting-item" *ngIf="areStartedEndpoints(element)">
+          <li class="project-seting-item" *ngIf="areStartedEndpoints(element)" (click)="openEdgeDialog('stop', element )">
             <i class="material-icons">pause_circle_outline</i>
-            <a class="action" (click)="openEdgeDialog('stop', element )">
+            <a class="action" >
               Stop edge node
             </a>
           </li>
-          <li class="project-seting-item " *ngIf="areStoppedEndpoints(element) || areStartedEndpoints(element)">
-            <i class="material-icons">highlight_off</i>
-            <a class="action" (click)="openEdgeDialog('terminate', element)">
+          <li class="project-seting-item " *ngIf="areStoppedEndpoints(element) || areStartedEndpoints(element)" (click)="openEdgeDialog('terminate', element)">
+            <i class="material-icons">phonelink_off</i>
+            <a class="action">
               Terminate edge node
             </a>
           </li>
-          <li class="project-seting-item">
+          <li class="project-seting-item" (click)="editProject(element)">
             <i class="material-icons">mode_edit</i>
-            <a (click)="editProject(element)">
-              Edit {{element.name }}
+            <a >
+              Edit project
             </a>
           </li>
-          <li class="project-seting-item" *ngIf="!isInProgress(element) && isActiveEndpoint(element)">
+          <li class="project-seting-item" *ngIf="!isInProgress(element) && isActiveEndpoint(element)" (click)="deleteProject(element)">
             <i class="material-icons">delete_forever</i>
-            <a (click)="deleteProject(element)" class="action"
-               [ngClass]="{'not-allowed' : isInProgress(element) || !isActiveEndpoint(element) }">
-              Delete {{element.name }}
+            <a  class="action" [ngClass]="{'not-allowed' : isInProgress(element) || !isActiveEndpoint(element) }">
+              Delete project
             </a>
           </li>
         </ul>

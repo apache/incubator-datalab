@@ -73,7 +73,12 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       this.endpointService.getEndpointsData().subscribe((endpoints: any) => {
         if(this.projectList){
           this.projectList.forEach(project => project.endpoints.forEach(endpoint => {
-            endpoint.endpointStatus = endpoints.filter(v => v.name === endpoint.name)[0].status;
+            const filtredEndpoints =  endpoints.filter(v => v.name === endpoint.name);
+            if(filtredEndpoints.length){
+              endpoint.endpointStatus = endpoints.filter(v => v.name === endpoint.name)[0].status;
+            }else{
+              endpoint.endpointStatus = "N/A"
+            }
           }))
         }
        });

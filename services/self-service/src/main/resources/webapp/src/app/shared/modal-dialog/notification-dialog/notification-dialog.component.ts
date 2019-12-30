@@ -56,6 +56,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
                   <ng-template #label>
                       <p>
             <span *ngIf="!!data.list">Endpoint</span>
+            <span *ngIf="data.action && data.action === 'decommissioned'">Project</span>
             <span class="ellipsis strong" matTooltip="{{ data.item.name }}" matTooltipPosition="above"
                   [matTooltipDisabled]="data.item.name.length > 35">
              {{ data.item.name }}</span> will be {{ data.action || 'disconnected' }}.
@@ -123,14 +124,14 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     header h4 i { vertical-align: bottom; }
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
-    .plur { font-style: normal; }    
+    .plur { font-style: normal; }
     .scrolling-content{overflow-y: auto; max-height: 200px; }
     .endpoint { width: 70%; text-align: left; color: #577289;}
     .status { width: 30%;text-align: left;}
     .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
-    .node { font-weight: 300;}     
+    .node { font-weight: 300;}
     .resource-name { width: 280px;text-align: left; padding: 10px 0;line-height: 26px;}
-    .project { width: 30%;text-align: left; padding: 10px 0;line-height: 26px;}    
+    .project { width: 30%;text-align: left; padding: 10px 0;line-height: 26px;}
     .resource-list{max-width: 100%; margin: 0 auto;margin-top: 20px; }
     .resource-list-header{display: flex; font-weight: 600; font-size: 16px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
     .resource-list-row{display: flex; border-bottom: 1px solid #edf1f5;padding: 0 20px;}
@@ -138,8 +139,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     .confirm-message{color: #35afd5;font-size: 13px;min-height: 18px; text-align: center;}
     .checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
     label{cursor: pointer}
-    
-    
+
+
   `]
 })
 export class NotificationDialogComponent{

@@ -36,7 +36,6 @@ export class EndpointService {
       .buildGetEndpointsData()
       .pipe(
         map(response => {
-          console.log(response);
           return response
         }),
         catchError(ErrorUtils.handleServiceError));
