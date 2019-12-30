@@ -69,6 +69,5 @@ export class EdgeActionDialogComponent {
 
   public endpointAction() {
     this.endpointsNewStatus = this.data.item.filter(endpoint => endpoint.checked);
-    console.log(this.endpointsNewStatus)
   }
 }
