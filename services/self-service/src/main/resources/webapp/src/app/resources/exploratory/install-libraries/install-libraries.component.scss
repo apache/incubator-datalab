@@ -374,28 +374,30 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   padding-top: 7px;
   padding-bottom: 3px;
 }
+.endpoints-dialog{
+  .mat-dialog-container.mat-dialog-container #dialog-box  {
+    .mat-header-cell{
+      padding: 0;
+      border: none;
+    }
 
-.mat-dialog-container.mat-dialog-container #dialog-box  {
-  .mat-header-cell{
-    padding: 0;
-    border: none;
-  }
+    .filter-actions {
+      display: flex;
 
-  .filter-actions {
-    display: flex;
+      .btn {
+        padding: 6px;
+        height: auto;
+        width: auto;
+        min-width: 0;
 
-    .btn {
-      padding: 6px;
-      height: auto;
-      width: auto;
-      min-width: 0;
-
-      .mat-button-wrapper {
-        display: flex;
+        .mat-button-wrapper {
+          display: flex;
+        }
       }
     }
   }
 }
+
 
 .install-libraries .dropdown-multiselect .list-menu li {
   a{
