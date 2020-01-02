@@ -10,7 +10,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
       <h4 class="modal-title"><span class="action">{{data.type | titlecase}}</span> edge node</h4>
       <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
     </header>
-      <div mat-dialog-content class="content message">
+      <div mat-dialog-content class="content message mat-dialog-content">
           <h3 class="strong">Select the items you want to {{data.type}}</h3>
           <ul class="endpoint-list scrolling-content">
               <li *ngFor="let endpoint of data.item" class="endpoint-list-item">
@@ -20,12 +20,13 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
                   </label>
               </li>
           </ul>
-      </div>
+
       <p class="m-top-20 action-text"><span class="strong">Do you want to proceed?</span></p>
 
-      <div class="text-center m-top-30 m-bott-10">
+      <div class="text-center m-top-30 m-bott-30">
         <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
-        <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(endpointsNewStatus)">Yes</button>
+        <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(endpointsNewStatus)" [disabled]="!endpointsNewStatus.length">Yes</button>
+      </div>
       </div>
   </div>
   `,
@@ -57,7 +58,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 
 export class EdgeActionDialogComponent {
-  public endpointsNewStatus: Array<object>;
+  public endpointsNewStatus: Array<object> = [];
   constructor(
     public dialogRef: MatDialogRef<EdgeActionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
