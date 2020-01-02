@@ -7,7 +7,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   template: `
   <div id="dialog-box">
     <header class="dialog-header">
-      <h4 class="modal-title"><span class="action">{{data.type | titlecase}}</span> endpoints</h4>
+      <h4 class="modal-title"><span class="action">{{data.type | titlecase}}</span> edge node</h4>
       <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
     </header>
       <div mat-dialog-content class="content message">
