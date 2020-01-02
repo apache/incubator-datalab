@@ -21,16 +21,16 @@
 
 locals {
     custom_certs_enabled = lower(var.custom_certs_enabled)
-    custom_cert_name = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_cert_path))[0] : "None"
-    custom_key_name = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_key_path))[0] : "None"
-    custom_cert = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_cert_name}")) : "None"
-    custom_key = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_key_name}")) : "None"
-    ui_host = local.custom_certs_enabled == "true" ? var.custom_certs_host : "${var.service_base_name}-ssn.${var.domain}"
+    custom_cert_name     = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_cert_path))[0] : "None"
+    custom_key_name      = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_key_path))[0] : "None"
+    custom_cert          = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_cert_name}")) : "None"
+    custom_key           = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_key_name}")) : "None"
+    ui_host              = local.custom_certs_enabled == "true" ? var.custom_certs_host : "${var.service_base_name}-ssn.${var.domain}"
 }
 
 data "template_file" "dlab_ui_values" {
   template = file("./modules/helm_charts/dlab-ui-chart/values.yaml")
-  vars = {
+  vars     = {
       mongo_db_name          = var.mongo_dbname
       mongo_user             = var.mongo_db_username
       mongo_port             = var.mongo_service_port

@@ -19,11 +19,6 @@
 #
 # ******************************************************************************
 
-//data "helm_repository" "smallstep" {
-//  name = "smallstep"
-//  url  = "https://smallstep.github.io/helm-charts/"
-//}
-
 data "template_file" "step_ca_values" {
   template = file("./step-ca-chart/values.yaml")
   vars = {
@@ -36,7 +31,6 @@ data "template_file" "step_ca_values" {
 
 resource "helm_release" "step_ca" {
   name       = "step-certificates"
-  // repository = data.helm_repository.smallstep.metadata.0.name
   chart      = "./step-ca-chart"
   namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   depends_on = [null_resource.cert_manager_delay]

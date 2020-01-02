@@ -26,9 +26,6 @@ locals {
   ssn_subnet_a_name = "${var.service_base_name}-ssn-subnet-az-a"
   ssn_subnet_b_name = "${var.service_base_name}-ssn-subnet-az-b"
   ssn_subnet_c_name = "${var.service_base_name}-ssn-subnet-az-c"
-//  # TEMPORARY
-//  endpoint_ip_name  = "${var.service_base_name}-endpoint-eip"
-//  # TEMPORARY
   endpoint_rt_name  = "${var.service_base_name}-endpoint-rt"
   endpoint_s3_name  = "${var.service_base_name}-endpoint-s3"
 }
@@ -161,29 +158,3 @@ resource "aws_vpc_endpoint_route_table_association" "ssn-k8s-users-s3-route" {
   route_table_id  = aws_route_table.ssn-k8s-users-route-table.id
   vpc_endpoint_id = aws_vpc_endpoint.ssn-k8s-users-s3-endpoint.id
 }
-
-//resource "aws_eip" "k8s-lb-eip-a" {
-//  vpc      = true
-//  tags = {
-//    Name = "${var.service_base_name}-ssn-eip-a"
-//  }
-//}
-//
-//resource "aws_eip" "k8s-lb-eip-b" {
-//  vpc      = true
-//  tags = {
-//    Name = "${var.service_base_name}-ssn-eip-b"
-//  }
-//}
-//
-//resource "aws_eip" "k8s-lb-eip-c" {
-//  count    = var.ssn_k8s_masters_count > 2 ? 1 : 0
-//  vpc      = true
-//  tags = {
-//    Name = "${var.service_base_name}-ssn-eip-c"
-//  }
-//}
-//
-//data "aws_eip" "k8s-lb-eip-c-data" {
-//  id = aws_eip.k8s-lb-eip-c.0.id
-//}

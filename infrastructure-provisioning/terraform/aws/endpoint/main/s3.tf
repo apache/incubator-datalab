@@ -27,10 +27,10 @@ resource "aws_s3_bucket" "shared_bucket" {
   bucket = local.shared_s3_name
   acl    = "private"
   tags   = {
-    Name                                          = local.shared_s3_name
-    "${local.additional_tag[0]}"                  = local.additional_tag[1]
-    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.shared_s3_name}"
-    "${var.service_base_name}-Tag"                = local.shared_s3_name
+    Name                           = local.shared_s3_name
+    "${local.additional_tag[0]}"   = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.shared_s3_name}"
+    "${var.service_base_name}-Tag" = local.shared_s3_name
   }
   force_destroy = true
 }

@@ -21,11 +21,11 @@
 
 locals {
     custom_certs_enabled = lower(var.custom_certs_enabled)
-    custom_cert_name = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_cert_path))[0] : "None"
-    custom_key_name = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_key_path))[0] : "None"
-    custom_cert = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_cert_name}")) : "None"
-    custom_key = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_key_name}")) : "None"
-    ui_host = local.custom_certs_enabled == "true" ? var.custom_certs_host : data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
+    custom_cert_name     = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_cert_path))[0] : "None"
+    custom_key_name      = local.custom_certs_enabled == "true" ? reverse(split("/", var.custom_key_path))[0] : "None"
+    custom_cert          = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_cert_name}")) : "None"
+    custom_key           = local.custom_certs_enabled == "true" ? base64encode(file("/tmp/${local.custom_key_name}")) : "None"
+    ui_host              = local.custom_certs_enabled == "true" ? var.custom_certs_host : data.kubernetes_service.nginx-service.load_balancer_ingress.0.hostname
 }
 
 data "template_file" "dlab_ui_values" {

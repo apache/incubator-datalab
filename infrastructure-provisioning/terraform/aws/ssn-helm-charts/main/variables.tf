@@ -193,11 +193,3 @@ variable "keycloak_realm_name" {
 variable "keycloak_client_id" {
   default = "dlab-ui"
 }
-//variable "nginx_http_port" {
-//    default = "31080"
-//    description = "Sets the nodePort that maps to the Ingress' port 80"
-//}
-//variable "nginx_https_port" {
-//    default = "31443"
-//    description = "Sets the nodePort that maps to the Ingress' port 443"
-//}

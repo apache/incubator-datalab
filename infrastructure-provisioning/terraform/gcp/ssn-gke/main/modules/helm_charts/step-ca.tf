@@ -46,7 +46,7 @@ resource "kubernetes_service" "step_service_lb" {
 
 data "template_file" "step_ca_values" {
   template = file("./modules/helm_charts/step-ca-chart/values.yaml")
-  vars = {
+  vars     = {
     step_ca_password             = random_string.step_ca_password.result
     step_ca_provisioner_password = random_string.step_ca_provisioner_password.result
     step_ca_host                 = kubernetes_service.step_service_lb.load_balancer_ingress.0.ip

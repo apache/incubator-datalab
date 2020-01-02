@@ -20,8 +20,8 @@
 # ******************************************************************************
 
 locals {
-  vpc_id              = "${var.service_base_name}-${var.endpoint_id}-endpoint-vpc"
-  subnet_name           = "${var.service_base_name}-${var.endpoint_id}-endpoint-subnet"
+  vpc_id                = "${var.service_base_name}-${var.endpoint_id}-vpc"
+  subnet_name           = "${var.service_base_name}-${var.endpoint_id}-subnet"
   firewall_ingress_name = "${var.service_base_name}-${var.endpoint_id}-ing-rule"
   firewall_egress_name  = "${var.service_base_name}-${var.endpoint_id}-eg-rule"
 }

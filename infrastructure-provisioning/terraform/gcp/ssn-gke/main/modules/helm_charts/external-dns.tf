@@ -21,7 +21,7 @@
 
 data "template_file" "external_dns_values" {
     template = file("./modules/helm_charts/external-dns/values.yaml")
-    vars = {
+    vars     = {
         namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
         project_id = var.project_id
         domain     = var.domain

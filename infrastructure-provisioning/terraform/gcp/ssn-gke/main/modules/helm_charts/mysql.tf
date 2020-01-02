@@ -21,7 +21,7 @@
 
 data "template_file" "mysql_values" {
   template = file("./modules/helm_charts/files/mysql_values.yaml")
-  vars = {
+  vars     = {
     mysql_root_password = random_string.mysql_root_password.result
     mysql_user          = var.mysql_user
     mysql_user_password = random_string.mysql_keycloak_user_password.result

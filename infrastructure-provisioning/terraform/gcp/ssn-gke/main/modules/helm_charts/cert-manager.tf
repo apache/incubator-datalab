@@ -26,7 +26,7 @@ resource "null_resource" "crd_delay" {
 }
 
 data "template_file" "cert_manager_values" {
-  template = file("./modules/helm_charts/files/cert_manager_values.yaml")
+    template = file("./modules/helm_charts/files/cert_manager_values.yaml")
 }
 
 resource "helm_release" "cert_manager_crd" {
@@ -37,8 +37,8 @@ resource "helm_release" "cert_manager_crd" {
 }
 
 data "helm_repository" "jetstack" {
-  name = "jetstack"
-  url  = "https://charts.jetstack.io"
+    name = "jetstack"
+    url  = "https://charts.jetstack.io"
 }
 
 resource "helm_release" "cert-manager" {

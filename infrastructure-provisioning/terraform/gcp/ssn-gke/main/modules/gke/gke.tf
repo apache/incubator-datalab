@@ -20,8 +20,8 @@
 # ******************************************************************************
 
 locals {
-  additional_tag       = split(":", var.additional_tag)
-  gke_name = "${var.service_base_name}-cluster"
+  additional_tag     = split(":", var.additional_tag)
+  gke_name           = "${var.service_base_name}-cluster"
   gke_node_pool_name = "${var.service_base_name}-node-pool"
 }
 
@@ -36,21 +36,19 @@ resource "random_string" "endpoint_keystore_password" {
 }
 
 resource "google_container_cluster" "ssn_k8s_gke_cluster" {
-  name     = local.gke_name
-  location = var.region
+  name                     = local.gke_name
+  location                 = var.region
   remove_default_node_pool = true
-  initial_node_count = 1
-  min_master_version = var.gke_cluster_version
-  network = data.google_compute_network.ssn_gke_vpc_data.self_link
-  subnetwork = data.google_compute_subnetwork.ssn_gke_subnet_data.self_link
-  resource_labels = {
+  initial_node_count       = 1
+  min_master_version       = var.gke_cluster_version
+  network                  = data.google_compute_network.ssn_gke_vpc_data.self_link
+  subnetwork               = data.google_compute_subnetwork.ssn_gke_subnet_data.self_link
+  enable_legacy_abac       = true
+  resource_labels          = {
     name                              = local.gke_name
     "${local.additional_tag[0]}"      = local.additional_tag[1]
-    # "${var.tag_resource_id}"          = "${var.service_base_name}:${local.gke_name}"
     "${var.service_base_name}-tag"    = local.gke_name
   }
-  enable_legacy_abac = true
-
   master_auth {
     username = ""
     password = ""
@@ -92,9 +90,6 @@ resource "google_container_node_pool" "ssn_k8s_gke_node_pool" {
       "https://www.googleapis.com/auth/monitoring",
     ]
   }
-  # provisioner "local-exec" {
-  #   command = "sleep 300"
-  # }
 }
 
 data "google_container_cluster" "ssn_k8s_gke_cluster" {
