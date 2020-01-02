@@ -35,9 +35,7 @@ export class EndpointService {
     return this.applicationServiceFacade
       .buildGetEndpointsData()
       .pipe(
-        map(response => {
-          return response
-        }),
+        map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
@@ -61,6 +59,14 @@ export class EndpointService {
     const url = `/${data}`;
     return this.applicationServiceFacade
       .buildDeleteEndpoint(url)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
+  public getEndpoinConnectionStatus(endpointUrl): Observable<{}> {
+    return this.applicationServiceFacade
+      .getEndpointConnectionStatus(endpointUrl)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

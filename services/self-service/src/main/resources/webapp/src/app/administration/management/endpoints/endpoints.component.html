@@ -76,9 +76,12 @@
               </div>
             </form>
             <div class="action-group m-bott-10">
-              <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
-              <button mat-raised-button type="button" [disabled]="!createEndpointForm.valid"
-                (click)="assignChanges(createEndpointForm.value)" class="butt butt-success action">Connect</button>
+              <button mat-raised-button type="button" [disabled]="!this.createEndpointForm.value.url || !createEndpointForm.valid" class="butt action" (click)="getEndpoinConnectionStatus()">Test Endpoint</button>
+              <div class="action-butt">
+                <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
+                <button mat-raised-button type="button" [disabled]="!createEndpointForm.valid"
+                  (click)="assignChanges(createEndpointForm.value)" class="butt butt-success action">Connect</button>
+              </div>
             </div>
           </div>
         </mat-tab>

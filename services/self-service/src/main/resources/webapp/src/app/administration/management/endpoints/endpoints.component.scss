@@ -43,7 +43,9 @@
   }
 
   .action-group {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
   }
 
   .endpoints {

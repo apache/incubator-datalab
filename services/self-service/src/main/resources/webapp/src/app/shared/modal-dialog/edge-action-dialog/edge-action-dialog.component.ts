@@ -7,7 +7,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   template: `
   <div id="dialog-box">
     <header class="dialog-header">
-      <h4 class="modal-title"><span class="action">{{data.type | titlecase}}</span> endpoints</h4>
+      <h4 class="modal-title"><span class="action">{{data.type | titlecase}}</span> edge node</h4>
       <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
     </header>
       <div mat-dialog-content class="content message mat-dialog-content">
@@ -23,7 +23,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
       <p class="m-top-20 action-text"><span class="strong">Do you want to proceed?</span></p>
 
-      <div class="text-center m-top-30 m-bott-10">
+      <div class="text-center m-top-30 m-bott-30">
         <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
         <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(endpointsNewStatus)" [disabled]="!endpointsNewStatus.length">Yes</button>
       </div>

@@ -121,7 +121,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   private toggleStatusRequest(data, action) {
     this.projectService.toggleProjectStatus(data, action).subscribe(() => {
       this.refreshGrid();
-      this.toastr.success(`Endpoint ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
+      this.toastr.success(`Edge node ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
     }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
@@ -132,9 +132,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   private toEndpointAction(action) {
     if (action === 'start') {
-      return 'connect';
+      return 'starting';
     } else if (action === 'stop') {
-      return 'disconnect';
+      return 'stopping';
+    } else if (action === 'terminate') {
+      return 'terminating';
     } else {
       return action;
     }
