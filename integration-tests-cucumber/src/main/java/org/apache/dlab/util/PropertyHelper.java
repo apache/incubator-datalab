@@ -1,10 +1,12 @@
 package org.apache.dlab.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.Optional;
 import java.util.Properties;
 
+@Slf4j
 public class PropertyHelper {
 
 	private final static Properties PROPERTIES;
@@ -14,6 +16,7 @@ public class PropertyHelper {
 
 		try (InputStream inputStream = new FileInputStream(System.getProperty("config.file"))) {
 			PROPERTIES.load(inputStream);
+			log.info("Configs: {}", PROPERTIES);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

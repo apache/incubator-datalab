@@ -8,12 +8,10 @@ import java.util.Set;
 
 @Data
 @AllArgsConstructor
-public class CreateProjectDTO {
+public class UpdateProjectDTO {
     private String name;
     private Set<String> groups;
     private Set<String> endpoints;
-    private String key;
-    private String tag;
     @JsonProperty("shared_image_enabled")
     private boolean sharedImageEnabled;
 }

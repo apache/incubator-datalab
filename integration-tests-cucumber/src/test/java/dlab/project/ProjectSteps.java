@@ -13,36 +13,51 @@ import dlab.util.KeycloakUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dlab.dto.CreateProjectDTO;
 import org.apache.dlab.dto.EndpointStatusDTO;
+import org.apache.dlab.dto.ProjectDTO;
 import org.apache.dlab.dto.ProjectKeyDTO;
 import org.apache.dlab.dto.ProjectStatusDTO;
+import org.apache.dlab.dto.UpdateProjectDTO;
 import org.apache.dlab.util.JacksonMapper;
 import org.apache.http.HttpStatus;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.jayway.restassured.RestAssured.given;
-import static dlab.Constants.*;
+import static dlab.Constants.API_URI;
+import static dlab.Constants.CONNECTION_TIMEOUT;
+import static dlab.Constants.CONNECTION_TIMEOUT_LABEL;
+import static dlab.Constants.LOCAL_ENDPOINT;
+import static dlab.Constants.SOCKET_TIMEOUT;
+import static dlab.Constants.SOCKET_TIMEOUT_LABEL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 @Slf4j
 public class ProjectSteps {
 
-	private RequestSpecification createProjectRequest;
+	private RequestSpecification request;
 	private Response response;
 	private String projectName;
 	private String publicKey;
 	private Set<String> endpoints;
 	private Set<String> groups;
+	private Set<String> projects;
+	private boolean sharedImageEnabled;
+	private ProjectDTO project;
 
 
 	@Given("There is no project with name {string} in DLab")
@@ -51,6 +66,19 @@ public class ProjectSteps {
 				.get(new URI(API_URI + "project/" + projectName))
 				.then()
 				.statusCode(HttpStatus.SC_NOT_FOUND);
+	}
+
+	@Given("There are the following projects")
+	public void thereAreTheFollowingProjects(List<String> projects) {
+		this.projects = new HashSet<>(projects);
+	}
+
+	@Given("There is a project with name {string} in DLab")
+	public void thereIsAProjectWithNameInDLab(String projectName) {
+		this.projectName = projectName;
+		this.project = authenticatedRequest()
+				.get(API_URI + "project/{project}", projectName)
+				.as(ProjectDTO.class);
 	}
 
 	@And("There are the following endpoints")
@@ -63,27 +91,71 @@ public class ProjectSteps {
 		this.groups = new HashSet<>(groups);
 	}
 
-	@And("User generate new publicKey")
-	public void userTryToGenerateNewPublicKey() {
-		this.publicKey = authenticatedRequest().contentType(ContentType.JSON)
+	@And("User generates new publicKey")
+	public void userGeneratesNewPublicKey() {
+		this.publicKey = authenticatedRequest()
+				.contentType(ContentType.JSON)
 				.post(API_URI + "project/keys")
 				.getBody().as(ProjectKeyDTO.class)
 				.getPublicKey();
 	}
 
-	@When("User send create new project request")
-	public void userSendCreateNewProjectRequest() {
-		response = createProjectRequest.post(API_URI + "project");
+	@And("User tries to create new project with name {string}, endpoints, groups, publicKey and use shared image enable {string}")
+	public void userTriesToCreateNewProjectWithNameEndpointsGroupsAndKey(String projectName, String sharedImageEnabled) {
+		this.projectName = projectName;
+		boolean sharedImage = Boolean.parseBoolean(sharedImageEnabled);
+		request = authenticatedRequest()
+				.body(JacksonMapper.marshall(new CreateProjectDTO(projectName, groups, endpoints, publicKey, projectName, sharedImage)))
+				.contentType(ContentType.JSON);
 	}
 
-	@And("User try to create new project with name {string}, endpoints, groups and publicKey")
-	public void userTryToCreateNewProjectWithNameEndpointsGroupsAndKey(String projectName) {
+	@And("User tries to get information about project with name {string}")
+	public void userTriesToGetInformationAboutProjectWithName(String projectName) {
 		this.projectName = projectName;
-		createProjectRequest = given()
-				.body(JacksonMapper.marshall(new CreateProjectDTO(projectName, groups, endpoints, publicKey, projectName)))
-				.auth()
-				.oauth2(KeycloakUtil.getToken())
+		request = authenticatedRequest();
+	}
+
+	@And("Use shared image enable {string}")
+	public void useSharedImageEnable(String sharedImageEnabled) {
+		this.sharedImageEnabled = Boolean.parseBoolean(sharedImageEnabled);
+	}
+
+	@And("User tries to edit project with shared image enable opposite to existing")
+	public void userTriesToEditProjectWithSharedImageEnableOppositeToExisting() {
+		sharedImageEnabled = !project.isSharedImageEnabled();
+		UpdateProjectDTO updateProjectDTO = new UpdateProjectDTO(project.getName(), project.getGroups(),
+				project.getEndpoints().stream().map(EndpointStatusDTO::getName).collect(Collectors.toSet()), sharedImageEnabled);
+
+		request = authenticatedRequest()
+				.body(JacksonMapper.marshall(updateProjectDTO))
 				.contentType(ContentType.JSON);
+	}
+
+	@And("User tries to terminate the project with name {string}")
+	public void userTriesToTerminateTheProjectWithName(String projectName) {
+		this.projectName = projectName;
+		request = authenticatedRequest()
+				.contentType(ContentType.JSON);
+	}
+
+	@When("User sends create new project request")
+	public void userSendsCreateNewProjectRequest() {
+		response = request.post(API_URI + "project");
+	}
+
+	@When("User sends request to get information about project")
+	public void userSendsRequestToGetInformationAboutProject() {
+		response = request.get(API_URI + "project/{project}", projectName);
+	}
+
+	@When("User sends edit request")
+	public void userSendsEditRequest() {
+		response = request.put(API_URI + "project");
+	}
+
+	@When("User sends termination request")
+	public void userSendsTerminationRequest() {
+		response = request.delete(API_URI + "project/{project}", projectName);
 	}
 
 	@Then("Status code is {int}")
@@ -91,12 +163,50 @@ public class ProjectSteps {
 		assertThat(response.getStatusCode(), equalTo(code));
 	}
 
-	@Then("User wait maximum {int} minutes while project is creating")
+	@Then("User waits maximum {int} minutes while project is creating")
 	public void userWaitMaximumMinutesWhileProjectIsCreating(int timeout) throws URISyntaxException, InterruptedException {
-		boolean isRunning = false;
+		boolean isRunning = waitForStatus(timeout, EndpointStatusDTO.Status.RUNNING);
+
+		assertTrue("Timeout for project status check reached!", isRunning);
+		log.info("Project {} successfully created", projectName);
+	}
+
+	@Then("User waits maximum {int} minutes while project is terminated")
+	public void userWaitsMaximumTimeoutMinutesWhileProjectIsTerminated(int timeout) throws URISyntaxException, InterruptedException {
+		boolean isTerminated = waitForStatus(timeout, EndpointStatusDTO.Status.TERMINATED);
+
+		assertTrue("Timeout for project status check reached!", isTerminated);
+		log.info("Project {} successfully terminated", projectName);
+	}
+
+	@And("Project information is successfully returned with name {string}, endpoints, groups")
+	public void projectInformationIsSuccessfullyReturnedWithNameEndpointsGroups(String expectedProjectName) {
+		ProjectDTO project = response.getBody().as(ProjectDTO.class);
+		Set<String> endpoints = project.getEndpoints().stream().map(EndpointStatusDTO::getName).collect(Collectors.toSet());
+		Set<String> groups = project.getGroups();
+
+		assertEquals(project.getName(), expectedProjectName);
+		assertFalse(Collections.disjoint(endpoints, this.endpoints));
+		assertFalse(Collections.disjoint(groups, this.groups));
+	}
+
+	@And("Project information is successfully updated with shared image enable")
+	public void projectInformationIsSuccessfullyUpdatedWithSharedImageEnable() {
+		boolean sharedImageEnabled = authenticatedRequest()
+				.get(API_URI + "project/{project}", projectName)
+				.as(ProjectDTO.class)
+				.isSharedImageEnabled();
+
+		assertSame(this.sharedImageEnabled, sharedImageEnabled);
+		log.info("Project {} successfully edited", projectName);
+	}
+
+	private boolean waitForStatus(int timeout, EndpointStatusDTO.Status status) throws URISyntaxException, InterruptedException {
+		boolean correctStatus = false;
 		LocalDateTime withTimeout = LocalDateTime.now().plusMinutes(timeout);
-		log.info("User wait till {}", withTimeout);
-		while (!isRunning && LocalDateTime.now().isBefore(withTimeout)) {
+		log.info("User wait till {} for project {} to be {}", withTimeout, projectName, status);
+
+		while (!correctStatus && LocalDateTime.now().isBefore(withTimeout)) {
 			ProjectStatusDTO projectDTO = authenticatedRequest()
 					.get(new URI(API_URI + "project/" + projectName))
 					.getBody().as(ProjectStatusDTO.class);
@@ -111,12 +221,11 @@ public class ProjectSteps {
 			assertTrue("local endpoint does not exist!", localEndpoint.isPresent());
 			assertNotSame("Endpoint with status FAILED", EndpointStatusDTO.Status.FAILED, localEndpoint.get().getStatus());
 
-			isRunning = EndpointStatusDTO.Status.RUNNING == localEndpoint.get().getStatus();
+			correctStatus = status == localEndpoint.get().getStatus();
 			TimeUnit.MINUTES.sleep(1);
 		}
 
-		assertTrue("Timeout for project status check reached!", isRunning);
-		log.info("Project {} successfully created", projectName);
+		return correctStatus;
 	}
 
 	private RequestSpecification authenticatedRequest() {
