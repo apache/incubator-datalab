@@ -19,8 +19,8 @@
 
 <form [formGroup]="projectForm" novalidate>
   <mat-horizontal-stepper #stepper class="stepper ani">
-    <mat-step>
-      <ng-template matStepLabel>Key upload</ng-template>
+    <mat-step [completed]='false'>
+      <ng-template matStepLabel >Key upload</ng-template>
       <section class="inner-step mat-reset upload-key">
         <div class="form-block split">
           <div class="row-wrap">
@@ -57,7 +57,7 @@
         </div>
       </section>
     </mat-step>
-    <mat-step>
+    <mat-step [completed]='false'>
       <ng-template matStepLabel>Project</ng-template>
       <section class="inner-step mat-reset">
 
@@ -129,7 +129,7 @@
 
       </section>
     </mat-step>
-    <mat-step>
+    <mat-step [completed]='false'>
       <ng-template matStepLabel>Groups</ng-template>
       <div class="inner-step mat-reset">
         <div class="form-block split">

@@ -330,9 +330,7 @@ mat-dialog-container {
 }
 
 .endpoints-table{
-  thead{
-    background: transparent;
-  }
+  border-collapse: separate;
 }
 
 .mat-step-icon-state-number .mat-step-icon-content{
