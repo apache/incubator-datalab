@@ -13,7 +13,11 @@ import org.apache.dlab.util.JacksonMapper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertTrue;
 import static com.jayway.restassured.RestAssured.given;
 import static dlab.Constants.API_URI;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -82,10 +86,12 @@ public class EndpointSteps {
 
 	@And("There are endpoints with name test1 and test2")
 	public void thereAreEndpointsWithNameTestAndTest() {
-		final EndpointDTO[] endpoints = response.getBody().as(EndpointDTO[].class);
-		assertThat(2, equalTo(endpoints.length));
-		assertThat("test1", equalTo(endpoints[0].getName()));
-		assertThat("test2", equalTo(endpoints[1].getName()));
+		List<String> endpoints = Arrays.stream(response.getBody().as(EndpointDTO[].class))
+				.map(EndpointDTO::getName)
+				.collect(Collectors.toList());
+
+		assertTrue(endpoints.contains("test1"));
+		assertTrue(endpoints.contains("test2"));
 	}
 
 	@And("Remove endpoint with name {string}")

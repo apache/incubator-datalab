@@ -14,7 +14,7 @@ public class PropertyHelper {
 	static {
 		PROPERTIES = new Properties();
 
-		try (InputStream inputStream = new FileInputStream(System.getProperty("config.file"))) {
+		try (InputStream inputStream = new FileInputStream("/Users/ofuks/work/gitwork/incubator-dlab/integration-tests-cucumber/src/test/resources/config.properties")) {
 			PROPERTIES.load(inputStream);
 			log.info("Configs: {}", PROPERTIES);
 		} catch (Exception e) {

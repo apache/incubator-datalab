@@ -23,11 +23,7 @@ import org.apache.http.HttpStatus;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -134,8 +130,12 @@ public class ProjectSteps {
 	@And("User tries to terminate the project with name {string}")
 	public void userTriesToTerminateTheProjectWithName(String projectName) {
 		this.projectName = projectName;
-		request = authenticatedRequest()
-				.contentType(ContentType.JSON);
+		request = authenticatedRequest().contentType(ContentType.JSON);
+	}
+
+	@And("User tries to get information about projects")
+	public void userTriesToGetInformationAboutProjects() {
+		request = authenticatedRequest().contentType(ContentType.JSON);
 	}
 
 	@When("User sends create new project request")
@@ -156,6 +156,11 @@ public class ProjectSteps {
 	@When("User sends termination request")
 	public void userSendsTerminationRequest() {
 		response = request.delete(API_URI + "project/{project}", projectName);
+	}
+
+	@When("User sends request to get information about projects")
+	public void userSendsRequestToGetInformationAboutProjects() {
+		response = request.get(API_URI + "project");
 	}
 
 	@Then("Status code is {int}")
@@ -199,6 +204,14 @@ public class ProjectSteps {
 
 		assertSame(this.sharedImageEnabled, sharedImageEnabled);
 		log.info("Project {} successfully edited", projectName);
+	}
+
+
+	@And("Projects are successfully returned")
+	public void projectsAreSuccessfullyReturned() {
+		List<ProjectDTO> projects = Arrays.asList(response.getBody().as(ProjectDTO[].class));
+
+		assertTrue(projects.stream().anyMatch(p -> projectName.equals(p.getName())));
 	}
 
 	private boolean waitForStatus(int timeout, EndpointStatusDTO.Status status) throws URISyntaxException, InterruptedException {

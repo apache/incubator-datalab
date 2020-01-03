@@ -1,3 +1,4 @@
+@endpoint
 Feature: Endpoint management in DLab
   Such feature allowed to manage endpoint inside DLab
 
@@ -10,8 +11,8 @@ Feature: Endpoint management in DLab
     And Endpoint URI is present in location header
     And Remove endpoint with name "<name>"
     Examples:
-      | name          | uri     | account   | tag      |
-      | test_endpoint | someuri | 123231312 | some_tag |
+      | name          | uri                     | account   | tag      |
+      | test_endpoint | https://localhost:8084/ | 123231312 | some_tag |
 
 
   Scenario Outline: Create new endpoint when it exist already
@@ -24,8 +25,8 @@ Feature: Endpoint management in DLab
     Then Response status code is 409
     And Remove endpoint with name "<name>"
     Examples:
-      | name          | uri     | account   | tag      |
-      | test_endpoint | someuri | 123231312 | some_tag |
+      | name          | uri                     | account   | tag      |
+      | test_endpoint | https://localhost:8084/ | 123231312 | some_tag |
 
 
   Scenario Outline: Get information for endpoint
@@ -38,17 +39,17 @@ Feature: Endpoint management in DLab
     And Endpoint information is successfully returned with name "<name>", uri "<uri>", account "<account>", and tag "<tag>"
     And Remove endpoint with name "<name>"
     Examples:
-      | name          | uri     | account   | tag      |
-      | test_endpoint | someuri | 123231312 | some_tag |
+      | name          | uri                     | account   | tag      |
+      | test_endpoint | https://localhost:8084/ | 123231312 | some_tag |
 
 
   Scenario: Get list of endpoints
 
     Given There is no endpoint with name "test1" in DLab
     Given There is no endpoint with name "test2" in DLab
-    And User try to create new endpoint with name "test1" and uri "someuri1" and account "123" and "customTag1"
+    And User try to create new endpoint with name "test1" and uri "https://localhost:8084/" and account "123" and "customTag1"
     And  User send create new endpoint request
-    And User try to create new endpoint with name "test2" and uri "someuri2" and account "1233" and "customTag4"
+    And User try to create new endpoint with name "test2" and uri "https://localhost:8084/" and account "1233" and "customTag4"
     And  User send create new endpoint request
     When User try to get information about endpoints
     Then Response status code is 200

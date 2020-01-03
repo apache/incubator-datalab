@@ -61,6 +61,17 @@ Feature: Project management in DLab
     Then Status code is 404
 
 
+  Scenario Outline: Get information about a project that does not exists
+
+    Given There is a project with name "<name>" in DLab
+    And User tries to get information about projects
+    When User sends request to get information about projects
+    Then Status code is 200
+    And Projects are successfully returned
+    Examples:
+      | name |
+      | prj1 |
+
   Scenario: Edit (change use shared image) a project that is available
 
     Given There is a project with name "prj1" in DLab
