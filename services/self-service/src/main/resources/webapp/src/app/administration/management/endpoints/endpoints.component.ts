@@ -86,7 +86,7 @@ export class EndpointsComponent implements OnInit {
     });
   }
 
-  private getEndpoinConnectionStatus(){
+  public getEndpoinConnectionStatus(){
     const url = this.createEndpointForm.value.url;
     let getStatus = this.endpointService.getEndpoinConnectionStatus(encodeURIComponent(url));
     this.dialog.open(EndpointTestResultDialogComponent, { data: {url: this.createEndpointForm.value.url, getStatus}, panelClass: 'modal-sm' });
