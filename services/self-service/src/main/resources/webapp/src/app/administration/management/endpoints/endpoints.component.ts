@@ -86,10 +86,9 @@ export class EndpointsComponent implements OnInit {
     });
   }
 
-  public getEndpoinConnectionStatus(){
-    const url = this.createEndpointForm.value.url;
+  public getEndpoinConnectionStatus(url){
     let getStatus = this.endpointService.getEndpoinConnectionStatus(encodeURIComponent(url));
-    this.dialog.open(EndpointTestResultDialogComponent, { data: {url: this.createEndpointForm.value.url, getStatus}, panelClass: 'modal-sm' });
+    this.dialog.open(EndpointTestResultDialogComponent, { data: {url: url, getStatus}, panelClass: 'modal-sm' });
   }
 
   private static createResourceList(name: string, resource: Array<any>, nodeStatus: string): Object {
@@ -130,9 +129,9 @@ export class EndpointsComponent implements OnInit {
       </div>
       <div class="content-box">
       <div mat-dialog-content class="content message">
-        <p class="dialog-message ellipsis" *ngIf="!response">Connecting to url <span class="strong" matTooltip="{{data.url}}" [matTooltipPosition]="'before'">{{data.url}}</span></p>
-        <p class="dialog-message ellipsis" *ngIf="isConnected && response"><i class="material-icons icons-possition active">check_circle</i>Connected to url <span matTooltip="{{data.url}}" [matTooltipPosition]="'before'" class="strong">{{data.url}}</span></p>
-        <p class="dialog-message ellipsis" *ngIf="!isConnected && response"><i class="material-icons icons-possition failed">cancel</i>Failed to connect to url <span matTooltip="{{data.url}}" [matTooltipPosition]="'before'" class="strong">{{data.url}}</span></p>
+        <p class="dialog-message ellipsis" *ngIf="!response">Connecting to url <span class="strong" matTooltip="{{data.url}}" [matTooltipPosition]="'above'">{{catToLongUrl(data.url)}}</span></p>
+        <p class="dialog-message ellipsis" *ngIf="isConnected && response"><i class="material-icons icons-possition active">check_circle</i>Connected to url <span matTooltip="{{data.url}}" [matTooltipPosition]="'above'" [matTooltipClass]="'lefttop'" class="strong">{{catToLongUrl(data.url)}}</span></p>
+        <p class="dialog-message ellipsis" *ngIf="!isConnected && response"><i class="material-icons icons-possition failed">cancel</i>Failed to connect to url <span matTooltip="{{data.url}}" [matTooltipPosition]="'above'" class="strong">{{catToLongUrl(data.url)}}</span></p>
       </div>
       <div class="text-center m-top-20 m-bott-10">
         <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
@@ -151,7 +150,7 @@ export class EndpointsComponent implements OnInit {
     header a:hover i { color: #35afd5; cursor: pointer; }
     label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif; cursor: pointer; display: flex; align-items: center;}
     .progress-bar{ height: 4px;}
-    .dialog-message{min-height: 25px; overflow: hidden}
+    .dialog-message{min-height: 25px; overflow: hidden;}
     `
   ]
 })
@@ -173,4 +172,8 @@ export class EndpointTestResultDialogComponent {
         return;
       })
   }
+  private catToLongUrl(url) {
+    return url.length > 25 ? url.slice(0,25) + '...' : url
+  }
+
 }
