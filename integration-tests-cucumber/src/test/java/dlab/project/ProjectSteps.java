@@ -13,6 +13,7 @@ import dlab.util.KeycloakUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dlab.dto.CreateProjectDTO;
 import org.apache.dlab.dto.EndpointStatusDTO;
+import org.apache.dlab.dto.ProjectActionDTO;
 import org.apache.dlab.dto.ProjectDTO;
 import org.apache.dlab.dto.ProjectKeyDTO;
 import org.apache.dlab.dto.ProjectStatusDTO;
@@ -138,6 +139,20 @@ public class ProjectSteps {
 		request = authenticatedRequest().contentType(ContentType.JSON);
 	}
 
+	@And("User tries to stop the project")
+	public void userTriesToStopTheProject() {
+		request = authenticatedRequest()
+				.body(JacksonMapper.marshall(new ProjectActionDTO(projectName, Collections.singletonList(LOCAL_ENDPOINT))))
+				.contentType(ContentType.JSON);
+	}
+
+	@And("User tries to start the project")
+	public void userTriesToStartTheProject() {
+		request = authenticatedRequest()
+				.body(JacksonMapper.marshall(new ProjectActionDTO(projectName, Collections.singletonList(LOCAL_ENDPOINT))))
+				.contentType(ContentType.JSON);
+	}
+
 	@When("User sends create new project request")
 	public void userSendsCreateNewProjectRequest() {
 		response = request.post(API_URI + "project");
@@ -163,6 +178,16 @@ public class ProjectSteps {
 		response = request.get(API_URI + "project");
 	}
 
+	@When("User sends request to stop the project")
+	public void userSendsRequestToStopTheProject() {
+		response = request.post(API_URI + "project/stop");
+	}
+
+	@When("User sends request to start the project")
+	public void userSendsRequestToStartTheProject() {
+		response = request.post(API_URI + "project/start");
+	}
+
 	@Then("Status code is {int}")
 	public void statusCodeIs(int code) {
 		assertThat(response.getStatusCode(), equalTo(code));
@@ -176,12 +201,28 @@ public class ProjectSteps {
 		log.info("Project {} successfully created", projectName);
 	}
 
-	@Then("User waits maximum {int} minutes while project is terminated")
+	@Then("User waits maximum {int} minutes while project is terminating")
 	public void userWaitsMaximumTimeoutMinutesWhileProjectIsTerminated(int timeout) throws URISyntaxException, InterruptedException {
 		boolean isTerminated = waitForStatus(timeout, EndpointStatusDTO.Status.TERMINATED);
 
 		assertTrue("Timeout for project status check reached!", isTerminated);
 		log.info("Project {} successfully terminated", projectName);
+	}
+
+	@Then("User waits maximum {int} minutes while project is stopping")
+	public void userWaitsMaximumTimeoutMinutesWhileProjectIsStopping(int timeout) throws URISyntaxException, InterruptedException {
+		boolean isStopped = waitForStatus(timeout, EndpointStatusDTO.Status.STOPPED);
+
+		assertTrue("Timeout for project status check reached!", isStopped);
+		log.info("Project {} successfully stopped", projectName);
+	}
+
+	@Then("User waits maximum {int} minutes while project is starting")
+	public void userWaitsMaximumTimeoutMinutesWhileProjectIsStarting(int timeout) throws URISyntaxException, InterruptedException {
+		boolean isRunning = waitForStatus(timeout, EndpointStatusDTO.Status.RUNNING);
+
+		assertTrue("Timeout for project status check reached!", isRunning);
+		log.info("Project {} successfully started", projectName);
 	}
 
 	@And("Project information is successfully returned with name {string}, endpoints, groups")

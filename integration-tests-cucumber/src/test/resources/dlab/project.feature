@@ -118,13 +118,47 @@ Feature: Project management in DLab
       | prj2 |
 
 
+  Scenario Outline: Stop a project that exists
+
+    Given There is a project with name "<name>" in DLab
+    And User tries to stop the project
+    When User sends request to stop the project
+    Then Status code is 202
+    Then User waits maximum <timeout> minutes while project is stopping
+    @v1
+    Examples:
+      | name | timeout |
+      | prj1 | 20      |
+    @v2
+    Examples:
+      | name | timeout |
+      | prj2 | 20      |
+
+
+  Scenario Outline: Start a project that exists
+
+    Given There is a project with name "<name>" in DLab
+    And User tries to start the project
+    When User sends request to start the project
+    Then Status code is 202
+    Then User waits maximum <timeout> minutes while project is starting
+    @v1
+    Examples:
+      | name | timeout |
+      | prj1 | 20      |
+    @v2
+    Examples:
+      | name | timeout |
+      | prj2 | 20      |
+
+
   @terminate
   Scenario Outline: Terminate a project/edge node that exits
 
     Given There is a project with name "<name>" in DLab
     And User tries to terminate the project with name "<name>"
     When User sends termination request
-    Then User waits maximum <timeout> minutes while project is terminated
+    Then User waits maximum <timeout> minutes while project is terminating
     Then Status code is 200
     @v1
     Examples:

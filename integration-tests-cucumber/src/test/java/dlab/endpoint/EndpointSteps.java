@@ -8,6 +8,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import dlab.util.KeycloakUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dlab.dto.EndpointDTO;
 import org.apache.dlab.util.JacksonMapper;
 
@@ -23,6 +24,7 @@ import static dlab.Constants.API_URI;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
+@Slf4j
 public class EndpointSteps {
 	private RequestSpecification request;
 	private Response response;
@@ -35,7 +37,6 @@ public class EndpointSteps {
 				.auth()
 				.oauth2(KeycloakUtil.getToken())
 				.contentType(ContentType.JSON);
-
 	}
 
 	@When("User send create new endpoint request")
@@ -74,7 +75,7 @@ public class EndpointSteps {
 		assertThat(dto.getName(), equalTo(name));
 		assertThat(dto.getUrl(), equalTo(uri));
 		assertThat(dto.getTag(), equalTo(tag));
-
+		log.info("Endpoint {} information is successfully returned", dto.getName());
 	}
 
 	@When("User try to get information about endpoints")
@@ -92,6 +93,7 @@ public class EndpointSteps {
 
 		assertTrue(endpoints.contains("test1"));
 		assertTrue(endpoints.contains("test2"));
+		log.info("Endpoints information is successfully returned");
 	}
 
 	@And("Remove endpoint with name {string}")
