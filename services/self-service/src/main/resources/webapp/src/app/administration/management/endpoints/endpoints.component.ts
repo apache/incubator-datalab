@@ -129,9 +129,41 @@ export class EndpointsComponent implements OnInit {
       </div>
       <div class="content-box">
       <div mat-dialog-content class="content message">
-        <p class="dialog-message ellipsis" *ngIf="!response">Connecting to url <span class="strong" matTooltip="{{data.url}}" [matTooltipPosition]="'above'">{{catToLongUrl(data.url)}}</span></p>
-        <p class="dialog-message ellipsis" *ngIf="isConnected && response"><i class="material-icons icons-possition active">check_circle</i>Connected to url <span matTooltip="{{data.url}}" [matTooltipPosition]="'above'" [matTooltipClass]="'lefttop'" class="strong">{{catToLongUrl(data.url)}}</span></p>
-        <p class="dialog-message ellipsis" *ngIf="!isConnected && response"><i class="material-icons icons-possition failed">cancel</i>Failed to connect to url <span matTooltip="{{data.url}}" [matTooltipPosition]="'above'" class="strong">{{catToLongUrl(data.url)}}</span></p>
+        <p
+          class="dialog-message ellipsis"
+          *ngIf="!response">
+          Connecting to url
+          <span class="strong"
+                matTooltip="{{data.url}}"
+                [matTooltipPosition]="'above'"
+          >
+            {{cutToLongUrl(data.url)}}
+          </span>
+        </p>
+        <p
+          class="dialog-message ellipsis"
+          *ngIf="isConnected && response">
+          <i class="material-icons icons-possition active">check_circle</i>
+          Connected to url
+          <span matTooltip="{{data.url}}"
+                [matTooltipPosition]="'above'"
+                class="strong"
+          >
+            {{cutToLongUrl(data.url)}}
+          </span>
+        </p>
+        <p class="dialog-message ellipsis"
+           *ngIf="!isConnected && response"
+        >
+          <i class="material-icons icons-possition failed">cancel</i>
+          Failed to connect to url
+          <span matTooltip="{{data.url}}"
+                [matTooltipPosition]="'above'"
+                class="strong"
+          >
+            {{cutToLongUrl(data.url)}}
+          </span>
+        </p>
       </div>
       <div class="text-center m-top-20 m-bott-10">
         <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
@@ -172,7 +204,7 @@ export class EndpointTestResultDialogComponent {
         return;
       })
   }
-  private catToLongUrl(url) {
+  private cutToLongUrl(url) {
     return url.length > 25 ? url.slice(0,25) + '...' : url
   }
 
