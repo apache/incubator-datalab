@@ -35,22 +35,22 @@
             <div class="scrolling-content" id="scrolling" formArrayName="projects">
               <mat-list-item *ngFor="let item of usersEnvironments.controls; let i=index" [formGroupName]="i"
                 class="list-item">
-                <div class="username ellipsis"
-                  matTooltip="{{ manageUsersForm.controls['projects'].controls[i].value['project'] }}"
-                  matTooltipPosition="above">{{ manageUsersForm.controls['projects'].controls[i].value['project'] }}
+                <div class="username ellipsis">
+                  <span class="ellipsis"
+                  matTooltip="{{ manageUsersForm.controls['projects']['controls'][i].value['project'] }}"
+                  matTooltipPosition="above">{{ manageUsersForm.controls['projects']['controls'][i].value['project'] }}
+                    </span>
                 </div>
                 <div class="quotes">
-                  <input type="text" (keypress)="CheckUtils.numberOnly($event)" min="0"
+                  <input type="number" (keypress)="CheckUtils.numberOnly($event)" min="0"
                     placeholder="Enter limit, in USD" formControlName="budget">
                   <span class="error"
-                    *ngIf="!manageUsersForm?.controls['projects'].controls[i].controls['budget'].valid && !manageUsersForm?.controls['projects'].controls[i].controls['budget'].hasError('overrun')">Budget can contain only integer value</span>
-                  <span class="error"
-                    *ngIf="manageUsersForm?.controls['projects'].controls[i].controls['budget'].hasError('overrun')">Per-user
+                    *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('overrun')">Per-user
                     quotes cannot be greater than total budget</span>
                 </div>
                 <div class="action">
                   <span
-                    *ngIf="manageUsersForm?.controls['projects'].controls[i].controls['canBeStopped'].value; else not_allowed_stop"
+                    *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['canBeStopped'].value; else not_allowed_stop"
                     matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)">
                     <i class="material-icons">pause_circle_outline</i>
                   </span>
@@ -62,7 +62,7 @@
                   </ng-template>
 
                   <span
-                    *ngIf="manageUsersForm?.controls['projects'].controls[i].controls['canBeTerminated'].value; else not_allowed_terminate"
+                    *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['canBeTerminated'].value; else not_allowed_terminate"
                     matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)">
                     <i class="material-icons">phonelink_off</i>
                   </span>
@@ -79,12 +79,9 @@
             <div class="control-group total-budget">
               <label class="label">Total budget</label>
               <div class="control">
-                <input type="text" (keypress)="CheckUtils.numberOnly($event)" formControlName="total"
+                <input type="number" (keypress)="CheckUtils.numberOnly($event)" formControlName="total"
                   placeholder="Enter total budget, in USD">
-                <span class="error" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')">Budget can contain only integer value</span>
-                <span class="error"
-                      *ngIf="!manageUsersForm?.controls['total'].valid && !manageUsersForm?.controls['total'].hasError('overrun')">Only
-                    positive integers are allowed</span>
+                <span class="error" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')">Total budget cannot be lower than a sum of users quotes</span>
               </div>
             </div>
             <div class="text-center m-top-30">

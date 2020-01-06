@@ -48,8 +48,20 @@ export class ManageEnvironmentComponent implements OnInit {
   ngOnInit() {
     !this.manageUsersForm && this.initForm();
     this.setProjectsControl();
+    this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || '');
+    this.onFormChange()
+  }
 
-    this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || null);
+  public onFormChange() {
+    this.manageUsersForm.valueChanges.subscribe(value => {
+      if((this.getCurrentTotalValue() && this.getCurrentTotalValue() >= this.getCurrentUsersTotal())) {
+        this.manageUsersForm.controls['projects']['controls'].forEach(v => {
+            v.controls['budget'].setErrors(null);
+        }
+        );
+        this.manageUsersForm.controls['total'].setErrors(null)
+      }
+    })
   }
 
   get usersEnvironments(): FormArray {
@@ -57,7 +69,11 @@ export class ManageEnvironmentComponent implements OnInit {
   }
 
   public setBudgetLimits(value) {
-    this.dialogRef.close(value);
+    if(this.getCurrentTotalValue() >= this.getCurrentUsersTotal()){
+      this.dialogRef.close(value);
+    }else{
+      this.manageUsersForm.controls['total'].setErrors({ overrun: true })
+    }
   }
 
   public applyAction(action, project) {
@@ -73,7 +89,7 @@ export class ManageEnvironmentComponent implements OnInit {
     this.manageUsersForm.setControl('projects',
       this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
         project: x.name,
-        budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]],
+        budget: [x.budget, [ this.userValidityCheck.bind(this)]],
         canBeStopped: x.canBeStopped,
         canBeTerminated: x.canBeTerminated
       }))));
@@ -95,18 +111,12 @@ export class ManageEnvironmentComponent implements OnInit {
   }
 
   private totalValidityCheck(control) {
-    if(control && control.value === null && control.dirty){
-      return { integerError: true }
-    }
     return (control && control.value)
       ? (control.value >= this.getCurrentUsersTotal() ? null : { overrun: true })
       : null;
   }
 
   private userValidityCheck(control) {
-    if(control && isNaN(control.value)){
-      return { budget: true }
-    }
     if (control && control.value) {
       return (this.getCurrentTotalValue() && this.getCurrentTotalValue() < this.getCurrentUsersTotal()) ? { overrun: true } : null;
     }
