@@ -12,8 +12,8 @@ Feature: Project management in DLab
     And User generates new publicKey
     And User tries to create new project with name "<name>", endpoints, groups, publicKey and use shared image enable "true"
     When User sends create new project request
-    Then User waits maximum <timeout> minutes while project is creating
     Then Status code is 200
+    And User waits maximum <timeout> minutes while project is creating
     @v1
     Examples:
       | name | timeout |
@@ -124,7 +124,7 @@ Feature: Project management in DLab
     And User tries to stop the project
     When User sends request to stop the project
     Then Status code is 202
-    Then User waits maximum <timeout> minutes while project is stopping
+    And User waits maximum <timeout> minutes while project is stopping
     @v1
     Examples:
       | name | timeout |
@@ -141,7 +141,7 @@ Feature: Project management in DLab
     And User tries to start the project
     When User sends request to start the project
     Then Status code is 202
-    Then User waits maximum <timeout> minutes while project is starting
+    And User waits maximum <timeout> minutes while project is starting
     @v1
     Examples:
       | name | timeout |
@@ -158,8 +158,8 @@ Feature: Project management in DLab
     Given There is a project with name "<name>" in DLab
     And User tries to terminate the project with name "<name>"
     When User sends termination request
-    Then User waits maximum <timeout> minutes while project is terminating
     Then Status code is 200
+    And User waits maximum <timeout> minutes while project is terminating
     @v1
     Examples:
       | name | timeout |

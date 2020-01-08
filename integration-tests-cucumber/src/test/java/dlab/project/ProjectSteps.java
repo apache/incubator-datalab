@@ -193,7 +193,7 @@ public class ProjectSteps {
 		assertThat(response.getStatusCode(), equalTo(code));
 	}
 
-	@Then("User waits maximum {int} minutes while project is creating")
+	@And("User waits maximum {int} minutes while project is creating")
 	public void userWaitMaximumMinutesWhileProjectIsCreating(int timeout) throws URISyntaxException, InterruptedException {
 		boolean isRunning = waitForStatus(timeout, EndpointStatusDTO.Status.RUNNING);
 
@@ -201,7 +201,7 @@ public class ProjectSteps {
 		log.info("Project {} successfully created", projectName);
 	}
 
-	@Then("User waits maximum {int} minutes while project is terminating")
+	@And("User waits maximum {int} minutes while project is terminating")
 	public void userWaitsMaximumTimeoutMinutesWhileProjectIsTerminated(int timeout) throws URISyntaxException, InterruptedException {
 		boolean isTerminated = waitForStatus(timeout, EndpointStatusDTO.Status.TERMINATED);
 
@@ -209,7 +209,7 @@ public class ProjectSteps {
 		log.info("Project {} successfully terminated", projectName);
 	}
 
-	@Then("User waits maximum {int} minutes while project is stopping")
+	@And("User waits maximum {int} minutes while project is stopping")
 	public void userWaitsMaximumTimeoutMinutesWhileProjectIsStopping(int timeout) throws URISyntaxException, InterruptedException {
 		boolean isStopped = waitForStatus(timeout, EndpointStatusDTO.Status.STOPPED);
 
@@ -217,7 +217,7 @@ public class ProjectSteps {
 		log.info("Project {} successfully stopped", projectName);
 	}
 
-	@Then("User waits maximum {int} minutes while project is starting")
+	@And("User waits maximum {int} minutes while project is starting")
 	public void userWaitsMaximumTimeoutMinutesWhileProjectIsStarting(int timeout) throws URISyntaxException, InterruptedException {
 		boolean isRunning = waitForStatus(timeout, EndpointStatusDTO.Status.RUNNING);
 
