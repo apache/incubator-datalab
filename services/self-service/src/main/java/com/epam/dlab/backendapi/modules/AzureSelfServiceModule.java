@@ -23,14 +23,10 @@ import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
-import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
-import com.epam.dlab.backendapi.dao.azure.AzureKeyDao;
 import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
 import com.epam.dlab.backendapi.resources.azure.BillingResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
-import com.epam.dlab.backendapi.resources.callback.azure.EdgeCallbackAzure;
-import com.epam.dlab.backendapi.resources.callback.azure.KeyUploaderCallbackAzure;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.azure.AzureBillingService;
 import com.epam.dlab.cloud.CloudModule;
@@ -58,7 +54,6 @@ public class AzureSelfServiceModule extends CloudModule {
 	@Override
 	protected void configure() {
 		bind(BillingService.class).to(AzureBillingService.class);
-		bind((KeyDAO.class)).to(AzureKeyDao.class);
 		bind(SchedulerConfiguration.class).toInstance(
 				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
 		bind(BillingDAO.class).to(AzureBillingDAO.class);
@@ -69,8 +64,6 @@ public class AzureSelfServiceModule extends CloudModule {
 
 	@Override
 	public void init(Environment environment, Injector injector) {
-		environment.jersey().register(injector.getInstance(EdgeCallbackAzure.class));
-		environment.jersey().register(injector.getInstance(KeyUploaderCallbackAzure.class));
 		environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
 		environment.jersey().register(injector.getInstance(BillingResourceAzure.class));
 

@@ -22,16 +22,11 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
-import com.epam.dlab.backendapi.service.UserResourceService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
-import com.epam.dlab.dto.base.DataEngineType;
-import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyCallbackDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
@@ -48,15 +43,15 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.epam.dlab.dto.UserInstanceStatus.REUPLOADING_KEY;
 import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -69,8 +64,6 @@ public class ReuploadKeyServiceImplTest {
 	private UserInfo userInfo;
 
 	@Mock
-	private KeyDAO keyDAO;
-	@Mock
 	private RESTService provisioningService;
 	@Mock
 	private RequestBuilder requestBuilder;
@@ -82,8 +75,6 @@ public class ReuploadKeyServiceImplTest {
 	private ComputationalDAO computationalDAO;
 	@Mock
 	private ExploratoryDAO exploratoryDAO;
-	@Mock
-	private UserResourceService userResourceService;
 
 	@InjectMocks
 	private ReuploadKeyServiceImpl reuploadKeyService;
@@ -97,124 +88,23 @@ public class ReuploadKeyServiceImplTest {
 		userInfo = getUserInfo();
 	}
 
-
-	@Test
-	@SuppressWarnings("unchecked")
-	public void reuploadKey() {
-		doNothing().when(userResourceService).updateReuploadKeyFlagForUserResources(anyString(), anyBoolean());
-		List<UserInstanceDTO> instances = Collections.singletonList(getUserInstance());
-		when(exploratoryService.getInstancesWithStatuses(anyString(), any(UserInstanceStatus.class),
-				any(UserInstanceStatus.class))).thenReturn(instances);
-		List<ResourceData> resourceList = new ArrayList<>();
-		resourceList.add(new ResourceData(ResourceType.EXPLORATORY, "someId", EXPLORATORY_NAME, null));
-		when(userResourceService.convertToResourceData(any(List.class))).thenReturn(resourceList);
-
-		Optional<EdgeInfoAws> edgeInfo = Optional.of(new EdgeInfoAws());
-		Mockito.<Optional<? extends EdgeInfo>>when(keyDAO.getEdgeInfoWhereStatusIn(anyString(), anyVararg()))
-				.thenReturn(edgeInfo);
-		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
-
-		doNothing().when(exploratoryDAO).updateStatusForExploratories(any(UserInstanceStatus.class), anyString(),
-				any(UserInstanceStatus.class));
-		doNothing().when(computationalDAO).updateStatusForComputationalResources(any(UserInstanceStatus.class),
-				anyString(), any(List.class), any(List.class), any(UserInstanceStatus.class));
-		ReuploadKeyDTO reuploadFile = mock(ReuploadKeyDTO.class);
-		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString(), anyString(), any(List.class)))
-				.thenReturn(reuploadFile);
-		String expectedUuid = "someUuid";
-		when(provisioningService.post(anyString(), anyString(), any(ReuploadKeyDTO.class), any()))
-				.thenReturn(expectedUuid);
-
-		String keyContent = "keyContent";
-		String actualUuid = reuploadKeyService.reuploadKey(userInfo, keyContent);
-		assertNotNull(actualUuid);
-		assertEquals(expectedUuid, actualUuid);
-		assertEquals(2, resourceList.size());
-
-		verify(userResourceService).updateReuploadKeyFlagForUserResources(USER, true);
-		verify(exploratoryService).getInstancesWithStatuses(USER, RUNNING, RUNNING);
-		verify(userResourceService).convertToResourceData(instances);
-		verify(keyDAO).getEdgeInfoWhereStatusIn(USER, RUNNING);
-		verify(keyDAO).updateEdgeStatus(USER, "reuploading key");
-		verify(exploratoryDAO).updateStatusForExploratories(REUPLOADING_KEY, USER, RUNNING);
-		verify(computationalDAO).updateStatusForComputationalResources(REUPLOADING_KEY, USER,
-				Arrays.asList(RUNNING, REUPLOADING_KEY), Arrays.asList(DataEngineType.SPARK_STANDALONE,
-						DataEngineType.CLOUD_SERVICE), RUNNING);
-		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(keyContent), any(List.class));
-		verify(provisioningService).post("/key/reupload", TOKEN, reuploadFile, String.class);
-		verifyNoMoreInteractions(userResourceService, exploratoryService, keyDAO, exploratoryDAO, computationalDAO,
-				requestBuilder, provisioningService);
-		verifyZeroInteractions(requestId);
-	}
-
-	@Test
-	@SuppressWarnings("unchecked")
-	public void reuploadKeyWithoutEdge() {
-		doNothing().when(userResourceService).updateReuploadKeyFlagForUserResources(anyString(), anyBoolean());
-		List<UserInstanceDTO> instances = Collections.singletonList(getUserInstance());
-		when(exploratoryService.getInstancesWithStatuses(anyString(), any(UserInstanceStatus.class),
-				any(UserInstanceStatus.class))).thenReturn(instances);
-		List<ResourceData> resourceList = new ArrayList<>();
-		resourceList.add(new ResourceData(ResourceType.EXPLORATORY, "someId", EXPLORATORY_NAME, null));
-		when(userResourceService.convertToResourceData(any(List.class))).thenReturn(resourceList);
-		when(keyDAO.getEdgeInfoWhereStatusIn(anyString(), anyVararg())).thenReturn(Optional.empty());
-		doNothing().when(exploratoryDAO).updateStatusForExploratories(any(UserInstanceStatus.class), anyString(),
-				any(UserInstanceStatus.class));
-		doNothing().when(computationalDAO).updateStatusForComputationalResources(any(UserInstanceStatus.class),
-				anyString(), any(List.class), any(List.class), any(UserInstanceStatus.class));
-		ReuploadKeyDTO reuploadFile = mock(ReuploadKeyDTO.class);
-		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString(), anyString(), any(List.class)))
-				.thenReturn(reuploadFile);
-		String expectedUuid = "someUuid";
-		when(provisioningService.post(anyString(), anyString(), any(ReuploadKeyDTO.class), any()))
-				.thenReturn(expectedUuid);
-
-		String keyContent = "keyContent";
-		String actualUuid = reuploadKeyService.reuploadKey(userInfo, keyContent);
-		assertNotNull(actualUuid);
-		assertEquals(expectedUuid, actualUuid);
-		assertEquals(1, resourceList.size());
-
-		verify(userResourceService).updateReuploadKeyFlagForUserResources(USER, true);
-		verify(exploratoryService).getInstancesWithStatuses(USER, RUNNING, RUNNING);
-		verify(userResourceService).convertToResourceData(instances);
-		verify(keyDAO).getEdgeInfoWhereStatusIn(USER, RUNNING);
-		verify(exploratoryDAO).updateStatusForExploratories(REUPLOADING_KEY, USER, RUNNING);
-		verify(computationalDAO).updateStatusForComputationalResources(REUPLOADING_KEY, USER,
-				Arrays.asList(RUNNING, REUPLOADING_KEY), Arrays.asList(DataEngineType.SPARK_STANDALONE,
-						DataEngineType.CLOUD_SERVICE), RUNNING);
-		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(keyContent), any(List.class));
-		verify(provisioningService).post("/key/reupload", TOKEN, reuploadFile, String.class);
-		verifyNoMoreInteractions(userResourceService, exploratoryService, keyDAO, exploratoryDAO, computationalDAO,
-				requestBuilder, provisioningService);
-		verifyZeroInteractions(requestId);
-	}
-
 	@Test
 	public void updateResourceDataForEdgeWhenStatusCompleted() {
 		ResourceData resource = new ResourceData(ResourceType.EDGE, "someId", null, null);
-		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
-		doNothing().when(keyDAO).updateEdgeReuploadKey(anyString(), anyBoolean(), anyVararg());
 		ReuploadKeyStatusDTO dto = getReuploadKeyStatusDTO(resource, ReuploadKeyStatus.COMPLETED);
 
 		reuploadKeyService.updateResourceData(dto);
 
-		verify(keyDAO).updateEdgeStatus(USER, "running");
-		verify(keyDAO).updateEdgeReuploadKey(USER, false, UserInstanceStatus.values());
-		verifyNoMoreInteractions(keyDAO);
 		verifyZeroInteractions(exploratoryDAO, computationalDAO);
 	}
 
 	@Test
 	public void updateResourceDataForEdgeWhenStatusFailed() {
 		ResourceData resource = new ResourceData(ResourceType.EDGE, "someId", null, null);
-		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
 
 		ReuploadKeyStatusDTO dto = getReuploadKeyStatusDTO(resource, ReuploadKeyStatus.FAILED);
 		reuploadKeyService.updateResourceData(dto);
 
-		verify(keyDAO).updateEdgeStatus(USER, "running");
-		verifyNoMoreInteractions(keyDAO);
 		verifyZeroInteractions(exploratoryDAO, computationalDAO);
 	}
 
@@ -232,7 +122,7 @@ public class ReuploadKeyServiceImplTest {
 		verify(exploratoryDAO).updateStatusForExploratory(USER, EXPLORATORY_NAME, RUNNING);
 		verify(exploratoryDAO).updateReuploadKeyForExploratory(USER, EXPLORATORY_NAME, false);
 		verifyNoMoreInteractions(exploratoryDAO);
-		verifyZeroInteractions(keyDAO, computationalDAO);
+		verifyZeroInteractions(computationalDAO);
 	}
 
 	@Test
@@ -247,7 +137,7 @@ public class ReuploadKeyServiceImplTest {
 
 		verify(exploratoryDAO).updateStatusForExploratory(USER, EXPLORATORY_NAME, RUNNING);
 		verifyNoMoreInteractions(exploratoryDAO);
-		verifyZeroInteractions(keyDAO, computationalDAO);
+		verifyZeroInteractions(computationalDAO);
 	}
 
 	@Test
@@ -265,7 +155,7 @@ public class ReuploadKeyServiceImplTest {
 		verify(computationalDAO).updateReuploadKeyFlagForComputationalResource(USER, EXPLORATORY_NAME, "compName",
 				false);
 		verifyNoMoreInteractions(computationalDAO);
-		verifyZeroInteractions(exploratoryDAO, keyDAO);
+		verifyZeroInteractions(exploratoryDAO);
 	}
 
 	@Test
@@ -279,13 +169,12 @@ public class ReuploadKeyServiceImplTest {
 
 		verify(computationalDAO).updateStatusForComputationalResource(USER, EXPLORATORY_NAME, "compName", RUNNING);
 		verifyNoMoreInteractions(computationalDAO);
-		verifyZeroInteractions(exploratoryDAO, keyDAO);
+		verifyZeroInteractions(exploratoryDAO);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void reuploadKeyActionForEdge() {
-		doNothing().when(keyDAO).updateEdgeStatus(anyString(), anyString());
 		ReuploadKeyDTO reuploadFile = mock(ReuploadKeyDTO.class);
 		when(requestBuilder.newKeyReupload(any(UserInfo.class), anyString(), anyString(), any(List.class)))
 				.thenReturn(reuploadFile);
@@ -297,22 +186,19 @@ public class ReuploadKeyServiceImplTest {
 		ResourceData resource = new ResourceData(ResourceType.EDGE, "someId", null, null);
 		reuploadKeyService.reuploadKeyAction(userInfo, resource);
 
-		verify(keyDAO).updateEdgeStatus(USER, "reuploading key");
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(""), any(List.class));
 		verify(provisioningService).post("/key/reupload", TOKEN, reuploadFile, String.class,
 				Collections.singletonMap("is_primary_reuploading", false));
 		verify(requestId).put(USER, expectedUuid);
-		verifyNoMoreInteractions(keyDAO, requestBuilder, provisioningService, requestId);
+		verifyNoMoreInteractions(requestBuilder, provisioningService, requestId);
 		verifyZeroInteractions(exploratoryDAO, computationalDAO);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void reuploadKeyActionForEdgeWithException() {
-		doNothing().when(keyDAO).updateEdgeStatus(anyString(), eq("reuploading key"));
 		doThrow(new DlabException("Couldn't reupload key to edge"))
 				.when(requestBuilder).newKeyReupload(any(UserInfo.class), anyString(), anyString(), any(List.class));
-		doNothing().when(keyDAO).updateEdgeStatus(anyString(), eq("running"));
 
 		ResourceData resource = new ResourceData(ResourceType.EDGE, "someId", null, null);
 		try {
@@ -322,10 +208,8 @@ public class ReuploadKeyServiceImplTest {
 					e.getMessage());
 		}
 
-		verify(keyDAO).updateEdgeStatus(USER, "reuploading key");
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(""), any(List.class));
-		verify(keyDAO).updateEdgeStatus(USER, "running");
-		verifyNoMoreInteractions(keyDAO, requestBuilder);
+		verifyNoMoreInteractions(requestBuilder);
 		verifyZeroInteractions(exploratoryDAO, computationalDAO, provisioningService, requestId);
 	}
 
@@ -351,7 +235,7 @@ public class ReuploadKeyServiceImplTest {
 				Collections.singletonMap("is_primary_reuploading", false));
 		verify(requestId).put(USER, expectedUuid);
 		verifyNoMoreInteractions(exploratoryDAO, requestBuilder, provisioningService, requestId);
-		verifyZeroInteractions(keyDAO, computationalDAO);
+		verifyZeroInteractions(computationalDAO);
 	}
 
 	@Test
@@ -376,7 +260,7 @@ public class ReuploadKeyServiceImplTest {
 		verify(requestBuilder).newKeyReupload(refEq(userInfo), anyString(), eq(""), any(List.class));
 		verify(exploratoryDAO).updateStatusForExploratory(USER, EXPLORATORY_NAME, RUNNING);
 		verifyNoMoreInteractions(exploratoryDAO, requestBuilder);
-		verifyZeroInteractions(keyDAO, computationalDAO, provisioningService, requestId);
+		verifyZeroInteractions(computationalDAO, provisioningService, requestId);
 	}
 
 	@Test
@@ -403,7 +287,7 @@ public class ReuploadKeyServiceImplTest {
 				Collections.singletonMap("is_primary_reuploading", false));
 		verify(requestId).put(USER, expectedUuid);
 		verifyNoMoreInteractions(computationalDAO, requestBuilder, provisioningService, requestId);
-		verifyZeroInteractions(keyDAO, exploratoryDAO);
+		verifyZeroInteractions(exploratoryDAO);
 	}
 
 	@Test
@@ -431,7 +315,7 @@ public class ReuploadKeyServiceImplTest {
 		verify(computationalDAO).updateStatusForComputationalResource(USER, EXPLORATORY_NAME,
 				"compName", RUNNING);
 		verifyNoMoreInteractions(computationalDAO, requestBuilder);
-		verifyZeroInteractions(keyDAO, exploratoryDAO, provisioningService, requestId);
+		verifyZeroInteractions(exploratoryDAO, provisioningService, requestId);
 	}
 
 	private UserInfo getUserInfo() {

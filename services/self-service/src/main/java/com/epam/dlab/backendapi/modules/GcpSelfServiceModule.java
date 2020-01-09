@@ -23,12 +23,8 @@ import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
-import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.gcp.GcpBillingDao;
-import com.epam.dlab.backendapi.dao.gcp.GcpKeyDao;
 import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
-import com.epam.dlab.backendapi.resources.callback.gcp.EdgeCallbackGcp;
-import com.epam.dlab.backendapi.resources.callback.gcp.KeyUploaderCallbackGcp;
 import com.epam.dlab.backendapi.resources.gcp.BillingResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.GcpOauthResource;
@@ -57,9 +53,6 @@ public class GcpSelfServiceModule extends CloudModule {
     @Override
     @SuppressWarnings("unchecked")
     public void init(Environment environment, Injector injector) {
-
-		environment.jersey().register(injector.getInstance(EdgeCallbackGcp.class));
-		environment.jersey().register(injector.getInstance(KeyUploaderCallbackGcp.class));
 		environment.jersey().register(injector.getInstance(ComputationalResourceGcp.class));
 		environment.jersey().register(injector.getInstance(BillingResourceGcp.class));
 		if (injector.getInstance(SelfServiceApplicationConfiguration.class).isGcpOuauth2AuthenticationEnabled()) {
@@ -71,7 +64,6 @@ public class GcpSelfServiceModule extends CloudModule {
     @Override
     protected void configure() {
         bind(BillingService.class).to(GcpBillingService.class);
-        bind((KeyDAO.class)).to(GcpKeyDao.class);
         bind(BillingDAO.class).to(GcpBillingDao.class);
         bind(SchedulerConfiguration.class).toInstance(
                 new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));

@@ -22,11 +22,9 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
-import com.epam.dlab.backendapi.service.UserResourceService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
@@ -45,7 +43,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
@@ -57,8 +54,6 @@ import static com.epam.dlab.rest.contracts.KeyAPI.REUPLOAD_KEY;
 @Slf4j
 public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 
-	@Inject
-	private KeyDAO keyDAO;
 	@Inject
 	@Named(PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
@@ -72,31 +67,11 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	private ComputationalDAO computationalDAO;
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
-	@Inject
-	private UserResourceService userResourceService;
 
 	private static final String REUPLOAD_KEY_UPDATE_MSG = "Reuploading key process is successfully finished. " +
 			"Updating 'reupload_key_required' flag to 'false' for {}.";
 	private static final String REUPLOAD_KEY_ERROR_MSG = "Reuploading key process is failed for {}. The next attempt" +
 			"starts after resource restarting.";
-
-
-	@Override
-	public String reuploadKey(UserInfo user, String keyContent) {
-		userResourceService.updateReuploadKeyFlagForUserResources(user.getName(), true);
-		List<ResourceData> resourcesForKeyReuploading = userResourceService.convertToResourceData(
-				exploratoryService.getInstancesWithStatuses(user.getName(), RUNNING, RUNNING));
-		keyDAO.getEdgeInfoWhereStatusIn(user.getName(), RUNNING)
-				.ifPresent(edgeInfo -> {
-					resourcesForKeyReuploading.add(ResourceData.edgeResource(edgeInfo.getInstanceId()));
-					keyDAO.updateEdgeStatus(user.getName(), REUPLOADING_KEY.toString());
-				});
-		updateStatusForUserInstances(user.getName(), REUPLOADING_KEY);
-
-		ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(user, UUID.randomUUID().toString(), keyContent,
-				resourcesForKeyReuploading);
-		return provisioningService.post(REUPLOAD_KEY, user.getAccessToken(), reuploadKeyDTO, String.class);
-	}
 
 	@Override
 	public void updateResourceData(ReuploadKeyStatusDTO dto) {
@@ -130,9 +105,7 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	}
 
 	private void updateResourceStatus(String user, ResourceData resourceData, UserInstanceStatus newStatus) {
-		if (resourceData.getResourceType() == ResourceType.EDGE) {
-			keyDAO.updateEdgeStatus(user, newStatus.toString());
-		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
+		if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
 			exploratoryDAO.updateStatusForExploratory(user, resourceData.getExploratoryName(), newStatus);
 		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
 			computationalDAO.updateStatusForComputationalResource(user, resourceData.getExploratoryName(),
@@ -141,9 +114,7 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 	}
 
 	private void updateResourceReuploadKeyFlag(String user, ResourceData resourceData, boolean reuploadKeyRequired) {
-		if (resourceData.getResourceType() == ResourceType.EDGE) {
-			keyDAO.updateEdgeReuploadKey(user, reuploadKeyRequired, UserInstanceStatus.values());
-		} else if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
+		if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
 			exploratoryDAO.updateReuploadKeyForExploratory(user, resourceData.getExploratoryName(),
 					reuploadKeyRequired);
 		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {

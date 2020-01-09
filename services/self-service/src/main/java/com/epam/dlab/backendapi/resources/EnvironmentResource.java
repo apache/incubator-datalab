@@ -62,32 +62,11 @@ public class EnvironmentResource {
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("terminate")
-	public Response terminateEnv(@Auth UserInfo userInfo,
-								 @NotEmpty String user) {
-		log.info("User {} is terminating {} environment", userInfo.getName(), user);
-		environmentService.terminateEnvironment(userInfo, user);
-		return Response.ok().build();
-	}
-
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
 	@Path("stop")
 	public Response stopEnv(@Auth UserInfo userInfo,
 							@NotEmpty String user) {
 		log.info("User {} is stopping {} environment", userInfo.getName(), user);
 		environmentService.stopEnvironment(userInfo, user);
-		return Response.ok().build();
-	}
-
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("stop/edge")
-	public Response stopEdge(@Auth UserInfo userInfo, @NotEmpty String user) {
-		log.info("Admin {} is stopping edge of user {}", userInfo.getName(), user);
-		environmentService.stopEdge(user);
 		return Response.ok().build();
 	}
 
