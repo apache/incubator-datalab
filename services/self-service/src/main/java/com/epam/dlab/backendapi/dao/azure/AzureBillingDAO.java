@@ -79,11 +79,6 @@ public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
 	}
 
 	@Override
-	protected String getSsnShape() {
-		return settings.getAzureSsnInstanceSize();
-	}
-
-	@Override
 	protected String shapeFieldName() {
 		return SIZE;
 	}

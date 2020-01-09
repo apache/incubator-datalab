@@ -64,12 +64,4 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
     protected List<Bson> cloudMatchCriteria(AwsBillingFilter filter) {
         return Collections.emptyList();
     }
-
-
-    @Override
-    protected String getSsnShape() {
-        return "t2.medium";
-    }
-
-
 }

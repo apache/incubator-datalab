@@ -451,7 +451,9 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		return settings.getServiceBaseName();
 	}
 
-	protected abstract String getSsnShape();
+	protected String getSsnShape() {
+		return settings.getSsnInstanceSize();
+	}
 
 	protected void usersToLowerCase(List<String> users) {
 		if (users != null) {

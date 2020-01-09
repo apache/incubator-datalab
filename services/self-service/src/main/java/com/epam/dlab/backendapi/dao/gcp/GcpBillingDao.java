@@ -57,10 +57,4 @@ public class GcpBillingDao extends BaseBillingDAO<GcpBillingFilter> {
     protected List<Bson> cloudMatchCriteria(GcpBillingFilter filter) {
         return Collections.emptyList();
     }
-
-
-    @Override
-    protected String getSsnShape() {
-        return "t2.medium";
-    }
 }

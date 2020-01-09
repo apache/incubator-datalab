@@ -421,7 +421,7 @@ public class EnvDAO extends BaseDAO {
 			LOGGER.debug("Computational status for user {} with exploratory {} and computational {} will be updated " +
 							"from {} to {}",
 					user, exploratoryName, computationalName, oldStatus, status);
-			if (configuration.getCloudProvider() == CloudProvider.AWS && status == UserInstanceStatus.TERMINATED &&
+			if (status == UserInstanceStatus.TERMINATED &&
 					terminateComputationalSpot(user, exploratoryName, computationalName)) {
 				return;
 			}

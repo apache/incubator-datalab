@@ -70,9 +70,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private int maxSparkInstanceCount;
 
 	@JsonProperty
-	private boolean azureUseLdap;
-
-	@JsonProperty
 	private String ssnInstanceSize;
 
 	@JsonProperty
@@ -100,8 +97,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	private int maxUserNameLength;
 	@JsonProperty
 	private boolean gcpOuauth2AuthenticationEnabled;
-	@JsonProperty
-	private long maxSessionDurabilityMilliseconds;
 	@JsonProperty
 	private boolean mongoMigrationEnabled;
 	@JsonProperty
@@ -144,10 +139,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public JerseyClientConfiguration getJerseyClientConfiguration() {
 		return jerseyClient;
-	}
-
-	public long getMaxSessionDurabilityMilliseconds() {
-		return maxSessionDurabilityMilliseconds;
 	}
 
 	public Map<String, SchedulerConfigurationData> getSchedulers() {
@@ -243,10 +234,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
 	public int getPrivateKeySize() {
 		return privateKeySize;
-	}
-
-	public boolean isAzureUseLdap() {
-		return azureUseLdap;
 	}
 
 	public String getSsnInstanceSize() {

@@ -241,8 +241,8 @@ public class SettingsDAO extends BaseDAO {
 		return getSetting(AZURE_EDGE_INSTANCE_SIZE);
 	}
 
-	public String getAzureSsnInstanceSize() {
-		return getSetting(AZURE_SSN_INSTANCE_SIZE);
+	public String getSsnInstanceSize() {
+		return getSetting(SSN_INSTANCE_SIZE);
 	}
 
 	public String getAzureDataLakeNameTag() {
@@ -282,8 +282,8 @@ public class SettingsDAO extends BaseDAO {
 		setSetting(AZURE_EDGE_INSTANCE_SIZE, azureEdgeInstanceSize);
 	}
 
-	public void setAzureSsnInstanceSize(String ssnInstanceSize) {
-		setSetting(AZURE_SSN_INSTANCE_SIZE, ssnInstanceSize);
+	public void setSsnInstanceSize(String ssnInstanceSize) {
+		setSetting(SSN_INSTANCE_SIZE, ssnInstanceSize);
 	}
 
 	public void setAzureDataLakeNameTag(String dataLakeNameTag) {

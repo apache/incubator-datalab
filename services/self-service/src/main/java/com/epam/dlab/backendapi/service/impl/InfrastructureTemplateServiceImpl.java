@@ -24,8 +24,11 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneConfiguration;
+import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
+import com.epam.dlab.backendapi.resources.dto.gcp.GcpDataprocConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.EndpointService;
@@ -54,7 +57,7 @@ import static com.epam.dlab.rest.contracts.DockerAPI.DOCKER_COMPUTATIONAL;
 import static com.epam.dlab.rest.contracts.DockerAPI.DOCKER_EXPLORATORY;
 
 @Slf4j
-public abstract class InfrastructureTemplateServiceBase implements InfrastructureTemplateService {
+public class InfrastructureTemplateServiceImpl implements InfrastructureTemplateService {
 
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
@@ -116,8 +119,9 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 
 		log.debug("Loading list of computational templates for user {}", user.getName());
 		try {
+			EndpointDTO endpointDTO = endpointService.get(endpoint);
 			ComputationalMetadataDTO[] array =
-					provisioningService.get(endpointService.get(endpoint).getUrl() + DOCKER_COMPUTATIONAL,
+					provisioningService.get(endpointDTO.getUrl() + DOCKER_COMPUTATIONAL,
 							user.getAccessToken(), ComputationalMetadataDTO[]
 									.class);
 
@@ -128,7 +132,7 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 					.peek(e -> filterShapes(user, e.getComputationResourceShapes(), RoleType.COMPUTATIONAL_SHAPES,
 							user.getRoles()))
 					.filter(e -> UserRoles.checkAccess(user, RoleType.COMPUTATIONAL, e.getImage(), roles))
-					.map(this::fullComputationalTemplate)
+					.map(comp -> fullComputationalTemplate(comp, endpointDTO.getCloudProvider()))
 					.collect(Collectors.toList());
 
 		} catch (DlabException e) {
@@ -142,9 +146,6 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 				.map(ProjectDTO::getGroups)
 				.orElse(user.getRoles());
 	}
-
-	protected abstract FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO
-																						   metadataDTO);
 
 	/**
 	 * Temporary filter for creation of exploratory env due to Azure issues
@@ -168,16 +169,18 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 	/**
 	 * Wraps metadata with limits
 	 *
-	 * @param metadataDTO metadata
+	 * @param metadataDTO   metadata
+	 * @param cloudProvider cloudProvider
 	 * @return wrapped object
 	 */
 
-	private FullComputationalTemplate fullComputationalTemplate(ComputationalMetadataDTO metadataDTO) {
+	private FullComputationalTemplate fullComputationalTemplate(ComputationalMetadataDTO metadataDTO,
+																CloudProvider cloudProvider) {
 
 		DataEngineType dataEngineType = DataEngineType.fromDockerImageName(metadataDTO.getImage());
 
 		if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
-			return getCloudFullComputationalTemplate(metadataDTO);
+			return getCloudFullComputationalTemplate(metadataDTO, cloudProvider);
 		} else if (dataEngineType == DataEngineType.SPARK_STANDALONE) {
 			return new SparkFullComputationalTemplate(metadataDTO,
 					SparkStandaloneConfiguration.builder()
@@ -186,6 +189,53 @@ public abstract class InfrastructureTemplateServiceBase implements Infrastructur
 							.build());
 		} else {
 			throw new IllegalArgumentException("Unknown data engine " + dataEngineType);
+		}
+	}
+
+	protected FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO metadataDTO,
+																		CloudProvider cloudProvider) {
+		switch (cloudProvider) {
+			case AWS:
+				return new AwsFullComputationalTemplate(metadataDTO,
+						AwsEmrConfiguration.builder()
+								.minEmrInstanceCount(configuration.getMinEmrInstanceCount())
+								.maxEmrInstanceCount(configuration.getMaxEmrInstanceCount())
+								.maxEmrSpotInstanceBidPct(configuration.getMaxEmrSpotInstanceBidPct())
+								.minEmrSpotInstanceBidPct(configuration.getMinEmrSpotInstanceBidPct())
+								.build());
+			case GCP:
+				return new GcpFullComputationalTemplate(metadataDTO,
+						GcpDataprocConfiguration.builder()
+								.minInstanceCount(configuration.getMinInstanceCount())
+								.maxInstanceCount(configuration.getMaxInstanceCount())
+								.minDataprocPreemptibleInstanceCount(configuration.getMinDataprocPreemptibleCount())
+								.build());
+			case AZURE:
+				log.error("Dataengine service is not supported currently for {}", cloudProvider);
+			default:
+				throw new UnsupportedOperationException("Dataengine service is not supported currently for " + cloudProvider);
+		}
+	}
+
+	private class AwsFullComputationalTemplate extends FullComputationalTemplate {
+		@JsonProperty("limits")
+		private AwsEmrConfiguration awsEmrConfiguration;
+
+		AwsFullComputationalTemplate(ComputationalMetadataDTO metadataDTO,
+									 AwsEmrConfiguration awsEmrConfiguration) {
+			super(metadataDTO);
+			this.awsEmrConfiguration = awsEmrConfiguration;
+		}
+	}
+
+	private class GcpFullComputationalTemplate extends FullComputationalTemplate {
+		@JsonProperty("limits")
+		private GcpDataprocConfiguration gcpDataprocConfiguration;
+
+		GcpFullComputationalTemplate(ComputationalMetadataDTO metadataDTO,
+									 GcpDataprocConfiguration gcpDataprocConfiguration) {
+			super(metadataDTO);
+			this.gcpDataprocConfiguration = gcpDataprocConfiguration;
 		}
 	}
 

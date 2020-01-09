@@ -40,9 +40,7 @@ public class MongoStartupListener implements ServerLifecycleListener {
 	public void serverStarted(Server server) {
 		settingsDAO.setServiceBaseName(configuration.getServiceBaseName());
 		settingsDAO.setConfOsFamily(configuration.getOs());
-		if (configuration.getCloudProvider() == CloudProvider.AZURE) {
-			settingsDAO.setAzureSsnInstanceSize(configuration.getSsnInstanceSize());
-		}
+		settingsDAO.setSsnInstanceSize(configuration.getSsnInstanceSize());
 		if (userRoleDao.findAll().isEmpty()) {
 			log.debug("Populating DLab roles into database");
 			userRoleDao.insert(getRoles());

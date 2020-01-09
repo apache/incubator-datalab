@@ -20,8 +20,8 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.backendapi.SelfServiceApplication;
-import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
@@ -32,11 +32,7 @@ import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
 import com.epam.dlab.backendapi.resources.callback.aws.KeyUploaderCallbackAws;
 import com.epam.dlab.backendapi.service.BillingService;
-import com.epam.dlab.backendapi.service.InfrastructureInfoService;
-import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
 import com.epam.dlab.backendapi.service.aws.AwsBillingService;
-import com.epam.dlab.backendapi.service.aws.AwsInfrastructureInfoService;
-import com.epam.dlab.backendapi.service.aws.AwsInfrastructureTemplateService;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.mongo.MongoServiceFactory;
 import com.fiestacabin.dropwizard.quartz.SchedulerConfiguration;
@@ -61,10 +57,8 @@ public class AwsSelfServiceModule extends CloudModule {
 	protected void configure() {
 		bind(BillingService.class).to(AwsBillingService.class);
 		bind((KeyDAO.class)).to(AwsKeyDao.class);
-		bind(InfrastructureInfoService.class).to(AwsInfrastructureInfoService.class);
 		bind(SchedulerConfiguration.class).toInstance(
 				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
-		bind(InfrastructureTemplateService.class).to(AwsInfrastructureTemplateService.class);
 		bind(BillingDAO.class).to(AwsBillingDAO.class);
 		final BudgetLimitInterceptor budgetLimitInterceptor = new BudgetLimitInterceptor();
 		requestInjection(budgetLimitInterceptor);

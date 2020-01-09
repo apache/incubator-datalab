@@ -8,6 +8,7 @@ import com.epam.dlab.backendapi.domain.EndpointResourcesDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -26,7 +27,7 @@ import java.util.List;
 
 @Slf4j
 public class EndpointServiceImpl implements EndpointService {
-	private static final String HEALTHCHECK = "healthcheck";
+	private static final String HEALTH_CHECK = "healthcheck";
 	private final EndpointDAO endpointDAO;
 	private final ProjectService projectService;
 	private final ExploratoryDAO exploratoryDAO;
@@ -70,9 +71,10 @@ public class EndpointServiceImpl implements EndpointService {
 
 	@Override
 	public void create(UserInfo userInfo, EndpointDTO endpointDTO) {
-		checkEndpointUrl(userInfo, endpointDTO.getUrl());
+		CloudProvider cloudProvider = checkEndpointUrl(userInfo, endpointDTO.getUrl());
 		if (!endpointDAO.get(endpointDTO.getName()).isPresent()) {
-			endpointDAO.create(EndpointDTO.withEndpointStatus(endpointDTO));
+			endpointDAO.create(new EndpointDTO(endpointDTO.getName(), endpointDTO.getUrl(), endpointDTO.getAccount(),
+					endpointDTO.getTag(), EndpointDTO.EndpointStatus.ACTIVE, cloudProvider));
 		} else {
 			throw new ResourceConflictException("Endpoint with passed name already exist in system");
 		}
@@ -100,18 +102,21 @@ public class EndpointServiceImpl implements EndpointService {
 	}
 
 	@Override
-	public void checkEndpointUrl(UserInfo userInfo, String url) {
+	public CloudProvider checkEndpointUrl(UserInfo userInfo, String url) {
 		Response response;
+		CloudProvider cloudProvider;
 		try {
-			response = provisioningService.get(url + HEALTHCHECK, userInfo.getAccessToken(), Response.class);
+			response = provisioningService.get(url + HEALTH_CHECK, userInfo.getAccessToken(), Response.class);
+			cloudProvider = response.readEntity(CloudProvider.class);
 		} catch (Exception e) {
-			log.error("Cannot connect to url \'{}\'", url);
-			throw new DlabException(String.format("Cannot connect to url \'%s\'", url), e);
+			log.error("Cannot connect to url '{}'", url);
+			throw new DlabException(String.format("Cannot connect to url '%s'", url), e);
 		}
 		if (response.getStatus() != 200) {
 			log.warn("Endpoint url {} is not valid", url);
-			throw new ResourceNotFoundException(String.format("Endpoint url \'%s\' is not valid", url));
+			throw new ResourceNotFoundException(String.format("Endpoint url '%s' is not valid", url));
 		}
+		return cloudProvider;
 	}
 
 	private void checkProjectEndpointResourcesStatuses(List<ProjectDTO> projects, String endpoint) {

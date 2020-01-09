@@ -24,16 +24,19 @@ import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
-import com.epam.dlab.backendapi.dao.gcp.GcpBillingDao;
-import com.epam.dlab.backendapi.dao.gcp.GcpKeyDao;
+import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
+import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
 import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
-import com.epam.dlab.backendapi.resources.callback.gcp.EdgeCallbackGcp;
-import com.epam.dlab.backendapi.resources.callback.gcp.KeyUploaderCallbackGcp;
-import com.epam.dlab.backendapi.resources.gcp.BillingResourceGcp;
-import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
-import com.epam.dlab.backendapi.resources.gcp.GcpOauthResource;
+import com.epam.dlab.backendapi.resources.aws.BillingResourceAws;
+import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
+import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
+import com.epam.dlab.backendapi.resources.callback.aws.KeyUploaderCallbackAws;
 import com.epam.dlab.backendapi.service.BillingService;
-import com.epam.dlab.backendapi.service.gcp.GcpBillingService;
+import com.epam.dlab.backendapi.service.InfrastructureInfoService;
+import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
+import com.epam.dlab.backendapi.service.aws.AwsBillingService;
+import com.epam.dlab.backendapi.service.impl.InfrastructureInfoServiceImpl;
+import com.epam.dlab.backendapi.service.impl.InfrastructureTemplateServiceImpl;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.mongo.MongoServiceFactory;
 import com.fiestacabin.dropwizard.quartz.SchedulerConfiguration;
@@ -48,37 +51,37 @@ import org.quartz.impl.StdSchedulerFactory;
 import static com.google.inject.matcher.Matchers.annotatedWith;
 import static com.google.inject.matcher.Matchers.any;
 
-public class GcpSelfServiceModule extends CloudModule {
+public class CloudProviderModule extends CloudModule {
 
     private static final String MONGO_URI_FORMAT = "mongodb://%s:%s@%s:%d/%s";
     private static final String QUARTZ_MONGO_URI_PROPERTY = "org.quartz.jobStore.mongoUri";
     private static final String QUARTZ_DB_NAME = "org.quartz.jobStore.dbName";
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void init(Environment environment, Injector injector) {
-
-		environment.jersey().register(injector.getInstance(EdgeCallbackGcp.class));
-		environment.jersey().register(injector.getInstance(KeyUploaderCallbackGcp.class));
-		environment.jersey().register(injector.getInstance(ComputationalResourceGcp.class));
-		environment.jersey().register(injector.getInstance(BillingResourceGcp.class));
-		if (injector.getInstance(SelfServiceApplicationConfiguration.class).isGcpOuauth2AuthenticationEnabled()) {
-			environment.jersey().register(injector.getInstance(GcpOauthResource.class));
-		}
-
-    }
-
-    @Override
     protected void configure() {
-        bind(BillingService.class).to(GcpBillingService.class);
-        bind((KeyDAO.class)).to(GcpKeyDao.class);
-        bind(BillingDAO.class).to(GcpBillingDao.class);
+        bind(BillingService.class).to(AwsBillingService.class);// not done
+        bind(BillingDAO.class).to(AwsBillingDAO.class);//not done
+        bind(InfrastructureInfoService.class).to(InfrastructureInfoServiceImpl.class);
+        bind(InfrastructureTemplateService.class).to(InfrastructureTemplateServiceImpl.class);
         bind(SchedulerConfiguration.class).toInstance(
                 new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
+
+
+        bind((KeyDAO.class)).to(AwsKeyDao.class);
+
         final BudgetLimitInterceptor budgetLimitInterceptor = new BudgetLimitInterceptor();
         requestInjection(budgetLimitInterceptor);
         bindInterceptor(any(), annotatedWith(BudgetLimited.class), budgetLimitInterceptor);
     }
+
+    @Override
+    public void init(Environment environment, Injector injector) {
+        environment.jersey().register(injector.getInstance(EdgeCallbackAws.class));
+        environment.jersey().register(injector.getInstance(KeyUploaderCallbackAws.class));
+        environment.jersey().register(injector.getInstance(ComputationalResourceAws.class));
+        environment.jersey().register(injector.getInstance(BillingResourceAws.class));
+    }
+
 
     @Provides
     @Singleton

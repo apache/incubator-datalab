@@ -31,6 +31,7 @@ import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.TagService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -589,7 +590,7 @@ public class ExploratoryServiceImplTest {
 	}
 
 	private EndpointDTO endpointDTO() {
-		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE);
+		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.AWS);
 	}
 
 	private ProjectDTO getProjectDTO() {

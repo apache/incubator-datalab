@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
@@ -168,6 +169,6 @@ public class GitCredentialServiceImplTest {
 	}
 
 	private EndpointDTO endpointDTO() {
-		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE);
+		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.AWS);
 	}
 }
