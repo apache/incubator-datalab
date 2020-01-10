@@ -19,14 +19,27 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { ManagenementModule } from './management';
-import { ProjectModule } from './project';
-import { RolesModule } from './roles';
-import {LegionDeploymentModule} from "./legion-deployment";
+import { MaterialModule } from '../../../shared/material.module';
+import { FormControlsModule } from '../../../shared/form-controls';
+import { KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
+import {CreateLegionClusterComponent} from "./create-legion-cluster.component";
+
+export * from './create-legion-cluster.component';
 
 @NgModule({
-  imports: [CommonModule, ManagenementModule, ProjectModule, RolesModule, LegionDeploymentModule],
-  exports: [ManagenementModule, ProjectModule, RolesModule, LegionDeploymentModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    FormControlsModule,
+    MaterialModule,
+    KeysPipeModule,
+    UnderscorelessPipeModule
+  ],
+  declarations: [CreateLegionClusterComponent],
+  entryComponents: [CreateLegionClusterComponent],
+  exports: [CreateLegionClusterComponent]
 })
-export class AdministrationModule { }
+export class CreateLegionClusterModule { }
