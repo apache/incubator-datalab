@@ -23,6 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
@@ -100,8 +101,10 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 				.withExploratoryName(exploratoryName)
 				.withStatus(UserInstanceStatus.CREATING_IMAGE));
 
-		return provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ExploratoryAPI.EXPLORATORY_IMAGE, user.getAccessToken(),
-				requestBuilder.newExploratoryImageCreate(user, userInstance, imageName), String.class);
+		EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
+		return provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_IMAGE,
+				user.getAccessToken(),
+				requestBuilder.newExploratoryImageCreate(user, userInstance, imageName, endpointDTO), String.class);
 	}
 
 	@Override

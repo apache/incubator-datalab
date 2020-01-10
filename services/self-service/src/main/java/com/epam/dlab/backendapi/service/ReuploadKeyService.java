@@ -25,7 +25,5 @@ import com.epam.dlab.model.ResourceData;
 
 public interface ReuploadKeyService {
 
-	void reuploadKeyAction(UserInfo userInfo, ResourceData resourceData);
-
 	void updateResourceData(ReuploadKeyStatusDTO dto);
 }

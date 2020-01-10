@@ -87,23 +87,6 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 		}
 	}
 
-	@Override
-	public void reuploadKeyAction(UserInfo userInfo, ResourceData resourceData) {
-		try {
-			updateResourceStatus(userInfo.getName(), resourceData, REUPLOADING_KEY);
-			ReuploadKeyDTO reuploadKeyDTO = requestBuilder.newKeyReupload(userInfo, UUID.randomUUID().toString(),
-					StringUtils.EMPTY, Collections.singletonList(resourceData));
-			String uuid = provisioningService.post(REUPLOAD_KEY, userInfo.getAccessToken(), reuploadKeyDTO,
-					String.class, Collections.singletonMap("is_primary_reuploading", false));
-			requestId.put(userInfo.getName(), uuid);
-		} catch (Exception t) {
-			log.error("Couldn't reupload key to " + resourceData.toString() + " for user {}", userInfo.getName(), t);
-			updateResourceStatus(userInfo.getName(), resourceData, RUNNING);
-			throw new DlabException("Couldn't reupload key to " + resourceData.toString() + " for user " +
-					userInfo.getName() + ":	" + t.getLocalizedMessage(), t);
-		}
-	}
-
 	private void updateResourceStatus(String user, ResourceData resourceData, UserInstanceStatus newStatus) {
 		if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
 			exploratoryDAO.updateStatusForExploratory(user, resourceData.getExploratoryName(), newStatus);
@@ -122,12 +105,4 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 					resourceData.getComputationalName(), reuploadKeyRequired);
 		}
 	}
-
-	private void updateStatusForUserInstances(String user, UserInstanceStatus newStatus) {
-		exploratoryDAO.updateStatusForExploratories(newStatus, user, RUNNING);
-		computationalDAO.updateStatusForComputationalResources(newStatus, user,
-				Arrays.asList(RUNNING, REUPLOADING_KEY), Arrays.asList(DataEngineType.SPARK_STANDALONE,
-						DataEngineType.CLOUD_SERVICE), RUNNING);
-	}
-
 }

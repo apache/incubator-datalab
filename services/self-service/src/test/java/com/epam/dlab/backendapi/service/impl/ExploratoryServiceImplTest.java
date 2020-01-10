@@ -118,7 +118,7 @@ public class ExploratoryServiceImplTest {
 
 		ExploratoryActionDTO egcuDto = new ExploratoryGitCredsUpdateDTO();
 		egcuDto.withExploratoryName(EXPLORATORY_NAME);
-		when(requestBuilder.newExploratoryStart(any(UserInfo.class), any(UserInstanceDTO.class),
+		when(requestBuilder.newExploratoryStart(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
 				any(ExploratoryGitCredsDTO.class))).thenReturn(egcuDto);
 
 		String exploratoryStart = "exploratory/start";
@@ -168,7 +168,8 @@ public class ExploratoryServiceImplTest {
 
 		ExploratoryActionDTO eaDto = new ExploratoryActionDTO();
 		eaDto.withExploratoryName(EXPLORATORY_NAME);
-		when(requestBuilder.newExploratoryStop(any(UserInfo.class), any(UserInstanceDTO.class))).thenReturn(eaDto);
+		when(requestBuilder.newExploratoryStop(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class)))
+				.thenReturn(eaDto);
 
 		String exploratoryStop = "exploratory/stop";
 		when(provisioningService.post(anyString(), anyString(), any(ExploratoryActionDTO.class), any())).thenReturn
@@ -220,7 +221,8 @@ public class ExploratoryServiceImplTest {
 
 		ExploratoryActionDTO eaDto = new ExploratoryActionDTO();
 		eaDto.withExploratoryName(EXPLORATORY_NAME);
-		when(requestBuilder.newExploratoryStop(any(UserInfo.class), any(UserInstanceDTO.class))).thenReturn(eaDto);
+		when(requestBuilder.newExploratoryStop(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class)))
+				.thenReturn(eaDto);
 
 		String exploratoryTerminate = "exploratory/terminate";
 		when(provisioningService.post(anyString(), anyString(), any(ExploratoryActionDTO.class), any())).thenReturn
@@ -238,7 +240,7 @@ public class ExploratoryServiceImplTest {
 		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME, UserInstanceStatus
 						.TERMINATING, UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.FAILED);
-		verify(requestBuilder).newExploratoryStop(userInfo, userInstance);
+		verify(requestBuilder).newExploratoryStop(userInfo, userInstance, endpointDTO());
 		verify(provisioningService).post(endpointDTO().getUrl() + exploratoryTerminate, TOKEN, eaDto, String.class);
 		verify(requestId).put(USER, UUID);
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO, requestBuilder, provisioningService, requestId);
@@ -275,8 +277,8 @@ public class ExploratoryServiceImplTest {
 
 		ExploratoryCreateDTO ecDto = new ExploratoryCreateDTO();
 		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
-		when(requestBuilder.newExploratoryCreate(any(ProjectDTO.class), any(Exploratory.class),
-				any(UserInfo.class), any(ExploratoryGitCredsDTO.class), anyMapOf(String.class, String.class))).thenReturn(ecDto);
+		when(requestBuilder.newExploratoryCreate(any(ProjectDTO.class), any(EndpointDTO.class),
+				any(Exploratory.class), any(UserInfo.class), any(ExploratoryGitCredsDTO.class), anyMapOf(String.class, String.class))).thenReturn(ecDto);
 		String exploratoryCreate = "exploratory/create";
 		when(provisioningService.post(anyString(), anyString(), any(ExploratoryCreateDTO.class), any()))
 				.thenReturn(UUID);
@@ -291,7 +293,7 @@ public class ExploratoryServiceImplTest {
 		verify(projectService).get("project");
 		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(gitCredsDAO).findGitCreds(USER);
-		verify(requestBuilder).newExploratoryCreate(projectDTO, exploratory, userInfo, egcDto, Collections.emptyMap());
+		verify(requestBuilder).newExploratoryCreate(projectDTO, endpointDTO(), exploratory, userInfo, egcDto, Collections.emptyMap());
 		verify(provisioningService).post(endpointDTO().getUrl() + exploratoryCreate, TOKEN, ecDto, String.class);
 		verify(requestId).put(USER, UUID);
 		verifyNoMoreInteractions(projectService, exploratoryDAO, gitCredsDAO, requestBuilder, provisioningService, requestId);
@@ -338,8 +340,8 @@ public class ExploratoryServiceImplTest {
 		Exploratory exploratory = Exploratory.builder().name(EXPLORATORY_NAME).build();
 
 		doThrow(new DlabException("Cannot create instance of resource class ")).when(requestBuilder)
-				.newExploratoryCreate(any(ProjectDTO.class), any(Exploratory.class), any(UserInfo.class),
-						any(ExploratoryGitCredsDTO.class), anyMapOf(String.class, String.class));
+				.newExploratoryCreate(any(ProjectDTO.class), any(EndpointDTO.class), any(Exploratory.class),
+						any(UserInfo.class), any(ExploratoryGitCredsDTO.class), anyMapOf(String.class, String.class));
 
 		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
 		try {
@@ -356,7 +358,7 @@ public class ExploratoryServiceImplTest {
 		verify(projectService).get("project");
 		verify(exploratoryDAO).insertExploratory(userInstance);
 		verify(gitCredsDAO).findGitCreds(USER);
-		verify(requestBuilder).newExploratoryCreate(projectDTO, exploratory, userInfo, egcDto, Collections.emptyMap());
+		verify(requestBuilder).newExploratoryCreate(projectDTO, endpointDTO(), exploratory, userInfo, egcDto, Collections.emptyMap());
 		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
 		verifyNoMoreInteractions(projectService, exploratoryDAO, gitCredsDAO, requestBuilder);
 	}
@@ -494,11 +496,10 @@ public class ExploratoryServiceImplTest {
 
 	@Test
 	public void testUpdateExploratoryClusterConfig() {
-
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
 		when(requestBuilder.newClusterConfigUpdate(any(UserInfo.class), any(UserInstanceDTO.class),
-				anyListOf(ClusterConfig.class))).thenReturn(new ExploratoryReconfigureSparkClusterActionDTO());
+				anyListOf(ClusterConfig.class), any(EndpointDTO.class))).thenReturn(new ExploratoryReconfigureSparkClusterActionDTO());
 		when(provisioningService.post(anyString(), anyString(), any(ExploratoryReconfigureSparkClusterActionDTO.class)
 				, any())).thenReturn(UUID);
 
@@ -506,7 +507,7 @@ public class ExploratoryServiceImplTest {
 
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(requestBuilder).newClusterConfigUpdate(refEq(getUserInfo()), refEq(getUserInstanceDto()),
-				refEq(singletonList(new ClusterConfig())));
+				refEq(singletonList(new ClusterConfig())), refEq(endpointDTO()));
 		verify(requestId).put(USER, UUID);
 		verify(provisioningService).post(eq(endpointDTO().getUrl() + "exploratory/reconfigure_spark"), eq(TOKEN),
 				refEq(new ExploratoryReconfigureSparkClusterActionDTO(), "self"), eq(String.class));
