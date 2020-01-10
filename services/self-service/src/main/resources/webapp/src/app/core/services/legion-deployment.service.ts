@@ -6,21 +6,22 @@ import {from} from "rxjs";
 })
 export class LegionDeploymentService {
   public list =  [{clasters: [
-      {
-        project: "Project5",
-        endpoint: "Endpoint24",
-        name: "claster1",
-      },
-      {
-        project: "Project4",
-        endpoint: "Endpoint23",
-        name: "claster1",
-      },
-      {
-        project: "Project3",
-        endpoint: "Endpoint21",
-        name: "claster1",
-      },]}];
+      // {
+      //   project: "Project5",
+      //   endpoint: "Endpoint24",
+      //   name: "claster1",
+      // },
+      // {
+      //   project: "Project4",
+      //   endpoint: "Endpoint23",
+      //   name: "claster1",
+      // },
+      // {
+      //   project: "Project3",
+      //   endpoint: "Endpoint21",
+      //   name: "claster1",
+      // }
+      ]}];
   constructor() { }
 
   public getLegionClasters(){

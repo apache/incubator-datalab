@@ -9,7 +9,7 @@ import { MatTableDataSource } from '@angular/material/table';
   styleUrls: ['./legion-list.component.scss']
 })
 export class LegionListComponent implements OnInit {
-  private legionClastersList: any[];
+  private legionClustersList: any[];
   private subscriptions: Subscription = new Subscription();
   private dataSource: MatTableDataSource<unknown>;
   displayedColumns: string[] = ['name', 'endpoint-url', 'legion-name', 'legion-status', "actions"];
@@ -22,7 +22,7 @@ export class LegionListComponent implements OnInit {
     this.subscriptions.add(this.legionDeploymentDataService._legionClasters.subscribe(
       (value) => {
         if (value) {
-          this.legionClastersList = value;
+          this.legionClustersList = value;
           this.dataSource = new MatTableDataSource(value);
         }
       }));
