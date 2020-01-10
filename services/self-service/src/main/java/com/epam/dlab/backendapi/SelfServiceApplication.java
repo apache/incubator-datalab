@@ -30,6 +30,7 @@ import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.backendapi.schedulers.internal.ManagedScheduler;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.servlet.guacamole.GuacamoleServlet;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.constants.ServiceConsts;
@@ -105,7 +106,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		environment.lifecycle().addServerLifecycleListener(injector.getInstance(MongoStartupListener.class));
 		final RestoreHandlerStartupListener restoreHandlerStartupListener =
 				new RestoreHandlerStartupListener(injector.getInstance(Key.get(RESTService.class,
-						Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))));
+						Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))), injector.getInstance(EndpointService.class));
 		environment.lifecycle().addServerLifecycleListener(restoreHandlerStartupListener);
 		environment.lifecycle().addServerLifecycleListener(this::disableGzipHandlerForGuacamoleServlet);
 		environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
