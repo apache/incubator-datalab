@@ -159,7 +159,12 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public printDetailEnvironmentModal(data): void {
-    this.dialog.open(DetailDialogComponent, { data: data, panelClass: 'modal-lg' })
+    this.dialog.open(DetailDialogComponent, { data: {notebook: data}, panelClass: 'modal-lg' })
+      .afterClosed().subscribe(() => this.buildGrid());
+  }
+
+  public printDetailLegionModal(data): void {
+    this.dialog.open(DetailDialogComponent, { data: {legion: data}, panelClass: 'modal-lg' })
       .afterClosed().subscribe(() => this.buildGrid());
   }
 

@@ -18,11 +18,12 @@
   -->
 
 <div class="detail-dialog" id="dialog-box">
-  <header class="dialog-header header-white">
+  <header class="dialog-header " [ngClass]="{'header-white': data.notebook}">
+    <h4 *ngIf="data.legion" class="modal-title" >Legion cluster</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
-    <div *ngIf="data">
+    <div *ngIf="data.notebook">
       <table class="detail-header">
         <tr>
           <td>{{notebook.template_name}}</td>
@@ -127,6 +128,35 @@
               (click)="editClusterConfiguration(configurationForm.value)">Update</button>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="legion-info" *ngIf="data.legion">
+      <div class="content-box">
+        <div class="detail-info" *ngIf="!legion.error_message">
+        <div class="links_block">
+          <p>
+            <span class="description">URL for feedback storage</span>
+            <a class="ellipsis" matTooltip=" http://172.31.48.131:8080/" matTooltipPosition="above" href=" http://172.31.48.131:8080/"
+               target="_blank">
+              &nbsp; http://172.31.48.131:8080/
+            </a>
+          </p>
+          <p>
+            <span class="description">URL for Swagger API registry</span>
+            <a class="ellipsis" matTooltip=" http://172.31.48.131:8080/" matTooltipPosition="above" href=" http://172.31.48.131:8080/"
+               target="_blank">
+              &nbsp; http://172.31.48.131:8080/
+            </a>
+          </p>
+          <p>
+            <span class="description">URL for Grafana</span>
+            <a class="ellipsis" matTooltip=" http://172.31.48.131:8080/" matTooltipPosition="above" href=" http://172.31.48.131:8080/"
+               target="_blank">
+              &nbsp; http://172.31.48.131:8080/
+            </a>
+          </p>
+        </div>
+    </div>
       </div>
     </div>
   </div>
