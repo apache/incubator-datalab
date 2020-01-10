@@ -24,9 +24,11 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
@@ -61,6 +63,8 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	private BillingDAO billingDAO;
 	@Inject
 	private ProjectService projectService;
+	@Inject
+	private EndpointService endpointService;
 
 
 	@Override
@@ -68,21 +72,24 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 		log.debug("Loading list of provisioned resources for user {}", user);
 		try {
 			Iterable<Document> documents = expDAO.findExploratory(user);
-
+			List<EndpointDTO> allEndpoints = endpointService.getEndpoints();
 			return StreamSupport.stream(documents.spliterator(),
 					false)
 					.collect(Collectors.groupingBy(d -> d.getString("project")))
 					.entrySet()
 					.stream()
 					.map(e -> {
-
+						List<ProjectEndpointDTO> endpoints = projectService.get(e.getKey()).getEndpoints();
+						List<EndpointDTO> endpointResult = allEndpoints.stream()
+								.filter(endpoint -> endpoints.stream()
+										.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
+								.collect(Collectors.toList());
 						final Map<String, Map<String, String>> projectEdges =
-								projectService.get(e.getKey()).getEndpoints().stream()
+								endpoints.stream()
 										.collect(Collectors.toMap(ProjectEndpointDTO::getName,
 												endpointDTO -> getSharedInfo(endpointDTO.getEdgeInfo())));
 						return new ProjectInfrastructureInfo(e.getKey(),
-								billingDAO.getBillingProjectQuoteUsed(e.getKey()),
-								projectEdges, e.getValue());
+								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), endpointResult);
 					})
 					.collect(Collectors.toList());
 		} catch (Exception e) {
