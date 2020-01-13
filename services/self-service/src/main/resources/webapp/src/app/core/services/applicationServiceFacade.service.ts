@@ -201,16 +201,16 @@ export class ApplicationServiceFacade {
       data, { responseType: 'text', observe: 'response' });
   }
 
-  public buildCreateComputationalResources_DataengineServiceRequest(data): Observable<any> {
+  public buildCreateComputationalResources_DataengineServiceRequest(data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE),
+      '/api/'+ provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE),
       data,
       { observe: 'response' });
   }
 
-  public buildCreateComputationalResources_DataengineRequest(data): Observable<any> {
+  public buildCreateComputationalResources_DataengineRequest(data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE),
+      '/api/'+ provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE),
       data,
       { observe: 'response' });
   }
@@ -633,9 +633,9 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES,
       '/api/infrastructure_provision/computational_resources');
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE,
-      '/api/infrastructure_provision/computational_resources/dataengine-service'); // emr(aws)
+      '/infrastructure_provision/computational_resources/dataengine-service'); // emr(aws)
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE,
-      '/api/infrastructure_provision/computational_resources/dataengine'); // spark (azure|aws)
+      '/infrastructure_provision/computational_resources/dataengine'); // spark (azure|aws)
 
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
       '/api/infrastructure_templates/computational_templates');

@@ -82,19 +82,19 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public createComputationalResource_DataengineService(data): Observable<{}> {
+  public createComputationalResource_DataengineService(data, provider): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
-      .buildCreateComputationalResources_DataengineServiceRequest(body)
+      .buildCreateComputationalResources_DataengineServiceRequest(body, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public createComputationalResource_Dataengine(data): Observable<{}> {
+  public createComputationalResource_Dataengine(data, provider): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
-      .buildCreateComputationalResources_DataengineRequest(body)
+      .buildCreateComputationalResources_DataengineRequest(body, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

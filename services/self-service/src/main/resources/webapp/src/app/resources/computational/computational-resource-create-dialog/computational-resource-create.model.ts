@@ -29,7 +29,7 @@ export class ComputationalResourceModel {
 
   constructor(private userResourceService: UserResourceService) { }
 
-  public createComputationalResource(parameters, image, env, spot): Observable<{}> {
+  public createComputationalResource(parameters, image, env, spot, provider): Observable<{}> {
     const config = parameters.configuration_parameters ? JSON.parse(parameters.configuration_parameters) : null;
 
     if (DICTIONARY.cloud_provider === 'aws' && image.image === 'docker.dlab-dataengine-service') {
@@ -47,7 +47,7 @@ export class ComputationalResourceModel {
         config: config,
         project: env.project,
         custom_tag: parameters.custom_tag
-      });
+      }, provider);
     } else if (DICTIONARY.cloud_provider === 'gcp' && image.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         template_name: image.template_name,
@@ -63,7 +63,7 @@ export class ComputationalResourceModel {
         config: config,
         project: env.project,
         custom_tag: parameters.custom_tag
-      });
+      }, provider);
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
         name: parameters.cluster_alias_name,
@@ -75,7 +75,7 @@ export class ComputationalResourceModel {
         config: config,
         project: env.project,
         custom_tag: parameters.custom_tag
-      });
+      }, provider);
     }
   }
 }
