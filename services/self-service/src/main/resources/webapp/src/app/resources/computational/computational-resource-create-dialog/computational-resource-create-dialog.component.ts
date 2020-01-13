@@ -36,7 +36,7 @@ import { CLUSTER_CONFIGURATION } from './cluster-configuration-templates';
 })
 
 export class ComputationalResourceCreateDialogComponent implements OnInit {
-  readonly PROVIDER = DICTIONARY.cloud_provider;
+  readonly PROVIDER = this.data.notebook.cloud_provider;
   readonly DICTIONARY = DICTIONARY;
   readonly CLUSTER_CONFIGURATION = CLUSTER_CONFIGURATION;
   readonly CheckUtils = CheckUtils;
@@ -76,7 +76,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.notebook_instance = this.data.notebook;
     this.resourcesList = this.data.full_list;
     this.initFormModel();
-
     this.getTemplates(this.notebook_instance.project, this.notebook_instance.endpoint);
   }
 
@@ -130,7 +129,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public createComputationalResource(data) {
-    this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance)
+    this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance, this.PROVIDER.toLowerCase())
       .subscribe((response: any) => {
         if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
       }, error => this.toastr.error(error.message, 'Oops!'));

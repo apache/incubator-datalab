@@ -49,6 +49,7 @@ export class ExploratoryModel {
     public project: string,
     public endpoint: string,
     public tags: any,
+    public cloud_provider: string
   ) { }
 
   public static loadEnvironments(data: Array<any>) {
@@ -82,7 +83,8 @@ export class ExploratoryModel {
             value.shared[el.endpoint][DICTIONARY.datalake_shared_directory_name],
             el.project,
             el.endpoint,
-            el.tags
+            el.tags,
+            value.endpoints[0].cloudProvider.toLowerCase()
           ))
         }
       });
