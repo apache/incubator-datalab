@@ -56,6 +56,11 @@ if __name__ == "__main__":
     spark_ver = subprocess.check_output("dpkg -l | grep spark-core | tr -s ' ' '-' | cut -f 4 -d '-'", shell=True).decode('UTF-8')
     with open('/tmp/spark_version', 'w') as outfile:
         outfile.write(spark_ver)
+    os.system('touch /tmp/scala_version')
+    scala_ver = subprocess.check_output("spark-submit --version 2>&1 | grep -o -P 'Scala version \K.{0,7}'",
+                                        shell=True).decode('UTF-8')
+    with open('/tmp/scala_version', 'w') as outfile:
+        outfile.write(scala_ver)
     os.system('touch /tmp/hadoop_version')
     hadoop_ver = subprocess.check_output("dpkg -l | grep hadoop | head -n 1 | tr -s ' ' '-' | cut -f 3 -d '-'", shell=True).decode('UTF-8')
     with open('/tmp/hadoop_version', 'w') as outfile:
@@ -79,6 +84,7 @@ if __name__ == "__main__":
     os.system('gsutil -m cp {0} gs://{1}/{2}/{3}/'.format(spark_def_path, args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil -m cp /tmp/python_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil -m cp /tmp/spark_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
+    os.system('gsutil -m cp /tmp/scala_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil -m cp /tmp/r_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil -m cp /tmp/hadoop_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil -m cp /tmp/spark.tar.gz gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
