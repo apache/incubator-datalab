@@ -85,10 +85,10 @@
         </div>
 
         <div class="control-group" *ngIf="images && images.length > 0">
-          <label class="label">Select {{ DICTIONARY.image }}</label>
+          <label class="label">Select image</label>
           <div class="control selector-wrapper">
             <mat-form-field>
-              <mat-label>Select {{ DICTIONARY.image }}</mat-label>
+              <mat-label>Select image</mat-label>
               <mat-select formControlName="notebook_image_name" disableOptionCentering>
                 <mat-option [value]="null">None</mat-option>
                 <mat-option *ngFor="let image of images" [value]="image.name">{{ image.name }}</mat-option>
@@ -114,17 +114,17 @@
             <span class="error" *ngIf="!createExploratoryForm?.controls.name.valid
                                         && createExploratoryForm?.controls['name'].dirty
                                         && !createExploratoryForm?.controls['name'].hasError('duplication')">Name
-              <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only
+             cannot be longer than 10 characters and can only
               contain letters, numbers, hyphens and '_' but can not end with special characters
             </span>
           </div>
         </div>
 
         <div class="control-group">
-          <label class="label">{{ DICTIONARY.notebook_instance_size }}</label>
+          <label class="label">Instance size</label>
           <div class="control selector-wrapper" [ngClass]="{ 'not-active': !currentTemplate }">
             <mat-form-field>
-              <mat-label>Select {{ DICTIONARY.notebook_instance_size }}</mat-label>
+              <mat-label>Select instance size</mat-label>
               <mat-select formControlName="shape" disableOptionCentering [disabled]="!currentTemplate"
                 panelClass="create-resources-shapes">
                 <mat-optgroup *ngFor="let item of (shapes | keys)" [label]="item.key | underscoreless">

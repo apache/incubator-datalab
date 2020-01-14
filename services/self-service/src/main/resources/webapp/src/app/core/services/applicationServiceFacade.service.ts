@@ -203,33 +203,33 @@ export class ApplicationServiceFacade {
 
   public buildCreateComputationalResources_DataengineServiceRequest(data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
-      '/api/'+ provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE),
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE),
       data,
       { observe: 'response' });
   }
 
   public buildCreateComputationalResources_DataengineRequest(data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
-      '/api/'+ provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE),
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE),
       data,
       { observe: 'response' });
   }
 
-  public buildDeleteComputationalResourcesRequest(data): Observable<any> {
+  public buildDeleteComputationalResourcesRequest(data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.DELETE,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
       data);
   }
 
-  public buildStopSparkClusterAction(data): Observable<any> {
+  public buildStopSparkClusterAction(data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.DELETE,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
       data);
   }
 
-  public buildStartSparkClusterAction(params): Observable<any> {
+  public buildStartSparkClusterAction(params, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + params,
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + params,
       null);
   }
 
@@ -497,15 +497,15 @@ export class ApplicationServiceFacade {
       data);
   }
 
-  public buildGetClusterConfiguration(param): Observable<any> {
+  public buildGetClusterConfiguration(param, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
       null);
   }
 
-  public buildEditClusterConfiguration(param, data): Observable<any> {
+  public buildEditClusterConfiguration(param, data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
       data);
   }
 
@@ -631,7 +631,7 @@ export class ApplicationServiceFacade {
 
     // Computational Resources
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES,
-      '/api/infrastructure_provision/computational_resources');
+      '/infrastructure_provision/computational_resources');
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE,
       '/infrastructure_provision/computational_resources/dataengine-service'); // emr(aws)
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE,

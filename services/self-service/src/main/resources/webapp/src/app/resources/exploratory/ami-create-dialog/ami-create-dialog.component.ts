@@ -35,7 +35,7 @@ export class AmiCreateDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   public notebook: any;
   public createAMIForm: FormGroup;
-
+  public provider: string;
   namePattern = '[-_a-zA-Z0-9]+';
   delimitersRegex = /[-_]?/g;
   imagesList: any;
@@ -50,6 +50,7 @@ export class AmiCreateDialogComponent implements OnInit {
 
   ngOnInit() {
     this.notebook = this.data;
+    this.provider = this.data.cloud_provider;
 
     this.initFormModel();
     this._userResource.getImagesList(this.data.project).subscribe(res => this.imagesList = res);
@@ -58,7 +59,7 @@ export class AmiCreateDialogComponent implements OnInit {
   public assignChanges(data) {
     this._userResource.createAMI(data).subscribe(
       response => response.status === HTTP_STATUS_CODES.ACCEPTED && this.dialogRef.close(),
-      error => this.toastr.error(error.message || `${DICTIONARY.image.toLocaleUpperCase()} creation failed!`, 'Oops!'));
+      error => this.toastr.error(error.message || `Image creation failed!`, 'Oops!'));
   }
 
   private initFormModel(): void {
@@ -70,7 +71,7 @@ export class AmiCreateDialogComponent implements OnInit {
   }
 
   private providerMaxLength(control) {
-    if (DICTIONARY.cloud_provider !== 'aws')
+    if (control && control.value)
       return control.value.length <= 10 ? null : { valid: false };
   }
 

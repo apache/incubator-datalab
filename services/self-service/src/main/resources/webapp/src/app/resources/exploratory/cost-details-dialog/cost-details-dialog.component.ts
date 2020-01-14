@@ -29,6 +29,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 export class CostDetailsDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   public notebook: any;
+  public provider: string;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -37,5 +38,6 @@ export class CostDetailsDialogComponent implements OnInit {
 
   ngOnInit() {
     this.notebook = this.data;
+    this.provider = this.notebook.cloud_provider;
   }
 }

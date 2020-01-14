@@ -55,6 +55,7 @@ export class ExploratoryModel {
   public static loadEnvironments(data: Array<any>) {
     if (data) {
       return data.map((value) => {
+        const provider = value.endpoints[0].cloudProvider.toLowerCase();
         return {
           project: value.project,
           exploratory: value.exploratory.map(el => new ExploratoryModel(el.exploratory_name,
@@ -69,24 +70,24 @@ export class ExploratoryModel {
             el.private_ip,
             el.exploratory_user,
             el.exploratory_pass,
-            value.shared[el.endpoint][DICTIONARY.bucket_name],
-            value.shared[el.endpoint][DICTIONARY.shared_bucket_name],
+            value.shared[el.endpoint][DICTIONARY[provider].bucket_name],
+            value.shared[el.endpoint][DICTIONARY[provider].shared_bucket_name],
             el.error_message,
-            el[DICTIONARY.billing.cost],
-            el[DICTIONARY.billing.currencyCode],
+            el[DICTIONARY[provider].billing.cost],
+            el[DICTIONARY[provider].billing.currencyCode],
             el.billing,
             el.libs,
-            value.shared[el.endpoint][DICTIONARY.user_storage_account_name],
-            value.shared[el.endpoint][DICTIONARY.shared_storage_account_name],
-            value.shared[el.endpoint][DICTIONARY.datalake_name],
-            value.shared[el.endpoint][DICTIONARY.datalake_user_directory_name],
-            value.shared[el.endpoint][DICTIONARY.datalake_shared_directory_name],
+            value.shared[el.endpoint][DICTIONARY[provider].user_storage_account_name],
+            value.shared[el.endpoint][DICTIONARY[provider].shared_storage_account_name],
+            value.shared[el.endpoint][DICTIONARY[provider].datalake_name],
+            value.shared[el.endpoint][DICTIONARY[provider].datalake_user_directory_name],
+            value.shared[el.endpoint][DICTIONARY[provider].datalake_shared_directory_name],
             el.project,
             el.endpoint,
             el.tags,
-            value.endpoints[0].cloudProvider.toLowerCase()
+            provider,
           ))
-        }
+        };
       });
     }
   }
@@ -94,5 +95,5 @@ export class ExploratoryModel {
 
 export interface Exploratory {
   project: string;
-  exploratory: ExploratoryModel[]
+  exploratory: ExploratoryModel[];
 }

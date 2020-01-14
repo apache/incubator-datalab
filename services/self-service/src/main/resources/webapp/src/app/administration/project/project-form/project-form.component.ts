@@ -46,6 +46,7 @@ export class ProjectFormComponent implements OnInit {
   public projectList: Project[] = [];
   public accessKeyValid: boolean;
   public keyLabel: string = '';
+  public maxProjectNameLength: number = 10;
 
   @Input() item: any;
   @Output() update: EventEmitter<{}> = new EventEmitter();
@@ -204,6 +205,6 @@ export class ProjectFormComponent implements OnInit {
   }
 
   private providerMaxLength(control) {
-    return control.value.length <= DICTIONARY.max_project_name_length ? null : { limit: true };
+    return control.value.length <= this.maxProjectNameLength ? null : { limit: true };
   }
 }

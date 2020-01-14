@@ -54,13 +54,13 @@ export class ComputationalResourcesListComponent {
       dialogRef.afterClosed().subscribe(result => {
         if (result && action === 'stop') {
           this.userResourceService
-            .toggleStopStartAction(this.environment.project, this.environment.name, resource.computational_name, action)
+            .toggleStopStartAction(this.environment.project, this.environment.name, resource.computational_name, action, this.environment.cloud_provider)
             .subscribe(() => {
               this.rebuildGrid();
             });
         } else if (result && action === 'terminate') {
           this.userResourceService
-            .suspendComputationalResource(this.environment.name, resource.computational_name)
+            .suspendComputationalResource(this.environment.name, resource.computational_name, this.environment.cloud_provider)
             .subscribe(() => {
               this.rebuildGrid();
             });
@@ -68,7 +68,7 @@ export class ComputationalResourcesListComponent {
       });
     } else if (action === 'start') {
       this.userResourceService
-        .toggleStopStartAction(this.environment.project, this.environment.name, resource.computational_name, 'start')
+        .toggleStopStartAction(this.environment.project, this.environment.name, resource.computational_name, 'start', this.environment.cloud_provider)
         .subscribe(
           () => this.rebuildGrid(),
           error => this.toastr.error(error.message || 'Computational resource starting failed!', 'Oops!'));
@@ -76,12 +76,14 @@ export class ComputationalResourcesListComponent {
   }
 
   public detailComputationalResources(environment, resource): void {
-    this.dialog.open(DetailComputationalResourcesComponent, { data: { environment, resource }, panelClass: 'modal-sm' })
+    this.dialog.open(DetailComputationalResourcesComponent, { data:
+        { environment, resource }, panelClass: 'modal-sm' })
       .afterClosed().subscribe(() => this.rebuildGrid());
-  };
+  }
 
   public openScheduleDialog(resource) {
-    this.dialog.open(SchedulerComponent, { data: { notebook: this.environment, type: 'СOMPUTATIONAL', resource }, panelClass: 'modal-xl-s' })
+    this.dialog.open(SchedulerComponent, { data:
+        { notebook: this.environment, type: 'СOMPUTATIONAL', resource }, panelClass: 'modal-xl-s' })
       .afterClosed().subscribe(() => this.rebuildGrid());
   }
 }
@@ -100,9 +102,9 @@ export class ComputationalResourcesListComponent {
           <span class="strong" matTooltip="{{ data.resource.computational_name }}"
                   [matTooltipShowDelay]="2000"
                   matTooltipPosition="left"
-          > 
+          >
                 {{ data.resource.computational_name }}
-            </span> will be 
+            </span> will be
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </div>

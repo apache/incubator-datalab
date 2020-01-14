@@ -35,6 +35,7 @@ import { CLUSTER_CONFIGURATION } from '../../computational/computational-resourc
 
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+  readonly PROVIDER = this.data.cloud_provider;
   notebook: any;
   upTimeInHours: number;
   upTimeSince: string = '';

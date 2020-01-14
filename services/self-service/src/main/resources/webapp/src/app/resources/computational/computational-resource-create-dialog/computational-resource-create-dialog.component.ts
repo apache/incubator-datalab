@@ -122,7 +122,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public isAvailableSpots(): boolean {
-    if (DICTIONARY.cloud_provider === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service')
+    if (this.PROVIDER === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service')
       return !!Object.keys(this.filterAvailableSpots()).length;
 
     return false;
@@ -141,10 +141,13 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       version: [''],
       shape_master: ['', Validators.required],
       shape_slave: [''],
-      cluster_alias_name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), Validators.maxLength(DICTIONARY.max_cluster_name_length),
+      cluster_alias_name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern),
+        Validators.maxLength(DICTIONARY[this.PROVIDER].max_cluster_name_length),
       this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(PATTERNS.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
-      preemptible_instance_number: [0, Validators.compose([Validators.pattern(PATTERNS.integerRegex), this.validPreemptibleRange.bind(this)])],
+      preemptible_instance_number: [0,
+        Validators.compose([Validators.pattern(PATTERNS.integerRegex),
+        this.validPreemptibleRange.bind(this)])],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
       custom_tag: [this.notebook_instance.tags.custom_tag]
@@ -157,17 +160,17 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private getComputationalResourceLimits(): void {
     if (this.selectedImage && this.selectedImage.image) {
-      const activeImage = DICTIONARY[this.selectedImage.image];
+      const activeImage = DICTIONARY[this.PROVIDER][this.selectedImage.image];
 
       this.minInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_min];
       this.maxInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_max];
 
-      if (DICTIONARY.cloud_provider === 'gcp' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
+      if (this.PROVIDER === 'gcp' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
         this.maxInstanceNumber = this.selectedImage.limits[activeImage.total_instance_number_max] - 1;
         this.minPreemptibleInstanceNumber = this.selectedImage.limits.min_dataproc_preemptible_instance_count;
       }
 
-      if (DICTIONARY.cloud_provider === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
+      if (this.PROVIDER === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
         this.minSpotPrice = this.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.selectedImage.limits.max_emr_spot_instance_bid_pct;
 
@@ -183,7 +186,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   //  Validation
   private validInstanceNumberRange(control) {
     if (control && control.value)
-      if (DICTIONARY.cloud_provider === 'gcp' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
+      if (this.PROVIDER === 'gcp' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
         this.validPreemptibleNumberRange();
         return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
       } else {
@@ -262,7 +265,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           return obj;
         }, {});
 
-      if (DICTIONARY.cloud_provider !== 'azure') {
+      if (this.PROVIDER !== 'azure') {
         const images = this.clusterTypes.filter(image => image.image === 'docker.dlab-dataengine');
         this.clusterTypes = images;
         this.selectedImage = this.clusterTypes[0];
