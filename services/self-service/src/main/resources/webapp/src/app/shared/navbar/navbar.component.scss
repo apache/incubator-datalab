@@ -182,6 +182,9 @@ a.nav-item {
     background: none !important;
     color: #36afd5 !important;
   }
+  &:not(.has-children):hover #swager-bgr{
+    fill: #36afd5;
+  }
 
   &:not(:last-child)::after {
     content: ' ';
@@ -196,6 +199,9 @@ a.nav-item {
 
   &.active {
     color: #36afd5 !important;
+    svg #swager-bgr {
+      fill: #36afd5;
+    }
   }
 
   &.has-children {
@@ -301,10 +307,10 @@ mat-sidenav {
       justify-content: space-between;
       flex-direction: column;
 
-      .swagger-logo {
-        vertical-align: middle;
-        width: 30px;
+      svg {
+        width: 37px;
         padding: 0 2px 0 5px;
+        vertical-align: middle;
       }
     }
   }

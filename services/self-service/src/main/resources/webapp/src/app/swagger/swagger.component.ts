@@ -18,6 +18,8 @@
  */
 
 import { Component, OnInit } from '@angular/core';
+import {HealthStatusService} from '../core/services';
+import {ToastrService} from 'ngx-toastr';
 
 declare const SwaggerUIBundle: any;
 
@@ -27,8 +29,16 @@ declare const SwaggerUIBundle: any;
   styleUrls: ['./swagger.component.scss']
 })
 export class SwaggerComponent implements OnInit {
+  private healthStatus: any;
+
+  constructor(
+    private healthStatusService: HealthStatusService,
+    public toastr: ToastrService,
+    ) {
+  }
 
   ngOnInit(): void {
+    this.getEnvironmentHealthStatus();
     const ui = SwaggerUIBundle({
       dom_id: '#swagger-ui',
       layout: 'BaseLayout',
@@ -40,6 +50,14 @@ export class SwaggerComponent implements OnInit {
       docExpansion: 'none',
       operationsSorter: 'alpha'
     });
+  }
+
+  private getEnvironmentHealthStatus() {
+    this.healthStatusService.getEnvironmentHealthStatus().subscribe(
+      (result: any) => {
+        this.healthStatus = result;
+      },
+      error => this.toastr.error(error.message, 'Oops!'));
   }
 
 }

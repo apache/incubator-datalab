@@ -39,7 +39,7 @@ import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmat
 import { SchedulerComponent } from '../scheduler';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
-import {ProgressBarService} from "../../core/services/progress-bar.service";
+import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'resources-grid',
@@ -96,7 +96,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public buildGrid(): void {
-    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
+    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
@@ -134,7 +134,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public isResourcesInProgress(notebook) {
-    let env = this.getResourceByName(notebook.name);
+    const env = this.getResourceByName(notebook.name);
 
     if (env && env.resources.length) {
       return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
