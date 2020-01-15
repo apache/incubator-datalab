@@ -650,6 +650,17 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
             return ''
 
+    def dataproc_waiter(self, labels):
+        if os.path.exists(
+                '/response/.emr_creating_' + os.environ['exploratory_name']) or GCPMeta().get_not_configured_dataproc(
+                os.environ['notebook_instance_name']):
+            with hide('stderr', 'running', 'warnings'):
+                local("echo 'Some Dataproc cluster is still being created/terminated, waiting..'")
+            time.sleep(60)
+            self.dataproc_waiter(labels)
+        else:
+            return True
+
     def get_dataproc_jobs(self):
         jobs = []
         try:
