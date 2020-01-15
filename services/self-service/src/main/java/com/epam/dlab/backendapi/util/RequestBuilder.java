@@ -272,6 +272,7 @@ public class RequestBuilder {
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withProject(userInstance.getProject())
+				.withEndpoint(endpointDTO.getName())
 				.withLibs(libs);
 	}
 
@@ -299,6 +300,7 @@ public class RequestBuilder {
 				.withComputationalName(computationalResource.getComputationalName())
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withProject(userInstance.getProject())
+				.withEndpoint(endpointDTO.getName())
 				.withComputationalImage(computationalResource.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withLibs(libs);

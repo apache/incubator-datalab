@@ -86,8 +86,7 @@ public class LibraryResource extends DockerService implements DockerCommands {
 		String uuid = DockerCommands.generateUUID();
 		folderListenerExecutor.start(configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallbackExploratory(action, uuid, dto, endpointService.getEndpointUrl(dto.getEndpoint()) +
-						ApiCallbacks.LIB_STATUS_URI));
+				getFileHandlerCallbackExploratory(action, uuid, dto));
 
 		RunDockerCommand runDockerCommand = getDockerCommandExploratory(dto, action, uuid);
 
@@ -100,8 +99,7 @@ public class LibraryResource extends DockerService implements DockerCommands {
 		String uuid = DockerCommands.generateUUID();
 		folderListenerExecutor.start(configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallbackComputational(action, uuid, dto, endpointService.getEndpointUrl(dto.getEndpoint()) +
-						ApiCallbacks.LIB_STATUS_URI));
+				getFileHandlerCallbackComputational(action, uuid, dto));
 
 		RunDockerCommand runDockerCommand = getDockerCommandComputational(dto, action, uuid);
 
@@ -156,28 +154,33 @@ public class LibraryResource extends DockerService implements DockerCommands {
 	}
 
 	private FileHandlerCallback getFileHandlerCallbackExploratory(DockerAction action, String uuid,
-																  ExploratoryBaseDTO<?> dto, String callbackUri) {
+																  ExploratoryBaseDTO<?> dto) {
+		String endpointUrl = endpointService.getEndpointUrl(dto.getEndpoint());
+
 		switch (action) {
 			case LIB_LIST:
 				return new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid,
-						dto.getCloudSettings().getIamUser(), dto.getNotebookImage(), callbackUri);
+						dto.getCloudSettings().getIamUser(), dto.getNotebookImage(), endpointUrl +
+						ApiCallbacks.UPDATE_LIBS_URI);
 			case LIB_INSTALL:
 				return new LibInstallCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
-						(LibraryInstallDTO) dto, callbackUri);
+						(LibraryInstallDTO) dto, endpointUrl + ApiCallbacks.LIB_STATUS_URI);
 			default:
 				throw new IllegalArgumentException("Unknown action " + action);
 		}
 	}
 
 	private FileHandlerCallback getFileHandlerCallbackComputational(DockerAction action, String uuid,
-																	ExploratoryBaseDTO<?> dto, String callbackUri) {
+																	ExploratoryBaseDTO<?> dto) {
+		String endpointUrl = endpointService.getEndpointUrl(dto.getEndpoint());
+
 		switch (action) {
 			case LIB_LIST:
 				return new LibListCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
-						((LibListComputationalDTO) dto).getLibCacheKey(), callbackUri);
+						((LibListComputationalDTO) dto).getLibCacheKey(), endpointUrl + ApiCallbacks.UPDATE_LIBS_URI);
 			case LIB_INSTALL:
 				return new LibInstallCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
-						((LibraryInstallDTO) dto), callbackUri);
+						((LibraryInstallDTO) dto), endpointUrl + ApiCallbacks.LIB_STATUS_URI);
 
 			default:
 				throw new IllegalArgumentException("Unknown action " + action);
