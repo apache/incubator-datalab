@@ -29,8 +29,8 @@ public class MongoStartupListener implements ServerLifecycleListener {
 	private final SettingsDAO settingsDAO;
 
 	@Inject
-	public MongoStartupListener(UserRoleDao userRoleDao,
-								SelfServiceApplicationConfiguration configuration, SettingsDAO settingsDAO) {
+	public MongoStartupListener(UserRoleDao userRoleDao, SelfServiceApplicationConfiguration configuration,
+								SettingsDAO settingsDAO) {
 		this.userRoleDao = userRoleDao;
 		this.configuration = configuration;
 		this.settingsDAO = settingsDAO;
@@ -50,8 +50,7 @@ public class MongoStartupListener implements ServerLifecycleListener {
 	}
 
 	private List<UserRoleDto> getRoles() {
-		try (InputStream is = getClass().getResourceAsStream(format(ROLES_FILE_FORMAT,
-				configuration.getCloudProvider().getName()))) {
+		try (InputStream is = getClass().getResourceAsStream(format(ROLES_FILE_FORMAT, CloudProvider.AWS.getName()))) {
 			return MAPPER.readValue(is, new TypeReference<List<UserRoleDto>>() {
 			});
 		} catch (IOException e) {

@@ -25,20 +25,27 @@ import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.impl.DockerService;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
+import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ExploratoryService extends DockerService implements DockerCommands {
+
+	@Inject
+	private EndpointService endpointService;
 
 	public String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws JsonProcessingException {
 		log.debug("{} exploratory environment", action);
 		String uuid = DockerCommands.generateUUID();
 		folderListenerExecutor.start(configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallback(action, uuid, dto));
+				getFileHandlerCallback(action, uuid, dto, endpointService.getEndpointUrl(dto.getEndpoint()) +
+						ApiCallbacks.EXPLORATORY + ApiCallbacks.STATUS_URI));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
@@ -60,9 +67,10 @@ public class ExploratoryService extends DockerService implements DockerCommands 
 		return Directories.NOTEBOOK_LOG_DIRECTORY;
 	}
 
-	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
+	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto,
+													   String callbackUri) {
 		return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
-				dto.getExploratoryName());
+				dto.getExploratoryName(), callbackUri);
 	}
 
 	private String nameContainer(String user, DockerAction action, String name) {

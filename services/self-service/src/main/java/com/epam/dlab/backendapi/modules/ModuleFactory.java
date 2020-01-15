@@ -49,16 +49,16 @@ public class ModuleFactory {
 		return new CloudProviderModule();
 	}
 
-	private static CloudModule getCloudModule(SelfServiceApplicationConfiguration configuration) {
-		switch (configuration.getCloudProvider()) {
-			case AWS:
-				return new AwsSelfServiceModule();
-			case AZURE:
-				return new AzureSelfServiceModule();
-			case GCP:
-				return new GcpSelfServiceModule();
-			default:
-				throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());
-		}
-	}
+//	private static CloudModule getCloudModule(SelfServiceApplicationConfiguration configuration) {
+//		switch (configuration.getCloudProvider()) {
+//			case AWS:
+//				return new AwsSelfServiceModule();
+//			case AZURE:
+//				return new AzureSelfServiceModule();
+//			case GCP:
+//				return new GcpSelfServiceModule();
+//			default:
+//				throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());
+//		}
+//	}
 }

@@ -44,14 +44,16 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
 	private final String project;
 	@JsonProperty
 	private final String endpoint;
+	private String callbackUri;
 
 	public ImageCreateCallbackHandler(RESTService selfService, String uuid, DockerAction action,
-			ExploratoryImageDTO image) {
+			ExploratoryImageDTO image, String callbackUri) {
 		super(selfService, image.getCloudSettings().getIamUser(), uuid, action);
 		this.imageName = image.getImageName();
 		this.exploratoryName = image.getExploratoryName();
 		this.project = image.getProject();
 		this.endpoint = image.getEndpoint();
+		this.callbackUri = callbackUri;
 	}
 
 	@JsonCreator
@@ -72,7 +74,7 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
 
 	@Override
 	protected String getCallbackURI() {
-		return ApiCallbacks.IMAGE_STATUS_URI;
+		return callbackUri;
 	}
 
 	@Override

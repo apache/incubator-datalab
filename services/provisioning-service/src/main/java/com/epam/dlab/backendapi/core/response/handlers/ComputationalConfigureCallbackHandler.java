@@ -36,19 +36,22 @@ public class ComputationalConfigureCallbackHandler extends ResourceCallbackHandl
 
 	@JsonProperty
 	private final ComputationalBase<?> dto;
+	private String callbackUri;
 
 	@JsonCreator
 	public ComputationalConfigureCallbackHandler(@JacksonInject RESTService selfService,
 												 @JsonProperty("action") DockerAction action,
 												 @JsonProperty("uuid") String uuid,
-												 @JsonProperty("dto") ComputationalBase<?> dto) {
+												 @JsonProperty("dto") ComputationalBase<?> dto,
+												 String callbackUri) {
 		super(selfService, dto.getCloudSettings().getIamUser(), uuid, action);
 		this.dto = dto;
+		this.callbackUri = callbackUri;
 	}
 
 	@Override
 	protected String getCallbackURI() {
-		return ApiCallbacks.COMPUTATIONAL + ApiCallbacks.STATUS_URI;
+		return callbackUri;
 	}
 
 	@Override

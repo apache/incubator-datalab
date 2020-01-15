@@ -27,15 +27,18 @@ import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.impl.DockerService;
 import com.epam.dlab.dto.LibListComputationalDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
+import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,6 +54,8 @@ import javax.ws.rs.core.MediaType;
 @Slf4j
 public class LibraryResource extends DockerService implements DockerCommands {
 
+	@Inject
+	private EndpointService endpointService;
 
 	@POST
 	@Path(ExploratoryAPI.EXPLORATORY + "/lib_list")
@@ -81,7 +86,8 @@ public class LibraryResource extends DockerService implements DockerCommands {
 		String uuid = DockerCommands.generateUUID();
 		folderListenerExecutor.start(configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallbackExploratory(action, uuid, dto));
+				getFileHandlerCallbackExploratory(action, uuid, dto, endpointService.getEndpointUrl(dto.getEndpoint()) +
+						ApiCallbacks.LIB_STATUS_URI));
 
 		RunDockerCommand runDockerCommand = getDockerCommandExploratory(dto, action, uuid);
 
@@ -94,7 +100,8 @@ public class LibraryResource extends DockerService implements DockerCommands {
 		String uuid = DockerCommands.generateUUID();
 		folderListenerExecutor.start(configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallbackComputational(action, uuid, dto));
+				getFileHandlerCallbackComputational(action, uuid, dto, endpointService.getEndpointUrl(dto.getEndpoint()) +
+						ApiCallbacks.LIB_STATUS_URI));
 
 		RunDockerCommand runDockerCommand = getDockerCommandComputational(dto, action, uuid);
 
@@ -149,29 +156,28 @@ public class LibraryResource extends DockerService implements DockerCommands {
 	}
 
 	private FileHandlerCallback getFileHandlerCallbackExploratory(DockerAction action, String uuid,
-																  ExploratoryBaseDTO<?> dto) {
+																  ExploratoryBaseDTO<?> dto, String callbackUri) {
 		switch (action) {
-			case LIB_INSTALL:
-				return new LibInstallCallbackHandler(selfService, action, uuid,
-						dto.getCloudSettings().getIamUser(),
-						(LibraryInstallDTO) dto);
 			case LIB_LIST:
 				return new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid,
-						dto.getCloudSettings().getIamUser(), dto.getNotebookImage());
+						dto.getCloudSettings().getIamUser(), dto.getNotebookImage(), callbackUri);
+			case LIB_INSTALL:
+				return new LibInstallCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
+						(LibraryInstallDTO) dto, callbackUri);
 			default:
 				throw new IllegalArgumentException("Unknown action " + action);
 		}
 	}
 
 	private FileHandlerCallback getFileHandlerCallbackComputational(DockerAction action, String uuid,
-																	ExploratoryBaseDTO<?> dto) {
+																	ExploratoryBaseDTO<?> dto, String callbackUri) {
 		switch (action) {
 			case LIB_LIST:
-				return new LibListCallbackHandler(selfService, action, uuid,
-						dto.getCloudSettings().getIamUser(), ((LibListComputationalDTO) dto).getLibCacheKey());
+				return new LibListCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
+						((LibListComputationalDTO) dto).getLibCacheKey(), callbackUri);
 			case LIB_INSTALL:
-				return new LibInstallCallbackHandler(selfService, action, uuid,
-						dto.getCloudSettings().getIamUser(), ((LibraryInstallDTO) dto));
+				return new LibInstallCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
+						((LibraryInstallDTO) dto), callbackUri);
 
 			default:
 				throw new IllegalArgumentException("Unknown action " + action);

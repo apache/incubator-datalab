@@ -35,9 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
-import static com.epam.dlab.rest.contracts.ApiCallbacks.EXPLORATORY;
-import static com.epam.dlab.rest.contracts.ApiCallbacks.STATUS_URI;
-
 public class ExploratoryCallbackHandler extends ResourceCallbackHandler<ExploratoryStatusDTO> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExploratoryCallbackHandler.class);
 
@@ -50,19 +47,22 @@ public class ExploratoryCallbackHandler extends ResourceCallbackHandler<Explorat
 
 	@JsonProperty
 	private final String exploratoryName;
+	private String callbackUri;
 
 	@JsonCreator
 	public ExploratoryCallbackHandler(@JacksonInject RESTService selfService,
 									  @JsonProperty("action") DockerAction action,
 									  @JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
-									  @JsonProperty("exploratoryName") String exploratoryName) {
+									  @JsonProperty("exploratoryName") String exploratoryName,
+									  String callbackUri) {
 		super(selfService, user, uuid, action);
 		this.exploratoryName = exploratoryName;
+		this.callbackUri = callbackUri;
 	}
 
 	@Override
 	protected String getCallbackURI() {
-		return EXPLORATORY + STATUS_URI;
+		return callbackUri;
 	}
 
 	@Override

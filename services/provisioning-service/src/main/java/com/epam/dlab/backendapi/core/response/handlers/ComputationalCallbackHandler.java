@@ -25,7 +25,6 @@ import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -51,17 +50,20 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 	@JsonProperty
 	private final ComputationalBase<?> dto;
 	private ComputationalConfigure computationalConfigure;
+	private String callbackUri;
 
 	@JsonCreator
 	public ComputationalCallbackHandler(@JacksonInject ComputationalConfigure computationalConfigure,
 										@JacksonInject RESTService selfService,
 										@JsonProperty("action") DockerAction action,
 										@JsonProperty("uuid") String uuid,
-										@JsonProperty("dto") ComputationalBase<?> dto) {
+										@JsonProperty("dto") ComputationalBase<?> dto,
+										String callbackUri) {
 
 		super(selfService, dto.getCloudSettings().getIamUser(), uuid, action);
 		this.computationalConfigure = computationalConfigure;
 		this.dto = dto;
+		this.callbackUri = callbackUri;
 	}
 
 	protected ComputationalBase<?> getDto() {
@@ -70,7 +72,7 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 
 	@Override
 	protected String getCallbackURI() {
-		return ApiCallbacks.COMPUTATIONAL + ApiCallbacks.STATUS_URI;
+		return callbackUri;
 	}
 
 	@Override

@@ -41,7 +41,7 @@ public abstract class ComputationalBase<T extends ComputationalBase<?>> extends 
 	@JsonProperty("project_name")
 	private String project;
 	@JsonProperty("endpoint_name")
-	private String ednpoint;
+	private String endpoint;
 
 	@JsonProperty("tags")
 	private Map<String, String> tags;
@@ -96,12 +96,16 @@ public abstract class ComputationalBase<T extends ComputationalBase<?>> extends 
 	}
 
 	public T withEndpoint(String endpoint) {
-		this.ednpoint = endpoint;
+		this.endpoint = endpoint;
 		return self;
 	}
 
 	public String getProject() {
 		return project;
+	}
+
+	public String getEndpoint() {
+		return endpoint;
 	}
 
 	@Override

@@ -63,6 +63,11 @@
             <artifactId>conveyor</artifactId>
             <version>${com.aegisql.conveyor.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>${org.mongodb.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>

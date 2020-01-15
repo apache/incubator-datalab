@@ -30,14 +30,16 @@ import com.epam.dlab.backendapi.core.commands.CommandExecutorMock;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
 import com.epam.dlab.backendapi.core.response.handlers.dao.FileSystemCallbackHandlerDao;
-import com.epam.dlab.backendapi.service.ProjectService;
-import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
-import com.epam.dlab.backendapi.service.CheckInactivityService;
+import com.epam.dlab.backendapi.dao.EndpointDAO;
+import com.epam.dlab.backendapi.dao.impl.EndpointDAOImpl;
+import com.epam.dlab.backendapi.service.*;
 import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
+import com.epam.dlab.backendapi.service.impl.EndpointServiceImpl;
 import com.epam.dlab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
 import com.fasterxml.jackson.core.JsonParser;
@@ -69,6 +71,8 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 	@Override
 	protected void configure() {
 		bind(ProvisioningServiceApplicationConfiguration.class).toInstance(configuration);
+		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
+
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME)).toInstance
 				(createAuthenticationService());
 		bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, ServiceConsts
@@ -80,6 +84,8 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 		bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
 		bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
 		bind(ProjectService.class).to(ProjectServiceImpl.class);
+		bind(EndpointDAO.class).to(EndpointDAOImpl.class);
+		bind(EndpointService.class).to(EndpointServiceImpl.class);
 	}
 
 	/**
