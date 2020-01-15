@@ -85,7 +85,7 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
-    scala_version = local('scala -e "println(scala.util.Properties.versionNumberString)"', capture=True)
+    scala_version = local('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture=True)
     if args.emr_version == 'emr-4.3.0' or args.emr_version == 'emr-4.6.0' or args.emr_version == 'emr-4.8.0':
         local('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/')
         kernel_path = kernels_dir + "toree_" + args.cluster_name + "/kernel.json"
