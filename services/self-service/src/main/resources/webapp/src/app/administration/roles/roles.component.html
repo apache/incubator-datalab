@@ -29,7 +29,7 @@
 
   <mat-card *ngIf="stepperView" class="m-top-10">
     <mat-horizontal-stepper #stepper class="stepper ani">
-      <mat-step>
+      <mat-step [completed]='false'>
         <ng-template matStepLabel>Groups</ng-template>
         <div class="inner-step mat-reset">
           <input [validator]="groupValidarion()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup"
@@ -45,7 +45,7 @@
               class="material-icons">keyboard_arrow_right</i></button>
         </div>
       </mat-step>
-      <mat-step>
+      <mat-step [completed]='false'>
         <ng-template matStepLabel>Users</ng-template>
         <div class="inner-step mat-reset">
           <input type="text" placeholder="Enter user login" [(ngModel)]="setupUser">
@@ -58,7 +58,7 @@
               class="material-icons">keyboard_arrow_right</i></button>
         </div>
       </mat-step>
-      <mat-step>
+      <mat-step [completed]='false'>
         <ng-template matStepLabel>Roles</ng-template>
         <div class="inner-step mat-reset roles">
           <div class="selector-wrapper">
