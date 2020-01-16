@@ -34,10 +34,15 @@
                 <div class="control">
                   <input type="text" formControlName="name" placeholder="Enter endpoint name"
                     (blur)="generateEndpointTag($event)">
+                  <!--<span class="error" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')">Total budget cannot be lower than a sum of users quotes</span>-->
                   <span class="error"
-                    *ngIf="!createEndpointForm?.controls.name.valid && createEndpointForm?.controls.name.touched">
+                    *ngIf="!createEndpointForm?.controls.name.valid && createEndpointForm?.controls.name.touched && !createEndpointForm?.controls['name'].hasError('isDuplicate')">
                     Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
                     characters
+                  </span>
+                  <span class="error"
+                        *ngIf="createEndpointForm?.controls['name'].hasError('isDuplicate')">
+                    This endpoint name already exists.
                   </span>
                 </div>
               </div>
@@ -45,9 +50,10 @@
                 <label class="label">Endpoint url</label>
                 <div class="control">
                   <input type="text" formControlName="url" placeholder="Enter endpoint url">
+                  <span class="error" *ngIf="createEndpointForm?.controls['url'].hasError('isDuplicate')">This endpoint url already exists.</span>
                   <span class="error"
-                    *ngIf="!createEndpointForm?.controls.url.valid && createEndpointForm.controls.url.touched">
-                    Endpoint url should end with slash
+                        *ngIf="!createEndpointForm?.controls.url.valid && createEndpointForm.controls.url.touched && !createEndpointForm?.controls['url'].hasError('isDuplicate')">
+                    Please provide a valid endpoint url with slash on the end
                   </span>
                 </div>
               </div>
