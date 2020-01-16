@@ -348,12 +348,12 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
 
                 else:
-                    sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
+                    sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
                          -keystore /home/{0}/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
                         os_user, keystore_passwd))
-                    sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
+                    sudo('keytool -exportcert -alias ssn -storepass {1} -file /home/{0}/keys/dlab.crt \
                          -keystore /home/{0}/keys/ssn.keystore.jks'.format(os_user, keystore_passwd))
-                    sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/dlab.crt -noprompt \
+                    sudo('keytool -importcert -trustcacerts -alias ssn -file /home/{0}/keys/dlab.crt -noprompt \
                          -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
             except:
                 append_result("Unable to generate cert and copy to java keystore")

@@ -133,31 +133,51 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
             if os.environ['conf_stepcerts_enabled'] == 'true':
                 ensure_step(args.os_user)
                 sudo('mkdir -p /home/{0}/keys'.format(args.os_user))
-                sudo('echo "{0}" | base64 --decode > /home/{1}/keys/root_ca.crt'.format(
-                     os.environ['conf_stepcerts_root_ca'], args.os_user))
-                fingerprint = sudo('step certificate fingerprint /home/{0}/keys/root_ca.crt'.format(
-                    args.os_user))
+                sudo('echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt'.format(
+                     os.environ['conf_stepcerts_root_ca']))
+                fingerprint = sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt')
                 sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
                                                                                  os.environ['conf_stepcerts_ca_url']))
                 sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
                      os.environ['conf_stepcerts_kid_password'], args.os_user))
                 sans = "--san localhost --san 127.0.0.1 {0}".format(args.step_cert_sans)
                 cn = hostname
-                sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
+                sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /etc/ssl/certs/root_ca.crt '
                      '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
                               os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'],
                               args.os_user, cn, sans))
                 token = sudo('cat /tmp/step_token')
-                sudo('step ca certificate "{0}" /home/{2}/keys/dlab.crt /home/{2}/keys/dlab.key '
-                     '--token "{1}" --kty=RSA --size 2048 --provisioner {3} '.format(cn, token, args.os_user,
+                sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
+                     '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))
-                sudo('cp /home/{0}/keys/dlab.crt /etc/ssl/certs/'.format(args.os_user))
-                sudo('cp /home/{0}/keys/dlab.key /etc/ssl/certs/'.format(args.os_user))
                 sudo('touch /var/log/renew_certificates.log')
-                sudo('bash -c \'echo "0 */3 * * * root /usr/bin/step ca renew /etc/ssl/certs/dlab.crt '
-                     '/etc/ssl/certs/dlab.key --exec "nginx -s reload" --ca-url "{1}" '
-                     '--root /home/{0}/keys/root_ca.crt --force --expires-in 8h >> /var/log/renew_certificates.log '
-                     '2>&1" >> /etc/crontab \''.format(args.os_user, os.environ['conf_stepcerts_ca_url']))
+                put('./renew_certificates.sh', '/tmp/renew_certificates.sh')
+                sudo('mv /tmp/renew_certificates.sh /usr/local/bin/')
+                sudo('chmod +x /usr/local/bin/renew_certificates.sh')
+                sudo('sed -i "s/OS_USER/{0}/g" /usr/local/bin/renew_certificates.sh'.format(args.os_user))
+                sudo('sed -i "s|JAVA_HOME|{0}|g" /usr/local/bin/renew_certificates.sh'.format(find_java_path_remote()))
+
+                put('/root/templates/manage_step_certs.sh', '/usr/local/bin/manage_step_certs.sh', use_sudo=True)
+                sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
+                     '/usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/dlab.crt|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/dlab.key|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_CA_URL|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
+                    os.environ['conf_stepcerts_ca_url']))
+                sudo('sed -i "s|RESOURCE_TYPE|ssn|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|SANS|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(sans))
+                sudo('sed -i "s|CN|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(cn))
+                sudo('sed -i "s|KID|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
+                    os.environ['conf_stepcerts_kid']))
+                sudo('sed -i "s|STEP_PROVISIONER_PASSWORD_PATH|/home/{0}/keys/provisioner_password|g" '
+                     '/usr/local/bin/manage_step_certs.sh'.format(args.os_user))
+                sudo('bash -c \'echo "0 */3 * * * root /usr/local/bin/manage_step_certs.sh >> '
+                     '/var/log/renew_certificates.log 2>&1" >> /etc/crontab \'')
+                put('/root/templates/step-cert-manager.service', '/etc/systemd/system/step-cert-manager.service',
+                    use_sudo=True)
+                sudo('systemctl daemon-reload')
+                sudo('systemctl enable step-cert-manager.service')
 
             else:
                 sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \

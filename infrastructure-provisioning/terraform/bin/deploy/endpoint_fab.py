@@ -104,10 +104,8 @@ def ensure_step_certs():
             conn.sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step-cli_0.13.3_amd64.deb '
                       '-O /tmp/step-cli_0.13.3_amd64.deb')
             conn.sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
-            conn.sudo('echo "{0}" | base64 --decode > /home/{1}/keys/root_ca.crt'.format(args.step_root_ca,
-                                                                                         args.os_user))
-            fingerprint = conn.sudo('step certificate fingerprint /home/{0}/keys/root_ca.crt'.format(
-                args.os_user)).stdout.replace('\n', '')
+            conn.sudo('echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt'.format(args.step_root_ca))
+            fingerprint = conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt').stdout.replace('\n', '')
             conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
                                                                                   args.step_ca_url))
             conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(args.step_kid_password, args.os_user))
@@ -128,7 +126,7 @@ def ensure_step_certs():
                                                   'http://metadata/computeMetadata/v1/instance/network-interfaces/0/'
                                                   'ip').stdout.replace('\n', '')
                 except:
-                    public_ip_address = None
+                    public_ip_address = None 
             else:
                 local_ip_address = None
                 public_ip_address = None
@@ -137,23 +135,38 @@ def ensure_step_certs():
             if public_ip_address:
                 sans += "--san {0}".format(public_ip_address)
                 cn = public_ip_address
-            conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /home/{2}/keys/root_ca.crt '
+            conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /etc/ssl/certs/root_ca.crt '
                       '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
                                args.step_kid, args.step_ca_url, args.os_user, cn, sans))
             token = conn.sudo('cat /tmp/step_token').stdout.replace('\n', '')
-            conn.sudo('step ca certificate "{0}" /home/{2}/keys/endpoint.crt /home/{2}/keys/endpoint.key '
-                      '--token "{1}" --kty=RSA --size 2048 --provisioner {3} '.format(cn, token, args.os_user,
-                                                                                      args.step_kid))
-            conn.put('./renew_certificates.sh', '/tmp/renew_certificates.sh')
+            conn.sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
+                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token, args.step_kid))
+            conn.put('/root/templates/renew_certificates.sh', '/tmp/renew_certificates.sh')
             conn.sudo('mv /tmp/renew_certificates.sh /usr/local/bin/')
             conn.sudo('chmod +x /usr/local/bin/renew_certificates.sh')
             conn.sudo('sed -i "s/OS_USER/{0}/g" /usr/local/bin/renew_certificates.sh'.format(args.os_user))
             conn.sudo('sed -i "s|JAVA_HOME|{0}|g" /usr/local/bin/renew_certificates.sh'.format(java_home))
             conn.sudo('touch /var/log/renew_certificates.log')
-            conn.sudo('bash -c \'echo "0 */3 * * * root /usr/bin/step ca renew /home/{0}/keys/endpoint.crt '
-                      '/home/{0}/keys/endpoint.key --exec "/usr/local/bin/renew_certificates.sh" --ca-url "{1}" '
-                      '--root /home/{0}/keys/root_ca.crt --force --expires-in 8h >> /var/log/renew_certificates.log '
-                      '2>&1" >> /etc/crontab \''.format(args.os_user, args.step_ca_url))
+            conn.put('./manage_step_certs.sh', '/tmp/manage_step_certs.sh')
+            conn.sudo('mv /tmp/manage_step_certs.sh /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
+                      '/usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/dlab.crt|g" /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/dlab.key|g" /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|STEP_CA_URL|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(args.step_ca_url))
+            conn.sudo('sed -i "s|RESOURCE_TYPE|endpoint|g" /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|SANS|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(sans))
+            conn.sudo('sed -i "s|CN|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(cn))
+            conn.sudo('sed -i "s|KID|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(args.step_kid))
+            conn.sudo('sed -i "s|STEP_PROVISIONER_PASSWORD_PATH|/home/{0}/keys/provisioner_password|g" '
+                      '/usr/local/bin/manage_step_certs.sh'.format(args.os_user))
+            conn.sudo('bash -c \'echo "0 */3 * * * root /usr/local/bin/manage_step_certs.sh >> '
+                      '/var/log/renew_certificates.log 2>&1" >> /etc/crontab \'')
+            conn.put('./step-cert-manager.service', '/tmp/step-cert-manager.service')
+            conn.sudo('mv /tmp/step-cert-manager.service /etc/systemd/system/step-cert-manager.service')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable step-cert-manager.service')
             conn.sudo('touch /home/{}/.ensure_dir/step_ensured'
                       .format(args.os_user))
     except Exception as err:
