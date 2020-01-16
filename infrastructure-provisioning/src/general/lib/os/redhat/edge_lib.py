@@ -72,7 +72,7 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
                 'yum -y install gcc gcc-c++ make zlib-devel pcre-devel openssl-devel git openldap-devel')
             if os.environ['conf_stepcerts_enabled'] == 'true':
                 sudo('mkdir -p /home/{0}/keys'.format(user))
-                sudo('echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt'.format(
+                sudo('bash -c \'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt\''.format(
                      os.environ['conf_stepcerts_root_ca']))
                 fingerprint = sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt')
                 sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
