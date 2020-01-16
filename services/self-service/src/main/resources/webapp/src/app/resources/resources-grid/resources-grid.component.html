@@ -258,14 +258,13 @@
     <ng-container matColumnDef="action-filter" stickyEnd>
       <th mat-header-cell *matHeaderCellDef>
         <div class="actions">
-          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()" [disabled]="filteredEnvironments.length == 0 && !filtering">
             <i class="material-icons">close</i>
           </button>
 
           <button mat-icon-button class="btn apply" (click)="applyFilter_btnClick(filterForm)"
             [disabled]="filteredEnvironments.length == 0 && !filtering">
-            <i class="material-icons"
-              [ngClass]="{'not-allowed': filteredEnvironments.length == 0 && !filtering}">done</i>
+            <i class="material-icons">done</i>
           </button>
         </div>
       </th>
@@ -282,7 +281,7 @@
 
     <!-- FILTER END -->
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
 
     <tr [hidden]="!collapseFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
       class="filter-row"></tr>

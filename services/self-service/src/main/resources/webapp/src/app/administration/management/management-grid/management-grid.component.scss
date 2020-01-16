@@ -83,7 +83,6 @@ table.management {
   }
 
   .header-row {
-    background: transparent;
     height: auto;
     .label {
       display: inline-block;
@@ -98,7 +97,7 @@ table.management {
     }
   }
   .filter-row {
-    background: transparent;
+    background: inherit;
   }
 
   .actions {
