@@ -67,7 +67,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             sudo('apt-get -y install gcc build-essential make automake zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev libc6-dev libgd-dev libgeoip-dev libpcre3-dev apt-utils autoconf liblmdb-dev libtool libxml2-dev libyajl-dev pkgconf liblua5.1-0 liblua5.1-0-dev libreadline-dev libreadline6-dev libtinfo-dev libtool-bin lua5.1 zip readline-doc')
             if os.environ['conf_stepcerts_enabled'] == 'true':
                 sudo('mkdir -p /home/{0}/keys'.format(user))
-                sudo('bash -c \'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt\''.format(
+                sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(
                      os.environ['conf_stepcerts_root_ca']))
                 fingerprint = sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt')
                 sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,

@@ -104,7 +104,7 @@ def ensure_step_certs():
             conn.sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step-cli_0.13.3_amd64.deb '
                       '-O /tmp/step-cli_0.13.3_amd64.deb')
             conn.sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
-            conn.sudo('bash -c \'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt\''.format(args.step_root_ca))
+            conn.sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(args.step_root_ca))
             fingerprint = conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt').stdout.replace('\n', '')
             conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
                                                                                   args.step_ca_url))

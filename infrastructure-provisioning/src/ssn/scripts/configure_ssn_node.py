@@ -133,7 +133,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
             if os.environ['conf_stepcerts_enabled'] == 'true':
                 ensure_step(args.os_user)
                 sudo('mkdir -p /home/{0}/keys'.format(args.os_user))
-                sudo('bash -c \'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt\''.format(
+                sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(
                      os.environ['conf_stepcerts_root_ca']))
                 fingerprint = sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt')
                 sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
