@@ -204,6 +204,19 @@ These directories contain the log files for each template and for DLab back-end 
 ### Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
 
 Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
+
+**Keycloak** is used to manage user authentication instead of the aplication. To use existing server following parameters must be specified either when running deployment script or in 
+*/opt/dlab/conf/self-service.yml* and */opt/dlab/conf/provisioning.yml* files on SSN node.
+
+| Parameter                | Description/Value             |
+|--------------------------|-------------------------------|
+| keycloak_realm_name      |Keycloak Realm name            |
+| keycloak_auth_server_url |Keycloak auth server URL       |
+| keycloak_client_name     |Keycloak client name           |
+| keycloak_client_secret   |Keycloak client secret         |
+| keycloak_user            |Keycloak user                  |
+| keycloak_user_password   |Keycloak user password         |
+
 For each cloud provider, prerequisites are different.
 
 <details><summary>In Amazon cloud <i>(click to expand)</i></summary>
