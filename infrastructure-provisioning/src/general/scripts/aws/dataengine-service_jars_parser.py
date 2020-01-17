@@ -53,6 +53,11 @@ if __name__ == "__main__":
         endpoint = "https://s3.{}.amazonaws.com.cn".format(args.region)
     else:
         endpoint = "https://s3-{}.amazonaws.com".format(args.region)
+    os.system('touch /tmp/scala_version')
+    scala_ver = subprocess.check_output("spark-submit --version 2>&1 | grep -o -P 'Scala version \K.{0,7}'",
+                                        shell=True).decode('UTF-8')
+    with open('/tmp/scala_version', 'w') as outfile:
+        outfile.write(scala_ver)
     os.system('touch /tmp/python_version')
     python_ver = subprocess.check_output("python3.5 -V 2>/dev/null | awk '{print $2}'", shell=True)
     if python_ver != '':
@@ -120,6 +125,14 @@ if __name__ == "__main__":
                      endpoint,
                      args.region))
     os.system('aws s3 cp /tmp/spark-checksum.chk '
+              's3://{}/{}/{}/ '
+              '--endpoint-url {} '
+              '--region {} --sse AES256'.
+              format(args.bucket,
+                     args.user_name,
+                     args.cluster_name,
+                     endpoint, args.region))
+    os.system('aws s3 cp /tmp/scala_version '
               's3://{}/{}/{}/ '
               '--endpoint-url {} '
               '--region {} --sse AES256'.

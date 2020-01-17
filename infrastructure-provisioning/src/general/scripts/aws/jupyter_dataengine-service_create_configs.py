@@ -51,6 +51,7 @@ parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--numpy_version', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
+parser.add_argument('--scala_version', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -96,7 +97,7 @@ def toree_kernel(args):
         text = text.replace('SPARK_VERSION', 'Spark-' + args.spark_version)
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('DATAENGINE-SERVICE_VERSION', args.emr_version)
-        text = text.replace('SCALA_VERSION', scala_version)
+        text = text.replace('SCALA_VERSION', args.scala_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
@@ -117,7 +118,7 @@ def toree_kernel(args):
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('OS_USER', args.os_user)
         text = text.replace('DATAENGINE-SERVICE_VERSION', args.emr_version)
-        text = text.replace('SCALA_VERSION', scala_version)
+        text = text.replace('SCALA_VERSION', args.scala_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
