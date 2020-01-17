@@ -30,13 +30,13 @@ keytool -delete -alias mykey -keystore JAVA_HOME/lib/security/cacerts -storepass
 keytool -delete -alias RESOURCE_TYPE -keystore JAVA_HOME/lib/security/cacerts -storepass changeit
 
 # Importing new certificates to keystore
-openssl pkcs12 -export -in /etc/ssl/certs/RESOURCE_TYPE.crt -inkey /etc/ssl/certs/RESOURCE_TYPE.key -name RESOURCE_TYPE -out /home/OS_USER/keys/RESOURCE_TYPE.p12 -password pass:${KEYSTORE_PASS}
+openssl pkcs12 -export -in /etc/ssl/certs/dlab.crt -inkey /etc/ssl/certs/dlab.key -name RESOURCE_TYPE -out /home/OS_USER/keys/RESOURCE_TYPE.p12 -password pass:${KEYSTORE_PASS}
 keytool -importkeystore -srckeystore /home/OS_USER/keys/RESOURCE_TYPE.p12 -srcstoretype PKCS12 -alias RESOURCE_TYPE -destkeystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -deststorepass "${KEYSTORE_PASS}" -srcstorepass "${KEYSTORE_PASS}"
 keytool -keystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -alias CARoot -import -file  /etc/ssl/certs/root_ca.crt  -deststorepass "${KEYSTORE_PASS}" -noprompt
 
 
 # Adding new certificates
-keytool -importcert -trustcacerts -alias RESOURCE_TYPE -file /etc/ssl/certs/RESOURCE_TYPE.crt -noprompt -storepass changeit -keystore JAVA_HOME/lib/security/cacerts
+keytool -importcert -trustcacerts -alias RESOURCE_TYPE -file /etc/ssl/certs/dlab.crt -noprompt -storepass changeit -keystore JAVA_HOME/lib/security/cacerts
 keytool -importcert -trustcacerts -file /etc/ssl/certs/root_ca.crt -noprompt -storepass changeit -keystore JAVA_HOME/lib/security/cacerts
 
 # Restarting service
