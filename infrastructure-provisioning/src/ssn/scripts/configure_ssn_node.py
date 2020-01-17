@@ -151,7 +151,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))
                 sudo('touch /var/log/renew_certificates.log')
-                put('./renew_certificates.sh', '/tmp/renew_certificates.sh')
+                put('/root/templates/renew_certificates.sh', '/tmp/renew_certificates.sh')
                 sudo('mv /tmp/renew_certificates.sh /usr/local/bin/')
                 sudo('chmod +x /usr/local/bin/renew_certificates.sh')
                 sudo('sed -i "s/OS_USER/{0}/g" /usr/local/bin/renew_certificates.sh'.format(args.os_user))
