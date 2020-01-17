@@ -314,9 +314,9 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '/home/{0}/keys/ssn.keystore.jks -deststorepass "{1}" -srcstorepass "{1}"'.format(
                           os_user, keystore_passwd))
                     sudo('keytool -keystore /home/{0}/keys/ssn.keystore.jks -alias CARoot -import -file '
-                         '/home/{0}/keys/root_ca.crt  -deststorepass "{1}" -srcstorepass "{1}" -noprompt'.format(
+                         '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -srcstorepass "{1}" -noprompt'.format(
                           os_user, keystore_passwd))
-                    sudo('keytool -importcert -trustcacerts -alias step-ca -file /home/{0}/keys/root_ca.crt '
+                    sudo('keytool -importcert -trustcacerts -alias step-ca -file /etc/ssl/certs/root_ca.crt '
                          '-noprompt -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
                     sudo('keytool -importcert -trustcacerts -alias step-crt -file /etc/ssl/certs/dlab.crt -noprompt '
                          '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
@@ -324,9 +324,9 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
                          -keystore /home/{0}/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
                          os_user, keystore_passwd))
-                    sudo('keytool -exportcert -alias ssn -storepass {1} -file /home/{0}/keys/dlab.crt \
+                    sudo('keytool -exportcert -alias ssn -storepass {1} -file /etc/ssl/certs/dlab.crt \
                          -keystore /home/{0}/keys/ssn.keystore.jks'.format(os_user, keystore_passwd))
-                    sudo('keytool -importcert -trustcacerts -alias ssn -file /home/{0}/keys/dlab.crt -noprompt \
+                    sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt \
                          -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
             except:
                 append_result("Unable to generate cert and copy to java keystore")

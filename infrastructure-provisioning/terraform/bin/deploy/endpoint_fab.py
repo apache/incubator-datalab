@@ -248,20 +248,20 @@ def create_key_dir_endpoint():
 
 def configure_keystore_endpoint(os_user, endpoint_keystore_password):
     try:
-        conn.sudo('openssl pkcs12 -export -in /home/{0}/keys/endpoint.crt -inkey '
-                  '/home/{0}/keys/endpoint.key -name endpoint -out /home/{0}/keys/endpoint.p12 '
-                  '-password pass:{1}'.format(args.os_user, endpoint_keystore_password))
+        conn.sudo('openssl pkcs12 -export -in /etc/ssl/certs/dlab.crt -inkey '
+                  '/etc/ssl/certs/dlab.key -name endpoint -out /home/{0}/keys/endpoint.p12 '
+                  '-password pass:{1}'.format(os_user, endpoint_keystore_password))
         conn.sudo('keytool -importkeystore -srckeystore /home/{0}/keys/endpoint.p12 -srcstoretype PKCS12 '
                   '-alias endpoint -destkeystore /home/{0}/keys/endpoint.keystore.jks -deststorepass "{1}" '
-                  '-srcstorepass "{1}"'.format(args.os_user, endpoint_keystore_password))
+                  '-srcstorepass "{1}"'.format(os_user, endpoint_keystore_password))
         conn.sudo('keytool -keystore /home/{0}/keys/endpoint.keystore.jks -alias CARoot -import -file '
-                  '/home/{0}/keys/root_ca.crt  -deststorepass "{1}" -noprompt'.format(
-                   args.os_user, endpoint_keystore_password))
-        conn.sudo('keytool -importcert -trustcacerts -alias endpoint -file /home/{0}/keys/endpoint.crt -noprompt '
-                  '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
-        conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/root_ca.crt -noprompt '
-                  '-storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
-        conn.sudo('touch /home/{0}/.ensure_dir/cert_imported'.format(args.os_user))
+                  '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -noprompt'.format(
+                   os_user, endpoint_keystore_password))
+        conn.sudo('keytool -importcert -trustcacerts -alias endpoint -file /etc/ssl/certs/dlab.crt -noprompt '
+                  '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_home))
+        conn.sudo('keytool -importcert -trustcacerts -file /etc/ssl/certs/root_ca.crt -noprompt '
+                  '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_home))
+        conn.sudo('touch /home/{0}/.ensure_dir/cert_imported'.format(os_user))
         print("Certificates are imported.")
     except Exception as err:
         print('Failed to configure Keystore certificates: ', str(err))
