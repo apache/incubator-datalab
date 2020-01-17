@@ -21,17 +21,12 @@ package com.epam.dlab.backendapi.conf;
 
 import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.backendapi.domain.SchedulerConfigurationData;
-import com.epam.dlab.backendapi.validation.SelfServiceCloudConfigurationSequenceProvider;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.rest.client.RESTServiceFactory;
-import com.epam.dlab.validation.AwsValidation;
-import com.epam.dlab.validation.AzureValidation;
-import com.epam.dlab.validation.GcpValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.hibernate.validator.group.GroupSequenceProvider;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -42,30 +37,29 @@ import java.util.Map;
 /**
  * Configuration for Self Service.
  */
-@GroupSequenceProvider(SelfServiceCloudConfigurationSequenceProvider.class)
 public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
-	@Min(value = 2, groups = AwsValidation.class)
+	@Min(value = 2)
 	@JsonProperty
 	private int minEmrInstanceCount;
 
-	@Max(value = 1000, groups = AwsValidation.class)
+	@Max(value = 1000)
 	@JsonProperty
 	private int maxEmrInstanceCount;
 
-	@Min(value = 10, groups = AwsValidation.class)
+	@Min(value = 10)
 	@JsonProperty
 	private int minEmrSpotInstanceBidPct;
 
-	@Max(value = 95, groups = AwsValidation.class)
+	@Max(value = 95)
 	@JsonProperty
 	private int maxEmrSpotInstanceBidPct;
 
-	@Min(value = 2, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
+	@Min(value = 2)
 	@JsonProperty
 	private int minSparkInstanceCount;
 
-	@Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
+	@Max(value = 1000)
 	@JsonProperty
 	private int maxSparkInstanceCount;
 
@@ -84,7 +78,7 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@JsonProperty
 	private boolean billingSchedulerEnabled = false;
 
-	@NotEmpty(groups = AwsValidation.class)
+	@NotEmpty
 	@JsonProperty
 	private String billingConfFile;
 	@JsonProperty
