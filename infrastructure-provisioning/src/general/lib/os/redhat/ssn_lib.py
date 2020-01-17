@@ -81,7 +81,6 @@ def ensure_jenkins(dlab_path):
                 sudo('rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key')
             except:
                 pass
-            sudo('yum -y install java-1.8.0-openjdk-devel')
             sudo('yum -y install jenkins')
             sudo('yum -y install policycoreutils-python')
             sudo('touch {}tmp/jenkins_ensured'.format(dlab_path))
