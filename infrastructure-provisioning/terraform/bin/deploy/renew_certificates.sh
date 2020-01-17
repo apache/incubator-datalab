@@ -21,7 +21,7 @@
 #
 # ******************************************************************************
 
-KEYSTORE_PASS=$(cat /opt/dlab/conf/provisioning.yml  | grep '<#assign KEY_STORE_PASSWORD' | awk -F  '\"' '{print $2}')
+KEYSTORE_PASS=$(cat /opt/dlab/conf/CONF_FILE.yml  | grep '<#assign KEY_STORE_PASSWORD' | awk -F  '\"' '{print $2}')
 
 # Removing old certificates
 keytool -delete -alias RESOURCE_TYPE -keystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -storepass "${KEYSTORE_PASS}"
