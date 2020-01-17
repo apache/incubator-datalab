@@ -140,7 +140,7 @@ def ensure_step_certs():
                                args.step_kid, args.step_ca_url, args.os_user, cn, sans))
             token = conn.sudo('cat /tmp/step_token').stdout.replace('\n', '')
             conn.sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
-                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token, args.step_kid))
+                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} --not-after=10m '.format(cn, token, args.step_kid))
             conn.put('./renew_certificates.sh', '/tmp/renew_certificates.sh')
             conn.sudo('mv /tmp/renew_certificates.sh /usr/local/bin/')
             conn.sudo('chmod +x /usr/local/bin/renew_certificates.sh')

@@ -81,7 +81,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                       os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'], user, cn, sans))
                 token = sudo('cat /tmp/step_token')
                 sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
-                     '--token "{1}" --kty=RSA --size 2048 --provisioner {2} --not-after=10m '.format(cn, token,
+                     '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))
                 sudo('touch /var/log/renew_certificates.log')
                 put('/root/templates/manage_step_certs.sh', '/usr/local/bin/manage_step_certs.sh', use_sudo=True)
