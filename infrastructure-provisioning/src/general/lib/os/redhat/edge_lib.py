@@ -104,7 +104,7 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
                     os.environ['conf_stepcerts_kid']))
                 sudo('sed -i "s|STEP_PROVISIONER_PASSWORD_PATH|/home/{0}/keys/provisioner_password|g" '
                      '/usr/local/bin/manage_step_certs.sh'.format(user))
-                sudo('bash -c \'echo "0 */3 * * * root /usr/local/bin/manage_step_certs.sh >> '
+                sudo('bash -c \'echo "0 * * * * root /usr/local/bin/manage_step_certs.sh >> '
                      '/var/log/renew_certificates.log 2>&1" >> /etc/crontab \'')
                 put('/root/templates/step-cert-manager.service', '/etc/systemd/system/step-cert-manager.service',
                     use_sudo=True)

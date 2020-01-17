@@ -163,7 +163,7 @@ def ensure_step_certs():
             conn.sudo('sed -i "s|KID|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(args.step_kid))
             conn.sudo('sed -i "s|STEP_PROVISIONER_PASSWORD_PATH|/home/{0}/keys/provisioner_password|g" '
                       '/usr/local/bin/manage_step_certs.sh'.format(args.os_user))
-            conn.sudo('bash -c \'echo "0 */3 * * * root /usr/local/bin/manage_step_certs.sh >> '
+            conn.sudo('bash -c \'echo "0 * * * * root /usr/local/bin/manage_step_certs.sh >> '
                       '/var/log/renew_certificates.log 2>&1" >> /etc/crontab \'')
             conn.put('./step-cert-manager.service', '/tmp/step-cert-manager.service')
             conn.sudo('mv /tmp/step-cert-manager.service /etc/systemd/system/step-cert-manager.service')
