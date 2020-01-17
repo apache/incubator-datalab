@@ -43,6 +43,9 @@ function renew_cert() {
     step ca renew ${crt_path} ${key_path} --exec 'nginx -s reload' --ca-url ${ca_url} --root ${root_crt_path} --force --expires-in 8h
   elif [ $resource_type = 'endpoint' ]; then
     step ca renew ${crt_path} ${key_path} --exec "/usr/local/bin/renew_certificates.sh" --ca-url ${ca_url} --root ${root_crt_path} --force --expires-in 8h
+  elif [ $resource_type = 'ssn' ]; then
+    step ca renew ${crt_path} ${key_path} --exec "/usr/local/bin/renew_certificates.sh" --ca-url ${ca_url} --root ${root_crt_path} --force --expires-in 8h
+    nginx -s reload
   else
     log "Wrong resource type. Aborting..."
     exit 1
@@ -58,6 +61,9 @@ function recreate_cert() {
     nginx -s reload
   elif [ $resource_type = 'endpoint' ]; then
     /usr/local/bin/renew_certificates.sh
+  elif [ $resource_type = 'ssn' ]; then
+    /usr/local/bin/renew_certificates.sh
+    nginx -s reload
   else
     log "Wrong resource type. Aborting..."
     exit 1

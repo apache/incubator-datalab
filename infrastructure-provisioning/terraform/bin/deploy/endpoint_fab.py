@@ -147,6 +147,7 @@ def ensure_step_certs():
             conn.sudo('sed -i "s/OS_USER/{0}/g" /usr/local/bin/renew_certificates.sh'.format(args.os_user))
             conn.sudo('sed -i "s|JAVA_HOME|{0}|g" /usr/local/bin/renew_certificates.sh'.format(java_home))
             conn.sudo('sed -i "s|RESOURCE_TYPE|endpoint|g" /usr/local/bin/renew_certificates.sh')
+            conn.sudo('sed -i "s|CONF_FILE|provisioning|g" /usr/local/bin/renew_certificates.sh')
             conn.sudo('touch /var/log/renew_certificates.log')
             conn.put('./manage_step_certs.sh', '/tmp/manage_step_certs.sh')
             conn.sudo('mv /tmp/manage_step_certs.sh /usr/local/bin/manage_step_certs.sh')

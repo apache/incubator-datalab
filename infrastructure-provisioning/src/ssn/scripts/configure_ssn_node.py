@@ -157,6 +157,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                 sudo('sed -i "s/OS_USER/{0}/g" /usr/local/bin/renew_certificates.sh'.format(args.os_user))
                 sudo('sed -i "s|JAVA_HOME|{0}|g" /usr/local/bin/renew_certificates.sh'.format(find_java_path_remote()))
                 sudo('sed -i "s|RESOURCE_TYPE|ssn|g" /usr/local/bin/renew_certificates.sh')
+                sudo('sed -i "s|CONF_FILE|ssn|g" /usr/local/bin/renew_certificates.sh')
                 put('/root/templates/manage_step_certs.sh', '/usr/local/bin/manage_step_certs.sh', use_sudo=True)
                 sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
                 sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
