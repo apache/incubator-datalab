@@ -97,8 +97,8 @@ export class EndpointsComponent implements OnInit {
 
   private initFormModel(): void {
     this.createEndpointForm = this._fb.group({
-      name: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
-      url: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.url)])],
+      name: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.validateName.bind(this)])],
+      url: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.fullUrl), this.validateUrl.bind(this)])],
       account: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
       endpoint_tag: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])]
     });
@@ -113,6 +113,20 @@ export class EndpointsComponent implements OnInit {
 
   private getEndpointList() : void{
     this.endpointService.getEndpointsData().subscribe((endpoints: any) => this.endpoints = endpoints);
+  }
+
+  private validateUrl(control) {
+    if (control && control.value){
+      const isDublicat = this.endpoints.some(endpoint => endpoint['url'].toLocaleLowerCase() === control.value.toLowerCase());
+      return isDublicat ? { isDuplicate: true } : null;
+    }
+  }
+
+  private validateName(control) {
+    if (control && control.value){
+      const isDublicat = this.endpoints.some(endpoint => endpoint['name'].toLocaleLowerCase() === control.value.toLowerCase());
+      return isDublicat ? { isDuplicate: true } : null;
+    }
   }
 }
 
