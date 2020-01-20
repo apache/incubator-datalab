@@ -173,7 +173,7 @@ export class RolesComponent implements OnInit {
 
   public updateGroupData(groups) {
     this.groupsData = groups;
-
+    this.groupsData.sort(v => v.group);
     this.groupsData.forEach(item => {
       item.selected_roles = item.roles.map(role => role.description);
     });
