@@ -34,7 +34,6 @@
                 <div class="control">
                   <input type="text" formControlName="name" placeholder="Enter endpoint name"
                     (blur)="generateEndpointTag($event)">
-                  <!--<span class="error" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')">Total budget cannot be lower than a sum of users quotes</span>-->
                   <span class="error"
                     *ngIf="!createEndpointForm?.controls.name.valid && createEndpointForm?.controls.name.touched && !createEndpointForm?.controls['name'].hasError('isDuplicate')">
                     Endpoint name can only contain letters, numbers, hyphens and '_' but can not end with special
