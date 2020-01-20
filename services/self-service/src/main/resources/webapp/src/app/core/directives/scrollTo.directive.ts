@@ -24,7 +24,7 @@ import { Directive } from '@angular/core';
   selector: '[scrollTo]'
 })
 export class ScrollDirective {
-  constructor(private elRef: ElementRef) {}
+  constructor(private elRef: ElementRef) { }
 
   @Input()
   set scrollTo(condition) {

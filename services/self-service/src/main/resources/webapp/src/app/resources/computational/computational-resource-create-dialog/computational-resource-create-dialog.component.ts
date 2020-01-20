@@ -240,7 +240,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.selectedImage = clusterTypes[0];
 
         if (this.selectedImage) {
-          this.loading = false;
           this._ref.detectChanges();
 
           this.filterShapes();
@@ -248,6 +247,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           this.getComputationalResourceLimits();
         }
 
+        this.loading = false;
       }, () => this.loading = false);
   }
 

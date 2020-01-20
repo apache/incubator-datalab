@@ -146,7 +146,7 @@ def put_resource_status(resource, status, dlab_path, os_user, hostname):
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version, exploratory_name):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
-            sudo('pip2 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            sudo('pip2 install notebook==5.7.8 --no-cache-dir')
             sudo('pip2 install jupyter --no-cache-dir')
             sudo('pip3.5 install notebook=={} --no-cache-dir'.format(jupyter_version))
             sudo('pip3.5 install jupyter --no-cache-dir')
@@ -193,31 +193,16 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             print('Error:', str(err))
             sys.exit(1)
 
-def configure_docker(os_user, http_file, https_file):
+def configure_docker(os_user):
     try:
         if not exists('/home/' + os_user + '/.ensure_dir/docker_ensured'):
+            docker_version = os.environ['ssn_docker_version']
             sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
             sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
                   stable"')
             sudo('apt-get update')
             sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce')
-            sudo('mkdir -p /etc/systemd/system/docker.service.d')
-            sudo('touch {}'.format(http_file))
-            sudo('echo -e \'[Service] \nEnvironment=\"HTTP_PROXY=\'$http_proxy\'\"\' > {}'.format(http_file))
-            sudo('touch {}'.format(https_file))
-            sudo('echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > {}'.format(https_file))
-            sudo('mkdir /home/{}/.docker'.format(os_user))
-            sudo('touch /home/{}/.docker/config.json'.format(os_user))
-            sudo('echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/dlab-user/.docker/config.json')
-            sudo('usermod -a -G docker ' + os_user)
-            sudo('update-rc.d docker defaults')
-            sudo('update-rc.d docker enable')
-            sudo('wget https://raw.githubusercontent.com/CWSpear/local-persist/master/scripts/install.sh && chmod +x install.sh')
-            sudo('sed -i "66s/curl/sudo curl/g" install.sh')
-            sudo('sed -i "s/sudo curl/sudo -E curl/g" install.sh')
-            run('sudo -E ./install.sh')
-            sudo('rm install.sh')
+            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))
@@ -619,19 +604,19 @@ def add_breeze_library_local(os_user):
             breeze_tmp_dir = '/tmp/breeze_tmp_local/'
             jars_dir = '/opt/jars/'
             sudo('mkdir -p {}'.format(breeze_tmp_dir))
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze_{0}/{1}/breeze_{0}-{1}.jar -O \
+            sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze_{0}/{1}/breeze_{0}-{1}.jar -O \
                     {2}breeze_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_{0}/{1}/breeze-natives_{0}-{1}.jar -O \
+            sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-natives_{0}/{1}/breeze-natives_{0}-{1}.jar -O \
                     {2}breeze-natives_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_{0}/{1}/breeze-viz_{0}-{1}.jar -O \
+            sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-viz_{0}/{1}/breeze-viz_{0}-{1}.jar -O \
                     {2}breeze-viz_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_{0}/{1}/breeze-macros_{0}-{1}.jar -O \
+            sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-macros_{0}/{1}/breeze-macros_{0}-{1}.jar -O \
                     {2}breeze-macros_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
-            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_{0}/{1}/breeze-parent_{0}-{1}.jar -O \
+            sudo('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-parent_{0}/{1}/breeze-parent_{0}-{1}.jar -O \
                     {2}breeze-parent_{0}-{1}.jar'.format('2.11', '0.12', breeze_tmp_dir))
-            sudo('wget http://central.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar -O \
+            sudo('wget https://repo1.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar -O \
                     {1}jfreechart-{0}.jar'.format('1.0.19', breeze_tmp_dir))
-            sudo('wget http://central.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar -O \
+            sudo('wget https://repo1.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar -O \
                     {1}jcommon-{0}.jar'.format('1.0.24', breeze_tmp_dir))
             sudo('wget --no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar -O \
                     {1}spark-kernel-brunel-all-{0}.jar'.format('2.3', breeze_tmp_dir))
@@ -651,6 +636,8 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile):
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and sudo("python3.6 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
     sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     sudo('source /etc/profile')
     run('source /etc/profile')
@@ -834,33 +821,14 @@ def update_hosts_file(os_user):
         print('Failed to update hosts file', str(err))
         sys.exit(1)
 
-def ensure_docker_compose(dlab_path, os_user):
+def ensure_docker_compose(os_user):
     try:
-        if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
-            docker_version = os.environ['ssn_docker_version']
-            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
-            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
-                  stable"')
-            sudo('apt-get update')
-            sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
-            print('Proxy for docker configuring')
-            sudo('mkdir -p /etc/systemd/system/docker.service.d')
-            with cd('/etc/systemd/system/docker.service.d'):
-                sudo('echo -e \'[Service] \nEnvironment=\"HTTP_PROXY=\'$http_proxy\'\"\' > http-proxy.conf')
-                sudo('echo -e \'[Service] \nEnvironment=\"HTTPS_PROXY=\'$http_proxy\'\"\' > https-proxy.conf')
-            sudo('mkdir -p /home/' + os_user + '/.docker')
-            with cd('/home/' + os_user + '/.docker'):
-                sudo('echo -e \'{\n "proxies":\n {\n   "default":\n   {\n     "httpProxy":"\'$http_proxy\'",\n     "httpsProxy":"\'$http_proxy\'"\n   }\n }\n}\' > /home/' +  os_user + '/.docker/config.json')
-            sudo('usermod -a -G docker ' + os_user)
-            sudo('update-rc.d docker defaults')
-            sudo('update-rc.d docker enable')
-            sudo('mkdir -p ' + dlab_path + 'tmp')
-            sudo('touch ' + dlab_path + 'tmp/docker_daemon_ensured')
-        if not exists(dlab_path + 'tmp/docker_compose_ensured'):
+        configure_docker(os_user)
+        if not exists('/home/{}/.ensure_dir/docker_compose_ensured'.format(os_user)):
             docker_compose_version = "1.24.1"
             sudo('curl -L https://github.com/docker/compose/releases/download/{}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose'.format(docker_compose_version))
             sudo('chmod +x /usr/local/bin/docker-compose')
+            sudo('touch /home/{}/.ensure_dir/docker_compose_ensured'.format(os_user))
         sudo('systemctl daemon-reload')
         sudo('systemctl restart docker')
         return True
@@ -879,14 +847,13 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
             sudo('mkdir -p /opt/dlab/templates')
             put('/root/templates', '/opt/dlab', use_sudo=True)
             sudo('sed -i \'s/OS_USER/{}/g\' /opt/dlab/templates/.env'.format(os_user))
-            keycloak_auth_server_ip = ''.join(re.findall('(?:[12]?\\d?\\d\\.){3}[12]?\\d?\\d:\d+', keycloak_auth_server_url))
             proxy_string = '{}:3128'.format(edge_instance_private_ip)
-            sudo('sed -i \'s/KEYCLOAK_AUTH_SERVER_URL/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_auth_server_ip))
+            sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/dlab/templates/id_provider.json'.format(keycloak_auth_server_url))
             sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_realm_name))
             sudo('sed -i \'s/CLIENT_ID/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_client_id))
             sudo('sed -i \'s/CLIENT_SECRET/{}/g\' /opt/dlab/templates/id_provider.json'.format(keycloak_client_secret))
             sudo('sed -i \'s/PROXY_STRING/{}/g\' /opt/dlab/templates/docker-compose.yml'.format(proxy_string))
-            sudo('sed -i \'s/KEYCLOAK_AUTH_SERVER_URL/{}/g\' /opt/dlab/templates/superset_config.py'.format(keycloak_auth_server_ip))
+            sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/dlab/templates/superset_config.py'.format(keycloak_auth_server_url))
             sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/superset_config.py'.format(keycloak_realm_name))
             sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/superset_config.py'.format(edge_instance_public_ip))
             sudo('sed -i \'s/SUPERSET_NAME/{}/g\' /opt/dlab/templates/superset_config.py'.format(superset_name))
@@ -896,14 +863,6 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
             sudo('cp -f /opt/dlab/templates/requirements-extra.txt /home/{}/incubator-superset/contrib/docker/'.format(os_user))
             sudo('cp -f /opt/dlab/templates/superset_config.py /home/{}/incubator-superset/contrib/docker/'.format(os_user))
             sudo('cp -f /opt/dlab/templates/docker-init.sh /home/{}/incubator-superset/contrib/docker/'.format(os_user))
-            with cd('/home/{}/incubator-superset/contrib/docker'.format(os_user)):
-                sudo('docker-compose run --rm superset ./docker-init.sh')
-            sudo('cp /opt/dlab/templates/superset-notebook.service /tmp/')
-            sudo('sed -i \'s/OS_USER/{}/g\' /tmp/superset-notebook.service'.format(os_user))
-            sudo('cp /tmp/superset-notebook.service /etc/systemd/system/')
-            sudo('systemctl daemon-reload')
-            sudo('systemctl enable superset-notebook')
-            sudo('systemctl start superset-notebook')
             sudo('touch /tmp/superset-notebook_installed')
     except Exception as err:
         print("Failed configure superset: " + str(err))

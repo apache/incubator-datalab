@@ -46,7 +46,6 @@ public class CloudConfiguration {
 	private final String peeringId;
 	private final String gcpProjectId;
 	private final boolean imageEnabled;
-	private final boolean sharedImageEnabled;
 	@JsonProperty("ldap")
 	private final LdapConfig ldapConfig;
 	private final StepCerts stepCerts;

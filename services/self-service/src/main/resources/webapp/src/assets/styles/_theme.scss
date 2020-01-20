@@ -122,6 +122,9 @@
 
       &.not-allowed {
         background-color: #dcdcdc;
+        .mat-select-placeholder {
+         cursor: not-allowed;
+        }
       }
     }
   }
@@ -211,6 +214,17 @@
   font-size: 14px;
 }
 
+.mat-select-disabled{
+  .mat-select-placeholder {
+    cursor: not-allowed;
+  }
+
+}
+
+.mat-select-disabled + .caret {
+  cursor: not-allowed !important;
+}
+
 .mat-input-placeholder {
   font-weight: 400;
 }
@@ -283,6 +297,25 @@ span.mat-slide-toggle-content {
 .break-tooltip {
   white-space: pre-line !important;
   word-break: break-all;
+}
+
+.project-form,
+.create-environment,
+.create-cluster{
+  .ng-invalid{
+    .mat-form-field-label {
+      line-height: 22px !important;
+      font-size: 15px !important;
+    }
+  }
+
+  .ng-valid .mat-form-field-label {
+    color: transparent !important;
+  }
+
+  .mat-select-value{
+    overflow: visible;
+  }
 }
 
 .manage-roles,

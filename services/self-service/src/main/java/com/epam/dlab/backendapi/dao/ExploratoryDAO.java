@@ -68,6 +68,7 @@ public class ExploratoryDAO extends BaseDAO {
 	public static final String EXPLORATORY_NOT_FOUND_MSG = "Exploratory for user %s with name %s not found";
 	private static final String EXPLORATORY_LAST_ACTIVITY = "last_activity";
 	private static final String PROJECT = "project";
+	private static final String ENDPOINT = "endpoint";
 
 	public ExploratoryDAO() {
 		log.info("{} is initialized", getClass().getSimpleName());
@@ -187,6 +188,21 @@ public class ExploratoryDAO extends BaseDAO {
 				false);
 	}
 
+	public List<UserInstanceDTO> fetchProjectEndpointExploratoriesWhereStatusIn(String project, List<String> endpoints,
+																				List<UserInstanceStatus> exploratoryStatuses,
+																				UserInstanceStatus... computationalStatuses) {
+		final List<String> exploratoryStatusList = statusList(exploratoryStatuses);
+		final List<String> computationalStatusList = statusList(computationalStatuses);
+		return getUserInstances(
+				and(
+						eq(PROJECT, project),
+						in(ENDPOINT, endpoints),
+						or(in(STATUS, exploratoryStatusList),
+								in(COMPUTATIONAL_RESOURCES + "." + STATUS, computationalStatusList))
+				),
+				false);
+	}
+
 	/**
 	 * Finds and returns the info of all user's notebooks whose status is absent among predefined ones.
 	 *
@@ -209,8 +225,20 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(
 				and(
 						eq(PROJECT, project),
-						eq("endpoint", endpoint),
+						eq(ENDPOINT, endpoint),
 						not(in(STATUS, statusList))
+				),
+				false);
+	}
+
+	public List<UserInstanceDTO> fetchExploratoriesByEndpointWhereStatusNotIn(String endpoint,
+																			  List<UserInstanceStatus> statuses) {
+		final List<String> exploratoryStatusList = statusList(statuses);
+
+		return getUserInstances(
+				and(
+						eq(ENDPOINT, endpoint),
+						not(in(STATUS, exploratoryStatusList))
 				),
 				false);
 	}

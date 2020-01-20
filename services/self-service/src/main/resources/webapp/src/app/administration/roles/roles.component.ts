@@ -25,6 +25,7 @@ import { ToastrService } from 'ngx-toastr';
 import { RolesGroupsService, HealthStatusService } from '../../core/services';
 import { CheckUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
+import {ProgressBarService} from "../../core/services/progress-bar.service";
 
 @Component({
   selector: 'dlab-roles',
@@ -54,7 +55,8 @@ export class RolesComponent implements OnInit {
     public toastr: ToastrService,
     public dialog: MatDialog,
     private rolesService: RolesGroupsService,
-    private healthStatusService: HealthStatusService
+    private healthStatusService: HealthStatusService,
+    private progressBarService: ProgressBarService,
   ) { }
 
   ngOnInit() {
@@ -63,6 +65,7 @@ export class RolesComponent implements OnInit {
   }
 
   openManageRolesDialog() {
+    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
     this.rolesService.getGroupsData().subscribe(groups => {
       this.rolesService.getRolesData().subscribe(
         (roles: any) => {
@@ -73,8 +76,12 @@ export class RolesComponent implements OnInit {
           this.stepperView = false;
         },
         error => this.toastr.error(error.message, 'Oops!'));
-    },
-      error => this.toastr.error(error.message, 'Oops!'));
+        this.progressBarService.stopProgressBar()
+      },
+      error => {
+      this.toastr.error(error.message, 'Oops!');
+      this.progressBarService.stopProgressBar();
+    });
   }
 
   getGroupsData() {
@@ -166,7 +173,7 @@ export class RolesComponent implements OnInit {
 
   public updateGroupData(groups) {
     this.groupsData = groups;
-
+    this.groupsData.sort(v => v.group);
     this.groupsData.forEach(item => {
       item.selected_roles = item.roles.map(role => role.description);
     });

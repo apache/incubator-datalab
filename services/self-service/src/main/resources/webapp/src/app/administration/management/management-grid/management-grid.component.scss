@@ -71,14 +71,19 @@
   cursor: default !important;
 }
 
-table {
+table.management {
   width: 100%;
+
+  thead {
+    background: transparent !important;
+  }
 
   td {
     padding: 5px;
   }
 
   .header-row {
+    height: auto;
     .label {
       display: inline-block;
       padding-top: 10px;
@@ -90,6 +95,9 @@ table {
     button {
       padding-right: 5px;
     }
+  }
+  .filter-row {
+    background: inherit;
   }
 
   .actions {

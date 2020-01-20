@@ -157,7 +157,7 @@ public class UserGroupServiceImplTest {
 
 		when(userRoleDao.removeGroup(anyString())).thenReturn(true);
 		final ProjectDTO projectDTO = new ProjectDTO(
-				"name", Collections.emptySet(), "", "", null, Collections.emptyList());
+				"name", Collections.emptySet(), "", "", null, Collections.emptyList(), true);
 		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList(projectDTO));
 		doNothing().when(userGroupDao).removeGroup(anyString());
@@ -175,7 +175,7 @@ public class UserGroupServiceImplTest {
 		when(userRoleDao.removeGroup(anyString())).thenReturn(true);
 		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList( new ProjectDTO(
-				"name", Collections.singleton(GROUP), "", "", null, Collections.emptyList())));
+				"name", Collections.singleton(GROUP), "", "", null, Collections.emptyList(), true)));
 		doNothing().when(userGroupDao).removeGroup(anyString());
 
 		try {
@@ -193,7 +193,7 @@ public class UserGroupServiceImplTest {
 	public void removeGroupWhenGroupNotExist() {
 
 		final ProjectDTO projectDTO = new ProjectDTO(
-				"name", Collections.emptySet(), "", "", null, Collections.emptyList());
+				"name", Collections.emptySet(), "", "", null, Collections.emptyList(), true);
 		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList(projectDTO));
 		when(userRoleDao.removeGroup(anyString())).thenReturn(false);
@@ -209,7 +209,7 @@ public class UserGroupServiceImplTest {
 	@Test
 	public void removeGroupWithException() {
 		final ProjectDTO projectDTO = new ProjectDTO(
-				"name", Collections.emptySet(), "", "", null, Collections.emptyList());
+				"name", Collections.emptySet(), "", "", null, Collections.emptyList(), true);
 		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList(projectDTO));
 		when(userRoleDao.removeGroup(anyString())).thenThrow(new DlabException("Exception"));

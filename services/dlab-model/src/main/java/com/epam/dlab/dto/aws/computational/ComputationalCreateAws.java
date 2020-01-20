@@ -40,6 +40,8 @@ public class ComputationalCreateAws extends ComputationalBase<ComputationalCreat
 	private String version;
 	@JsonProperty("emr_configurations")
 	private List<ClusterConfig> config;
+	@JsonProperty("conf_shared_image_enabled")
+	private String sharedImageEnabled;
 
 	public String getInstanceCount() {
 		return instanceCount;
@@ -129,6 +131,19 @@ public class ComputationalCreateAws extends ComputationalBase<ComputationalCreat
 
 	public ComputationalCreateAws withConfig(List<ClusterConfig> config) {
 		setConfig(config);
+		return this;
+	}
+
+	public String getSharedImageEnabled() {
+		return sharedImageEnabled;
+	}
+
+	public void setSharedImageEnabled(String sharedImageEnabled) {
+		this.sharedImageEnabled = sharedImageEnabled;
+	}
+
+	public ComputationalCreateAws withSharedImageEnabled(String sharedImageEnabled) {
+		setSharedImageEnabled(sharedImageEnabled);
 		return this;
 	}
 

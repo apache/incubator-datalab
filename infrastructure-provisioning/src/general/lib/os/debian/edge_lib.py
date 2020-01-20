@@ -23,7 +23,6 @@
 
 import os
 import sys
-import re
 from fabric.api import *
 from fabric.contrib.files import exists
 

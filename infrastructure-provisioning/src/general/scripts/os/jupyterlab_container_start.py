@@ -38,14 +38,12 @@ jupyterlab_dir = '/home/' + args.os_user + '/.jupyterlab/'
 def start_jupyterlab_container(jupyterlab_dir):
     try:
         with cd('{}'.format(jupyterlab_dir)):
-            run('docker volume create -d local-persist \
-                     -o mountpoint=/home/{} --name=jup_volume'.format(args.os_user))
             run('docker build --file Dockerfile_jupyterlab -t jupyter-lab .'.format(args.os_user))
             container_id = run('docker ps | awk \'NR==2{print $1}\'')
             if container_id != '':
                 run('docker stop ' + container_id)
             run('docker run -d --restart unless-stopped -p 8888:8888 \
-                     -v jup_volume:/opt/legion/repository \
+                     -v /home/{0}:/opt/legion/repository \
                      -v /home/{0}/.ssh/:/home/{0}/.ssh/ \
                      jupyter-lab:latest'.format(args.os_user))
     except: sys.exit(1)

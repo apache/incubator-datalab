@@ -24,7 +24,7 @@
 import json
 from dlab.fab import *
 from dlab.meta_lib import *
-import sys, time, os
+import sys, time, os, re
 from dlab.actions_lib import *
 import traceback
 from Crypto.PublicKey import RSA

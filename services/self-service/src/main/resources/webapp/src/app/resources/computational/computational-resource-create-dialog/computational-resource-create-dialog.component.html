@@ -33,8 +33,8 @@
               <label class="label">Select cluster type</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-label>Select cluster type</mat-label>
-                  <mat-select formControlName="template_name" disableOptionCentering>
+<!--                  <mat-label>Select cluster type</mat-label>-->
+                  <mat-select formControlName="template_name" disableOptionCentering placeholder="Select cluster type">
                     <mat-option *ngFor="let type of clusterTypes" [value]="type.template_name"
                       (click)="selectImage(type)">{{ type.template_name }}</mat-option>
                     <mat-option *ngIf="!clusterTypes.length" class="multiple-select ml-10" disabled>Clusters types list
@@ -51,8 +51,7 @@
               <label class="label">Select template</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-label>Select template</mat-label>
-                  <mat-select formControlName="version" disableOptionCentering>
+                  <mat-select formControlName="version" disableOptionCentering placeholder="Select template">
                     <mat-option *ngFor="let template of selectedImage.templates" [value]="template.version">
                       {{ template.version }}</mat-option>
                     <mat-option *ngIf="!selectedImage.templates" class="multiple-select ml-10" disabled>Templates list
@@ -79,7 +78,7 @@
                                             && resourceForm?.controls['cluster_alias_name'].dirty
                                             && !resourceForm?.controls['cluster_alias_name'].hasError('duplication')">
                   Cluster name cannot be longer than {{DICTIONARY.max_cluster_name_length}} characters
-                    and can only contain letters, numbers, hyphens and '_' but can not end with special
+                  and can only contain letters, numbers, hyphens and '_' but can not end with special
                   characters
                 </span>
               </div>
@@ -103,8 +102,7 @@
               <label class="label">{{ DICTIONARY[selectedImage.image].data_engine_master_instance_size }}</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-label>Select {{ DICTIONARY.notebook_instance_size }}</mat-label>
-                  <mat-select formControlName="shape_master" disableOptionCentering>
+                  <mat-select formControlName="shape_master" disableOptionCentering placeholder="Select {{ DICTIONARY.notebook_instance_size }}">
                     <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
                       [label]="item.key | underscoreless">
                       <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
@@ -124,8 +122,7 @@
               <label class="label">{{ DICTIONARY[selectedImage.image].data_engine_slave_instance_size }}</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-label>Select {{ DICTIONARY.notebook_instance_size }}</mat-label>
-                  <mat-select formControlName="shape_slave" disableOptionCentering>
+                  <mat-select formControlName="shape_slave" disableOptionCentering placeholder="Select {{ DICTIONARY.notebook_instance_size }}">
                     <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
                       [label]="item.key | underscoreless">
                       <mat-option *ngFor="let list_item of item.value" [value]="list_item.Type">
@@ -231,8 +228,8 @@
 
     </div>
     <ng-template #placeholder>
-      <div *ngIf="!loading" class="info message">Computational resource creations are not available.<br>Please, check
-        your permissions.</div>
+      <div *ngIf="!loading && !clusterTypes?.length" class="info message">
+        Computational resource creations are not available.<br>Please, check your permissions.</div>
       <div *ngIf="loading" class="info message">
         Computational resource data is processing
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>

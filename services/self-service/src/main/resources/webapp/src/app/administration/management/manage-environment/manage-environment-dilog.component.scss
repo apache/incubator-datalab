@@ -20,7 +20,7 @@
 .manage-env-dialog {
   .mat-list {
     .mat-list-item {
-      height: 60px;
+      height: 63px;
       margin: 5px 0;
       position: relative;
 
@@ -50,7 +50,8 @@
     .error {
       position: absolute;
       left: 0;
-      bottom: -14px;
+      top: 34px;
+      font-family: 'Open Sans', sans-serif;
     }
   }
 
@@ -98,7 +99,7 @@
       .error {
         position: absolute;
         left: 0;
-        bottom: -14px;
+        bottom: -15px;
       }
     }
 

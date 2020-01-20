@@ -19,8 +19,8 @@
 
 <form [formGroup]="projectForm" novalidate>
   <mat-horizontal-stepper #stepper class="stepper ani">
-    <mat-step>
-      <ng-template matStepLabel>Key upload</ng-template>
+    <mat-step [completed]='false'>
+      <ng-template matStepLabel >Key upload</ng-template>
       <section class="inner-step mat-reset upload-key">
         <div class="form-block split">
           <div class="row-wrap">
@@ -57,7 +57,7 @@
         </div>
       </section>
     </mat-step>
-    <mat-step>
+    <mat-step [completed]='false'>
       <ng-template matStepLabel>Project</ng-template>
       <section class="inner-step mat-reset">
 
@@ -129,7 +129,7 @@
 
       </section>
     </mat-step>
-    <mat-step>
+    <mat-step [completed]='false'>
       <ng-template matStepLabel>Groups</ng-template>
       <div class="inner-step mat-reset">
         <div class="form-block split">
@@ -160,14 +160,11 @@
             </div>
           </div>
           <div class="text-center m-bott-10">
-
-            <!-- TODO: return after back-end part will be fully completed -->
-            <!-- <div class="control-group">
-              <mat-slide-toggle formControlName="shared_image_enabled" labelPosition="after" [disabled]="item">
+            <div class="control-group">
+              <mat-slide-toggle formControlName="shared_image_enabled" labelPosition="after">
                 <span class="hold-label">Use shared image</span>
               </mat-slide-toggle>
-            </div> -->
-
+            </div>
             <button mat-raised-button type="button" class="butt" [disabled]="item" (click)="reset()">Clear</button>
             <button mat-raised-button matStepperPrevious class="butt"><i
                 class="material-icons">keyboard_arrow_left</i>Back</button>

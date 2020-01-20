@@ -39,6 +39,7 @@ import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmat
 import { SchedulerComponent } from '../scheduler';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
+import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'resources-grid',
@@ -85,22 +86,25 @@ export class ResourcesGridComponent implements OnInit {
   constructor(
     public toastr: ToastrService,
     private userResourceService: UserResourceService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private progressBarService: ProgressBarService,
   ) { }
 
   ngOnInit(): void {
+
     this.buildGrid();
   }
 
   public buildGrid(): void {
+    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
-
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
-      });
+        this.progressBarService.stopProgressBar();
+      }, () => this.progressBarService.stopProgressBar());
   }
 
   public toggleFilterRow(): void {
@@ -123,14 +127,14 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public containsNotebook(notebook_name: string): boolean {
-    if (notebook_name)
+    if (notebook_name && this.environments.length)
       return this.environments
         .filter(project => project.exploratory
           .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name))).length > 0;
   }
 
   public isResourcesInProgress(notebook) {
-    let env = this.getResourceByName(notebook.name);
+    const env = this.getResourceByName(notebook.name);
 
     if (env && env.resources.length) {
       return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'

@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
@@ -55,6 +56,8 @@ public class InfrastructureTemplateServiceBaseTest {
 	private ProjectDAO projectDAO;
 	@Mock
 	private EndpointService endpointService;
+	@Mock
+	private UserGroupDao userGroupDao;
 
 	@InjectMocks
 	private InfrastructureTemplateServiceBaseChild infrastructureTemplateServiceBaseChild =
@@ -81,8 +84,7 @@ public class InfrastructureTemplateServiceBaseTest {
 						"someRam2", 6)));
 		emDto2.setExploratoryEnvironmentShapes(shapes2);
 		List<ExploratoryMetadataDTO> expectedEmdDtoList = Arrays.asList(emDto1, emDto2);
-		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				null, null, null, null)));
+		when(userGroupDao.getUserGroups(anyString())).thenReturn(Collections.emptySet());
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedEmdDtoList.toArray());
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
@@ -94,7 +96,8 @@ public class InfrastructureTemplateServiceBaseTest {
 
 		verify(provisioningService).get(endpointDTO().getUrl() + "docker/exploratory", "token", ExploratoryMetadataDTO[].class);
 		verify(settingsDAO, times(2)).getConfOsFamily();
-		verifyNoMoreInteractions(provisioningService, settingsDAO);
+		verify(userGroupDao).getUserGroups("test");
+		verifyNoMoreInteractions(provisioningService, settingsDAO, userGroupDao);
 	}
 
 	@Test
@@ -123,7 +126,7 @@ public class InfrastructureTemplateServiceBaseTest {
 				computationalMetadataDTO
 		);
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				null, null, null, null)));
+				null, null, null, null, true)));
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
@@ -168,7 +171,7 @@ public class InfrastructureTemplateServiceBaseTest {
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(computationalMetadataDTO);
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				null, null, null, null)));
+				null, null, null, null, true)));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
@@ -198,6 +201,6 @@ public class InfrastructureTemplateServiceBaseTest {
 	}
 
 	private EndpointDTO endpointDTO() {
-		return new EndpointDTO("test", "url", "", null);
+		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE);
 	}
 }

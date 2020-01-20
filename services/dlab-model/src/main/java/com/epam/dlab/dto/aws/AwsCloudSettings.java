@@ -70,8 +70,6 @@ public class AwsCloudSettings extends CloudSettings {
 	protected String confKeyDir;
 	@JsonProperty("conf_image_enabled")
 	private String imageEnabled;
-	@JsonProperty("conf_shared_image_enabled")
-	private String sharedImageEnabled;
 	@JsonProperty("conf_stepcerts_enabled")
 	private String stepCertsEnabled;
 	@JsonProperty("conf_stepcerts_root_ca")

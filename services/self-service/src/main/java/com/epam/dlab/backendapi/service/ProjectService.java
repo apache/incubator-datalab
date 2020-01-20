@@ -16,17 +16,25 @@ public interface ProjectService {
 
 	List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status);
 
+	List<ProjectDTO> getProjectsByEndpoint(String endpointName);
+
 	void create(UserInfo userInfo, ProjectDTO projectDTO);
 
 	ProjectDTO get(String name);
 
 	void terminateEndpoint(UserInfo userInfo, String endpoint, String name);
 
+	void terminateEndpoint(UserInfo userInfo, List<String> endpoints, String name);
+
 	void terminateProject(UserInfo userInfo, String name);
 
 	void start(UserInfo userInfo, String endpoint, String name);
 
+	void start(UserInfo userInfo, List<String> endpoints, String name);
+
 	void stop(UserInfo userInfo, String endpoint, String name);
+
+	void stop(UserInfo userInfo, List<String> endpoints, String name);
 
 	void stopWithResources(UserInfo userInfo, String projectName);
 
@@ -37,4 +45,6 @@ public interface ProjectService {
 	void updateBudget(List<ProjectDTO> projects);
 
 	boolean isAnyProjectAssigned(UserInfo userInfo);
+
+	boolean checkExploratoriesAndComputationalProgress(String projectName, List<String> endpoints);
 }

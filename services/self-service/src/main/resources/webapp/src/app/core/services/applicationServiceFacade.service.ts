@@ -75,6 +75,7 @@ export class ApplicationServiceFacade {
   private static readonly SETTINGS = 'settings';
   private static readonly PROJECT = 'project';
   private static readonly ENDPOINT = 'endpoint';
+  private static readonly ENDPOINT_CONNECTION = 'endpoint_connection';
 
   private requestRegistry: Dictionary<string>;
 
@@ -575,6 +576,12 @@ export class ApplicationServiceFacade {
       null);
   }
 
+  public getEndpointsResource(endpoint): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT) + `/${endpoint}/resources`,
+      null);
+  }
+
   public buildCreateEndpoint(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),
@@ -584,6 +591,12 @@ export class ApplicationServiceFacade {
   public buildDeleteEndpoint(param): Observable<any> {
     return this.buildRequest(HTTPMethod.DELETE,
       this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT) + param,
+      null);
+  }
+
+  public getEndpointConnectionStatus(endpointUrl): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT_CONNECTION) + endpointUrl,
       null);
   }
 
@@ -663,6 +676,7 @@ export class ApplicationServiceFacade {
     // project
     this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
+    this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT_CONNECTION, '/api/endpoint/url/');
   }
 
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {

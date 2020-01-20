@@ -22,11 +22,12 @@ import { CommonModule } from '@angular/common';
 
 import { NotificationDialogComponent } from './notification-dialog.component';
 import { MaterialModule } from '../../material.module';
+import {FormsModule} from "@angular/forms";
 
 export * from './notification-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, MaterialModule],
+  imports: [CommonModule, MaterialModule, FormsModule],
   declarations: [NotificationDialogComponent],
   entryComponents: [NotificationDialogComponent],
   exports: [NotificationDialogComponent]

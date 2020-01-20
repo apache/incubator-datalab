@@ -26,9 +26,11 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.TagService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
@@ -59,6 +61,8 @@ import static com.epam.dlab.rest.contracts.ExploratoryAPI.*;
 @Singleton
 public class ExploratoryServiceImpl implements ExploratoryService {
 
+	@Inject
+	private ProjectService projectService;
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 	@Inject
@@ -100,6 +104,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	public String create(UserInfo userInfo, Exploratory exploratory, @Project String project) {
 		boolean isAdded = false;
 		try {
+			final ProjectDTO projectDTO = projectService.get(project);
 			final UserInstanceDTO userInstanceDTO = getUserInstanceDTO(userInfo, exploratory, project);
 			exploratoryDAO.insertExploratory(userInstanceDTO);
 			isAdded = true;
@@ -108,7 +113,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			final String uuid =
 					provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + EXPLORATORY_CREATE,
 							userInfo.getAccessToken(),
-							requestBuilder.newExploratoryCreate(exploratory, userInfo, gitCreds,
+							requestBuilder.newExploratoryCreate(projectDTO, exploratory, userInfo, gitCreds,
 									userInstanceDTO.getTags()),
 							String.class);
 			requestId.put(userInfo.getName(), uuid);

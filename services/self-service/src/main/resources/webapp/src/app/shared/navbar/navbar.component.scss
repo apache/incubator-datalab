@@ -168,6 +168,10 @@ a.nav-item {
   color: #577289 !important;
   outline: none;
 
+  span {
+    vertical-align: middle;
+  }
+
   i {
     vertical-align: middle;
     padding-left: 8px;
@@ -177,6 +181,9 @@ a.nav-item {
   &:not(.has-children):hover span {
     background: none !important;
     color: #36afd5 !important;
+  }
+  &:not(.has-children):hover #swager-bgr{
+    fill: #36afd5;
   }
 
   &:not(:last-child)::after {
@@ -192,6 +199,9 @@ a.nav-item {
 
   &.active {
     color: #36afd5 !important;
+    svg #swager-bgr {
+      fill: #36afd5;
+    }
   }
 
   &.has-children {
@@ -286,15 +296,33 @@ a.nav-item {
   transform: translateY(-4px) translateX(6px) rotate(-45deg);
 }
 
+mat-sidenav {
+
+  mat-nav-list {
+    height: 100%;
+
+    nav {
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+
+      svg {
+        width: 37px;
+        padding: 0 2px 0 5px;
+        vertical-align: middle;
+      }
+    }
+  }
+}
+
 mat-sidenav-content {
   &.mat-drawer-content {
     transition: all 0.35s ease-out;
-
   }
 
   .fade-animation {
     display: block;
-    height: 100%;
     max-height: 100%;
   }
 }
