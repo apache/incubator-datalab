@@ -46,7 +46,7 @@ public class ModuleFactory {
 	}
 
 	public static CloudModule getCloudProviderModule(SelfServiceApplicationConfiguration configuration) {
-		return new CloudProviderModule();
+		return new CloudProviderModule(configuration);
 	}
 
 //	private static CloudModule getCloudModule(SelfServiceApplicationConfiguration configuration) {

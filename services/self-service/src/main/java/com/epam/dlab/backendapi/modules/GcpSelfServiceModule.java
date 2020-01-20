@@ -25,7 +25,6 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.gcp.GcpBillingDao;
 import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
-import com.epam.dlab.backendapi.resources.gcp.BillingResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.GcpOauthResource;
 import com.epam.dlab.backendapi.service.BillingService;
@@ -54,7 +53,6 @@ public class GcpSelfServiceModule extends CloudModule {
     @SuppressWarnings("unchecked")
     public void init(Environment environment, Injector injector) {
 		environment.jersey().register(injector.getInstance(ComputationalResourceGcp.class));
-		environment.jersey().register(injector.getInstance(BillingResourceGcp.class));
 		if (injector.getInstance(SelfServiceApplicationConfiguration.class).isGcpOuauth2AuthenticationEnabled()) {
 			environment.jersey().register(injector.getInstance(GcpOauthResource.class));
 		}

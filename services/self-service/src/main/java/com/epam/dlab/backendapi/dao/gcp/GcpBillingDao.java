@@ -20,7 +20,7 @@
 package com.epam.dlab.backendapi.dao.gcp;
 
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
-import com.epam.dlab.backendapi.resources.dto.gcp.GcpBillingFilter;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -30,12 +30,17 @@ import java.util.List;
 import static com.epam.dlab.MongoKeyWords.USAGE_FROM;
 import static com.epam.dlab.MongoKeyWords.USAGE_TO;
 import static com.epam.dlab.backendapi.dao.aws.AwsBillingDAO.DLAB_RESOURCE_TYPE;
-import static com.epam.dlab.model.aws.ReportLine.*;
-import static com.mongodb.client.model.Accumulators.*;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_COST;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_DLAB_ID;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_PRODUCT;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_USAGE_DATE;
+import static com.mongodb.client.model.Accumulators.max;
+import static com.mongodb.client.model.Accumulators.min;
+import static com.mongodb.client.model.Accumulators.sum;
 import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Aggregates.sort;
 
-public class GcpBillingDao extends BaseBillingDAO<GcpBillingFilter> {
+public class GcpBillingDao extends BaseBillingDAO {
     @Override
     protected Bson sortCriteria() {
         return sort(new Document(ID + "." + USER, 1)
@@ -54,7 +59,7 @@ public class GcpBillingDao extends BaseBillingDAO<GcpBillingFilter> {
     }
 
     @Override
-    protected List<Bson> cloudMatchCriteria(GcpBillingFilter filter) {
+    protected List<Bson> cloudMatchCriteria(BillingFilter filter) {
         return Collections.emptyList();
     }
 }

@@ -25,7 +25,6 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
 import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
-import com.epam.dlab.backendapi.resources.azure.BillingResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.azure.AzureBillingService;
@@ -65,7 +64,6 @@ public class AzureSelfServiceModule extends CloudModule {
 	@Override
 	public void init(Environment environment, Injector injector) {
 		environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
-		environment.jersey().register(injector.getInstance(BillingResourceAzure.class));
 
 	}
 

@@ -25,7 +25,6 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
 import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
-import com.epam.dlab.backendapi.resources.aws.BillingResourceAws;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.aws.AwsBillingService;
@@ -63,7 +62,7 @@ public class AwsSelfServiceModule extends CloudModule {
 	@Override
 	public void init(Environment environment, Injector injector) {
 		environment.jersey().register(injector.getInstance(ComputationalResourceAws.class));
-		environment.jersey().register(injector.getInstance(BillingResourceAws.class));
+//
 
 		/*injector.getInstance(SecurityFactory.class).configure(injector, environment,
 				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));*/

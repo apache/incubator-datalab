@@ -21,7 +21,7 @@ package com.epam.dlab.backendapi.service.gcp;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
-import com.epam.dlab.backendapi.resources.dto.gcp.GcpBillingFilter;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
 import com.epam.dlab.model.aws.ReportLine;
@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GcpBillingService extends BillingService<GcpBillingFilter> {
+public class GcpBillingService extends BillingService {
     @Override
     public String getFirstLine(Document document) throws ParseException {
         SimpleDateFormat from = new SimpleDateFormat("yyyy-MM-dd");
@@ -98,7 +98,7 @@ public class GcpBillingService extends BillingService<GcpBillingFilter> {
     }
 
     @Override
-    public String getReportFileName(UserInfo userInfo, GcpBillingFilter filter) {
+    public String getReportFileName(UserInfo userInfo, BillingFilter filter) {
         return "gcp-billing-report.csv";
     }
 }
