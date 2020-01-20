@@ -295,7 +295,7 @@ mat-dialog-container {
   .mat-select-panel {
 
     &.ng-animating {
-      visibility: hidden;
+      display: none;
     }
   }
 
