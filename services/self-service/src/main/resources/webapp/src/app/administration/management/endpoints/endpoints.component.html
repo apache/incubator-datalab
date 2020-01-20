@@ -53,7 +53,7 @@
                   <span class="error" *ngIf="createEndpointForm?.controls['url'].hasError('isDuplicate')">This endpoint url already exists.</span>
                   <span class="error"
                         *ngIf="!createEndpointForm?.controls.url.valid && createEndpointForm.controls.url.touched && !createEndpointForm?.controls['url'].hasError('isDuplicate')">
-                    Please provide a valid endpoint url with slash on the end
+                    Please provide a valid endpoint url with slash in the end.
                   </span>
                 </div>
               </div>
@@ -64,7 +64,7 @@
                   <span class="error"
                     *ngIf="!createEndpointForm?.controls.account.valid && createEndpointForm.controls.account.touched">
                     Endpoint account can only contain letters, numbers, hyphens and '_' but can not end with special
-                    characters
+                    characters.
                   </span>
                 </div>
               </div>
