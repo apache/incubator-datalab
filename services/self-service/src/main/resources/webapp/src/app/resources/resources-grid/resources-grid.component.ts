@@ -127,7 +127,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public containsNotebook(notebook_name: string): boolean {
-    if (notebook_name)
+    if (notebook_name && this.environments.length)
       return this.environments
         .filter(project => project.exploratory
           .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name))).length > 0;
