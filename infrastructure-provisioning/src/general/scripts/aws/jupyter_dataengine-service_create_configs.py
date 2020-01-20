@@ -51,6 +51,7 @@ parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--numpy_version', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
+parser.add_argument('--scala_version', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -96,7 +97,7 @@ def toree_kernel(args):
         text = text.replace('SPARK_VERSION', 'Spark-' + args.spark_version)
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('DATAENGINE-SERVICE_VERSION', args.emr_version)
-        text = text.replace('SCALA_VERSION', scala_version)
+        text = text.replace('SCALA_VERSION', args.scala_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
@@ -117,7 +118,7 @@ def toree_kernel(args):
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('OS_USER', args.os_user)
         text = text.replace('DATAENGINE-SERVICE_VERSION', args.emr_version)
-        text = text.replace('SCALA_VERSION', scala_version)
+        text = text.replace('SCALA_VERSION', args.scala_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
@@ -142,19 +143,19 @@ def add_breeze_library_emr(args):
     breeze_tmp_dir = '/tmp/breeze_tmp_emr/'
     local('sudo mkdir -p ' + new_jars_directory_path)
     local('mkdir -p ' + breeze_tmp_dir)
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/breeze_2.11-0.12.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/breeze_2.11-0.12.jar -O ' +
           breeze_tmp_dir + 'breeze_2.11-0.12.jar')
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/breeze-natives_2.11-0.12.jar -O '
+    local('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/breeze-natives_2.11-0.12.jar -O '
           + breeze_tmp_dir + 'breeze-natives_2.11-0.12.jar')
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/breeze-viz_2.11-0.12.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/breeze-viz_2.11-0.12.jar -O ' +
           breeze_tmp_dir + 'breeze-viz_2.11-0.12.jar')
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/breeze-macros_2.11-0.12.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/breeze-macros_2.11-0.12.jar -O ' +
           breeze_tmp_dir + 'breeze-macros_2.11-0.12.jar')
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/breeze-parent_2.11-0.12.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/breeze-parent_2.11-0.12.jar -O ' +
           breeze_tmp_dir + 'breeze-parent_2.11-0.12.jar')
-    local('wget http://central.maven.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar -O ' +
           breeze_tmp_dir + 'jfreechart-1.0.19.jar')
-    local('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
           breeze_tmp_dir + 'jcommon-1.0.24.jar')
     local('wget --no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
           breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
