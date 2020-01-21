@@ -21,7 +21,4 @@
 
 controller:
   service:
-    nodePorts:
-      http: 31080
-      https: 31443
-    type: NodePort
+    type: LoadBalancer

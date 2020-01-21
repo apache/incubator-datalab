@@ -51,6 +51,7 @@ sudo pip install -U pip
 sudo pip install awscli
 
 local_ip=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
+full_hostname=$(curl http://169.254.169.254/latest/meta-data/hostname)
 first_master_ip=$(aws autoscaling describe-auto-scaling-instances --region ${k8s-region} --output text --query \
                  "AutoScalingInstances[?AutoScalingGroupName=='${k8s-asg}'].InstanceId" | xargs -n1 aws ec2 \
                  describe-instances --instance-ids $ID --region ${k8s-region} --query \
@@ -75,11 +76,25 @@ cat <<EOF > /tmp/kubeadm-config.yaml
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 kubernetesVersion: stable
-apiServerCertSANs:
+apiServer:
+  certSANs:
   - ${k8s-nlb-dns-name}
+  extraArgs:
+    cloud-provider: aws
+controllerManager:
+  extraArgs:
+    cloud-provider: aws
+    configure-cloud-routes: "false"
 controlPlaneEndpoint: "${k8s-nlb-dns-name}:6443"
+clusterName: "${cluster_name}"
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+nodeRegistration:
+  kubeletExtraArgs:
+    cloud-provider: aws
 EOF
-sudo kubeadm init --config=/tmp/kubeadm-config.yaml --upload-certs
+sudo kubeadm init --config=/tmp/kubeadm-config.yaml --upload-certs --node-name $full_hostname
 while check_elb_status
 do
     if [[ $RUN == "false" ]];
@@ -120,30 +135,20 @@ subjects:
 EOF
 sudo -i -u ${k8s_os_user} kubectl create -f /tmp/rbac-config.yaml
 sudo -i -u ${k8s_os_user} helm init --service-account tiller --history-max 200
-# Generating Java SSL certs
-sudo mkdir -p /home/${k8s_os_user}/keys
-sudo keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass ${ssn_keystore_password} \
-  -keypass ${ssn_keystore_password} -keystore /home/${k8s_os_user}/keys/ssn.keystore.jks \
-  -keysize 2048 -dname "CN=${k8s-nlb-dns-name}" -ext SAN=dns:localhost,dns:${k8s-nlb-dns-name}
-sudo keytool -exportcert -alias dlab -storepass ${ssn_keystore_password} -file /home/${k8s_os_user}/keys/ssn.crt \
-  -keystore /home/${k8s_os_user}/keys/ssn.keystore.jks
-
-aws s3 cp /home/${k8s_os_user}/keys/ssn.keystore.jks s3://${k8s-bucket-name}/dlab/certs/ssn/ssn.keystore.jks
-aws s3 cp /home/${k8s_os_user}/keys/ssn.crt s3://${k8s-bucket-name}/dlab/certs/ssn/ssn.crt
-
-sudo keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass ${endpoint_keystore_password} \
-  -keypass ${endpoint_keystore_password} -keystore /home/${k8s_os_user}/keys/endpoint.keystore.jks \
-  -keysize 2048 -dname "CN=${endpoint_elastic_ip}" -ext SAN=dns:localhost,dns:${endpoint_elastic_ip}
-sudo keytool -exportcert -alias dlab -storepass ${endpoint_keystore_password} -file /home/${k8s_os_user}/keys/endpoint.crt \
-  -keystore /home/${k8s_os_user}/keys/endpoint.keystore.jks
-
-aws s3 cp /home/${k8s_os_user}/keys/endpoint.keystore.jks s3://${k8s-bucket-name}/dlab/certs/endpoint/endpoint.keystore.jks
-aws s3 cp /home/${k8s_os_user}/keys/endpoint.crt s3://${k8s-bucket-name}/dlab/certs/endpoint/endpoint.crt
 sleep 60
 aws s3 cp /tmp/join_command s3://${k8s-bucket-name}/k8s/masters/join_command
 aws s3 cp /tmp/cert_key s3://${k8s-bucket-name}/k8s/masters/cert_key
 sudo rm -f /tmp/join_command
 sudo rm -f /tmp/cert_key
+cat <<EOF > /tmp/get_configmap_values.sh
+#!/bin/bash
+
+ROOT_CA=\$(kubectl get -o jsonpath="{.data['root_ca\.crt']}" configmaps/step-certificates-certs -ndlab | base64 | tr -d '\n')
+KID=\$(kubectl get -o jsonpath="{.data['ca\.json']}" configmaps/step-certificates-config -ndlab | jq -r .authority.provisioners[].key.kid)
+KID_NAME=\$(kubectl get -o jsonpath="{.data['ca\.json']}" configmaps/step-certificates-config -ndlab | jq -r .authority.provisioners[].name)
+jq -n --arg rootCa "\$ROOT_CA" --arg kid "\$KID" --arg kidName "\$KID_NAME" '{rootCa: \$rootCa, kid: \$kid, kidName: \$kidName}'
+EOF
+chown ${k8s_os_user}:${k8s_os_user} /tmp/get_configmap_values.sh
 else
 while check_tokens
 do
@@ -155,11 +160,37 @@ do
         break
     fi
 done
+cat <<EOF > /tmp/node.yaml
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+controlPlane:
+  localAPIEndpoint:
+    advertiseAddress: LOCAL_IP
+  certificateKey: "CERT_KEY"
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: ${k8s-nlb-dns-name}:6443
+    caCertHashes:
+    - 'HASHES'
+    token: TOKEN
+  tlsBootstrapToken: TOKEN
+kind: JoinConfiguration
+nodeRegistration:
+  kubeletExtraArgs:
+    cloud-provider: aws
+  name: NODE_NAME
+EOF
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/join_command /tmp/join_command
 aws s3 cp s3://${k8s-bucket-name}/k8s/masters/cert_key /tmp/cert_key
-join_command=$(cat /tmp/join_command)
 cert_key=$(cat /tmp/cert_key)
-sudo $join_command --control-plane --certificate-key "$cert_key"
+token=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "token " | awk '{print $2}')
+hashes=$(cat /tmp/join_command | sed 's/--\+/\n/g' | grep "discovery-token-ca-cert-hash" | awk '{print $2}')
+sed -i "s/NODE_NAME/$full_hostname/g" /tmp/node.yaml
+sed -i "s/TOKEN/$token/g" /tmp/node.yaml
+sed -i "s/HASHES/$hashes/g" /tmp/node.yaml
+sed -i "s/CERT_KEY/$cert_key/g" /tmp/node.yaml
+sed -i "s/LOCAL_IP/$local_ip/g" /tmp/node.yaml
+sudo kubeadm join --config /tmp/node.yaml
 sudo mkdir -p /home/${k8s_os_user}/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/${k8s_os_user}/.kube/config
 sudo chown -R ${k8s_os_user}:${k8s_os_user} /home/${k8s_os_user}/.kube
@@ -204,6 +235,6 @@ sudo bash -c 'echo "0 0 * * * root /usr/local/bin/update_files.sh" >> /etc/cront
 # sleep 300
 # sudo bash -c 'echo "* * * * * root /usr/local/bin/remove-etcd-member.sh >> /var/log/cron_k8s.log 2>&1" >> /etc/crontab'
 sudo -i -u ${k8s_os_user} helm repo update
-wget https://releases.hashicorp.com/terraform/0.12.3/terraform_0.12.3_linux_amd64.zip -O /tmp/terraform_0.12.3_linux_amd64.zip
-unzip /tmp/terraform_0.12.3_linux_amd64.zip -d /tmp/
+wget https://releases.hashicorp.com/terraform/0.12.12/terraform_0.12.12_linux_amd64.zip -O /tmp/terraform_0.12.12_linux_amd64.zip
+unzip /tmp/terraform_0.12.12_linux_amd64.zip -d /tmp/
 sudo mv /tmp/terraform /usr/local/bin/

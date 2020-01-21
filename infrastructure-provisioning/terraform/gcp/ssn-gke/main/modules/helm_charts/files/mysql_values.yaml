@@ -23,3 +23,8 @@ mysqlRootPassword: "${mysql_root_password}"
 mysqlUser: ${mysql_user}
 mysqlPassword: "${mysql_user_password}"
 mysqlDatabase: ${mysql_db_name}
+imageTag: "5.7.14"
+persistence:
+  enabled: true
+  size: ${mysql_disk_size}Gi
+  storageClass: ${storage_class}

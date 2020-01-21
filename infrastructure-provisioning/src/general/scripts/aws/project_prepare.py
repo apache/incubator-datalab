@@ -257,6 +257,12 @@ if __name__ == "__main__":
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
+                "PrefixListIds": [],
+                "FromPort": 443,
+                "IpRanges": project_conf['allowed_ip_cidr'],
+                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": project_conf['provision_instance_ip']}],
                 "UserIdGroupPairs": [],

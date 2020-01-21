@@ -61,6 +61,7 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
     except:
         sys.exit(1)
 
+
 def renew_gpg_key():
     try:
         sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
@@ -98,5 +99,18 @@ def ensure_ntpd(user, edge_private_ip=''):
             sudo('systemctl restart ntp')
             sudo('systemctl enable ntp')
             sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))
+    except:
+        sys.exit(1)
+
+
+def ensure_step(user):
+    try:
+        if not exists('/home/{}/.ensure_dir/step_ensured'.format(user)):
+            sudo('apt-get -y install openjdk-8-jdk')
+            sudo('apt-get install -y wget')
+            sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step-cli_0.13.3_amd64.deb '
+                 '-O /tmp/step-cli_0.13.3_amd64.deb')
+            sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
+            sudo('touch /home/{}/.ensure_dir/step_ensured'.format(user))
     except:
         sys.exit(1)
