@@ -128,7 +128,7 @@ mat-dialog-container {
         margin-right: 2px;
       }
 
-      .btn {
+      .btn:not(.mat-icon-button) {
         padding: 6px 15px;
         min-width: 140px;
         font-weight: 600;
