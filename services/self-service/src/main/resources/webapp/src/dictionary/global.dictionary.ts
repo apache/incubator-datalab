@@ -37,7 +37,7 @@ export class ReportingConfigModel {
 
   constructor(
     public user: Array<string>,
-    public product: Array<string>,
+    public service: Array<string>,
     public resource_type: Array<string>,
     public status: Array<string>,
     public shape: Array<string>,
@@ -49,7 +49,7 @@ export class ReportingConfigModel {
 
   defaultConfigurations(): void {
     this.user = [];
-    this.product = [];
+    this.service = [];
     this.resource_type = [];
     this.status = [];
     this.shape = [];
@@ -59,6 +59,5 @@ export class ReportingConfigModel {
     this.project = [];
   }
 }
-
 
 

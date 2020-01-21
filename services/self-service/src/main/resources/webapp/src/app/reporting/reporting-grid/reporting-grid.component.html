@@ -96,34 +96,34 @@
 
     <ng-container matColumnDef="shape">
       <th mat-header-cell *matHeaderCellDef class="th_shape">
-        <span class="label"> {{ DICTIONARY['aws'].instance_size}} </span>
+        <span class="label"> Instance size</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span
-              *ngIf="filteredReportData[DICTIONARY['aws'].billing.instance_size].length > 0; else shape_filtered">filter_list</span>
+              *ngIf="filteredReportData['shape'].length > 0; else shape_filtered">filter_list</span>
             <ng-template #shape_filtered>more_vert</ng-template>
           </i>
         </button>
       </th>
       <td mat-cell *matCellDef="let element">
-        <span [outerHTML]="element[DICTIONARY['aws'].billing.instance_size] | lineBreak"></span>
+        <span [outerHTML]="element['shape'] | lineBreak"></span>
       </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <ng-container matColumnDef="service">
       <th mat-header-cell *matHeaderCellDef class="service">
-        <span class="label"> {{ DICTIONARY['aws'].service}} </span>
+        <span class="label"> Service </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span
-              *ngIf="filteredReportData[DICTIONARY['aws'].billing.instance_size].length > 0; else service_filtered">filter_list</span>
+              *ngIf="filteredReportData['shape'].length > 0; else service_filtered">filter_list</span>
             <ng-template #service_filtered>more_vert</ng-template>
           </i>
         </button>
       </th>
       <td mat-cell *matCellDef="let element">
-        {{ element[DICTIONARY['aws'].billing.service] }}
+        {{ element['service'] }}
         <span *ngIf="element.resource_type">({{ element.resource_type }})</span>
       </td>
       <td mat-footer-cell *matFooterCellDef></td>
@@ -138,7 +138,7 @@
         {{ element[DICTIONARY['aws'].billing.cost] }} {{ element[DICTIONARY['aws'].billing.currencyCode] }}
       </td>
       <td mat-footer-cell *matFooterCellDef>
-        <span *ngIf="reportData?.length">{{ fullReport[DICTIONARY['aws'].billing.costTotal] }}
+        <span *ngIf="reportData?.length">{{ fullReport['cost_total'] }}
           {{ fullReport[DICTIONARY['aws'].billing.currencyCode] }}</span>
       </td>
     </ng-container>
@@ -185,9 +185,9 @@
     <ng-container matColumnDef="service-filter">
       <th mat-header-cell *matHeaderCellDef>
         <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)"
-          [type]="[DICTIONARY['aws'].billing.service_filter_key]"
-          [items]="filterConfiguration[DICTIONARY['aws'].billing.service_filter_key]"
-          [model]="filteredReportData[DICTIONARY['aws'].billing.service_filter_key]"></multi-select-dropdown>
+          [type]="['service']"
+          [items]="filterConfiguration['service']"
+          [model]="filteredReportData['service']"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="actions" stickyEnd>
