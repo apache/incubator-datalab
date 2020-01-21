@@ -10,7 +10,6 @@ Feature: Notebook management in DLab
     When User sends create new notebook request
     Then Status code is 200 for notebook
     And User waits maximum <timeout> minutes while notebook is creating
-    @aws @v1 @jupyter
     Examples:
       | name    | endpoint | image                      | template                      | project | exploratoryTag       | shape     | version                | imageName | timeout |
       | jup1    | local    | docker.dlab-jupyter        | Jupyter notebook 6.0.2        | prj1    | integration test tag | t2.medium | jupyter_notebook-6.0.2 |           | 50      |
@@ -20,6 +19,25 @@ Feature: Notebook management in DLab
       | ten1    | local    | docker.dlab-tensor         | Jupyter with TensorFlow 1.8.0 | prj1    | integration test tag | p2.xlarge | tensorflow_gpu-1.8.0   |           | 60      |
       | juplab1 | loacl    | docker.dlab-jupyterlab     | JupyterLab 0.35.6             | prj1    | integration test tag | t2.medium | jupyter_lab-0.35.6     |           | 30      |
       | deepl1  | loacl    | docker.dlab-deeplearning   | Deep Learning  2.2            | prj1    | integration test tag | p2.xlarge | deeplearning-2.2       |           | 180     |
+
+
+
+Scenario Outline: Create new notebook when it already exists with the same name
+
+Given There is active project "<project>" in DLab
+    And There is notebook with name "<name>"
+    And User tries to create new notebook with name "<name>", endpoint "<endpoint>", image "<image>", template "<template>", project "<project>", exploratory tag "<exploratoryTag>", shape "<shape>", version "<version>", image name "<imageName>"
+    When User sends create new notebook request
+    Then Status code is 409 for notebook
+    Examples:
+      | name    | endpoint | image                      | template                      | project | exploratoryTag       | shape     | version                | imageName |
+      | jup1    | local    | docker.dlab-jupyter        | Jupyter notebook 6.0.2        | prj1    | integration test tag | t2.medium | jupyter_notebook-6.0.2 |           | 
+      | rst1    | local    | docker.dlab-rstudio        | RStudio 1.2.5033              | prj1    | integration test tag | t2.medium | RStudio-1.2.5033       |           | 
+      | zep1    | local    | docker.dlab-zeppelin       | Apache Zeppelin 0.8.2         | prj1    | integration test tag | t2.medium | zeppelin-0.8.2         |           | 
+      | tenrst1 | local    | docker.dlab-tensor-rstudio | RStudio with TensorFlow 1.8.0 | prj1    | integration test tag | p2.xlarge | tensorflow_gpu-1.8.0   |           |
+      | ten1    | local    | docker.dlab-tensor         | Jupyter with TensorFlow 1.8.0 | prj1    | integration test tag | p2.xlarge | tensorflow_gpu-1.8.0   |           | 
+      | juplab1 | loacl    | docker.dlab-jupyterlab     | JupyterLab 0.35.6             | prj1    | integration test tag | t2.medium | jupyter_lab-0.35.6     |           | 
+      | deepl1  | loacl    | docker.dlab-deeplearning   | Deep Learning  2.2            | prj1    | integration test tag | p2.xlarge | deeplearning-2.2       |           | 
 
 
   Scenario Outline: Stop notebook when it is in running Status
