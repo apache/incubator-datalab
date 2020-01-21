@@ -36,7 +36,6 @@ spec:
       name: http
     - port: {{ .Values.ui.service.https_port }}
       targetPort: {{ .Values.ui.service.https_port }}
-      nodePort: 30433
       protocol: TCP
       name: https
   selector:

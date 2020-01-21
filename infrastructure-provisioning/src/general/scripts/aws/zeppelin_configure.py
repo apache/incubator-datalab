@@ -313,8 +313,8 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     zeppelin_ip_url = "http://" + ip_address + ":8080/"
     zeppelin_dns_url = "http://" + dns_name + ":8080/"
-    zeppelin_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
-    zeppelin_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
+    zeppelin_notebook_access_url = "https://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
+    zeppelin_ungit_access_url = "https://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
     ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
@@ -346,9 +346,9 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Apache Zeppelin",
-                    "url": zeppelin_notebook_acces_url},
+                    "url": zeppelin_notebook_access_url},
                    {"description": "Ungit",
-                    "url": zeppelin_ungit_acces_url}#,
+                    "url": zeppelin_ungit_access_url}#,
                    #{"description": "Apache Zeppelin (via tunnel)",
                    # "url": zeppelin_ip_url},
                    #{"description": "Ungit (via tunnel)",

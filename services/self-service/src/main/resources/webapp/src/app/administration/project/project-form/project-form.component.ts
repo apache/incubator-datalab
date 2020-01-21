@@ -156,7 +156,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public editSpecificProject(item) {
-    let endpoints = item.endpoints.map((item: any) => item.name);
+    const endpoints = item.endpoints.map((endpoint: any) => endpoint.name);
 
     this.projectForm = this._fb.group({
       'key': [''],

@@ -27,14 +27,14 @@ locals {
 resource "google_compute_instance" "endpoint" {
   name         = local.endpoint_instance_name
   machine_type = var.endpoint_shape
-  tags         = ["${replace("${local.endpoint_instance_name}", "_", "-")}"]
-  labels       = {
-    name        = "${local.endpoint_instance_name}"
-    sbn         = "${var.service_base_name}"
-    product     = "${var.product}"
-    endpoint_id = "${var.endpoint_id}"
-  }
   zone         = var.zone
+  tags         = [replace(local.endpoint_instance_name, "_", "-")]
+  labels       = {
+    name        = local.endpoint_instance_name
+    sbn         = var.service_base_name
+    product     = var.product
+    endpoint_id = var.endpoint_id
+  }
 
   boot_disk {
     initialize_params {
@@ -56,19 +56,11 @@ resource "google_compute_instance" "endpoint" {
     network    = data.google_compute_network.endpoint_vpc_data.name
     subnetwork = data.google_compute_subnetwork.endpoint_subnet_data.name
     access_config {
-      nat_ip = google_compute_address.static.0.address
+      nat_ip = google_compute_address.static.address
     }
   }
 }
 
 resource "google_compute_address" "static" {
   name = local.endpoint_instance_ip
-  count = var.static_ip == "" ? 1 : 0
-}
-
-resource "google_storage_bucket" "image-store" {
-  name          = "${var.service_base_name}-${var.endpoint_id}-shared-bucket"
-  location      = var.bucket_region
-  force_destroy = true
-  project       = var.project_id
 }

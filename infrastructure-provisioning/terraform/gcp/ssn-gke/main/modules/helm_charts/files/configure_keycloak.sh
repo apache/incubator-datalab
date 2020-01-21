@@ -27,16 +27,16 @@
           --user ${keycloak_user} --password ${keycloak_password} > /dev/null && echo "true" || echo "false")
       }
       check_realm () {
-          RUN=$(/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab > /dev/null && echo "true" || echo "false")
+          RUN=$(/opt/jboss/keycloak/bin/kcadm.sh get realms/${keycloak_realm_name} > /dev/null && echo "true" || echo "false")
       }
       configure_keycloak () {
           # Create Realm
-          /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=dlab -s enabled=true -s loginTheme=dlab \
+          /opt/jboss/keycloak/bin/kcadm.sh create realms -s realm=${keycloak_realm_name} -s enabled=true -s loginTheme=dlab \
           -s sslRequired=none
           # Get realm ID
-          dlab_realm_id=$(/opt/jboss/keycloak/bin/kcadm.sh get realms/dlab | /usr/bin/jq -r '.id')
+          dlab_realm_id=$(/opt/jboss/keycloak/bin/kcadm.sh get realms/${keycloak_realm_name} | /usr/bin/jq -r '.id')
           # Create user federation
-          /opt/jboss/keycloak/bin/kcadm.sh create components -r dlab -s name=dlab-ldap -s providerId=ldap \
+          /opt/jboss/keycloak/bin/kcadm.sh create components -r ${keycloak_realm_name} -s name=dlab-ldap -s providerId=ldap \
           -s providerType=org.keycloak.storage.UserStorageProvider -s parentId=$dlab_realm_id  -s 'config.priority=["1"]' \
           -s 'config.fullSyncPeriod=["-1"]' -s 'config.changedSyncPeriod=["-1"]' -s 'config.cachePolicy=["DEFAULT"]' \
           -s config.evictionDay=[] -s config.evictionHour=[] -s config.evictionMinute=[] -s config.maxLifespan=[] -s \
@@ -50,15 +50,15 @@
           -s 'config.useTruststoreSpi=["ldapsOnly"]' -s 'config.connectionPooling=["true"]' \
           -s 'config.pagination=["true"]' --server http://127.0.0.1:8080/auth
           # Get user federation ID
-          user_f_id=$(/opt/jboss/keycloak/bin/kcadm.sh get components -r dlab --query name=dlab-ldap | /usr/bin/jq -er '.[].id')
+          user_f_id=$(/opt/jboss/keycloak/bin/kcadm.sh get components -r ${keycloak_realm_name} --query name=dlab-ldap | /usr/bin/jq -er '.[].id')
           # Create user federation email mapper
-          /opt/jboss/keycloak/bin/kcadm.sh create components -r dlab -s name=uid-attribute-to-email-mapper \
+          /opt/jboss/keycloak/bin/kcadm.sh create components -r ${keycloak_realm_name} -s name=uid-attribute-to-email-mapper \
           -s providerId=user-attribute-ldap-mapper -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
           -s parentId=$user_f_id -s 'config."user.model.attribute"=["email"]' \
           -s 'config."ldap.attribute"=["uid"]' -s 'config."read.only"=["false"]' \
           -s 'config."always.read.value.from.ldap"=["false"]' -s 'config."is.mandatory.in.ldap"=["false"]'
           # Create user federation group mapper
-          /opt/jboss/keycloak/bin/kcadm.sh create components -r dlab -s name=group_mapper -s providerId=group-ldap-mapper \
+          /opt/jboss/keycloak/bin/kcadm.sh create components -r ${keycloak_realm_name} -s name=group_mapper -s providerId=group-ldap-mapper \
           -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper -s parentId=$user_f_id \
           -s 'config."groups.dn"=["ou=Groups,${ldap_dn}"]' -s 'config."group.name.ldap.attribute"=["cn"]' \
           -s 'config."group.object.classes"=["posixGroup"]' -s 'config."preserve.group.inheritance"=["false"]' \
@@ -67,14 +67,14 @@
           -s 'config."user.roles.retrieve.strategy"=["LOAD_GROUPS_BY_MEMBER_ATTRIBUTE"]' \
           -s 'config."mapped.group.attributes"=[]' -s 'config."drop.non.existing.groups.during.sync"=["false"]'
           # Create client
-          /opt/jboss/keycloak/bin/kcadm.sh create clients -r dlab -s clientId=dlab-ui -s enabled=true -s \
-          'redirectUris=["http://${ssn_k8s_alb_dns_name}/"]' -s secret=${keycloak_client_secret} -s \
+          /opt/jboss/keycloak/bin/kcadm.sh create clients -r ${keycloak_realm_name} -s clientId=${keycloak_client_id} -s enabled=true -s \
+          'redirectUris=["https://${ssn_k8s_alb_dns_name}/"]' -s secret=${keycloak_client_secret} -s \
           serviceAccountsEnabled=true
           # Get clint ID
-          client_id=$(/opt/jboss/keycloak/bin/kcadm.sh get clients -r dlab --query clientId=dlab-ui | /usr/bin/jq -er '.[].id')
+          client_id=$(/opt/jboss/keycloak/bin/kcadm.sh get clients -r ${keycloak_realm_name} --query clientId=${keycloak_client_id} | /usr/bin/jq -er '.[].id')
           # Create client mapper
           /opt/jboss/keycloak/bin/kcadm.sh create clients/$client_id/protocol-mappers/models \
-          -r dlab -s name=group_mapper -s protocol=openid-connect -s protocolMapper="oidc-group-membership-mapper" \
+          -r ${keycloak_realm_name} -s name=group_mapper -s protocol=openid-connect -s protocolMapper="oidc-group-membership-mapper" \
           -s 'config."full.path"="false"' -s 'config."id.token.claim"="true"' -s 'config."access.token.claim"="true"' \
           -s 'config."claim.name"="groups"' -s 'config."userinfo.token.claim"="true"'
       }

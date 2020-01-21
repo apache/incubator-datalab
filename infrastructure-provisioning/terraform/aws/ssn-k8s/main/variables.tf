@@ -104,5 +104,5 @@ variable "ssn_k8s_workers_shape" {
   default = "t2.medium"
 }
 variable "kubernetes_version" {
-  default = "1.15.4-00"
+  default = "1.15.5-00"
 }

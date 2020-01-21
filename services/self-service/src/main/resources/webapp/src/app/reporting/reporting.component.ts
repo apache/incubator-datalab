@@ -27,7 +27,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 
 import { FileUtils } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
-import {ProgressBarService} from "../core/services/progress-bar.service";
+import {ProgressBarService} from '../core/services/progress-bar.service';
 
 @Component({
   selector: 'dlab-reporting',
@@ -85,7 +85,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getGeneralBillingData() {
-    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
+    setTimeout(() => {this.progressBarService.startProgressBar();} , 0);
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
