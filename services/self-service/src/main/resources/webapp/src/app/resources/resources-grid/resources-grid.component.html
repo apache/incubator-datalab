@@ -156,7 +156,7 @@
                 && element.status !== 'terminated'
                 && element.status !== 'creating image'">
                   <li
-                    *ngIf="element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'starting' && element.status !== 'creating image'"
+                    *ngIf="element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'starting' && element.status !== 'creating image' && element.status.toLowerCase() !== 'reconfiguring'"
                     matTooltip="Unable to stop notebook because at least one computational resource is in progress"
                     matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
                     <div (click)="exploratoryAction(element, 'stop')"
