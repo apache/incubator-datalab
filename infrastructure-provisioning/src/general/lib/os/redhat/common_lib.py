@@ -92,10 +92,18 @@ def ensure_ntpd(user, edge_private_ip=''):
         sys.exit(1)
 
 
+def ensure_java(user):
+    try:
+        if not exists('/home/{}/.ensure_dir/java_ensured'.format(user)):
+            sudo('yum -y install java-1.8.0-openjdk-devel')
+            sudo('touch /home/{}/.ensure_dir/java_ensured'.format(user))
+    except:
+        sys.exit(1)
+
+
 def ensure_step(user):
     try:
         if not exists('/home/{}/.ensure_dir/step_ensured'.format(user)):
-            sudo('yum -y install java-1.8.0-openjdk-devel')
             sudo('yum install -y wget')
             sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step_0.13.3_linux_amd64.tar.gz '
                  '-O /tmp/step_0.13.3_linux_amd64.tar.gz')

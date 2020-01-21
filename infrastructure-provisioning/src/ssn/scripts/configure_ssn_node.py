@@ -234,6 +234,9 @@ if __name__ == "__main__":
     print("Installing nginx as frontend.")
     ensure_nginx(args.dlab_path)
 
+    print("Installing Java")
+    ensure_java(args.os_user)
+
     print("Configuring ssl key and cert for nginx.")
     configure_ssl_certs(args.hostname, custom_ssl_cert)
 
