@@ -83,9 +83,18 @@ if __name__ == "__main__":
     s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/scala_version',
                             '/tmp/scala_version')
     with file('/tmp/scala_version') as f:
-        scala_version = str(f.read()).replace(',', '')
-    sudo("/usr/bin/python /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket +
-         " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
-         spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
-         + args.emr_excluded_spark_properties + "' --project_name " + args.project_name + " --os_user " + args.os_user +
-         " --pip_mirror " + args.pip_mirror + " --numpy_version " + numpy_version + " --application " + args.application + " --r_enabled " + r_enabled + " --scala_version " + scala_version)
+        scala_version = str(f.read()).rstrip()
+        print(scala_version)
+    if r_enabled == 'true':
+        s3_client.download_file(args.bucket, args.project_name + '/' + args.cluster_name + '/r_version', '/tmp/r_version')
+        with file('/tmp/r_version') as g:
+            r_version = str(g.read()).rstrip()
+            print(r_version)
+    else:
+        r_version = 'false'
+    sudo("/usr/bin/python /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket
+         + " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version "
+         + spark_version + " --scala_version " + scala_version + " --r_version " + r_version + " --hadoop_version "
+         + hadoop_version + " --region " + args.region + " --excluded_lines '" + args.emr_excluded_spark_properties
+         + "' --project_name " + args.project_name + " --os_user " + args.os_user + " --pip_mirror "
+         + args.pip_mirror + " --numpy_version " + numpy_version + " --application " + args.application)
