@@ -27,7 +27,6 @@ import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
-import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalClusterConfigDTO;
@@ -35,7 +34,6 @@ import com.epam.dlab.dto.computational.ComputationalStartDTO;
 import com.epam.dlab.dto.computational.ComputationalStopDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -49,8 +47,6 @@ public class SparkClusterService extends DockerService implements DockerCommands
 
 	@Inject
 	private ComputationalConfigure computationalConfigure;
-	@Inject
-	private EndpointService endpointService;
 
 	public String create(UserInfo ui, ComputationalBase<?> dto) {
 		return action(ui, dto, CREATE);
@@ -72,8 +68,7 @@ public class SparkClusterService extends DockerService implements DockerCommands
 		String uuid = DockerCommands.generateUUID();
 		folderListenerExecutor.start(configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallback(RECONFIGURE_SPARK, uuid, clusterConfigDTO, endpointService.getEndpointUrl(
-						clusterConfigDTO.getEndpoint()) + ApiCallbacks.COMPUTATIONAL + ApiCallbacks.STATUS_URI));
+				getFileHandlerCallback(RECONFIGURE_SPARK, uuid, clusterConfigDTO));
 		runReconfigureSparkDockerCommand(ui, clusterConfigDTO, uuid);
 		return uuid;
 	}
@@ -106,8 +101,7 @@ public class SparkClusterService extends DockerService implements DockerCommands
 		String uuid = DockerCommands.generateUUID();
 		folderListenerExecutor.start(configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallback(action, uuid, dto, endpointService.getEndpointUrl(dto.getEndpoint()) +
-						ApiCallbacks.COMPUTATIONAL + ApiCallbacks.STATUS_URI));
+				getFileHandlerCallback(action, uuid, dto));
 		try {
 			final RunDockerCommand dockerCommand = new RunDockerCommand()
 					.withInteractive()
@@ -130,9 +124,8 @@ public class SparkClusterService extends DockerService implements DockerCommands
 		return uuid;
 	}
 
-	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto,
-													   String callbackUri) {
-		return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto, callbackUri);
+	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto) {
+		return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto);
 	}
 
 	private String nameContainer(String user, DockerAction action, String exploratoryName, String name) {

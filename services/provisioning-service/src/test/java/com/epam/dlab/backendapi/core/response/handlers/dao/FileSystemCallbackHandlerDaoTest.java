@@ -76,8 +76,7 @@ public class FileSystemCallbackHandlerDaoTest {
 		when(mapper.writeValueAsBytes(any())).thenReturn("{'test': 'test'}".getBytes());
 		final PersistentFileHandler persistentFileHandler =
 				new PersistentFileHandler(new LibListCallbackHandler(null,
-						DockerAction.LIB_LIST, "uuid", "test", "das", "someCallbackUri"),
-						1L, "/opt/test");
+						DockerAction.LIB_LIST, "uuid", "test", "das"), 1L, "/opt/test");
 
 		fileSystemCallbackHandlerDao.upsert(persistentFileHandler);
 
@@ -96,12 +95,10 @@ public class FileSystemCallbackHandlerDaoTest {
 				.new DockerFileHandlerCallback("sameUUID"), 1L, "/opt/test");
 		final PersistentFileHandler persistentFileHandler2 =
 				new PersistentFileHandler(new LibListCallbackHandler(null,
-						DockerAction.LIB_LIST, "sameUUID", "test", "das1", "someCallbackUri"),
-						1L, "/opt/test");
+						DockerAction.LIB_LIST, "sameUUID", "test", "das1"), 1L, "/opt/test");
 		final PersistentFileHandler persistentFileHandler3 =
 				new PersistentFileHandler(new LibListCallbackHandler(null,
-						DockerAction.LIB_LIST, "anotherUUID", "test", "das2", "someCallbackUri"),
-						1L, "/opt/test");
+						DockerAction.LIB_LIST, "anotherUUID", "test", "das2"), 1L, "/opt/test");
 
 
 		fileSystemCallbackHandlerDao.upsert(persistentFileHandler1);

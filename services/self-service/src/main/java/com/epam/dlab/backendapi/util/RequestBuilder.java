@@ -284,7 +284,6 @@ public class RequestBuilder {
 		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), ExploratoryActionDTO.class)
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withProject(userInstance.getProject())
-				.withEndpoint(endpointDTO.getName())
 				.withNotebookImage(userInstance.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withExploratoryName(userInstance.getExploratoryName());
@@ -310,7 +309,7 @@ public class RequestBuilder {
 	public <T extends LibListComputationalDTO> T newLibComputationalList(UserInfo userInfo,
 																		 UserInstanceDTO userInstance,
 																		 UserComputationalResource
-																					 computationalResource,
+																				 computationalResource,
 																		 EndpointDTO endpointDTO) {
 
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
@@ -319,8 +318,7 @@ public class RequestBuilder {
 				.withProject(userInstance.getProject())
 				.withComputationalImage(computationalResource.getImageName())
 				.withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance))
-				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-				.withEndpoint(endpointDTO.getName());
+				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -476,8 +474,7 @@ public class RequestBuilder {
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratory.getExploratoryId())
 				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
-				.withProject(exploratory.getProject())
-				.withEndpoint(endpointDTO.getName());
+				.withProject(exploratory.getProject());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -488,8 +485,7 @@ public class RequestBuilder {
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratory.getExploratoryId())
 				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
-				.withProject(exploratory.getProject())
-				.withEndpoint(endpointDTO.getName());
+				.withProject(exploratory.getProject());
 	}
 
 	@SuppressWarnings("unchecked")

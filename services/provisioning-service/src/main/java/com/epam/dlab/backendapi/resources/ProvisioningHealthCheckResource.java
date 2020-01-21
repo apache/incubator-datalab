@@ -19,44 +19,28 @@
 
 package com.epam.dlab.backendapi.resources;
 
+
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.service.EndpointService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("infrastructure/endpoint")
-@Consumes(MediaType.APPLICATION_JSON)
+@Path("/healthcheck")
 @Produces(MediaType.APPLICATION_JSON)
-public class EndpointResource {
-    private final EndpointService endpointService;
-    private final ProvisioningServiceApplicationConfiguration configuration;
+public class ProvisioningHealthCheckResource {
+    private static final String HEALTH_CHECK = "ProvisioningHealthCheck";
 
     @Inject
-    public EndpointResource(EndpointService endpointService, ProvisioningServiceApplicationConfiguration configuration) {
-        this.endpointService = endpointService;
-        this.configuration = configuration;
-    }
+    private ProvisioningServiceApplicationConfiguration configuration;
 
     @GET
-    @Path("/healthcheck")
-    public Response status(@Auth UserInfo userInfo) {
-        return Response.ok().build();
-    }
-
-    @POST
-    public Response connectEndpoint(@Auth UserInfo userInfo, @Context HttpServletRequest request, String name) {
-        endpointService.create(name, request.getScheme() + "://" + request.getRemoteHost());
+    public Response status(@Auth UserInfo ui) {
         return Response.ok(configuration.getCloudProvider()).build();
     }
 }

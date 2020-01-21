@@ -26,6 +26,7 @@ import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -59,7 +60,6 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
 	 */
 	@JsonProperty
 	private final LibraryInstallDTO dto;
-	private String callbackUri;
 
 	/**
 	 * Instantiate handler for process of docker response for libraries installation.
@@ -74,16 +74,14 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
 			@JacksonInject RESTService selfService,
 			@JsonProperty("action") DockerAction action,
 			@JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
-			@JsonProperty("dto") LibraryInstallDTO dto,
-			String callbackUri) {
+			@JsonProperty("dto") LibraryInstallDTO dto) {
 		super(selfService, user, uuid, action);
 		this.dto = dto;
-		this.callbackUri = callbackUri;
 	}
 
 	@Override
 	protected String getCallbackURI() {
-		return callbackUri;
+		return ApiCallbacks.LIB_STATUS_URI;
 	}
 
 	@Override

@@ -24,14 +24,12 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -51,8 +49,6 @@ public class ComputationalConfigure implements DockerCommands {
 	private CommandBuilder commandBuilder;
 	@Inject
 	private RESTService selfService;
-	@Inject
-	private EndpointService endpointService;
 
 	public String configure(String uuid, ComputationalBase<?> dto) {
 		switch (configuration.getCloudProvider()) {
@@ -83,8 +79,7 @@ public class ComputationalConfigure implements DockerCommands {
 		folderListenerExecutor.start(
 				configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallback(CONFIGURE, uuid, dto, endpointService.getEndpointUrl(dto.getEndpoint()) +
-						ApiCallbacks.COMPUTATIONAL + ApiCallbacks.STATUS_URI));
+				getFileHandlerCallback(CONFIGURE, uuid, dto));
 		try {
 			commandExecutor.executeAsync(
 					dto.getEdgeUserName(),
@@ -111,8 +106,8 @@ public class ComputationalConfigure implements DockerCommands {
 	}
 
 	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String originalUuid, ComputationalBase<?>
-			dto, String callbackUri) {
-		return new ComputationalConfigureCallbackHandler(selfService, action, originalUuid, dto, callbackUri);
+			dto) {
+		return new ComputationalConfigureCallbackHandler(selfService, action, originalUuid, dto);
 	}
 
 	private String nameContainer(String user, DockerAction action, String exploratoryName, String name) {

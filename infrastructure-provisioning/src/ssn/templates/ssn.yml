@@ -42,6 +42,9 @@ mongo:
   database: dlabdb
 
 selfService:
+  protocol: https
+  host: localhost
+  port: 8443
   jerseyClient:
     timeout: 3s
     connectionTimeout: 3s

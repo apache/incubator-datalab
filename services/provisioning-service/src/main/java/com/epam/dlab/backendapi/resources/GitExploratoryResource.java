@@ -26,13 +26,10 @@ import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryGitCredsCallbackHandler;
-import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.impl.DockerService;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,9 +45,6 @@ import javax.ws.rs.core.MediaType;
 @Slf4j
 public class GitExploratoryResource extends DockerService implements DockerCommands {
 
-	@Inject
-	private EndpointService endpointService;
-
 	@Path("/git_creds")
 	@POST
 	public String gitCredsUpdate(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws JsonProcessingException {
@@ -62,8 +56,7 @@ public class GitExploratoryResource extends DockerService implements DockerComma
 		String uuid = DockerCommands.generateUUID();
 		folderListenerExecutor.start(configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallback(action, uuid, dto, endpointService.getEndpointUrl(dto.getEndpoint()) +
-						ApiCallbacks.GIT_CREDS));
+				getFileHandlerCallback(action, uuid, dto));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
@@ -81,10 +74,8 @@ public class GitExploratoryResource extends DockerService implements DockerComma
 		return uuid;
 	}
 
-	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto,
-													   String callbackUri) {
-		return new ExploratoryGitCredsCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
-				dto.getExploratoryName(), callbackUri);
+	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
+		return new ExploratoryGitCredsCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(), dto.getExploratoryName());
 	}
 
 	private String nameContainer(String user, DockerAction action, String name) {

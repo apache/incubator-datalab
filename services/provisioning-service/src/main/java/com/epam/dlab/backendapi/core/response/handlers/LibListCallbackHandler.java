@@ -50,7 +50,6 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<LibListStatu
 	 */
 	@JsonProperty
 	private final String imageName;
-	private String callbackUri;
 
 	/**
 	 * Instantiate handler for process of docker response for list of libraries.
@@ -65,16 +64,14 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<LibListStatu
 	public LibListCallbackHandler(
 			@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action,
 			@JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
-			@JsonProperty("imageName") String imageName,
-			String callbackUri) {
+			@JsonProperty("imageName") String imageName) {
 		super(selfService, user, uuid, action);
 		this.imageName = imageName;
-		this.callbackUri = callbackUri;
 	}
 
 	@Override
 	protected String getCallbackURI() {
-		return callbackUri;
+		return ApiCallbacks.UPDATE_LIBS_URI;
 	}
 
 	@Override

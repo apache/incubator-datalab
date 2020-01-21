@@ -25,13 +25,13 @@ import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class EndpointServiceImpl implements EndpointService {
-	private static final String ENDPOINT = "infrastructure/endpoint";
-	private static final String HEALTH_CHECK = "infrastructure/endpoint/healthcheck";
+	private static final String HEALTH_CHECK = "healthcheck";
 	private final EndpointDAO endpointDAO;
 	private final ProjectService projectService;
 	private final ExploratoryDAO exploratoryDAO;
@@ -78,12 +78,11 @@ public class EndpointServiceImpl implements EndpointService {
 
 	@Override
 	public void create(UserInfo userInfo, EndpointDTO endpointDTO) {
+		CloudProvider cloudProvider = checkUrl(userInfo, endpointDTO.getUrl());
 		if (!endpointDAO.get(endpointDTO.getName()).isPresent()) {
-			CloudProvider cloudProvider = connectEndpoint(userInfo, endpointDTO.getUrl(), endpointDTO.getName());
-
-			Optional.ofNullable(cloudProvider)
-					.orElseThrow(() -> new DlabException("CloudProvider is not defined for endpoint"));
-
+			if (!Objects.nonNull(cloudProvider)) {
+				throw new DlabException("CloudProvider cannot be null");
+			}
 			endpointDAO.create(new EndpointDTO(endpointDTO.getName(), endpointDTO.getUrl(), endpointDTO.getAccount(),
 					endpointDTO.getTag(), EndpointDTO.EndpointStatus.ACTIVE, cloudProvider));
 			userRoleDao.updateMissingRoles(cloudProvider);
@@ -121,32 +120,18 @@ public class EndpointServiceImpl implements EndpointService {
 	}
 
 	@Override
-	public void checkUrl(UserInfo userInfo, String url) {
-		Response response;
-		try {
-			response = provisioningService.get(url + HEALTH_CHECK, userInfo.getAccessToken(), Response.class);
-		} catch (Exception e) {
-			log.error("Cannot connect to url '{}'", url);
-			throw new DlabException(String.format("Cannot connect to url '%s'", url), e);
-		}
-		if (response.getStatus() != 200) {
-			log.warn("Endpoint url {} is not valid", url);
-			throw new ResourceNotFoundException(String.format("Endpoint url '%s' is not valid", url));
-		}
-	}
-
-	private CloudProvider connectEndpoint(UserInfo userInfo, String url, String name) {
+	public CloudProvider checkUrl(UserInfo userInfo, String url) {
 		Response response;
 		CloudProvider cloudProvider;
 		try {
-			response = provisioningService.post(url + ENDPOINT, userInfo.getAccessToken(), name, Response.class);
+			response = provisioningService.get(url + HEALTH_CHECK, userInfo.getAccessToken(), Response.class);
 			cloudProvider = response.readEntity(CloudProvider.class);
 		} catch (Exception e) {
 			log.error("Cannot connect to url '{}'", url);
 			throw new DlabException(String.format("Cannot connect to url '%s'", url), e);
 		}
 		if (response.getStatus() != 200) {
-			log.warn("Endpoint connection failed, url {}", url);
+			log.warn("Endpoint url {} is not valid", url);
 			throw new ResourceNotFoundException(String.format("Endpoint url '%s' is not valid", url));
 		}
 		return cloudProvider;

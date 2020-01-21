@@ -27,18 +27,13 @@ import com.epam.dlab.backendapi.core.commands.CommandExecutor;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
 import com.epam.dlab.backendapi.core.response.handlers.dao.FileSystemCallbackHandlerDao;
-import com.epam.dlab.backendapi.dao.EndpointDAO;
-import com.epam.dlab.backendapi.dao.impl.EndpointDAOImpl;
 import com.epam.dlab.backendapi.service.CheckInactivityService;
-import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
-import com.epam.dlab.backendapi.service.impl.EndpointServiceImpl;
 import com.epam.dlab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,7 +58,6 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
 	@Override
 	protected void configure() {
 		bind(ProvisioningServiceApplicationConfiguration.class).toInstance(configuration);
-		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
 
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
 				.toInstance(configuration.getSecurityFactory()
@@ -79,7 +73,5 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
 		bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
 		bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
 		bind(ProjectService.class).to(ProjectServiceImpl.class);
-		bind(EndpointDAO.class).to(EndpointDAOImpl.class);
-		bind(EndpointService.class).to(EndpointServiceImpl.class);
 	}
 }

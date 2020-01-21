@@ -27,7 +27,6 @@ import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
-import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.impl.DockerService;
 import com.epam.dlab.backendapi.service.impl.SparkClusterService;
 import com.epam.dlab.dto.base.DataEngineType;
@@ -39,7 +38,6 @@ import com.epam.dlab.dto.gcp.computational.ComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.computational.GcpComputationalTerminateDTO;
 import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
@@ -66,8 +64,6 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 	private ComputationalConfigure computationalConfigure;
 	@Inject
 	private SparkClusterService sparkClusterService;
-	@Inject
-	private EndpointService endpointService;
 
 	@POST
 	@Path(ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC)
@@ -76,8 +72,7 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 		String uuid = DockerCommands.generateUUID();
 		folderListenerExecutor.start(configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallback(CREATE, uuid, dto, endpointService.getEndpointUrl(dto.getEndpoint()) +
-						ApiCallbacks.COMPUTATIONAL + ApiCallbacks.STATUS_URI));
+				getFileHandlerCallback(CREATE, uuid, dto));
 		try {
 			commandExecutor.executeAsync(
 					ui.getName(),
@@ -113,8 +108,7 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 		String uuid = DockerCommands.generateUUID();
 		folderListenerExecutor.start(configuration.getImagesDirectory(),
 				configuration.getResourceStatusPollTimeout(),
-				getFileHandlerCallback(TERMINATE, uuid, dto, endpointService.getEndpointUrl(dto.getEndpoint()) +
-						ApiCallbacks.COMPUTATIONAL + ApiCallbacks.STATUS_URI));
+				getFileHandlerCallback(TERMINATE, uuid, dto));
 		try {
 			commandExecutor.executeAsync(
 					ui.getName(),
@@ -188,9 +182,8 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
 		return sparkClusterService.updateConfig(ui, config);
 	}
 
-	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto,
-													   String callbackUri) {
-		return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto, callbackUri);
+	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto) {
+		return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto);
 	}
 
 	private String nameContainer(String user, DockerAction action, String exploratoryName, String name) {

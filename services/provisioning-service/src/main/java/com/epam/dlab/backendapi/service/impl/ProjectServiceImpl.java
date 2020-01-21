@@ -5,7 +5,6 @@ import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ProjectCallbackHandler;
-import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceBaseDTO;
@@ -34,8 +33,6 @@ public class ProjectServiceImpl implements ProjectService {
 	private ICommandExecutor commandExecutor;
 	@Inject
 	private CommandBuilder commandBuilder;
-	@Inject
-	private EndpointService endpointService;
 
 	@Override
 	public String create(UserInfo userInfo, ProjectCreateDTO dto) {
@@ -63,12 +60,10 @@ public class ProjectServiceImpl implements ProjectService {
 								 String resourceType, String image, String endpoint) {
 		String uuid = DockerCommands.generateUUID();
 
-		log.debug(endpointService.getEndpointUrl(endpoint) + CALLBACK_URI);
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
 				configuration.getKeyLoaderPollTimeout(),
 				new ProjectCallbackHandler(selfService, userInfo.getName(), uuid,
-						action, endpointService.getEndpointUrl(endpoint) + CALLBACK_URI, projectName,
-						getEdgeClass(), endpoint));
+						action, CALLBACK_URI, projectName, getEdgeClass(), endpoint));
 
 		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()

@@ -35,23 +35,20 @@ public class ExploratoryGitCredsCallbackHandler extends ResourceCallbackHandler<
 
 	@JsonProperty
 	private final String exploratoryName;
-	private String callbackUri;
 
 	@JsonCreator
 	public ExploratoryGitCredsCallbackHandler(@JacksonInject RESTService selfService,
 											  @JsonProperty("action") DockerAction action,
 											  @JsonProperty("uuid") String uuid,
 											  @JsonProperty("user") String user,
-											  @JsonProperty("exploratoryName") String exploratoryName,
-											  String callbackUri) {
+											  @JsonProperty("exploratoryName") String exploratoryName) {
 		super(selfService, user, uuid, action);
 		this.exploratoryName = exploratoryName;
-		this.callbackUri = callbackUri;
 	}
 
 	@Override
 	protected String getCallbackURI() {
-		return callbackUri;
+		return ApiCallbacks.GIT_CREDS;
 	}
 
 	@Override
