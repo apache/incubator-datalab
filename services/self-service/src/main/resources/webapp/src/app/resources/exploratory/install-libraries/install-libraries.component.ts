@@ -216,11 +216,11 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public isInstallingInProgress(): void {
-      if (this.clearCheckInstalling === undefined) {
+    const isInstallingNow = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
+      if (isInstallingNow){
         this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 10000);
       } else {
-        clearInterval(this.clearCheckInstalling);
-        this.clearCheckInstalling = undefined;
+        window.clearInterval(this.clearCheckInstalling);
       }
     }
 
