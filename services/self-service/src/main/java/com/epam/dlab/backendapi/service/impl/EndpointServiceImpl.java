@@ -77,12 +77,14 @@ public class EndpointServiceImpl implements EndpointService {
 	 */
 	@Override
 	public void create(UserInfo userInfo, EndpointDTO endpointDTO) {
-		if(endpointDAO.getEndpointWithUrl(endpointDTO.getUrl()).isPresent()) throw new ResourceConflictException("A Duplication of the Endpoint URL!");
+		if(endpointDAO.getEndpointWithUrl(endpointDTO.getUrl()).isPresent()) {
+			throw new ResourceConflictException("The Endpoint URL with this address already exists in system!");
+		}
 		checkEndpointUrl(userInfo, endpointDTO.getUrl());
 		if (!endpointDAO.get(endpointDTO.getName()).isPresent()) {
 			endpointDAO.create(EndpointDTO.withEndpointStatus(endpointDTO));
 		} else {
-			throw new ResourceConflictException("The Endpoint with this name is already in the system!");
+			throw new ResourceConflictException("The Endpoint with this name already exists in system");
 		}
 	}
 
