@@ -75,7 +75,7 @@ Given There is active project "<project>" in DLab
         And User tries to get information about notebook with name "<name>"
         When User sends request to get information about notebook
         Then Status code is 200
-        And Notebook information is successfully returned with name "<name>", project
+        And Notebook information is successfully returned with name "<name>", project "<project>"
         Examples:
         | name  | project |
         | jup1  | prj1    |
@@ -91,7 +91,7 @@ Given There is active project "<project>" in DLab
         And User tries to get information about notebook with name "<name>" in project "<project>"
         When User sends request to get information about notebook
         Then Status code is 200
-        And Notebook information is successfully returned with name "<name>", project
+        And Notebook information is successfully returned with name "<name>", project "<project>"
         Examples:
         | name   | project |
         | jup1   | prj1    |
@@ -104,13 +104,13 @@ Given There is active project "<project>" in DLab
 
     Scenario Outline: Get information about a notebook that does not exists
 
-        Given There is no notebook with name "<name>" in DLab
+        Given There is no notebook with name "<name>" in project "<project>" in DLab
         And User tries to get information about notebook with name "<name>"
         When User sends request to get information about notebook
         Then Status code is 404
         Examples:
-        | name  |
-        | test1 |
+        | name  | project |
+        | test1 | prj1    |
 
 
 
