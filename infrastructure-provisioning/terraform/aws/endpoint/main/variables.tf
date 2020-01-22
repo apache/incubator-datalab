@@ -44,9 +44,13 @@ variable "ami" {
   default = "ami-07b4f3c02c7f83d59"
 }
 
-variable "vpc_id" {}
+variable "vpc_id" {
+  default = ""
+}
 
-variable "subnet_id" {}
+variable "subnet_id" {
+  default = ""
+}
 
 variable "network_type" {}
 
@@ -56,7 +60,9 @@ variable "endpoint_volume_size" {}
 
 variable "endpoint_id" {}
 
-variable "ssn_k8s_sg_id" {}
+variable "ssn_k8s_sg_id" {
+  default = ""
+}
 
 variable "ldap_host" {}
 
