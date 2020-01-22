@@ -1356,10 +1356,10 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
             for ebs in response:
                 if ebs.get('Ebs'):
                     snapshot_id = ebs.get('Ebs').get('SnapshotId')
-                    create_tag(snapshot_id, tag)
                     create_tag(snapshot_id, sbn_tag)
-            create_tag(image.id, tag)
+                    create_tag(snapshot_id, tag)
             create_tag(image.id, sbn_tag)
+            create_tag(image.id, tag)
             if tags:
                 all_tags = json.loads(tags)
                 for key in all_tags.keys():
