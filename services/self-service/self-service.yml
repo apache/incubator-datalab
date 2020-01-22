@@ -83,8 +83,8 @@ server:
 #      port: 8080
   - type: https
     port: 8443
-    certAlias: dlab
-    validateCerts: true
+    certAlias: ssn
+    validateCerts: false
     keyStorePath: ${KEY_STORE_PATH}
     keyStorePassword: ${KEY_STORE_PASSWORD}
     trustStorePath: ${TRUST_STORE_PATH}
@@ -94,8 +94,8 @@ server:
 #      port: 8081
   - type: https
     port: 8444
-    certAlias: dlab
-    validateCerts: true
+    certAlias: ssn
+    validateCerts: false
     keyStorePath: ${KEY_STORE_PATH}
     keyStorePassword: ${KEY_STORE_PASSWORD}
     trustStorePath: ${TRUST_STORE_PATH}

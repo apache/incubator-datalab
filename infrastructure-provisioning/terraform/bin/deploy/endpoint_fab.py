@@ -98,6 +98,85 @@ def ensure_jre_jdk_endpoint():
         sys.exit(1)
 
 
+def ensure_step_certs():
+    try:
+        if not exists(conn, '/home/{}/.ensure_dir/step_ensured'.format(args.os_user)):
+            conn.sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step-cli_0.13.3_amd64.deb '
+                      '-O /tmp/step-cli_0.13.3_amd64.deb')
+            conn.sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
+            conn.sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(args.step_root_ca))
+            fingerprint = conn.sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt').stdout.replace('\n', '')
+            conn.sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
+                                                                                  args.step_ca_url))
+            conn.sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(args.step_kid_password, args.os_user))
+            if args.cloud_provider == 'aws':
+                local_ip_address = conn.sudo('curl -s '
+                                             'http://169.254.169.254/latest/meta-data/local-ipv4').stdout.replace('\n', '')
+                try:
+                    public_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/'
+                                                  'public-ipv4').stdout.replace('\n', '')
+                except:
+                    public_ip_address = None
+            elif args.cloud_provider == 'gcp':
+                local_ip_address = conn.sudo('curl -H "Metadata-Flavor: Google" '
+                                             'http://metadata/computeMetadata/v1/instance/network-interfaces/0/'
+                                             'access-configs/0/external-ip').stdout.replace('\n', '')
+                try:
+                    public_ip_address = conn.sudo('curl -H "Metadata-Flavor: Google" '
+                                                  'http://metadata/computeMetadata/v1/instance/network-interfaces/0/'
+                                                  'ip').stdout.replace('\n', '')
+                except:
+                    public_ip_address = None 
+            else:
+                local_ip_address = None
+                public_ip_address = None
+            sans = "--san localhost --san {0} --san 127.0.0.1 ".format(local_ip_address)
+            cn = local_ip_address
+            if public_ip_address:
+                sans += "--san {0}".format(public_ip_address)
+                cn = public_ip_address
+            conn.sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /etc/ssl/certs/root_ca.crt '
+                      '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
+                               args.step_kid, args.step_ca_url, args.os_user, cn, sans))
+            token = conn.sudo('cat /tmp/step_token').stdout.replace('\n', '')
+            conn.sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
+                      '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token, args.step_kid))
+            conn.put('./renew_certificates.sh', '/tmp/renew_certificates.sh')
+            conn.sudo('mv /tmp/renew_certificates.sh /usr/local/bin/')
+            conn.sudo('chmod +x /usr/local/bin/renew_certificates.sh')
+            conn.sudo('sed -i "s/OS_USER/{0}/g" /usr/local/bin/renew_certificates.sh'.format(args.os_user))
+            conn.sudo('sed -i "s|JAVA_HOME|{0}|g" /usr/local/bin/renew_certificates.sh'.format(java_home))
+            conn.sudo('sed -i "s|RESOURCE_TYPE|endpoint|g" /usr/local/bin/renew_certificates.sh')
+            conn.sudo('sed -i "s|CONF_FILE|provisioning|g" /usr/local/bin/renew_certificates.sh')
+            conn.sudo('touch /var/log/renew_certificates.log')
+            conn.put('./manage_step_certs.sh', '/tmp/manage_step_certs.sh')
+            conn.sudo('mv /tmp/manage_step_certs.sh /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
+                      '/usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/dlab.crt|g" /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/dlab.key|g" /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|STEP_CA_URL|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(args.step_ca_url))
+            conn.sudo('sed -i "s|RESOURCE_TYPE|endpoint|g" /usr/local/bin/manage_step_certs.sh')
+            conn.sudo('sed -i "s|SANS|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(sans))
+            conn.sudo('sed -i "s|CN|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(cn))
+            conn.sudo('sed -i "s|KID|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(args.step_kid))
+            conn.sudo('sed -i "s|STEP_PROVISIONER_PASSWORD_PATH|/home/{0}/keys/provisioner_password|g" '
+                      '/usr/local/bin/manage_step_certs.sh'.format(args.os_user))
+            conn.sudo('bash -c \'echo "0 * * * * root /usr/local/bin/manage_step_certs.sh >> '
+                      '/var/log/renew_certificates.log 2>&1" >> /etc/crontab \'')
+            conn.put('./step-cert-manager.service', '/tmp/step-cert-manager.service')
+            conn.sudo('mv /tmp/step-cert-manager.service /etc/systemd/system/step-cert-manager.service')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable step-cert-manager.service')
+            conn.sudo('touch /home/{}/.ensure_dir/step_ensured'
+                      .format(args.os_user))
+    except Exception as err:
+        logging.error('Failed to install Java JDK: ', str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
+
 def ensure_supervisor_endpoint():
     try:
         if not exists(conn, '/home/{}/.ensure_dir/superv_ensured'.format(args.os_user)):
@@ -169,39 +248,22 @@ def create_key_dir_endpoint():
         sys.exit(1)
 
 
-def configure_keystore_endpoint(os_user):
+def configure_keystore_endpoint(os_user, endpoint_keystore_password):
     try:
-        if args.cloud_provider == "aws":
-            conn.sudo('apt-get install -y awscli')
-            if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
-                conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
-                          '/home/{1}/keys/endpoint.keystore.jks'
-                          .format(args.ssn_bucket_name, args.os_user))
-            if not exists(conn, '/home/' + args.os_user + '/keys/dlab.crt'):
-                conn.sudo('aws s3 cp s3://{0}/dlab/certs/endpoint/endpoint.crt'
-                          ' /home/{1}/keys/endpoint.crt'.format(args.ssn_bucket_name, args.os_user))
-            if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
-                conn.sudo('aws s3 cp '
-                          's3://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/ssn.crt'
-                          .format(args.ssn_bucket_name, args.os_user))
-        elif args.cloud_provider == "gcp":
-            if not exists(conn, '/home/' + args.os_user + '/keys/endpoint.keystore.jks'):
-                conn.sudo('gsutil -m cp -r gs://{0}/dlab/certs/endpoint/endpoint.keystore.jks '
-                          '/home/{1}/keys/'
-                          .format(args.ssn_bucket_name, args.os_user))
-            if not exists(conn, '/home/' + args.os_user + '/keys/dlab.crt'):
-                conn.sudo('gsutil -m cp -r gs://{0}/dlab/certs/endpoint/endpoint.crt'
-                          ' /home/{1}/keys/'.format(args.ssn_bucket_name, args.os_user))
-            if not exists(conn, '/home/' + args.os_user + '/keys/ssn.crt'):
-                conn.sudo('gsutil -m cp -r '
-                          'gs://{0}/dlab/certs/ssn/ssn.crt /home/{1}/keys/'
-                          .format(args.ssn_bucket_name, args.os_user))
-        if not exists(conn, '/home/' + args.os_user + '/.ensure_dir/cert_imported'):
-            conn.sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/endpoint.crt -noprompt \
-                 -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
-            conn.sudo('keytool -importcert -trustcacerts -file /home/{0}/keys/ssn.crt -noprompt \
-                 -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_home))
-            conn.sudo('touch /home/' + args.os_user + '/.ensure_dir/cert_imported')
+        conn.sudo('openssl pkcs12 -export -in /etc/ssl/certs/dlab.crt -inkey '
+                  '/etc/ssl/certs/dlab.key -name endpoint -out /home/{0}/keys/endpoint.p12 '
+                  '-password pass:{1}'.format(os_user, endpoint_keystore_password))
+        conn.sudo('keytool -importkeystore -srckeystore /home/{0}/keys/endpoint.p12 -srcstoretype PKCS12 '
+                  '-alias endpoint -destkeystore /home/{0}/keys/endpoint.keystore.jks -deststorepass "{1}" '
+                  '-srcstorepass "{1}"'.format(os_user, endpoint_keystore_password))
+        conn.sudo('keytool -keystore /home/{0}/keys/endpoint.keystore.jks -alias CARoot -import -file '
+                  '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -noprompt'.format(
+                   os_user, endpoint_keystore_password))
+        conn.sudo('keytool -importcert -trustcacerts -alias endpoint -file /etc/ssl/certs/dlab.crt -noprompt '
+                  '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_home))
+        conn.sudo('keytool -importcert -trustcacerts -file /etc/ssl/certs/root_ca.crt -noprompt '
+                  '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_home))
+        conn.sudo('touch /home/{0}/.ensure_dir/cert_imported'.format(os_user))
         print("Certificates are imported.")
     except Exception as err:
         print('Failed to configure Keystore certificates: ', str(err))
@@ -209,7 +271,7 @@ def configure_keystore_endpoint(os_user):
         sys.exit(1)
 
 
-def configure_supervisor_endpoint():
+def configure_supervisor_endpoint(endpoint_keystore_password):
     try:
         if not exists(conn,
                       '/home/{}/.ensure_dir/configure_supervisor_ensured'.format(args.os_user)):
@@ -242,81 +304,197 @@ def configure_supervisor_endpoint():
                       .format(args.dlab_path, supervisor_conf))
             conn.put('./provisioning.yml', '{}provisioning.yml'
                      .format(dlab_conf_dir))
-            conn.sudo('sed -i "s|KEYNAME|{}|g" {}provisioning.yml'
-                      .format(args.key_name, dlab_conf_dir))
-            conn.sudo('sed -i "s|KEYSTORE_PASSWORD|{}|g" {}provisioning.yml'
-                      .format(args.endpoint_keystore_password, dlab_conf_dir))
-            conn.sudo('sed -i "s|JRE_HOME|{}|g" {}provisioning.yml'
-                      .format(java_home, dlab_conf_dir))
-            conn.sudo('sed -i "s|CLOUD_PROVIDER|{}|g" {}provisioning.yml'
-                      .format(args.cloud_provider, dlab_conf_dir))
 
-            conn.sudo('sed -i "s|MONGO_HOST|{}|g" {}provisioning.yml'
-                      .format(args.mongo_host, dlab_conf_dir))
-            conn.sudo('sed -i "s|MONGO_PORT|{}|g" {}provisioning.yml'
-                      .format(args.mongo_port, dlab_conf_dir))
-            conn.sudo('sed -i "s|SS_HOST|{}|g" {}provisioning.yml'
-                      .format(args.ss_host, dlab_conf_dir))
-            conn.sudo('sed -i "s|SS_PORT|{}|g" {}provisioning.yml'
-                      .format(args.ss_port, dlab_conf_dir))
-            conn.sudo('sed -i "s|KEYCLOACK_HOST|{}|g" {}provisioning.yml'
-                      .format(args.keycloack_host, dlab_conf_dir))
-            conn.sudo('sed -i "s|CLIENT_ID|{}|g" {}provisioning.yml'
-                      .format(args.keycloak_client_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|CLIENT_SECRET|{}|g" {}provisioning.yml'
-                      .format(args.keycloak_client_secret, dlab_conf_dir))
-            # conn.sudo('sed -i "s|MONGO_PASSWORD|{}|g" {}provisioning.yml'
-            #           .format(args.mongo_password, dlab_conf_dir))
-            conn.sudo('sed -i "s|CONF_OS|{}|g" {}provisioning.yml'
-                      .format(args.env_os, dlab_conf_dir))
-            conn.sudo('sed -i "s|SERVICE_BASE_NAME|{}|g" {}provisioning.yml'
-                      .format(args.service_base_name, dlab_conf_dir))
-            conn.sudo('sed -i "s|EDGE_INSTANCE_SIZE|{}|g" {}provisioning.yml'
-                      .format(args.edge_instence_size, dlab_conf_dir))
-            conn.sudo('sed -i "s|SUBNET_ID|{}|g" {}provisioning.yml'
-                      .format(args.subnet_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|REGION|{}|g" {}provisioning.yml'
-                      .format(args.region, dlab_conf_dir))
-            conn.sudo('sed -i "s|ZONE|{}|g" {}provisioning.yml'
-                      .format(args.zone, dlab_conf_dir))
-            conn.sudo('sed -i "s|TAG_RESOURCE_ID|{}|g" {}provisioning.yml'
-                      .format(args.tag_resource_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|SG_IDS|{}|g" {}provisioning.yml'
-                      .format(args.ssn_k8s_sg_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|SSN_INSTANCE_SIZE|{}|g" {}provisioning.yml'
-                      .format(args.ssn_instance_size, dlab_conf_dir))
-            conn.sudo('sed -i "s|VPC2_ID|{}|g" {}provisioning.yml'
-                      .format(args.vpc2_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|SUBNET2_ID|{}|g" {}provisioning.yml'
-                      .format(args.subnet2_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|CONF_KEY_DIR|{}|g" {}provisioning.yml'
-                      .format(args.conf_key_dir, dlab_conf_dir))
-            conn.sudo('sed -i "s|VPC_ID|{}|g" {}provisioning.yml'
-                      .format(args.vpc_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|PEERING_ID|{}|g" {}provisioning.yml'
-                      .format(args.peering_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|AZURE_RESOURCE_GROUP_NAME|{}|g" {}provisioning.yml'
-                      .format(args.azure_resource_group_name, dlab_conf_dir))
-            conn.sudo('sed -i "s|AZURE_SSN_STORAGE_ACCOUNT_TAG|{}|g" {}provisioning.yml'
-                      .format(args.azure_ssn_storage_account_tag, dlab_conf_dir))
-            conn.sudo('sed -i "s|AZURE_SHARED_STORAGE_ACCOUNT_TAG|{}|g" {}provisioning.yml'
-                      .format(args.azure_shared_storage_account_tag, dlab_conf_dir))
-            conn.sudo('sed -i "s|AZURE_DATALAKE_TAG|{}|g" {}provisioning.yml'
-                      .format(args.azure_datalake_tag, dlab_conf_dir))
-            conn.sudo('sed -i "s|AZURE_CLIENT_ID|{}|g" {}provisioning.yml'
-                      .format(args.azure_client_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|GCP_PROJECT_ID|{}|g" {}provisioning.yml'
-                      .format(args.gcp_project_id, dlab_conf_dir))
-            conn.sudo('sed -i "s|LDAP_HOST|{}|g" {}provisioning.yml'
-                      .format(args.ldap_host, dlab_conf_dir))
-            conn.sudo('sed -i "s|LDAP_DN|{}|g" {}provisioning.yml'
-                      .format(args.ldap_dn, dlab_conf_dir))
-            conn.sudo('sed -i "s|LDAP_OU|{}|g" {}provisioning.yml'
-                      .format(args.ldap_users_group, dlab_conf_dir))
-            conn.sudo('sed -i "s|LDAP_USER_NAME|{}|g" {}provisioning.yml'
-                      .format(args.ldap_user, dlab_conf_dir))
-            conn.sudo('sed -i "s|LDAP_USER_PASSWORD|{}|g" {}provisioning.yml'
-                      .format(args.ldap_bind_creds, dlab_conf_dir))
+            cloud_properties = [
+                {
+                    'key': "OS_USER",
+                    'value': args.os_user
+                },
+                {
+                    'key': "KEYNAME",
+                    'value': args.key_name
+                },
+                {
+                    'key': "KEYSTORE_PASSWORD",
+                    'value': endpoint_keystore_password
+                },
+                {
+                    'key': "JRE_HOME",
+                    'value': java_home
+                },
+                {
+                    'key': "CLOUD_PROVIDER",
+                    'value': args.cloud_provider
+                },
+                {
+                    'key': "MONGO_HOST",
+                    'value': args.mongo_host
+                },
+                {
+                    'key': "MONGO_PORT",
+                    'value': args.mongo_port
+                },
+                {
+                    'key': "SSN_UI_HOST",
+                    'value': args.ssn_ui_host
+                },
+                {
+                    'key': "KEYCLOAK_CLIENT_ID",
+                    'value': args.keycloak_client_id
+                },
+                {
+                    'key': "CLIENT_SECRET",
+                    'value': args.keycloak_client_secret
+                },
+                {
+                    'key': "CONF_OS",
+                    'value': args.env_os
+                },
+                {
+                    'key': "SERVICE_BASE_NAME",
+                    'value': args.service_base_name
+                },
+                {
+                    'key': "EDGE_INSTANCE_SIZE",
+                    'value': "" # args.edge_instence_size
+                },
+                {
+                    'key': "SUBNET_ID",
+                    'value': args.subnet_id
+                },
+                {
+                    'key': "REGION",
+                    'value': args.region
+                },
+                {
+                    'key': "ZONE",
+                    'value': args.zone
+                },
+                {
+                    'key': "TAG_RESOURCE_ID",
+                    'value': args.tag_resource_id
+                },
+                {
+                    'key': "SG_IDS",
+                    'value': args.ssn_k8s_sg_id
+                },
+                {
+                    'key': "SSN_INSTANCE_SIZE",
+                    'value': args.ssn_instance_size
+                },
+                {
+                    'key': "VPC2_ID",
+                    'value': args.vpc2_id
+                },
+                {
+                    'key': "SUBNET2_ID",
+                    'value': args.subnet2_id
+                },
+                {
+                    'key': "CONF_KEY_DIR",
+                    'value': args.conf_key_dir
+                },
+                {
+                    'key': "VPC_ID",
+                    'value': args.vpc_id
+                },
+                {
+                    'key': "PEERING_ID",
+                    'value': args.peering_id
+                },
+                {
+                    'key': "AZURE_RESOURCE_GROUP_NAME",
+                    'value': args.azure_resource_group_name
+                },
+                {
+                    'key': "AZURE_SSN_STORAGE_ACCOUNT_TAG",
+                    'value': args.azure_ssn_storage_account_tag
+                },
+                {
+                    'key': "AZURE_SHARED_STORAGE_ACCOUNT_TAG",
+                    'value': args.azure_shared_storage_account_tag
+                },
+                {
+                    'key': "AZURE_DATALAKE_TAG",
+                    'value': args.azure_datalake_tag
+                },
+                {
+                    'key': "AZURE_CLIENT_ID",
+                    'value': args.azure_client_id
+                },
+                {
+                    'key': "GCP_PROJECT_ID",
+                    'value': args.gcp_project_id
+                },
+                {
+                    'key': "LDAP_HOST",
+                    'value': args.ldap_host
+                },
+                {
+                    'key': "LDAP_DN",
+                    'value': args.ldap_dn
+                },
+                {
+                    'key': "LDAP_OU",
+                    'value': args.ldap_users_group
+                },
+                {
+                    'key': "LDAP_USER_NAME",
+                    'value': args.ldap_user
+                },
+                {
+                    'key': "LDAP_USER_PASSWORD",
+                    'value': args.ldap_bind_creds
+                },
+                {
+                    'key': "STEP_CERTS_ENABLED",
+                    'value': "true"
+                },
+                {
+                    'key': "STEP_ROOT_CA",
+                    'value': args.step_root_ca
+                },
+                {
+                    'key': "STEP_KID_ID",
+                    'value': args.step_kid
+                },
+                {
+                    'key': "STEP_KID_PASSWORD",
+                    'value': args.step_kid_password
+                },
+                {
+                    'key': "STEP_CA_URL",
+                    'value': args.step_ca_url
+                },
+                {
+                    'key': "SHARED_IMAGE_ENABLED",
+                    'value': args.shared_image_enabled
+                },
+                {
+                    'key': "CONF_IMAGE_ENABLED",
+                    'value': args.image_enabled
+                },
+                {
+                    'key': "KEYCLOAK_AUTH_SERVER_URL",
+                    'value': args.keycloak_auth_server_url
+                },
+                {
+                    'key': "KEYCLOAK_REALM_NAME",
+                    'value': args.keycloak_realm_name
+                },
+                {
+                    'key': "KEYCLOAK_USER_NAME",
+                    'value': args.keycloak_user_name
+                },
+                {
+                    'key': "KEYCLOAK_PASSWORD",
+                    'value': args.keycloak_user_password
+                }
+            ]
+            for param in cloud_properties:
+                conn.sudo('sed -i "s|{0}|{1}|g" {2}provisioning.yml'
+                          .format(param['key'], param['value'], dlab_conf_dir))
+
             conn.sudo('touch /home/{}/.ensure_dir/configure_supervisor_ensured'
                       .format(args.os_user))
     except Exception as err:
@@ -525,7 +703,7 @@ def init_args():
     parser.add_argument('--mongo_port', type=str, default='27017')
     parser.add_argument('--ss_host', type=str, default='')
     parser.add_argument('--ss_port', type=str, default='8443')
-    parser.add_argument('--keycloack_host', type=str, default='')
+    parser.add_argument('--ssn_ui_host', type=str, default='')
     # parser.add_argument('--mongo_password', type=str, default='')
     parser.add_argument('--repository_address', type=str, default='')
     parser.add_argument('--repository_port', type=str, default='')
@@ -534,10 +712,13 @@ def init_args():
     parser.add_argument('--docker_version', type=str,
                         default='18.06.3~ce~3-0~ubuntu')
     parser.add_argument('--ssn_bucket_name', type=str, default='')
-    parser.add_argument('--endpoint_keystore_password', type=str, default='')
+    parser.add_argument('--keycloak_auth_server_url', type=str, default='')
+    parser.add_argument('--keycloak_realm_name', type=str, default='')
+    parser.add_argument('--keycloak_user_name', type=str, default='')
+    parser.add_argument('--keycloak_user_password', type=str, default='')
     parser.add_argument('--keycloak_client_id', type=str, default='')
     parser.add_argument('--keycloak_client_secret', type=str, default='')
-    parser.add_argument('--branch_name', type=str, default='DLAB-terraform')  # change default
+    parser.add_argument('--branch_name', type=str, default='master')  # change default
     parser.add_argument('--env_os', type=str, default='debian')
     parser.add_argument('--service_base_name', type=str, default='')
     parser.add_argument('--edge_instence_size', type=str, default='t2.medium')
@@ -563,6 +744,12 @@ def init_args():
     parser.add_argument('--ldap_users_group', type=str, default='')
     parser.add_argument('--ldap_user', type=str, default='')
     parser.add_argument('--ldap_bind_creds', type=str, default='')
+    parser.add_argument('--step_root_ca', type=str, default='')
+    parser.add_argument('--step_kid', type=str, default='')
+    parser.add_argument('--step_kid_password', type=str, default='')
+    parser.add_argument('--step_ca_url', type=str, default='')
+    parser.add_argument('--shared_image_enabled', type=str, default='true')
+    parser.add_argument('--image_enabled', type=str, default='true')
 
     # TEMPORARY
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
@@ -612,14 +799,10 @@ def start_deploy():
     print(args)
     if args.hostname == "":
         args.hostname = args.endpoint_eip_address
+    endpoint_keystore_password = id_generator()
 
     print("Start provisioning of Endpoint.")
     time.sleep(40)
-
-# TEMPORARY!!!
-    args.keycloack_host = args.ssn_k8s_alb_dns_name
-    args.ss_host = args.ssn_k8s_nlb_dns_name
-# TEMPORARY!!!
 
     print(args)
     logging.info("Creating dlab-user")
@@ -639,6 +822,12 @@ def start_deploy():
 
     set_java_home()
 
+    logging.info("Creating key directory")
+    create_key_dir_endpoint()
+
+    logging.info("Installing Step Certificates")
+    ensure_step_certs()
+
     logging.info("Installing Supervisor")
     ensure_supervisor_endpoint()
 
@@ -646,16 +835,13 @@ def start_deploy():
     ensure_docker_endpoint()
 
     logging.info("Configuring Supervisor")
-    configure_supervisor_endpoint()
-
-    logging.info("Creating key directory")
-    create_key_dir_endpoint()
+    configure_supervisor_endpoint(endpoint_keystore_password)
 
     logging.info("Copying admin key")
     copy_keys()
 
     logging.info("Configuring certificates")
-    configure_keystore_endpoint(args.os_user)
+    configure_keystore_endpoint(args.os_user, endpoint_keystore_password)
 
     logging.info("Ensure jar")
     ensure_jar_endpoint()

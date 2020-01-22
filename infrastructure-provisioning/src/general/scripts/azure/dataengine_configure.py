@@ -439,7 +439,7 @@ if __name__ == "__main__":
         ip_address = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                         data_engine['master_node_name'])
         spark_master_url = "http://" + ip_address + ":8080"
-        spark_master_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+        spark_master_access_url = "https://" + edge_instance_hostname + "/{}/".format(
             data_engine['exploratory_name'] + '_' + data_engine['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
@@ -456,7 +456,7 @@ if __name__ == "__main__":
                    "Action": "Create new Data Engine",
                    "computational_url": [
                        {"description": "Apache Spark Master",
-                        "url": spark_master_acces_url},
+                        "url": spark_master_access_url},
                        # {"description": "Apache Spark Master (via tunnel)",
                        # "url": spark_master_url}
                    ]

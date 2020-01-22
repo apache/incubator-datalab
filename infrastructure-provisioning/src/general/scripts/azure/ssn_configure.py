@@ -75,6 +75,16 @@ if __name__ == "__main__":
                                                                         ssn_conf['instance_name'])
         ssn_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(ssn_conf['instance_name'], ssn_conf['region'])
 
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            step_cert_sans = ' --san {0} --san {1} '.format(AzureMeta().get_private_ip_address(
+                ssn_conf['resource_group_name'], ssn_conf['instance_name']), ssn_conf['instance_dns_name'])
+            if os.environ['conf_network_type'] == 'public':
+                step_cert_sans += ' --san {0}'.format(
+                    AzureMeta().get_instance_public_ip_address(ssn_conf['resource_group_name'],
+                                                               ssn_conf['instance_name']))
+        else:
+            step_cert_sans = ''
+
         try:
             if os.environ['azure_offer_number'] == '':
                 raise KeyError
@@ -155,9 +165,11 @@ if __name__ == "__main__":
                              "service_base_name": ssn_conf['service_base_name'],
                              "security_group_id": ssn_conf['security_group_name'], "vpc_id": ssn_conf['vpc_name'],
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} " \
+                 "--tag_resource_id {} --step_cert_sans '{}'". \
             format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
-                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'])
+                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'],
+                   step_cert_sans)
         local("~/scripts/{}.py {}".format('configure_ssn_node', params))
     except Exception as err:
         #print('Error: {0}'.format(err))
@@ -199,7 +211,7 @@ if __name__ == "__main__":
         cloud_params = [
             {
                 'key': 'KEYCLOAK_REDIRECT_URI',
-                'value': "http://{0}/".format(ssn_conf['instnace_ip'])
+                'value': "https://{0}/".format(ssn_conf['instnace_ip'])
             },
             {
                 'key': 'KEYCLOAK_REALM_NAME',
@@ -216,6 +228,14 @@ if __name__ == "__main__":
             {
                 'key': 'KEYCLOAK_CLIENT_SECRET',
                 'value': os.environ['keycloak_client_secret']
+            },
+            {
+                'key': 'KEYCLOAK_USER_NAME',
+                'value': os.environ['keycloak_user']
+            },
+            {
+                'key': 'KEYCLOAK_PASSWORD',
+                'value': os.environ['keycloak_user_password']
             },
             {
                 'key': 'CONF_OS',
@@ -310,14 +330,67 @@ if __name__ == "__main__":
                 'value': ''
             },
             {
-                'key': 'CONF_IMAGE_ENABLED',
-                'value': os.environ['conf_image_enabled']
-            },
-            {
                 'key': 'SHARED_IMAGE_ENABLED',
                 'value': os.environ['conf_shared_image_enabled']
+            },
+            {
+                'key': 'CONF_IMAGE_ENABLED',
+                'value': os.environ['conf_image_enabled']
             }
         ]
+
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': os.environ['conf_stepcerts_enabled']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': os.environ['conf_stepcerts_root_ca']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': os.environ['conf_stepcerts_kid']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': os.environ['conf_stepcerts_kid_password']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
+                    'value': os.environ['conf_stepcerts_ca_url']
+                })
+        else:
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
+                    'value': ''
+                })
 
         if os.environ['azure_datalake_enable'] == 'false':
             cloud_params.append(

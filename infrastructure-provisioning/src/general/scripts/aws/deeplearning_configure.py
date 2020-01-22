@@ -301,9 +301,9 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     tensor_board_url = 'http://' + ip_address + ':6006'
     jupyter_url = 'http://' + ip_address + ':8888/{}/'.format(notebook_config['exploratory_name'])
-    jupyter_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
-    jupyter_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
-    tensorboard_acces_url = "http://" + edge_instance_ip + "/{}-tensor/".format(notebook_config['exploratory_name'])
+    jupyter_notebook_access_url = "https://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
+    jupyter_ungit_access_url = "https://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
+    tensorboard_access_url = "https://" + edge_instance_ip + "/{}-tensor/".format(notebook_config['exploratory_name'])
     ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
@@ -334,11 +334,11 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Jupyter",
-                    "url": jupyter_notebook_acces_url},
+                    "url": jupyter_notebook_access_url},
                    {"description": "TensorBoard",
-                    "url": tensorboard_acces_url},
+                    "url": tensorboard_access_url},
                    {"description": "Ungit",
-                    "url": jupyter_ungit_acces_url}#,
+                    "url": jupyter_ungit_access_url}#,
                    #{"description": "Jupyter (via tunnel)",
                    # "url": jupyter_url},
                    #{"description": "TensorBoard (via tunnel)",

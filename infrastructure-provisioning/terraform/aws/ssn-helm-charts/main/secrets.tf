@@ -21,9 +21,15 @@
 
 resource "random_uuid" "keycloak_client_secret" {}
 
+resource "random_string" "ssn_keystore_password" {
+  length = 16
+  special = false
+}
+
 resource "kubernetes_secret" "keycloak_client_secret" {
   metadata {
-    name = "keycloak-client-secret"
+    name       = "keycloak-client-secret"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -39,7 +45,8 @@ resource "random_string" "keycloak_password" {
 
 resource "kubernetes_secret" "keycloak_password_secret" {
   metadata {
-    name = "keycloak-password"
+    name       = "keycloak-password"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -54,7 +61,8 @@ resource "random_string" "mongo_root_password" {
 
 resource "kubernetes_secret" "mongo_root_password_secret" {
   metadata {
-    name = "mongo-root-password"
+    name       = "mongo-root-password"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -69,7 +77,8 @@ resource "random_string" "mongo_db_password" {
 
 resource "kubernetes_secret" "mongo_db_password_secret" {
   metadata {
-    name = "mongo-db-password"
+    name       = "mongo-db-password"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -84,7 +93,8 @@ resource "random_string" "mysql_root_password" {
 
 resource "kubernetes_secret" "mysql_root_password_secret" {
   metadata {
-    name = "mysql-root-password"
+    name       = "mysql-root-password"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -99,7 +109,8 @@ resource "random_string" "mysql_keycloak_user_password" {
 
 resource "kubernetes_secret" "mysql_keycloak_user_password_secret" {
   metadata {
-    name = "mysql-keycloak-user-password"
+    name       = "mysql-keycloak-user-password"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
@@ -109,20 +120,43 @@ resource "kubernetes_secret" "mysql_keycloak_user_password_secret" {
 
 resource "kubernetes_secret" "ssn_keystore_password" {
   metadata {
-    name = "ssn-keystore-password"
+    name       = "ssn-keystore-password"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
-    password = var.ssn_keystore_password
+    password = random_string.ssn_keystore_password.result
   }
 }
 
-resource "kubernetes_secret" "endpoint_keystore_password" {
+resource "random_string" "step_ca_password" {
+  length = 8
+  special = false
+}
+
+resource "kubernetes_secret" "step_ca_password_secret" {
   metadata {
-    name = "endpoint-keystore-password"
+    name       = "step-ca-password"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   }
 
   data = {
-    password = var.endpoint_keystore_password
+    password = random_string.step_ca_password.result
+  }
+}
+
+resource "random_string" "step_ca_provisioner_password" {
+  length = 8
+  special = false
+}
+
+resource "kubernetes_secret" "step_ca_provisioner_password_secret" {
+  metadata {
+    name       = "step-ca-provisioner-password"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+  }
+
+  data = {
+    password = random_string.step_ca_provisioner_password.result
   }
 }

@@ -49,7 +49,8 @@ if __name__ == "__main__":
     try:
         print('[CONFIGURE KEYCLOAK]')
         logging.info('[CONFIGURE KEYCLOAK]')
-        keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(args.keycloak_auth_server_url)
+        keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(
+            args.keycloak_auth_server_url)
         keycloak_auth_data = {
             "username": args.keycloak_user,
             "password": args.keycloak_user_password,
@@ -57,23 +58,26 @@ if __name__ == "__main__":
             "client_id": "admin-cli",
         }
 
-        keycloak_client_create_url = '{0}/admin/realms/{1}/clients'.format(args.keycloak_auth_server_url, args.keycloak_realm_name)
+        keycloak_client_create_url = '{0}/admin/realms/{1}/clients'.format(args.keycloak_auth_server_url,
+                                                                           args.keycloak_realm_name)
         keycloak_client_name = "{0}-{1}".format(args.service_base_name, args.project_name)
         keycloak_client_id = str(uuid.uuid4())
         keycloak_client_data = {
             "clientId": keycloak_client_name,
             "id": keycloak_client_id,
             "enabled": "true",
-            "redirectUris": ["http://{}/*".format(args.edge_public_ip)],
+            "redirectUris": ["https://{}/*".format(args.edge_public_ip)],
             "publicClient": "false",
             "secret": args.keycloak_client_secret,
             "protocol": "openid-connect",
         }
 
         try:
-            keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data).json()
+            keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data, verify=False).json()
 
-            keycloak_client = requests.post(keycloak_client_create_url, json=keycloak_client_data, headers={"Authorization": "Bearer " + keycloak_token.get("access_token"), "Content-Type": "application/json"})
+            keycloak_client = requests.post(keycloak_client_create_url, json=keycloak_client_data,
+                                            headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
+                                                     "Content-Type": "application/json"}, verify=False)
 
         except Exception as err:
             append_result("Failed to configure keycloak.")

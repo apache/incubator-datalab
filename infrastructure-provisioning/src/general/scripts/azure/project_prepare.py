@@ -191,6 +191,17 @@ if __name__ == "__main__":
                 "direction": "Inbound"
             },
             {
+                "name": "in-5",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "443",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 140,
+                "direction": "Inbound"
+            },
+            {
                 "name": "out-1",
                 "protocol": "Tcp",
                 "source_port_range": "*",

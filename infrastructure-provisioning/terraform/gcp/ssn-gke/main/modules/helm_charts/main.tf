@@ -37,7 +37,7 @@ provider "helm" {
     cluster_ca_certificate = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate)
   }
   install_tiller = true
-  service_account = "tiller"
+  service_account = kubernetes_service_account.tiller_sa.metadata.0.name
 }
 
 provider "kubernetes" {
@@ -48,14 +48,14 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.google_container_cluster.ssn_k8s_gke_cluster.master_auth.0.cluster_ca_certificate)
 }
 
-resource "kubernetes_service_account" "example" {
+resource "kubernetes_service_account" "tiller_sa" {
   metadata {
     name = "tiller"
     namespace = "kube-system"
   }
 }
 
-resource "kubernetes_role_binding" "example" {
+resource "kubernetes_role_binding" "tiller_rb" {
   metadata {
     name      = "tiller"
     namespace = "kube-system"
@@ -69,5 +69,28 @@ resource "kubernetes_role_binding" "example" {
     kind      = "ServiceAccount"
     name      = "tiller"
     namespace = "kube-system"
+  }
+}
+
+resource "kubernetes_namespace" "dlab-namespace" {
+  metadata {
+    annotations = {
+      name = var.namespace_name
+    }
+
+    name = var.namespace_name
+  }
+}
+
+resource "kubernetes_namespace" "cert-manager-namespace" {
+  metadata {
+    annotations = {
+      name = "cert-manager"
+    }
+    labels = {
+      "certmanager.k8s.io/disable-validation" = "true"
+    }
+
+    name = "cert-manager"
   }
 }

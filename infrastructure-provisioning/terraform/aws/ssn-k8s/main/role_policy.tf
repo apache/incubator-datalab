@@ -38,10 +38,11 @@ resource "aws_iam_role" "ssn_k8s_role" {
   name               = local.ssn_role_name
   assume_role_policy = file("./files/assume-policy.json")
   tags               = {
-    Name                           = local.ssn_role_name
-    "${local.additional_tag[0]}"      = local.additional_tag[1]
-    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.ssn_role_name}"
-    "${var.service_base_name}-Tag" = local.ssn_role_name
+    Name                                          = local.ssn_role_name
+    "${local.additional_tag[0]}"                  = local.additional_tag[1]
+    "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.ssn_role_name}"
+    "${var.service_base_name}-Tag"                = local.ssn_role_name
+    "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }
 

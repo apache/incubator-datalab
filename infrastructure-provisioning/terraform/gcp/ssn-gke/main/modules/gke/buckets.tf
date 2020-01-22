@@ -21,7 +21,6 @@
 
 locals {
   ssn_bucket_name = "${var.service_base_name}-ssn-bucket"
-  ssn_shared_bucket_name = "${var.service_base_name}-shared-bucket"
 }
 
 resource "google_storage_bucket" "ssn_bucket" {
@@ -31,15 +30,5 @@ resource "google_storage_bucket" "ssn_bucket" {
     name                              = local.ssn_bucket_name
     "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.service_base_name}-tag"    = local.ssn_bucket_name
-  }
-}
-
-resource "google_storage_bucket" "ssn_shared_bucket" {
-  name     = local.ssn_shared_bucket_name
-  force_destroy = true
-  labels = {
-    name                              = local.ssn_shared_bucket_name
-    "${local.additional_tag[0]}"      = local.additional_tag[1]
-    "${var.service_base_name}-tag"    = local.ssn_shared_bucket_name
   }
 }

@@ -267,8 +267,8 @@ if __name__ == "__main__":
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     rstudio_ip_url = "http://" + ip_address + ":8787/"
     ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
-    rstudio_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(notebook_config['exploratory_name'])
-    rstudio_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
+    rstudio_notebook_access_url = "https://" + edge_instance_hostname + "/{}/".format(notebook_config['exploratory_name'])
+    rstudio_ungit_access_url = "https://" + edge_instance_hostname + "/{}-ungit/".format(
         notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
@@ -294,9 +294,9 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "RStudio",
-                    "url": rstudio_notebook_acces_url},
+                    "url": rstudio_notebook_access_url},
                    {"description": "Ungit",
-                    "url": rstudio_ungit_acces_url}#,
+                    "url": rstudio_ungit_access_url}#,
                    #{"description": "RStudio (via tunnel)",
                    # "url": rstudio_ip_url},
                    #{"description": "Ungit (via tunnel)",
