@@ -198,7 +198,7 @@ if __name__ == "__main__":
                 "source_address_prefix": "*",
                 "destination_address_prefix": "*",
                 "access": "Allow",
-                "priority": 130,
+                "priority": 140,
                 "direction": "Inbound"
             },
             {
