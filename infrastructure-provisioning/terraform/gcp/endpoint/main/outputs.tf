@@ -22,3 +22,11 @@
 output "endpoint_eip_address" {
   value = google_compute_address.static.address
 }
+
+output "subnet_id" {
+  value = data.google_compute_subnetwork.endpoint_subnet_data.name
+}
+
+output "vpc_id" {
+  value = data.google_compute_network.endpoint_vpc_data.name
+}

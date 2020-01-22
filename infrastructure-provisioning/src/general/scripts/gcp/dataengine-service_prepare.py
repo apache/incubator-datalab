@@ -140,6 +140,9 @@ if __name__ == "__main__":
     ssh_admin_pubkey = key.publickey().exportKey("OpenSSH")
     dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}\n{0}:{2}'.format(dataproc_conf['dlab_ssh_user'], ssh_user_pubkey, ssh_admin_pubkey)
     dataproc_cluster['config']['gceClusterConfig']['tags'][0] = dataproc_conf['cluster_tag']
+    with open('/root/result.json', 'w') as f:
+        data = {"hostname": dataproc_conf['cluster_name'], "error": ""}
+        json.dump(data, f)
 
     try:
         logging.info('[Creating Dataproc Cluster]')
