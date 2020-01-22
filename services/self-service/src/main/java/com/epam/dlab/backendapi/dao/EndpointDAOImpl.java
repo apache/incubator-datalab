@@ -33,6 +33,7 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 	private static final String ENDPOINTS_COLLECTION = "endpoints";
 	private static final String ENDPOINT_NAME_FIELD = "name";
 	private static final String ENDPOINT_STATUS_FIELD = "status";
+	private static final String ENDPOINT_URL_FIELD = "url";
 
 	@Override
 	public List<EndpointDTO> getEndpoints() {
@@ -42,6 +43,11 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 	@Override
 	public List<EndpointDTO> getEndpointsWithStatus(String status) {
 		return find(ENDPOINTS_COLLECTION, endpointStatusCondition(status), EndpointDTO.class);
+	}
+
+	@Override
+	public Optional<EndpointDTO> getEndpointWithUrl(String url) {
+		return findOne(ENDPOINTS_COLLECTION, endpointUrlCondition(url), EndpointDTO.class);
 	}
 
 	@Override
@@ -72,4 +78,9 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 	private Bson endpointStatusCondition(String status) {
 		return eq(ENDPOINT_STATUS_FIELD, status);
 	}
+
+	private Bson endpointUrlCondition(String url) {
+		return eq(ENDPOINT_URL_FIELD, url);
+	}
+
 }

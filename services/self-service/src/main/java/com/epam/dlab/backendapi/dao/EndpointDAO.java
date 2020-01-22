@@ -31,6 +31,8 @@ public interface EndpointDAO {
 
 	Optional<EndpointDTO> get(String name);
 
+	Optional<EndpointDTO> getEndpointWithUrl(String url);
+
 	void create(EndpointDTO endpointDTO);
 
 	void updateEndpointStatus(String name, String status);
