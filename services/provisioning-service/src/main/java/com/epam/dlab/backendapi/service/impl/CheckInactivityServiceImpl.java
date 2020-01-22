@@ -99,11 +99,11 @@ public class CheckInactivityServiceImpl extends DockerService implements CheckIn
 	private void runDockerCmd(String userName, String uuid, RunDockerCommand dockerCmd, ResourceBaseDTO<?> dto) {
 		try {
 			final String command = commandBuilder.buildCommand(dockerCmd, dto);
-			log.trace("Docker command: {}", command);
+			//log.trace("Docker command: {}", command);
 			commandExecutor.executeAsync(userName, uuid, command);
 		} catch (Exception e) {
-			log.error("Exception occured during reuploading key: {} for command {}", e.getLocalizedMessage(),
-					dockerCmd.toCMD());
+			//log.error("Exception occured during reuploading key: {} for command {}", e.getLocalizedMessage(),
+			//		dockerCmd.toCMD());
 		}
 	}
 
