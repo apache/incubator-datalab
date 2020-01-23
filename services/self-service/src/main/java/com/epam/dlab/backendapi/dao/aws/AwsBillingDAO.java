@@ -21,22 +21,29 @@ package com.epam.dlab.backendapi.dao.aws;
 
 import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
-import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.Collections;
 import java.util.List;
 
-import static com.epam.dlab.model.aws.ReportLine.*;
-import static com.mongodb.client.model.Accumulators.*;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_COST;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_CURRENCY_CODE;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_DLAB_ID;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_PRODUCT;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_RESOURCE_TYPE;
+import static com.epam.dlab.model.aws.ReportLine.FIELD_USAGE_DATE;
+import static com.mongodb.client.model.Accumulators.max;
+import static com.mongodb.client.model.Accumulators.min;
+import static com.mongodb.client.model.Accumulators.sum;
 import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Aggregates.sort;
 
 /**
  * DAO for user billing.
  */
-public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
+public class AwsBillingDAO extends BaseBillingDAO {
 
     public static final String DLAB_RESOURCE_TYPE = "dlab_resource_type";
     public static final String USAGE_DATE_START = "from";
@@ -61,15 +68,7 @@ public class AwsBillingDAO extends BaseBillingDAO<AwsBillingFilter> {
     }
 
     @Override
-    protected List<Bson> cloudMatchCriteria(AwsBillingFilter filter) {
+    protected List<Bson> cloudMatchCriteria(BillingFilter filter) {
         return Collections.emptyList();
     }
-
-
-    @Override
-    protected String getSsnShape() {
-        return "t2.medium";
-    }
-
-
 }

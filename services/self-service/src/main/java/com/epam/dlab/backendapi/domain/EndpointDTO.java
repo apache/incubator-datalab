@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.domain;
 
+import com.epam.dlab.cloud.CloudProvider;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -35,11 +36,7 @@ public class EndpointDTO {
 	@JsonProperty("endpoint_tag")
 	private final String tag;
 	private final EndpointStatus status;
-
-	public static EndpointDTO withEndpointStatus(EndpointDTO endpointDTO) {
-		return new EndpointDTO(endpointDTO.getName(), endpointDTO.getUrl(), endpointDTO.getAccount(),
-				endpointDTO.getTag(), EndpointDTO.EndpointStatus.ACTIVE);
-	}
+	private final CloudProvider cloudProvider;
 
 	public enum EndpointStatus {
 		ACTIVE,

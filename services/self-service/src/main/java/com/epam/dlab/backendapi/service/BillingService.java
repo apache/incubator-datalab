@@ -34,12 +34,12 @@ import java.text.ParseException;
 import java.util.List;
 
 @Slf4j
-public abstract class BillingService<T extends BillingFilter> {
+public abstract class BillingService {
 
     @Inject
     private BillingDAO billingDAO;
 
-    public Document getReport(UserInfo userInfo, T filter) {
+    public Document getReport(UserInfo userInfo, BillingFilter filter) {
         log.trace("Get billing report for user {} with filter {}", userInfo.getName(), filter);
         try {
             return billingDAO.getReport(userInfo, filter);
@@ -58,12 +58,12 @@ public abstract class BillingService<T extends BillingFilter> {
         return CSVFormatter.formatLine(getHeadersList(full), CSVFormatter.SEPARATOR);
     }
 
-    public Document getBillingReport(UserInfo userInfo, T filter) {
+    public Document getBillingReport(UserInfo userInfo, BillingFilter filter) {
         filter.getUser().replaceAll(s -> s.equalsIgnoreCase(BaseBillingDAO.SHARED_RESOURCE_NAME) ? null : s);
         return getReport(userInfo, filter);
     }
 
-    public byte[] downloadReport(UserInfo userInfo, T filter) {
+    public byte[] downloadReport(UserInfo userInfo, BillingFilter filter) {
         return prepareReport(getReport(userInfo, filter)).getBytes();
     }
 
@@ -97,5 +97,5 @@ public abstract class BillingService<T extends BillingFilter> {
 
     public abstract String getTotal(boolean full, Document document);
 
-    public abstract String getReportFileName(UserInfo userInfo, T filter);
+    public abstract String getReportFileName(UserInfo userInfo, BillingFilter filter);
 }
