@@ -153,5 +153,5 @@ resource "aws_route_table" "projects_route_table" {
 resource "aws_vpc_endpoint" "s3-endpoint" {
   vpc_id          = data.aws_vpc.data_vpc.id
   service_name    = "com.amazonaws.${var.region}.s3"
-  route_table_ids = aws_route_table.projects_route_table.id
+  route_table_ids = [aws_route_table.projects_route_table.id]
 }
