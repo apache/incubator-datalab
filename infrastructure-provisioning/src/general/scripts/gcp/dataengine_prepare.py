@@ -134,6 +134,10 @@ if __name__ == "__main__":
         print('Pre-configured secondary image found. Using: {}'.format(data_engine['secondary_image_name'].get('name')))
         data_engine['secondary_image_name'] = 'global/images/{}'.format(data_engine['secondary_image_name'].get('name'))
 
+    with open('/root/result.json', 'w') as f:
+        data = {"hostname": data_engine['cluster_name'], "error": ""}
+        json.dump(data, f)
+
     data_engine['gpu_accelerator_type'] = 'None'
     if os.environ['application'] in ('tensor', 'tensor-rstudio', 'deeplearning'):
         data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']

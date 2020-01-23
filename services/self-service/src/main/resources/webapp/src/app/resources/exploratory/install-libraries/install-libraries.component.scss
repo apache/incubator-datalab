@@ -374,30 +374,40 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   padding-top: 7px;
   padding-bottom: 3px;
 }
-.endpoints-dialog{
-  .mat-dialog-container.mat-dialog-container #dialog-box  {
-    .mat-header-cell{
-      padding: 0;
-      border: none;
-    }
 
-    .filter-actions {
-      display: flex;
+.mat-dialog-container.mat-dialog-container .install-libraries#dialog-box  {
+  .mat-header-cell{
+    padding: 0;
+    border: none;
+  }
 
-      .btn {
-        padding: 6px;
-        height: auto;
-        width: auto;
-        min-width: 0;
+  .filter-actions {
+    display: flex;
+    margin-left: 6px;
+    .btn {
+      padding: 6px;
+      height: auto;
+      width: auto;
+      min-width: 0;
 
-        .mat-button-wrapper {
-          display: flex;
-        }
+      .mat-button-wrapper {
+        display: flex;
       }
+    }
+    .reset{
+      &:hover {
+        border-color: #f1696e;
+        background: #f9fafb;
+        color: #f1696e;
+      }
+    }
+    .apply:hover {
+      border-color: #49af38;
+      background: #f9fafb;
+      color: #49af38;
     }
   }
 }
-
 
 .install-libraries .dropdown-multiselect .list-menu li {
   a{
@@ -409,7 +419,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 }
 
 .filter-row .filter-actions {
-  margin-left: 6px;
+  display: flex;
 
   .reset{
       &:hover {

@@ -146,7 +146,8 @@ if __name__ == "__main__":
     if not project_conf['local_endpoint']:
         # attach project_tag and endpoint_tag to endpoint
         try:
-            endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
+            endpoint_id = get_instance_by_name(project_conf['tag_name'], '{0}-{1}-endpoint'.format(
+                project_conf['service_base_name'], os.environ['endpoint_name']))
             print("Endpoint id: " + endpoint_id)
             ec2 = boto3.client('ec2')
             ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']},

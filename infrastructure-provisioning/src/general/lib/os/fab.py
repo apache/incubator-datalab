@@ -202,7 +202,7 @@ def configure_docker(os_user):
                   stable"')
             sudo('apt-get update')
             sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
+            sudo('apt-get install -y docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))

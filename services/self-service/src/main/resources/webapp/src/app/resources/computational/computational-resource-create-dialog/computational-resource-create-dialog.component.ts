@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, ViewChild, Inject, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import {FormGroup, FormBuilder, Validators, FormControl} from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
@@ -76,6 +76,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.notebook_instance = this.data.notebook;
     this.resourcesList = this.data.full_list;
     this.initFormModel();
+    this.initCluster();
     this.getTemplates(this.notebook_instance.project, this.notebook_instance.endpoint);
   }
 
@@ -140,9 +141,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       template_name: ['', [Validators.required]],
       version: [''],
       shape_master: ['', Validators.required],
-      shape_slave: [''],
-      cluster_alias_name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern),
-        Validators.maxLength(DICTIONARY[this.PROVIDER].max_cluster_name_length),
+      shape_slave: ['', Validators.required],
+      cluster_alias_name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), Validators.maxLength(DICTIONARY[this.PROVIDER].max_cluster_name_length),
       this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(PATTERNS.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       preemptible_instance_number: [0,
@@ -151,6 +151,17 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
       custom_tag: [this.notebook_instance.tags.custom_tag]
+    });
+  }
+
+  private initCluster() {
+    this.resourceForm.get('template_name').valueChanges.subscribe(val => {
+      if (val === 'AWS EMR cluster') {
+        this.resourceForm.addControl('shape_slave', new FormControl('', [ Validators.required ]));
+      } else {
+        this.resourceForm.removeControl('shape_slave');
+      }
+      this.resourceForm.updateValueAndValidity();
     });
   }
 

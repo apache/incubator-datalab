@@ -955,7 +955,7 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          .add_str('--subnet_cidr',
                   'CIDR for Subnet creation. Conflicts with subnet_id.',
                   default='172.31.0.0/24', group='endpoint')
-         .add_str('--ami', 'ID of EC2 AMI.', required=True, group='endpoint')
+         .add_str('--ami', 'ID of AMI.', group='endpoint')
          .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
                   group='endpoint')
          .add_str('--endpoint_id', 'Endpoint id.', required=True,

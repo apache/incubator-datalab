@@ -128,6 +128,10 @@ if __name__ == "__main__":
     notebook_config['network_tag'] = '{0}-{1}-ps'.format(notebook_config['service_base_name'],
                                                          notebook_config['project_name'])
 
+    with open('/root/result.json', 'w') as f:
+        data = {"notebook_name": notebook_config['instance_name'], "error": ""}
+        json.dump(data, f)
+
     additional_tags = os.environ['tags'].replace("': u'", ": ").replace("', u'", ", ").replace("{u'", "" ).replace("'}", "")
     print('Additional tags will be added: {}'.format(additional_tags))
 

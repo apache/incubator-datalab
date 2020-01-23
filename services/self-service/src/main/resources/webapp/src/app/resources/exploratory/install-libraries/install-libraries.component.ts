@@ -182,7 +182,6 @@ export class InstallLibrariesComponent implements OnInit {
 
   public selectLibrary(item): void {
     this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
-
     this.query = '';
     this.libSearch.setValue('');
 
@@ -216,18 +215,14 @@ export class InstallLibrariesComponent implements OnInit {
       ErrorMessageDialogComponent, { data: item.error, width: '550px', panelClass: 'error-modalbox' });
   }
 
-  public isInstallingInProgress(data): void {
-    this.notebookFailedLibs = data.filter(lib => lib.status.some(inner => inner.status === 'failed'));
-    this.installingInProgress = data.filter(lib => lib.status.some(inner => inner.status === 'installing')).length > 0;
-
-    if (this.installingInProgress) {
-      if (this.clearCheckInstalling === undefined)
+  public isInstallingInProgress(): void {
+    const isInstallingNow = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
+      if (isInstallingNow){
         this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 10000);
-    } else {
-      clearInterval(this.clearCheckInstalling);
-      this.clearCheckInstalling = undefined;
+      } else {
+        window.clearInterval(this.clearCheckInstalling);
+      }
     }
-  }
 
   public reinstallLibrary(item, lib) {
     const retry = [{ group: lib.group, name: lib.name, version: lib.version }];
@@ -242,9 +237,10 @@ export class InstallLibrariesComponent implements OnInit {
   private getInstalledLibrariesList(init?: boolean) {
     this.model.getInstalledLibrariesList(this.notebook)
       .subscribe((data: any) => {
-        if(!this.filtredNotebookLibs.length || data.length !== this.notebookLibs.length){
+        if( !this.filtredNotebookLibs.length || data.length !== this.notebookLibs.length){
           this.filtredNotebookLibs = [...data];
         }
+        this.filtredNotebookLibs = data.filter(lib => this.filtredNotebookLibs.some(v => (v.name + v.version === lib.name + v.version) && v.resource === lib.resource));
         this.notebookLibs = data ? data : [];
         this.notebookLibs.forEach(lib => {
           lib.filteredStatus = lib.status;
@@ -257,7 +253,7 @@ export class InstallLibrariesComponent implements OnInit {
         this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.resource)));
         this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.resourceType)));
         this.filterConfiguration.status = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.status)));
-        this.isInstallingInProgress(this.notebookLibs);
+        this.isInstallingInProgress();
       });
   }
 
