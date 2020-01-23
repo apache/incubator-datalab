@@ -134,7 +134,7 @@
                 <div class="control">
                   <input type="password" formControlName="confirmPassword" placeholder="Enter Password">
                 </div>
-                <span class="danger_color" *ngIf="updateAccountCredentialsForm.value.password !== updateAccountCredentialsForm.value.confirmPassword && updateAccountCredentialsForm.controls['password'].touched && !!updateAccountCredentialsForm.value.password">
+                <span class="danger_color" *ngIf="updateAccountCredentialsForm.value.password !== updateAccountCredentialsForm.value.confirmPassword && updateAccountCredentialsForm.controls['confirmPassword'].touched && !!updateAccountCredentialsForm.value.password">
                   Passwords don't match.
                 </span>
               </div>

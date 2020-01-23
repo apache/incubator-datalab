@@ -167,3 +167,8 @@ button {
   color: #35afd5;
   line-height: 26px;
 }
+
+input[type=file],
+input[type=file]::-webkit-file-upload-button {
+    cursor: pointer;
+}

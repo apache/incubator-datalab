@@ -141,7 +141,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       template_name: ['', [Validators.required]],
       version: [''],
       shape_master: ['', Validators.required],
-      shape_slave: ['', Validators.required],
+      shape_slave: ['', Validators.required],    
       cluster_alias_name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), Validators.maxLength(DICTIONARY[this.PROVIDER].max_cluster_name_length),
       this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(PATTERNS.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
