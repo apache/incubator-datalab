@@ -49,7 +49,7 @@ public class CheckEndpointStatusScheduler implements Job {
 
     private boolean checkUrl(UserInfo serviceUser, EndpointDTO endpoint) {
         try {
-            endpointService.checkEndpointUrl(serviceUser, endpoint.getUrl());
+            endpointService.checkUrl(serviceUser, endpoint.getUrl());
         } catch (Exception e) {
             return true;
         }

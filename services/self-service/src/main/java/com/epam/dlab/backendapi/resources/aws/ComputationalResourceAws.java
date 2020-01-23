@@ -52,7 +52,7 @@ import static com.epam.dlab.dto.base.DataEngineType.SPARK_STANDALONE;
 /**
  * Provides the REST API for the computational resource on AWS.
  */
-@Path("/infrastructure_provision/computational_resources")
+@Path("/aws/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j

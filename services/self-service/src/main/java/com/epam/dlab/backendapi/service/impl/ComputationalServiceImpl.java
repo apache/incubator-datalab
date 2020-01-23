@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
@@ -108,11 +109,11 @@ public class ComputationalServiceImpl implements ComputationalService {
 				form.getCustomTag()));
 		if (computationalDAO.addComputational(userInfo.getName(), form.getNotebookName(), compResource)) {
 			try {
-				ComputationalBase<?> dto = requestBuilder.newComputationalCreate(userInfo, projectDTO, instance, form);
+				EndpointDTO endpointDTO = endpointService.get(instance.getEndpoint());
+				ComputationalBase<?> dto = requestBuilder.newComputationalCreate(userInfo, projectDTO, instance, form, endpointDTO);
 
 				String uuid =
-						provisioningService.post(endpointService.get(instance.getEndpoint()).getUrl() +
-										ComputationalAPI.COMPUTATIONAL_CREATE_SPARK,
+						provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_CREATE_SPARK,
 								userInfo.getAccessToken(), dto, String.class);
 				requestId.put(userInfo.getName(), uuid);
 				return true;
@@ -143,12 +144,13 @@ public class ComputationalServiceImpl implements ComputationalService {
 					.getName(), exploratoryName, computationalName);
 
 			final DataEngineType dataEngineType = compResource.getDataEngineType();
-			ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(userInfo, userInstanceDTO, compResource);
+			EndpointDTO endpointDTO = endpointService.get(userInstanceDTO.getEndpoint());
+			ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(userInfo, userInstanceDTO, compResource, endpointDTO);
 
 			final String provisioningUrl = Optional.ofNullable(DATA_ENGINE_TYPE_TERMINATE_URLS.get(dataEngineType))
 					.orElseThrow(UnsupportedOperationException::new);
 			String uuid =
-					provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + provisioningUrl,
+					provisioningService.post(endpointDTO.getUrl() + provisioningUrl,
 							userInfo.getAccessToken(), dto, String.class);
 			requestId.put(userInfo.getName(), uuid);
 		} catch (RuntimeException re) {
@@ -179,10 +181,11 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 		if (isAdded) {
 			try {
+				EndpointDTO endpointDTO = endpointService.get(instance.getEndpoint());
 				String uuid =
-						provisioningService.post(endpointService.get(instance.getEndpoint()).getUrl() +
-										COMPUTATIONAL_CREATE_CLOUD_SPECIFIC, userInfo.getAccessToken(),
-								requestBuilder.newComputationalCreate(userInfo, projectDTO, instance, formDTO),
+						provisioningService.post(endpointDTO.getUrl() + COMPUTATIONAL_CREATE_CLOUD_SPECIFIC,
+								userInfo.getAccessToken(),
+								requestBuilder.newComputationalCreate(userInfo, projectDTO, instance, formDTO, endpointDTO),
 								String.class);
 				requestId.put(userInfo.getName(), uuid);
 				return true;
@@ -209,10 +212,12 @@ public class ComputationalServiceImpl implements ComputationalService {
 		if (computationalWithStatusResourceExist(compName, userInstance, requiredStatus)) {
 			log.debug("{} spark cluster {} for userInstance {}", STOPPING.toString(), compName, expName);
 			updateComputationalStatus(userInfo.getName(), expName, compName, STOPPING);
+			EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 			final String uuid =
-					provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ComputationalAPI.COMPUTATIONAL_STOP_SPARK,
+					provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_STOP_SPARK,
 							userInfo.getAccessToken(),
-							requestBuilder.newComputationalStop(userInfo, userInstance, compName), String.class);
+							requestBuilder.newComputationalStop(userInfo, userInstance, compName, endpointDTO),
+							String.class);
 			requestId.put(userInfo.getName(), uuid);
 		} else {
 			throw new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT,
@@ -230,10 +235,12 @@ public class ComputationalServiceImpl implements ComputationalService {
 		if (computationalWithStatusResourceExist(compName, userInstance, requiredStatus)) {
 			log.debug("{} spark cluster {} for userInstance {}", STARTING.toString(), compName, expName);
 			updateComputationalStatus(userInfo.getName(), expName, compName, STARTING);
+			EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 			final String uuid =
-					provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ComputationalAPI.COMPUTATIONAL_START_SPARK,
-							userInfo.getAccessToken(), requestBuilder.newComputationalStart(userInfo, userInstance,
-									compName), String.class);
+					provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_START_SPARK,
+							userInfo.getAccessToken(),
+							requestBuilder.newComputationalStart(userInfo, userInstance, compName, endpointDTO),
+							String.class);
 			requestId.put(userInfo.getName(), uuid);
 		} else {
 			throw new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT,
@@ -255,11 +262,12 @@ public class ComputationalServiceImpl implements ComputationalService {
 				.findAny()
 				.orElseThrow(() -> new ResourceNotFoundException(String.format(RUNNING_COMP_RES_NOT_FOUND,
 						computationalName, exploratoryName)));
+		EndpointDTO endpointDTO = endpointService.get(userInstanceDTO.getEndpoint());
 		final ComputationalClusterConfigDTO clusterConfigDto = requestBuilder.newClusterConfigUpdate(userInfo,
-				userInstanceDTO, compResource, config);
+				userInstanceDTO, compResource, config, endpointDTO);
 		final String uuid =
-				provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + ComputationalAPI.COMPUTATIONAL_RECONFIGURE_SPARK, token,
-						clusterConfigDto, String.class);
+				provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_RECONFIGURE_SPARK,
+						token, clusterConfigDto, String.class);
 		computationalDAO.updateComputationalFields(new ComputationalStatusDTO()
 				.withComputationalName(computationalName)
 				.withExploratoryName(exploratoryName)

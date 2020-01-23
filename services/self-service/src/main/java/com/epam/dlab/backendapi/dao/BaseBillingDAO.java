@@ -47,7 +47,12 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
@@ -61,12 +66,18 @@ import static com.epam.dlab.model.aws.ReportLine.FIELD_USAGE_DATE;
 import static com.mongodb.client.model.Accumulators.sum;
 import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Aggregates.match;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gte;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.lte;
+import static com.mongodb.client.model.Filters.regex;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 import static java.util.Collections.singletonList;
 
 @Slf4j
-public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO implements BillingDAO<T> {
+public abstract class BaseBillingDAO extends BaseDAO implements BillingDAO {
 
 	public static final String SHAPE = "shape";
 	public static final String SERVICE_BASE_NAME = "service_base_name";
@@ -100,7 +111,7 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 	private ProjectDAO projectDAO;
 
 	@Override
-	public Document getReport(UserInfo userInfo, T filter) {
+	public Document getReport(UserInfo userInfo, BillingFilter filter) {
 		boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing",
 				userInfo.getRoles());
 		setUserFilter(userInfo, filter, isFullReport);
@@ -111,8 +122,8 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		}
 		pipeline.add(groupCriteria());
 		pipeline.add(sortCriteria());
-		final Map<String, BaseShape> shapes = getShapes(filter.getShapes());
-		return prepareReport(filter.getStatuses(), !filter.getShapes().isEmpty(),
+		final Map<String, BaseShape> shapes = getShapes(filter.getShape());
+		return prepareReport(filter.getStatuses(), !filter.getShape().isEmpty(),
 				getCollection(BILLING).aggregate(pipeline), shapes, isFullReport);
 	}
 
@@ -347,11 +358,11 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 			searchCriteria.add(in(PROJECT, filter.getProjects()));
 		}
 
-		searchCriteria.addAll(cloudMatchCriteria((T) filter));
+		searchCriteria.addAll(cloudMatchCriteria(filter));
 		return searchCriteria;
 	}
 
-	protected abstract List<Bson> cloudMatchCriteria(T filter);
+	protected abstract List<Bson> cloudMatchCriteria(BillingFilter filter);
 
 	private Double aggregateBillingData(List<Bson> pipeline) {
 		return Optional.ofNullable(aggregate(BILLING, pipeline).first())
@@ -451,7 +462,9 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 		return settings.getServiceBaseName();
 	}
 
-	protected abstract String getSsnShape();
+	protected String getSsnShape() {
+		return settings.getSsnInstanceSize();
+	}
 
 	protected void usersToLowerCase(List<String> users) {
 		if (users != null) {

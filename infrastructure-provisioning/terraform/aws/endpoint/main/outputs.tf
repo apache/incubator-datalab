@@ -22,3 +22,15 @@
 output "endpoint_eip_address" {
   value = aws_eip.endpoint_eip.public_ip
 }
+
+output "subnet_id" {
+  value = data.aws_subnet.data_subnet.id
+}
+
+output "vpc_id" {
+  value = data.aws_vpc.data_vpc.id
+}
+
+output "ssn_k8s_sg_id" {
+  value = aws_security_group.endpoint_sec_group.id
+}

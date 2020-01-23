@@ -95,8 +95,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
           localStorage.setItem('report_period', JSON.stringify({
-            start_date: this.data[DICTIONARY.billing.dateFrom],
-            end_date: this.data[DICTIONARY.billing.dateTo]
+            start_date: this.data['from'],
+            end_date: this.data['to']
           }));
           this.reportingToolbar.setDateRange();
         }
@@ -140,30 +140,30 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item.project && projects.indexOf(item.project) === -1)
         projects.push(item.project);
 
-      if (item[DICTIONARY.billing.resourceType] && types.indexOf(item[DICTIONARY.billing.resourceType]) === -1)
-        types.push(item[DICTIONARY.billing.resourceType]);
+      if (item[DICTIONARY['aws'].billing.resourceType] && types.indexOf(item[DICTIONARY['aws'].billing.resourceType]) === -1)
+        types.push(item[DICTIONARY['aws'].billing.resourceType]);
 
-      if (item[DICTIONARY.billing.instance_size]) {
-        if (item[DICTIONARY.billing.instance_size].indexOf('Master') > -1) {
-          for (let shape of item[DICTIONARY.billing.instance_size].split('\n')) {
+      if (item[DICTIONARY['aws'].billing.instance_size]) {
+        if (item[DICTIONARY['aws'].billing.instance_size].indexOf('Master') > -1) {
+          for (let shape of item[DICTIONARY['aws'].billing.instance_size].split('\n')) {
             shape = shape.replace('Master: ', '');
             shape = shape.replace(/Slave:\s+\d+ x /, '');
             shape = shape.replace(/\s+/g, '');
 
             shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
-        } else if (item[DICTIONARY.billing.instance_size].match(/\d x \S+/)) {
-          const parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
+        } else if (item[DICTIONARY['aws'].billing.instance_size].match(/\d x \S+/)) {
+          const parsedShape = item[DICTIONARY['aws'].billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
           if (shapes.indexOf(parsedShape) === -1) {
             shapes.push(parsedShape);
           }
         } else {
-          shapes.indexOf(item[DICTIONARY.billing.instance_size]) === -1 && shapes.push(item[DICTIONARY.billing.instance_size]);
+          shapes.indexOf(item[DICTIONARY['aws'].billing.instance_size]) === -1 && shapes.push(item[DICTIONARY['aws'].billing.instance_size]);
         }
       }
 
-      if (item[DICTIONARY.billing.service] && services.indexOf(item[DICTIONARY.billing.service]) === -1)
-        services.push(item[DICTIONARY.billing.service]);
+      if (item[DICTIONARY['aws'].billing.service] && services.indexOf(item[DICTIONARY['aws'].billing.service]) === -1)
+        services.push(item[DICTIONARY['aws'].billing.service]);
     });
 
     if (!this.reportingGrid.filterConfiguration || !localStorage.getItem('report_config')) {

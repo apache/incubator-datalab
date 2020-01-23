@@ -23,6 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BaseDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
 import com.epam.dlab.backendapi.resources.dto.LibKey;
@@ -127,10 +128,11 @@ public class LibraryServiceImpl implements LibraryService {
 										   List<LibInstallDTO> libs) {
 
 		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(ui.getName(), expName, compName);
+		EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 		final String uuid =
-				provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ComputationalAPI.COMPUTATIONAL_LIB_INSTALL,
-						ui.getAccessToken(), toComputationalLibraryInstallDto(ui, expName, compName, libs,
-								userInstance),
+				provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_LIB_INSTALL,
+						ui.getAccessToken(),
+						toComputationalLibraryInstallDto(ui, expName, compName, libs, userInstance, endpointDTO),
 						String.class);
 		requestId.put(ui.getName(), uuid);
 		return uuid;
@@ -139,26 +141,28 @@ public class LibraryServiceImpl implements LibraryService {
 	@Override
 	public String installExploratoryLibs(UserInfo ui, String expName, List<LibInstallDTO> libs) {
 		final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), expName);
+		EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 		final String uuid =
-				provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ExploratoryAPI.EXPLORATORY_LIB_INSTALL, ui.getAccessToken(),
-				toExploratoryLibraryInstallDto(ui, expName, libs, userInstance), String.class);
+				provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_LIB_INSTALL,
+						ui.getAccessToken(), toExploratoryLibraryInstallDto(ui, expName, libs, userInstance, endpointDTO),
+						String.class);
 		requestId.put(ui.getName(), uuid);
 		return uuid;
 	}
 
 	private LibraryInstallDTO toExploratoryLibraryInstallDto(UserInfo userInfo, String exploratoryName,
-															 List<LibInstallDTO> libs, UserInstanceDTO userInstance) {
+															 List<LibInstallDTO> libs, UserInstanceDTO userInstance, EndpointDTO endpointDTO) {
 		final List<LibInstallDTO> libsToInstall = libs.stream()
 				.map(lib -> toLibInstallDto(lib, libraryDAO.getLibrary(userInfo.getName(), exploratoryName,
 						lib.getGroup(), lib.getName())))
 				.peek(l -> libraryDAO.addLibrary(userInfo.getName(), exploratoryName, l, l.isOverride()))
 				.collect(Collectors.toList());
-		return requestBuilder.newLibInstall(userInfo, userInstance, libsToInstall);
+		return requestBuilder.newLibInstall(userInfo, userInstance, endpointDTO, libsToInstall);
 	}
 
 	private LibraryInstallDTO toComputationalLibraryInstallDto(UserInfo userInfo, String expName, String compName,
 															   List<LibInstallDTO> libs,
-															   UserInstanceDTO userInstance) {
+															   UserInstanceDTO userInstance, EndpointDTO endpointDTO) {
 
 		final UserComputationalResource computationalResource = getComputationalResource(compName, userInstance);
 		final List<LibInstallDTO> libsToInstall = libs.stream()
@@ -167,7 +171,7 @@ public class LibraryServiceImpl implements LibraryService {
 				.peek(l -> libraryDAO.addLibrary(userInfo.getName(), expName, compName, l,
 						l.isOverride()))
 				.collect(Collectors.toList());
-		return requestBuilder.newLibInstall(userInfo, userInstance, computationalResource, libsToInstall);
+		return requestBuilder.newLibInstall(userInfo, userInstance, computationalResource, libsToInstall, endpointDTO);
 	}
 
 	private UserComputationalResource getComputationalResource(String computationalName,

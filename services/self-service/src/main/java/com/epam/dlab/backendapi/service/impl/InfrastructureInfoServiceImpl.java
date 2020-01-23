@@ -24,34 +24,37 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
+import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
+import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Slf4j
-public abstract class InfrastructureInfoServiceBase<T> implements InfrastructureInfoService {
+public class InfrastructureInfoServiceImpl implements InfrastructureInfoService {
 
 	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-dlab/blob/%s" +
 			"/RELEASE_NOTES.md";
 	@Inject
 	private ExploratoryDAO expDAO;
-	@Inject
-	private KeyDAO keyDAO;
 	@Inject
 	private EnvDAO envDAO;
 	@Inject
@@ -60,33 +63,33 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 	private BillingDAO billingDAO;
 	@Inject
 	private ProjectService projectService;
+	@Inject
+	private EndpointService endpointService;
 
-
-	@SuppressWarnings("unchecked")
-	private Map<String, String> getSharedInfo(EdgeInfo edgeInfo) {
-		return getSharedInfo((T) edgeInfo);
-	}
 
 	@Override
 	public List<ProjectInfrastructureInfo> getUserResources(String user) {
 		log.debug("Loading list of provisioned resources for user {}", user);
 		try {
 			Iterable<Document> documents = expDAO.findExploratory(user);
-
+			List<EndpointDTO> allEndpoints = endpointService.getEndpoints();
 			return StreamSupport.stream(documents.spliterator(),
 					false)
 					.collect(Collectors.groupingBy(d -> d.getString("project")))
 					.entrySet()
 					.stream()
 					.map(e -> {
-
+						List<ProjectEndpointDTO> endpoints = projectService.get(e.getKey()).getEndpoints();
+						List<EndpointDTO> endpointResult = allEndpoints.stream()
+								.filter(endpoint -> endpoints.stream()
+										.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
+								.collect(Collectors.toList());
 						final Map<String, Map<String, String>> projectEdges =
-								projectService.get(e.getKey()).getEndpoints().stream()
+								endpoints.stream()
 										.collect(Collectors.toMap(ProjectEndpointDTO::getName,
 												endpointDTO -> getSharedInfo(endpointDTO.getEdgeInfo())));
 						return new ProjectInfrastructureInfo(e.getKey(),
-								billingDAO.getBillingProjectQuoteUsed(e.getKey()),
-								projectEdges, e.getValue());
+								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), endpointResult);
 					})
 					.collect(Collectors.toList());
 		} catch (Exception e) {
@@ -124,5 +127,31 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 				.build();
 	}
 
-	protected abstract Map<String, String> getSharedInfo(T sharedInfo);
+	private Map<String, String> getSharedInfo(EdgeInfo edgeInfo) {
+		Map<String, String> shared = new HashMap<>();
+		shared.put("edge_node_ip", edgeInfo.getPublicIp());
+		if (edgeInfo instanceof EdgeInfoAws) {
+			EdgeInfoAws edgeInfoAws = (EdgeInfoAws) edgeInfo;
+
+			shared.put("user_own_bicket_name", edgeInfoAws.getUserOwnBucketName());
+			shared.put("shared_bucket_name", edgeInfoAws.getSharedBucketName());
+		} else if (edgeInfo instanceof EdgeInfoAzure) {
+			EdgeInfoAzure edgeInfoAzure = (EdgeInfoAzure) edgeInfo;
+
+			shared.put("user_container_name", edgeInfoAzure.getUserContainerName());
+			shared.put("shared_container_name", edgeInfoAzure.getSharedContainerName());
+			shared.put("user_storage_account_name", edgeInfoAzure.getUserStorageAccountName());
+			shared.put("shared_storage_account_name", edgeInfoAzure.getSharedStorageAccountName());
+			shared.put("datalake_name", edgeInfoAzure.getDataLakeName());
+			shared.put("datalake_user_directory_name", edgeInfoAzure.getDataLakeDirectoryName());
+			shared.put("datalake_shared_directory_name", edgeInfoAzure.getDataLakeSharedDirectoryName());
+		} else if (edgeInfo instanceof EdgeInfoGcp) {
+			EdgeInfoGcp edgeInfoGcp = (EdgeInfoGcp) edgeInfo;
+
+			shared.put("user_own_bucket_name", edgeInfoGcp.getUserOwnBucketName());
+			shared.put("shared_bucket_name", edgeInfoGcp.getSharedBucketName());
+		}
+
+		return shared;
+	}
 }

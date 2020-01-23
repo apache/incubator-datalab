@@ -50,7 +50,7 @@ import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 /**
  * Provides the REST API for the computational resource on GCP.
  */
-@Path("/infrastructure_provision/computational_resources")
+@Path("/gcp/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j

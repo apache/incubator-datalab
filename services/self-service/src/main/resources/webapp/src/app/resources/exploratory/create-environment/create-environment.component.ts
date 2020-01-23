@@ -152,7 +152,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   private providerMaxLength(control) {
-    if (DICTIONARY.cloud_provider !== 'aws')
+    if (control && control.value)
       return control.value.length <= 10 ? null : { valid: false };
   }
 

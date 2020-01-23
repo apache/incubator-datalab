@@ -424,9 +424,9 @@ List of parameters for SSN node deployment:
 | conf\_os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
 | conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS)
 | conf\_duo\_vpc\_enable    | "true" - for installing DLab into two Virtual Private Clouds (VPCs) or "false" - for installing DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC|
-| aws\_vpc\_id              | ID of the VPC                                                   |
-| aws\_subnet\_id           | ID of the public subnet                                                                 |
-| aws\_security\_groups\_ids| One or more ID\`s of AWS Security Groups, which will be assigned to SSN node            |
+| aws\_vpc\_id              | ID of the VPC (optional)                                                    |
+| aws\_subnet\_id           | ID of the public subnet (optional)                                                                  |
+| aws\_security\_groups\_ids| One or more ID\`s of AWS Security Groups, which will be assigned to SSN node (optional)             |
 | key\_path                 | Path to admin key (without key name)                                                    |
 | conf\_key\_name           | Name of the uploaded SSH key file (without “.pem” extension)                            |
 | conf\_tag\_resource\_id   | The name of tag for billing reports                                                     |
@@ -469,13 +469,13 @@ List of parameters for SSN node deployment:
 | Parameter                         | Description/Value                                                                       |
 |-----------------------------------|-----------------------------------------------------------------------------------------|
 | conf\_service\_base\_name         | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
-| azure\_resource\_group\_name      | Resource group name (could be the same as service base name                             |
+| azure\_resource\_group\_name      | Resource group name (can be the same as service base name                             |
 | azure\_region                     | Azure region                                                                            |
 | conf\_os\_family                  | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
 | conf\_cloud\_provider             | Name of the cloud provider, which is supported by DLab (Azure)                          |
-| azure\_vpc\_name                  | Name of the Virtual Network (VN)                                                        |
-| azure\_subnet\_name               | Name of the Azure subnet                                                                |
-| azure\_security\_groups\_name     | One or more Name\`s of Azure Security Groups, which will be assigned to SSN node        |
+| azure\_vpc\_name                  | Name of the Virtual Network (VN) (optional)                                                         |
+| azure\_subnet\_name               | Name of the Azure subnet (optional)                                                                 |
+| azure\_security\_groups\_name     | One or more Name\`s of Azure Security Groups, which will be assigned to SSN node (optional)         |
 | azure\_ssn\_instance\_size        | Instance size of SSN instance in Azure                                                  |
 | key\_path                         | Path to admin key (without key name)                                                    |
 | conf\_key\_name                   | Name of the uploaded SSH key file (without “.pem” extension)                            |
@@ -549,9 +549,9 @@ List of parameters for SSN node deployment:
 | gcp\_zone                    | GCP zone                                                                                |
 | conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
 | conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (GCP)                            |
-| gcp\_vpc\_name               | Name of the Virtual Network (VN)                                                        |
-| gcp\_subnet\_name            | Name of the GCP subnet                                                                  |
-| gcp\_firewall\_name          | One or more Name\`s of GCP Security Groups, which will be assigned to SSN node          |
+| gcp\_vpc\_name               | Name of the Virtual Network (VN) (optional)                                                         |
+| gcp\_subnet\_name            | Name of the GCP subnet (optional)                                                                   |
+| gcp\_firewall\_name          | One or more Name\`s of GCP Security Groups, which will be assigned to SSN node (optional)           |
 | key\_path                    | Path to admin key (without key name)                                                    |
 | conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
 | gcp\_service\_account\_path  | Full path to auth json file                                                             |
@@ -633,11 +633,15 @@ List of parameters for SSN node termination:
 | gcp\_zone                    | GCP zone                                                                                |
 | conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
 | conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (GCP)                            |
+| gcp\_vpc\_name               | Name of the Virtual Network (VN) (optional)                                                        |
+| gcp\_subnet\_name            | Name of the GCP subnet (optional)                                                                 |
 | key\_path                    | Path to admin key (without key name)                                                    |
 | conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
 | gcp\_service\_account\_path  | Full path to auth json file                                                             |
 | gcp\_project\_id             | ID of GCP project                                                                       |
 | action                       | In case of SSN node termination, this parameter should be set to “terminate”            |
+
+Note: It is required to enter gcp_vpc_name and gcp_subnet_name parameters if Self-Service Node was deployed in pre-defined VPC and Subnet.
 </details>
 
 ## Edge Node <a name="Edge_Node"></a>
