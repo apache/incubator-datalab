@@ -512,7 +512,7 @@ def ensure_jar_endpoint():
             if not exists(conn, web_path):
                 conn.run('mkdir -p {}'.format(web_path))
             conn.run('wget -P {}  --user={} --password={} '
-                     'https://{}/repository/packages/aws/provisioning-service-'
+                     'https://{}/repository/packages/provisioning-service-'
                      '2.2.jar --no-check-certificate'
                      .format(web_path, args.repository_user,
                              args.repository_pass, args.repository_address))
