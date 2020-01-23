@@ -82,44 +82,44 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public createComputationalResource_DataengineService(data): Observable<{}> {
+  public createComputationalResource_DataengineService(data, provider): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
-      .buildCreateComputationalResources_DataengineServiceRequest(body)
+      .buildCreateComputationalResources_DataengineServiceRequest(body, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public createComputationalResource_Dataengine(data): Observable<{}> {
+  public createComputationalResource_Dataengine(data, provider): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
-      .buildCreateComputationalResources_DataengineRequest(body)
+      .buildCreateComputationalResources_DataengineRequest(body, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public suspendComputationalResource(notebookName: string, computationalResourceName: string): Observable<{}> {
+  public suspendComputationalResource(notebookName: string, computationalResourceName: string, provider: string): Observable<{}> {
     const body = JSON.stringify('/' + notebookName + '/' + computationalResourceName + '/terminate');
     return this.applicationServiceFacade
-      .buildDeleteComputationalResourcesRequest(body)
+      .buildDeleteComputationalResourcesRequest(body, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public toggleStopStartAction(project: string, notebook: string, resource: string, action): Observable<{}> {
+  public toggleStopStartAction(project: string, notebook: string, resource: string, action, provider: string): Observable<{}> {
     const url = `/${project}/${notebook}/${resource}/${action}`;
     if (action === 'stop') {
       return this.applicationServiceFacade
-        .buildStopSparkClusterAction(JSON.stringify(url))
+        .buildStopSparkClusterAction(JSON.stringify(url), provider)
         .pipe(
           map(response => response),
           catchError(ErrorUtils.handleServiceError));
     } else if (action === 'start') {
       return this.applicationServiceFacade
-        .buildStartSparkClusterAction(url)
+        .buildStartSparkClusterAction(url, provider)
         .pipe(
           map(response => response),
           catchError(ErrorUtils.handleServiceError));

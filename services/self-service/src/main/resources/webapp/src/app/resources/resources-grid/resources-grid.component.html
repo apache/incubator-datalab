@@ -62,7 +62,7 @@
     </ng-container>
     <ng-container matColumnDef="shapes">
       <th mat-header-cell *matHeaderCellDef class="shape-col">
-        <span class="label"> {{ DICTIONARY.instance_size }} </span>
+        <span class="label"> Size </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span *ngIf="filtering && filterForm.shapes.length > 0 && !collapseFilterRow">filter_list</span>
@@ -78,7 +78,7 @@
     </ng-container>
     <ng-container matColumnDef="resources">
       <th mat-header-cell *matHeaderCellDef class="resources-col">
-        <span class="label"> {{ DICTIONARY.computational_resource }} </span>
+        <span class="label"> Computational resources </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span *ngIf="filtering && filterForm.resources.length > 0 && !collapseFilterRow">filter_list</span>
@@ -156,7 +156,7 @@
                 && element.status !== 'terminated'
                 && element.status !== 'creating image'">
                   <li
-                    *ngIf="element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'starting' && element.status !== 'creating image'"
+                    *ngIf="element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'starting' && element.status !== 'creating image' && element.status.toLowerCase() !== 'reconfiguring'"
                     matTooltip="Unable to stop notebook because at least one computational resource is in progress"
                     matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
                     <div (click)="exploratoryAction(element, 'stop')"
@@ -195,9 +195,9 @@
                   </li>
                 </div>
                 <li (click)="exploratoryAction(element, 'ami')"
-                  *ngIf="element.status === 'running' && DICTIONARY.cloud_provider !== 'gcp' && element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
+                  *ngIf="element.status === 'running' && element.cloud_provider !== 'gcp' && element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
                   <i class="material-icons">view_module</i>
-                  <span>Create {{ DICTIONARY.image }}</span>
+                  <span>Create {{ DICTIONARY[element.cloud_provider].image }}</span>
                 </li>
                 <li (click)="exploratoryAction(element, 'install')"
                   *ngIf="element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
@@ -234,7 +234,7 @@
     <ng-container matColumnDef="shape-filter">
       <th mat-header-cell *matHeaderCellDef class="shape-col">
         <multi-select-dropdown (selectionChange)="onUpdate($event)"
-          [type]="DICTIONARY.cloud_provider === 'aws' ? 'shapes': 'sizes'" [items]="filterConfiguration.shapes"
+          [type]="'sizes'" [items]="filterConfiguration.shapes"
           [model]="filterForm.shapes"></multi-select-dropdown>
       </th>
     </ng-container>
@@ -258,14 +258,13 @@
     <ng-container matColumnDef="action-filter" stickyEnd>
       <th mat-header-cell *matHeaderCellDef>
         <div class="actions">
-          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()" [disabled]="filteredEnvironments.length == 0 && !filtering">
             <i class="material-icons">close</i>
           </button>
 
           <button mat-icon-button class="btn apply" (click)="applyFilter_btnClick(filterForm)"
             [disabled]="filteredEnvironments.length == 0 && !filtering">
-            <i class="material-icons"
-              [ngClass]="{'not-allowed': filteredEnvironments.length == 0 && !filtering}">done</i>
+            <i class="material-icons">done</i>
           </button>
         </div>
       </th>
@@ -282,7 +281,7 @@
 
     <!-- FILTER END -->
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
 
     <tr [hidden]="!collapseFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
       class="filter-row"></tr>

@@ -139,10 +139,21 @@ class ParamsBuilder:
         return self.add(str, name, desc, **kwargs)
 
     def add_bool(self, name, desc, **kwargs):
-        return self.add(bool, name, desc, **kwargs)
+        return self.add(self.str2bool, name, desc, **kwargs)
 
     def add_int(self, name, desc, **kwargs):
         return self.add(int, name, desc, **kwargs)
+
+    @staticmethod
+    def str2bool(v):
+        if isinstance(v, bool):
+            return v
+        if v.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Boolean value expected.')
 
     def build(self):
         return self.__params
@@ -266,12 +277,13 @@ class TerraformProvider:
         logging.info(command)
         Console.execute_to_command_line(command)
 
-    def destroy(self, tf_params, cli_args):
+    def destroy(self, tf_params, cli_args, keep_state_file=False):
         """Destroy terraform
 
         Args:
             tf_params: dict of terraform parameters
             cli_args: dict of parameters
+            keep_state_file: Boolean
         Returns:
              None
         """
@@ -282,12 +294,13 @@ class TerraformProvider:
                    .format(self.no_color, params_str, args_str))
         logging.info(command)
         Console.execute_to_command_line(command)
-        state_file = tf_params['-state']
-        state_file_backup = tf_params['-state'] + '.backup'
-        if os.path.isfile(state_file):
-            os.remove(state_file)
-        if os.path.isfile(state_file_backup):
-            os.remove(state_file_backup)
+        if not keep_state_file:
+            state_file = tf_params['-state']
+            state_file_backup = tf_params['-state'] + '.backup'
+            if os.path.isfile(state_file):
+                os.remove(state_file)
+            if os.path.isfile(state_file_backup):
+                os.remove(state_file_backup)
 
     @staticmethod
     def output(tf_params, *args):
@@ -424,6 +437,12 @@ class AbstractDeployBuilder:
                 key = '--' + key
                 if key not in sys.argv:
                     sys.argv.extend([key, value])
+                else:
+                    try:
+                        index = sys.argv.index(key)
+                        sys.argv[index + 1] = value
+                    except:
+                        pass
 
     def parse_args(self):
         """Get dict of arguments
@@ -604,14 +623,6 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='k8s')
          .add_str('--zone', 'Name of AWS zone', default='a',
                   group=('k8s'))
-         .add_str('--ssn_keystore_password', 'ssn_keystore_password',
-                  group='helm_charts')
-         .add_str('--endpoint_keystore_password', 'endpoint_keystore_password',
-                  group='helm_charts')
-         .add_str('--ssn_bucket_name', 'ssn_bucket_name',
-                  group='helm_charts')
-         .add_str('--endpoint_eip_address', 'endpoint_eip_address',
-                  group='helm_charts')
          .add_str('--ldap_host', 'ldap host', required=True,
                   group='helm_charts')
          .add_str('--ldap_dn', 'ldap dn', required=True,
@@ -673,6 +684,11 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                   group='helm_charts')
          .add_str('--billing_tag', 'Billing tag', default='dlab',
                   group='helm_charts')
+         .add_bool('--custom_certs_enabled', 'Enable custom certificates',
+                   default=False, group=('service', 'helm_charts'))
+         .add_str('--custom_cert_path', 'custom_cert_path', default='', group=('service', 'helm_charts'))
+         .add_str('--custom_key_path', 'custom_key_path', default='', group=('service', 'helm_charts'))
+         .add_str('--custom_certs_host', 'custom certs host', default='', group='helm_charts')
          # Tmp for jenkins job
          .add_str('--endpoint_id', 'Endpoint Id',
                   default='user:tag', group=())
@@ -750,12 +766,25 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             conn.run('mkdir -p {}'.format(remote_dir))
             rsync(conn, source, remote_dir, strict_host_keys=False)
 
+    def copy_cert(self):
+        logging.info('transfer certificates to remote')
+        cert_path = self.service_args.get('custom_cert_path')
+        key_path = self.service_args.get('custom_key_path')
+        remote_dir = '/tmp/' # .format(self.user_name)
+        with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
+            conn.run('mkdir -p {}'.format(remote_dir))
+            rsync(conn, cert_path, remote_dir, strict_host_keys=False)
+            rsync(conn, key_path, remote_dir, strict_host_keys=False)
+
     def run_remote_terraform(self):
         logging.info('apply helm charts')
         args = self.parse_args()
-        dns_name = json.loads(TerraformProvider(self.no_color)
-                              .output(self.tf_params,
-                                      '-json ssn_k8s_alb_dns_name'))
+        # dns_name = json.loads(TerraformProvider(self.no_color)
+        #                       .output(self.tf_params,
+        #                               '-json ssn_k8s_alb_dns_name'))
+        nlb_dns_name = json.loads(TerraformProvider(self.no_color)
+                                  .output(self.tf_params,
+                                          '-json ssn_k8s_nlb_dns_name'))
         logging.info('apply ssn-helm-charts')
         terraform_args = args.get('helm_charts')
         args_str = get_var_args_string(terraform_args)
@@ -766,8 +795,8 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 if 'success' not in init or 'success' not in validate:
                     raise TerraformProviderError
                 command = ('terraform apply -auto-approve {} '
-                           '-var \'ssn_k8s_alb_dns_name={}\''
-                           .format(args_str, dns_name))
+                           '-var \'ssn_k8s_nlb_dns_name={}\''
+                           .format(args_str, nlb_dns_name))
                 logging.info(command)
                 conn.run(command)
                 output = ' '.join(conn.run('terraform output -json')
@@ -775,18 +804,15 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
                 self.fill_args_from_dict(json.loads(output))
 
     def output_terraform_result(self):
-        dns_name = json.loads(
-            TerraformProvider(self.no_color).output(self.tf_params,
-                                                    '-json ssn_k8s_alb_dns_name'))
-        ssn_bucket_name = json.loads(
-            TerraformProvider(self.no_color).output(self.tf_params,
-                                                    '-json ssn_bucket_name'))
+        # dns_name = json.loads(
+        #     TerraformProvider(self.no_color).output(self.tf_params,
+        #                                             '-json nginx_load_balancer_hostname'))
         ssn_k8s_sg_id = json.loads(
             TerraformProvider(self.no_color).output(self.tf_params,
                                                     '-json ssn_k8s_sg_id'))
         ssn_subnet = json.loads(
             TerraformProvider(self.no_color).output(self.tf_params,
-                                                    '-json ssn_subnet'))
+                                                    '-json ssn_subnet_id'))
         ssn_vpc_id = json.loads(
             TerraformProvider(self.no_color).output(self.tf_params,
                                                     '-json ssn_vpc_id'))
@@ -794,14 +820,10 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         logging.info("""
         DLab SSN K8S cluster has been deployed successfully!
         Summary:
-        DNS name: {}
-        Bucket name: {}
         VPC ID: {}
         Subnet ID:  {}
         SG IDs: {}
-        DLab UI URL: http://{}
-        """.format(dns_name, ssn_bucket_name, ssn_vpc_id,
-                   ssn_subnet, ssn_k8s_sg_id, dns_name))
+        """.format(ssn_vpc_id, ssn_subnet, ssn_k8s_sg_id))
 
     def fill_args_from_dict(self, output):
         for key, value in output.items():
@@ -830,6 +852,18 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
             else:
                 break
 
+    def destroy_remote_terraform(self):
+        logging.info('destroy helm charts')
+        with Console.ssh(self.ip, self.user_name, self.pkey_path) as conn:
+            with conn.cd('terraform/ssn-helm-charts/main'):
+                init = conn.run('terraform init').stdout.lower()
+                validate = conn.run('terraform validate').stdout.lower()
+                if 'success' not in init or 'success' not in validate:
+                    raise TerraformProviderError
+                command = 'terraform destroy -auto-approve'
+                logging.info(command)
+                conn.run(command)
+
     def deploy(self):
         logging.info('deploy')
         output = ' '.join(
@@ -841,11 +875,18 @@ class AWSK8sSourceBuilder(AbstractDeployBuilder):
         self.check_k8s_cluster_status()
         self.check_tiller_status()
         self.copy_terraform_to_remote()
+        if self.service_args.get('custom_certs_enabled'):
+            self.copy_cert()
         self.run_remote_terraform()
         self.fill_remote_terraform_output()
         self.output_terraform_result()
 
     def destroy(self):
+        self.select_master_ip()
+        try:
+            self.destroy_remote_terraform()
+        except:
+            print("Error with destroying helm charts.")
         super(AWSK8sSourceBuilder, self).destroy()
         if self.output_dir is not None:
             shutil.rmtree(self.output_dir)
@@ -858,6 +899,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
     def update_extracted_file_data(self, obj):
         if 'ssn_vpc_id' in obj:
             obj['vpc_id'] = obj['ssn_vpc_id']
+        if 'ssn_subnet_id' in obj:
+            obj['subnet_id'] = obj['ssn_subnet_id']
 
     @property
     def name(self):
@@ -905,14 +948,14 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          .add_str('--vpc_cidr',
                   'CIDR for VPC creation. Conflicts with vpc_id.',
                   default='172.31.0.0/16', group='endpoint')
-         .add_str('--ssn_subnet',
-                  'ID of AWS Subnet if you already have subnet created.',
+         .add_str('--subnet_id',
+                  'ID of Subnet if you already have subnet created.',
                   group='endpoint')
          .add_str('--ssn_k8s_sg_id', 'ID of SSN SG.', group='endpoint')
          .add_str('--subnet_cidr',
                   'CIDR for Subnet creation. Conflicts with subnet_id.',
                   default='172.31.0.0/24', group='endpoint')
-         .add_str('--ami', 'ID of EC2 AMI.', required=True, group='endpoint')
+         .add_str('--ami', 'ID of AMI.', group='endpoint')
          .add_str('--key_name', 'Name of EC2 Key pair.', required=True,
                   group='endpoint')
          .add_str('--endpoint_id', 'Endpoint id.', required=True,
@@ -928,9 +971,6 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   default='t2.medium', group='endpoint')
          .add_int('--endpoint_volume_size', 'Size of root volume in GB.',
                   default=30, group='endpoint')
-         .add_str('--endpoint_eip_allocation_id',
-                  'Elastic Ip created for Endpoint',
-                  group='endpoint')
          .add_str('--product', 'Product name.', default='dlab',
                   group='endpoint')
          .add_str('--additional_tag', 'Additional tag.',
@@ -949,6 +989,189 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
         return params.build()
 
     def deploy(self):
+        self.fill_sys_argv_from_file()
+        new_dir = os.path.abspath(
+            os.path.join(os.getcwd(), '../../../bin/deploy'))
+        os.chdir(new_dir)
+        start_deploy()
+
+
+class GCPK8sSourceBuilder(AbstractDeployBuilder):
+
+    # def update_extracted_file_data(self, obj):
+    #     if 'ssn_vpc_id' in obj:
+    #         obj['vpc_id'] = obj['ssn_vpc_id']
+
+    @property
+    def name(self):
+        return 'k8s'
+
+    @property
+    def use_tf_output_file(self):
+        return True
+
+    @property
+    def terraform_location(self):
+        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
+        return os.path.join(tf_dir, 'gcp/ssn-gke/main')
+
+    @property
+    def terraform_args_group_name(self):
+        return 'k8s'
+
+    def validate_params(self):
+        super(GCPK8sSourceBuilder, self).validate_params()
+        # params = self.parse_args()[self.terraform_args_group_name]
+        # if len(params.get('endpoint_id')) > 12:
+        #     sys.stderr.write('endpoint_id length should be less then 12')
+        #     sys.exit(1)
+
+    @property
+    def cli_args(self):
+        params = ParamsBuilder()
+        (params
+         .add_bool('--no_color', 'no color console_output', group='service',
+                   default=False)
+         .add_str('--state', 'State file path', group='service')
+         .add_str('--namespace', 'Name of namespace', group='k8s')
+         .add_str('--credentials_file_path', 'Path to creds file', group='k8s', required=True)
+         .add_str('--project_id', 'Project ID', group='k8s', required=True)
+         .add_str('--region', 'Region name', group='k8s', required=True)
+         .add_str('--zone', 'Zone name', group='k8s', required=True)
+         .add_str('--vpc_name', 'VPC name', group='k8s')
+         .add_str('--subnet_name', 'Subnet name', group='k8s')
+         .add_str('--service_base_name', 'Service base name', group='k8s', required=True)
+         .add_str('--subnet_cidr', 'Subnet CIDR', group='k8s')
+         .add_str('--additional_tag', 'Additional tag', group='k8s')
+         .add_str('--ssn_k8s_workers_count', 'Number of workers per zone', group='k8s')
+         .add_str('--gke_cluster_version', 'GKE version', group='k8s')
+         .add_str('--ssn_k8s_workers_shape', 'Workers shape', group='k8s')
+         .add_str('--service_account_iam_roles', 'Array of roles', group='k8s')
+         .add_str('--ssn_k8s_alb_dns_name', 'DNS name', group='k8s')
+         .add_str('--keycloak_user', 'Keycloak user name', group='k8s')
+         .add_str('--mysql_user', 'MySQL user name', group='k8s')
+         .add_str('--mysql_db_name', 'MySQL database name', group='k8s')
+         .add_str('--ldap_usernameAttr', 'LDAP username attr', group='k8s', default='uid')
+         .add_str('--ldap_rdnAttr', 'LDAP rdn attr', group='k8s', default='uid')
+         .add_str('--ldap_uuidAttr', 'LDAP uuid attr', group='k8s', default='uid')
+         .add_str('--ldap_users_group', 'LDAP users group', group='k8s', default='ou=People')
+         .add_str('--ldap_dn', 'LDAP DN', group='k8s', default='dc=example,dc=com')
+         .add_str('--ldap_user', 'LDAP user', group='k8s', default='cn=admin')
+         .add_str('--ldap_bind_creds', 'LDAP user password', group='k8s', required=True)
+         .add_str('--ldap_host', 'LDAP host', group='k8s', required=True)
+         .add_str('--mongo_db_username', 'Mongo user name', group='k8s')
+         .add_str('--mongo_dbname', 'Mongo database name', group='k8s')
+         .add_str('--mongo_image_tag', 'Mongo image tag', group='k8s')
+         .add_str('--mongo_service_port', 'Mongo service port', group='k8s')
+         .add_str('--mongo_node_port', 'Mongo node port', group='k8s')
+         .add_str('--mongo_service_name', 'Mongo service name', group='k8s')
+         .add_str('--env_os', 'Environment Operating system', group='k8s', default='debian')
+         .add_str('--big_query_dataset', 'Big query dataset name for billing', group='k8s', default='test')
+         .add_str('--custom_certs_enabled', 'If custom certs enabled', group='k8s')
+         .add_str('--custom_cert_path', 'Custom cert path', group='k8s')
+         .add_str('--custom_key_path', 'Custom key path', group='k8s')
+         .add_str('--custom_certs_host', 'Custom cert host ', group='k8s')
+         .add_str('--mysql_disk_size', 'MySQL disk size', group='k8s')
+         .add_str('--domain', 'Domain name', group='k8s', required=True)
+         )
+        return params.build()
+
+    def apply(self):
+        terraform = TerraformProvider(self.no_color)
+        gke_params = self.tf_params.copy()
+        helm_charts_params = self.tf_params.copy()
+
+        gke_params['-target'] = 'module.gke_cluster'
+        helm_charts_params['-target'] = 'module.helm_charts'
+
+        terraform.apply(gke_params, self.terraform_args)
+        terraform.apply(helm_charts_params, self.terraform_args)
+
+    def deploy(self):
+        pass
+
+    def destroy(self):
+        terraform = TerraformProvider(self.no_color)
+        gke_params = self.tf_params.copy()
+        helm_charts_params = self.tf_params.copy()
+
+        gke_params['-target'] = 'module.gke_cluster'
+        helm_charts_params['-target'] = 'module.helm_charts'
+
+        terraform.destroy(helm_charts_params, self.terraform_args, True)
+        time.sleep(60)
+        terraform.destroy(gke_params, self.terraform_args)
+
+
+class GCPEndpointBuilder(AbstractDeployBuilder):
+
+    def update_extracted_file_data(self, obj):
+        if 'ssn_vpc_id' in obj:
+            obj['vpc_id'] = obj['ssn_vpc_id']
+
+    @property
+    def name(self):
+        return 'endpoint'
+
+    @property
+    def use_tf_output_file(self):
+        return True
+
+    @property
+    def terraform_location(self):
+        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
+        return os.path.join(tf_dir, 'gcp/endpoint/main')
+
+    @property
+    def terraform_args_group_name(self):
+        return 'endpoint'
+
+    def validate_params(self):
+        super(GCPEndpointBuilder, self).validate_params()
+        params = self.parse_args()[self.terraform_args_group_name]
+        if len(params.get('endpoint_id')) > 12:
+            sys.stderr.write('endpoint_id length should be less then 12')
+            sys.exit(1)
+
+    @property
+    def cli_args(self):
+        params = ParamsBuilder()
+        (params
+         .add_bool('--no_color', 'no color console_output', group='service',
+                   default=False)
+         .add_str('--state', 'State file path', group='service')
+         .add_str('--gcp_project_id', 'GCP project ID', required=True, group='endpoint')
+         .add_str('--creds_file', 'Path to crdes file', required=True, group='endpoint')
+         .add_str('--pkey', 'path to key', required=True, group='service')
+         .add_str('--service_base_name', 'Service base name', group='endpoint')
+         .add_str('--vpc_id', 'ID of VPC if you already have VPC created.', group='endpoint')
+         .add_str('--subnet_cidr', 'CIDR for Subnet creation. Conflicts with vpc_id.', default='172.31.0.0/24',
+                  group='endpoint')
+         .add_str('--ssn_subnet', 'ID of AWS Subnet if you already have subnet created.', group='endpoint')
+         .add_str('--subnet_id', 'ID of subnet', group='endpoint')
+         .add_str('--ami', 'ID of EC2 AMI.', group='endpoint')
+         .add_str('--path_to_pub_key', 'Path to public key', required=True, group='endpoint')
+         .add_str('--endpoint_id', 'Endpoint id.', required=True, group='endpoint')
+         .add_str('--region', 'Name of region.', group='endpoint')
+         .add_str('--zone', 'Name of zone.', group='endpoint')
+         .add_str('--endpoint_shape', 'Instance shape of Endpoint.',  group='endpoint')
+         .add_str('--endpoint_volume_size', 'Endpoint disk size', group='endpoint')
+         .add_str('--additional_tag', 'Additional tag.', default='product:dlab', group='endpoint')
+         .add_str('--ldap_host', 'ldap host', required=True, group='endpoint')
+         .add_str('--ldap_dn', 'ldap dn', required=True, group='endpoint')
+         .add_str('--ldap_user', 'ldap user', required=True, group='endpoint')
+         .add_str('--ldap_bind_creds', 'ldap bind creds', required=True, group='endpoint')
+         .add_str('--ldap_users_group', 'ldap users group', required=True, group='endpoint')
+         .add_str('--firewall_ing_cidr_range', 'Ingress range', group='endpoint')
+         .add_str('--firewall_eg_cidr_range', 'Egress range', group='endpoint')
+         .add_str('--endpoint_policies', 'Endpoint policies list', group='endpoint')
+         .add_str('--endpoint_roles', 'Endpoint roles list', group='endpoint')
+         .add_str('--bucket_region', 'Bucket region', group='endpoint')
+         )
+        return params.build()
+
+    def deploy(self):
+        self.fill_sys_argv_from_file()
         new_dir = os.path.abspath(
             os.path.join(os.getcwd(), '../../../bin/deploy'))
         os.chdir(new_dir)
@@ -976,10 +1199,14 @@ class DeployDirector:
         except Exception as ex:
             print(ex)
 
+
 def deploy():
     actions = {'deploy', 'destroy'}
 
-    sources_targets = {'aws': ['k8s', 'endpoint']}
+    sources_targets = {
+        'aws': ['k8s', 'endpoint'],
+        'gcp': ['k8s', 'endpoint']
+    }
 
     no_args_error = ('usage: ./dlab {} {} {}\n'.format(
         actions,
@@ -1008,6 +1235,10 @@ def deploy():
         'aws': {
             'k8s': AWSK8sSourceBuilder,
             'endpoint': AWSEndpointBuilder
+        },
+        'gcp': {
+            'k8s': GCPK8sSourceBuilder,
+            'endpoint': GCPEndpointBuilder
         }
     }
     builder = builders_dict[source][target]()

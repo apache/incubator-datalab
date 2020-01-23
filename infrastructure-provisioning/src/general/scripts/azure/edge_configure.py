@@ -87,13 +87,24 @@ if __name__ == "__main__":
             edge_conf['edge_public_ip'] =  edge_conf['edge_private_ip']
         else:
             edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                                        edge_conf['instance_name'])
+                                                                                     edge_conf['instance_name'])
             edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                                    edge_conf['instance_name'])
+                                                                              edge_conf['instance_name'])
         instance_hostname = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                        edge_conf['instance_name'])
+                                                               edge_conf['instance_name'])
         edge_conf['vpc_cidrs'] = AzureMeta().get_vpc(edge_conf['resource_group_name'],
-                                                      edge_conf['vpc_name']).address_space.address_prefixes
+                                                     edge_conf['vpc_name']).address_space.address_prefixes
+
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            step_cert_sans = ' --san {0} --san {1} '.format(AzureMeta().get_private_ip_address(
+                edge_conf['resource_group_name'], edge_conf['instance_name']), edge_conf['instance_dns_name'])
+            if os.environ['conf_network_type'] == 'public':
+                step_cert_sans += ' --san {0}'.format(
+                    AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                               edge_conf['instance_name']))
+        else:
+            step_cert_sans = ''
+
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to generate infrastructure names", str(err))
@@ -268,25 +279,27 @@ if __name__ == "__main__":
     try:
         print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
-
         keycloak_client_secret = str(uuid.uuid4())
-        keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} --keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} --edge_public_ip {} --project_name {}" \
+        params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
+                 "--step_cert_sans '{}'" \
+            .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'],
+                    edge_conf['service_base_name'] + '-' + os.environ['project_name'], keycloak_client_secret,
+                    step_cert_sans)
+
+        try:
+            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+        keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
+                          "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
+                          "--edge_public_ip {} --project_name {}" \
             .format(edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
                     os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
                     os.environ['keycloak_user_password'],
                     keycloak_client_secret, edge_conf['edge_public_ip'], os.environ['project_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
-        except:
-            traceback.print_exc()
-            raise Exception
-
-        params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {}" \
-            .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'],
-                    edge_conf['service_base_name'] + '-' + os.environ['project_name'], keycloak_client_secret)
-
-        try:
-            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
         except:
             traceback.print_exc()
             raise Exception

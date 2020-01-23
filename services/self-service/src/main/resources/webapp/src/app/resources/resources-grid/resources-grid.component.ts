@@ -39,7 +39,7 @@ import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmat
 import { SchedulerComponent } from '../scheduler';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
-import {ProgressBarService} from "../../core/services/progress-bar.service";
+import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'resources-grid',
@@ -72,9 +72,9 @@ export class ResourcesGridComponent implements OnInit {
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
     { title: 'Status', name: 'statuses', class: 'status-col', filter_class: 'status-filter', filtering: true },
-    { title: DICTIONARY.instance_size, name: 'shapes', class: 'shape-col', filter_class: 'shape-filter', filtering: true },
+    { title: 'Instance size', name: 'shapes', class: 'shape-col', filter_class: 'shape-filter', filtering: true },
     { title: 'Tags', name: 'tag', class: 'tag-col', filter_class: 'tag-filter', filtering: false },
-    { title: DICTIONARY.computational_resource, name: 'resources', class: 'resources-col', filter_class: 'resource-filter', filtering: true },
+    { title: 'Computational resource', name: 'resources', class: 'resources-col', filter_class: 'resource-filter', filtering: true },
     { title: 'Cost', name: 'cost', class: 'cost-col', filter_class: 'cost-filter', filtering: false },
     { title: '', name: 'actions', class: 'actions-col', filter_class: 'action-filter', filtering: false }
   ];
@@ -91,12 +91,11 @@ export class ResourcesGridComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-
     this.buildGrid();
   }
 
   public buildGrid(): void {
-    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
+    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
@@ -127,14 +126,15 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public containsNotebook(notebook_name: string): boolean {
-    if (notebook_name)
+    if (notebook_name && this.environments && this.environments.length ) {
       return this.environments
         .filter(project => project.exploratory
           .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name))).length > 0;
+    }
   }
 
   public isResourcesInProgress(notebook) {
-    let env = this.getResourceByName(notebook.name);
+    const env = this.getResourceByName(notebook.name);
 
     if (env && env.resources.length) {
       return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
@@ -194,6 +194,7 @@ export class ResourcesGridComponent implements OnInit {
         .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'ami') {
       this.dialog.open(AmiCreateDialogComponent, { data: data, panelClass: 'modal-sm' })
+
         .afterClosed().subscribe(() => this.buildGrid());
     }
   }

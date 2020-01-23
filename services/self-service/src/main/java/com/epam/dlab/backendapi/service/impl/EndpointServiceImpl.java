@@ -3,11 +3,13 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EndpointDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
+import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.EndpointResourcesDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -23,23 +25,29 @@ import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class EndpointServiceImpl implements EndpointService {
-	private static final String HEALTHCHECK = "healthcheck";
+	private static final String HEALTH_CHECK = "healthcheck";
 	private final EndpointDAO endpointDAO;
 	private final ProjectService projectService;
 	private final ExploratoryDAO exploratoryDAO;
 	private final RESTService provisioningService;
+	private final UserRoleDao userRoleDao;
 
 	@Inject
 	public EndpointServiceImpl(EndpointDAO endpointDAO, ProjectService projectService, ExploratoryDAO exploratoryDAO,
-							   @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService) {
+							   @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
+							   UserRoleDao userRoleDao) {
 
 		this.endpointDAO = endpointDAO;
 		this.projectService = projectService;
 		this.exploratoryDAO = exploratoryDAO;
 		this.provisioningService = provisioningService;
+		this.userRoleDao = userRoleDao;
 	}
 
 	@Override
@@ -80,9 +88,14 @@ public class EndpointServiceImpl implements EndpointService {
 		if(endpointDAO.getEndpointWithUrl(endpointDTO.getUrl()).isPresent()) {
 			throw new ResourceConflictException("The Endpoint URL with this address already exists in system!");
 		}
-		checkEndpointUrl(userInfo, endpointDTO.getUrl());
+		CloudProvider cloudProvider = checkUrl(userInfo, endpointDTO.getUrl());
 		if (!endpointDAO.get(endpointDTO.getName()).isPresent()) {
-			endpointDAO.create(EndpointDTO.withEndpointStatus(endpointDTO));
+			if (!Objects.nonNull(cloudProvider)) {
+				throw new DlabException("CloudProvider cannot be null");
+			}
+			endpointDAO.create(new EndpointDTO(endpointDTO.getName(), endpointDTO.getUrl(), endpointDTO.getAccount(),
+					endpointDTO.getTag(), EndpointDTO.EndpointStatus.ACTIVE, cloudProvider));
+			userRoleDao.updateMissingRoles(cloudProvider);
 		} else {
 			throw new ResourceConflictException("The Endpoint with this name already exists in system");
 		}
@@ -95,13 +108,20 @@ public class EndpointServiceImpl implements EndpointService {
 
 	@Override
 	public void remove(UserInfo userInfo, String name, boolean withResources) {
+		Optional<EndpointDTO> endpointDTO = endpointDAO.get(name);
+		endpointDTO.orElseThrow(() -> new ResourceNotFoundException(String.format("Endpoint %s does not exist", name)));
 		List<ProjectDTO> projects = projectService.getProjectsByEndpoint(name);
 		checkProjectEndpointResourcesStatuses(projects, name);
 
 		if (withResources) {
 			removeEndpointInAllProjects(userInfo, name, projects);
 		}
+		CloudProvider cloudProvider = endpointDTO.get().getCloudProvider();
 		endpointDAO.remove(name);
+		List<CloudProvider> remainingProviders = endpointDAO.getEndpoints().stream()
+				.map(EndpointDTO::getCloudProvider)
+				.collect(Collectors.toList());
+		userRoleDao.removeUnnecessaryRoles(cloudProvider, remainingProviders);
 	}
 
 	@Override
@@ -110,18 +130,21 @@ public class EndpointServiceImpl implements EndpointService {
 	}
 
 	@Override
-	public void checkEndpointUrl(UserInfo userInfo, String url) {
+	public CloudProvider checkUrl(UserInfo userInfo, String url) {
 		Response response;
+		CloudProvider cloudProvider;
 		try {
-			response = provisioningService.get(url + HEALTHCHECK, userInfo.getAccessToken(), Response.class);
+			response = provisioningService.get(url + HEALTH_CHECK, userInfo.getAccessToken(), Response.class);
+			cloudProvider = response.readEntity(CloudProvider.class);
 		} catch (Exception e) {
-			log.error("Cannot connect to url \'{}\'", url);
-			throw new DlabException(String.format("Cannot connect to url \'%s\'", url), e);
+			log.error("Cannot connect to url '{}'", url);
+			throw new DlabException(String.format("Cannot connect to url '%s'", url), e);
 		}
 		if (response.getStatus() != 200) {
 			log.warn("Endpoint url {} is not valid", url);
-			throw new ResourceNotFoundException(String.format("Endpoint url \'%s\' is not valid", url));
+			throw new ResourceNotFoundException(String.format("Endpoint url '%s' is not valid", url));
 		}
+		return cloudProvider;
 	}
 
 	private void checkProjectEndpointResourcesStatuses(List<ProjectDTO> projects, String endpoint) {

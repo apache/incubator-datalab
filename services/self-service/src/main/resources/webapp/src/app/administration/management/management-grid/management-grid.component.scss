@@ -83,7 +83,6 @@ table.management {
   }
 
   .header-row {
-    background: transparent;
     height: auto;
     .label {
       display: inline-block;
@@ -92,13 +91,10 @@ table.management {
       padding-left: 5px;
       font-size: 11px;
     }
-
-    button {
-      padding-right: 5px;
-    }
   }
+
   .filter-row {
-    background: transparent;
+    background: inherit;
   }
 
   .actions {

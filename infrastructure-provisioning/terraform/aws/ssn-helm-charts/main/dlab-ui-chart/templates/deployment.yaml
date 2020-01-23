@@ -59,8 +59,6 @@ spec:
                 secretKeyRef:
                   name: keycloak-client-secret
                   key: client_secret
-            - name: SSN_BUCKET_NAME
-              value: {{ .Values.ui.bucketName }}
             - name: KEYCLOAK_AUTH_URL
               value: {{ .Values.ui.keycloak.auth_server_url }}
           ports:
@@ -78,6 +76,9 @@ spec:
               mountPath: /root/self-service.yml
               subPath: self-service
               readOnly: true
+            - mountPath: "/root/step-certs"
+              name: ui-tls
+              readOnly: true
       volumes:
         - name: ui-conf
           configMap:
@@ -88,6 +89,9 @@ spec:
                 path: ssn
               - key: self-service.yml
                 path: self-service
+        - name: ui-tls
+          secret:
+            secretName: {{ include "dlab-ui.fullname" . }}-tls
 
       {{- with .Values.nodeSelector }}
       nodeSelector:

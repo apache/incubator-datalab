@@ -138,6 +138,11 @@ parser.add_argument('--billing_dataset_name', type=str, default='', help='Name o
                                                                          ' for billing')
 parser.add_argument('--default_endpoint_name', type=str, default='local', help='Name of localhost provisioning service,'
                                                                                'that created by default')
+parser.add_argument('--conf_stepcerts_enabled', type=str, default='false', help='Enable or disable step certificates')
+parser.add_argument('--conf_stepcerts_root_ca', type=str, default='', help='Step root CA')
+parser.add_argument('--conf_stepcerts_kid', type=str, default='', help='Step KID')
+parser.add_argument('--conf_stepcerts_kid_password', type=str, default='', help='Step KID password')
+parser.add_argument('--conf_stepcerts_ca_url', type=str, default='', help='Step CA URL')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()

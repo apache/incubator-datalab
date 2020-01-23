@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EndpointService;
@@ -110,11 +111,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			isAdded = true;
 			final ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
 			log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
+			EndpointDTO endpointDTO = endpointService.get(userInstanceDTO.getEndpoint());
 			final String uuid =
-					provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + EXPLORATORY_CREATE,
+					provisioningService.post(endpointDTO.getUrl() + EXPLORATORY_CREATE,
 							userInfo.getAccessToken(),
-							requestBuilder.newExploratoryCreate(projectDTO, exploratory, userInfo, gitCreds,
-									userInstanceDTO.getTags()),
+							requestBuilder.newExploratoryCreate(projectDTO, endpointDTO, exploratory, userInfo,
+									gitCreds, userInstanceDTO.getTags()),
 							String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;
@@ -177,11 +179,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		final String token = userInfo.getAccessToken();
 		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchRunningExploratoryFields(userName,
 				exploratoryName);
+		EndpointDTO endpointDTO = endpointService.get(userInstanceDTO.getEndpoint());
 		final ExploratoryReconfigureSparkClusterActionDTO updateClusterConfigDTO =
-				requestBuilder.newClusterConfigUpdate(userInfo, userInstanceDTO, config);
-		final String uuid =
-				provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + EXPLORATORY_RECONFIGURE_SPARK, token, updateClusterConfigDTO,
-						String.class);
+				requestBuilder.newClusterConfigUpdate(userInfo, userInstanceDTO, config, endpointDTO);
+		final String uuid = provisioningService.post(endpointDTO.getUrl() + EXPLORATORY_RECONFIGURE_SPARK,
+				token, updateClusterConfigDTO,
+				String.class);
 		requestId.put(userName, uuid);
 		exploratoryDAO.updateExploratoryFields(new ExploratoryStatusDTO()
 				.withUser(userName)
@@ -245,10 +248,10 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			updateExploratoryStatus(exploratoryName, status, userInfo.getName());
 
 			UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
+			EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 			final String uuid =
-					provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + action,
-							userInfo.getAccessToken(),
-							getExploratoryActionDto(userInfo, status, userInstance), String.class);
+					provisioningService.post(endpointDTO.getUrl() + action, userInfo.getAccessToken(),
+							getExploratoryActionDto(userInfo, status, userInstance, endpointDTO), String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} catch (Exception t) {
@@ -275,13 +278,13 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	private ExploratoryActionDTO<?> getExploratoryActionDto(UserInfo userInfo, UserInstanceStatus status,
-															UserInstanceDTO userInstance) {
+															UserInstanceDTO userInstance, EndpointDTO endpointDTO) {
 		ExploratoryActionDTO<?> dto;
 		if (status != UserInstanceStatus.STARTING) {
-			dto = requestBuilder.newExploratoryStop(userInfo, userInstance);
+			dto = requestBuilder.newExploratoryStop(userInfo, userInstance, endpointDTO);
 		} else {
 			dto = requestBuilder.newExploratoryStart(
-					userInfo, userInstance, gitCredsDAO.findGitCreds(userInfo.getName()));
+					userInfo, userInstance, endpointDTO, gitCredsDAO.findGitCreds(userInfo.getName()));
 
 		}
 		return dto;

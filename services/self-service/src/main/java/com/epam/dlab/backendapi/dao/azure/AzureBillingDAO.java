@@ -21,7 +21,7 @@ package com.epam.dlab.backendapi.dao.azure;
 
 import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
-import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.billing.DlabResourceType;
 import com.google.inject.Singleton;
 import com.mongodb.client.model.Accumulators;
@@ -37,13 +37,13 @@ import java.util.List;
 
 @Singleton
 @Slf4j
-public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
+public class AzureBillingDAO extends BaseBillingDAO {
 	public static final String SIZE = "size";
 
 	@Override
-	protected List<Bson> cloudMatchCriteria(AzureBillingFilter filter) {
-		if (!filter.getCategory().isEmpty()) {
-			return Collections.singletonList(Filters.in(MongoKeyWords.METER_CATEGORY, filter.getCategory()));
+	protected List<Bson> cloudMatchCriteria(BillingFilter filter) {
+		if (!filter.getService().isEmpty()) {
+			return Collections.singletonList(Filters.in(MongoKeyWords.METER_CATEGORY, filter.getService()));
 		} else {
 			return Collections.emptyList();
 		}
@@ -76,11 +76,6 @@ public class AzureBillingDAO extends BaseBillingDAO<AzureBillingFilter> {
 	@Override
 	protected String getServiceBaseName() {
 		return settings.getServiceBaseName().replace("_", "-").toLowerCase();
-	}
-
-	@Override
-	protected String getSsnShape() {
-		return settings.getAzureSsnInstanceSize();
 	}
 
 	@Override

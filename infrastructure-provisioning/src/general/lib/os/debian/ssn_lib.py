@@ -71,7 +71,6 @@ def ensure_jenkins(dlab_path):
             sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -')
             sudo('echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list')
             sudo('apt-get -y update')
-            sudo('apt-get -y install openjdk-8-jdk')
             sudo('apt-get -y install jenkins')
             sudo('touch ' + dlab_path + 'tmp/jenkins_ensured')
     except Exception as err:
@@ -307,12 +306,27 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                                    billing_dataset_name)
                 sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
-                sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
-                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))
-                sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
-                     -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user, keystore_passwd))
-                sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/dlab.crt -noprompt \
-                     -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
+                if os.environ['conf_stepcerts_enabled'] == 'true':
+                    sudo('openssl pkcs12 -export -in /etc/ssl/certs/dlab.crt -inkey /etc/ssl/certs/dlab.key -name ssn '
+                         '-out ssn.p12 -password pass:{0}'.format(keystore_passwd))
+                    sudo('keytool -importkeystore -srckeystore ssn.p12 -srcstoretype PKCS12 -alias ssn -destkeystore '
+                         '/home/{0}/keys/ssn.keystore.jks -deststorepass "{1}" -srcstorepass "{1}"'.format(
+                          os_user, keystore_passwd))
+                    sudo('keytool -keystore /home/{0}/keys/ssn.keystore.jks -alias CARoot -import -file '
+                         '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -srcstorepass "{1}" -noprompt'.format(
+                          os_user, keystore_passwd))
+                    sudo('keytool -importcert -trustcacerts -alias step-ca -file /etc/ssl/certs/root_ca.crt '
+                         '-noprompt -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
+                    sudo('keytool -importcert -trustcacerts -alias step-crt -file /etc/ssl/certs/dlab.crt -noprompt '
+                         '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
+                else:
+                    sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
+                         -keystore /home/{0}/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
+                         os_user, keystore_passwd))
+                    sudo('keytool -exportcert -alias ssn -storepass {1} -file /etc/ssl/certs/dlab.crt \
+                         -keystore /home/{0}/keys/ssn.keystore.jks'.format(os_user, keystore_passwd))
+                    sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt \
+                         -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)

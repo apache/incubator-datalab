@@ -19,6 +19,10 @@
 #
 # ******************************************************************************
 
+variable "namespace_name" {
+    default = "dlab"
+}
+
 variable "credentials_file_path" {
   default = ""
 }
@@ -32,7 +36,7 @@ variable "region" {
 }
 
 variable "zone" {
-  default = "a"
+  default = "us-west1-a"
 }
 
 variable "vpc_name" {
@@ -60,7 +64,7 @@ variable "ssn_k8s_workers_count" {
 }
 
 variable "gke_cluster_version" {
-  default = "1.12.8-gke.10"
+  default = "1.14.8-gke.12"
 }
 
 // Couldn't assign in GCP
@@ -69,7 +73,7 @@ variable "gke_cluster_version" {
 //}
 
 variable "ssn_k8s_workers_shape" {
-  default = "n1-standard-1"
+  default = "n1-standard-2"
 }
 
 variable "service_account_iam_roles" {
@@ -79,27 +83,9 @@ variable "service_account_iam_roles" {
     "roles/monitoring.viewer",
     "roles/storage.objectViewer",
     "roles/iam.serviceAccountTokenCreator",
+    "roles/iam.serviceAccountKeyAdmin",
+    "roles/dns.admin"
   ]
-}
-
-variable "k8s_gke_endpoint" {
-    default = ""
-}
-
-variable "k8s_gke_client_access_token" {
-    default = ""
-}
-
-variable "k8s_gke_clinet_cert" {
-    default = ""
-}
-
-variable "k8s_gke_client_key" {
-    default = ""
-}
-
-variable "k8s_gke_cluster_ca" {
-    default = ""
 }
 
 variable "ssn_k8s_alb_dns_name" {
@@ -181,14 +167,38 @@ variable "env_os" {
   default = "debian"
 }
 
-variable "ssn_keystore_password" {
-  default = ""
-}
-
-variable "endpoint_keystore_password" {
-  default = ""
-}
-
 variable "big_query_dataset" {
   default = ""
+}
+
+variable "custom_certs_enabled" {
+    default = "False"
+}
+
+variable "custom_cert_path" {
+    default = ""
+}
+
+variable "custom_key_path" {
+    default = ""
+}
+
+variable "custom_certs_host" {
+    default = ""
+}
+
+variable "mysql_disk_size" {
+    default = "10"
+}
+
+variable "domain" {
+  default = ""
+}
+
+variable "keycloak_realm_name" {
+  default = "dlab"
+}
+
+variable "keycloak_client_id" {
+  default = "dlab-ui"
 }

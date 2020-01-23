@@ -21,7 +21,7 @@
 
 provider "google" {
   credentials = file(var.creds_file)
-  project     = var.project_id
+  project     = var.gcp_project_id
   region      = var.region
   zone        = var.zone
 }

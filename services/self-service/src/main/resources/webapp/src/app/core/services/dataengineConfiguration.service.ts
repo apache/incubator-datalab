@@ -28,19 +28,19 @@ import { ErrorUtils } from '../util';
 export class DataengineConfigurationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
-  public getClusterConfiguration(exploratory, cluster): Observable<{}> {
+  public getClusterConfiguration(exploratory, cluster, provider): Observable<{}> {
     const url = `/${exploratory}/${cluster}/config`;
     return this.applicationServiceFacade
-      .buildGetClusterConfiguration(url)
+      .buildGetClusterConfiguration(url, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public editClusterConfiguration(data, exploratory, cluster): Observable<{}> {
+  public editClusterConfiguration(data, exploratory, cluster, provider): Observable<{}> {
     const url = `/dataengine/${exploratory}/${cluster}/config`;
     return this.applicationServiceFacade
-      .buildEditClusterConfiguration(url, data)
+      .buildEditClusterConfiguration(url, data, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

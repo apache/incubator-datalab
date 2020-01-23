@@ -21,53 +21,25 @@
 
 data "template_file" "mysql_values" {
   template = file("./modules/helm_charts/files/mysql_values.yaml")
-  vars = {
+  vars     = {
     mysql_root_password = random_string.mysql_root_password.result
     mysql_user          = var.mysql_user
-    mysql_user_password = random_string.mysql_user_password.result
+    mysql_user_password = random_string.mysql_keycloak_user_password.result
     mysql_db_name       = var.mysql_db_name
+    storage_class       = "standard"
+    mysql_disk_size     = var.mysql_disk_size
   }
 }
 
 resource "helm_release" "keycloak-mysql" {
-  name   = "keycloak-mysql"
-  chart  = "stable/mysql"
-  wait   = true
-  values = [
+  name       = "keycloak-mysql"
+  chart      = "stable/mysql"
+  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+  wait       = true
+  values     = [
     data.template_file.mysql_values.rendered
   ]
-  depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_user_password_secret]
+  depends_on = [kubernetes_secret.mysql_root_password_secret, kubernetes_secret.mysql_keycloak_user_password_secret,
+                helm_release.nginx]
 }
-
-//resource "kubernetes_persistent_volume" "example" {
-//  metadata {
-//    name = "mysql-keycloak-pv2"
-//  }
-//  spec {
-//    capacity = {
-//      storage = "8Gi"
-//    }
-//    access_modes = ["ReadWriteMany"]
-//    persistent_volume_source {
-//      host_path {
-//        path = "/home/dlab-user/keycloak-pv2"
-//      }
-//    }
-//  }
-//}
-//
-//resource "kubernetes_persistent_volume_claim" "example" {
-//  metadata {
-//    name = "mysql-keycloak-pvc2"
-//  }
-//  spec {
-//    access_modes = ["ReadWriteMany"]
-//    resources {
-//      requests = {
-//        storage = "5Gi"
-//      }
-//    }
-//    volume_name = kubernetes_persistent_volume.example.metadata.0.name
-//  }
-//}
 
