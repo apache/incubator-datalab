@@ -23,15 +23,33 @@ import com.epam.dlab.backendapi.domain.EndpointDTO;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
+/**
+ * Interface of Endpoint entities.
+ */
 public interface EndpointDAO {
 	List<EndpointDTO> getEndpoints();
 
 	List<EndpointDTO> getEndpointsWithStatus(String status);
 
+	/***
+	 * @param name - The Pattern interface is used, to avoid case sensitive Name
+	 * @return
+	 */
+	Optional<EndpointDTO> get(Pattern name);
+
+	/***
+	 * @param name - case sensitive EnaPoint Name
+	 * @return
+	 */
 	Optional<EndpointDTO> get(String name);
 
-	Optional<EndpointDTO> getEndpointWithUrl(String url);
+	/***
+	 * @param url - The Pattern interface is used, to avoid case sensitive URL
+	 * @return
+	 */
+	Optional<EndpointDTO> getEndpointWithUrl(Pattern url);
 
 	void create(EndpointDTO endpointDTO);
 

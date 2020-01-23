@@ -25,8 +25,11 @@ import org.bson.conversions.Bson;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.regex;
+
 
 public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 
@@ -46,8 +49,13 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 	}
 
 	@Override
-	public Optional<EndpointDTO> getEndpointWithUrl(String url) {
+	public Optional<EndpointDTO> getEndpointWithUrl(Pattern url) {
 		return findOne(ENDPOINTS_COLLECTION, endpointUrlCondition(url), EndpointDTO.class);
+	}
+
+	@Override
+	public Optional<EndpointDTO> get(Pattern name) {
+		return findOne(ENDPOINTS_COLLECTION, endpointNameCondition(name), EndpointDTO.class);
 	}
 
 	@Override
@@ -68,19 +76,16 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 
 	@Override
 	public void remove(String name) {
-		deleteOne(ENDPOINTS_COLLECTION, endpointCondition(name));
+		deleteOne(ENDPOINTS_COLLECTION, endpointCondition(name));//TODO: Probably,the EndPoint entity should be removed according regexp?
 	}
 
-	private Bson endpointCondition(String name) {
-		return eq(ENDPOINT_NAME_FIELD, name);
-	}
+	private Bson endpointCondition(String name) { return eq(ENDPOINT_NAME_FIELD, name); }
 
 	private Bson endpointStatusCondition(String status) {
 		return eq(ENDPOINT_STATUS_FIELD, status);
 	}
 
-	private Bson endpointUrlCondition(String url) {
-		return eq(ENDPOINT_URL_FIELD, url);
-	}
+	private Bson endpointNameCondition(Pattern name) { return regex(ENDPOINT_URL_FIELD, name); }
 
+	private Bson endpointUrlCondition(Pattern url) { return regex(ENDPOINT_URL_FIELD, url); }
 }

@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -79,17 +80,21 @@ public class EndpointServiceImpl implements EndpointService {
 	/**
 	 * Create new endpoint object in the System.
 	 * The EndPoint objects should contain Unique values of the 'url' and 'name' fields,
-	 * i.e two objects with same URLs should not be created in the system
+	 * i.e two objects with same URLs should not be created in the system.
 	 * @param userInfo user properties
 	 * @param endpointDTO object with endpoint fields
 	 */
 	@Override
 	public void create(UserInfo userInfo, EndpointDTO endpointDTO) {
-		if(endpointDAO.getEndpointWithUrl(endpointDTO.getUrl()).isPresent()) {
+		//Verify if the Endpoint URL exists in the DataBase
+		Pattern endPointUrl = Pattern.compile(endpointDTO.getUrl(), Pattern.CASE_INSENSITIVE);
+		if(endpointDAO.getEndpointWithUrl(endPointUrl).isPresent()) {
 			throw new ResourceConflictException("The Endpoint URL with this address already exists in system!");
 		}
+		//Verify if the Cloud provider, ensure that URL does not exist in the DataBase
 		CloudProvider cloudProvider = checkUrl(userInfo, endpointDTO.getUrl());
-		if (!endpointDAO.get(endpointDTO.getName()).isPresent()) {
+		Pattern endPointName = Pattern.compile(endpointDTO.getName(), Pattern.CASE_INSENSITIVE);
+		if (!endpointDAO.get(endPointName).isPresent()) {
 			if (!Objects.nonNull(cloudProvider)) {
 				throw new DlabException("CloudProvider cannot be null");
 			}
