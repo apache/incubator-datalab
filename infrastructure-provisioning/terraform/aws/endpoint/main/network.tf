@@ -26,6 +26,7 @@ locals {
   additional_tag             = split(":", var.additional_tag)
   endpoint_igw_name          = "${var.service_base_name}-${var.endpoint_id}-igw"
   endpoint_ip_name           = "${var.service_base_name}-${var.endpoint_id}-eip"
+  projects_rt                = "${var.service_base_name}-${var.endpoint_id}-project-rt"
 }
 
 
@@ -136,4 +137,21 @@ resource "aws_eip" "endpoint_eip" {
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_ip_name}"
     "${var.service_base_name}-Tag" = local.endpoint_ip_name
   }
+}
+
+resource "aws_route_table" "projects_route_table" {
+  vpc_id = data.aws_vpc.data_vpc.id
+  tags   = {
+    Name                           = local.projects_rt
+    "${local.additional_tag[0]}"   = local.additional_tag[1]
+    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.projects_rt}"
+    "${var.service_base_name}-Tag" = local.projects_rt
+    "${var.service_base_name}-Tag" = var.service_base_name
+  }
+}
+
+resource "aws_vpc_endpoint" "s3-endpoint" {
+  vpc_id          = data.aws_vpc.data_vpc.id
+  service_name    = "com.amazonaws.${var.region}.s3"
+  route_table_ids = aws_route_table.projects_route_table.id
 }
