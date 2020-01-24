@@ -71,3 +71,35 @@ def terminate():
         traceback.print_exc()
         append_result("Failed to terminate Odahuflow cluster.", str(err))
         sys.exit(1)
+
+
+# Main function for suspending Odahuflow cluster
+def stop():
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] +  "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+    try:
+        params = "--uuid {}".format(notebook_config['uuid'])
+        local("~/scripts/{}.py {}".format('odahu_suspend', params))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed to suspend Odahuflow cluster.", str(err))
+        sys.exit(1)
+
+
+# Main function for resuming Odahuflow cluster
+def start():
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] +  "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
+    try:
+        local("tf_runner resume")
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed to resume Odahuflow cluster.", str(err))
+        sys.exit(1)

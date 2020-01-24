@@ -28,7 +28,8 @@ from dlab.fab import *
 from dlab.meta_lib import *
 from dlab.actions_lib import *
 import os
-
+import string
+import random
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -39,7 +40,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     secret = ''.join(random.choices(string.ascii_uppercase + +string.ascii_lowercase +
-                                    string.digits, k=16))
+                             string.digits, k = 16))
 
     print('Generating infrastructure names and tags')
     odahu_conf = dict()
@@ -96,7 +97,6 @@ if __name__ == "__main__":
 
     print('Preparing parameters file')
     try:
-        print(odahu_conf['allowed_cidr'])
         local("cp /root/templates/profile.json /tmp/")
         local("sed -i \'s|<ALLOWED_IP_CIDR>|{}|g\' /tmp/profile.json".format(odahu_conf['allowed_cidr']))
         local("sed -i \'s|<BASTION_TAG>|{}|g\' /tmp/profile.json".format(odahu_conf['bastion_tag']))
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         local("sed -i \'s|<DOCKER_REPO>|{}|g\' /tmp/profile.json".format(odahu_conf['docker_repo']))
         local("sed -i \'s|<ODAHU_CIDR>|{}|g\' /tmp/profile.json".format(odahu_conf['odahu_cidr']))
         local("sed -i \'s|<GRAFANA_ADMIN>|{}|g\' /tmp/profile.json".format(odahu_conf['grafana_admin']))
-        local("sed -i \'s|<GRAFANA_PASS>|{}|g\' /tmАp/profile.json".format(odahu_conf['grafana_pass']))
+        local("sed -i \'s|<GRAFANA_PASS>|{}|g\' /tmp/profile.json".format(odahu_conf['grafana_pass']))
         local("sed -i \'s|<INITIAL_NODE_COUNT>|{}|g\' /tmp/profile.json".format(odahu_conf['initial_node_count']))
         local("sed -i \'s|<ISTIO_HELM_REPO>|{}|g\' /tmp/profile.json".format(odahu_conf['istio_helm_repo']))
         local("sed -i \'s|<HELM_REPO>|{}|g\' /tmp/profile.json".format(odahu_conf['helm_repo']))
@@ -144,28 +144,9 @@ if __name__ == "__main__":
         append_result("Failed to configure parameter file.", str(err))
         sys.exit(1)
 
-    print('Removing Odahu cluster')
     try:
-        local('tf_runner destroy')
+        local('tf_runner resume -v')
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed to terminate Odahu cluster.", str(err))
-        sys.exit(1)
-
-    try:
-        buckets = GCPMeta().get_list_buckets(odahu_conf['odahu_cluster_name'])
-        if 'items' in buckets:
-            for i in buckets['items']:
-                GCPActions().remove_bucket(i['name'])
-    except Exception as err:
-        print('Error: {0}'.format(err))
-        sys.exit(1)
-
-    try:
-        static_addresses = GCPMeta().get_list_static_addresses(odahu_conf['region'], odahu_conf['odahu_cluster_name'])
-        if 'items' in static_addresses:
-            for i in static_addresses['items']:
-                GCPActions().remove_static_address(i['name'], odahu_conf['region'])
-    except Exception as err:
-        print('Error: {0}'.format(err))
+        append_result("Failed to deploy Odahu cluster.", str(err))
         sys.exit(1)

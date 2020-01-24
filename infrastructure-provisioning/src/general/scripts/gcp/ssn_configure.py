@@ -223,6 +223,7 @@ if __name__ == "__main__":
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "project", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
+                             {"name": "odahu", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
                              {"name": "jupyterlab", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},

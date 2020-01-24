@@ -41,6 +41,7 @@ if __name__ == "__main__":
     odahu_conf = dict()
     odahu_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     odahu_conf['odahu_cluster_name'] = (os.environ['odahu_cluster_name']).lower().replace('_', '-')
+    odahu_conf['region'] = os.environ['gcp_region']
     odahu_conf['bucket_name'] = "{}-tfstate".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
     odahu_conf['static_address_name'] = "{}-nat-gw".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
 
@@ -63,8 +64,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE NAT GATEWAY]')
         print('[CREATE NAT GATEWAY]')
-        project_conf['static_ip'] = \
-            GCPMeta().get_static_address(odahu_conf['region'], odahu_conf['static_address_name'])['address']
+        GCPActions().create_static_address(odahu_conf['static_address_name'], odahu_conf['region'])
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Unable to reserve static ip.", str(err))
