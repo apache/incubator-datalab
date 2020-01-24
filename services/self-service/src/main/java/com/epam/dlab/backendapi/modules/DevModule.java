@@ -89,9 +89,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(LibraryService.class).to(LibraryServiceImpl.class);
 		bind(SchedulerJobService.class).to(SchedulerJobServiceImpl.class);
 		bind(EnvironmentService.class).to(EnvironmentServiceImpl.class);
-		bind(EdgeService.class).to(EdgeServiceImpl.class);
 		bind(ReuploadKeyService.class).to(ReuploadKeyServiceImpl.class);
-		bind(UserResourceService.class).to(UserResourceServiceImpl.class);
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.MAVEN_SEARCH_API))
 				.toInstance(configuration.getMavenApiFactory().build(environment, ServiceConsts.MAVEN_SEARCH_API));
 

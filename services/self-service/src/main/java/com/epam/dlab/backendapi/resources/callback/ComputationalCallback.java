@@ -93,11 +93,6 @@ public class ComputationalCallback {
 			log.debug("Waiting for configuration of the computational resource {} for user {}",
 					dto.getComputationalName(), dto.getUser());
 			requestId.put(dto.getUser(), uuid);
-		} else if (UserInstanceStatus.of(dto.getStatus()) == RUNNING && compResource.isReuploadKeyRequired()) {
-			ResourceData resourceData = ResourceData.computationalResource(compResource.getComputationalId(),
-					dto.getExploratoryName(), dto.getComputationalName());
-			UserInfo userInfo = securityService.getUserInfoOffline(dto.getUser());
-			reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
 		}
 		return Response.ok().build();
 	}

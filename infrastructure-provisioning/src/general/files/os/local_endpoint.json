@@ -3,6 +3,8 @@
         "name" : "DEF_ENDPOINT_NAME",
         "url" : "https://localhost:8084/",
         "account" : "DEF_ENDPOINT_NAME",
-        "endpoint_tag" : "DEF_ENDPOINT_NAME"
+        "endpoint_tag" : "DEF_ENDPOINT_NAME",
+        "cloudProvider" : "CLOUD_PROVIDER",
+        "status" : "ACTIVE"
     }
 ]

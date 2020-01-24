@@ -56,6 +56,9 @@
         width: 100%;
         thead{
           background: transparent;
+          .mat-header-row{
+            background-clip:padding-box;
+          }
         }
         tr {
           td {

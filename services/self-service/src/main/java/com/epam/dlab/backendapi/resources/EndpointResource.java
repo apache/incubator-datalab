@@ -153,7 +153,7 @@ public class EndpointResource {
 	public Response checkEndpointUrl(@Parameter(hidden = true) @Auth UserInfo userInfo,
 									 @Parameter(description = "Endpoint url")
 									 @PathParam("url") String url) {
-		endpointService.checkEndpointUrl(userInfo, url);
+		endpointService.checkUrl(userInfo, url);
 		return Response.ok().build();
 	}
 }

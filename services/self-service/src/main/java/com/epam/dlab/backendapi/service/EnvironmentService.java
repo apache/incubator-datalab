@@ -42,13 +42,9 @@ public interface EnvironmentService {
 
 	void stopProjectEnvironment(String project);
 
-	void stopEdge(String user);
-
 	void stopExploratory(UserInfo userInfo, String user, String exploratoryName);
 
 	void stopComputational(UserInfo userInfo, String user, String exploratoryName, String computationalName);
-
-	void terminateEnvironment(UserInfo userInfo, String user);
 
 	void terminateExploratory(UserInfo userInfo, String user, String exploratoryName);
 

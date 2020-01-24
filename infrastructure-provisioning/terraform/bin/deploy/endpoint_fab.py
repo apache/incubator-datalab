@@ -511,18 +511,11 @@ def ensure_jar_endpoint():
             web_path = '{}/webapp'.format(args.dlab_path)
             if not exists(conn, web_path):
                 conn.run('mkdir -p {}'.format(web_path))
-            if args.cloud_provider == "aws":
-                conn.run('wget -P {}  --user={} --password={} '
-                         'https://{}/repository/packages/aws/provisioning-service-'
-                         '2.1.jar --no-check-certificate'
-                         .format(web_path, args.repository_user,
-                                 args.repository_pass, args.repository_address))
-            elif args.cloud_provider == "gcp":
-                conn.run('wget -P {}  --user={} --password={} '
-                         'https://{}/repository/packages/gcp/provisioning-service-'
-                         '2.1.jar --no-check-certificate'
-                         .format(web_path, args.repository_user,
-                                 args.repository_pass, args.repository_address))
+            conn.run('wget -P {}  --user={} --password={} '
+                     'https://{}/repository/packages/provisioning-service-'
+                     '2.2.jar --no-check-certificate'
+                     .format(web_path, args.repository_user,
+                             args.repository_pass, args.repository_address))
             conn.run('mv {0}/*.jar {0}/provisioning-service.jar'
                      .format(web_path))
             conn.sudo('touch {}'.format(ensure_file))

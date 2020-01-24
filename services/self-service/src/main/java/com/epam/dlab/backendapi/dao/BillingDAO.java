@@ -22,7 +22,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import org.bson.Document;
 
-public interface BillingDAO<T extends BillingFilter> {
+public interface BillingDAO {
 	Double getTotalCost();
 
 	Double getUserCost(String user);
@@ -32,6 +32,7 @@ public interface BillingDAO<T extends BillingFilter> {
 	int getBillingQuoteUsed();
 
 	int getBillingUserQuoteUsed(String user);
+
 	int getBillingProjectQuoteUsed(String project);
 
 	boolean isBillingQuoteReached();
@@ -40,5 +41,5 @@ public interface BillingDAO<T extends BillingFilter> {
 
 	boolean isProjectQuoteReached(String project);
 
-	Document getReport(UserInfo userInfo, T filter);
+	Document getReport(UserInfo userInfo, BillingFilter filter);
 }

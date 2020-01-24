@@ -22,7 +22,6 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
@@ -62,10 +61,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private ComputationalService computationalService;
 	@Inject
 	private SecurityService securityService;
-	@Inject
-	private KeyDAO keyDAO;
-	@Inject
-	private EdgeService edgeService;
 	@Inject
 	private ProjectService projectService;
 	@Inject
@@ -118,7 +113,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		checkState(user, "stop");
 		exploratoryDAO.fetchRunningExploratoryFields(user)
 				.forEach(e -> stopExploratory(userInfo, user, e.getExploratoryName()));
-		stopEdge(user);
 	}
 
 	@Override
@@ -127,7 +121,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		checkState(user, "stop");
 		exploratoryDAO.fetchRunningExploratoryFields(user)
 				.forEach(this::stopNotebookWithServiceAccount);
-		stopEdge(user);
 	}
 
 	@Override
@@ -144,13 +137,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@Override
-	public void stopEdge(String user) {
-		if (UserInstanceStatus.RUNNING.toString().equals(keyDAO.getEdgeStatus(user))) {
-			edgeService.stop(securityService.getUserInfoOffline(user));
-		}
-	}
-
-	@Override
 	public void stopExploratory(UserInfo userInfo, String user, String exploratoryName) {
 		exploratoryService.stop(new UserInfo(user, userInfo.getAccessToken()), exploratoryName);
 	}
@@ -159,17 +145,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	public void stopComputational(UserInfo userInfo, String user, String exploratoryName, String computationalName) {
 		computationalService.stopSparkCluster(new UserInfo(user, userInfo.getAccessToken()),
 				exploratoryName, computationalName);
-	}
-
-	@Override
-	public void terminateEnvironment(UserInfo userInfo, String user) {
-		log.debug("Terminating environment for user {}", user);
-		checkState(user, "terminate");
-		if (!terminateEdge(user)) {
-			exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(user, UserInstanceStatus.TERMINATED,
-					UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATING)
-					.forEach(e -> terminateExploratory(userInfo, user, e.getExploratoryName()));
-		}
 	}
 
 	@Override
@@ -194,7 +169,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 								UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
 						UserInstanceStatus.CREATING,
 						UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		if (UserInstanceStatus.STARTING.toString().equals(keyDAO.getEdgeStatus(user)) || !userInstances.isEmpty()) {
+		if (!userInstances.isEmpty()) {
 			log.error(String.format(ERROR_MSG_FORMAT, action));
 			throw new ResourceConflictException(String.format(ERROR_MSG_FORMAT, action));
 		}
@@ -203,15 +178,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	private void stopNotebookWithServiceAccount(UserInstanceDTO instance) {
 		final UserInfo userInfo = securityService.getServiceAccountInfo(instance.getUser());
 		exploratoryService.stop(userInfo, instance.getExploratoryName());
-	}
-
-	private boolean terminateEdge(String user) {
-		final boolean nodeExists = keyDAO.edgeNodeExist(user);
-		if (nodeExists) {
-			edgeService.terminate(securityService.getUserInfoOffline(user));
-			exploratoryService.updateExploratoryStatuses(user, UserInstanceStatus.TERMINATING);
-		}
-		return nodeExists;
 	}
 
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {

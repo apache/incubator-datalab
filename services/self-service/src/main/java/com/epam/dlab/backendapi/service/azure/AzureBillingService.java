@@ -24,7 +24,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
-import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
 import com.epam.dlab.model.aws.ReportLine;
@@ -40,13 +40,13 @@ import java.util.List;
 
 @Slf4j
 @Singleton
-public class AzureBillingService extends BillingService<AzureBillingFilter> {
+public class AzureBillingService extends BillingService {
 
     @Inject
     private BillingDAO billingDAO;
 
     @Override
-    public String getReportFileName(UserInfo userInfo, AzureBillingFilter filter) {
+    public String getReportFileName(UserInfo userInfo, BillingFilter filter) {
         return "azure-billing-report.csv";
     }
 
