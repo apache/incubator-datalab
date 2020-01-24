@@ -313,10 +313,10 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     sudo('keytool -importkeystore -srckeystore ssn.p12 -srcstoretype PKCS12 -alias ssn -destkeystore '
                          '/home/{0}/keys/ssn.keystore.jks -deststorepass "{1}" -srcstorepass "{1}"'.format(
                           os_user, keystore_passwd))
-                    sudo('keytool -keystore /home/{0}/keys/ssn.keystore.jks -alias CARoot -import -file '
+                    sudo('keytool -keystore /home/{0}/keys/ssn.keystore.jks -alias step-ca -import -file '
                          '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -srcstorepass "{1}" -noprompt'.format(
                           os_user, keystore_passwd))
-                    sudo('keytool -importcert -trustcacerts -alias CARoot -file /etc/ssl/certs/root_ca.crt '
+                    sudo('keytool -importcert -trustcacerts -alias step-ca -file /etc/ssl/certs/root_ca.crt '
                          '-noprompt -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
                     sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt '
                          '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
