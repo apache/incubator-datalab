@@ -26,7 +26,7 @@ KEYSTORE_PASS=$(cat /opt/dlab/conf/CONF_FILE.yml  | grep '<#assign KEY_STORE_PAS
 # Removing old certificates
 keytool -delete -alias RESOURCE_TYPE -keystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -storepass "${KEYSTORE_PASS}"
 keytool -delete -alias CARoot -keystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -storepass "${KEYSTORE_PASS}"
-keytool -delete -alias mykey -keystore JAVA_HOME/lib/security/cacerts -storepass changeit
+keytool -delete -alias CARoot -keystore JAVA_HOME/lib/security/cacerts -storepass changeit
 keytool -delete -alias RESOURCE_TYPE -keystore JAVA_HOME/lib/security/cacerts -storepass changeit
 
 # Importing new certificates to keystore
@@ -37,7 +37,7 @@ keytool -keystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -alias CARoot -i
 
 # Adding new certificates
 keytool -importcert -trustcacerts -alias RESOURCE_TYPE -file /etc/ssl/certs/dlab.crt -noprompt -storepass changeit -keystore JAVA_HOME/lib/security/cacerts
-keytool -importcert -trustcacerts -file /etc/ssl/certs/root_ca.crt -noprompt -storepass changeit -keystore JAVA_HOME/lib/security/cacerts
+keytool -importcert -trustcacerts -alias CARoot -file /etc/ssl/certs/root_ca.crt -noprompt -storepass changeit -keystore JAVA_HOME/lib/security/cacerts
 
 # Restarting service
 supervisorctl restart provserv
