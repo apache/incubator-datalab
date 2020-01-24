@@ -86,7 +86,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
                           </label>
                       </div>
                       <p class="confirm-message">
-                          <span *ngIf="!willNotTerminate">All connected computational resources will be terminated as well</span>
+                          <span *ngIf="!willNotTerminate">All connected computational resources will be terminated as well.</span>
                       </p>
                   </div>
                   <mat-list *ngIf="data.item.endpoints?.length">
