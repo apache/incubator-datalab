@@ -148,7 +148,7 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                               args.os_user, cn, sans))
                 token = sudo('cat /tmp/step_token')
                 sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
-                     '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
+                     '--token "{1}" --kty=RSA --size 2048 --provisioner {2} --not-after=5m'.format(cn, token,
                                                                                      os.environ['conf_stepcerts_kid']))
                 sudo('touch /var/log/renew_certificates.log')
                 put('/root/templates/renew_certificates.sh', '/tmp/renew_certificates.sh')
