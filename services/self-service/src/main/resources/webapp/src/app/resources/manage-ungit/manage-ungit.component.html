@@ -125,7 +125,7 @@
                   <input type="password" formControlName="password" placeholder="Enter Password">
                 </div>
                 <span class="danger_color"
-                  *ngIf="!updateAccountCredentialsForm.controls['password'].valid && updateAccountCredentialsForm.controls['password'].touched && updateAccountCredentialsForm.value.password === updateAccountCredentialsForm.value.confirmPassword">
+                  *ngIf="!updateAccountCredentialsForm.controls['password'].valid && updateAccountCredentialsForm.controls['password'].touched">
                   Field is required. Password must be at least 6 characters
                 </span>
               </div>
