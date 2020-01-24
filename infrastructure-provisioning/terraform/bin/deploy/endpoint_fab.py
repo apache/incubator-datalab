@@ -256,7 +256,7 @@ def configure_keystore_endpoint(os_user, endpoint_keystore_password):
         conn.sudo('keytool -importkeystore -srckeystore /home/{0}/keys/endpoint.p12 -srcstoretype PKCS12 '
                   '-alias endpoint -destkeystore /home/{0}/keys/endpoint.keystore.jks -deststorepass "{1}" '
                   '-srcstorepass "{1}"'.format(os_user, endpoint_keystore_password))
-        conn.sudo('keytool -keystore /home/{0}/keys/endpoint.keystore.jks -alias CARoot -import -file '
+        conn.sudo('keytool -keystore /home/{0}/keys/endpoint.keystore.jks -alias step-ca -import -file '
                   '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -noprompt'.format(
                    os_user, endpoint_keystore_password))
         conn.sudo('keytool -importcert -trustcacerts -alias endpoint -file /etc/ssl/certs/dlab.crt -noprompt '
