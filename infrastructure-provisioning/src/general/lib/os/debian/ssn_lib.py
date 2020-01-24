@@ -228,7 +228,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                         item['key'], item['value']))
                 sudo('sed -i "s|SERVICE_BASE_NAME|{0}|g" /tmp/yml_tmp/self-service.yml'.format(service_base_name))
                 sudo('sed -i "s|OPERATION_SYSTEM|debian|g" /tmp/yml_tmp/self-service.yml')
-
+                sudo('sed -i "s|<SSN_INSTANCE_SIZE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                    os.environ['{0}_ssn_instance_size'.format(os.environ['conf_cloud_provider'])]))
                 if cloud_provider == 'azure':
                     sudo('sed -i "s|<LOGIN_USE_LDAP>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(ldap_login))
                     sudo('sed -i "s|<LOGIN_TENANT_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(tenant_id))
