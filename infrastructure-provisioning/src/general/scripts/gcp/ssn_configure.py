@@ -293,11 +293,11 @@ if __name__ == "__main__":
                 'value': os.environ['keycloak_client_secret']
             },
             {
-                'key': 'KEYCLOAK_USER',
+                'key': 'KEYCLOAK_USER_NAME',
                 'value': os.environ['keycloak_user']
             },
             {
-                'key': 'KEYCLOAK_USER_PASSWORD',
+                'key': 'KEYCLOAK_PASSWORD',
                 'value': os.environ['keycloak_user_password']
             },
             {
