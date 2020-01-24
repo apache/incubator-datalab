@@ -291,11 +291,9 @@ mat-dialog-container {
 }
 
 .cdk-overlay-container .cdk-overlay-pane {
-
   .mat-select-panel {
-
     &.ng-animating {
-      display: none;
+      visibility: hidden;
     }
   }
 

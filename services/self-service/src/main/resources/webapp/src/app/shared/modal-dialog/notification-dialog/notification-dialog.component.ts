@@ -136,7 +136,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     .resource-list-header{display: flex; font-weight: 600; font-size: 16px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
     .resource-list-row{display: flex; border-bottom: 1px solid #edf1f5;padding: 0 20px;}
     .confirm-resource-terminating{text-align: left; padding: 10px 20px;}
-    .confirm-message{color: #35afd5;font-size: 13px;min-height: 18px; text-align: center;}
+    .confirm-message{color: #ef5c4b;font-size: 13px;min-height: 18px; text-align: center;}
     .checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
     label{cursor: pointer}
 
