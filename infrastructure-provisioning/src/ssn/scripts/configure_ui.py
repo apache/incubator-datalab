@@ -127,6 +127,8 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
                                                                                              env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
         sudo('sed -i "s|DEF_ENDPOINT_NAME|{0}|g" /tmp/local_endpoint.json'.format(default_endpoint_name))
+        sudo('sed -i "s|CLOUD_PROVIDER|{0}|g" /tmp/local_endpoint.json'.format(
+            os.environ['conf_cloud_provider'].upper()))
         sudo('mv /tmp/local_endpoint.json ' + args.dlab_path + 'tmp/')
         sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} ".format(
             args.dlab_path))
