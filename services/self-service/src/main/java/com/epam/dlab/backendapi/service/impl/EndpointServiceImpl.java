@@ -86,15 +86,11 @@ public class EndpointServiceImpl implements EndpointService {
 	 */
 	@Override
 	public void create(UserInfo userInfo, EndpointDTO endpointDTO) {
-		//Verify if the Endpoint URL exists in the DataBase
-		Pattern endPointUrl = Pattern.compile(endpointDTO.getUrl(), Pattern.CASE_INSENSITIVE);
-		if(endpointDAO.getEndpointWithUrl(endPointUrl).isPresent()) {
-			throw new ResourceConflictException("The Endpoint URL with this address already exists in system!");
+		if(endpointDAO.getEndpointWithUrl(endpointDTO.getUrl()).isPresent()) {
+			throw new ResourceConflictException("The Endpoint URL with this address already exists in system");
 		}
-		//Verify if the Cloud provider, ensure that URL does not exist in the DataBase
 		CloudProvider cloudProvider = checkUrl(userInfo, endpointDTO.getUrl());
-		Pattern endPointName = Pattern.compile(endpointDTO.getName(), Pattern.CASE_INSENSITIVE);
-		if (!endpointDAO.get(endPointName).isPresent()) {
+		if (!endpointDAO.get(endpointDTO.getName()).isPresent()) {
 			if (!Objects.nonNull(cloudProvider)) {
 				throw new DlabException("CloudProvider cannot be null");
 			}

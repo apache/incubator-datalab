@@ -33,23 +33,17 @@ public interface EndpointDAO {
 
 	List<EndpointDTO> getEndpointsWithStatus(String status);
 
-	/***
-	 * @param name - The Pattern interface is used, to avoid case sensitive Name
-	 * @return
-	 */
-	Optional<EndpointDTO> get(Pattern name);
-
-	/***
-	 * @param name - case sensitive EnaPoint Name
-	 * @return
+	/*** Retrieve the Endpoint entity according required name
+	 * @param name - the Endpoint regular title
+	 * @return the Optional interface
 	 */
 	Optional<EndpointDTO> get(String name);
 
-	/***
-	 * @param url - The Pattern interface is used, to avoid case sensitive URL
-	 * @return
+	/*** Retrieve the Endpoint entity according required Endpoint URL
+	 * @param url - the Endpoint web address
+	 * @return the Optional object
 	 */
-	Optional<EndpointDTO> getEndpointWithUrl(Pattern url);
+	Optional<EndpointDTO> getEndpointWithUrl(String url);
 
 	void create(EndpointDTO endpointDTO);
 

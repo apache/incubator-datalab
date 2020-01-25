@@ -49,13 +49,8 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 	}
 
 	@Override
-	public Optional<EndpointDTO> getEndpointWithUrl(Pattern url) {
+	public Optional<EndpointDTO> getEndpointWithUrl(String url) {
 		return findOne(ENDPOINTS_COLLECTION, endpointUrlCondition(url), EndpointDTO.class);
-	}
-
-	@Override
-	public Optional<EndpointDTO> get(Pattern name) {
-		return findOne(ENDPOINTS_COLLECTION, endpointNameCondition(name), EndpointDTO.class);
 	}
 
 	@Override
@@ -76,16 +71,26 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 
 	@Override
 	public void remove(String name) {
-		deleteOne(ENDPOINTS_COLLECTION, endpointCondition(name));//TODO: Probably,the EndPoint entity should be removed according regexp?
+		deleteOne(ENDPOINTS_COLLECTION, endpointCondition(name));
 	}
 
-	private Bson endpointCondition(String name) { return eq(ENDPOINT_NAME_FIELD, name); }
+	/**
+	 * According the functional requirement, the EndPoint name should be case-insensitive.
+	 * A New method use the regex interface of the MongoDB driver
+	 */
+	@Deprecated //private Bson endpointCondition(String name) { return eq(ENDPOINT_NAME_FIELD, name); }
 
-	private Bson endpointStatusCondition(String status) {
-		return eq(ENDPOINT_STATUS_FIELD, status);
+	private Bson endpointCondition(String name) {
+		//The Pattern interface is used, to avoid case sensitive endpoint Name
+		Pattern endPointName = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
+		return regex(ENDPOINT_URL_FIELD, endPointName);
 	}
 
-	private Bson endpointNameCondition(Pattern name) { return regex(ENDPOINT_URL_FIELD, name); }
+	private Bson endpointUrlCondition(String url) {
+		//The Pattern interface is used, to avoid case sensitive URL
+		Pattern endPointUrl = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+		return regex(ENDPOINT_URL_FIELD, endPointUrl);
+	}
 
-	private Bson endpointUrlCondition(Pattern url) { return regex(ENDPOINT_URL_FIELD, url); }
+	private Bson endpointStatusCondition(String status) { return eq(ENDPOINT_STATUS_FIELD, status);	}
 }
