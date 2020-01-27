@@ -43,7 +43,7 @@ resource "azurerm_virtual_network" "endpoint-network" {
 }
 
 data "azurerm_virtual_network" "data-endpoint-network" {
-  name                = var.vpc_id == "" ? azurerm_virtual_network.endpoint-network.name : var.vpc_id
+  name                = var.vpc_id == "" ? azurerm_virtual_network.endpoint-network.0.name : var.vpc_id
   resource_group_name = data.azurerm_resource_group.data-endpoint-resource-group.name
 }
 
@@ -56,7 +56,7 @@ resource "azurerm_subnet" "endpoint-subnet" {
 }
 
 data "azurerm_subnet" "data-endpoint-subnet" {
-  name                 = var.subnet_id == "" ? azurerm_subnet.endpoint-subnet.name : var.subnet_id
+  name                 = var.subnet_id == "" ? azurerm_subnet.endpoint-subnet.0.name : var.subnet_id
   virtual_network_name = data.azurerm_virtual_network.data-endpoint-network.name
   resource_group_name  = data.azurerm_resource_group.data-endpoint-resource-group.name
 }
