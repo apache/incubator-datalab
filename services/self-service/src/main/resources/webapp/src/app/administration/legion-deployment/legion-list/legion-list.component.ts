@@ -11,7 +11,7 @@ import { MatTableDataSource } from '@angular/material/table';
 export class LegionListComponent implements OnInit {
   private legionClustersList: any[];
   private subscriptions: Subscription = new Subscription();
-  private dataSource: MatTableDataSource<unknown>;
+  public dataSource: MatTableDataSource<unknown>;
   displayedColumns: string[] = ['name', 'endpoint-url', 'legion-name', 'legion-status', "actions"];
 
   constructor(

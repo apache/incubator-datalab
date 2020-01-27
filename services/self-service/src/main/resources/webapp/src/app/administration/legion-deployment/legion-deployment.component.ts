@@ -49,7 +49,7 @@ export class LegionDeploymentComponent implements OnInit {
       .subscribe((result: any) => this.healthStatus = result);
   }
 
-  private refreshGrid(): void {
+  public refreshGrid(): void {
     this.legionDeploymentDataService.updateClasters();
   }
 }
