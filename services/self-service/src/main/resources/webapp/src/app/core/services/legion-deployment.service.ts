@@ -27,16 +27,16 @@ export class LegionDeploymentService {
       ]}];
   constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  public getLegionClasters(){
-    const obsList = from(this.list);
-    return obsList;
-  }
+  // public getLegionClasters(){
+  //   const obsList = from(this.list);
+  //   return obsList;
+  // }
+  //
+  // public addLegionCluster(cluster) {
+  //   this.list[0].clasters.push(cluster);
+  // }
 
-  public addLegionCluster(cluster) {
-    this.list[0].clasters.push(cluster);
-  }
-
-  public createOduhuCluster(data): Observable<{}> {
+  public createOduhuNewCluster(data): Observable<{}> {
     return this.applicationServiceFacade
       .createOdahuCluster(data)
       .pipe(

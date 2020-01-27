@@ -22,6 +22,7 @@ export class LegionListComponent implements OnInit {
     this.subscriptions.add(this.legionDeploymentDataService._legionClasters.subscribe(
       (value) => {
         if (value) {
+        console.log(value)
           this.legionClustersList = value;
           this.dataSource = new MatTableDataSource(value);
         }

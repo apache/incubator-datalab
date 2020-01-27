@@ -19,7 +19,10 @@ export class LegionDeploymentDataService {
   }
 
   private getClastersList(): void {
-   this.legionDeploymentService.getLegionClasters().subscribe(
-      (response: any ) => this._legionClasters.next(response.clasters));
+   this.legionDeploymentService.getOduhuClustersList().subscribe(
+      (response: any ) => {
+        console.log(response);
+        return this._legionClasters.next(response.clasters)
+      });
   }
 }

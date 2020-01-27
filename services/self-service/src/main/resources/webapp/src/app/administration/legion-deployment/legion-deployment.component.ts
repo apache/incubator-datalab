@@ -47,7 +47,7 @@ export class LegionDeploymentComponent implements OnInit {
   }
 
   private createLegionCluster(value): void{
-    this.legionDeploymentService.addLegionCluster(value);
+    this.legionDeploymentService.createOduhuNewCluster(value);
   }
 
   private getEnvironmentHealthStatus(): void {
