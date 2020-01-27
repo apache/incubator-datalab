@@ -68,6 +68,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   data: any;
   billingEnabled: boolean;
   admin: boolean;
+  private PROVIDER: string = 'aws';
 
   constructor(
     private billingReportService: BillingReportService,
@@ -140,30 +141,30 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item.project && projects.indexOf(item.project) === -1)
         projects.push(item.project);
 
-      if (item[DICTIONARY['aws'].billing.resourceType] && types.indexOf(item[DICTIONARY['aws'].billing.resourceType]) === -1)
-        types.push(item[DICTIONARY['aws'].billing.resourceType]);
+      if (item[DICTIONARY[this.PROVIDER].billing.resourceType] && types.indexOf(item[DICTIONARY[this.PROVIDER].billing.resourceType]) === -1)
+        types.push(item[DICTIONARY[this.PROVIDER].billing.resourceType]);
 
-      if (item[DICTIONARY['aws'].billing.instance_size]) {
-        if (item[DICTIONARY['aws'].billing.instance_size].indexOf('Master') > -1) {
-          for (let shape of item[DICTIONARY['aws'].billing.instance_size].split('\n')) {
+      if (item[DICTIONARY[this.PROVIDER].billing.instance_size]) {
+        if (item[DICTIONARY[this.PROVIDER].billing.instance_size].indexOf('Master') > -1) {
+          for (let shape of item[DICTIONARY[this.PROVIDER].billing.instance_size].split('\n')) {
             shape = shape.replace('Master: ', '');
             shape = shape.replace(/Slave:\s+\d+ x /, '');
             shape = shape.replace(/\s+/g, '');
 
             shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
-        } else if (item[DICTIONARY['aws'].billing.instance_size].match(/\d x \S+/)) {
-          const parsedShape = item[DICTIONARY['aws'].billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
+        } else if (item[DICTIONARY[this.PROVIDER].billing.instance_size].match(/\d x \S+/)) {
+          const parsedShape = item[DICTIONARY[this.PROVIDER].billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
           if (shapes.indexOf(parsedShape) === -1) {
             shapes.push(parsedShape);
           }
         } else {
-          shapes.indexOf(item[DICTIONARY['aws'].billing.instance_size]) === -1 && shapes.push(item[DICTIONARY['aws'].billing.instance_size]);
+          shapes.indexOf(item[DICTIONARY[this.PROVIDER].billing.instance_size]) === -1 && shapes.push(item[DICTIONARY[this.PROVIDER].billing.instance_size]);
         }
       }
 
-      if (item[DICTIONARY['aws'].billing.service] && services.indexOf(item[DICTIONARY['aws'].billing.service]) === -1)
-        services.push(item[DICTIONARY['aws'].billing.service]);
+      if (item[DICTIONARY[this.PROVIDER].billing.service] && services.indexOf(item[DICTIONARY[this.PROVIDER].billing.service]) === -1)
+        services.push(item[DICTIONARY[this.PROVIDER].billing.service]);
     });
 
     if (!this.reportingGrid.filterConfiguration || !localStorage.getItem('report_config')) {

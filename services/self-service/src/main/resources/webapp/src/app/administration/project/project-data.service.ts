@@ -37,21 +37,21 @@ export class ProjectDataService {
   }
 
   private getProjectsList() {
+    let endpointsList;
+    this.endpointService.getEndpointsData().subscribe(list => endpointsList = list);
     this.projectService.getProjectsList()
       .pipe(
         mergeMap ((response: Project[]) => {
-          this.endpointService.getEndpointsData().subscribe((endpoints: any) => {
             if(response) {
               response.forEach(project => project.endpoints.forEach(endpoint => {
-                const filtredEndpoints =  endpoints.filter(v => v.name === endpoint.name);
+                const filtredEndpoints =  endpointsList.filter(v => v.name === endpoint.name);
                 if(filtredEndpoints.length){
-                  endpoint.endpointStatus = endpoints.filter(v => v.name === endpoint.name)[0].status;
+                  endpoint.endpointStatus = endpointsList.filter(v => v.name === endpoint.name)[0].status;
                 }else{
                   endpoint.endpointStatus = "N/A"
                 }
               }));
             }
-          });
           return of(response);
         }))
       .subscribe(

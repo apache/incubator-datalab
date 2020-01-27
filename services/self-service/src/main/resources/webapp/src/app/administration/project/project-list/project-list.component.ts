@@ -50,7 +50,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     public toastr: ToastrService,
     private projectDataService: ProjectDataService,
     private progressBarService: ProgressBarService,
-    private endpointService: EndpointService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<ProjectListComponent>,
     public dialog: MatDialog,
