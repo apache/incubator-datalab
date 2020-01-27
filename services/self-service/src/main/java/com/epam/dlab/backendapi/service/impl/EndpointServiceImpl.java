@@ -79,7 +79,7 @@ public class EndpointServiceImpl implements EndpointService {
 
 	/**
 	 * Create new endpoint object in the System.
-	 * The EndPoint objects should contain Unique values of the 'url' and 'name' fields,
+	 * The Endpoint objects should contain Unique values of the 'url' and 'name' fields,
 	 * i.e two objects with same URLs should not be created in the system.
 	 * @param userInfo user properties
 	 * @param endpointDTO object with endpoint fields

@@ -23,10 +23,10 @@ import com.epam.dlab.backendapi.domain.EndpointDTO;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 /**
- * Interface of Endpoint entities.
+ * The interface specifies behaviour for objects, which retrieve, update, remove
+ * the endpoints entities from the DataBase, according passed fields, i.e name, url, status.
  */
 public interface EndpointDAO {
 	List<EndpointDTO> getEndpoints();
@@ -35,7 +35,7 @@ public interface EndpointDAO {
 
 	/*** Retrieve the Endpoint entity according required name
 	 * @param name - the Endpoint regular title
-	 * @return the Optional interface
+	 * @return the Optional object
 	 */
 	Optional<EndpointDTO> get(String name);
 
