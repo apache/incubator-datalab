@@ -387,8 +387,8 @@ def install_r_pkg(requisites):
     try:
         for r_pkg in requisites:
             if r_pkg == 'sparklyr':
-                run('sudo -i R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
-            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+                run('sudo -i R -e \'install.packages("{0}", repos="https://cloud.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+            sudo('R -e \'install.packages("{0}", repos="https://cloud.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
             err = sudo('cat /tmp/install_{0}.log'.format(r_pkg)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(r_pkg))
             res = sudo('cat /tmp/install_{0}.list'.format(r_pkg))
@@ -470,7 +470,7 @@ def install_java_pkg(requisites):
 def get_available_r_pkgs():
     try:
         r_pkgs = dict()
-        sudo('R -e \'write.table(available.packages(contriburl="http://cran.us.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
+        sudo('R -e \'write.table(available.packages(contriburl="https://cloud.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
         get("/tmp/r.csv", "r.csv")
         with open('r.csv', 'rb') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
@@ -590,11 +590,11 @@ def set_mongo_parameters(client, mongo_parameters):
 
 def install_r_packages(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/r_packages_ensured'):
-        sudo('R -e "install.packages(\'devtools\', repos = \'http://cran.us.r-project.org\')"')
-        sudo('R -e "install.packages(\'knitr\', repos = \'http://cran.us.r-project.org\')"')
-        sudo('R -e "install.packages(\'ggplot2\', repos = \'http://cran.us.r-project.org\')"')
+        sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
+        sudo('R -e "install.packages(\'knitr\', repos = \'https://cloud.r-project.org\')"')
+        sudo('R -e "install.packages(\'ggplot2\', repos = \'https://cloud.r-project.org\')"')
         sudo('R -e "install.packages(c(\'devtools\',\'mplot\', \'googleVis\'), '
-             'repos = \'http://cran.us.r-project.org\'); require(devtools); install_github(\'ramnathv/rCharts\')"')
+             'repos = \'https://cloud.r-project.org\'); require(devtools); install_github(\'ramnathv/rCharts\')"')
         sudo('touch /home/' + os_user + '/.ensure_dir/r_packages_ensured')
 
 
