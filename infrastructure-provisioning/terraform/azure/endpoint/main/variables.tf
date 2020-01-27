@@ -20,3 +20,35 @@
 # ******************************************************************************
 
 variable "auth_file_path" {}
+
+variable "resource_group_name" {
+  default = ""
+}
+
+variable "region" {
+  default = "West US 2"
+}
+
+variable "service_base_name" {}
+
+variable "endpoint_id" {}
+
+variable "additional_tag" {
+  default = "product:dlab"
+}
+
+variable "vpc_cidr" {}
+
+variable "tag_resource_id" {
+  default = "user:tag"
+}
+
+variable "vpc_id" {
+  default = ""
+}
+
+variable "subnet_id" {
+  default = ""
+}
+
+variable "subnet_cidr" {}

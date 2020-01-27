@@ -29,3 +29,17 @@ provider "azurerm" {
   client_secret   = local.json_data.clientSecret
   tenant_id       = local.json_data.tenantId
 }
+
+resource "azurerm_resource_group" "endpoint-resource-group" {
+  count  = var.resource_group_name == "" ? 1 : 0
+  name     = var.service_base_name
+  location = var.region
+
+  tags = {
+    Name = var.service_base_name
+  }
+}
+
+data "azurerm_resource_group" "data-endpoint-resource-group" {
+  name = var.resource_group_name == "" ? azurerm_resource_group.endpoint-resource-group.name : var.resource_group_name
+}
