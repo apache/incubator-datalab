@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import {from} from "rxjs";
+import {from, Observable} from "rxjs";
+import { map, catchError } from 'rxjs/operators';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import { ErrorUtils } from '../util';
 
 @Injectable({
   providedIn: 'root'
@@ -22,14 +25,30 @@ export class LegionDeploymentService {
       //   name: "claster1",
       // }
       ]}];
-  constructor() { }
+  constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
   public getLegionClasters(){
     const obsList = from(this.list);
-    return obsList
+    return obsList;
   }
 
   public addLegionCluster(cluster) {
     this.list[0].clasters.push(cluster);
+  }
+
+  public createOduhuCluster(data): Observable<{}> {
+    return this.applicationServiceFacade
+      .createOdahuCluster(data)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
+  public getOduhuClustersList(): Observable<{}> {
+    return this.applicationServiceFacade
+      .getOdahuList()
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
   }
 }

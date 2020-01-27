@@ -6,6 +6,12 @@ import {ToastrService} from "ngx-toastr";
 import {CreateLegionClusterComponent} from "./create-legion-claster/create-legion-cluster.component";
 import {HealthStatusService, LegionDeploymentService} from "../../core/services";
 
+export interface OdahuCluster {
+  project: string;
+  endpoint: string;
+  name: string;
+}
+
 @Component({
   selector: 'dlab-legion-deployment',
   templateUrl: './legion-deployment.component.html',
@@ -34,7 +40,7 @@ export class LegionDeploymentComponent implements OnInit {
 
   public createLegionClaster(): void {
     this.dialog.open(CreateLegionClusterComponent, { panelClass: 'modal-lg' })
-      .afterClosed().subscribe(result => {
+      .afterClosed().subscribe((result: OdahuCluster[]) => {
       result && this.createLegionCluster(result);
         this.refreshGrid()
       });

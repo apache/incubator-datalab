@@ -79,8 +79,6 @@ export class CreateLegionClusterComponent implements OnInit {
       project: ['', Validators.required],
       endpoint: ['', Validators.required],
       name: ['', Validators.required],
-      useExistingClusterUrl: [false],
-      existingClusterUrl: ['', Validators.pattern(PATTERNS.fullUrl)]
     });
   }
 
