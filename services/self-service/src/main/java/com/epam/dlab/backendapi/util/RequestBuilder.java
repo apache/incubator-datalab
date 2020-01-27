@@ -669,6 +669,7 @@ public class RequestBuilder {
 				.endpoint(createOdahuDTO.getEndpoint())
 				.key(projectDTO.getKey().replace("\n", ""))
 				.build()
+				.withEdgeUserName(getEdgeUserName(user))
 				.withCloudSettings(cloudSettings(user));
 	}
 
