@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 public class OdahuCallbackHandler extends ResourceCallbackHandler<OdahuResult> {
@@ -63,7 +64,7 @@ public class OdahuCallbackHandler extends ResourceCallbackHandler<OdahuResult> {
             return result;
         }
         final JsonNode nodeUrl = resultNode.get(ODAHU_URLS_FIELD);
-        List<ResourceURL> urls;
+        List<ResourceURL> urls = null;
         if (nodeUrl != null) {
             try {
                 urls = mapper.readValue(nodeUrl.toString(), new TypeReference<List<ResourceURL>>() {
@@ -73,6 +74,10 @@ public class OdahuCallbackHandler extends ResourceCallbackHandler<OdahuResult> {
                 log.warn("Cannot parse field {} for UUID {} in JSON",
                         RESPONSE_NODE + "." + RESULT_NODE + "." + ODAHU_URLS_FIELD, getUUID(), e);
             }
+        }
+
+        if (getAction() == DockerAction.CREATE && Objects.isNull(urls)) {
+            log.warn("There are no odahu urls in response file while creating {}", result);
         }
 
         return result;

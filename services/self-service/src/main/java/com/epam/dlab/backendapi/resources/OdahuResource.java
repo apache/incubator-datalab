@@ -20,7 +20,7 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.domain.CreateOdahuDTO;
+import com.epam.dlab.backendapi.domain.OdahuActionDTO;
 import com.epam.dlab.backendapi.service.OdahuService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -28,6 +28,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -49,18 +50,42 @@ public class OdahuResource {
         this.odahuService = odahuService;
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getOdahuClusters(@Parameter(hidden = true) @Auth UserInfo userInfo) {
+        return Response.ok(odahuService.findOdahu()).build();
+    }
+
     @POST
     public Response createOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                        @Parameter(hidden = true) @Context UriInfo uriInfo,
-                                       @Valid CreateOdahuDTO createOdahuDTO) {
+                                       @Valid OdahuActionDTO createOdahuDTO) {
         odahuService.create(createOdahuDTO.getProject(), createOdahuDTO, userInfo);
         final URI uri = uriInfo.getRequestUriBuilder().path(createOdahuDTO.getName()).build();
         return Response.created(uri).build();
     }
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getOdahuClusters(@Parameter(hidden = true) @Auth UserInfo userInfo) {
-        return Response.ok(odahuService.findOdahu()).build();
+    @Path("start")
+    @POST
+    public Response startOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
+                                      @Valid OdahuActionDTO startOdahuDTO) {
+        odahuService.start(startOdahuDTO.getProject(), startOdahuDTO, userInfo);
+        return Response.accepted().build();
+    }
+
+    @Path("stop")
+    @POST
+    public Response stopOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
+                                     @Valid OdahuActionDTO stopOdahuDTO) {
+        odahuService.stop(stopOdahuDTO.getProject(), stopOdahuDTO, userInfo);
+        return Response.accepted().build();
+    }
+
+    @Path("terminate")
+    @DELETE
+    public Response terminateOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
+                                          @Valid OdahuActionDTO terminateOdahuDTO) {
+        odahuService.terminate(terminateOdahuDTO.getProject(), terminateOdahuDTO, userInfo);
+        return Response.accepted().build();
     }
 }

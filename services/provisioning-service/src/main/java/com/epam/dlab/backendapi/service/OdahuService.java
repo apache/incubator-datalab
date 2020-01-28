@@ -20,8 +20,15 @@
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.dto.odahu.ActionOdahuDTO;
 import com.epam.dlab.dto.odahu.OdahuCreateDTO;
 
 public interface OdahuService {
     String create(UserInfo userInfo, OdahuCreateDTO odahuCreateDTO);
+
+    String start(UserInfo userInfo, ActionOdahuDTO dto);
+
+    String stop(UserInfo userInfo, ActionOdahuDTO dto);
+
+    String terminate(UserInfo userInfo, ActionOdahuDTO dto);
 }
