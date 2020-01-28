@@ -33,5 +33,7 @@ public interface OdahuDAO {
 
     boolean create(OdahuDTO odahuDTO);
 
-    void updateStatus(String name, String project, String endpoint, List<ResourceURL> urls, UserInstanceStatus status);
+    void updateStatus(String name, String project, String endpoint, UserInstanceStatus status);
+
+    void updateStatusAndUrls(String name, String project, String endpoint, List<ResourceURL> urls, UserInstanceStatus status);
 }

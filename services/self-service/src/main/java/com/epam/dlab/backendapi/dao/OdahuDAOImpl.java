@@ -84,8 +84,16 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
     }
 
     @Override
-    public void updateStatus(String name, String project, String endpoint, List<ResourceURL> urls,
-                             UserInstanceStatus status) {
+    public void updateStatus(String name, String project, String endpoint, UserInstanceStatus status) {
+        BasicDBObject dbObject = new BasicDBObject();
+        dbObject.put(ODAHU_FIELD + ".$." + STATUS_FIELD, status.name());
+        updateOne(PROJECTS_COLLECTION, and(elemMatch(ODAHU_FIELD, eq(NAME_FIELD, name)),
+                odahuProjectEndpointCondition(project, endpoint)), new Document(SET, dbObject));
+    }
+
+    @Override
+    public void updateStatusAndUrls(String name, String project, String endpoint, List<ResourceURL> urls,
+                                    UserInstanceStatus status) {
         BasicDBObject dbObject = new BasicDBObject();
         dbObject.put(ODAHU_FIELD + ".$." + STATUS_FIELD, status.name());
         dbObject.put(ODAHU_FIELD + ".$." + URLS_FIELD, getResourceUrlData(urls));

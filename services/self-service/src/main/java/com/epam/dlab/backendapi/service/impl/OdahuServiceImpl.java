@@ -33,6 +33,7 @@ import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.base.odahu.OdahuResult;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -84,6 +85,16 @@ public class OdahuServiceImpl implements OdahuService {
 
         if (isAdded) {
             createOnCloud(userInfo, createOdahuDTO, projectDTO);
+        }
+    }
+
+    @Override
+    public void updateStatus(OdahuResult result, UserInstanceStatus status) {
+        if (result.getResourceUrls().isEmpty()) {
+            odahuDAO.updateStatus(result.getName(), result.getProjectName(), result.getEndpointName(), status);
+        } else {
+            odahuDAO.updateStatusAndUrls(result.getName(), result.getProjectName(), result.getEndpointName(),
+                    result.getResourceUrls(), status);
         }
     }
 

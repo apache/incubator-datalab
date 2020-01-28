@@ -19,8 +19,8 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
-import com.epam.dlab.backendapi.dao.OdahuDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.OdahuService;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.odahu.OdahuResult;
 import com.epam.dlab.exceptions.DlabException;
@@ -37,25 +37,23 @@ import java.util.Optional;
 @Consumes(MediaType.APPLICATION_JSON)
 public class OdahuCallback {
 
-    private final OdahuDAO odahuDAO;
+    private final OdahuService odahuService;
     private final RequestId requestId;
 
     @Inject
-    public OdahuCallback(OdahuDAO odahuDAO, RequestId requestId) {
-        this.odahuDAO = odahuDAO;
+    public OdahuCallback(OdahuService odahuService, RequestId requestId) {
+        this.odahuService = odahuService;
         this.requestId = requestId;
     }
 
     @POST
-    public Response updateOdahuStatus(OdahuResult odahuResult) {
-        requestId.checkAndRemove(odahuResult.getRequestId());
-        final UserInstanceStatus status = UserInstanceStatus.of(odahuResult.getStatus());
+    public Response updateOdahuStatus(OdahuResult result) {
+        requestId.checkAndRemove(result.getRequestId());
+        final UserInstanceStatus status = UserInstanceStatus.of(result.getStatus());
         Optional.ofNullable(status)
                 .orElseThrow(() -> new DlabException(String.format("Cannot convert %s to UserInstanceStatus", status)));
 
-        odahuDAO.updateStatus(odahuResult.getName(), odahuResult.getProjectName(), odahuResult.getEndpointName(),
-                odahuResult.getResourceUrls(), status);
-
+        odahuService.updateStatus(result, status);
         return Response.ok().build();
     }
 }
