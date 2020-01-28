@@ -22,6 +22,8 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.CreateOdahuDTO;
 import com.epam.dlab.backendapi.domain.OdahuDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.base.odahu.OdahuResult;
 
 import java.util.List;
 
@@ -29,4 +31,6 @@ public interface OdahuService {
     List<OdahuDTO> findOdahu();
 
     void create(String project, CreateOdahuDTO createOdahuDTO, UserInfo userInfo);
+
+    void updateStatus(OdahuResult odahuResult, UserInstanceStatus status);
 }
