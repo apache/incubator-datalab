@@ -67,7 +67,7 @@ if args.region == 'cn-north-1':
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
-zeppelin_interpreters = "md,python,livy,shell"
+zeppelin_interpreters = "md,python,shell"
 python3_version = "3.4"
 local_spark_path = '/opt/spark/'
 templates_dir = '/root/templates/'
@@ -88,6 +88,7 @@ def configure_zeppelin(os_user):
             sudo('cp /opt/zeppelin/conf/zeppelin-site.xml.template /opt/zeppelin/conf/zeppelin-site.xml')
             sudo('sed -i \"/# export ZEPPELIN_PID_DIR/c\export ZEPPELIN_PID_DIR=/var/run/zeppelin\" /opt/zeppelin/conf/zeppelin-env.sh')
             sudo('sed -i \"/# export ZEPPELIN_IDENT_STRING/c\export ZEPPELIN_IDENT_STRING=notebook\" /opt/zeppelin/conf/zeppelin-env.sh')
+            sudo('sed -i \"/# export ZEPPELIN_INTERPRETER_DEP_MVNREPO/c\export ZEPPELIN_INTERPRETER_DEP_MVNREPO=https://repo1.maven.org/maven2\" /opt/zeppelin/conf/zeppelin-env.sh')
             sudo('sed -i \"/# export SPARK_HOME/c\export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
             sudo('sed -i \'s/127.0.0.1/0.0.0.0/g\' /opt/zeppelin/conf/zeppelin-site.xml')
             sudo('mkdir /var/log/zeppelin')
@@ -98,6 +99,8 @@ def configure_zeppelin(os_user):
             sudo('chown ' + os_user + ':' + os_user + ' -R /var/run/zeppelin')
             sudo('/opt/zeppelin/bin/install-interpreter.sh --name ' + zeppelin_interpreters + ' --proxy-url $http_proxy')
             sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin-' + zeppelin_version + '-bin-netinst')
+            sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/md/zeppelin-markdown-*.jar /opt/zeppelin/lib/interpreter/') # necessary when executing paragraph launches java process with "-cp :/opt/zeppelin/lib/interpreter/*:"
+            sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/shell/zeppelin-shell-*.jar /opt/zeppelin/lib/interpreter/')
         except:
             sys.exit(1)
         try:
