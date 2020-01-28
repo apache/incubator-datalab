@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.OdahuService;
+import com.epam.dlab.dto.odahu.ActionOdahuDTO;
 import com.epam.dlab.dto.odahu.OdahuCreateDTO;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -33,6 +34,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("infrastructure/odahu")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class OdahuResource {
 
     private final OdahuService odahuService;
@@ -43,9 +46,25 @@ public class OdahuResource {
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response createProject(@Auth UserInfo userInfo, OdahuCreateDTO dto) {
         return Response.ok(odahuService.create(userInfo, dto)).build();
+    }
+
+    @Path("start")
+    @POST
+    public Response startProject(@Auth UserInfo userInfo, ActionOdahuDTO dto) {
+        return Response.ok(odahuService.start(userInfo, dto)).build();
+    }
+
+    @Path("stop")
+    @POST
+    public Response stopProject(@Auth UserInfo userInfo, ActionOdahuDTO dto) {
+        return Response.ok(odahuService.stop(userInfo, dto)).build();
+    }
+
+    @Path("terminate")
+    @POST
+    public Response terminateProject(@Auth UserInfo userInfo, ActionOdahuDTO dto) {
+        return Response.ok(odahuService.terminate(userInfo, dto)).build();
     }
 }

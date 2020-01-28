@@ -17,24 +17,20 @@
  * under the License.
  */
 
-package com.epam.dlab.dto.base.odahu;
+package com.epam.dlab.backendapi.domain;
 
-import com.epam.dlab.dto.ResourceURL;
-import com.epam.dlab.dto.StatusBaseDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OdahuResult extends StatusBaseDTO<OdahuResult> {
-    private String name;
-    @JsonProperty("project_name")
-    private String projectName;
-    @JsonProperty("endpoint_name")
-    private String endpointName;
-    @JsonProperty("odahu_urls")
-    private List<ResourceURL> resourceUrls;
+public class OdahuActionDTO {
+    @NotNull
+    private final String name;
+    @NotNull
+    private final String project;
+    @NotNull
+    private final String endpoint;
 }

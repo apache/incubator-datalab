@@ -22,8 +22,8 @@ package com.epam.dlab.backendapi.util;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
-import com.epam.dlab.backendapi.domain.CreateOdahuDTO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.domain.OdahuActionDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
@@ -78,6 +78,7 @@ import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
+import com.epam.dlab.dto.odahu.ActionOdahuDTO;
 import com.epam.dlab.dto.odahu.OdahuCreateDTO;
 import com.epam.dlab.dto.project.ProjectActionDTO;
 import com.epam.dlab.dto.project.ProjectCreateDTO;
@@ -662,12 +663,22 @@ public class RequestBuilder {
 				.withCloudSettings(cloudSettings(userInfo));
 	}
 
-	public OdahuCreateDTO newOdahuCreate(UserInfo user, CreateOdahuDTO createOdahuDTO, ProjectDTO projectDTO) {
+	public OdahuCreateDTO newOdahuCreate(UserInfo user, OdahuActionDTO createOdahuDTO, ProjectDTO projectDTO) {
 		return OdahuCreateDTO.builder()
 				.name(createOdahuDTO.getName())
 				.project(projectDTO.getName())
 				.endpoint(createOdahuDTO.getEndpoint())
 				.key(projectDTO.getKey().replace("\n", ""))
+				.build()
+				.withEdgeUserName(getEdgeUserName(user))
+				.withCloudSettings(cloudSettings(user));
+	}
+
+	public ActionOdahuDTO newOdahuAction(UserInfo user, OdahuActionDTO actionDTO, ProjectDTO projectDTO) {
+		return ActionOdahuDTO.builder()
+				.name(actionDTO.getName())
+				.project(projectDTO.getName())
+				.endpoint(actionDTO.getEndpoint())
 				.build()
 				.withEdgeUserName(getEdgeUserName(user))
 				.withCloudSettings(cloudSettings(user));

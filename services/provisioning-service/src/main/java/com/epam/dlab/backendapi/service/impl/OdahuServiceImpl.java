@@ -30,6 +30,7 @@ import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecu
 import com.epam.dlab.backendapi.core.response.handlers.OdahuCallbackHandler;
 import com.epam.dlab.backendapi.service.OdahuService;
 import com.epam.dlab.dto.ResourceBaseDTO;
+import com.epam.dlab.dto.odahu.ActionOdahuDTO;
 import com.epam.dlab.dto.odahu.OdahuCreateDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -61,6 +62,24 @@ public class OdahuServiceImpl implements OdahuService {
     @Override
     public String create(UserInfo userInfo, OdahuCreateDTO dto) {
         return executeDocker(userInfo, dto, DockerAction.CREATE, ODAHU_RESOURCE_TYPE, ODAHU_IMAGE, dto.getName(),
+                dto.getProject(), dto.getEndpoint());
+    }
+
+    @Override
+    public String start(UserInfo userInfo, ActionOdahuDTO dto) {
+        return executeDocker(userInfo, dto, DockerAction.START, ODAHU_RESOURCE_TYPE, ODAHU_IMAGE, dto.getName(),
+                dto.getProject(), dto.getEndpoint());
+    }
+
+    @Override
+    public String stop(UserInfo userInfo, ActionOdahuDTO dto) {
+        return executeDocker(userInfo, dto, DockerAction.STOP, ODAHU_RESOURCE_TYPE, ODAHU_IMAGE, dto.getName(),
+                dto.getProject(), dto.getEndpoint());
+    }
+
+    @Override
+    public String terminate(UserInfo userInfo, ActionOdahuDTO dto) {
+        return executeDocker(userInfo, dto, DockerAction.TERMINATE, ODAHU_RESOURCE_TYPE, ODAHU_IMAGE, dto.getName(),
                 dto.getProject(), dto.getEndpoint());
     }
 
