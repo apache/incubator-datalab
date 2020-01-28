@@ -121,6 +121,7 @@ parser.add_argument('--resource_id', type=str, default='line_item_resource_id', 
                                                                           'dlab resource id tag')
 parser.add_argument('--odahu_tls_crt', type=str, default='', help='TLS Certificate for Odahu cluster')
 parser.add_argument('--odahu_tls_key', type=str, default='', help='TLS Key for Odahu cluster')
+parser.add_argument('--odahu_docker_private_repo', type=str, default='', help='Odahu private repository url')
 parser.add_argument('--ldap_hostname', type=str, default='localhost', help='Ldap instance hostname')
 parser.add_argument('--ldap_dn', type=str, default='dc=example,dc=com',
                     help='Ldap distinguished name')

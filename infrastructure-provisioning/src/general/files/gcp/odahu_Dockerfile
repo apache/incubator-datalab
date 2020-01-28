@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-FROM nexus.ailifecycle.org:443/odahu/odahu-flow-automation:1.0.0-dev1575376304448
+FROM <ODAHU_REPO>
 ARG OS
 ARG SRC_PATH
 

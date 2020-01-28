@@ -72,9 +72,9 @@ if __name__ == "__main__":
     odahu_conf['istio_helm_repo'] = os.environ['odahu_istio_helm_repo']
     odahu_conf['helm_repo'] = os.environ['odahu_helm_repo']
     odahu_conf['k8s_version'] = os.environ['odahu_k8s_version']
-    odahu_conf['oauth_oidc_issuer_url'] = os.environ['oauth_oidc_issuer_url']
-    odahu_conf['oauth_client_id'] = os.environ['oauth_client_id']
-    odahu_conf['oauth_client_secret'] = os.environ['oauth_client_secret']
+    odahu_conf['oauth_oidc_issuer_url'] = "{}realms/{}".format(os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'])
+    odahu_conf['oauth_client_id'] = os.environ['keycloak_client_name']
+    odahu_conf['oauth_client_secret'] = os.environ['keycloak_client_secret']
     odahu_conf['oauth_cookie_secret'] = secret
     odahu_conf['odahu_infra_version'] = os.environ['odahu_infra_version']
     odahu_conf['odahuflow_version'] = os.environ['odahu_odahuflow_version']

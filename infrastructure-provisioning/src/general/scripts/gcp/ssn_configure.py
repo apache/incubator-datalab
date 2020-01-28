@@ -240,6 +240,8 @@ if __name__ == "__main__":
                    os.environ['conf_cloud_provider'], ssn_conf['region'])
 
         try:
+            sudo("sed -i \'s|<ODAHU_REPO>|{}|g\' {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile". \
+                 format(os.environ['odahu_docker_private_repo'], os.environ['ssn_dlab_path']))
             local("~/scripts/{}.py {}".format('configure_docker', params))
         except:
             traceback.print_exc()
