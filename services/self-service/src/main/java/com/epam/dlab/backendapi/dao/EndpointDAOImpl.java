@@ -84,5 +84,7 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 		return regex(ENDPOINT_URL_FIELD, endPointUrl);
 	}
 
-	private Bson endpointStatusCondition(String status) { return eq(ENDPOINT_STATUS_FIELD, status);	}
+	private Bson endpointStatusCondition(String status) {
+		return eq(ENDPOINT_STATUS_FIELD, status);
+	}
 }
