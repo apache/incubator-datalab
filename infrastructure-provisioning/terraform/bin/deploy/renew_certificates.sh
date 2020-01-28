@@ -25,19 +25,19 @@ KEYSTORE_PASS=$(cat /opt/dlab/conf/CONF_FILE.yml  | grep '<#assign KEY_STORE_PAS
 
 # Removing old certificates
 keytool -delete -alias RESOURCE_TYPE -keystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -storepass "${KEYSTORE_PASS}"
-keytool -delete -alias CARoot -keystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -storepass "${KEYSTORE_PASS}"
-keytool -delete -alias mykey -keystore JAVA_HOME/lib/security/cacerts -storepass changeit
+keytool -delete -alias step-ca -keystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -storepass "${KEYSTORE_PASS}"
+keytool -delete -alias step-ca -keystore JAVA_HOME/lib/security/cacerts -storepass changeit
 keytool -delete -alias RESOURCE_TYPE -keystore JAVA_HOME/lib/security/cacerts -storepass changeit
 
 # Importing new certificates to keystore
 openssl pkcs12 -export -in /etc/ssl/certs/dlab.crt -inkey /etc/ssl/certs/dlab.key -name RESOURCE_TYPE -out /home/OS_USER/keys/RESOURCE_TYPE.p12 -password pass:${KEYSTORE_PASS}
 keytool -importkeystore -srckeystore /home/OS_USER/keys/RESOURCE_TYPE.p12 -srcstoretype PKCS12 -alias RESOURCE_TYPE -destkeystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -deststorepass "${KEYSTORE_PASS}" -srcstorepass "${KEYSTORE_PASS}"
-keytool -keystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -alias CARoot -import -file  /etc/ssl/certs/root_ca.crt  -deststorepass "${KEYSTORE_PASS}" -noprompt
+keytool -keystore /home/OS_USER/keys/RESOURCE_TYPE.keystore.jks -alias step-ca -import -file  /etc/ssl/certs/root_ca.crt  -deststorepass "${KEYSTORE_PASS}" -noprompt
 
 
 # Adding new certificates
 keytool -importcert -trustcacerts -alias RESOURCE_TYPE -file /etc/ssl/certs/dlab.crt -noprompt -storepass changeit -keystore JAVA_HOME/lib/security/cacerts
-keytool -importcert -trustcacerts -file /etc/ssl/certs/root_ca.crt -noprompt -storepass changeit -keystore JAVA_HOME/lib/security/cacerts
+keytool -importcert -trustcacerts -alias step-ca -file /etc/ssl/certs/root_ca.crt -noprompt -storepass changeit -keystore JAVA_HOME/lib/security/cacerts
 
 # Restarting service
 supervisorctl restart provserv

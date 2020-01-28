@@ -228,7 +228,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                         item['key'], item['value']))
                 sudo('sed -i "s|SERVICE_BASE_NAME|{0}|g" /tmp/yml_tmp/self-service.yml'.format(service_base_name))
                 sudo('sed -i "s|OPERATION_SYSTEM|debian|g" /tmp/yml_tmp/self-service.yml')
-
+                sudo('sed -i "s|<SSN_INSTANCE_SIZE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                    os.environ['{0}_ssn_instance_size'.format(os.environ['conf_cloud_provider'])]))
                 if cloud_provider == 'azure':
                     sudo('sed -i "s|<LOGIN_USE_LDAP>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(ldap_login))
                     sudo('sed -i "s|<LOGIN_TENANT_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(tenant_id))
@@ -312,12 +313,12 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     sudo('keytool -importkeystore -srckeystore ssn.p12 -srcstoretype PKCS12 -alias ssn -destkeystore '
                          '/home/{0}/keys/ssn.keystore.jks -deststorepass "{1}" -srcstorepass "{1}"'.format(
                           os_user, keystore_passwd))
-                    sudo('keytool -keystore /home/{0}/keys/ssn.keystore.jks -alias CARoot -import -file '
+                    sudo('keytool -keystore /home/{0}/keys/ssn.keystore.jks -alias step-ca -import -file '
                          '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -srcstorepass "{1}" -noprompt'.format(
                           os_user, keystore_passwd))
                     sudo('keytool -importcert -trustcacerts -alias step-ca -file /etc/ssl/certs/root_ca.crt '
                          '-noprompt -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
-                    sudo('keytool -importcert -trustcacerts -alias step-crt -file /etc/ssl/certs/dlab.crt -noprompt '
+                    sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt '
                          '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
                 else:
                     sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
