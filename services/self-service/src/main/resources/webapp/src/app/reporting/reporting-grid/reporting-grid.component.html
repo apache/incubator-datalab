@@ -30,7 +30,7 @@
           </i>
         </button>
       </th>
-      <td mat-cell *matCellDef="let element"> {{element[DICTIONARY['aws'].billing.dlabId]}} </td>
+      <td mat-cell *matCellDef="let element"> {{element[DICTIONARY[PROVIDER].billing.dlabId]}} </td>
       <td mat-footer-cell *matFooterCellDef> Total </td>
     </ng-container>
 
@@ -72,7 +72,7 @@
           </i>
         </button>
       </th>
-      <td mat-cell *matCellDef="let element"> {{element[DICTIONARY['aws'].billing.resourceType]}} </td>
+      <td mat-cell *matCellDef="let element"> {{element[DICTIONARY[PROVIDER].billing.resourceType]}} </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
@@ -135,11 +135,11 @@
       </th>
 
       <td mat-cell *matCellDef="let element">
-        {{ element[DICTIONARY['aws'].billing.cost] }} {{ element[DICTIONARY['aws'].billing.currencyCode] }}
+        {{ element[DICTIONARY[PROVIDER].billing.cost] }} {{ element[DICTIONARY[PROVIDER].billing.currencyCode] }}
       </td>
       <td mat-footer-cell *matFooterCellDef>
         <span *ngIf="reportData?.length">{{ fullReport['cost_total'] }}
-          {{ fullReport[DICTIONARY['aws'].billing.currencyCode] }}</span>
+          {{ fullReport[DICTIONARY[PROVIDER].billing.currencyCode] }}</span>
       </td>
     </ng-container>
 
@@ -178,8 +178,8 @@
     <ng-container matColumnDef="shape-filter">
       <th mat-header-cell *matHeaderCellDef>
         <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)"
-          [type]="[DICTIONARY['aws'].billing.instance_size]" [items]="filterConfiguration[DICTIONARY['aws'].billing.instance_size]"
-          [model]="filteredReportData[DICTIONARY['aws'].billing.instance_size]"></multi-select-dropdown>
+          [type]="[DICTIONARY[PROVIDER].billing.instance_size]" [items]="filterConfiguration[DICTIONARY[PROVIDER].billing.instance_size]"
+          [model]="filteredReportData[DICTIONARY[PROVIDER].billing.instance_size]"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="service-filter">

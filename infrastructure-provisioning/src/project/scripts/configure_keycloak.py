@@ -39,6 +39,7 @@ parser.add_argument('--keycloak_user', type=str, default='')
 parser.add_argument('--keycloak_user_password', type=str, default='')
 parser.add_argument('--keycloak_client_secret', type=str, default='')
 parser.add_argument('--edge_public_ip', type=str, default='')
+parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--project_name', type=str, default='')
 args = parser.parse_args()
 
@@ -66,7 +67,7 @@ if __name__ == "__main__":
             "clientId": keycloak_client_name,
             "id": keycloak_client_id,
             "enabled": "true",
-            "redirectUris": ["https://{}/*".format(args.edge_public_ip)],
+            "redirectUris": ["https://{}/*".format(args.edge_public_ip), "http://{}/*".format(args.edge_public_ip), "https://{}/*".format(args.hostname), "http://{}/*".format(args.hostname)],
             "publicClient": "false",
             "secret": args.keycloak_client_secret,
             "protocol": "openid-connect",
