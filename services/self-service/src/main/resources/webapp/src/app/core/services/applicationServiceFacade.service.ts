@@ -529,7 +529,6 @@ export class ApplicationServiceFacade {
   }
 
   public buildCreateProject(data): Observable<any> {
-    console.log(data)
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT),
       data);

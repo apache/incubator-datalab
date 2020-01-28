@@ -23,7 +23,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
-import { UserResourceService, ProjectService } from '../../../core/services';
+import { UserResourceService, ProjectService, LegionDeploymentService } from '../../../core/services';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import {PATTERNS} from "../../../core/util";
@@ -49,7 +49,8 @@ export class CreateLegionClusterComponent implements OnInit {
     public toastr: ToastrService,
     public dialogRef: MatDialogRef<CreateLegionClusterComponent>,
     private _fb: FormBuilder,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private legionDeploymentService: LegionDeploymentService,
   ) {
   }
 
@@ -58,7 +59,7 @@ export class CreateLegionClusterComponent implements OnInit {
     this.initFormModel();
   }
 
-  public getProjectsgetProjects(): void{
+  public getProjects(): void{
     this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
   }
 
@@ -76,10 +77,14 @@ export class CreateLegionClusterComponent implements OnInit {
 
   private initFormModel(): void {
     this.createLegionClusterForm = this._fb.group({
+      name: ['', Validators.required],
       project: ['', Validators.required],
       endpoint: ['', Validators.required],
-      name: ['', Validators.required],
     });
   }
 
+  private createOdahuCluster(value): void{
+    this.dialogRef.close();
+    this.legionDeploymentService.createOdahuNewCluster(value).subscribe();
+  }
 }

@@ -21,8 +21,7 @@ export class LegionDeploymentDataService {
   private getClastersList(): void {
    this.legionDeploymentService.getOduhuClustersList().subscribe(
       (response: any ) => {
-        console.log(response);
-        return this._legionClasters.next(response.clasters)
+        return this._legionClasters.next(response)
       });
   }
 }

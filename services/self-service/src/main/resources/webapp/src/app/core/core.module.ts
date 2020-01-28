@@ -40,6 +40,7 @@ import { RolesGroupsService } from './services/rolesManagement.service';
 import { DataengineConfigurationService } from './services/dataengineConfiguration.service';
 import { StorageService } from './services/storage.service';
 import { ProjectService } from './services/project.service';
+import { LegionDeploymentService } from './services/legion-deployment.service';
 import { EndpointService } from './services/endpoint.service';
 import { UserAccessKeyService } from './services/userAccessKey.service';
 
@@ -82,6 +83,7 @@ export class CoreModule {
         StorageService,
         ProjectService,
         EndpointService,
+        LegionDeploymentService,
         UserAccessKeyService,
 
         { provide: MatDialogRef, useValue: {} },

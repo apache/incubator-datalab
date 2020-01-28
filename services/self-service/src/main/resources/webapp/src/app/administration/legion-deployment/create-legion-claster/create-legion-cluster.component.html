@@ -68,7 +68,7 @@
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
           <button mat-raised-button type="button" class="butt butt-success action"
-                  [disabled]="!createLegionClusterForm.valid" (click)="dialogRef.close(createLegionClusterForm.value)">
+                  [disabled]="!createLegionClusterForm.valid" (click)="createOdahuCluster(createLegionClusterForm.value)">
             Create
           </button>
         </div>
