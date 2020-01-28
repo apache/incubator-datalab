@@ -74,13 +74,9 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 		deleteOne(ENDPOINTS_COLLECTION, endpointCondition(name));
 	}
 
-	/**
-	 * According the functional requirement, the EndPoint name should be case-insensitive.
-	 * A New method use the regex interface of the MongoDB driver
-	 */
 	private Bson endpointCondition(String name) {
 		Pattern endPointName = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
-		return regex(ENDPOINT_URL_FIELD, endPointName);
+		return regex(ENDPOINT_NAME_FIELD, endPointName);
 	}
 
 	private Bson endpointUrlCondition(String url) {
