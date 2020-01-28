@@ -39,6 +39,7 @@ parser.add_argument('--keycloak_user', type=str, default='')
 parser.add_argument('--keycloak_user_password', type=str, default='')
 parser.add_argument('--keycloak_client_secret', type=str, default='')
 parser.add_argument('--edge_public_ip', type=str, default='')
+parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--project_name', type=str, default='')
 args = parser.parse_args()
 

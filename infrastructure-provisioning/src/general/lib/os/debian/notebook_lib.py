@@ -64,7 +64,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sudo('\cp -f /tmp/r_template.json {}/ir/kernel.json'.format(kernels_dir))
             sudo('ln -s /opt/spark/ /usr/local/spark')
             try:
-                sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'http://cran.us.r-project.org\')" R -e "devtools::check(\'.\')"')
+                sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'https://cloud.r-project.org\')" R -e "devtools::check(\'.\')"')
             except:
                 pass
             sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
@@ -86,7 +86,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             if region == 'cn-north-1':
                 r_repository = r_mirror
             else:
-                r_repository = 'http://cran.us.r-project.org'
+                r_repository = 'https://cloud.r-project.org'
             add_marruter_key()
             sudo('apt update')
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
@@ -114,7 +114,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
         try:
             sudo('apt-get install -y r-base')
             sudo('apt-get install -y gdebi-core')
-            sudo('wget https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version))
+            sudo('wget https://download2.rstudio.org/server/trusty/amd64/rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))

@@ -194,7 +194,7 @@ RProxyConfiguration = new Configuration(
                         ] as Map
                 ] as Map,
                 proxy: [
-                        remoteUrl: 'http://cran.us.r-project.org',
+                        remoteUrl: 'https://cloud.r-project.org',
                         contentMaxAge: 0,
                         metaDataMaxAge: 0
                 ] as Map,

@@ -108,7 +108,14 @@ if __name__ == "__main__":
     print("Will create exploratory environment with edge node as access point as following: ".format(json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(dataproc_conf))
 
-    local('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
+    try:
+        meta_lib.GCPMeta().dataproc_waiter(dataproc_conf['cluster_labels'])
+        local('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Dataproc waiter fail.", str(err))
+        sys.exit(1)
+
     local("echo Waiting for changes to propagate; sleep 10")
 
     dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster.json').read().decode('utf-8-sig'))
