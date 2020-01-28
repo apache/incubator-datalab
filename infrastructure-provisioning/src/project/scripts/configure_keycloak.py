@@ -63,11 +63,16 @@ if __name__ == "__main__":
                                                                            args.keycloak_realm_name)
         keycloak_client_name = "{0}-{1}".format(args.service_base_name, args.project_name)
         keycloak_client_id = str(uuid.uuid4())
+        if args.hostname == '':
+            keycloak_redirectUris = 'https://{0}/*, http://{0}/*'.format(args.edge_public_ip).split(',')
+            print(keycloak_redirectUris)
+        else:
+            keycloak_redirectUris = 'https://{0}/*, http://{0}/*, https://{1}/*, http://{1}/*'.format(args.edge_public_ip, args.hostname).split(',')
         keycloak_client_data = {
             "clientId": keycloak_client_name,
             "id": keycloak_client_id,
             "enabled": "true",
-            "redirectUris": ["https://{}/*".format(args.edge_public_ip), "http://{}/*".format(args.edge_public_ip), "https://{}/*".format(args.hostname), "http://{}/*".format(args.hostname)],
+            "redirectUris": keycloak_redirectUris,
             "publicClient": "false",
             "secret": args.keycloak_client_secret,
             "protocol": "openid-connect",
