@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {from, Observable} from "rxjs";
+import {Observable} from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { ErrorUtils } from '../util';
@@ -23,5 +23,13 @@ export class LegionDeploymentService {
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
+  }
+
+  public odahuAction(data, action) {
+    return this.applicationServiceFacade
+        .odahuStartStop(data, action)
+        .pipe(
+            map(response => response),
+            catchError(ErrorUtils.handleServiceError));
   }
 }

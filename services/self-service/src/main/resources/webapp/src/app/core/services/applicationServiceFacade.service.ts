@@ -613,6 +613,12 @@ export class ApplicationServiceFacade {
         null);
     }
 
+  public odahuStartStop(data, params): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.ODAHU) + `/${params}`,
+      data);
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 

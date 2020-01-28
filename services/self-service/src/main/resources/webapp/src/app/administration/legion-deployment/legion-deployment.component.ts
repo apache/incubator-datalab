@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import {LegionDeploymentDataService} from "./legion-deployment-data.service";
-import {Subscription} from "rxjs";
-import {MatDialog} from "@angular/material/dialog";
-import {ToastrService} from "ngx-toastr";
-import {CreateLegionClusterComponent} from "./create-legion-claster/create-legion-cluster.component";
-import {HealthStatusService, LegionDeploymentService} from "../../core/services";
+import {LegionDeploymentDataService} from './legion-deployment-data.service';
+import {Subscription} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {ToastrService} from 'ngx-toastr';
+import {CreateLegionClusterComponent} from './create-legion-claster/create-legion-cluster.component';
+import {HealthStatusService, LegionDeploymentService} from '../../core/services';
 
-// export interface OdahuCluster {
-//   name: string;
-//   project: string;
-//   endpoint: string;
-// }
+export interface OdahuCluster {
+  name: string;
+  project: string;
+  endpoint: string;
+}
 
 @Component({
   selector: 'dlab-legion-deployment',

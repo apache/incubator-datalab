@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable} from "rxjs";
-import {LegionDeploymentService} from "../../core/services";
+import {BehaviorSubject, Observable} from 'rxjs';
+import {LegionDeploymentService} from '../../core/services';
 
 
 @Injectable({
@@ -21,7 +21,7 @@ export class LegionDeploymentDataService {
   private getClastersList(): void {
    this.legionDeploymentService.getOduhuClustersList().subscribe(
       (response: any ) => {
-        return this._legionClasters.next(response)
+        return this._legionClasters.next(response);
       });
   }
 }
