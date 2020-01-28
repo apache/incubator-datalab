@@ -42,6 +42,7 @@ export class LegionDeploymentComponent implements OnInit {
     this.dialog.open(CreateLegionClusterComponent, { panelClass: 'modal-lg' })
       .afterClosed().subscribe((result) => {
       result && this.getEnvironmentHealthStatus();
+      this.refreshGrid();
       });
   }
 

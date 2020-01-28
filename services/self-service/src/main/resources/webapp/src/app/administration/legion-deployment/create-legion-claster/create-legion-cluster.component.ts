@@ -85,6 +85,9 @@ export class CreateLegionClusterComponent implements OnInit {
 
   private createOdahuCluster(value): void{
     this.dialogRef.close();
-    this.legionDeploymentService.createOdahuNewCluster(value).subscribe();
+    this.legionDeploymentService.createOdahuNewCluster(value).subscribe(val => {
+      this.toastr.success('Odahu cluster creation is processing!', 'Success!');
+      },error => this.toastr.error(error.message || 'Odahu cluster creation failed!', 'Oops!')
+    );
   }
 }
