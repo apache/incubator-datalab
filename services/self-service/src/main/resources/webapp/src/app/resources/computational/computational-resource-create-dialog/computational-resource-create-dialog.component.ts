@@ -76,7 +76,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.notebook_instance = this.data.notebook;
     this.resourcesList = this.data.full_list;
     this.initFormModel();
-    this.initCluster();
     this.getTemplates(this.notebook_instance.project, this.notebook_instance.endpoint);
   }
 
@@ -139,9 +138,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   private initFormModel(): void {
     this.resourceForm = this._fb.group({
       template_name: ['', [Validators.required]],
-      version: ['', Validators.required],
+      version: [''],
       shape_master: ['', Validators.required],
-      shape_slave: ['', Validators.required],
+      shape_slave: [''],
       cluster_alias_name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), Validators.maxLength(DICTIONARY[this.PROVIDER].max_cluster_name_length),
       this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(PATTERNS.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
@@ -151,19 +150,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]],
       configuration_parameters: ['', [this.validConfiguration.bind(this)]],
       custom_tag: [this.notebook_instance.tags.custom_tag]
-    });
-  }
-
-  private initCluster() {
-    this.resourceForm.get('template_name').valueChanges.subscribe(val => {
-      if (val === 'AWS EMR cluster') {
-        this.resourceForm.addControl('shape_slave', new FormControl('', [ Validators.required ]));
-        this.resourceForm.addControl('version', new FormControl('', [ Validators.required ]));
-      } else {
-        this.resourceForm.removeControl('shape_slave');
-        this.resourceForm.removeControl('version');
-      }
-      this.resourceForm.updateValueAndValidity();
     });
   }
 
