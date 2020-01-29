@@ -90,7 +90,7 @@ if __name__ == "__main__":
                                                                                      edge_conf['instance_name'])
             edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
                                                                               edge_conf['instance_name'])
-        instance_hostname = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
+        instance_hostname = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
                                                                edge_conf['instance_name'])
         edge_conf['vpc_cidrs'] = AzureMeta().get_vpc(edge_conf['resource_group_name'],
                                                      edge_conf['vpc_name']).address_space.address_prefixes
