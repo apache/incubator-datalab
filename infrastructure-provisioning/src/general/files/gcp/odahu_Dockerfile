@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-FROM <ODAHU_REPO>
+FROM <NEXUS_URL>/odahu-flow-automation:1.1.0
 ARG OS
 ARG SRC_PATH
 

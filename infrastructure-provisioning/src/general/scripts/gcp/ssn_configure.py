@@ -240,8 +240,12 @@ if __name__ == "__main__":
                    os.environ['conf_cloud_provider'], ssn_conf['region'])
 
         try:
-            sudo("sed -i \'s|<ODAHU_REPO>|{}|g\' {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile". \
-                 format(os.environ['odahu_docker_private_repo'], os.environ['ssn_dlab_path']))
+            put('/root/templates/daemon.json', '/etc/docker/daemon.json')
+            sudo("sed -i \'s|<NEXUS_URL>|{}|g\' /etc/docker/daemon.json".format(os.environ['ssn_nexus_url']))
+            sudo('systemctl restart docker')
+            sudo("sed -i \'s|<NEXUS_URL>|{}|g\' {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile".format(os.environ['ssn_nexus_url'], os.environ['ssn_dlab_path']))
+#            sudo("sed -i \'s|<ODAHU_REPO>|{}|g\' {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile". \
+#                 format(os.environ['odahu_docker_private_repo'], os.environ['ssn_dlab_path']))
             local("~/scripts/{}.py {}".format('configure_docker', params))
         except:
             traceback.print_exc()
