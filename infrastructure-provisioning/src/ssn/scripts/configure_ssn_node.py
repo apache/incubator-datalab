@@ -37,6 +37,7 @@ parser.add_argument('--additional_config', type=str, default='{"empty":"string"}
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default='')
+parser.add_argument('--ssn_nexus_url', type=str, default='')
 args = parser.parse_args()
 
 
@@ -144,6 +145,21 @@ def docker_build_script():
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure docker_build script: ', str(err))
+        sys.exit(1)
+
+def prepare_odahu_image(ssn_nexus_url, dlab_path):
+    try:
+        put('/root/templates/daemon.json', '/etc/docker/daemon.json')
+        sudo("sed -i \'s|<NEXUS_URL>|{}|g\' /etc/docker/daemon.json".format(os.environ['ssn_nexus_url']))
+        sudo('systemctl restart docker')
+        sudo(
+            "sed -i \'s|<NEXUS_URL>|{}|g\' {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile".format(
+                ssn_nexus_url, dlab_path))
+    #            sudo("sed -i \'s|<ODAHU_REPO>|{}|g\' {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile". \
+    #                 format(os.environ['odahu_docker_private_repo'], os.environ['ssn_dlab_path']))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to prepare odahu image: ', str(err))
         sys.exit(1)
 
 ##############
