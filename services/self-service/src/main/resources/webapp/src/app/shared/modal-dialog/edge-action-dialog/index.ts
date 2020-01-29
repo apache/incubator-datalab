@@ -21,7 +21,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EdgeActionDialogComponent } from './edge-action-dialog.component';
 import { MaterialModule } from '../../material.module';
-import {FormsModule} from "@angular/forms";
+import {FormsModule} from '@angular/forms';
 
 export * from './edge-action-dialog.component';
 

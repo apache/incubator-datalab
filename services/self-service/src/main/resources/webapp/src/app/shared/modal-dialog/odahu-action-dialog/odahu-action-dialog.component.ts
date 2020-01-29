@@ -57,10 +57,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   `]
 })
 
-export class EdgeActionDialogComponent {
+export class OdahuActionDialogComponent {
   public endpointsNewStatus: Array<object> = [];
   constructor(
-    public dialogRef: MatDialogRef<EdgeActionDialogComponent>,
+    public dialogRef: MatDialogRef<OdahuActionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 

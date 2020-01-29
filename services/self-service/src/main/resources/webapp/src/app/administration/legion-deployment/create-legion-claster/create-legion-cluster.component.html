@@ -15,7 +15,7 @@
                 <mat-option *ngFor="let project of projects" [value]="project.name" (click)="setEndpoints(project)">
                   {{ project.name }}</mat-option>
                 <mat-option *ngIf="!projects.length" class="multiple-select ml-10" disabled>
-                  Projects list is empty
+                  No projects for creating Odahu clusters
                 </mat-option>
               </mat-select>
               <button class="caret">
@@ -35,8 +35,7 @@
                 <mat-option *ngFor="let endpoint of endpoints" [value]="endpoint">
                   {{ endpoint }}
                 </mat-option>
-                <mat-option *ngIf="!endpoints.length" class="multiple-select ml-10" disabled>Endpoints list is empty
-                </mat-option>
+                <mat-option *ngIf="!endpoints.length" class="multiple-select ml-10" disabled>Endpoints list is empty</mat-option>
               </mat-select>
               <button class="caret">
                 <i class="material-icons">keyboard_arrow_down</i>
@@ -49,6 +48,10 @@
           <label class="label">Name</label>
           <div class="control">
             <input type="text" class="form-control" placeholder="Enter Name" formControlName="name">
+            <span class="error" *ngIf="!createLegionClusterForm.controls.name.valid && createLegionClusterForm.controls.name.dirty && !createLegionClusterForm.controls.name.hasError('duplication')">
+              Odahu cluster name can only contain letters and numbers
+            </span>
+            <span class="error" *ngIf="createLegionClusterForm.controls.name.hasError('duplication')">This Odahu cluster name already exists.</span>
           </div>
         </div>
 

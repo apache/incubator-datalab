@@ -13,7 +13,7 @@ export class LegionListComponent implements OnInit {
   private legionClustersList: any[];
   private subscriptions: Subscription = new Subscription();
   public dataSource: MatTableDataSource<any>;
-  displayedColumns: string[] = ['project', 'endpoint-url', 'legion-name', 'legion-status', 'actions'];
+  displayedColumns: string[] = [ 'legion-name', 'project', 'endpoint-url', 'legion-status', 'actions'];
 
   constructor(
     private legionDeploymentDataService: LegionDeploymentDataService,
@@ -35,4 +35,5 @@ export class LegionListComponent implements OnInit {
       this.legionDeploymentDataService.updateClasters()
     );
   }
+
 }

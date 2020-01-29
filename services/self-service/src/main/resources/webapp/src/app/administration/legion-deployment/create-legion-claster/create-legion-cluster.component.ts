@@ -23,10 +23,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { Project } from '../../../administration/project/project.component';
-import { UserResourceService, ProjectService, LegionDeploymentService } from '../../../core/services';
+import { ProjectService, LegionDeploymentService } from '../../../core/services';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
-import {PATTERNS} from "../../../core/util";
+import {CheckUtils, PATTERNS} from '../../../core/util';
 
 
 @Component({
@@ -59,35 +59,46 @@ export class CreateLegionClusterComponent implements OnInit {
     this.initFormModel();
   }
 
-  public getProjects(): void{
+  public getProjects(): void {
     this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
   }
 
   public getUserProjects(): void {
     this.projectService.getUserProjectsList(true).subscribe((projects: any) => {
-      this.projects = projects;
+      console.log(projects)
+      this.projects = projects.filter(project => project.endpoints.length > project.odahu.length);
     });
   }
 
   public setEndpoints(project): void {
     this.endpoints = project.endpoints
-      .filter(e => e.status === 'RUNNING')
+      .filter(e => e.status === 'RUNNING' && !this.data.some(odahu => odahu.endpoint === e.name && odahu.project === project.name))
       .map(e => e.name);
+    console.log(this.endpoints);
   }
 
   private initFormModel(): void {
     this.createLegionClusterForm = this._fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this)]],
       project: ['', Validators.required],
-      endpoint: ['', Validators.required],
+      endpoint: ['', [Validators.required]],
     });
   }
 
-  private createOdahuCluster(value): void{
+  private createOdahuCluster(value): void {
     this.dialogRef.close();
     this.legionDeploymentService.createOdahuNewCluster(value).subscribe(val => {
       this.toastr.success('Odahu cluster creation is processing!', 'Success!');
-      },error => this.toastr.error(error.message || 'Odahu cluster creation failed!', 'Oops!')
+      }, error => this.toastr.error(error.message || 'Odahu cluster creation failed!', 'Oops!')
     );
+  }
+
+  private checkDuplication(control) {
+    if (control && control.value) {
+      for (let index = 0; index < this.data.length; index++) {
+        if (CheckUtils.delimitersFiltering(control.value) === CheckUtils.delimitersFiltering(this.data[index].name))
+          return { duplication: true };
+      }
+    }
   }
 }
