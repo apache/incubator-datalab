@@ -223,4 +223,4 @@ if __name__ == "__main__":
     docker_build_script()
 
     print("Preparing odahu image")
-    prepare_odahu_image(ssn_nexus_url, dlab_path)
+    prepare_odahu_image(args.ssn_nexus_url, args.dlab_path)
