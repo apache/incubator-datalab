@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -82,7 +81,7 @@ public class OdahuResource {
     }
 
     @Path("terminate")
-    @DELETE
+    @POST
     public Response terminateOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                           @Valid OdahuActionDTO terminateOdahuDTO) {
         odahuService.terminate(terminateOdahuDTO.getProject(), terminateOdahuDTO, userInfo);
