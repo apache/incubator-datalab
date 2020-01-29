@@ -29,7 +29,7 @@ import { CheckUtils, FileUtils, PATTERNS } from '../../../core/util';
 import { Project } from '../project.component';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
-export interface GenerateKey { privateKey: string; publicKey: string; }
+export interface GenerateKey { privateKey: string, publicKey: string }
 
 @Component({
   selector: 'project-form',
