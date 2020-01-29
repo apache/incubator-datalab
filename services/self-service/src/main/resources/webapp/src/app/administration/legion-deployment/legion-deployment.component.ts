@@ -5,6 +5,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ToastrService} from 'ngx-toastr';
 import {CreateLegionClusterComponent} from './create-legion-claster/create-legion-cluster.component';
 import {HealthStatusService, LegionDeploymentService} from '../../core/services';
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 export interface OdahuCluster {
   name: string;
@@ -18,6 +19,8 @@ export interface OdahuCluster {
   styleUrls: ['./legion-deployment.component.scss']
 })
 export class LegionDeploymentComponent implements OnInit {
+  readonly PROVIDER = DICTIONARY.cloud_provider;
+
   private legionClastersList: any[];
   private subscriptions: Subscription = new Subscription();
   private healthStatus;
