@@ -3,6 +3,10 @@ import {Subscription} from 'rxjs';
 import {LegionDeploymentDataService} from '../legion-deployment-data.service';
 import { MatTableDataSource } from '@angular/material/table';
 import {LegionDeploymentService} from '../../../core/services';
+import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
+import {ToastrService} from 'ngx-toastr';
+import {MatDialog} from '@angular/material/dialog';
+import {OdahuActionDialogComponent, OdahuActionDialogModule} from '../../../shared/modal-dialog/odahu-action-dialog';
 
 @Component({
   selector: 'legion-list',
@@ -17,7 +21,9 @@ export class LegionListComponent implements OnInit {
 
   constructor(
     private legionDeploymentDataService: LegionDeploymentDataService,
-    private legionDeploymentService: LegionDeploymentService
+    private legionDeploymentService: LegionDeploymentService,
+    public toastr: ToastrService,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -31,8 +37,13 @@ export class LegionListComponent implements OnInit {
   }
 
   private odahuAction(element: any, action: string) {
-    this.legionDeploymentService.odahuAction(element,  action).subscribe(v =>
-      this.legionDeploymentDataService.updateClasters()
+    this.dialog.open(OdahuActionDialogComponent, {data: {type: action, item: element}, panelClass: 'modal-sm'})
+      .afterClosed().subscribe(result => {
+        result && this.legionDeploymentService.odahuAction(element,  action).subscribe(v =>
+          this.legionDeploymentDataService.updateClasters(),
+          error => this.toastr.error(`Odahu cluster ${action} failed!`, 'Oops!')
+        ) ;
+      }, error => this.toastr.error(error.message || `Odahu cluster ${action} failed!`, 'Oops!')
     );
   }
 

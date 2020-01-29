@@ -53,7 +53,7 @@
               Stop
             </a>
           </li>
-          <li class="project-seting-item" (click)="odahuAction(element, 'terminate')">
+          <li class="project-seting-item" *ngIf="element.status !== 'TERMINATED' || element.status !== 'TERMINATING'" (click)="odahuAction(element, 'terminate')">
             <i class="material-icons">phonelink_off</i>
             <a class="action">
               Terminate
