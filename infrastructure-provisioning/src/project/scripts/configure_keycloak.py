@@ -62,10 +62,10 @@ if __name__ == "__main__":
         keycloak_client_name = "{0}-{1}".format(args.service_base_name, args.project_name)
         keycloak_client_id = str(uuid.uuid4())
         if args.hostname == '':
-            keycloak_redirectUris = 'https://{0}/*, http://{0}/*'.format(args.edge_public_ip).split(',')
+            keycloak_redirectUris = 'https://{0}/*,http://{0}/*'.format(args.edge_public_ip).split(',')
             print(keycloak_redirectUris)
         else:
-            keycloak_redirectUris = 'https://{0}/*, http://{0}/*, https://{1}/*, http://{1}/*'.format(args.edge_public_ip, args.hostname).split(',')
+            keycloak_redirectUris = 'https://{0}/*,http://{0}/*,https://{1}/*,http://{1}/*'.format(args.edge_public_ip, args.hostname).split(',')
         keycloak_client_data = {
             "clientId": keycloak_client_name,
             "id": keycloak_client_id,
