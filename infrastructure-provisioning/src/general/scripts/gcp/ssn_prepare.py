@@ -221,56 +221,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        logging.info('[CREATE BUCKETS]')
-        print('[CREATE BUCKETS]')
-        params = "--bucket_name {}".format(ssn_conf['ssn_bucket_name'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-
-        params = "--bucket_name {}".format(ssn_conf['shared_bucket_name'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Unable to create bucket.", str(err))
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
-        sys.exit(1)
-
-    try:
-        logging.info('[SET PERMISSIONS FOR SSN BUCKET]')
-        print('[SET PERMISSIONS FOR SSN BUCKET]')
-        GCPActions().set_bucket_owner(ssn_conf['ssn_bucket_name'], ssn_conf['service_account_name'])
-    except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Unable to set bucket permissions.", str(err))
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
-        sys.exit(1)
-
-    try:
         logging.info('[CREATING STATIC IP ADDRESS]')
         print('[CREATING STATIC IP ADDRESS]')
         params = "--address_name {} --region {}".format(ssn_conf['static_address_name'], ssn_conf['region'])
