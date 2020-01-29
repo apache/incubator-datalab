@@ -360,6 +360,13 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
+        params = "--bucket_name {}".format(project_conf['shared_bucket_name'])
+        try:
+            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+
         params = "--bucket_name {}".format(project_conf['bucket_name'])
 
         try:
