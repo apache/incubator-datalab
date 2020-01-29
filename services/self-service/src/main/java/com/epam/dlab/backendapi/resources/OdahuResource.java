@@ -26,6 +26,7 @@ import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import io.swagger.v3.oas.annotations.Parameter;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -50,12 +51,14 @@ public class OdahuResource {
     }
 
     @GET
+    @RolesAllowed("/api/odahu")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOdahuClusters(@Parameter(hidden = true) @Auth UserInfo userInfo) {
         return Response.ok(odahuService.findOdahu()).build();
     }
 
     @POST
+    @RolesAllowed("/api/odahu")
     public Response createOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                        @Parameter(hidden = true) @Context UriInfo uriInfo,
                                        @Valid OdahuActionDTO createOdahuDTO) {
@@ -66,6 +69,7 @@ public class OdahuResource {
 
     @Path("start")
     @POST
+    @RolesAllowed("/api/odahu")
     public Response startOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                       @Valid OdahuActionDTO startOdahuDTO) {
         odahuService.start(startOdahuDTO.getProject(), startOdahuDTO, userInfo);
@@ -74,6 +78,7 @@ public class OdahuResource {
 
     @Path("stop")
     @POST
+    @RolesAllowed("/api/odahu")
     public Response stopOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                      @Valid OdahuActionDTO stopOdahuDTO) {
         odahuService.stop(stopOdahuDTO.getProject(), stopOdahuDTO, userInfo);
@@ -82,6 +87,7 @@ public class OdahuResource {
 
     @Path("terminate")
     @POST
+    @RolesAllowed("/api/odahu")
     public Response terminateOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                           @Valid OdahuActionDTO terminateOdahuDTO) {
         odahuService.terminate(terminateOdahuDTO.getProject(), terminateOdahuDTO, userInfo);
