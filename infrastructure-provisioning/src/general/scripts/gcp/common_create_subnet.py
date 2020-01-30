@@ -36,6 +36,7 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--vpc_selflink', type=str, default='')
 parser.add_argument('--prefix', type=str, default='')
 parser.add_argument('--vpc_cidr', type=str, default='')
+parser.add_argument('--ssn', type=bool, default=False)
 parser.add_argument('--user_subnets_range', type=str, default='')
 args = parser.parse_args()
 

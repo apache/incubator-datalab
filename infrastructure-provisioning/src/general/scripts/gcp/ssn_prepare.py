@@ -113,9 +113,9 @@ if __name__ == "__main__":
             pre_defined_subnet = True
             logging.info('[CREATE SUBNET]')
             print('[CREATE SUBNET]')
-            params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {}".\
+            params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {} --ssn {}".\
                 format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_prefix'],
-                       ssn_conf['vpc_cidr'])
+                       ssn_conf['vpc_cidr'], True)
             try:
                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
                 os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
