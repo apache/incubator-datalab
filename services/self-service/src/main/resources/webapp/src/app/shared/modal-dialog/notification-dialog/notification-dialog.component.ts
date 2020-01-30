@@ -161,6 +161,6 @@ export class NotificationDialogComponent {
   }
 
   public filterEndpoints() {
-    return this.data.item.endpoints.filter(e => e.status !== 'FAILED');
+    return this.data.item.endpoints.filter(e => e.status !== 'FAILED' && e.status !== 'TERMINATED');
   }
 }
