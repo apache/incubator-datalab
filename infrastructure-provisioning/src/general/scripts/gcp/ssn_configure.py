@@ -193,7 +193,7 @@ if __name__ == "__main__":
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {} --ssn_nexus_url {}". \
             format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
-                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'], os.environ['ssn_nexus_url'])
+                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_ssn_node', params))
@@ -234,10 +234,10 @@ if __name__ == "__main__":
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"},
                              {"name": "dataengine-service", "tag": "latest"}]
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {} --ssn_nexus_url{}". \
             format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
-                   os.environ['conf_cloud_provider'], ssn_conf['region'])
+                   os.environ['conf_cloud_provider'], ssn_conf['region'], os.environ['ssn_nexus_url'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_docker', params))
