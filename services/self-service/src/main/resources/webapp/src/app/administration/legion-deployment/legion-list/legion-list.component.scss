@@ -27,6 +27,11 @@
     display: inline-block;
     text-align: center;
     cursor: pointer;
+    &.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
   }
 
   td {
