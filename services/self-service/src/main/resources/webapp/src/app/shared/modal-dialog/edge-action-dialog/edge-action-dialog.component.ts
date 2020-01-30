@@ -5,10 +5,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 @Component({
   selector: 'edge-action-dialog',
   template: `
-  <div id="dialog-box">
+  <div id="dialog-box" *ngIf="data.type">
     <header class="dialog-header">
       <h4 class="modal-title"><span class="action">{{data.type | titlecase}}</span> edge node</h4>
-      <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+      <button type="button" class="close" (click)="closeModal()">&times;</button>
     </header>
       <div mat-dialog-content class="content message mat-dialog-content">
           <h3 class="strong">Select the items you want to {{data.type}}</h3>
@@ -24,7 +24,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
       <p class="m-top-20 action-text"><span class="strong">Do you want to proceed?</span></p>
 
       <div class="text-center m-top-30 m-bott-30">
-        <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
+        <button type="button" class="butt" mat-raised-button (click)="closeModal()">No</button>
         <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(endpointsNewStatus)" [disabled]="!endpointsNewStatus.length">Yes</button>
       </div>
       </div>
@@ -42,18 +42,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     .endpoint-list-item{padding: 5px 0}
     .action{text-transform: capitalize}
     .action-text { text-align: center; }
-    .label-name { display: inline-block; width: 100% }
     .scrolling-content{overflow-y: auto; max-height: 200px; }
-    .endpoint { width: 70%; text-align: left; color: #577289;}
-    .status { width: 30%;text-align: right;}
     label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif; cursor: pointer; display: flex; align-items: center;}
     label input {margin-top: 2px; margin-right: 5px;}
-
-    .node { font-weight: 300;}
-    .label-name { display: inline-block; width: 100%}
     .scrolling-content{overflow-y: auto; max-height: 200px;}
-    .endpoint { width: 280px;text-align: left;}
-    .status { text-align: left;}
   `]
 })
 
@@ -64,7 +56,9 @@ export class EdgeActionDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 
-  ngOnInit() {
+  private closeModal() {
+    this.dialogRef.close();
+    this.data.item.forEach(endpoint => endpoint.checked = false);
   }
 
   public endpointAction() {
