@@ -150,7 +150,9 @@ def docker_build_script():
 def prepare_odahu_image(ssn_nexus_url, dlab_path):
     try:
         put('/root/templates/daemon.json', '/etc/docker/daemon.json')
+        print('daemon.json was placed')
         sudo("sed -i \'s|<NEXUS_URL>|{}|g\' /etc/docker/daemon.json".format(os.environ['ssn_nexus_url']))
+        print('nexus url was filled in')
         sudo('systemctl restart docker')
         sudo(
             "sed -i \'s|<NEXUS_URL>|{}|g\' {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile".format(
