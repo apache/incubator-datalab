@@ -81,7 +81,29 @@ if __name__ == "__main__":
         try:
             keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data, verify=False).json()
 
-            keycloak_client = requests.post(keycloak_client_create_url, json=keycloak_client_data,
+            keycloak_client_data_check = {
+                "clientId": keycloak_client_name,
+            }
+
+            keycloak_client_id = requests.get(keycloak_client_create_url, data=keycloak_auth_data,
+                                           params=keycloak_client_data_check,
+                                           headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
+                                                    "Content-Type": "application/json"}, verify=False).json()
+            if keycloak_client_id:
+                keycloak_client_redirectUris = keycloak_client_id[0]['redirectUris']
+                updated_keycloak_redirectUris = keycloak_client_redirectUris + keycloak_redirectUris
+                keycloak_client_data_upd = {
+                    "clientId": keycloak_client_name,
+                    "redirectUris": updated_keycloak_redirectUris,
+                }
+                keycloak_id_of_client = keycloak_client_id[0]['id']
+                keycloak_client_update_url = '{0}/admin/realms/{1}/clients/{2}'.format(args.keycloak_auth_server_url,
+                                                                           args.keycloak_realm_name, keycloak_id_of_client)
+                keycloak_client = requests.put(keycloak_client_update_url, json=keycloak_client_data_upd,
+                             headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
+                                      "Content-Type": "application/json"}, verify=False)
+            else:
+                keycloak_client = requests.post(keycloak_client_create_url, json=keycloak_client_data,
                                             headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
                                                      "Content-Type": "application/json"}, verify=False)
 
