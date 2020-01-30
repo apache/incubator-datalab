@@ -37,7 +37,6 @@ parser.add_argument('--additional_config', type=str, default='{"empty":"string"}
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default='')
-parser.add_argument('--ssn_nexus_url', type=str, default='')
 args = parser.parse_args()
 
 
