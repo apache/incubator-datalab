@@ -22,6 +22,7 @@ export class ExploratoryModel {
   readonly DICTIONARY = DICTIONARY;
 
   constructor(
+    public cloud_provider: string,
     public name: Array<any>,
     public template_name: string,
     public image: string,
@@ -49,16 +50,18 @@ export class ExploratoryModel {
     public project: string,
     public endpoint: string,
     public tags: any,
-    public cloud_provider: string
   ) { }
 
   public static loadEnvironments(data: Array<any>) {
     if (data) {
       return data.map((value) => {
-        const provider = value.endpoints[0].cloudProvider.toLowerCase();
         return {
           project: value.project,
-          exploratory: value.exploratory.map(el => new ExploratoryModel(el.exploratory_name,
+          exploratory: value.exploratory.map(el => {
+            const provider = value.endpoints.filter(endpoint => el.endpoint === endpoint.name)[0].cloudProvider.toLowerCase();
+            return new ExploratoryModel(
+            provider,
+            el.exploratory_name,
             el.template_name,
             el.image,
             el.status,
@@ -85,8 +88,7 @@ export class ExploratoryModel {
             el.project,
             el.endpoint,
             el.tags,
-            provider,
-          ))
+          )})
         };
       });
     }
