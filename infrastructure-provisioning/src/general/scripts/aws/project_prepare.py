@@ -83,7 +83,7 @@ if __name__ == "__main__":
         .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
     project_conf['notebook_security_group_name'] = '{}-{}-nb-sg'.format(project_conf['service_base_name'],
                                                                      os.environ['project_name'])
-    project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
     project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'],
                                                                os.environ['project_name'])
     project_conf['dataengine_master_security_group_name'] = '{}-{}-dataengine-master-sg' \
