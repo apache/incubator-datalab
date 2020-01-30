@@ -40,6 +40,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -77,6 +78,11 @@ public class OdahuServiceImpl implements OdahuService {
         return odahuDAO.findOdahuClusters();
     }
 
+    @Override
+    public Optional<OdahuDTO> get(String project, String endpoint) {
+        return odahuDAO.getByProjectEndpoint(project, endpoint);
+    }
+
     @BudgetLimited
     @Override
     public void create(@Project String project, OdahuActionDTO createOdahuDTO, UserInfo user) {
@@ -107,27 +113,21 @@ public class OdahuServiceImpl implements OdahuService {
 
     @BudgetLimited
     @Override
-    public void start(@Project String project, OdahuActionDTO startOdahuDTO, UserInfo user) {
-        ProjectDTO projectDTO = projectService.get(project);
-        odahuDAO.updateStatus(startOdahuDTO.getName(), startOdahuDTO.getProject(), startOdahuDTO.getEndpoint(),
-                UserInstanceStatus.STARTING);
-        actionOnCloud(user, startOdahuDTO, projectDTO, START_ODAHU_API);
+    public void start(String name, @Project String project, String endpoint, UserInfo user) {
+        odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.STARTING);
+        actionOnCloud(user, START_ODAHU_API, name, project, endpoint);
     }
 
     @Override
-    public void stop(String project, OdahuActionDTO stopOdahuDTO, UserInfo user) {
-        ProjectDTO projectDTO = projectService.get(project);
-        odahuDAO.updateStatus(stopOdahuDTO.getName(), stopOdahuDTO.getProject(), stopOdahuDTO.getEndpoint(),
-                UserInstanceStatus.STOPPING);
-        actionOnCloud(user, stopOdahuDTO, projectDTO, STOP_ODAHU_API);
+    public void stop(String name, String project, String endpoint, UserInfo user) {
+        odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.STOPPING);
+        actionOnCloud(user, STOP_ODAHU_API, name, project, endpoint);
     }
 
     @Override
-    public void terminate(String project, OdahuActionDTO terminateOdahuDTO, UserInfo user) {
-        ProjectDTO projectDTO = projectService.get(project);
-        odahuDAO.updateStatus(terminateOdahuDTO.getName(), terminateOdahuDTO.getProject(), terminateOdahuDTO.getEndpoint(),
-                UserInstanceStatus.TERMINATING);
-        actionOnCloud(user, terminateOdahuDTO, projectDTO, TERMINATE_ODAHU_API);
+    public void terminate(String name, String project, String endpoint, UserInfo user) {
+        odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.TERMINATING);
+        actionOnCloud(user, TERMINATE_ODAHU_API, name, project, endpoint);
     }
 
     @Override
@@ -140,18 +140,25 @@ public class OdahuServiceImpl implements OdahuService {
         }
     }
 
-    private void actionOnCloud(UserInfo user, OdahuActionDTO odahuActionDTO, ProjectDTO projectDTO, String uri) {
+    @Override
+    public boolean inProgress(String project, String endpoint) {
+        return get(project, endpoint)
+                .filter(odahu -> Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING,
+                        UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING).contains(odahu.getStatus()))
+                .isPresent();
+    }
+
+    private void actionOnCloud(UserInfo user, String uri, String name, String project, String endpoint) {
         String url = null;
         try {
-            url = endpointService.get(odahuActionDTO.getEndpoint()).getUrl() + uri;
+            url = endpointService.get(endpoint).getUrl() + uri;
             String uuid =
                     provisioningService.post(url, user.getAccessToken(),
-                            requestBuilder.newOdahuAction(user, odahuActionDTO, projectDTO), String.class);
+                            requestBuilder.newOdahuAction(user, name, project, endpoint), String.class);
             requestId.put(user.getName(), uuid);
         } catch (Exception e) {
             log.error("Can not perform {} due to: {}, {}", url, e.getMessage(), e);
-            odahuDAO.updateStatus(odahuActionDTO.getName(), odahuActionDTO.getProject(), odahuActionDTO.getEndpoint(),
-                    UserInstanceStatus.FAILED);
+            odahuDAO.updateStatus(name, project, project, UserInstanceStatus.FAILED);
         }
     }
 }

@@ -72,7 +72,7 @@ public class OdahuResource {
     @RolesAllowed("/api/odahu")
     public Response startOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                       @Valid OdahuActionDTO startOdahuDTO) {
-        odahuService.start(startOdahuDTO.getProject(), startOdahuDTO, userInfo);
+        odahuService.start(startOdahuDTO.getName(), startOdahuDTO.getProject(), startOdahuDTO.getEndpoint(), userInfo);
         return Response.accepted().build();
     }
 
@@ -81,7 +81,7 @@ public class OdahuResource {
     @RolesAllowed("/api/odahu")
     public Response stopOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                      @Valid OdahuActionDTO stopOdahuDTO) {
-        odahuService.stop(stopOdahuDTO.getProject(), stopOdahuDTO, userInfo);
+        odahuService.stop(stopOdahuDTO.getName(), stopOdahuDTO.getProject(), stopOdahuDTO.getEndpoint(), userInfo);
         return Response.accepted().build();
     }
 
@@ -90,7 +90,7 @@ public class OdahuResource {
     @RolesAllowed("/api/odahu")
     public Response terminateOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                           @Valid OdahuActionDTO terminateOdahuDTO) {
-        odahuService.terminate(terminateOdahuDTO.getProject(), terminateOdahuDTO, userInfo);
+        odahuService.terminate(terminateOdahuDTO.getName(), terminateOdahuDTO.getProject(), terminateOdahuDTO.getEndpoint(), userInfo);
         return Response.accepted().build();
     }
 }

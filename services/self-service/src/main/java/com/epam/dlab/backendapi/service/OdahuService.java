@@ -26,17 +26,22 @@ import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.odahu.OdahuResult;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface OdahuService {
     List<OdahuDTO> findOdahu();
 
+    Optional<OdahuDTO> get(String project, String endpoint);
+
     void create(String project, OdahuActionDTO createOdahuDTO, UserInfo userInfo);
 
-    void start(String project, OdahuActionDTO startOdahuDTO, UserInfo userInfo);
+    void start(String name, String project, String endpoint, UserInfo user);
 
-    void stop(String project, OdahuActionDTO stopOdahuDTO, UserInfo userInfo);
+    void stop(String name, String project, String endpoint, UserInfo user);
 
-    void terminate(String project, OdahuActionDTO terminateOdahuDTO, UserInfo userInfo);
+    void terminate(String name, String project, String endpoint, UserInfo user);
 
     void updateStatus(OdahuResult odahuResult, UserInstanceStatus status);
+
+    boolean inProgress(String project, String endpoint);
 }

@@ -61,9 +61,9 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
                 fields(include(ODAHU_FIELD), excludeId()),
                 ProjectDTO.class);
 
-        return one.map(ProjectDTO::getOdahu)
-                .filter(odahu -> !odahu.isEmpty())
-                .map(odahu -> odahu.get(0));
+        return one.flatMap(projectDTO -> projectDTO.getOdahu().stream()
+                .filter(odahu -> project.equals(odahu.getProject()) && endpoint.equals(odahu.getEndpoint()))
+                .findAny());
     }
 
     @Override
@@ -102,8 +102,7 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
     }
 
     private Bson odahuProjectEndpointCondition(String projectName, String endpointName) {
-        return and(eq(NAME_FIELD, projectName), and(elemMatch(ODAHU_FIELD, and(eq(ENDPOINT_FIELD, endpointName),
-                eq(PROJECT_FIELD, projectName)))));
+        return elemMatch(ODAHU_FIELD, and(eq(ENDPOINT_FIELD, endpointName), eq(PROJECT_FIELD, projectName)));
     }
 
     private Bson projectEndpointCondition(String projectName, String endpointName) {

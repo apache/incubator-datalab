@@ -674,11 +674,11 @@ public class RequestBuilder {
 				.withCloudSettings(cloudSettings(user));
 	}
 
-	public ActionOdahuDTO newOdahuAction(UserInfo user, OdahuActionDTO actionDTO, ProjectDTO projectDTO) {
+	public ActionOdahuDTO newOdahuAction(UserInfo user, String name, String project, String endpoint) {
 		return ActionOdahuDTO.builder()
-				.name(actionDTO.getName())
-				.project(projectDTO.getName())
-				.endpoint(actionDTO.getEndpoint())
+				.name(name)
+				.project(project)
+				.endpoint(endpoint)
 				.build()
 				.withEdgeUserName(getEdgeUserName(user))
 				.withCloudSettings(cloudSettings(user));
