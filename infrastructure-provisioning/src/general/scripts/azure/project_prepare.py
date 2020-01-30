@@ -59,7 +59,7 @@ if __name__ == "__main__":
             project_conf['static_public_ip_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name'] + '-edge-ip'
         project_conf['region'] = os.environ['azure_region']
         project_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
-        project_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
+        project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
 
         project_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(project_conf['service_base_name'],
                                                                   project_conf['project_name'],
