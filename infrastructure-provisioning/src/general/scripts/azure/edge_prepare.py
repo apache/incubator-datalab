@@ -57,7 +57,7 @@ if __name__ == "__main__":
             edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-ip'
         edge_conf['region'] = os.environ['azure_region']
         edge_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
-        edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
+        edge_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
         edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge'
         edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-disk0'
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'

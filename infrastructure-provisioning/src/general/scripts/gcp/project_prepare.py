@@ -60,7 +60,7 @@ if __name__ == "__main__":
     project_conf['region'] = os.environ['gcp_region']
     project_conf['zone'] = os.environ['gcp_zone']
     project_conf['vpc_selflink'] = GCPMeta().get_vpc(project_conf['vpc_name'])['selfLink']
-    project_conf['private_subnet_prefix'] = os.environ['gcp_private_subnet_prefix']
+    project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
     project_conf['edge_service_account_name'] = '{}-{}-edge'.format(project_conf['service_base_name'],
                                                                  project_conf['project_name'])
     project_conf['edge_role_name'] = '{}-{}-edge'.format(project_conf['service_base_name'],
