@@ -39,6 +39,7 @@ export class LegionDeploymentComponent implements OnInit {
       (value) => {
         if (value) this.legionClastersList = value;
       }));
+    this.refreshGrid();
   }
 
   public createLegionCluster(): void {
