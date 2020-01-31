@@ -39,6 +39,7 @@ parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--region', type=str, default='')
+parser.add_argument('--ssn_nexus_url', type=str, default='')
 args = parser.parse_args()
 
 
