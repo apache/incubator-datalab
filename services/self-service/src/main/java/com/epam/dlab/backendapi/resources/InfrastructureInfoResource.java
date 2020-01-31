@@ -78,7 +78,7 @@ public class InfrastructureInfoResource {
 	@GET
 	@Path("/info")
 	public List<ProjectInfrastructureInfo> getUserResources(@Auth UserInfo userInfo) {
-		return infrastructureInfoService.getUserResources(userInfo.getName());
+		return infrastructureInfoService.getUserResources(userInfo);
 
 	}
 
