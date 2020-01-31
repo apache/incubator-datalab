@@ -26,9 +26,9 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dial
 import { ProjectDataService } from '../project-data.service';
 import { Project, Endpoint } from '../project.component';
 import { CheckUtils } from '../../../core/util';
-import {ProgressBarService} from "../../../core/services/progress-bar.service";
-import {EdgeActionDialogComponent} from "../../../shared/modal-dialog/edge-action-dialog";
-import {EndpointService} from "../../../core/services";
+import {ProgressBarService} from '../../../core/services/progress-bar.service';
+import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
+import {EndpointService} from '../../../core/services';
 
 @Component({
   selector: 'project-list',
@@ -65,8 +65,8 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private getProjectList(){
-    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
+  private getProjectList() {
+    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
       this.projectList = value;
       if (value) this.dataSource = new MatTableDataSource(value);
@@ -97,7 +97,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   public isInProgress(project) {
     if (project)
-      return project.endpoints.some(e => e.status !== 'RUNNING' && e.status !== 'STOPPED' && e.status !== 'TERMINATED' && e.status !== 'FAILED')
+      return project.endpoints.some(e => e.status !== 'RUNNING' && e.status !== 'STOPPED' && e.status !== 'TERMINATED' && e.status !== 'FAILED');
   }
 
   public isActiveEndpoint(project) {
@@ -111,19 +111,19 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   public openEdgeDialog(action, project) {
       const endpoints = project.endpoints.filter(endpoint => {
-        if(action === "stop"){
-          return endpoint.status == 'RUNNING'
+        if (action === 'stop') {
+          return endpoint.status === 'RUNNING';
         }
-        if(action === "start"){
-          return endpoint.status == 'STOPPED'
+        if (action === 'start') {
+          return endpoint.status === 'STOPPED';
         }
-        if(action === "terminate"){
-          return endpoint.status == 'RUNNING' || endpoint.status == 'STOPPED'
+        if (action === 'terminate') {
+          return endpoint.status === 'RUNNING' || endpoint.status === 'STOPPED';
         }
       });
       this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})
         .afterClosed().subscribe(endpoint => {
-        if(endpoint && endpoint.length){
+        if (endpoint && endpoint.length) {
         this.toggleStatus.emit({project, endpoint, action});
         }
       }, error => this.toastr.error(error.message || `Endpoint ${action} failed!`, 'Oops!')
@@ -131,10 +131,10 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     }
 
   public areStartedEndpoints(project) {
-    return project.endpoints.filter(endpoint => endpoint.status == 'RUNNING').length > 0;
+    return project.endpoints.filter(endpoint => endpoint.status === 'RUNNING').length > 0;
   }
 
   public areStoppedEndpoints(project) {
-    return project.endpoints.filter(endpoint => endpoint.status == 'STOPPED').length > 0;
+    return project.endpoints.filter(endpoint => endpoint.status === 'STOPPED').length > 0;
   }
 }
