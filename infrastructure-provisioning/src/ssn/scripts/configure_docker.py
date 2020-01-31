@@ -39,7 +39,9 @@ parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--region', type=str, default='')
-parser.add_argument('--ssn_nexus_url', type=str, default='')
+parser.add_argument('--nexus_username', type=str, default='')
+parser.add_argument('--nexus_password', type=str, default='')
+parser.add_argument('--nexus_url', type=str, default='')
 args = parser.parse_args()
 
 
@@ -77,7 +79,7 @@ def add_china_repository(dlab_path):
         sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
-def prepare_odahu_image(ssn_nexus_url, dlab_path):
+def prepare_odahu_image(nexus_username, nexus_password, nexus_url, dlab_path):
     try:
         put('/root/templates/daemon.json', '/etc/docker/daemon.json', use_sudo=True)
         print('daemon.json was placed')
@@ -86,6 +88,7 @@ def prepare_odahu_image(ssn_nexus_url, dlab_path):
         sudo("sed -i \'s|<NEXUS_URL>|{}|g\' /etc/docker/daemon.json".format(os.environ['ssn_nexus_url']))
         print('nexus url was filled in')
         sudo('systemctl restart docker')
+        sudo('docker login -u {} -p {} {}'.format(nexus_username, nexus_password, nexus_url))
         sudo(
             "sed -i \'s|<NEXUS_URL>|{}|g\' {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile".format(
                 ssn_nexus_url, dlab_path))
@@ -193,7 +196,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Preparing odahu image")
-    prepare_odahu_image(args.ssn_nexus_url, args.dlab_path)
+    prepare_odahu_image(args.nexus_username, args.nexus_password, args.nexus_url, args.dlab_path)
 
     print("Building dlab images")
     if not build_docker_images(deeper_config, args.region, args.dlab_path):

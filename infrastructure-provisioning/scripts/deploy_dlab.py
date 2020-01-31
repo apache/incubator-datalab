@@ -141,6 +141,8 @@ parser.add_argument('--billing_dataset_name', type=str, default='', help='Name o
                                                                          ' for billing')
 parser.add_argument('--default_endpoint_name', type=str, default='local', help='Name of localhost provisioning service,'
                                                                                'that created by default')
+parser.add_argument('--nexus_username', type=str, default='', help='Nexus repository username')
+parser.add_argument('--nexus_password', type=str, default='', help='Nexus repository password')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()
