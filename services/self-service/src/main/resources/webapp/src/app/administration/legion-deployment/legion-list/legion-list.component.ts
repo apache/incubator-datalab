@@ -46,5 +46,4 @@ export class LegionListComponent implements OnInit {
       }, error => this.toastr.error(error.message || `Odahu cluster ${action} failed!`, 'Oops!')
     );
   }
-
 }

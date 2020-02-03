@@ -55,6 +55,16 @@
           </div>
         </div>
 
+        <div class="control-group name-control">
+          <label class="label">Custom tag</label>
+          <div class="control">
+            <input type="text" class="form-control" placeholder="Enter custom tag" formControlName="custom_tag">
+          <span class="error"
+            *ngIf="!createLegionClusterForm.controls.custom_tag.valid && createLegionClusterForm.controls.custom_tag.dirty">
+            Custom tag can only contain letters, numbers, hyphens and '_' but can not end with special characters</span>
+          </div>
+        </div>
+
 <!--        <div class="control-group">-->
 <!--          <label class="label" [ngStyle]="!createLegionClusterForm.controls.useExistingClusterUrl.value && {'width': '100%' }">-->
 <!--            <input  type="checkbox" formControlName="useExistingClusterUrl"/> Use existing k8s cluster-->

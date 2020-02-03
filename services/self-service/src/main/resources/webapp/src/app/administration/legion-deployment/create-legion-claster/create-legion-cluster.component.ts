@@ -65,7 +65,7 @@ export class CreateLegionClusterComponent implements OnInit {
 
   public getUserProjects(): void {
     this.projectService.getUserProjectsList(true).subscribe((projects: any) => {
-      console.log(projects)
+      console.log(projects);
       this.projects = projects.filter(project => project.endpoints.length > project.odahu.length);
     });
   }
@@ -74,7 +74,6 @@ export class CreateLegionClusterComponent implements OnInit {
     this.endpoints = project.endpoints
       .filter(e => e.status === 'RUNNING' && !this.data.some(odahu => odahu.endpoint === e.name && odahu.project === project.name))
       .map(e => e.name);
-    console.log(this.endpoints);
   }
 
   private initFormModel(): void {
@@ -82,6 +81,7 @@ export class CreateLegionClusterComponent implements OnInit {
       name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.checkDuplication.bind(this)]],
       project: ['', Validators.required],
       endpoint: ['', [Validators.required]],
+      custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]]
     });
   }
 
