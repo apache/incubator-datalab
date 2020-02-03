@@ -214,7 +214,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
                  "--step_cert_sans '{}' " \
             .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], edge_conf['service_base_name'] +
-                    '-' + os.environ['project_name'], keycloak_client_secret, step_cert_sans)
+                    '-' + os.environ['project_name'] + '-' + os.environ['endpoint_name'], keycloak_client_secret, step_cert_sans)
         try:
             local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
         except:
