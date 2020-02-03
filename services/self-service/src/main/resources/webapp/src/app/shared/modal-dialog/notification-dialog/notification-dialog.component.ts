@@ -19,6 +19,7 @@
 
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {Endpoint} from '../../../administration/project/project.component';
 
 @Component({
   selector: 'notification-dialog',
@@ -95,7 +96,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
                           <div class="status">Further status</div>
                       </mat-list-item>
                       <div class="scrolling-content">
-                          <mat-list-item *ngFor="let endpoint of data.item.endpoints" class="sans node">
+                          <mat-list-item *ngFor="let endpoint of filterEndpoints()" class="sans node">
                               <div class="endpoint ellipsis">{{endpoint.name}}</div>
                               <div class="status terminated">Terminated</div>
                           </mat-list-item>
@@ -143,18 +144,23 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
   `]
 })
-export class NotificationDialogComponent{
+export class NotificationDialogComponent {
   public willNotTerminate: boolean = false;
+  public notFailedEndpoints: Endpoint [];
   constructor(
     public dialogRef: MatDialogRef<NotificationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    if(this.data.list){
+    if (this.data.list) {
     this.willNotTerminate = !this.data.list.length;
     }
   }
 
-  public terminateResource(): void{
+  public terminateResource(): void {
     this.willNotTerminate = !this.willNotTerminate;
+  }
+
+  public filterEndpoints() {
+    return this.data.item.endpoints.filter(e => e.status !== 'FAILED' && e.status !== 'TERMINATED');
   }
 }
