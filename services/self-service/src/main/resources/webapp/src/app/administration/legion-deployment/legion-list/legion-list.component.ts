@@ -3,10 +3,9 @@ import {Subscription} from 'rxjs';
 import {LegionDeploymentDataService} from '../legion-deployment-data.service';
 import { MatTableDataSource } from '@angular/material/table';
 import {LegionDeploymentService} from '../../../core/services';
-import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
 import {ToastrService} from 'ngx-toastr';
 import {MatDialog} from '@angular/material/dialog';
-import {OdahuActionDialogComponent, OdahuActionDialogModule} from '../../../shared/modal-dialog/odahu-action-dialog';
+import {OdahuActionDialogComponent} from '../../../shared/modal-dialog/odahu-action-dialog';
 
 @Component({
   selector: 'legion-list',
