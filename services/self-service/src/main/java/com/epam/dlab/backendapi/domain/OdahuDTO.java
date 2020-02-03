@@ -26,6 +26,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 @Data
@@ -36,4 +37,5 @@ public class OdahuDTO {
     private final String endpoint;
     private final List<ResourceURL> urls = new ArrayList<>();
     private final UserInstanceStatus status;
+    private final Map<String, String> tags;
 }

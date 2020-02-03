@@ -23,7 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.OdahuDAO;
-import com.epam.dlab.backendapi.domain.OdahuActionDTO;
+import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
 import com.epam.dlab.backendapi.domain.OdahuDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -41,7 +41,9 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -85,27 +87,27 @@ public class OdahuServiceImpl implements OdahuService {
 
     @BudgetLimited
     @Override
-    public void create(@Project String project, OdahuActionDTO createOdahuDTO, UserInfo user) {
-        Optional<OdahuDTO> odahuDTO = odahuDAO.getByProjectEndpoint(createOdahuDTO.getProject(), createOdahuDTO.getEndpoint());
+    public void create(@Project String project, OdahuCreateDTO odahuCreateDTO, UserInfo user) {
+        Optional<OdahuDTO> odahuDTO = odahuDAO.getByProjectEndpoint(odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint());
         if (odahuDTO.isPresent()) {
             throw new ResourceConflictException(String.format("Odahu cluster already exist in system for project %s " +
-                    "and endpoint %s", createOdahuDTO.getProject(), createOdahuDTO.getEndpoint()));
+                    "and endpoint %s", odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint()));
         }
         ProjectDTO projectDTO = projectService.get(project);
-        boolean isAdded = odahuDAO.create(new OdahuDTO(createOdahuDTO.getName(), createOdahuDTO.getProject(),
-                createOdahuDTO.getEndpoint(), UserInstanceStatus.CREATING));
+        boolean isAdded = odahuDAO.create(new OdahuDTO(odahuCreateDTO.getName(), odahuCreateDTO.getProject(),
+                        odahuCreateDTO.getEndpoint(), UserInstanceStatus.CREATING, getTags(odahuCreateDTO)));
 
         if (isAdded) {
             String url = null;
             try {
-                url = endpointService.get(createOdahuDTO.getEndpoint()).getUrl() + CREATE_ODAHU_API;
+                url = endpointService.get(odahuCreateDTO.getEndpoint()).getUrl() + CREATE_ODAHU_API;
                 String uuid =
                         provisioningService.post(url, user.getAccessToken(),
-                                requestBuilder.newOdahuCreate(user, createOdahuDTO, projectDTO), String.class);
+                                requestBuilder.newOdahuCreate(user, odahuCreateDTO, projectDTO), String.class);
                 requestId.put(user.getName(), uuid);
             } catch (Exception e) {
                 log.error("Can not perform {} due to: {}, {}", url, e.getMessage(), e);
-                odahuDAO.updateStatus(createOdahuDTO.getName(), createOdahuDTO.getProject(), createOdahuDTO.getEndpoint(),
+                odahuDAO.updateStatus(odahuCreateDTO.getName(), odahuCreateDTO.getProject(), odahuCreateDTO.getEndpoint(),
                         UserInstanceStatus.FAILED);
             }
         }
@@ -160,5 +162,13 @@ public class OdahuServiceImpl implements OdahuService {
             log.error("Can not perform {} due to: {}, {}", url, e.getMessage(), e);
             odahuDAO.updateStatus(name, project, project, UserInstanceStatus.FAILED);
         }
+    }
+
+    private Map<String, String> getTags(OdahuCreateDTO odahuCreateDTO) {
+        Map<String, String> tags = new HashMap<>();
+        tags.put("custom_tag", odahuCreateDTO.getCustomTag());
+        tags.put("project_tag", odahuCreateDTO.getProject());
+        tags.put("endpoint_tag", odahuCreateDTO.getEndpoint());
+        return tags;
     }
 }

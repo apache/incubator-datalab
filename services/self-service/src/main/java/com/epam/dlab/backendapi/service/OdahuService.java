@@ -20,7 +20,7 @@
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.domain.OdahuActionDTO;
+import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
 import com.epam.dlab.backendapi.domain.OdahuDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.odahu.OdahuResult;
@@ -33,7 +33,7 @@ public interface OdahuService {
 
     Optional<OdahuDTO> get(String project, String endpoint);
 
-    void create(String project, OdahuActionDTO createOdahuDTO, UserInfo userInfo);
+    void create(String project, OdahuCreateDTO createOdahuDTO, UserInfo userInfo);
 
     void start(String name, String project, String endpoint, UserInfo user);
 

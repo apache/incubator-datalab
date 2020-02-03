@@ -17,18 +17,23 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.domain;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.dto.odahu.ActionOdahuDTO;
-import com.epam.dlab.dto.odahu.CreateOdahuDTO;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
-public interface OdahuService {
-    String create(UserInfo userInfo, CreateOdahuDTO odahuCreateDTO);
+import javax.validation.constraints.NotNull;
 
-    String start(UserInfo userInfo, ActionOdahuDTO dto);
-
-    String stop(UserInfo userInfo, ActionOdahuDTO dto);
-
-    String terminate(UserInfo userInfo, ActionOdahuDTO dto);
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OdahuCreateDTO {
+    @NotNull
+    private final String name;
+    @NotNull
+    private final String project;
+    @NotNull
+    private final String endpoint;
+    @JsonProperty("custom_tag")
+    private final String customTag;
 }

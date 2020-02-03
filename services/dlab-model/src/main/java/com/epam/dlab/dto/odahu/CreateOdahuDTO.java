@@ -26,7 +26,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class OdahuCreateDTO extends ResourceBaseDTO<OdahuCreateDTO> {
+public class CreateOdahuDTO extends ResourceBaseDTO<CreateOdahuDTO> {
     @JsonProperty("odahu_cluster_name")
     private final String name;
     @JsonProperty("project_name")

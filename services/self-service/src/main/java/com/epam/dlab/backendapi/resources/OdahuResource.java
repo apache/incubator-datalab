@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.OdahuActionDTO;
+import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
 import com.epam.dlab.backendapi.service.OdahuService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -61,9 +62,9 @@ public class OdahuResource {
     @RolesAllowed("/api/odahu")
     public Response createOdahuCluster(@Parameter(hidden = true) @Auth UserInfo userInfo,
                                        @Parameter(hidden = true) @Context UriInfo uriInfo,
-                                       @Valid OdahuActionDTO createOdahuDTO) {
-        odahuService.create(createOdahuDTO.getProject(), createOdahuDTO, userInfo);
-        final URI uri = uriInfo.getRequestUriBuilder().path(createOdahuDTO.getName()).build();
+                                       @Valid OdahuCreateDTO odahuCreateDTO) {
+        odahuService.create(odahuCreateDTO.getProject(), odahuCreateDTO, userInfo);
+        final URI uri = uriInfo.getRequestUriBuilder().path(odahuCreateDTO.getName()).build();
         return Response.created(uri).build();
     }
 

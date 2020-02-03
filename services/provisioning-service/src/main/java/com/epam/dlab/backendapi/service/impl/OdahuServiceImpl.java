@@ -31,7 +31,7 @@ import com.epam.dlab.backendapi.core.response.handlers.OdahuCallbackHandler;
 import com.epam.dlab.backendapi.service.OdahuService;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.odahu.ActionOdahuDTO;
-import com.epam.dlab.dto.odahu.OdahuCreateDTO;
+import com.epam.dlab.dto.odahu.CreateOdahuDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
@@ -60,7 +60,7 @@ public class OdahuServiceImpl implements OdahuService {
     }
 
     @Override
-    public String create(UserInfo userInfo, OdahuCreateDTO dto) {
+    public String create(UserInfo userInfo, CreateOdahuDTO dto) {
         return executeDocker(userInfo, dto, DockerAction.CREATE, ODAHU_RESOURCE_TYPE, ODAHU_IMAGE, dto.getName(),
                 dto.getProject(), dto.getEndpoint());
     }

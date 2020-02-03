@@ -22,7 +22,7 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.OdahuService;
 import com.epam.dlab.dto.odahu.ActionOdahuDTO;
-import com.epam.dlab.dto.odahu.OdahuCreateDTO;
+import com.epam.dlab.dto.odahu.CreateOdahuDTO;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
@@ -46,7 +46,7 @@ public class OdahuResource {
     }
 
     @POST
-    public Response createProject(@Auth UserInfo userInfo, OdahuCreateDTO dto) {
+    public Response createProject(@Auth UserInfo userInfo, CreateOdahuDTO dto) {
         return Response.ok(odahuService.create(userInfo, dto)).build();
     }
 
