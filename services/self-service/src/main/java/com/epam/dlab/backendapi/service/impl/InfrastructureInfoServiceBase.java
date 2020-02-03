@@ -71,7 +71,7 @@ public abstract class InfrastructureInfoServiceBase<T> implements Infrastructure
 		try {
 			return projectService.getUserProjects(user, false).stream()
 					.map(p -> new ProjectInfrastructureInfo(p.getName(), billingDAO.getBillingProjectQuoteUsed(p.getName()),
-							getSharedInfo(p.getName()), expDAO.findExploratory(user.getName()), p.getOdahu()))
+							getSharedInfo(p.getName()), expDAO.findExploratory(user.getName(), p.getName()), p.getOdahu()))
 					.collect(Collectors.toList());
 		} catch (Exception e) {
 			log.error("Could not load list of provisioned resources for user: {}", user, e);
