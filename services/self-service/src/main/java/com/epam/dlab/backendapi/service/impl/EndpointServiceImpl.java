@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -93,7 +92,7 @@ public class EndpointServiceImpl implements EndpointService {
 		    throw new ResourceConflictException("The Endpoint URL with this address exists in system");
 		}
 		CloudProvider cloudProvider = checkUrl(userInfo, endpointDTO.getUrl());
-		if (!Objects.nonNull(cloudProvider)) {
+		if (Objects.isNull(cloudProvider)) {
 			throw new DlabException("CloudProvider cannot be null");
 		}
 		endpointDAO.create(new EndpointDTO(endpointDTO.getName(), endpointDTO.getUrl(), endpointDTO.getAccount(),
