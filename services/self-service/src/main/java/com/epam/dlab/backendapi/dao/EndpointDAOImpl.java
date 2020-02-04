@@ -75,12 +75,12 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 	}
 
 	private Bson endpointCondition(String name) {
-		Pattern endPointName = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
+		Pattern endPointName = Pattern.compile("^" + name + "$", Pattern.CASE_INSENSITIVE);
 		return regex(ENDPOINT_NAME_FIELD, endPointName);
 	}
 
 	private Bson endpointUrlCondition(String url) {
-		Pattern endPointUrl = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+		Pattern endPointUrl = Pattern.compile("^" + url + "$", Pattern.CASE_INSENSITIVE);
 		return regex(ENDPOINT_URL_FIELD, endPointUrl);
 	}
 
