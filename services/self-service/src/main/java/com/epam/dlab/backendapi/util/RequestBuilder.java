@@ -23,6 +23,8 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.domain.OdahuActionDTO;
+import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
@@ -30,7 +32,11 @@ import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
-import com.epam.dlab.dto.*;
+import com.epam.dlab.dto.LibListComputationalDTO;
+import com.epam.dlab.dto.ResourceBaseDTO;
+import com.epam.dlab.dto.ResourceSysBaseDTO;
+import com.epam.dlab.dto.UserEnvironmentResources;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
 import com.epam.dlab.dto.aws.computational.AwsComputationalTerminateDTO;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
@@ -51,8 +57,21 @@ import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.keyload.UploadFile;
-import com.epam.dlab.dto.computational.*;
-import com.epam.dlab.dto.exploratory.*;
+import com.epam.dlab.dto.computational.ComputationalCheckInactivityDTO;
+import com.epam.dlab.dto.computational.ComputationalClusterConfigDTO;
+import com.epam.dlab.dto.computational.ComputationalStartDTO;
+import com.epam.dlab.dto.computational.ComputationalStopDTO;
+import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
+import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryCheckInactivityAction;
+import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryReconfigureSparkClusterActionDTO;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
+import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.gcp.computational.ComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.computational.GcpComputationalTerminateDTO;
@@ -60,6 +79,8 @@ import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
+import com.epam.dlab.dto.odahu.ActionOdahuDTO;
+import com.epam.dlab.dto.odahu.CreateOdahuDTO;
 import com.epam.dlab.dto.project.ProjectActionDTO;
 import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
@@ -74,7 +95,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.epam.dlab.cloud.CloudProvider.*;
+import static com.epam.dlab.cloud.CloudProvider.AWS;
+import static com.epam.dlab.cloud.CloudProvider.AZURE;
+import static com.epam.dlab.cloud.CloudProvider.GCP;
 
 @Singleton
 public class RequestBuilder {
@@ -186,7 +209,8 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ExploratoryCreateDTO<T>> T newExploratoryCreate(Exploratory exploratory, UserInfo userInfo,
+	public <T extends ExploratoryCreateDTO<T>> T newExploratoryCreate(ProjectDTO projectDTO, Exploratory exploratory,
+																	  UserInfo userInfo,
 																	  ExploratoryGitCredsDTO exploratoryGitCredsDTO,
 																	  Map<String, String> tags) {
 
@@ -224,6 +248,7 @@ public class RequestBuilder {
 				.withClusterConfig(exploratory.getClusterConfig())
 				.withProject(exploratory.getProject())
 				.withEndpoint(exploratory.getEndpoint())
+				.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()))
 				.withTags(tags);
 	}
 
@@ -363,7 +388,7 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo,
+	public <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo, ProjectDTO projectDTO,
 																	 UserInstanceDTO userInstance,
 																	 ComputationalCreateFormDTO form) {
 		T computationalCreate;
@@ -380,7 +405,8 @@ public class RequestBuilder {
 						.withSlaveInstanceSpot(awsForm.getSlaveInstanceSpot())
 						.withSlaveInstanceSpotPctPrice(awsForm.getSlaveInstanceSpotPctPrice())
 						.withVersion(awsForm.getVersion())
-						.withConfig((awsForm.getConfig()));
+						.withConfig((awsForm.getConfig()))
+						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				break;
 			case GCP:
 				GcpComputationalCreateForm gcpForm = (GcpComputationalCreateForm) form;
@@ -390,7 +416,8 @@ public class RequestBuilder {
 						.withPreemptibleCount(gcpForm.getPreemptibleCount())
 						.withMasterInstanceType(gcpForm.getMasterInstanceType())
 						.withSlaveInstanceType(gcpForm.getSlaveInstanceType())
-						.withVersion(gcpForm.getVersion());
+						.withVersion(gcpForm.getVersion())
+						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				break;
 
 			default:
@@ -409,7 +436,7 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo,
+	public <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo, ProjectDTO projectDTO,
 																	 UserInstanceDTO userInstance,
 																	 SparkStandaloneClusterCreateForm form) {
 
@@ -421,14 +448,16 @@ public class RequestBuilder {
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterShape(form.getDataEngineInstanceShape())
 						.withDataEngineSlaveShape(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withConfig(form.getConfig())
+						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				break;
 			case AZURE:
 				computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
 						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withConfig(form.getConfig())
+						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((SparkComputationalCreateAzure) computationalCreate)
 							.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
@@ -443,7 +472,8 @@ public class RequestBuilder {
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
 						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
-						.withConfig(form.getConfig());
+						.withConfig(form.getConfig())
+						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				break;
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
@@ -625,7 +655,6 @@ public class RequestBuilder {
 				.name(projectDTO.getName())
 				.tag(projectDTO.getTag())
 				.endpoint(endpoint)
-				.useSharedImage(String.valueOf(projectDTO.isUseSharedImage()))
 				.build()
 				.withCloudSettings(cloudSettings(userInfo));
 	}
@@ -633,6 +662,27 @@ public class RequestBuilder {
 	public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, String endpoint) {
 		return new ProjectActionDTO(project, endpoint)
 				.withCloudSettings(cloudSettings(userInfo));
+	}
+
+	public CreateOdahuDTO newOdahuCreate(UserInfo user, OdahuCreateDTO odahuCreateDTO, ProjectDTO projectDTO) {
+		return CreateOdahuDTO.builder()
+				.name(odahuCreateDTO.getName())
+				.project(projectDTO.getName())
+				.endpoint(odahuCreateDTO.getEndpoint())
+				.key(projectDTO.getKey().replace("\n", ""))
+				.build()
+				.withEdgeUserName(getEdgeUserName(user))
+				.withCloudSettings(cloudSettings(user));
+	}
+
+	public ActionOdahuDTO newOdahuAction(UserInfo user, String name, String project, String endpoint) {
+		return ActionOdahuDTO.builder()
+				.name(name)
+				.project(project)
+				.endpoint(endpoint)
+				.build()
+				.withEdgeUserName(getEdgeUserName(user))
+				.withCloudSettings(cloudSettings(user));
 	}
 
 	private CloudProvider cloudProvider() {

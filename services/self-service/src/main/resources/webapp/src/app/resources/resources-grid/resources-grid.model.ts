@@ -54,37 +54,67 @@ export class ExploratoryModel {
   public static loadEnvironments(data: Array<any>) {
     if (data) {
       return data.map((value) => {
+        const exploratory = value.exploratory.map(el => new ExploratoryModel(el.exploratory_name,
+          el.template_name,
+          el.image,
+          el.status,
+          el.shape,
+          el.computational_resources,
+          el.up_time,
+          el.exploratory_url,
+          value.shared[el.endpoint].edge_node_ip,
+          el.private_ip,
+          el.exploratory_user,
+          el.exploratory_pass,
+          value.shared[el.endpoint][DICTIONARY.bucket_name],
+          value.shared[el.endpoint][DICTIONARY.shared_bucket_name],
+          el.error_message,
+          el[DICTIONARY.billing.cost],
+          el[DICTIONARY.billing.currencyCode],
+          el.billing,
+          el.libs,
+          value.shared[el.endpoint][DICTIONARY.user_storage_account_name],
+          value.shared[el.endpoint][DICTIONARY.shared_storage_account_name],
+          value.shared[el.endpoint][DICTIONARY.datalake_name],
+          value.shared[el.endpoint][DICTIONARY.datalake_user_directory_name],
+          value.shared[el.endpoint][DICTIONARY.datalake_shared_directory_name],
+          el.project,
+          el.endpoint,
+          el.tags
+        ));
+
+        const odahu = value.odahu.map(el => new ExploratoryModel(
+          el.name,
+          el.template_name,
+          el.image,
+          el.status.toLowerCase(),
+          'odahu cluster',
+         [],
+          el.up_time,
+          el.urls,
+          value.shared[el.endpoint].edge_node_ip,
+          el.private_ip,
+          el.exploratory_user,
+          el.exploratory_pass,
+          '',
+          '',
+          el.error_message,
+          el[DICTIONARY.billing.cost],
+          el[DICTIONARY.billing.currencyCode],
+          [],
+          [],
+          '',
+          '',
+          '',
+          '',
+          '',
+          el.project,
+          el.endpoint,
+          el.tags));
         return {
           project: value.project,
-          exploratory: value.exploratory.map(el => new ExploratoryModel(el.exploratory_name,
-            el.template_name,
-            el.image,
-            el.status,
-            el.shape,
-            el.computational_resources,
-            el.up_time,
-            el.exploratory_url,
-            value.shared[el.endpoint].edge_node_ip,
-            el.private_ip,
-            el.exploratory_user,
-            el.exploratory_pass,
-            value.shared[el.endpoint][DICTIONARY.bucket_name],
-            value.shared[el.endpoint][DICTIONARY.shared_bucket_name],
-            el.error_message,
-            el[DICTIONARY.billing.cost],
-            el[DICTIONARY.billing.currencyCode],
-            el.billing,
-            el.libs,
-            value.shared[el.endpoint][DICTIONARY.user_storage_account_name],
-            value.shared[el.endpoint][DICTIONARY.shared_storage_account_name],
-            value.shared[el.endpoint][DICTIONARY.datalake_name],
-            value.shared[el.endpoint][DICTIONARY.datalake_user_directory_name],
-            value.shared[el.endpoint][DICTIONARY.datalake_shared_directory_name],
-            el.project,
-            el.endpoint,
-            el.tags
-          ))
-        }
+          exploratory: [...exploratory, ...odahu]
+        };
       });
     }
   }
@@ -92,5 +122,5 @@ export class ExploratoryModel {
 
 export interface Exploratory {
   project: string;
-  exploratory: ExploratoryModel[]
+  exploratory: ExploratoryModel[];
 }

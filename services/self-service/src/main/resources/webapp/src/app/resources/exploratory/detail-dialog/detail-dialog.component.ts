@@ -42,6 +42,7 @@ export class DetailDialogComponent implements OnInit {
   config: Array<{}> = [];
 
   public configurationForm: FormGroup;
+  private legion: any;
 
   @ViewChild('configurationNode', { static: false }) configuration;
 
@@ -52,7 +53,13 @@ export class DetailDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<DetailDialogComponent>,
     public toastr: ToastrService
   ) {
-    this.notebook = data;
+    if(data.notebook){
+      this.notebook = data.notebook;
+    }
+
+    if(data.legion){
+      this.legion = data.legion;
+    }
   }
 
   ngOnInit() {

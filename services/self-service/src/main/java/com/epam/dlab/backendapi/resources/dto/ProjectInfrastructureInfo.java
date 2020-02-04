@@ -19,11 +19,13 @@
 
 package com.epam.dlab.backendapi.resources.dto;
 
+import com.epam.dlab.backendapi.domain.OdahuDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import org.bson.Document;
 
+import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -37,4 +39,6 @@ public class ProjectInfrastructureInfo {
 	private Map<String, Map<String, String>> shared;
 	@JsonProperty
 	private Iterable<Document> exploratory;
+	@JsonProperty
+	private List<OdahuDTO> odahu;
 }

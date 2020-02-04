@@ -329,6 +329,14 @@ mat-dialog-container {
   display: flex;
 }
 
+.endpoints-table{
+  border-collapse: separate;
+}
+
+.mat-step-icon-state-number .mat-step-icon-content{
+  top: 49%;
+}
+
 @media screen and (max-width: 1280px) {
   .modal-fullscreen {
     max-width: 100vw !important;

@@ -58,6 +58,7 @@ def modify_conf_file(args):
     sudo("python /tmp/configure_conf_file.py --dlab_dir {} --variables_list '{}'".format(
         args.dlab_path, json.dumps(variables_list)))
 
+
 def download_toree():
     toree_path = '/opt/dlab/sources/infrastructure-provisioning/src/general/files/os/'
     tarball_link = 'https://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree/toree-0.2.0-incubating-bin.tar.gz'
@@ -71,6 +72,7 @@ def download_toree():
         traceback.print_exc()
         print('Failed to download toree: ', str(err))
         sys.exit(1)
+
 
 def add_china_repository(dlab_path):
     with cd('{}sources/infrastructure-provisioning/src/base/'.format(dlab_path)):
@@ -127,6 +129,7 @@ def build_docker_images(image_list, region, dlab_path):
         return True
     except:
         return False
+
 
 def configure_guacamole():
     try:
@@ -199,8 +202,10 @@ if __name__ == "__main__":
     prepare_odahu_image(args.nexus_username, args.nexus_password, args.nexus_url, args.dlab_path)
 
     print("Building dlab images")
-    if not build_docker_images(deeper_config, args.region, args.dlab_path):
-        sys.exit(1)
+    count = 0
+    while not build_docker_images(deeper_config, args.region, args.dlab_path) and count < 5:
+        count += 1
+        time.sleep(5)
 
     print("Configuring guacamole")
     if not configure_guacamole():

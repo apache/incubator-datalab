@@ -128,7 +128,13 @@
               </i>
             </button>
           </div>
-          <div class="lib-status">Status</div>
+          <div class="lib-status"><span>Status</span>
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span>more_vert</span>
+              </i>
+            </button>
+          </div>
         </mat-list-item>
 
         <ng-container *ngIf="filtered" >
@@ -173,7 +179,7 @@
           </th>
            <ng-container matColumnDef="action-filter" stickyEnd>
              <th mat-header-cell>
-               <div class="actions">
+               <div class="filter-actions">
                  <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
                    <i class="material-icons">close</i>
                  </button>
@@ -194,7 +200,7 @@
           <mat-list-item  *ngFor="let lib of filtredNotebookLibs">
             <div class="lib-name ellipsis">
               <strong>{{ lib.name }}</strong>&nbsp;
-              <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
+              <span *ngIf="lib.version  && lib.version !== 'N/A'">{{ lib.version }}</span>
             </div>
             <div class="lib-group-col">{{ groupsListMap[lib.group] }}</div>
             <div class="st-group">

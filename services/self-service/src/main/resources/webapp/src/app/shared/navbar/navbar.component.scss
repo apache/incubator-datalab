@@ -168,6 +168,10 @@ a.nav-item {
   color: #577289 !important;
   outline: none;
 
+  span {
+    vertical-align: middle;
+  }
+
   i {
     vertical-align: middle;
     padding-left: 8px;
@@ -286,15 +290,33 @@ a.nav-item {
   transform: translateY(-4px) translateX(6px) rotate(-45deg);
 }
 
+mat-sidenav {
+
+  mat-nav-list {
+    height: 100%;
+
+    nav {
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+
+      .swagger-logo {
+        vertical-align: middle;
+        width: 30px;
+        padding: 0 2px 0 5px;
+      }
+    }
+  }
+}
+
 mat-sidenav-content {
   &.mat-drawer-content {
     transition: all 0.35s ease-out;
-
   }
 
   .fade-animation {
     display: block;
-    height: 100%;
     max-height: 100%;
   }
 }

@@ -1,0 +1,77 @@
+.legion-clasters-table {
+  width: 100%;
+
+  .project, .endpoint, .legion-name, .legion-status{
+    width: 23%;
+  }
+
+  td.settings {
+    position: relative;
+    vertical-align: middle !important;
+    text-align: right;
+  }
+
+  .list-menu {
+    min-width: 190px;
+  }
+
+  .material-icons {
+    font-size: 18px;
+    padding-top: 1px;
+  }
+
+  td.settings .actions {
+    background-image: url(../../../../assets/svg/settings_icon.svg);
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+    &.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+
+  td {
+    &.info.mat-footer-cell{
+      text-align: center;
+      padding: 40px;
+    }
+    .settings {
+      position: relative;
+      vertical-align: middle !important;
+      text-align: right;
+
+      .actions {
+        background-image: url(../../../../assets/svg/settings_icon.svg);
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+        text-align: center;
+        cursor: pointer;
+      }
+    }
+
+    .project-seting-item {
+      display: flex;
+      padding: 10px;
+      align-items: center;
+      border-bottom: 1px solid #edf1f5;
+      cursor: pointer;
+      color: #577289;
+
+      &:hover {
+        color: #36afd5;
+        transition: all .45s ease-in-out;
+      }
+
+      a {
+        padding-left: 5px;
+      }
+    }
+  }
+}
+
+
