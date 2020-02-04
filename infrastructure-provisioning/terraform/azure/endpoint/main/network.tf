@@ -84,7 +84,7 @@ resource "azurerm_network_interface" "endpoint-nif" {
   ip_configuration {
     name                          = "configuration"
     subnet_id                     = data.azurerm_subnet.data-endpoint-subnet.id
-    private_ip_address_allocation = "Static"
+    private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.endpoint-static-ip.id
     private_ip_address_version    = "IPv4"
   }
