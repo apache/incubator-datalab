@@ -97,9 +97,8 @@ if __name__ == "__main__":
                                                 "endpoint_tag": project_conf['endpoint_tag'],
                                                 os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         project_conf['primary_disk_size'] = '32'
-        project_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
         project_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(project_conf['service_base_name'],
-                                                                                  project_conf['default_endpoint_name'])
+                                                                                  project_conf['endpoint_name'])
         project_conf['shared_container_name'] = '{}-shared-container'.format(project_conf['service_base_name']).lower()
         project_conf['shared_storage_account_tags'] = {"Name": project_conf['shared_storage_account_name'],
                                                    "SBN": project_conf['service_base_name'],
