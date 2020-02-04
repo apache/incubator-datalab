@@ -45,6 +45,7 @@ import org.bson.Document;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -129,15 +130,16 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 
 	private Map<String, String> getSharedInfo(EdgeInfo edgeInfo) {
 		Map<String, String> shared = new HashMap<>();
+		if (Objects.isNull(edgeInfo)) {
+			return shared;
+		}
 		shared.put("edge_node_ip", edgeInfo.getPublicIp());
 		if (edgeInfo instanceof EdgeInfoAws) {
 			EdgeInfoAws edgeInfoAws = (EdgeInfoAws) edgeInfo;
-
 			shared.put("user_own_bicket_name", edgeInfoAws.getUserOwnBucketName());
 			shared.put("shared_bucket_name", edgeInfoAws.getSharedBucketName());
 		} else if (edgeInfo instanceof EdgeInfoAzure) {
 			EdgeInfoAzure edgeInfoAzure = (EdgeInfoAzure) edgeInfo;
-
 			shared.put("user_container_name", edgeInfoAzure.getUserContainerName());
 			shared.put("shared_container_name", edgeInfoAzure.getSharedContainerName());
 			shared.put("user_storage_account_name", edgeInfoAzure.getUserStorageAccountName());
@@ -147,7 +149,6 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 			shared.put("datalake_shared_directory_name", edgeInfoAzure.getDataLakeSharedDirectoryName());
 		} else if (edgeInfo instanceof EdgeInfoGcp) {
 			EdgeInfoGcp edgeInfoGcp = (EdgeInfoGcp) edgeInfo;
-
 			shared.put("user_own_bucket_name", edgeInfoGcp.getUserOwnBucketName());
 			shared.put("shared_bucket_name", edgeInfoGcp.getSharedBucketName());
 		}

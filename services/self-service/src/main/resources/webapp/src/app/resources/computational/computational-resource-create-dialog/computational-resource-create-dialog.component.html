@@ -124,7 +124,7 @@
               <label class="label">Slave instance size</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-label>Select cluster type</mat-label>
+                  <mat-label>Select instance size</mat-label>
                   <mat-select formControlName="shape_slave" disableOptionCentering>
                     <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
                       [label]="item.key | underscoreless">

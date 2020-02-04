@@ -54,7 +54,7 @@ if __name__ == "__main__":
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
-    edge_conf['private_subnet_prefix'] = os.environ['gcp_private_subnet_prefix']
+    edge_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
     edge_conf['edge_service_account_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
                                                                  edge_conf['project_name'])
     edge_conf['edge_role_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
@@ -252,7 +252,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
                  "--step_cert_sans '{}'" \
             .format(instance_hostname, edge_conf['ssh_key_path'], edge_conf['dlab_ssh_user'],
-                    edge_conf['service_base_name'] + '-' + os.environ['project_name'], keycloak_client_secret,
+                    edge_conf['service_base_name'] + '-' + os.environ['project_name'] + '-' + os.environ['endpoint_name'], keycloak_client_secret,
                     step_cert_sans)
 
         try:
@@ -262,11 +262,11 @@ if __name__ == "__main__":
             raise Exception
         keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                           "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
-                          "--edge_public_ip {} --project_name {}" \
+                          "--edge_public_ip {} --project_name {} --endpoint_name {} " \
             .format(edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
                     os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
                     os.environ['keycloak_user_password'],
-                    keycloak_client_secret, instance_hostname, os.environ['project_name'])
+                    keycloak_client_secret, instance_hostname, os.environ['project_name'], os.environ['endpoint_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
         except:

@@ -300,21 +300,36 @@ span.mat-slide-toggle-content {
 }
 
 .project-form,
-.create-environment,
-.create-cluster{
+.create-environment{
   .ng-invalid{
     .mat-form-field-label {
       line-height: 22px !important;
       font-size: 15px !important;
     }
+    .ng-valid .mat-form-field-label {
+      color: transparent !important;
+    }
   }
+}
 
-  .ng-valid .mat-form-field-label {
-    color: transparent !important;
-  }
+
+.project-form,
+.create-environment,
+.create-cluster{
+
 
   .mat-select-value{
     overflow: visible;
+  }
+}
+
+.create-cluster {
+  .ng-invalid {
+    .mat-form-field-label {
+      padding-top: 5px;
+      line-height: 16px !important;
+      font-size: 15px !important;
+    }
   }
 }
 

@@ -62,12 +62,6 @@ if __name__ == "__main__":
         ssn_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         ssn_conf['subnet_prefix'] = '20'
         ssn_conf['ssn_image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
-        ssn_conf['ssn_storage_account_name'] = '{}-ssn-storage'.format(ssn_conf['service_base_name'])
-        ssn_conf['ssn_container_name'] = '{}-ssn-container'.format(ssn_conf['service_base_name']).lower()
-        ssn_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
-        ssn_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(ssn_conf['service_base_name'],
-                                                                                  ssn_conf['default_endpoint_name'])
-        ssn_conf['shared_container_name'] = '{}-shared-container'.format(ssn_conf['service_base_name']).lower()
         ssn_conf['datalake_store_name'] = '{}-ssn-datalake'.format(ssn_conf['service_base_name'])
         ssn_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
@@ -82,12 +76,7 @@ if __name__ == "__main__":
         ssn_conf['instance_tags'] = {"Name": ssn_conf['instance_name'],
                                      "SBN": ssn_conf['service_base_name'],
                                      os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
-        ssn_conf['ssn_storage_account_tags'] = {"Name": ssn_conf['ssn_storage_account_name'],
-                                                "SBN": ssn_conf['service_base_name'],
-                                                os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
-        ssn_conf['shared_storage_account_tags'] = {"Name": ssn_conf['shared_storage_account_name'],
-                                                   "SBN": ssn_conf['service_base_name'],
-                                                   os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+
         ssn_conf['datalake_store_tags'] = {"Name": ssn_conf['datalake_store_name'],
                                            "SBN": ssn_conf['service_base_name'],
                                            os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
@@ -254,58 +243,6 @@ if __name__ == "__main__":
         append_result("Failed to create Security group. Exception: " + str(err))
         sys.exit(1)
 
-    try:
-        logging.info('[CREATE SSN STORAGE ACCOUNT AND CONTAINER]')
-        print('[CREATE SSN STORAGE ACCOUNT AND CONTAINER]')
-        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
-                 format(ssn_conf['ssn_container_name'], json.dumps(ssn_conf['ssn_storage_account_tags']),
-                        ssn_conf['resource_group_name'], ssn_conf['region'])
-        local("~/scripts/{}.py {}".format('common_create_storage_account', params))
-    except Exception as err:
-        traceback.print_exc()
-        print('Error: {0}'.format(err))
-        if 'azure_resource_group_name' not in os.environ:
-            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
-        if 'azure_vpc_name' not in os.environ:
-            AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
-        if 'azure_subnet_name' not in os.environ:
-            AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
-                                            ssn_conf['subnet_name'])
-        if 'azure_security_group_name' not in os.environ:
-            AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
-        append_result("Failed to create SSN storage account and container. Exception:" + str(err))
-        sys.exit(1)
-
-    try:
-        logging.info('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
-        print('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
-        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
-            format(ssn_conf['shared_container_name'], json.dumps(ssn_conf['shared_storage_account_tags']),
-                   ssn_conf['resource_group_name'], ssn_conf['region'])
-        local("~/scripts/{}.py {}".format('common_create_storage_account', params))
-    except Exception as err:
-        traceback.print_exc()
-        print('Error: {0}'.format(err))
-        if 'azure_resource_group_name' not in os.environ:
-            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
-        if 'azure_vpc_name' not in os.environ:
-            AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
-        if 'azure_subnet_name' not in os.environ:
-            AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
-                                            ssn_conf['subnet_name'])
-        if 'azure_security_group_name' not in os.environ:
-            AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
-        append_result("Failed to create SSN storage account and container. Exception:" + str(err))
-        sys.exit(1)
-
     if os.environ['azure_datalake_enable'] == 'true':
         try:
             logging.info('[CREATE DATA LAKE STORE]')
@@ -342,9 +279,6 @@ if __name__ == "__main__":
                                                 ssn_conf['subnet_name'])
             if 'azure_security_group_name' not in os.environ:
                 AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
-            for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
-                if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                    AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
             for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
@@ -384,11 +318,6 @@ if __name__ == "__main__":
                                             ssn_conf['subnet_name'])
         if 'azure_security_group_name' not in os.environ:
             AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
         for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
             if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                 AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)

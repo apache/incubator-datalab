@@ -19,36 +19,19 @@
 #
 # ******************************************************************************
 
-user nginx;
-worker_processes auto;
-error_log /var/log/nginx/error.log;
-pid /run/nginx.pid;
+[Unit]
+Description=The Keycloak Application Server
+After=syslog.target network.target
+Before=httpd.service
 
-include /usr/share/nginx/modules/*.conf;
+[Service]
+Type=simple
+PIDFile=/var/run/keycloak/keycloak-%H.pid
+ExecStart=/opt/keycloak/bin/standalone.sh -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=/tmp/keycloak_realm_name-realm.json -Dkeycloak.migration.strategy=IGNORE_EXISTING -b private_ip_address
+User=OS_USER
+Group=OS_USER
+WorkingDirectory=/opt/keycloak
 
-events {
-    worker_connections 1024;
-}
+[Install]
+WantedBy=multi-user.target
 
-http {
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
-
-    access_log  /var/log/nginx/access.log  main;
-
-    sendfile            on;
-    tcp_nopush          on;
-    tcp_nodelay         on;
-    proxy_buffering     off;
-    keepalive_timeout   65;
-    types_hash_max_size 2048;
-    client_max_body_size 50M;
-
-    include             /etc/nginx/mime.types;
-    default_type        application/octet-stream;
-
-    include /etc/nginx/conf.d/*.conf;
-
-
-}

@@ -59,7 +59,7 @@ if __name__ == "__main__":
             project_conf['static_public_ip_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name'] + '-edge-ip'
         project_conf['region'] = os.environ['azure_region']
         project_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
-        project_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
+        project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
 
         project_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(project_conf['service_base_name'],
                                                                   project_conf['project_name'],
@@ -97,6 +97,14 @@ if __name__ == "__main__":
                                                 "endpoint_tag": project_conf['endpoint_tag'],
                                                 os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         project_conf['primary_disk_size'] = '32'
+        project_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
+        project_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(project_conf['service_base_name'],
+                                                                                  project_conf['default_endpoint_name'])
+        project_conf['shared_container_name'] = '{}-shared-container'.format(project_conf['service_base_name']).lower()
+        project_conf['shared_storage_account_tags'] = {"Name": project_conf['shared_storage_account_name'],
+                                                   "SBN": project_conf['service_base_name'],
+                                                   os.environ['conf_billing_tag_key']: os.environ[
+                                                       'conf_billing_tag_value']}
 
         # FUSE in case of absence of user's key
         try:
@@ -672,6 +680,31 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        logging.info('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
+        print('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
+        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
+            format(project_conf['shared_container_name'], json.dumps(project_conf['shared_storage_account_tags']),
+                   project_conf['resource_group_name'], project_conf['region'])
+        local("~/scripts/{}.py {}".format('common_create_storage_account', params))
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to create storage account.", str(err))
+        AzureActions().remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
+                                     project_conf['private_subnet_name'])
+        AzureActions().remove_security_group(project_conf['resource_group_name'],
+                                             project_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(project_conf['resource_group_name'],
+                                             project_conf['notebook_security_group_name'])
+        AzureActions().remove_security_group(project_conf['resource_group_name'],
+                                             project_conf['master_security_group_name'])
+        AzureActions().remove_security_group(project_conf['resource_group_name'],
+                                             project_conf['slave_security_group_name'])
+        for storage_account in AzureMeta().list_storage_accounts(project_conf['resource_group_name']):
+            if project_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+        sys.exit(1)
+
+    try:
         logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
         print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
 
@@ -696,6 +729,8 @@ if __name__ == "__main__":
                                                  project_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(project_conf['resource_group_name']):
             if project_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+            if project_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
@@ -725,6 +760,8 @@ if __name__ == "__main__":
                                                      project_conf['slave_security_group_name'])
             for storage_account in AzureMeta().list_storage_accounts(project_conf['resource_group_name']):
                 if project_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
+                    AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+                if project_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                     AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
             try:
                 for datalake in AzureMeta().list_datalakes(project_conf['resource_group_name']):
@@ -776,6 +813,8 @@ if __name__ == "__main__":
                                                  project_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(project_conf['resource_group_name']):
             if project_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+            if project_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
         if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta().list_datalakes(project_conf['resource_group_name']):

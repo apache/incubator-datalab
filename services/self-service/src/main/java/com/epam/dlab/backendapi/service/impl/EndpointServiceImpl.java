@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -136,7 +137,7 @@ public class EndpointServiceImpl implements EndpointService {
 			response = provisioningService.get(url + HEALTH_CHECK, userInfo.getAccessToken(), Response.class);
 			cloudProvider = response.readEntity(CloudProvider.class);
 		} catch (Exception e) {
-			log.error("Cannot connect to url '{}'", url);
+			log.error("Cannot connect to url '{}'. {}", url, e.getMessage());
 			throw new DlabException(String.format("Cannot connect to url '%s'", url), e);
 		}
 		if (response.getStatus() != 200) {
