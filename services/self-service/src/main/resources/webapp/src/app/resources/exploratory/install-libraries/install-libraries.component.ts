@@ -27,7 +27,7 @@ import { debounceTime } from 'rxjs/operators';
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
 import { SortUtils, HTTP_STATUS_CODES } from '../../../core/util';
-import {FilterLibsModel} from "./filter-libs.model";
+import {FilterLibsModel} from './filter-libs.model';
 
 
 @Component({
@@ -69,8 +69,8 @@ export class InstallLibrariesComponent implements OnInit {
   private clear: number;
   private clearCheckInstalling = undefined;
 
-  public filterConfiguration: FilterLibsModel = new FilterLibsModel('',[],[],[],[]);
-  public filterModel: FilterLibsModel = new FilterLibsModel('', [], [], [],[]);
+  public filterConfiguration: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
+  public filterModel: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
   public filtered: boolean;
   public filtredNotebookLibs: Array<any> = [];
 
@@ -199,10 +199,12 @@ export class InstallLibrariesComponent implements OnInit {
         if (response.status === HTTP_STATUS_CODES.OK) {
           this.getInstalledLibrariesList();
           this.resetDialog();
+          console.log('Open response status');
         }
       },
       error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!'),
       () => {
+        console.log('Failed open response status');
         this.getInstalledLibrariesList(true);
         this.changeDetector.detectChanges();
         this.selectorsReset();
@@ -217,7 +219,7 @@ export class InstallLibrariesComponent implements OnInit {
 
   public isInstallingInProgress(): void {
     const isInstallingNow = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
-      if (isInstallingNow){
+      if (isInstallingNow) {
         this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 10000);
       } else {
         window.clearInterval(this.clearCheckInstalling);
@@ -237,28 +239,28 @@ export class InstallLibrariesComponent implements OnInit {
   private getInstalledLibrariesList(init?: boolean) {
     this.model.getInstalledLibrariesList(this.notebook)
       .subscribe((data: any) => {
-        if( !this.filtredNotebookLibs.length || data.length !== this.notebookLibs.length){
+        if ( !this.filtredNotebookLibs.length || data.length !== this.notebookLibs.length) {
           this.filtredNotebookLibs = [...data];
         }
         this.filtredNotebookLibs = data.filter(lib => this.filtredNotebookLibs.some(v => (v.name + v.version === lib.name + v.version) && v.resource === lib.resource));
         this.notebookLibs = data ? data : [];
         this.notebookLibs.forEach(lib => {
           lib.filteredStatus = lib.status;
-          if(lib.version && lib.version !== 'N/A')
-            lib.version = 'v.' +  lib.version
+          if (lib.version && lib.version !== 'N/A')
+            lib.version = 'v.' +  lib.version;
           }
         );
         this.changeDetector.markForCheck();
-        this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v=>this.groupsListMap[v.group]));
-        this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.resource)));
-        this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.resourceType)));
-        this.filterConfiguration.status = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.status)));
+        this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v => this.groupsListMap[v.group]));
+        this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.resource)));
+        this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.resourceType)));
+        this.filterConfiguration.status = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.status)));
         this.isInstallingInProgress();
       });
   }
 
   public createFilterList(array): [] {
-    return array.flat().filter((v,i,arr)=> arr.indexOf(v) === i);
+    return array.flat().filter((v, i, arr) => arr.indexOf(v) === i);
   }
 
   private getInstalledLibsByResource() {
@@ -325,7 +327,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public toggleFilterRow(): void {
-    this.filtered = !this.filtered
+    this.filtered = !this.filtered;
   }
 
   public filterLibs(): void {
@@ -333,10 +335,10 @@ export class InstallLibrariesComponent implements OnInit {
       const isName = this.filterModel.name ? lib.name.toLowerCase().indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 || lib.version.indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 : true;
       const isGroup = this.filterModel.group.length ? this.filterModel.group.includes(this.groupsListMap[lib.group]) : true;
       lib.filteredStatus = lib.status.filter(status => {
-        const isResource = this.filterModel.resource.length ? this.filterModel.resource.includes(status.resource) :true;
+        const isResource = this.filterModel.resource.length ? this.filterModel.resource.includes(status.resource) : true;
         const isResourceType = this.filterModel.resourceType.length ? this.filterModel.resourceType.includes(status.resourceType) : true;
         const isStatus = this.filterModel.status.length ? this.filterModel.status.includes(status.status) : true;
-        return isResource && isResourceType && isStatus
+        return isResource && isResourceType && isStatus;
       });
       return isName && isGroup && lib.filteredStatus.length;
     });
