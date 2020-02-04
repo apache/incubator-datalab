@@ -54,7 +54,7 @@ resource "azurerm_virtual_machine" "endpoint_instance" {
     admin_username = "ubuntu"
   }
   os_profile_linux_config {
-    disable_password_authentication = false
+    disable_password_authentication = true
     ssh_keys {
       key_data = data.tls_public_key.enpoint_key.public_key_openssh
       path = "/home/ubuntu/.ssh/authorized_keys"
