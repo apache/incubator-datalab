@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -86,20 +85,19 @@ public class EndpointServiceImpl implements EndpointService {
 	 */
 	@Override
 	public void create(UserInfo userInfo, EndpointDTO endpointDTO) {
+		if (endpointDAO.get(endpointDTO.getName()).isPresent()) {
+			throw new ResourceConflictException("The Endpoint with this name exists in system");
+		}
 		if(endpointDAO.getEndpointWithUrl(endpointDTO.getUrl()).isPresent()) {
-		    throw new ResourceConflictException("The Endpoint URL with this address already exists in system");
+		    throw new ResourceConflictException("The Endpoint URL with this address exists in system");
 		}
 		CloudProvider cloudProvider = checkUrl(userInfo, endpointDTO.getUrl());
-		if (!endpointDAO.get(endpointDTO.getName()).isPresent()) {
-			if (!Objects.nonNull(cloudProvider)) {
-				throw new DlabException("CloudProvider cannot be null");
-			}
-			endpointDAO.create(new EndpointDTO(endpointDTO.getName(), endpointDTO.getUrl(), endpointDTO.getAccount(),
-					endpointDTO.getTag(), EndpointDTO.EndpointStatus.ACTIVE, cloudProvider));
-			userRoleDao.updateMissingRoles(cloudProvider);
-		} else {
-			throw new ResourceConflictException("The Endpoint with this name already exists in system");
+		if (Objects.isNull(cloudProvider)) {
+			throw new DlabException("CloudProvider cannot be null");
 		}
+		endpointDAO.create(new EndpointDTO(endpointDTO.getName(), endpointDTO.getUrl(), endpointDTO.getAccount(),
+				endpointDTO.getTag(), EndpointDTO.EndpointStatus.ACTIVE, cloudProvider));
+		userRoleDao.updateMissingRoles(cloudProvider);
 	}
 
 	@Override
