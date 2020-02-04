@@ -25,7 +25,6 @@ import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
-import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneConfiguration;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpDataprocConfiguration;
@@ -126,7 +125,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 							user.getAccessToken(), ComputationalMetadataDTO[]
 									.class);
 
-			final Set<String> roles = getRoles(user, project);
+			final Set<String> roles = userGroupDao.getUserGroups(user.getName());
 
 			return Arrays.stream(array)
 					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
@@ -140,12 +139,6 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 			log.error("Could not load list of computational templates for user: {}", user.getName(), e);
 			throw e;
 		}
-	}
-
-	private Set<String> getRoles(UserInfo user, String project) {
-		return projectDAO.get(project)
-				.map(ProjectDTO::getGroups)
-				.orElse(user.getRoles());
 	}
 
 	/**
