@@ -32,5 +32,5 @@ output "vpc_id" {
 }
 
 output "ssn_k8s_sg_id" {
-  value = azurerm_network_security_group.enpoint-sg.id
+  value = azurerm_network_security_group.enpoint-sg.name
 }

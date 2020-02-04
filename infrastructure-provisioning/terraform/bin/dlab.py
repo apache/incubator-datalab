@@ -1150,6 +1150,75 @@ class GCPEndpointBuilder(AbstractDeployBuilder):
          .add_str('--ssn_subnet', 'ID of AWS Subnet if you already have subnet created.', group='endpoint')
          .add_str('--subnet_id', 'ID of subnet', group='endpoint')
          .add_str('--ami', 'ID of EC2 AMI.', group='endpoint')
+         .add_str('--key_path', 'Path to public key', required=True, group='endpoint')
+         .add_str('--endpoint_id', 'Endpoint id.', required=True, group='endpoint')
+         .add_str('--region', 'Name of region.', group='endpoint')
+         .add_str('--endpoint_shape', 'Instance shape of Endpoint.', default='Standard_DS2_v2', group='endpoint')
+         .add_str('--endpoint_volume_size', 'Endpoint disk size', default='30', group='endpoint')
+         .add_str('--additional_tag', 'Additional tag.', default='product:dlab', group='endpoint')
+         .add_str('--ldap_host', 'ldap host', required=True, group='endpoint')
+         .add_str('--ldap_dn', 'ldap dn', required=True, group='endpoint')
+         .add_str('--ldap_user', 'ldap user', required=True, group='endpoint')
+         .add_str('--ldap_bind_creds', 'ldap bind creds', required=True, group='endpoint')
+         .add_str('--ldap_users_group', 'ldap users group', required=True, group='endpoint')
+         )
+        return params.build()
+
+    def deploy(self):
+        self.fill_sys_argv_from_file()
+        new_dir = os.path.abspath(
+            os.path.join(os.getcwd(), '../../../bin/deploy'))
+        os.chdir(new_dir)
+        start_deploy()
+
+
+class AzureEndpointBuilder(AbstractDeployBuilder):
+
+    def update_extracted_file_data(self, obj):
+        if 'ssn_vpc_id' in obj:
+            obj['vpc_id'] = obj['ssn_vpc_id']
+
+    @property
+    def name(self):
+        return 'endpoint'
+
+    @property
+    def use_tf_output_file(self):
+        return True
+
+    @property
+    def terraform_location(self):
+        tf_dir = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
+        return os.path.join(tf_dir, 'azure/endpoint/main')
+
+    @property
+    def terraform_args_group_name(self):
+        return 'endpoint'
+
+    def validate_params(self):
+        super(AzureEndpointBuilder, self).validate_params()
+        params = self.parse_args()[self.terraform_args_group_name]
+        if len(params.get('endpoint_id')) > 12:
+            sys.stderr.write('endpoint_id length should be less then 12')
+            sys.exit(1)
+
+    @property
+    def cli_args(self):
+        params = ParamsBuilder()
+        (params
+         .add_bool('--no_color', 'no color console_output', group='service',
+                   default=False)
+         .add_str('--state', 'State file path', group='service')
+         .add_str('--auth_file_path', 'Path to crdes file', required=True, group='endpoint')
+         .add_str('--pkey', 'path to key', required=True, group='service')
+         .add_str('--service_base_name', 'Service base name', group='endpoint')
+         .add_str('--resource_group_name', 'Resource group name', group='endpoint')
+         .add_str('--vpc_id', 'ID of VPC if you already have VPC created.', group='endpoint')
+         .add_str('--subnet_cidr', 'CIDR for Subnet creation. Conflicts with vpc_id.', default='172.31.0.0/24',
+                  group='endpoint')
+         .add_str('--ssn_subnet', 'ID of AWS Subnet if you already have subnet created.', group='endpoint')
+         .add_str('--subnet_id', 'ID of subnet', group='endpoint')
+         .add_str('--ami', 'ID of EC2 AMI.', group='endpoint')
          .add_str('--path_to_pub_key', 'Path to public key', required=True, group='endpoint')
          .add_str('--endpoint_id', 'Endpoint id.', required=True, group='endpoint')
          .add_str('--region', 'Name of region.', group='endpoint')
@@ -1205,7 +1274,8 @@ def deploy():
 
     sources_targets = {
         'aws': ['k8s', 'endpoint'],
-        'gcp': ['k8s', 'endpoint']
+        'gcp': ['k8s', 'endpoint'],
+        'azure': ['endpoint']
     }
 
     no_args_error = ('usage: ./dlab {} {} {}\n'.format(
@@ -1239,6 +1309,9 @@ def deploy():
         'gcp': {
             'k8s': GCPK8sSourceBuilder,
             'endpoint': GCPEndpointBuilder
+        },
+        'azure': {
+            'endpoint': AzureEndpointBuilder
         }
     }
     builder = builders_dict[source][target]()

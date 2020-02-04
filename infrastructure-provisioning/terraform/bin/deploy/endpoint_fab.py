@@ -126,7 +126,16 @@ def ensure_step_certs():
                                                   'http://metadata/computeMetadata/v1/instance/network-interfaces/0/'
                                                   'ip').stdout.replace('\n', '')
                 except:
-                    public_ip_address = None 
+                    public_ip_address = None
+            elif args.cloud_provider == 'azure':
+                local_ip_address = conn.sudo('curl -s '
+                                             'http://169.254.169.254/latest/meta-data/local-ipv4').stdout.replace('\n',
+                                                                                                                  '')
+                try:
+                    public_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/'
+                                                  'public-ipv4').stdout.replace('\n', '')
+                except:
+                    public_ip_address = None
             else:
                 local_ip_address = None
                 public_ip_address = None
@@ -755,6 +764,7 @@ def init_args():
 
 def update_system():
     conn.sudo('apt-get update')
+    conn.sudo('apt-get install -y jq')
 
 
 def init_dlab_connection(ip=None, user=None,
