@@ -22,7 +22,6 @@
 locals {
   endpoint_instance_name      = "${var.service_base_name}-${var.endpoint_id}-endpoint"
   endpoint_instance_disk_name = "${var.service_base_name}-${var.endpoint_id}-endpoint-disk"
-  endpoimt_image              = split(var.ami, "_")
 }
 
 data "tls_public_key" "enpoint_key" {
@@ -38,9 +37,9 @@ resource "azurerm_virtual_machine" "endpoint_instance" {
   delete_os_disk_on_termination = true
 
   storage_image_reference {
-    publisher = local.endpoimt_image[0]
-    offer     = local.endpoimt_image[1]
-    sku       = local.endpoimt_image[2]
+    publisher = element(split("_", var.ami),0)
+    offer     = element(split("_", var.ami),1)
+    sku       = element(split("_", var.ami),2)
     version   = "latest"
   }
   storage_os_disk {
