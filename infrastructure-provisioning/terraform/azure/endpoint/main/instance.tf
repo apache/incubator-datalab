@@ -58,7 +58,7 @@ resource "azurerm_virtual_machine" "endpoint_instance" {
     disable_password_authentication = false
     ssh_keys {
       key_data = data.tls_public_key.enpoint_key.public_key_openssh
-      path = "/home/${var.dlab_user_name}/.ssh/authorized_keys"
+      path = "/home/ubuntu/.ssh/authorized_keys"
     }
   }
 
