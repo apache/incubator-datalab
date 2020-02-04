@@ -32,7 +32,7 @@ resource "azurerm_virtual_machine" "endpoint_instance" {
   name                          = local.endpoint_instance_name
   location                      = data.azurerm_resource_group.data-endpoint-resource-group.location
   resource_group_name           = data.azurerm_resource_group.data-endpoint-resource-group.name
-  network_interface_ids         = azurerm_network_interface.endpoint-nif.id
+  network_interface_ids         = [azurerm_network_interface.endpoint-nif.id]
   vm_size                       = var.endpoint_instance_shape
   delete_os_disk_on_termination = true
 
