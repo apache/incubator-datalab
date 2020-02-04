@@ -52,3 +52,13 @@ variable "subnet_id" {
 }
 
 variable "subnet_cidr" {}
+
+variable "endpoint_instance_shape" {}
+
+variable "ami" {
+  default = "Canonical_UbuntuServer_16.04-LTS"
+}
+
+variable "endpoint_volume_size" {}
+
+variable "key_path" {}

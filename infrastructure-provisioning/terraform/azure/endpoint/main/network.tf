@@ -21,10 +21,10 @@
 
 locals {
   endpoint_subnet_name       = "${var.service_base_name}-${var.endpoint_id}-subnet"
-  endpoint_sg_name           = "${var.service_base_name}-${var.endpoint_id}-sg"
   endpoint_vpc_name          = "${var.service_base_name}-endpoint-vpc"
   additional_tag             = split(":", var.additional_tag)
   endpoint_ip_name           = "${var.service_base_name}-${var.endpoint_id}-eip"
+  endpoint_nif_name          = "${var.service_base_name}-${var.endpoint_id}-nif"
 }
 
 resource "azurerm_virtual_network" "endpoint-network" {
@@ -59,4 +59,40 @@ data "azurerm_subnet" "data-endpoint-subnet" {
   name                 = var.subnet_id == "" ? azurerm_subnet.endpoint-subnet.0.name : var.subnet_id
   virtual_network_name = data.azurerm_virtual_network.data-endpoint-network.name
   resource_group_name  = data.azurerm_resource_group.data-endpoint-resource-group.name
+}
+
+resource "azurerm_public_ip" "endpoint-static-ip" {
+  name                = local.endpoint_ip_name
+  location            = var.region
+  resource_group_name = data.azurerm_resource_group.data-endpoint-resource-group.name
+  allocation_method   = "Static"
+
+  tags = {
+    Name                              = local.endpoint_ip_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"          = "${var.service_base_name}:${local.endpoint_ip_name}"
+    "${var.service_base_name}-Tag"    = local.endpoint_ip_name
+  }
+}
+
+resource "azurerm_network_interface" "endpoint-nif" {
+  name                      = local.endpoint_nif_name
+  location                  = data.azurerm_resource_group.data-endpoint-resource-group.location
+  resource_group_name       = data.azurerm_resource_group.data-endpoint-resource-group.name
+  network_security_group_id = azure_security_group.enpoint-sg.id
+
+  ip_configuration {
+    name                          = "configuration"
+    subnet_id                     = data.azurerm_subnet.data-endpoint-subnet.id
+    private_ip_address_allocation = "Static"
+    public_ip_address_id          = azurerm_public_ip.endpoint-static-ip.id
+    private_ip_address_version    = "IPv4"
+  }
+
+  tags = {
+    Name                              = local.endpoint_nif_name
+    "${local.additional_tag[0]}"      = local.additional_tag[1]
+    "${var.tag_resource_id}"          = "${var.service_base_name}:${local.endpoint_nif_name}"
+    "${var.service_base_name}-Tag"    = local.endpoint_nif_name
+  }
 }
