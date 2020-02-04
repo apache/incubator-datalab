@@ -128,12 +128,13 @@ def ensure_step_certs():
                 except:
                     public_ip_address = None
             elif args.cloud_provider == 'azure':
-                local_ip_address = conn.sudo('curl -s '
-                                             'http://169.254.169.254/latest/meta-data/local-ipv4').stdout.replace('\n',
-                                                                                                                  '')
+                local_ip_address = conn.sudo('curl -s -H Metadata:true "http://169.254.169.254/metadata/'
+                                             'instance?api-version=2017-08-01&format=json" | jq -r ".network.'
+                                             'interface[].ipv4.ipAddress[].privateIpAddress"').stdout
                 try:
-                    public_ip_address = conn.sudo('curl -s http://169.254.169.254/latest/meta-data/'
-                                                  'public-ipv4').stdout.replace('\n', '')
+                    public_ip_address = conn.sudo('curl -s -H Metadata:true "http://169.254.169.254/metadata/'
+                                                  'instance?api-version=2017-08-01&format=json" | jq -r ".network.'
+                                                  'interface[].ipv4.ipAddress[].publicIpAddress"').stdout
                 except:
                     public_ip_address = None
             else:
@@ -229,7 +230,7 @@ def ensure_docker_endpoint():
                                   .stdout.rstrip("\n\r"))
                 conn.sudo("sed -i 's|DNS_IP_RESOLVE|\"dns\": [\"{0}\"],|g' {1}/tmp/daemon.json"
                           .format(dns_ip_resolve, args.dlab_path))
-            elif args.cloud_provider == "gcp":
+            elif args.cloud_provider == "gcp" or args.cloud_provider == "azure":
                 dns_ip_resolve = ""
                 conn.sudo('sed -i "s|DNS_IP_RESOLVE||g" {1}/tmp/daemon.json'
                           .format(dns_ip_resolve, args.dlab_path))
