@@ -23,46 +23,50 @@ locals {
    endpoint_sg_name = "${var.service_base_name}-${var.endpoint_id}-sg"
 }
 
-resource "azure_security_group" "enpoint-sg" {
-  name     = local.endpoint_sg_name
-  location = var.region
+resource "azurerm_network_security_group" "enpoint-sg" {
+  location            = data.azurerm_resource_group.data-endpoint-resource-group.location
+  resource_group_name = data.azurerm_resource_group.data-endpoint-resource-group.name
+  name                = local.endpoint_sg_name
 }
 
-resource "azure_security_group_rule" "inbound-1" {
-  name                       = "inbound-1"
-  security_group_names       = [azure_security_group.enpoint-sg.name]
-  type                       = "Inbound"
-  action                     = "Allow"
-  priority                   = 100
-  source_address_prefix      = "*"
-  source_port_range          = "*"
-  destination_address_prefix = "*"
-  destination_port_range     = "22"
-  protocol                   = "TCP"
+resource "azurerm_network_security_rule" "inbound-1" {
+  resource_group_name         = data.azurerm_resource_group.data-endpoint-resource-group.name
+  network_security_group_name = azurerm_network_security_group.enpoint-sg.name
+  name                        = "inbound-1"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 100
+  source_address_prefix       = "*"
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "22"
+  protocol                    = "TCP"
 }
 
-resource "azure_security_group_rule" "inbound-2" {
-  name                       = "inbound-2"
-  security_group_names       = [azure_security_group.enpoint-sg.name]
-  type                       = "Inbound"
-  action                     = "Allow"
-  priority                   = 200
-  source_address_prefix      = "*"
-  source_port_range          = "*"
-  destination_address_prefix = "*"
-  destination_port_range     = "8084"
-  protocol                   = "TCP"
+resource "azurerm_network_security_rule" "inbound-2" {
+  resource_group_name         = data.azurerm_resource_group.data-endpoint-resource-group.name
+  network_security_group_name = azurerm_network_security_group.enpoint-sg.name
+  name                        = "inbound-2"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 200
+  source_address_prefix       = "*"
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "8084"
+  protocol                    = "TCP"
 }
 
-resource "azure_security_group_rule" "outbound-1" {
-  name                       = "outbound-1"
-  security_group_names       = [azure_security_group.enpoint-sg.name]
-  type                       = "Outbound"
-  action                     = "Allow"
-  priority                   = 100
-  source_address_prefix      = "*"
-  source_port_range          = "*"
-  destination_address_prefix = "*"
-  destination_port_range     = "*"
-  protocol                   = "*"
+resource "azurerm_network_security_rule" "outbound-1" {
+  resource_group_name         = data.azurerm_resource_group.data-endpoint-resource-group.name
+  network_security_group_name = azurerm_network_security_group.enpoint-sg.name
+  name                        = "outbound-1"
+  direction                   = "Outbound"
+  access                      = "Allow"
+  priority                    = 100
+  source_address_prefix       = "*"
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "*"
+  protocol                    = "*"
 }
