@@ -104,15 +104,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
       });
   }
 
-  public deleteProject($event) {
-    this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: $event , action: 'decommissioned', }, panelClass: 'modal-sm' })
-      .afterClosed().subscribe(result => {
-        result && this.projectService.deleteProject($event.name).subscribe(() => {
-          this.refreshGrid();
-        });
-      });
-  }
-
   public toggleStatus($event) {
     const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.map(endpoint => endpoint.name)};
       this.toggleStatusRequest(data, $event.action);
