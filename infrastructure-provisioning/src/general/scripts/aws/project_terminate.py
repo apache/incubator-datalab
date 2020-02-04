@@ -148,7 +148,7 @@ if __name__ == "__main__":
         }
 
         client_params = {
-            "clientId": project_conf['service_base_name'] + '-' + project_conf['project_name'],
+            "clientId": project_conf['service_base_name'] + '-' + project_conf['project_name'] + '-' + os.environ['endpoint_name'],
         }
 
         keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data).json()

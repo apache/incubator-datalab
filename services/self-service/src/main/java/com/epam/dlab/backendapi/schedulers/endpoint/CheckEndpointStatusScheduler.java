@@ -41,20 +41,26 @@ public class CheckEndpointStatusScheduler implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
         UserInfo serviceUser = securityService.getServiceAccountInfo("admin");
-        endpointService.getEndpointsWithStatus(EndpointDTO.EndpointStatus.ACTIVE).stream()
-                .filter(endpoint -> checkUrl(serviceUser, endpoint))
-                .peek(e -> log.warn("Failed connecting to endpoint {}, url: \'{}\'", e.getName(), e.getUrl()))
-                .forEach(e -> endpointService.updateEndpointStatus(e.getName(), EndpointDTO.EndpointStatus.INACTIVE));
+        endpointService.getEndpoints().stream()
+                .filter(endpoint -> checkUrlWithStatus(serviceUser, endpoint))
+                .forEach(this::changeStatusToOpposite);
     }
 
-    private boolean checkUrl(UserInfo serviceUser, EndpointDTO endpoint) {
+    private boolean checkUrlWithStatus(UserInfo serviceUser, EndpointDTO endpoint) {
         try {
             endpointService.checkUrl(serviceUser, endpoint.getUrl());
         } catch (Exception e) {
-            return true;
+            log.warn("Failed connecting to endpoint {}, url: '{}'. {}", endpoint.getName(), endpoint.getUrl(), e.getMessage());
+            return endpoint.getStatus() == EndpointDTO.EndpointStatus.ACTIVE;
         }
-        return false;
+        return endpoint.getStatus() == EndpointDTO.EndpointStatus.INACTIVE;
     }
 
-
+    private void changeStatusToOpposite(EndpointDTO endpoint) {
+        if (endpoint.getStatus() == EndpointDTO.EndpointStatus.ACTIVE) {
+            endpointService.updateEndpointStatus(endpoint.getName(), EndpointDTO.EndpointStatus.INACTIVE);
+        } else {
+            endpointService.updateEndpointStatus(endpoint.getName(), EndpointDTO.EndpointStatus.ACTIVE);
+        }
+    }
 }
