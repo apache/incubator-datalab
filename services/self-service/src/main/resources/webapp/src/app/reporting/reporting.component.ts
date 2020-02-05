@@ -68,7 +68,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   data: any;
   billingEnabled: boolean;
   admin: boolean;
-  private PROVIDER: string;
+  public PROVIDER: string;
 
   constructor(
     private billingReportService: BillingReportService,
