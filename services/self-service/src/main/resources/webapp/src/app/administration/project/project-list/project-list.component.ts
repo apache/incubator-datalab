@@ -28,6 +28,8 @@ import { Project, Endpoint } from '../project.component';
 import { CheckUtils } from '../../../core/util';
 import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
+import {EndpointService} from '../../../core/services';
+
 
 @Component({
   selector: 'project-list',
@@ -112,7 +114,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
           return endpoint.status === 'STOPPED';
         }
         if (action === 'terminate') {
-          return endpoint.status === 'RUNNING' || endpoint.status == 'STOPPED';
+          return endpoint.status === 'RUNNING' || endpoint.status === 'STOPPED';
         }
       });
       this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})

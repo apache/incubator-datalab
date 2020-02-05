@@ -76,7 +76,7 @@ export class ManagementGridComponent implements OnInit {
   }
 
   getEnvironmentData() {
-    setTimeout(() => {this.progressBarService.startProgressBar();} , 0);
+    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.environmentsDataService._data.subscribe(data => {
       if (data) {
         this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);

@@ -301,7 +301,7 @@ span.mat-slide-toggle-content {
 
 .project-form,
 .create-environment{
-  .ng-invalid{
+  .mat-select:not(.ng-pristine){
     .mat-form-field-label {
       line-height: 22px !important;
       font-size: 15px !important;
@@ -316,18 +316,16 @@ span.mat-slide-toggle-content {
 .project-form,
 .create-environment,
 .create-cluster{
-
-
   .mat-select-value{
     overflow: visible;
   }
 }
 
 .create-cluster {
-  .ng-invalid {
+  .mat-select:not(.ng-pristine) {
     .mat-form-field-label {
       padding-top: 5px;
-      line-height: 16px !important;
+      line-height: 55px !important;
       font-size: 15px !important;
     }
   }
