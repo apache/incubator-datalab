@@ -253,6 +253,10 @@ def create_key_dir_endpoint():
     try:
         if not exists(conn, '/home/{}/keys'.format(args.os_user)):
             conn.run('mkdir /home/{}/keys'.format(args.os_user))
+            if args.auth_file_path:
+                conn.put(args.auth_file_path, '/tmp/azure_auth.json')
+                conn.sudo('mv /tmp/azure_auth.json /home/{}/keys/'.format(args.os_user))
+                args.auth_file_path = '/home/{}/keys/azure_auth.json'.format(args.os_user)
     except Exception as err:
         logging.error('Failed create keys directory as ~/keys: ', str(err))
         traceback.print_exc()
@@ -317,10 +321,12 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                      .format(dlab_conf_dir))
             if args.resource_group_name == '':
                 args.resource_group_name = args.service_base_name
+            if args.cloud_provider == 'azure':
+                args.region = args.region.lower().replace(' ', '')
             cloud_properties = [
                 {
                     'key': "OS_USER",
-                    'value': args.os_user
+                    'value': args.os_userd
                 },
                 {
                     'key': "KEYNAME",
@@ -501,6 +507,10 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 {
                     'key': "KEYCLOAK_PASSWORD",
                     'value': args.keycloak_user_password
+                },
+                {
+                    'key': "AZURE_AUTH_FILE_PATH",
+                    'value': args.auth_file_path
                 }
             ]
             for param in cloud_properties:
@@ -761,6 +771,7 @@ def init_args():
     parser.add_argument('--step_ca_url', type=str, default='')
     parser.add_argument('--shared_image_enabled', type=str, default='true')
     parser.add_argument('--image_enabled', type=str, default='true')
+    parser.add_argument('--auth_file_path', type=str, default='')
 
     # TEMPORARY
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
