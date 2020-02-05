@@ -481,7 +481,7 @@ def init_args():
     parser.add_argument('--ssn_bucket_name', type=str, default='')
     parser.add_argument('--endpoint_keystore_password', type=str, default='')
     parser.add_argument('--keycloak_client_secret', type=str, default='')
-    parser.add_argument('--branch_name', type=str, default='DLAB-terraform')  # change default
+    parser.add_argument('--branch_name', type=str, default='master')  # change default
 
     parser.add_argument('--conf_os', type=str, default='debian')
     parser.add_argument('--service_base_name', type=str, default='')

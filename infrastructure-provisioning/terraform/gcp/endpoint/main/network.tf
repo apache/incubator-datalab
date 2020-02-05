@@ -20,24 +20,24 @@
 # ******************************************************************************
 
 locals {
-  vpc_name              = "${var.service_base_name}-${var.endpoint_id}-endpoint-vpc"
-  subnet_name           = "${var.service_base_name}-${var.endpoint_id}-endpoint-subnet"
+  vpc_id                = "${var.service_base_name}-${var.endpoint_id}-vpc"
+  subnet_name           = "${var.service_base_name}-${var.endpoint_id}-subnet"
   firewall_ingress_name = "${var.service_base_name}-${var.endpoint_id}-ing-rule"
   firewall_egress_name  = "${var.service_base_name}-${var.endpoint_id}-eg-rule"
 }
 
 resource "google_compute_network" "endpoint_vpc" {
-  count = var.vpc_name == "" ? 1 : 0
-  name                    = local.vpc_name
+  count = var.vpc_id == "" ? 1 : 0
+  name                    = local.vpc_id
   auto_create_subnetworks = false
 }
 
 data "google_compute_network" "endpoint_vpc_data" {
-  name = var.vpc_name == "" ? google_compute_network.endpoint_vpc.0.name : var.vpc_name
+  name = var.vpc_id == "" ? google_compute_network.endpoint_vpc.0.name : var.vpc_id
 }
 
 resource "google_compute_subnetwork" "endpoint_subnet" {
-  count         = var.subnet_name == "" ? 1 : 0
+  count         = var.subnet_id == "" ? 1 : 0
   name          = local.subnet_name
   ip_cidr_range = var.subnet_cidr
   region        = var.region
@@ -45,7 +45,7 @@ resource "google_compute_subnetwork" "endpoint_subnet" {
 }
 
 data "google_compute_subnetwork" "endpoint_subnet_data" {
-  name = var.subnet_name == "" ? google_compute_subnetwork.endpoint_subnet.0.name : var.subnet_name
+  name = var.subnet_id == "" ? google_compute_subnetwork.endpoint_subnet.0.name : var.subnet_id
 }
 
 resource "google_compute_firewall" "firewall-ingress" {
@@ -56,7 +56,7 @@ resource "google_compute_firewall" "firewall-ingress" {
     ports    = ["22", "8084", "8085", "4822"]
   }
   target_tags   = ["${var.service_base_name}-${var.endpoint_id}-endpoint"]
-  source_ranges = ["${var.firewall_ing_cidr_range}"]
+  source_ranges = [var.firewall_ing_cidr_range]
 
 }
 
@@ -68,5 +68,5 @@ resource "google_compute_firewall" "firewall-egress" {
     protocol = "all"
   }
   target_tags        = ["${var.service_base_name}-${var.endpoint_id}-endpoint"]
-  destination_ranges = ["${var.firewall_eg_cidr_range}"]
+  destination_ranges = [var.firewall_eg_cidr_range]
 }

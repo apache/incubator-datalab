@@ -60,7 +60,7 @@ if __name__ == "__main__":
     project_conf['region'] = os.environ['gcp_region']
     project_conf['zone'] = os.environ['gcp_zone']
     project_conf['vpc_selflink'] = GCPMeta().get_vpc(project_conf['vpc_name'])['selfLink']
-    project_conf['private_subnet_prefix'] = os.environ['gcp_private_subnet_prefix']
+    project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
     project_conf['edge_service_account_name'] = '{}-{}-edge'.format(project_conf['service_base_name'],
                                                                  project_conf['project_name'])
     project_conf['edge_role_name'] = '{}-{}-edge'.format(project_conf['service_base_name'],
@@ -100,6 +100,10 @@ if __name__ == "__main__":
                                     "endpoint_tag": project_conf['endpoint_tag'],
                                     "product": "dlab"}
     project_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
+    if 'conf_user_subnets_range' in os.environ:
+        project_conf['user_subnets_range'] = os.environ['conf_user_subnets_range']
+    else:
+        project_conf['user_subnets_range'] = ''
 
     # FUSE in case of absence of user's key
     try:
@@ -119,9 +123,10 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SUBNET]')
         print('[CREATE SUBNET]')
-        params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {}" \
+        params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {} --user_subnets_range '{}'" \
                  .format(project_conf['private_subnet_name'], project_conf['region'], project_conf['vpc_selflink'],
-                         project_conf['private_subnet_prefix'], project_conf['vpc_cidr'])
+                         project_conf['private_subnet_prefix'], project_conf['vpc_cidr'],
+                         project_conf['user_subnets_range'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
             project_conf['private_subnet_cidr'] = GCPMeta().get_subnet(project_conf['private_subnet_name'],
@@ -202,7 +207,7 @@ if __name__ == "__main__":
         rules = [
             {
                 'IPProtocol': 'tcp',
-                'ports': ['22', '80', '3128']
+                'ports': ['22', '80', '443', '3128']
             }
         ]
         ingress_rule['allowed'] = rules
@@ -360,6 +365,13 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
+        params = "--bucket_name {}".format(project_conf['shared_bucket_name'])
+        try:
+            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+
         params = "--bucket_name {}".format(project_conf['bucket_name'])
 
         try:

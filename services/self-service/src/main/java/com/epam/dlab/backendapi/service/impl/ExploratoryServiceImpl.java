@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EndpointService;
@@ -33,13 +34,19 @@ import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.TagService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.epam.dlab.dto.exploratory.*;
+import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryReconfigureSparkClusterActionDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
+import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.exploratory.Exploratory;
 import com.epam.dlab.model.library.Library;
@@ -54,8 +61,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.dto.UserInstanceStatus.*;
-import static com.epam.dlab.rest.contracts.ExploratoryAPI.*;
+import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
+import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
+import static com.epam.dlab.dto.UserInstanceStatus.STARTING;
+import static com.epam.dlab.dto.UserInstanceStatus.STOPPED;
+import static com.epam.dlab.dto.UserInstanceStatus.STOPPING;
+import static com.epam.dlab.dto.UserInstanceStatus.TERMINATED;
+import static com.epam.dlab.dto.UserInstanceStatus.TERMINATING;
+import static com.epam.dlab.rest.contracts.ExploratoryAPI.EXPLORATORY_CREATE;
+import static com.epam.dlab.rest.contracts.ExploratoryAPI.EXPLORATORY_RECONFIGURE_SPARK;
+import static com.epam.dlab.rest.contracts.ExploratoryAPI.EXPLORATORY_START;
+import static com.epam.dlab.rest.contracts.ExploratoryAPI.EXPLORATORY_STOP;
+import static com.epam.dlab.rest.contracts.ExploratoryAPI.EXPLORATORY_TERMINATE;
 
 @Slf4j
 @Singleton
@@ -105,16 +122,17 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		boolean isAdded = false;
 		try {
 			final ProjectDTO projectDTO = projectService.get(project);
-			final UserInstanceDTO userInstanceDTO = getUserInstanceDTO(userInfo, exploratory, project);
+			final EndpointDTO endpointDTO = endpointService.get(exploratory.getEndpoint());
+			final UserInstanceDTO userInstanceDTO = getUserInstanceDTO(userInfo, exploratory, project, endpointDTO.getCloudProvider());
 			exploratoryDAO.insertExploratory(userInstanceDTO);
 			isAdded = true;
 			final ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
 			log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
 			final String uuid =
-					provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + EXPLORATORY_CREATE,
+					provisioningService.post(endpointDTO.getUrl() + EXPLORATORY_CREATE,
 							userInfo.getAccessToken(),
-							requestBuilder.newExploratoryCreate(projectDTO, exploratory, userInfo, gitCreds,
-									userInstanceDTO.getTags()),
+							requestBuilder.newExploratoryCreate(projectDTO, endpointDTO, exploratory, userInfo,
+									gitCreds, userInstanceDTO.getTags()),
 							String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;
@@ -177,11 +195,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		final String token = userInfo.getAccessToken();
 		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchRunningExploratoryFields(userName,
 				exploratoryName);
+		EndpointDTO endpointDTO = endpointService.get(userInstanceDTO.getEndpoint());
 		final ExploratoryReconfigureSparkClusterActionDTO updateClusterConfigDTO =
-				requestBuilder.newClusterConfigUpdate(userInfo, userInstanceDTO, config);
-		final String uuid =
-				provisioningService.post(endpointService.get(userInstanceDTO.getEndpoint()).getUrl() + EXPLORATORY_RECONFIGURE_SPARK, token, updateClusterConfigDTO,
-						String.class);
+				requestBuilder.newClusterConfigUpdate(userInfo, userInstanceDTO, config, endpointDTO);
+		final String uuid = provisioningService.post(endpointDTO.getUrl() + EXPLORATORY_RECONFIGURE_SPARK,
+				token, updateClusterConfigDTO,
+				String.class);
 		requestId.put(userName, uuid);
 		exploratoryDAO.updateExploratoryFields(new ExploratoryStatusDTO()
 				.withUser(userName)
@@ -245,10 +264,10 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			updateExploratoryStatus(exploratoryName, status, userInfo.getName());
 
 			UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
+			EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 			final String uuid =
-					provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + action,
-							userInfo.getAccessToken(),
-							getExploratoryActionDto(userInfo, status, userInstance), String.class);
+					provisioningService.post(endpointDTO.getUrl() + action, userInfo.getAccessToken(),
+							getExploratoryActionDto(userInfo, status, userInstance, endpointDTO), String.class);
 			requestId.put(userInfo.getName(), uuid);
 			return uuid;
 		} catch (Exception t) {
@@ -275,13 +294,13 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	private ExploratoryActionDTO<?> getExploratoryActionDto(UserInfo userInfo, UserInstanceStatus status,
-															UserInstanceDTO userInstance) {
+															UserInstanceDTO userInstance, EndpointDTO endpointDTO) {
 		ExploratoryActionDTO<?> dto;
 		if (status != UserInstanceStatus.STARTING) {
-			dto = requestBuilder.newExploratoryStop(userInfo, userInstance);
+			dto = requestBuilder.newExploratoryStop(userInfo, userInstance, endpointDTO);
 		} else {
 			dto = requestBuilder.newExploratoryStart(
-					userInfo, userInstance, gitCredsDAO.findGitCreds(userInfo.getName()));
+					userInfo, userInstance, endpointDTO, gitCredsDAO.findGitCreds(userInfo.getName()));
 
 		}
 		return dto;
@@ -338,7 +357,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withStatus(status);
 	}
 
-	private UserInstanceDTO getUserInstanceDTO(UserInfo userInfo, Exploratory exploratory, String project) {
+	private UserInstanceDTO getUserInstanceDTO(UserInfo userInfo, Exploratory exploratory, String project, CloudProvider cloudProvider) {
 		final UserInstanceDTO userInstance = new UserInstanceDTO()
 				.withUser(userInfo.getName())
 				.withExploratoryName(exploratory.getName())
@@ -350,6 +369,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.withShape(exploratory.getShape())
 				.withProject(project)
 				.withEndpoint(exploratory.getEndpoint())
+				.withCloudProvider(cloudProvider.toString())
 				.withTags(tagService.getResourceTags(userInfo, exploratory.getEndpoint(), project,
 						exploratory.getExploratoryTag()));
 		if (StringUtils.isNotBlank(exploratory.getImageName())) {

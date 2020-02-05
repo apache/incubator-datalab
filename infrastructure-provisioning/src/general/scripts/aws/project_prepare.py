@@ -61,10 +61,9 @@ if __name__ == "__main__":
                                                                   project_conf['project_name'],
                                                                   project_conf['endpoint_name'])
     project_conf['bucket_name'] = project_conf['bucket_name_tag'].lower().replace('_', '-')
-    project_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(
-        project_conf['service_base_name']).lower().replace('_', '-')
-    project_conf['shared_bucket_name'] = '{0}-{1}-shared-bucket'.format(
-        project_conf['service_base_name'], project_conf['endpoint_tag']).lower().replace('_', '-')
+    project_conf['shared_bucket_name_tag'] = '{0}-{1}-shared-bucket'.format(
+        project_conf['service_base_name'], project_conf['endpoint_tag'])
+    project_conf['shared_bucket_name'] = project_conf['shared_bucket_name_tag'].lower().replace('_', '-')
     project_conf['edge_role_name'] = '{}-{}-edge-Role'.format(
         project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
     project_conf['edge_role_profile_name'] = '{}-{}-edge-Profile'.format(
@@ -84,7 +83,7 @@ if __name__ == "__main__":
         .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
     project_conf['notebook_security_group_name'] = '{}-{}-nb-sg'.format(project_conf['service_base_name'],
                                                                      os.environ['project_name'])
-    project_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
     project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'],
                                                                os.environ['project_name'])
     project_conf['dataengine_master_security_group_name'] = '{}-{}-dataengine-master-sg' \
@@ -146,7 +145,8 @@ if __name__ == "__main__":
     if not project_conf['local_endpoint']:
         # attach project_tag and endpoint_tag to endpoint
         try:
-            endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
+            endpoint_id = get_instance_by_name(project_conf['tag_name'], '{0}-{1}-endpoint'.format(
+                project_conf['service_base_name'], os.environ['endpoint_name']))
             print("Endpoint id: " + endpoint_id)
             ec2 = boto3.client('ec2')
             ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']},
@@ -255,6 +255,12 @@ if __name__ == "__main__":
                 "FromPort": 80,
                 "IpRanges": project_conf['allowed_ip_cidr'],
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 443,
+                "IpRanges": project_conf['allowed_ip_cidr'],
+                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "IpProtocol": "-1",
@@ -514,7 +520,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        append_result("Failed to create bucket.", str(err))
+        append_result("Failed to create security group.", str(err))
         remove_all_iam_resources('notebook', os.environ['project_name'])
         remove_all_iam_resources('edge', os.environ['project_name'])
         remove_sgroups(project_conf['dataengine_instances_name'])
@@ -525,6 +531,14 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
+        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}". \
+            format(project_conf['shared_bucket_name'], project_conf['tag_name'], project_conf['shared_bucket_name'], project_conf['region'], project_conf['shared_bucket_name_tag'])
+        try:
+            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+
         params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}" \
                  .format(project_conf['bucket_name'], project_conf['tag_name'], project_conf['bucket_name'],
                          project_conf['region'], project_conf['bucket_name_tag'])
@@ -535,7 +549,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        append_result("Failed to create bucket.", str(err))
+        append_result("Failed to create buckets.", str(err))
         remove_all_iam_resources('notebook', os.environ['project_name'])
         remove_all_iam_resources('edge', os.environ['project_name'])
         remove_sgroups(project_conf['dataengine_instances_name'])
@@ -546,10 +560,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATING BUCKET POLICY FOR PROJECT INSTANCES]')
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-        params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} ' \
+        params = '--bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} ' \
                  '--notebook_role_name {} --service_base_name {} --region {} ' \
                  '--user_predefined_s3_policies "{}"'.format(project_conf['bucket_name'],
-                                                             project_conf['ssn_bucket_name'],
                                                              project_conf['shared_bucket_name'],
                                                              os.environ['project_name'], project_conf['edge_role_name'],
                                                              project_conf['notebook_dataengine_role_name'],

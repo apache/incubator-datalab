@@ -19,6 +19,8 @@
 #
 # ******************************************************************************
 
+variable "namespace_name" {}
+
 variable "mongo_dbname" {}
 
 variable "mongo_db_username" {}
@@ -59,20 +61,28 @@ variable "mongo_image_tag" {}
 
 variable "mongo_node_port" {}
 
-variable "ssn_keystore_password" {}
-
-variable "endpoint_keystore_password" {}
-
 variable "gke_cluster_name" {}
 
 variable "big_query_dataset" {}
 
 variable "env_os" {}
-//variable "nginx_http_port" {
-//    default = "31080"
-//    description = "Sets the nodePort that maps to the Ingress' port 80"
-//}
-//variable "nginx_https_port" {
-//    default = "31443"
-//    description = "Sets the nodePort that maps to the Ingress' port 443"
-//}
+
+variable "credentials_file_path" {}
+
+variable "project_id" {}
+
+variable "custom_certs_enabled" {}
+
+variable "custom_cert_path" {}
+
+variable "custom_key_path" {}
+
+variable "custom_certs_host" {}
+
+variable "mysql_disk_size" {}
+
+variable "domain" {}
+
+variable "keycloak_realm_name" {}
+
+variable "keycloak_client_id" {}

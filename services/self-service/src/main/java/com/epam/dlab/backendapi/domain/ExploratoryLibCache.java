@@ -223,18 +223,19 @@ public class ExploratoryLibCache implements Managed, Runnable {
 			String uuid;
 			if (userInstance.getResources() != null && !userInstance.getResources().isEmpty()) {
 				UserComputationalResource userComputationalResource = userInstance.getResources().get(0);
+				EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 				LibListComputationalDTO dto = requestBuilder.newLibComputationalList(userInfo, userInstance,
-						userComputationalResource);
-				uuid = provisioningService.post(endpointService
-								.get(userInstance.getEndpoint()).getUrl() + ComputationalAPI.COMPUTATIONAL_LIB_LIST,
+						userComputationalResource, endpointDTO);
+
+				uuid = provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_LIB_LIST,
 						userInfo.getAccessToken(),
 						dto, String.class);
 			} else {
-				ExploratoryActionDTO<?> dto = requestBuilder.newLibExploratoryList(userInfo, userInstance);
-				uuid =
-						provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ExploratoryAPI.EXPLORATORY_LIB_LIST,
-								userInfo.getAccessToken(), dto,
-								String.class);
+				EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
+				ExploratoryActionDTO<?> dto = requestBuilder.newLibExploratoryList(userInfo, userInstance, endpointDTO);
+				uuid = provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_LIB_LIST,
+						userInfo.getAccessToken(), dto,
+						String.class);
 			}
 
 			requestId.put(userInfo.getName(), uuid);

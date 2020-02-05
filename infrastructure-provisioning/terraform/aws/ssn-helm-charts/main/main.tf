@@ -22,9 +22,41 @@ provider "helm" {
     install_tiller  = true
     namespace       = "kube-system"
     service_account = "tiller"
-    tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.14.1"
+    tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.15.0"
 }
 
-output "keycloak_client_secret" {
-    value = random_uuid.keycloak_client_secret.result
+provider "kubernetes" {}
+
+resource "kubernetes_namespace" "dlab-namespace" {
+  metadata {
+    annotations = {
+      name = var.namespace_name
+    }
+
+    name = var.namespace_name
+  }
+}
+
+resource "kubernetes_namespace" "cert-manager-namespace" {
+  metadata {
+    annotations = {
+      name = "cert-manager"
+    }
+    labels = {
+      "certmanager.k8s.io/disable-validation" = "true"
+    }
+
+    name = "cert-manager"
+  }
+}
+
+resource "kubernetes_storage_class" "dlab-storage-class" {
+  metadata {
+    name = "aws-ebs"
+  }
+  storage_provisioner = "kubernetes.io/aws-ebs"
+  reclaim_policy      = "Delete"
+  parameters = {
+    type = "gp2"
+  }
 }

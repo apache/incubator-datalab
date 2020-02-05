@@ -113,9 +113,9 @@ if __name__ == "__main__":
             pre_defined_subnet = True
             logging.info('[CREATE SUBNET]')
             print('[CREATE SUBNET]')
-            params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {}".\
+            params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {} --ssn {}".\
                 format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_prefix'],
-                       ssn_conf['vpc_cidr'])
+                       ssn_conf['vpc_cidr'], True)
             try:
                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
                 os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
@@ -211,56 +211,6 @@ if __name__ == "__main__":
             GCPActions().remove_role(ssn_conf['role_name'])
         except:
             print("Service account hasn't been created")
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
-        sys.exit(1)
-
-    try:
-        logging.info('[CREATE BUCKETS]')
-        print('[CREATE BUCKETS]')
-        params = "--bucket_name {}".format(ssn_conf['ssn_bucket_name'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-
-        params = "--bucket_name {}".format(ssn_conf['shared_bucket_name'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Unable to create bucket.", str(err))
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
-        sys.exit(1)
-
-    try:
-        logging.info('[SET PERMISSIONS FOR SSN BUCKET]')
-        print('[SET PERMISSIONS FOR SSN BUCKET]')
-        GCPActions().set_bucket_owner(ssn_conf['ssn_bucket_name'], ssn_conf['service_account_name'])
-    except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Unable to set bucket permissions.", str(err))
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')

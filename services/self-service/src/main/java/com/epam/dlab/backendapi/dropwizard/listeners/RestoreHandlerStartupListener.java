@@ -19,24 +19,30 @@
 
 package com.epam.dlab.backendapi.dropwizard.listeners;
 
+import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.rest.client.RESTService;
 import io.dropwizard.lifecycle.ServerLifecycleListener;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Server;
 
 @Slf4j
 public class RestoreHandlerStartupListener implements ServerLifecycleListener {
 
 	private final RESTService provisioningService;
+	private final EndpointService endpointService;
 
-	public RestoreHandlerStartupListener(RESTService provisioningService) {
+	public RestoreHandlerStartupListener(RESTService provisioningService, EndpointService endpointService) {
 		this.provisioningService = provisioningService;
+		this.endpointService = endpointService;
 	}
 
 	@Override
 	public void serverStarted(Server server) {
 		try {
-			provisioningService.post("/handler/restore", new Object(), Object.class);
+			endpointService.getEndpointsWithStatus(EndpointDTO.EndpointStatus.ACTIVE)
+					.forEach(e -> provisioningService.post(e.getUrl() + "/handler/restore", StringUtils.EMPTY, Object.class));
 		} catch (Exception e) {
 			log.error("Exception occurred during restore handler request: {}", e.getMessage());
 		}

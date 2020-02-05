@@ -26,9 +26,8 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dial
 import { ProjectDataService } from '../project-data.service';
 import { Project, Endpoint } from '../project.component';
 import { CheckUtils } from '../../../core/util';
-import {ProgressBarService} from "../../../core/services/progress-bar.service";
-import {EdgeActionDialogComponent} from "../../../shared/modal-dialog/edge-action-dialog";
-import {EndpointService} from "../../../core/services";
+import {ProgressBarService} from '../../../core/services/progress-bar.service';
+import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
 
 @Component({
   selector: 'project-list',
@@ -42,7 +41,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   projectList: Project[];
 
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
-  @Output() deleteItem: EventEmitter<{}> = new EventEmitter();
   @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
   private subscriptions: Subscription = new Subscription();
 
@@ -50,7 +48,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     public toastr: ToastrService,
     private projectDataService: ProjectDataService,
     private progressBarService: ProgressBarService,
-    private endpointService: EndpointService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<ProjectListComponent>,
     public dialog: MatDialog,
@@ -66,22 +63,10 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private getProjectList(){
-    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
+  private getProjectList() {
+    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
       this.projectList = value;
-      this.endpointService.getEndpointsData().subscribe((endpoints: any) => {
-        if(this.projectList){
-          this.projectList.forEach(project => project.endpoints.forEach(endpoint => {
-            const filtredEndpoints =  endpoints.filter(v => v.name === endpoint.name);
-            if(filtredEndpoints.length){
-              endpoint.endpointStatus = endpoints.filter(v => v.name === endpoint.name)[0].status;
-            }else{
-              endpoint.endpointStatus = "N/A"
-            }
-          }))
-        }
-       });
       if (value) this.dataSource = new MatTableDataSource(value);
       this.progressBarService.stopProgressBar();
     }, () => this.progressBarService.stopProgressBar()));
@@ -104,13 +89,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.editItem.emit(item);
   }
 
-  public deleteProject(item: Project[]) {
-    this.deleteItem.emit(item);
-  }
-
   public isInProgress(project) {
     if (project)
-      return project.endpoints.some(e => e.status !== 'RUNNING' && e.status !== 'STOPPED' && e.status !== 'TERMINATED' && e.status !== 'FAILED')
+      return project.endpoints.some(e => e.status !== 'RUNNING' && e.status !== 'STOPPED' && e.status !== 'TERMINATED' && e.status !== 'FAILED');
   }
 
   public isActiveEndpoint(project) {
@@ -124,19 +105,19 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   public openEdgeDialog(action, project) {
       const endpoints = project.endpoints.filter(endpoint => {
-        if(action === "stop"){
-          return endpoint.status == 'RUNNING'
+        if (action === 'stop') {
+          return endpoint.status === 'RUNNING';
         }
-        if(action === "start"){
-          return endpoint.status == 'STOPPED'
+        if (action === 'start') {
+          return endpoint.status === 'STOPPED';
         }
-        if(action === "terminate"){
-          return endpoint.status == 'RUNNING' || endpoint.status == 'STOPPED'
+        if (action === 'terminate') {
+          return endpoint.status === 'RUNNING' || endpoint.status == 'STOPPED';
         }
       });
       this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})
         .afterClosed().subscribe(endpoint => {
-        if(endpoint && endpoint.length){
+        if (endpoint && endpoint.length) {
         this.toggleStatus.emit({project, endpoint, action});
         }
       }, error => this.toastr.error(error.message || `Endpoint ${action} failed!`, 'Oops!')
@@ -144,10 +125,10 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     }
 
   public areStartedEndpoints(project) {
-    return project.endpoints.filter(endpoint => endpoint.status == 'RUNNING').length > 0;
+    return project.endpoints.filter(endpoint => endpoint.status === 'RUNNING').length > 0;
   }
 
   public areStoppedEndpoints(project) {
-    return project.endpoints.filter(endpoint => endpoint.status == 'STOPPED').length > 0;
+    return project.endpoints.filter(endpoint => endpoint.status === 'STOPPED').length > 0;
   }
 }

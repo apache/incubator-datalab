@@ -25,16 +25,7 @@ locals {
   ssn_k8s_launch_conf_workers_name = "${var.service_base_name}-ssn-launch-conf-workers"
   ssn_k8s_ag_masters_name          = "${var.service_base_name}-ssn-masters"
   ssn_k8s_ag_workers_name          = "${var.service_base_name}-ssn-workers"
-}
-
-resource "random_string" "ssn_keystore_password" {
-  length = 16
-  special = false
-}
-
-resource "random_string" "endpoint_keystore_password" {
-  length = 16
-  special = false
+  cluster_name                     = "${var.service_base_name}-k8s-cluster"
 }
 
 data "template_file" "ssn_k8s_masters_user_data" {
@@ -46,10 +37,8 @@ data "template_file" "ssn_k8s_masters_user_data" {
     k8s-nlb-dns-name           = aws_lb.ssn_k8s_nlb.dns_name
     k8s-tg-arn                 = aws_lb_target_group.ssn_k8s_nlb_api_target_group.arn
     k8s_os_user                = var.os_user
-    ssn_keystore_password      = random_string.ssn_keystore_password.result
-    endpoint_keystore_password = random_string.endpoint_keystore_password.result
-    endpoint_elastic_ip        = aws_eip.k8s-endpoint-eip.public_ip
     kubernetes_version         = var.kubernetes_version
+    cluster_name               = local.cluster_name
   }
 }
 
@@ -59,6 +48,7 @@ data "template_file" "ssn_k8s_workers_user_data" {
     k8s-bucket-name    = aws_s3_bucket.ssn_k8s_bucket.id
     k8s_os_user        = var.os_user
     kubernetes_version = var.kubernetes_version
+    k8s-nlb-dns-name   = aws_lb.ssn_k8s_nlb.dns_name
   }
 }
 
@@ -108,8 +98,9 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
   vpc_zone_identifier  = compact([data.aws_subnet.k8s-subnet-a-data.id, data.aws_subnet.k8s-subnet-b-data.id,
                                   local.subnet_c_id])
   target_group_arns    = [aws_lb_target_group.ssn_k8s_nlb_api_target_group.arn,
-                          aws_lb_target_group.ssn_k8s_nlb_ss_target_group.arn,
-                          aws_lb_target_group.ssn_k8s_alb_target_group.arn]
+                          # aws_lb_target_group.ssn_k8s_nlb_ss_target_group.arn,
+                          # aws_lb_target_group.ssn_k8s_alb_target_group.arn,
+                          aws_lb_target_group.ssn_k8s_nlb_step_ca_target_group.arn]
 
   lifecycle {
     create_before_destroy = true
@@ -133,6 +124,11 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
     {
       key                 = "${var.service_base_name}-Tag"
       value               = local.ssn_k8s_ag_masters_name
+      propagate_at_launch = true
+    },
+    {
+      key                 = "kubernetes.io/cluster/${local.cluster_name}"
+      value               = "owned"
       propagate_at_launch = true
     }
   ]
@@ -168,6 +164,11 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_workers" {
     {
       key                 = "${var.service_base_name}-Tag"
       value               = local.ssn_k8s_ag_workers_name
+      propagate_at_launch = true
+    },
+    {
+      key                 = "kubernetes.io/cluster/${local.cluster_name}"
+      value               = "owned"
       propagate_at_launch = true
     }
   ]

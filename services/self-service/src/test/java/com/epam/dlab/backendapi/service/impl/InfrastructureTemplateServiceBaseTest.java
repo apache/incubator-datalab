@@ -20,12 +20,14 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalResourceShapeDto;
@@ -58,6 +60,8 @@ public class InfrastructureTemplateServiceBaseTest {
 	private EndpointService endpointService;
 	@Mock
 	private UserGroupDao userGroupDao;
+	@Mock
+	private SelfServiceApplicationConfiguration configuration;
 
 	@InjectMocks
 	private InfrastructureTemplateServiceBaseChild infrastructureTemplateServiceBaseChild =
@@ -172,6 +176,10 @@ public class InfrastructureTemplateServiceBaseTest {
 		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
 				null, null, null, null, true)));
+		when(configuration.getMinEmrInstanceCount()).thenReturn(1);
+		when(configuration.getMaxEmrInstanceCount()).thenReturn(2);
+		when(configuration.getMaxEmrSpotInstanceBidPct()).thenReturn(3);
+		when(configuration.getMinEmrSpotInstanceBidPct()).thenReturn(4);
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
@@ -188,19 +196,19 @@ public class InfrastructureTemplateServiceBaseTest {
 			IllegalAccessException {
 		Field computationalMetadataDTO1 = object1.getClass().getDeclaredField("computationalMetadataDTO");
 		computationalMetadataDTO1.setAccessible(true);
-		Field computationalMetadataDTO2 = object2.getClass().getDeclaredField("computationalMetadataDTO");
+		Field computationalMetadataDTO2 = object2.getClass().getSuperclass().getDeclaredField("computationalMetadataDTO");
 		computationalMetadataDTO2.setAccessible(true);
 		return computationalMetadataDTO1.get(object1).equals(computationalMetadataDTO2.get(object2));
 	}
 
-	private class InfrastructureTemplateServiceBaseChild extends InfrastructureTemplateServiceBase {
-		@Override
+	private EndpointDTO endpointDTO() {
+		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.AWS);
+	}
+
+	private class InfrastructureTemplateServiceBaseChild extends InfrastructureTemplateServiceImpl {
+
 		protected FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO metadataDTO) {
 			return new FullComputationalTemplate(metadataDTO);
 		}
-	}
-
-	private EndpointDTO endpointDTO() {
-		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE);
 	}
 }

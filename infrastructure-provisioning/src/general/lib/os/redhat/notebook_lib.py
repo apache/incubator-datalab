@@ -65,7 +65,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             run('R -e "IRkernel::installspec()"')
             sudo('ln -s /opt/spark/ /usr/local/spark')
             try:
-                sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'http://cran.us.r-project.org\')" R -e "devtools::check(\'.\')"')
+                sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'https://cloud.r-project.org\')" R -e "devtools::check(\'.\')"')
             except:
                 pass
             sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
@@ -87,7 +87,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             if region == 'cn-north-1':
                 r_repository = r_mirror
             else:
-                r_repository = 'http://cran.us.r-project.org'
+                r_repository = 'https://cloud.r-project.org'
             sudo('yum install -y cmake')
             sudo('yum -y install libcur*')
             sudo('echo -e "[base]\nname=CentOS-7-Base\nbaseurl=http://buildlogs.centos.org/centos/7/os/x86_64-20140704-1/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7\npriority=1\nexclude=php mysql" >> /etc/yum.repos.d/CentOS-base.repo')

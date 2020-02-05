@@ -40,11 +40,17 @@ variable "endpoint_instance_shape" {}
 
 variable "key_name" {}
 
-variable "ami" {}
+variable "ami" {
+  default = "ami-07b4f3c02c7f83d59"
+}
 
-variable "vpc_id" {}
+variable "vpc_id" {
+  default = ""
+}
 
-variable "ssn_subnet" {}
+variable "subnet_id" {
+  default = ""
+}
 
 variable "network_type" {}
 
@@ -52,11 +58,11 @@ variable "vpc_cidr" {}
 
 variable "endpoint_volume_size" {}
 
-variable "endpoint_eip_allocation_id" {}
-
 variable "endpoint_id" {}
 
-variable "ssn_k8s_sg_id" {}
+variable "ssn_k8s_sg_id" {
+  default = ""
+}
 
 variable "ldap_host" {}
 

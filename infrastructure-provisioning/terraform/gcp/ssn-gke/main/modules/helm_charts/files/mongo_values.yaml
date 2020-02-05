@@ -34,5 +34,5 @@ persistence:
   enabled: false
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
   port: ${mongo_service_port}

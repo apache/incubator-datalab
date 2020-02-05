@@ -27,7 +27,7 @@ locals {
 resource "google_service_account" "ssn_k8s_sa" {
   account_id   = local.service_account_name
   display_name = local.service_account_name
-  project = var.project_id
+  project      = var.project_id
 }
 
 resource "google_project_iam_member" "iam" {
@@ -43,10 +43,3 @@ resource "google_service_account_key" "nodes_sa_key" {
   depends_on         = [google_project_iam_member.iam]
   service_account_id = google_service_account.ssn_k8s_sa.name
 }
-
-//resource "google_project_iam_custom_role" "ssn_k8s_role" {
-//  role_id     = local.role_name
-//  title       = local.role_name
-//  description = "Role for GKE cluser - ${local.gke_name}"
-//  permissions = ["iam.roles.list", "iam.roles.create", "iam.roles.delete"]
-//}

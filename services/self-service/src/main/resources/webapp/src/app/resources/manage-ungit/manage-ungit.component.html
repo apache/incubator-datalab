@@ -134,16 +134,15 @@
                 <div class="control">
                   <input type="password" formControlName="confirmPassword" placeholder="Enter Password">
                 </div>
-                <span class="danger_color"
-                  *ngIf="!updateAccountCredentialsForm.controls['confirmPassword'].valid && updateAccountCredentialsForm.controls['confirmPassword'].touched">
-                  Field is required. Please confirm a password
+                <span class="danger_color" *ngIf="updateAccountCredentialsForm.value.password !== updateAccountCredentialsForm.value.confirmPassword && updateAccountCredentialsForm.controls['confirmPassword'].touched && !!updateAccountCredentialsForm.value.password">
+                  Passwords don't match.
                 </span>
               </div>
             </div>
           </div>
           <div class="text-center submit m-bott-10">
             <button mat-raised-button type="button" class="butt action" (click)="resetForm()">Clear</button>
-            <button mat-raised-button type="button" [disabled]="!updateAccountCredentialsForm.valid"
+            <button mat-raised-button type="button" [disabled]="!updateAccountCredentialsForm.valid || updateAccountCredentialsForm.value.password !== updateAccountCredentialsForm.value.confirmPassword"
               (click)="assignChanges(updateAccountCredentialsForm.value)"
               class="butt butt-success action">Assign</button>
           </div>
