@@ -42,6 +42,7 @@ public class CloudConfiguration {
 	private final String ssnStorageAccountTagName;
 	private final String sharedStorageAccountTagName;
 	private final String datalakeTagName;
+	private final String azureAuthFile;
 	private final String azureClientId;
 	private final String peeringId;
 	private final String gcpProjectId;
