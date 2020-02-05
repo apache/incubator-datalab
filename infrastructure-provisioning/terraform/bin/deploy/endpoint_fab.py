@@ -605,15 +605,17 @@ def pull_docker_images():
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker tag {}:{}/docker.dlab-tensor-{} docker.dlab-tensor'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-tensor-rstudio-{} '
-                      'docker.dlab-tensor-rstudio'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
+                conn.sudo('docker tag {}:{}/docker.dlab-tensor-rstudio-{} '
+                          'docker.dlab-tensor-rstudio'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker tag {}:{}/docker.dlab-deeplearning-{} '
                       'docker.dlab-deeplearning'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-dataengine-service-{} '
-                      'docker.dlab-dataengine-service'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
+                conn.sudo('docker tag {}:{}/docker.dlab-dataengine-service-{} '
+                          'docker.dlab-dataengine-service'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker tag {}:{}/docker.dlab-dataengine-{} '
                       'docker.dlab-dataengine'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
@@ -631,12 +633,14 @@ def pull_docker_images():
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker rmi {}:{}/docker.dlab-tensor-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-tensor-rstudio-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
+                conn.sudo('docker rmi {}:{}/docker.dlab-tensor-rstudio-{}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker rmi {}:{}/docker.dlab-deeplearning-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-service-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
+                conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-service-{}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('chown -R {0}:docker /home/{0}/.docker/'
