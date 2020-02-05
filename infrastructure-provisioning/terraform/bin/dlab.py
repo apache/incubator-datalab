@@ -1233,11 +1233,6 @@ class AzureEndpointBuilder(AbstractDeployBuilder):
          .add_str('--endpoint_shape', 'Instance shape of Endpoint.', default='Standard_DS2_v2', group='endpoint')
          .add_str('--endpoint_volume_size', 'Endpoint disk size', default='30', group='endpoint')
          .add_str('--additional_tag', 'Additional tag.', default='product:dlab', group='endpoint')
-         .add_str('--ldap_host', 'ldap host', required=True, group='endpoint')
-         .add_str('--ldap_dn', 'ldap dn', required=True, group='endpoint')
-         .add_str('--ldap_user', 'ldap user', required=True, group='endpoint')
-         .add_str('--ldap_bind_creds', 'ldap bind creds', required=True, group='endpoint')
-         .add_str('--ldap_users_group', 'ldap users group', required=True, group='endpoint')
          )
         return params.build()
 
