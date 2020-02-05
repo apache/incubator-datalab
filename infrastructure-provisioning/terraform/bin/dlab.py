@@ -1220,6 +1220,8 @@ class AzureEndpointBuilder(AbstractDeployBuilder):
          .add_str('--service_base_name', 'Service base name', group='endpoint')
          .add_str('--resource_group_name', 'Resource group name', group='endpoint')
          .add_str('--vpc_id', 'ID of VPC if you already have VPC created.', group='endpoint')
+         .add_str('--vpc_cidr', 'CIDR for VPC creation. Conflicts with vpc_id.', default='172.31.0.0/16',
+                  group='endpoint')
          .add_str('--subnet_cidr', 'CIDR for Subnet creation. Conflicts with vpc_id.', default='172.31.0.0/24',
                   group='endpoint')
          .add_str('--ssn_subnet', 'ID of AWS Subnet if you already have subnet created.', group='endpoint')
