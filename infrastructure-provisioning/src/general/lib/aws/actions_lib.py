@@ -944,7 +944,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-nb-de-Role' in iam_role:
                     if instance_type == 'notebook' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = '{0}-{1}-nb-de-Profile'.format(service_base_name, scientist)
+                        role_profile_name = '{0}-{1}-{2}-nb-de-Profile'.format(service_base_name, scientist, os.environ['endpoint_name'])
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
