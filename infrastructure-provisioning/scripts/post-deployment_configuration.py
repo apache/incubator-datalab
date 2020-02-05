@@ -83,6 +83,11 @@ if __name__ == "__main__":
                                                                                              dlab_region), capture=True)
 
     print("Overwriting SSN parameters")
+
+    if deployment_subnetId == 'default':
+        local('sudo sed -i "s|# user_subnets_range|user_subnets_range|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/dlab.ini')
+
+
     local('sudo sed -i "s|DLAB_SBN|{}|g" /opt/dlab/conf/self-service.yml'.format(dlab_sbn))
     local('sudo sed -i "s|KEYCLOAK_REDIRECTURI|{}|g" /opt/dlab/conf/self-service.yml'.format(keycloak_redirectUri))
     local('sudo sed -i "s|KEYCLOAK_REALM_NAME|{}|g" /opt/dlab/conf/self-service.yml'.format(args.keycloak_realm_name))
