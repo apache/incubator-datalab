@@ -315,7 +315,8 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                       .format(args.dlab_path, supervisor_conf))
             conn.put('./provisioning.yml', '{}provisioning.yml'
                      .format(dlab_conf_dir))
-
+            if args.resource_group_name == '':
+                args.resource_group_name = args.service_base_name
             cloud_properties = [
                 {
                     'key': "OS_USER",
@@ -415,7 +416,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 },
                 {
                     'key': "AZURE_RESOURCE_GROUP_NAME",
-                    'value': args.azure_resource_group_name
+                    'value': args.resource_group_name
                 },
                 {
                     'key': "AZURE_SSN_STORAGE_ACCOUNT_TAG",
@@ -743,7 +744,7 @@ def init_args():
     parser.add_argument('--conf_key_dir', type=str, default='/root/keys/', help='Should end by symbol /')
     parser.add_argument('--vpc_id', type=str, default='')
     parser.add_argument('--peering_id', type=str, default='')
-    parser.add_argument('--azure_resource_group_name', type=str, default='')
+    parser.add_argument('--resource_group_name', type=str, default='')
     parser.add_argument('--azure_ssn_storage_account_tag', type=str, default='')
     parser.add_argument('--azure_shared_storage_account_tag', type=str, default='')
     parser.add_argument('--azure_datalake_tag', type=str, default='')
