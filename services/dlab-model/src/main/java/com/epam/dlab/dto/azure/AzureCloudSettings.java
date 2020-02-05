@@ -36,6 +36,10 @@ public class AzureCloudSettings extends CloudSettings {
     private String azureRegion;
     @JsonProperty("azure_iam_user")
     private String azureIamUser;
+    @JsonProperty("conf_service_base_name")
+    protected String sbn;
+    @JsonProperty("conf_os_family")
+    protected String os;
     @JsonProperty("azure_vpc_name")
     private String azureVpcName;
     @JsonProperty("azure_subnet_name")

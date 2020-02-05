@@ -93,6 +93,8 @@ public class CommandBuilder {
 				.azureVpcName(cloudConfiguration.getVpcId())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
 				.azureIamUser(settings.getIamUser())
+				.sbn(cloudConfiguration.getServiceBaseName())
+				.os(cloudConfiguration.getOs())
 				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
 				.stepCertsEnabled(String.valueOf(stepCerts.isEnabled()))
 				.stepCertsRootCA(stepCerts.getRootCA())
