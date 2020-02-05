@@ -58,7 +58,7 @@ export class ExploratoryModel {
         return {
           project: value.project,
           exploratory: value.exploratory.map(el => {
-            const provider = value.endpoints.filter(endpoint => el.endpoint === endpoint.name)[0].cloudProvider.toLowerCase();
+            const provider = el.cloud_provider.toLowerCase();
             return new ExploratoryModel(
             provider,
             el.exploratory_name,

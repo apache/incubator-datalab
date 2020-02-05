@@ -30,6 +30,7 @@ import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
 import {EndpointService} from '../../../core/services';
 
+
 @Component({
   selector: 'project-list',
   templateUrl: './project-list.component.html',
@@ -42,7 +43,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   projectList: Project[];
 
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
-  @Output() deleteItem: EventEmitter<{}> = new EventEmitter();
   @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
   private subscriptions: Subscription = new Subscription();
 
@@ -89,10 +89,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
   public editProject(item: Project[]) {
     this.editItem.emit(item);
-  }
-
-  public deleteProject(item: Project[]) {
-    this.deleteItem.emit(item);
   }
 
   public isInProgress(project) {

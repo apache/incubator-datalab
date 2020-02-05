@@ -21,6 +21,8 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DLab deployment](#Env_for_DLab)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Keycloak server](#Keycloak_server)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Self-Service Node](#Self_Service_Node)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Edge Node](#Edge_Node)
@@ -199,13 +201,9 @@ These directories contain the log files for each template and for DLab back-end 
 -   selfservice.log – Self-Service log file;
 -   edge, notebook, dataengine, dataengine-service – contains logs of Python scripts.
 
-## Self-Service Node <a name="Self_Service_Node"></a>
+## Keycloak server <a name="Keycloak_server"></a>
 
-### Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
-
-Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
-
-**Keycloak** is used to manage user authentication instead of the aplication. To use existing server following parameters must be specified either when running deployment script or in 
+**Keycloak** is used to manage user authentication instead of the aplication. To use existing server following parameters must be specified either when running *Dlab* deployment script or in 
 */opt/dlab/conf/self-service.yml* and */opt/dlab/conf/provisioning.yml* files on SSN node.
 
 | Parameter                | Description/Value             |
@@ -216,6 +214,50 @@ Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be depl
 | keycloak_client_secret   |Keycloak client secret         |
 | keycloak_user            |Keycloak user                  |
 | keycloak_user_password   |Keycloak user password         |
+
+### Preparing environment for Keycloak deployment <a name="Env_for_DLab"></a>
+Keycloak can be deployed with Nginx proxy on instance using *deploy_keycloak.py* script. Currently it only works with HTTP.
+
+Preparation steps for deployment:
+
+- Create an VM instance with the following settings:
+    - The instance should have access to Internet in order to install required prerequisites
+    - Boot disk OS Image - Ubuntu 18.04
+- Put private key that is used to connect to instance where Keycloak will be deployed somewhere on the instance where deployment script will be executed.
+- Install Git and clone DLab repository</details>
+### Executing deployment script
+To build Keycloak node, following steps should be executed:
+- Connect to the instance via SSH and run the following commands:
+```
+sudo su
+apt-get update
+apt-get install -y python-pip
+pip install fabric==1.14.0
+```
+- Go to *dlab* directory
+- Run *infrastructure-provisioning/scripts/deploy_keycloak/deploy_keycloak.py* deployment script:
+
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_keycloak/deploy_keycloak.py --os_user ubuntu --keyfile ~/.ssh/key.pem --keycloak_realm_name test_realm_name  --keycloak_user admin --keycloak_user_password admin_password --public_ip_address XXX.XXX.XXX.XXX
+```
+
+List of parameters for Keycloak node deployment:
+
+| Parameter                 | Description/Value                                                                       |
+|---------------------------|-----------------------------------------------------------------------------------------|
+| os_user                   | username, used to connect to the instance |
+| keyfile                   | /path_to_key/private_key.pem, used to connect to instance |
+| keycloak_realm_name       | Keycloak realm name that will be created |
+| keycloak_user             | initial keycloak admin username |
+| keycloak_user_password    | password for initial keycloak admin user |
+| public_ip_address         | Public IP address of the instance (if not specified, keycloak will be deployed on localhost)* (On AWS try to specify Public DNS (IPv4) instead of IPv4 if unable to connect)* |
+
+
+## Self-Service Node <a name="Self_Service_Node"></a>
+
+### Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
+
+Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
 
 For each cloud provider, prerequisites are different.
 

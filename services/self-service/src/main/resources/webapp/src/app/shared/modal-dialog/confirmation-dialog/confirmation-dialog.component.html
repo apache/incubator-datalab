@@ -48,7 +48,7 @@
             <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.dlab-dataengine',
                   'terminated': resource.image === 'docker.dlab-dataengine-service' || confirmationType }">
               {{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
-            <div class="size">{{ resource[DICTIONARY[notebook.cloud_provider][resource.image].master_node_shape] }} </div>
+            <div class="size">{{ resource[DICTIONARY[notebook.cloud_provider.toLowerCase()][resource.image].master_node_shape] }} </div>
           </mat-list-item>
         </div>
       </mat-list>
