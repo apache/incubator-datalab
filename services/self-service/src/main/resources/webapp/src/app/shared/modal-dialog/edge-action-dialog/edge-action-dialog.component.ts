@@ -51,9 +51,9 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     .action{text-transform: capitalize}
     .action-text { text-align: center; }
     .scrolling-content{overflow-y: auto; max-height: 200px; }
-    label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif; cursor: pointer; display: flex; align-items: center;}
+    label { font-size: 15px; font-weight: 300; font-family: "Open Sans",sans-serif; cursor: pointer; display: flex; align-items: center; padding-left: 10px}
     label input {margin-top: 2px; margin-right: 10px;cursor: pointer;}
-    .all{font-size: 16px; font-weight: 600;}
+    .all{font-size: 16px; padding-left: 0; font-weight: 500}
     .scrolling-content{overflow-y: auto; max-height: 200px;}
   `]
 })
