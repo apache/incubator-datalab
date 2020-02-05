@@ -40,7 +40,9 @@ if sys.argv[1] == 'all':
             'tensor',
             'tensor-rstudio',
             'deeplearning',
-            'dataengine'
+            'dataengine',
+            'dataengine-service',
+            'superset'
             ]
 else:
     node = sys.argv[1:]
