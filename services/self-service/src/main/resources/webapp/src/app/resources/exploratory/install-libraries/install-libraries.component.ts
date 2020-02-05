@@ -44,6 +44,7 @@ export class InstallLibrariesComponent implements OnInit {
   public groupsList: Array<string>;
   public notebookLibs: Array<any> = [];
   public notebookFailedLibs: Array<any> = [];
+  public loadLibsTimer: any;
 
   public query: string = '';
   public group: string;
@@ -67,7 +68,6 @@ export class InstallLibrariesComponent implements OnInit {
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
-  private clearCheckInstalling = undefined;
 
   public filterConfiguration: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
   public filterModel: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
@@ -199,12 +199,10 @@ export class InstallLibrariesComponent implements OnInit {
         if (response.status === HTTP_STATUS_CODES.OK) {
           this.getInstalledLibrariesList();
           this.resetDialog();
-          console.log('Open response status');
         }
       },
       error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!'),
       () => {
-        console.log('Failed open response status');
         this.getInstalledLibrariesList(true);
         this.changeDetector.detectChanges();
         this.selectorsReset();
@@ -220,9 +218,8 @@ export class InstallLibrariesComponent implements OnInit {
   public isInstallingInProgress(): void {
     const isInstallingNow = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
       if (isInstallingNow) {
-        this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 10000);
-      } else {
-        window.clearInterval(this.clearCheckInstalling);
+        clearTimeout(this.loadLibsTimer);
+        this.loadLibsTimer = window.setTimeout(() => this.getInstalledLibrariesList(), 1000);
       }
     }
 
@@ -242,7 +239,9 @@ export class InstallLibrariesComponent implements OnInit {
         if ( !this.filtredNotebookLibs.length || data.length !== this.notebookLibs.length) {
           this.filtredNotebookLibs = [...data];
         }
-        this.filtredNotebookLibs = data.filter(lib => this.filtredNotebookLibs.some(v => (v.name + v.version === lib.name + v.version) && v.resource === lib.resource));
+        this.filtredNotebookLibs = data.filter(lib =>
+          this.filtredNotebookLibs.some(v =>
+            (v.name + v.version === lib.name + v.version) && v.resource === lib.resource));
         this.notebookLibs = data ? data : [];
         this.notebookLibs.forEach(lib => {
           lib.filteredStatus = lib.status;
@@ -253,7 +252,8 @@ export class InstallLibrariesComponent implements OnInit {
         this.changeDetector.markForCheck();
         this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v => this.groupsListMap[v.group]));
         this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.resource)));
-        this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.resourceType)));
+        this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib =>
+          lib.status.map(status => status.resourceType)));
         this.filterConfiguration.status = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.status)));
         this.isInstallingInProgress();
       });
@@ -321,8 +321,6 @@ export class InstallLibrariesComponent implements OnInit {
 
     this.libSearch.disable();
     clearTimeout(this.clear);
-    clearInterval(this.clearCheckInstalling);
-    this.clearCheckInstalling = undefined;
     this.selectorsReset();
   }
 
@@ -332,7 +330,9 @@ export class InstallLibrariesComponent implements OnInit {
 
   public filterLibs(): void {
     this.filtredNotebookLibs = this.notebookLibs.filter((lib) => {
-      const isName = this.filterModel.name ? lib.name.toLowerCase().indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 || lib.version.indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 : true;
+      const isName = this.filterModel.name ?
+        lib.name.toLowerCase().indexOf(this.filterModel.name.toLowerCase().trim()) !== -1
+        || lib.version.indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 : true;
       const isGroup = this.filterModel.group.length ? this.filterModel.group.includes(this.groupsListMap[lib.group]) : true;
       lib.filteredStatus = lib.status.filter(status => {
         const isResource = this.filterModel.resource.length ? this.filterModel.resource.includes(status.resource) : true;
