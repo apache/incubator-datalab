@@ -19,8 +19,10 @@
 
 package com.epam.dlab.backendapi.resources;
 
-import com.codahale.metrics.health.HealthCheckRegistry;
+
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
+import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
 import javax.ws.rs.GET;
@@ -32,16 +34,13 @@ import javax.ws.rs.core.Response;
 @Path("/healthcheck")
 @Produces(MediaType.APPLICATION_JSON)
 public class ProvisioningHealthCheckResource {
-    private static final String HEALTH_CHECK= "ProvisioningHealthCheck";
+    private static final String HEALTH_CHECK = "ProvisioningHealthCheck";
 
-    private HealthCheckRegistry registry;
-
-    public ProvisioningHealthCheckResource(HealthCheckRegistry registry) {
-        this.registry = registry;
-    }
+    @Inject
+    private ProvisioningServiceApplicationConfiguration configuration;
 
     @GET
     public Response status(@Auth UserInfo ui) {
-        return Response.ok(registry.runHealthCheck(HEALTH_CHECK)).build();
+        return Response.ok(configuration.getCloudProvider()).build();
     }
 }

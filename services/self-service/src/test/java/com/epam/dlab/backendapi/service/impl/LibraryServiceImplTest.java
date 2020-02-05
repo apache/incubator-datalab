@@ -30,6 +30,7 @@ import com.epam.dlab.backendapi.resources.dto.LibKey;
 import com.epam.dlab.backendapi.resources.dto.LibraryStatus;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
@@ -150,7 +151,7 @@ public class LibraryServiceImplTest {
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
 		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
 		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
-				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
+				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class))).thenReturn(libraryInstallDTO);
 
 
 		final String uuid = libraryService.installComputationalLibs(user, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
@@ -160,7 +161,7 @@ public class LibraryServiceImplTest {
 
 		verify(libraryDAO).getLibrary(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME, LIB_GROUP, LIB_NAME);
 		verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()),
-				refEq(getUserComputationalResourceWithName(COMPUTATIONAL_NAME)), eq(libsToInstall));
+				refEq(getUserComputationalResourceWithName(COMPUTATIONAL_NAME)), eq(libsToInstall), refEq(endpointDTO()));
 		verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/computational/lib_install"), eq(user.getAccessToken()),
 				refEq(libraryInstallDTO), eq(String.class));
 		verify(libraryDAO).addLibrary(eq(USER), eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME),
@@ -181,7 +182,8 @@ public class LibraryServiceImplTest {
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
 		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
 		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
-				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
+				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class)))
+				.thenReturn(libraryInstallDTO);
 
 
 		expectedException.expect(DlabException.class);
@@ -202,7 +204,8 @@ public class LibraryServiceImplTest {
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
 		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
 		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
-				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
+				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class)))
+				.thenReturn(libraryInstallDTO);
 		when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLED));
 
 		final String uuid = libraryService.installComputationalLibs(user, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
@@ -216,7 +219,7 @@ public class LibraryServiceImplTest {
 		verify(libraryDAO).addLibrary(eq(USER), eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME),
 				refEq(libsToInstall.get(0)), eq(true));
 		verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()),
-				refEq(getUserComputationalResourceWithName(COMPUTATIONAL_NAME)), eq(libsToInstall));
+				refEq(getUserComputationalResourceWithName(COMPUTATIONAL_NAME)), eq(libsToInstall), refEq(endpointDTO()));
 		verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/computational/lib_install"),
 				eq(user.getAccessToken()),
 				refEq(libraryInstallDTO), eq(String.class));
@@ -237,7 +240,8 @@ public class LibraryServiceImplTest {
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
 		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
 		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
-				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
+				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class)))
+				.thenReturn(libraryInstallDTO);
 		when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLING));
 
 		try {
@@ -249,7 +253,6 @@ public class LibraryServiceImplTest {
 		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
 		verify(libraryDAO).getLibrary(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME, LIB_GROUP, LIB_NAME);
 		verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
-
 	}
 
 	@Test
@@ -262,7 +265,7 @@ public class LibraryServiceImplTest {
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
 		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
-		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
+		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
 				anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
 
 
@@ -271,7 +274,7 @@ public class LibraryServiceImplTest {
 		assertEquals(UUID, uuid);
 
 		verify(libraryDAO).getLibrary(USER, EXPLORATORY_NAME, LIB_GROUP, LIB_NAME);
-		verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()), eq(libsToInstall));
+		verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()), eq(endpointDTO()), eq(libsToInstall));
 		verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/exploratory/lib_install"), eq(user.getAccessToken()),
 				refEq(libraryInstallDTO), eq(String.class));
 		verify(libraryDAO).addLibrary(eq(USER), eq(EXPLORATORY_NAME), refEq(libsToInstall.get(0)), eq(false));
@@ -290,7 +293,7 @@ public class LibraryServiceImplTest {
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
 		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
-		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
+		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
 				anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
 		when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLED));
 
@@ -301,7 +304,7 @@ public class LibraryServiceImplTest {
 		libsToInstall.get(0).setOverride(true);
 		verify(libraryDAO).getLibrary(USER, EXPLORATORY_NAME, LIB_GROUP, LIB_NAME);
 		verify(libraryDAO).addLibrary(eq(USER), eq(EXPLORATORY_NAME), refEq(libsToInstall.get(0)), eq(true));
-		verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()), eq(libsToInstall));
+		verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()), eq(endpointDTO()), eq(libsToInstall));
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
 		verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/exploratory/lib_install"), eq(user.getAccessToken()),
 				refEq(libraryInstallDTO), eq(String.class));
@@ -319,7 +322,7 @@ public class LibraryServiceImplTest {
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
 		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
-		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
+		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
 				anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
 		when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLING));
 
@@ -420,7 +423,7 @@ public class LibraryServiceImplTest {
 	}
 
 	private EndpointDTO endpointDTO() {
-		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE);
+		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.AWS);
 	}
 
 }

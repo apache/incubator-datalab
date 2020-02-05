@@ -22,7 +22,7 @@
 data "template_file" "configure_keycloak" {
   template = file("./modules/helm_charts/files/configure_keycloak.sh")
   vars     = {
-    ssn_k8s_alb_dns_name   = data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
+    ssn_k8s_alb_dns_name   = local.ui_host
     keycloak_user          = var.keycloak_user
     keycloak_password      = random_string.keycloak_password.result
     keycloak_client_secret = random_uuid.keycloak_client_secret.result
@@ -34,19 +34,21 @@ data "template_file" "configure_keycloak" {
     ldap_dn                = var.ldap_dn
     ldap_user              = var.ldap_user
     ldap_bind_creds        = var.ldap_bind_creds
+    keycloak_realm_name    = var.keycloak_realm_name
+    keycloak_client_id     = var.keycloak_client_id
   }
 }
 
 data "template_file" "keycloak_values" {
   template = file("./modules/helm_charts/files/keycloak_values.yaml")
-  vars = {
+  vars     = {
     keycloak_user           = var.keycloak_user
     keycloak_password       = random_string.keycloak_password.result
-    ssn_k8s_alb_dns_name    = data.kubernetes_service.nginx_service.load_balancer_ingress.0.ip
+    ssn_k8s_alb_dns_name    = local.ui_host
     configure_keycloak_file = data.template_file.configure_keycloak.rendered
     mysql_db_name           = var.mysql_db_name
     mysql_user              = var.mysql_user
-    mysql_user_password     = random_string.mysql_user_password.result
+    mysql_user_password     = random_string.mysql_keycloak_user_password.result
     # replicas_count          = var.ssn_k8s_workers_count > 3 ? 3 : var.ssn_k8s_workers_count
   }
 }
@@ -60,43 +62,13 @@ resource "helm_release" "keycloak" {
   name       = "keycloak"
   repository = data.helm_repository.codecentric.metadata.0.name
   chart      = "codecentric/keycloak"
+  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
   wait       = true
   timeout    = 600
 
   values     = [
     data.template_file.keycloak_values.rendered
   ]
-  depends_on = [helm_release.keycloak-mysql, kubernetes_secret.keycloak_password_secret]
-}
-
-resource "kubernetes_ingress" "keycloak_ingress" {
-  metadata {
-    name = "keycloak"
-    annotations = {
-      "kubernetes.io/ingress.class": "nginx"
-      "nginx.ingress.kubernetes.io/ssl-redirect": "false"
-      "nginx.ingress.kubernetes.io/rewrite-target": "/auth"
-    }
-  }
-
-  spec {
-    backend {
-      service_name = "${helm_release.keycloak.name}-http"
-      service_port = 80
-    }
-
-    rule {
-      http {
-        path {
-          backend {
-            service_name = "${helm_release.keycloak.name}-http"
-            service_port = 80
-          }
-
-          path = "/auth"
-        }
-      }
-    }
-  }
-  depends_on = [helm_release.keycloak]
+  depends_on = [helm_release.keycloak-mysql, kubernetes_secret.keycloak_password_secret, helm_release.nginx,
+                helm_release.dlab_ui]
 }

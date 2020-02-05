@@ -78,9 +78,7 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(LibraryService.class).to(LibraryServiceImpl.class);
 		bind(SchedulerJobService.class).to(SchedulerJobServiceImpl.class);
 		bind(EnvironmentService.class).to(EnvironmentServiceImpl.class);
-		bind(EdgeService.class).to(EdgeServiceImpl.class);
 		bind(ReuploadKeyService.class).to(ReuploadKeyServiceImpl.class);
-		bind(UserResourceService.class).to(UserResourceServiceImpl.class);
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.MAVEN_SEARCH_API))
 				.toInstance(configuration.getMavenApiFactory().build(environment, ServiceConsts.MAVEN_SEARCH_API));
 		bind(ExternalLibraryService.class).to(MavenCentralLibraryService.class);

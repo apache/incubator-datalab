@@ -19,7 +19,11 @@
 #
 # ******************************************************************************
 
-variable "ssn_k8s_alb_dns_name" {
+variable "namespace_name" {
+    default = "dlab"
+}
+
+variable "ssn_k8s_nlb_dns_name" {
     default = ""
 }
 
@@ -33,6 +37,10 @@ variable "mysql_keycloak_user" {
 
 variable "mysql_keycloak_db_name" {
     default = "keycloak"
+}
+
+variable "mysql_disk_size" {
+    default = "10"
 }
 
 variable "ldap_usernameAttr" {
@@ -96,17 +104,15 @@ variable "ssn_k8s_workers_count" {
     default = "2"
 }
 
-variable "ssn_keystore_password" {}
+//variable "endpoint_eip_address" {}
 
-variable "endpoint_keystore_password" {}
+variable "service_base_name" {
+    default = ""
+}
 
-variable "ssn_bucket_name" {}
-
-variable "endpoint_eip_address" {}
-
-variable "service_base_name" {}
-
-variable "tag_resource_id" {}
+variable "tag_resource_id" {
+    default = ""
+}
 
 variable "billing_bucket" {
     default = ""
@@ -163,11 +169,27 @@ variable "billing_tags" {
 variable "env_os" {
     default = "debian"
 }
-//variable "nginx_http_port" {
-//    default = "31080"
-//    description = "Sets the nodePort that maps to the Ingress' port 80"
-//}
-//variable "nginx_https_port" {
-//    default = "31443"
-//    description = "Sets the nodePort that maps to the Ingress' port 443"
-//}
+
+variable "custom_certs_enabled" {
+    default = "False"
+}
+
+variable "custom_cert_path" {
+    default = ""
+}
+
+variable "custom_key_path" {
+    default = ""
+}
+
+variable "custom_certs_host" {
+    default = ""
+}
+
+variable "keycloak_realm_name" {
+  default = "dlab"
+}
+
+variable "keycloak_client_id" {
+  default = "dlab-ui"
+}

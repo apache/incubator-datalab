@@ -332,9 +332,9 @@ if __name__ == "__main__":
                                                         notebook_config['instance_name'])
         jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
-        jupyter_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+        jupyter_notebook_access_url = "https://" + edge_instance_hostname + "/{}/".format(
             notebook_config['exploratory_name'])
-        jupyter_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
+        jupyter_ungit_access_url = "https://" + edge_instance_hostname + "/{}-ungit/".format(
             notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
@@ -358,9 +358,9 @@ if __name__ == "__main__":
                    "notebook_image_name": notebook_config['notebook_image_name'],
                    "exploratory_url": [
                        {"description": "Jupyter",
-                        "url": jupyter_notebook_acces_url},
+                        "url": jupyter_notebook_access_url},
                        {"description": "Ungit",
-                        "url": jupyter_ungit_acces_url}#,
+                        "url": jupyter_ungit_access_url}#,
                        #{"description": "Jupyter (via tunnel)",
                        # "url": jupyter_ip_url},
                        #{"description": "Ungit (via tunnel)",

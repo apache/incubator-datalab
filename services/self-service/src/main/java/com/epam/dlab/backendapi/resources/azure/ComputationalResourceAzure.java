@@ -48,7 +48,7 @@ import java.util.List;
 /**
  * Provides the REST API for the computational resource on Azure.
  */
-@Path("/infrastructure_provision/computational_resources")
+@Path("/azure/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j

@@ -19,19 +19,40 @@
 #
 # ******************************************************************************
 
-resource "helm_release" "nginx" {
-    name      = "nginx-ingress"
-    chart     = "stable/nginx-ingress"
-    wait = true
+data "template_file" "nginx-default-backend" {
+  template = file("./modules/helm_charts/nginx-default-backend/values.yaml")
+}
 
-    values = [
-        file("./modules/helm_charts/files/nginx_values.yaml")
+resource "helm_release" "nginx-default-backend" {
+    name       = "nginx-default-backend"
+    chart      = "./modules/helm_charts/nginx-default-backend"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+    wait       = true
+    depends_on = [null_resource.crd_delay]
+    values     = [
+        data.template_file.nginx-default-backend.rendered
+    ]
+}
+
+data "template_file" "nginx-ingress" {
+  template = file("./modules/helm_charts/nginx-ingress/values.yaml")
+}
+
+resource "helm_release" "nginx" {
+    name       = "nginx-ingress"
+    chart      = "./modules/helm_charts/nginx-ingress"
+    namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+    wait       = true
+    depends_on = [helm_release.nginx-default-backend]
+    values     = [
+        data.template_file.nginx-ingress.rendered
     ]
 }
 
 data "kubernetes_service" "nginx_service" {
     metadata {
-    name = "${helm_release.nginx.name}-controller"
+        name       = helm_release.nginx.name
+        namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
     }
-    depends_on = [helm_release.nginx]
+    depends_on     = [helm_release.nginx]
 }

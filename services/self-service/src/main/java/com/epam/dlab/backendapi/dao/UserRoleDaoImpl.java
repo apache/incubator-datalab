@@ -20,25 +20,38 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
+import com.epam.dlab.cloud.CloudProvider;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Singleton;
 import com.mongodb.client.model.BsonField;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_GROUPS;
-import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Aggregates.lookup;
+import static com.mongodb.client.model.Aggregates.project;
+import static com.mongodb.client.model.Aggregates.unwind;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.not;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
 public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
-
+	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final String ROLES_FILE_FORMAT = "/mongo/%s/mongo_roles.json";
 	private static final String USERS_FIELD = "users";
 	private static final String GROUPS_FIELD = "groups";
 	private static final String DESCRIPTION = "description";
@@ -55,11 +68,6 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	@Override
 	public List<UserRoleDto> findAll() {
 		return find(MongoCollections.ROLES, UserRoleDto.class);
-	}
-
-	@Override
-	public void removeAll() {
-		mongoService.getCollection(MongoCollections.ROLES).drop();
 	}
 
 	@Override
@@ -81,6 +89,15 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	}
 
 	@Override
+	public void updateMissingRoles(CloudProvider cloudProvider) {
+		getUserRoleFromFile(cloudProvider).stream()
+				.filter(u -> findAll().stream()
+						.map(UserRoleDto::getId)
+						.noneMatch(id -> id.equals(u.getId())))
+				.forEach(this::insert);
+	}
+
+	@Override
 	public boolean addGroupToRole(Set<String> groups, Set<String> roleIds) {
 		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), addToSet(GROUPS_FIELD,
 				groups)));
@@ -94,6 +111,23 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	@Override
 	public void removeGroupWhenRoleNotIn(String group, Set<String> roleIds) {
 		updateMany(MongoCollections.ROLES, not(in(ID, roleIds)), pull(GROUPS_FIELD, group));
+	}
+
+	@Override
+	public void removeUnnecessaryRoles(CloudProvider cloudProviderToBeRemoved, List<CloudProvider> remainingProviders) {
+		if (remainingProviders.contains(cloudProviderToBeRemoved)) {
+			return;
+		}
+
+		List<UserRoleDto> remainingRoles = new ArrayList<>();
+		remainingProviders.forEach(p -> remainingRoles.addAll(getUserRoleFromFile(p)));
+
+		getUserRoleFromFile(cloudProviderToBeRemoved).stream()
+				.map(UserRoleDto::getId)
+				.filter(u -> remainingRoles.stream()
+						.map(UserRoleDto::getId)
+						.noneMatch(id -> id.equals(u)))
+				.forEach(this::remove);
 	}
 
 	@Override
@@ -121,6 +155,15 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 		return stream(aggregate(MongoCollections.ROLES, pipeline))
 				.map(d -> convertFromDocument(d, UserGroupDto.class))
 				.collect(toList());
+	}
+
+	private List<UserRoleDto> getUserRoleFromFile(CloudProvider cloudProvider) {
+		try (InputStream is = getClass().getResourceAsStream(format(ROLES_FILE_FORMAT, cloudProvider.getName()))) {
+			return MAPPER.readValue(is, new TypeReference<List<UserRoleDto>>() {
+			});
+		} catch (IOException e) {
+			throw new IllegalStateException("Can not marshall dlab roles due to: " + e.getMessage());
+		}
 	}
 
 	private Document roleDocument() {

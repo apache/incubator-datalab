@@ -37,6 +37,7 @@ export class ReportingGridComponent implements OnInit {
   reportData: Array<any> = [];
   fullReport: Array<any>;
   isFiltered: boolean = false;
+  private PROVIDER: string = 'aws';
 
   @ViewChild('nameFilter', { static: false }) filter;
 
@@ -45,7 +46,7 @@ export class ReportingGridComponent implements OnInit {
   displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'charge'];
   displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   onUpdate($event): void {
     this.filteredReportData[$event.type] = $event.model;

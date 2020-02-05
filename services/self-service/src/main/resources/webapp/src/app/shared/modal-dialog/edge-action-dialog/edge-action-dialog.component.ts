@@ -5,26 +5,34 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 @Component({
   selector: 'edge-action-dialog',
   template: `
-  <div id="dialog-box">
+  <div id="dialog-box" *ngIf="data.type">
     <header class="dialog-header">
       <h4 class="modal-title"><span class="action">{{data.type | titlecase}}</span> edge node</h4>
-      <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+      <button type="button" class="close" (click)="closeModal()">&times;</button>
     </header>
       <div mat-dialog-content class="content message mat-dialog-content">
-          <h3 class="strong">Select the items you want to {{data.type}}</h3>
+          <h3 class="strong">Select the edge nodes you want to {{data.type}}</h3>
           <ul class="endpoint-list scrolling-content">
-              <li *ngFor="let endpoint of data.item" class="endpoint-list-item">
-                  <label class="strong">
-                      <input type="checkbox" [(ngModel)]="endpoint.checked" (change)="endpointAction()">
-                      {{endpoint.name}}
-                  </label>
-              </li>
+            <li *ngIf="data.item.length>1" class="endpoint-list-item header-item">
+              <label class="strong all">
+                <input type="checkbox" [(ngModel)]="isAllChecked" (change)="chooseAll()">
+                {{data.type | titlecase}} all
+              </label>
+            </li>
+            <div class="scrolling-content" id="scrolling">
+            <li *ngFor="let endpoint of data.item" class="endpoint-list-item">
+                <label class="strong">
+                    <input type="checkbox" [(ngModel)]="endpoint.checked" (change)="endpointAction()">
+                    {{endpoint.name}}
+                </label>
+            </li>
+            </div>
           </ul>
 
       <p class="m-top-20 action-text"><span class="strong">Do you want to proceed?</span></p>
 
       <div class="text-center m-top-30 m-bott-30">
-        <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
+        <button type="button" class="butt" mat-raised-button (click)="closeModal()">No</button>
         <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(endpointsNewStatus)" [disabled]="!endpointsNewStatus.length">Yes</button>
       </div>
       </div>
@@ -39,35 +47,41 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
     .endpoint-list{text-align: left; margin-top: 30px}
-    .endpoint-list-item{padding: 5px 0}
+    .endpoint-list-item{padding: 5px 20px}
     .action{text-transform: capitalize}
     .action-text { text-align: center; }
-    .label-name { display: inline-block; width: 100% }
     .scrolling-content{overflow-y: auto; max-height: 200px; }
-    .endpoint { width: 70%; text-align: left; color: #577289;}
-    .status { width: 30%;text-align: right;}
     label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif; cursor: pointer; display: flex; align-items: center;}
-    label input {margin-top: 2px; margin-right: 5px;}
-
-    .node { font-weight: 300;}
-    .label-name { display: inline-block; width: 100%}
+    label input {margin-top: 2px; margin-right: 10px;cursor: pointer;}
+    .all{font-size: 16px; font-weight: 600;}
     .scrolling-content{overflow-y: auto; max-height: 200px;}
-    .endpoint { width: 280px;text-align: left;}
-    .status { text-align: left;}
   `]
 })
 
 export class EdgeActionDialogComponent {
   public endpointsNewStatus: Array<object> = [];
+  public isAllChecked: boolean;
   constructor(
     public dialogRef: MatDialogRef<EdgeActionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 
-  ngOnInit() {
+  private closeModal() {
+    this.dialogRef.close();
+    this.data.item.forEach(endpoint => endpoint.checked = false);
   }
 
   public endpointAction() {
     this.endpointsNewStatus = this.data.item.filter(endpoint => endpoint.checked);
+    this.isAllChecked = this.endpointsNewStatus.length === this.data.item.length;
+  }
+
+  public chooseAll() {
+    if (this.isAllChecked) {
+      this.data.item.forEach(endpoint => endpoint.checked = true);
+    } else {
+      this.data.item.forEach(endpoint => endpoint.checked = false);
+    }
+    this.endpointAction();
   }
 }

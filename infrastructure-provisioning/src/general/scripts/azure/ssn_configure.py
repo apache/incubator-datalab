@@ -55,16 +55,11 @@ if __name__ == "__main__":
         ssn_conf['security_group_name'] = os.environ.get('azure_security_group_name', '{}-sg'.format(ssn_conf['service_base_name']))
         # Default variables
         ssn_conf['region'] = os.environ['azure_region']
-        ssn_conf['ssn_storage_account_name'] = '{}-ssn-storage'.format(ssn_conf['service_base_name'])
         ssn_conf['ssn_container_name'] = '{}-ssn-container'.format(ssn_conf['service_base_name']).lower()
         ssn_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
-        ssn_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(ssn_conf['service_base_name'],
-                                                                                  ssn_conf['default_endpoint_name'])
-        ssn_conf['shared_container_name'] = '{}-shared-container'.format(ssn_conf['service_base_name']).lower()
         ssn_conf['datalake_store_name'] = '{}-ssn-datalake'.format(ssn_conf['service_base_name'])
         ssn_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
-        
         ssn_conf['ssh_key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         if os.environ['conf_network_type'] == 'private':
@@ -74,6 +69,16 @@ if __name__ == "__main__":
             ssn_conf['instnace_ip'] = AzureMeta().get_instance_public_ip_address(ssn_conf['resource_group_name'],
                                                                         ssn_conf['instance_name'])
         ssn_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(ssn_conf['instance_name'], ssn_conf['region'])
+
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            step_cert_sans = ' --san {0} --san {1} '.format(AzureMeta().get_private_ip_address(
+                ssn_conf['resource_group_name'], ssn_conf['instance_name']), ssn_conf['instance_dns_name'])
+            if os.environ['conf_network_type'] == 'public':
+                step_cert_sans += ' --san {0}'.format(
+                    AzureMeta().get_instance_public_ip_address(ssn_conf['resource_group_name'],
+                                                               ssn_conf['instance_name']))
+        else:
+            step_cert_sans = ''
 
         try:
             if os.environ['azure_offer_number'] == '':
@@ -111,11 +116,6 @@ if __name__ == "__main__":
                                             ssn_conf['subnet_name'])
         if 'azure_security_group_name' not in os.environ:
             AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(ssn_conf['resource_group_name'], storage_account.name)
         for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
             if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                 AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
@@ -155,9 +155,11 @@ if __name__ == "__main__":
                              "service_base_name": ssn_conf['service_base_name'],
                              "security_group_id": ssn_conf['security_group_name'], "vpc_id": ssn_conf['vpc_name'],
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} " \
+                 "--tag_resource_id {} --step_cert_sans '{}'". \
             format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
-                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'])
+                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'],
+                   step_cert_sans)
         local("~/scripts/{}.py {}".format('configure_ssn_node', params))
     except Exception as err:
         #print('Error: {0}'.format(err))
@@ -199,7 +201,7 @@ if __name__ == "__main__":
         cloud_params = [
             {
                 'key': 'KEYCLOAK_REDIRECT_URI',
-                'value': "http://{0}/".format(ssn_conf['instnace_ip'])
+                'value': "https://{0}/".format(ssn_conf['instnace_ip'])
             },
             {
                 'key': 'KEYCLOAK_REALM_NAME',
@@ -216,6 +218,14 @@ if __name__ == "__main__":
             {
                 'key': 'KEYCLOAK_CLIENT_SECRET',
                 'value': os.environ['keycloak_client_secret']
+            },
+            {
+                'key': 'KEYCLOAK_USER_NAME',
+                'value': os.environ['keycloak_user']
+            },
+            {
+                'key': 'KEYCLOAK_PASSWORD',
+                'value': os.environ['keycloak_user_password']
             },
             {
                 'key': 'CONF_OS',
@@ -286,14 +296,6 @@ if __name__ == "__main__":
                 'value': ssn_conf['resource_group_name']
             },
             {
-                'key': 'AZURE_SSN_STORAGE_ACCOUNT_TAG',
-                'value': ssn_conf['ssn_storage_account_name']
-            },
-            {
-                'key': 'AZURE_SHARED_STORAGE_ACCOUNT_TAG',
-                'value': ssn_conf['shared_storage_account_name']
-            },
-            {
                 'key': 'GCP_PROJECT_ID',
                 'value': ''
             },
@@ -310,14 +312,67 @@ if __name__ == "__main__":
                 'value': ''
             },
             {
-                'key': 'CONF_IMAGE_ENABLED',
-                'value': os.environ['conf_image_enabled']
-            },
-            {
                 'key': 'SHARED_IMAGE_ENABLED',
                 'value': os.environ['conf_shared_image_enabled']
+            },
+            {
+                'key': 'CONF_IMAGE_ENABLED',
+                'value': os.environ['conf_image_enabled']
             }
         ]
+
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': os.environ['conf_stepcerts_enabled']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': os.environ['conf_stepcerts_root_ca']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': os.environ['conf_stepcerts_kid']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': os.environ['conf_stepcerts_kid_password']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
+                    'value': os.environ['conf_stepcerts_ca_url']
+                })
+        else:
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
+                    'value': ''
+                })
 
         if os.environ['azure_datalake_enable'] == 'false':
             cloud_params.append(
@@ -375,11 +430,6 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-        for storage_account in AzureMeta().list_storage_accounts(ssn_conf['resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                ssn_storage_account_name = storage_account.name
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                shared_storage_account_name = storage_account.name
 
         print('[SUMMARY]')
         print("Service base name: {}".format(ssn_conf['service_base_name']))
@@ -394,10 +444,6 @@ if __name__ == "__main__":
         print("Subnet Name: {}".format(ssn_conf['subnet_name']))
         print("Firewall Names: {}".format(ssn_conf['security_group_name']))
         print("SSN instance size: {}".format(os.environ['azure_ssn_instance_size']))
-        print("SSN storage account name: {}".format(ssn_storage_account_name))
-        print("SSN container name: {}".format(ssn_conf['ssn_container_name']))
-        print("Shared storage account name: {}".format(shared_storage_account_name))
-        print("Shared container name: {}".format(ssn_conf['shared_container_name']))
         if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
@@ -429,10 +475,6 @@ if __name__ == "__main__":
                        "subnet_id": ssn_conf['subnet_name'],
                        "security_id": ssn_conf['security_group_name'],
                        "instance_shape": os.environ['azure_ssn_instance_size'],
-                       "ssn_storage_account_name": ssn_storage_account_name,
-                       "ssn_container_name": ssn_conf['ssn_container_name'],
-                       "shared_storage_account_name": shared_storage_account_name,
-                       "shared_container_name": ssn_conf['shared_container_name'],
                        "region": ssn_conf['region'],
                        "action": "Create SSN instance"}
             else:
@@ -444,10 +486,6 @@ if __name__ == "__main__":
                        "subnet_id": ssn_conf['subnet_name'],
                        "security_id": ssn_conf['security_group_name'],
                        "instance_shape": os.environ['azure_ssn_instance_size'],
-                       "ssn_storage_account_name": ssn_storage_account_name,
-                       "ssn_container_name": ssn_conf['ssn_container_name'],
-                       "shared_storage_account_name": shared_storage_account_name,
-                       "shared_container_name": ssn_conf['shared_container_name'],
                        "datalake_name": datalake_store_name,
                        "datalake_shared_directory_name": ssn_conf['datalake_shared_directory_name'],
                        "region": ssn_conf['region'],

@@ -36,6 +36,7 @@ parser.add_argument('--conf_allowed_ip_cidr', type=str, default='', help='Comma-
 parser.add_argument('--conf_user_subnets_range', type=str, default='', help='Range of subnets which will be using for '
                                                                             'users environments. For example: '
                                                                             '10.10.0.0/24 - 10.10.10.0/24')
+parser.add_argument('--conf_private_subnet_prefix', type=str, default='24', help='Private subnet prefix')
 parser.add_argument('--conf_additional_tags', type=str, default='', help='Additional tags in format '
                                                                          '"Key1:Value1;Key2:Value2"')
 parser.add_argument('--conf_image_enabled', type=str, default='', help='Enable or Disable creating image at first time')
@@ -138,6 +139,11 @@ parser.add_argument('--billing_dataset_name', type=str, default='', help='Name o
                                                                          ' for billing')
 parser.add_argument('--default_endpoint_name', type=str, default='local', help='Name of localhost provisioning service,'
                                                                                'that created by default')
+parser.add_argument('--conf_stepcerts_enabled', type=str, default='false', help='Enable or disable step certificates')
+parser.add_argument('--conf_stepcerts_root_ca', type=str, default='', help='Step root CA')
+parser.add_argument('--conf_stepcerts_kid', type=str, default='', help='Step KID')
+parser.add_argument('--conf_stepcerts_kid_password', type=str, default='', help='Step KID password')
+parser.add_argument('--conf_stepcerts_ca_url', type=str, default='', help='Step CA URL')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()

@@ -21,7 +21,7 @@ package com.epam.dlab.backendapi.service.aws;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
-import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.exceptions.DlabException;
 import org.bson.Document;
 import org.junit.Before;
@@ -38,14 +38,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AwsBillingServiceTest {
 
 	private UserInfo userInfo;
-	private AwsBillingFilter billingFilter;
+	private BillingFilter billingFilter;
 	private Document basicDocument;
 
 	@Mock
@@ -60,14 +67,14 @@ public class AwsBillingServiceTest {
 	@Before
 	public void setUp() {
 		userInfo = getUserInfo();
-		billingFilter = new AwsBillingFilter();
+		billingFilter = new BillingFilter();
 		basicDocument = getBasicDocument();
 	}
 
 	@Test
 	public void getReportWithTheSameInstanceOfDocument() {
 		Document expectedDocument = new Document();
-		when(billingDAO.getReport(any(UserInfo.class), any(AwsBillingFilter.class))).thenReturn(expectedDocument);
+		when(billingDAO.getReport(any(UserInfo.class), any(BillingFilter.class))).thenReturn(expectedDocument);
 
 		Document actualDocument = awsBillingService.getReport(userInfo, billingFilter);
 		assertEquals(expectedDocument, actualDocument);
@@ -80,7 +87,7 @@ public class AwsBillingServiceTest {
 	public void getReportWithAnotherInstanceOfDocument() {
 		Document expectedDocument = new Document().append("someField", "someValue");
 		Document anotherDocument = new Document().append("someField", "anotherValue");
-		when(billingDAO.getReport(any(UserInfo.class), any(AwsBillingFilter.class))).thenReturn(anotherDocument);
+		when(billingDAO.getReport(any(UserInfo.class), any(BillingFilter.class))).thenReturn(anotherDocument);
 
 		Document actualDocument = awsBillingService.getReport(userInfo, billingFilter);
 		assertNotEquals(expectedDocument, actualDocument);
@@ -91,7 +98,7 @@ public class AwsBillingServiceTest {
 
 	@Test
 	public void getReportWithException() {
-		doThrow(new RuntimeException()).when(billingDAO).getReport(any(UserInfo.class), any(AwsBillingFilter.class));
+		doThrow(new RuntimeException()).when(billingDAO).getReport(any(UserInfo.class), any(BillingFilter.class));
 
 		try {
 			awsBillingService.getReport(userInfo, billingFilter);
@@ -105,7 +112,7 @@ public class AwsBillingServiceTest {
 
 	@Test
 	public void downloadReport() {
-		when(billingDAO.getReport(any(UserInfo.class), any(AwsBillingFilter.class))).thenReturn(basicDocument);
+		when(billingDAO.getReport(any(UserInfo.class), any(BillingFilter.class))).thenReturn(basicDocument);
 
 		byte[] result = awsBillingService.downloadReport(userInfo, billingFilter);
 		assertNotNull(result);
@@ -118,7 +125,7 @@ public class AwsBillingServiceTest {
 	@Test
 	public void downloadReportWithInapproprietaryDateFormatInDocument() {
 		basicDocument.put("from", "someDateStart");
-		when(billingDAO.getReport(any(UserInfo.class), any(AwsBillingFilter.class))).thenReturn(basicDocument);
+		when(billingDAO.getReport(any(UserInfo.class), any(BillingFilter.class))).thenReturn(basicDocument);
 
 		try {
 			awsBillingService.downloadReport(userInfo, billingFilter);
@@ -133,7 +140,7 @@ public class AwsBillingServiceTest {
 	@Test
 	public void downloadReportWhenDocumentHasNotAllRequiredFields() {
 		basicDocument.remove("lines");
-		when(billingDAO.getReport(any(UserInfo.class), any(AwsBillingFilter.class))).thenReturn(basicDocument);
+		when(billingDAO.getReport(any(UserInfo.class), any(BillingFilter.class))).thenReturn(basicDocument);
 
 		expectedException.expect(NullPointerException.class);
 
