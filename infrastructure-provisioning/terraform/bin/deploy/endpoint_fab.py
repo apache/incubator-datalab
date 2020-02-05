@@ -130,11 +130,12 @@ def ensure_step_certs():
             elif args.cloud_provider == 'azure':
                 local_ip_address = conn.sudo('curl -s -H Metadata:true "http://169.254.169.254/metadata/'
                                              'instance?api-version=2017-08-01&format=json" | jq -r ".network.'
-                                             'interface[].ipv4.ipAddress[].privateIpAddress"').stdout
+                                             'interface[].ipv4.ipAddress[].privateIpAddress"').stdout.replace('\n', '')
                 try:
                     public_ip_address = conn.sudo('curl -s -H Metadata:true "http://169.254.169.254/metadata/'
                                                   'instance?api-version=2017-08-01&format=json" | jq -r ".network.'
-                                                  'interface[].ipv4.ipAddress[].publicIpAddress"').stdout
+                                                  'interface[].ipv4.ipAddress[].publicIpAddress"').stdout.replace('\n',
+                                                                                                                  '')
                 except:
                     public_ip_address = None
             else:
