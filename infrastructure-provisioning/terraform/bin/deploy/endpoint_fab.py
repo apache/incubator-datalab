@@ -326,7 +326,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
             cloud_properties = [
                 {
                     'key': "OS_USER",
-                    'value': args.os_userd
+                    'value': args.os_user
                 },
                 {
                     'key': "KEYNAME",
