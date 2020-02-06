@@ -42,7 +42,6 @@
     "mlflow_toolchain_version": "<MLFLOW_TOOLCHAIN_VERSION>",
     "jupyterlab_version": "<JUPYTERLAB_VERSION>",
     "packager_version": "<PACKAGER_VERSION>",
-    "model_docker_url": "<MODEL_DOCKER_URL>",
     "vpc_name": "<VPC_NAME>",
     "network_name": "<VPC_NAME>",
     "subnet_name": "<SUBNET_NAME>",
