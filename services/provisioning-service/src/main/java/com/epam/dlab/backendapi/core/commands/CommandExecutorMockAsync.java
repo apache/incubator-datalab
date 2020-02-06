@@ -42,7 +42,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
@@ -226,7 +233,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 	 * @throws FileNotFoundException may be thrown
 	 */
 	private String findTemplatesDir() throws FileNotFoundException {
-		String dir = System.getProperty("docker.dir");
+		String dir = "/opt/dlab/sources/infrastructure-provisioning/src/general/files/" + cloudProvider.getName();
 
 		if (dir != null) {
 			dir = getAbsolutePath(dir);
