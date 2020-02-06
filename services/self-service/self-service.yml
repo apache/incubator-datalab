@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-<#include "infrastructure-provisioning/src/ssn/templates/ssn.yml">
+  <#include "ssn.yml">
 
 # Minimum and maximum number of slave EMR instances than could be created
 minEmrInstanceCount: 2
@@ -51,11 +51,11 @@ roleDefaultAccess: true
 # Set to true to enable the scheduler of billing report.
 billingSchedulerEnabled: false
 # Name of configuration file for billing report.
-<#if DEV_MODE == "true">
+  <#if DEV_MODE == "true">
 billingConfFile: ${sys['user.dir']}/../billing/billing.yml
-<#else>
+  <#else>
 billingConfFile: ${DLAB_CONF_DIR}/billing.yml
-</#if>
+  </#if>
 
 ssnInstanceSize: <SSN_INSTANCE_SIZE>
 
@@ -64,34 +64,34 @@ os: OPERATION_SYSTEM
 server:
   requestLog:
     appenders:
-    - type: file
-      currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
-      archive: true
-      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
-      archivedFileCount: 10
+      - type: file
+        currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
+        archive: true
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
+        archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
-#    - type: http
-#      port: 8080
-  - type: https
-    port: 8443
-    certAlias: ssn
-    validateCerts: false
-    keyStorePath: ${KEY_STORE_PATH}
-    keyStorePassword: ${KEY_STORE_PASSWORD}
-    trustStorePath: ${TRUST_STORE_PATH}
-    trustStorePassword: ${TRUST_STORE_PASSWORD}
+    #    - type: http
+    #      port: 8080
+    - type: https
+      port: 8443
+      certAlias: ssn
+      validateCerts: false
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-#    - type: http
-#      port: 8081
-  - type: https
-    port: 8444
-    certAlias: ssn
-    validateCerts: false
-    keyStorePath: ${KEY_STORE_PATH}
-    keyStorePassword: ${KEY_STORE_PASSWORD}
-    trustStorePath: ${TRUST_STORE_PATH}
-    trustStorePassword: ${TRUST_STORE_PASSWORD}
+    #    - type: http
+    #      port: 8081
+    - type: https
+      port: 8444
+      certAlias: ssn
+      validateCerts: false
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 mongoMigrationEnabled: false
 
@@ -102,14 +102,14 @@ logging:
     org.apache.guacamole: DEBUG
     com.novemberain: ERROR
   appenders:
-<#if DEV_MODE == "true">
-  - type: console
-</#if>
-  - type: file
-    currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
-    archive: true
-    archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
-    archivedFileCount: 10
+  <#if DEV_MODE == "true">
+- type: console
+  </#if>
+- type: file
+  currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
+  archive: true
+  archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
+  archivedFileCount: 10
 
 mavenSearchService:
   protocol: http
@@ -159,16 +159,16 @@ guacamole:
   username: dlab-user
 
 keycloakConfiguration:
-  redirectUri: https://localhost:8443/
-  realm: DLAB_bhliva
+  redirectUri: KEYCLOAK_REDIRECT_URI
+  realm: KEYCLOAK_REALM_NAME
   bearer-only: true
-  auth-server-url: http://52.11.45.11:8080/auth
+  auth-server-url: KEYCLOAK_AUTH_SERVER_URL
   ssl-required: none
   register-node-at-startup: true
   register-node-period: 600
-  resource: sss
+  resource: KEYCLOAK_CLIENT_NAME
   credentials:
-    secret: cf5a484b-039b-4161-8707-ad65c0f25962
+    secret: KEYCLOAK_CLIENT_SECRET
 
 jerseyClient:
   minThreads: 1
