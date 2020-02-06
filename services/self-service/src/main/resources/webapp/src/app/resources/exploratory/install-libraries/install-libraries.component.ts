@@ -18,7 +18,7 @@
  */
 
 
-import { Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
+import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject, OnDestroy} from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
@@ -36,7 +36,7 @@ import {FilterLibsModel} from './filter-libs.model';
   styleUrls: ['./install-libraries.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class InstallLibrariesComponent implements OnInit {
+export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public model: InstallLibrariesModel;
   public notebook: any;
@@ -97,6 +97,10 @@ export class InstallLibrariesComponent implements OnInit {
         this.filterList();
       });
     this.open(this.data);
+  }
+
+  ngOnDestroy() {
+    clearTimeout(this.loadLibsTimer);
   }
 
   uploadLibGroups(): void {
@@ -219,7 +223,7 @@ export class InstallLibrariesComponent implements OnInit {
     const isInstallingNow = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
       if (isInstallingNow) {
         clearTimeout(this.loadLibsTimer);
-        this.loadLibsTimer = window.setTimeout(() => this.getInstalledLibrariesList(), 1000);
+        this.loadLibsTimer = window.setTimeout(() => this.getInstalledLibrariesList(), 10000);
       }
     }
 
