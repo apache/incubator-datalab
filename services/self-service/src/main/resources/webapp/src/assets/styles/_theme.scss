@@ -285,6 +285,18 @@ span.mat-slide-toggle-content {
   word-break: break-all;
 }
 
+.project-form {
+  .ng-invalid{
+    .mat-form-field-label {
+      line-height: 22px !important;
+    }
+  }
+
+  .ng-valid .mat-form-field-label {
+    color: transparent !important;
+  }
+}
+
 .manage-roles,
 .project-form,
 .selection {

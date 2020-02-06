@@ -155,6 +155,9 @@ schedulers:
   checkProjectQuoteScheduler:
     enabled: true
     cron: "0 * * ? * * *"
+  checkEndpointStatusScheduler:
+    enabled: true
+    cron: "0 */15 * ? * *"
 
 
 guacamole:

@@ -74,7 +74,9 @@ export class ApplicationServiceFacade {
   private static readonly DOWNLOAD_REPORT = 'download_report';
   private static readonly SETTINGS = 'settings';
   private static readonly PROJECT = 'project';
+  private static readonly ODAHU = 'odahu';
   private static readonly ENDPOINT = 'endpoint';
+  private static readonly ENDPOINT_CONNECTION = 'endpoint_connection';
 
   private requestRegistry: Dictionary<string>;
 
@@ -575,6 +577,12 @@ export class ApplicationServiceFacade {
       null);
   }
 
+  public getEndpointsResource(endpoint): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT) + `/${endpoint}/resources`,
+      null);
+  }
+
   public buildCreateEndpoint(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),
@@ -585,6 +593,30 @@ export class ApplicationServiceFacade {
     return this.buildRequest(HTTPMethod.DELETE,
       this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT) + param,
       null);
+  }
+
+  public getEndpointConnectionStatus(endpointUrl): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT_CONNECTION) + endpointUrl,
+      null);
+  }
+
+  public createOdahuCluster(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.ODAHU),
+      data);
+  }
+
+   public getOdahuList(): Observable<any> {
+      return this.buildRequest(HTTPMethod.GET,
+        this.requestRegistry.Item(ApplicationServiceFacade.ODAHU),
+        null);
+    }
+
+  public odahuStartStop(data, params): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.ODAHU) + `/${params}`,
+      data);
   }
 
   private setupRegistry(): void {
@@ -663,6 +695,10 @@ export class ApplicationServiceFacade {
     // project
     this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
+    this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT_CONNECTION, '/api/endpoint/url/');
+
+    // odahu
+    this.requestRegistry.Add(ApplicationServiceFacade.ODAHU, '/api/odahu');
   }
 
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {

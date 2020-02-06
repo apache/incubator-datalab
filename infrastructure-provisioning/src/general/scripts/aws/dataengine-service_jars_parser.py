@@ -54,14 +54,12 @@ if __name__ == "__main__":
     else:
         endpoint = "https://s3-{}.amazonaws.com".format(args.region)
     os.system('touch /tmp/python_version')
-    python_ver = subprocess.check_output("python3.5 -V 2>/dev/null | awk '{print $2}'", shell=True)
-    if python_ver != '':
-        with open('/tmp/python_version', 'w') as outfile:
-            outfile.write(python_ver)
-    else:
-        python_ver = subprocess.check_output("python3.4 -V 2>/dev/null | awk '{print $2}'", shell=True)
-        with open('/tmp/python_version', 'w') as outfile:
-            outfile.write(python_ver)
+    for v in range(4, 7):
+        python_ver_checker = "python3.{} -V 2>/dev/null".format(v) + " | awk '{print $2}'"
+        python_ver = subprocess.check_output(python_ver_checker, shell=True)
+        if python_ver != '':
+            with open('/tmp/python_version', 'w') as outfile:
+                outfile.write(python_ver)
     os.system('/bin/tar -zhcvf /tmp/jars.tar.gz '
               '--no-recursion '
               '--absolute-names '

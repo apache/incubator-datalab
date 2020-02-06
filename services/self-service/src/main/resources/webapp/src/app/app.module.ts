@@ -40,6 +40,7 @@ import { ReportingModule } from './reporting/reporting.module';
 import { AdministrationModule } from './administration/administration.module';
 import { WebterminalModule } from './webterminal';
 import { CoreModule } from './core/core.module';
+import { SwaggerAPIModule } from './swagger';
 
 @NgModule({
   declarations: [AppComponent],
@@ -57,6 +58,7 @@ import { CoreModule } from './core/core.module';
     ReportingModule,
     AdministrationModule,
     WebterminalModule,
+    SwaggerAPIModule,
     RouterModule,
     AppRoutingModule,
     CoreModule.forRoot(),

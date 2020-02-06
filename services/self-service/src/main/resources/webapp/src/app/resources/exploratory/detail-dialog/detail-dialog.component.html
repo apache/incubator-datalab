@@ -18,11 +18,12 @@
   -->
 
 <div class="detail-dialog" id="dialog-box">
-  <header class="dialog-header header-white">
+  <header class="dialog-header " [ngClass]="{'header-white': data.notebook}">
+    <h4 *ngIf="data.legion" class="modal-title" >Odahu cluster</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
-    <div *ngIf="data">
+    <div *ngIf="data.notebook">
       <table class="detail-header">
         <tr>
           <td>{{notebook.template_name}}</td>
@@ -121,12 +122,26 @@
           </ng-template>
           <div [scrollTo]="configuration?.nativeElement['checked'] || false" class="text-center m-top-20 m-bott-10"
             *ngIf="(configuration?.nativeElement['checked'] || false) && notebook.status === 'running'">
-            <button mat-raised-button type="button" (click)="bindDialog.close()" class="butt action">Cancel</button>
+            <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
             <button mat-raised-button type="submit" [disabled]="!configurationForm.valid"
               class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"
               (click)="editClusterConfiguration(configurationForm.value)">Update</button>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="legion-info" *ngIf="data.legion">
+      <div class="content-box">
+        <div class="detail-info" *ngIf="!legion.error_message">
+        <div class="links_block">
+          <p *ngFor="let url of legion.url">
+            <span class="description">{{url.description}}: &nbsp;</span>
+            <a class="ellipsis" matTooltip=" http://172.31.48.131:8080/" matTooltipPosition="above" href=" http://172.31.48.131:8080/"
+               target="_blank">{{ url.url}}              &nbsp;
+            </a>
+          </p>
+        </div>
+    </div>
       </div>
     </div>
   </div>

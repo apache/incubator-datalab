@@ -1,7 +1,27 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.EndpointResourcesDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.rest.dto.ErrorDTO;
 import com.google.inject.Inject;
@@ -51,7 +71,7 @@ public class EndpointResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@POST
 	public Response createEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo, EndpointDTO endpointDTO) {
-		endpointService.create(endpointDTO);
+		endpointService.create(userInfo, endpointDTO);
 		final URI uri = uriInfo.getRequestUriBuilder().path(endpointDTO.getName()).build();
 		return Response
 				.ok()
@@ -89,6 +109,20 @@ public class EndpointResource {
 		return Response.ok(endpointService.getEndpoints()).build();
 	}
 
+	@Operation(summary = "Get resources related to the endpoint", tags = "endpoint")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Return information about resources of endpoint",
+					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
+					@Schema(implementation = EndpointResourcesDTO.class)))
+	})
+	@GET
+	@Path("{name}/resources")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getEndpointResources(@Parameter(hidden = true) @Auth UserInfo userInfo,
+										 @Parameter(description = "Endpoint name")
+										 @PathParam("name") String name) {
+		return Response.ok(endpointService.getEndpointResources(name)).build();
+	}
 
 	@Operation(summary = "Remove endpoint", tags = "endpoint")
 	@ApiResponses({
@@ -101,8 +135,25 @@ public class EndpointResource {
 	@Path("{name}")
 	public Response removeEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								   @Parameter(description = "Endpoint name")
-								   @PathParam("name") String name) {
-		endpointService.remove(name);
+								   @PathParam("name") String name,
+								   @Parameter(description = "Delete endpoint only or with related resources")
+								   @QueryParam("with-resources") @DefaultValue("false") boolean withResources) {
+		endpointService.remove(userInfo, name, withResources);
+		return Response.ok().build();
+	}
+
+	@Operation(summary = "Check whether endpoint url is valid", tags = "endpoint")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Valid endpoint url"),
+			@ApiResponse(responseCode = "404", description = "Endpoint url is not valid"),
+	})
+	@GET
+	@Path("url/{url}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response checkEndpointUrl(@Parameter(hidden = true) @Auth UserInfo userInfo,
+									 @Parameter(description = "Endpoint url")
+									 @PathParam("url") String url) {
+		endpointService.checkEndpointUrl(userInfo, url);
 		return Response.ok().build();
 	}
 }

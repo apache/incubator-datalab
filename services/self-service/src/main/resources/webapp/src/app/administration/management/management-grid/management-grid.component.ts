@@ -27,6 +27,7 @@ import { ConfirmationDialogType } from '../../../shared';
 import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confirmation-dialog';
 import { EnvironmentsDataService } from '../management-data.service';
 import { EnvironmentModel, ManagementConfigModel } from '../management.model';
+import {ProgressBarService} from "../../../core/services/progress-bar.service";
 
 export interface ManageAction {
   action: string;
@@ -66,16 +67,25 @@ export class ManagementGridComponent implements OnInit {
     private healthStatusService: HealthStatusService,
     private environmentsDataService: EnvironmentsDataService,
     public toastr: ToastrService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private progressBarService: ProgressBarService,
   ) { }
 
   ngOnInit() {
+  this.getEnvironmentData()
+  }
+
+  getEnvironmentData() {
+    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
     this.environmentsDataService._data.subscribe(data => {
       if (data) {
         this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);
         this.getDefaultFilterConfiguration(data);
         this.applyFilter(this.filterForm);
       }
+      this.progressBarService.stopProgressBar();
+    }, () => {
+      this.progressBarService.stopProgressBar();
     });
   }
 

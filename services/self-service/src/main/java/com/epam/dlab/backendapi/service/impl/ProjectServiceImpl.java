@@ -13,11 +13,10 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.OdahuService;
 import com.epam.dlab.backendapi.service.ProjectService;
-import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -55,14 +54,14 @@ public class ProjectServiceImpl implements ProjectService {
 	private final RequestBuilder requestBuilder;
 	private final EndpointService endpointService;
 	private final ExploratoryDAO exploratoryDAO;
-	private final SecurityService securityService;
+	private final OdahuService odahuService;
 
 	@Inject
 	public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
 							  UserGroupDao userGroupDao,
 							  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
 							  RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService,
-							  ExploratoryDAO exploratoryDAO, SecurityService securityService) {
+							  ExploratoryDAO exploratoryDAO, OdahuService odahuService) {
 		this.projectDAO = projectDAO;
 		this.exploratoryService = exploratoryService;
 		this.userGroupDao = userGroupDao;
@@ -71,7 +70,7 @@ public class ProjectServiceImpl implements ProjectService {
 		this.requestBuilder = requestBuilder;
 		this.endpointService = endpointService;
 		this.exploratoryDAO = exploratoryDAO;
-		this.securityService = securityService;
+		this.odahuService = odahuService;
 	}
 
 	@Override
@@ -96,6 +95,11 @@ public class ProjectServiceImpl implements ProjectService {
 		return projectDAO.getProjectsWithStatus(status);
 	}
 
+	@Override
+	public List<ProjectDTO> getProjectsByEndpoint(String endpointName) {
+		return projectDAO.getProjectsByEndpoint(endpointName);
+	}
+
 	@BudgetLimited
 	@Override
 	public void create(UserInfo user, ProjectDTO projectDTO) {
@@ -118,13 +122,26 @@ public class ProjectServiceImpl implements ProjectService {
 		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
 		exploratoryService.updateProjectExploratoryStatuses(name, endpoint, UserInstanceStatus.TERMINATING);
+		odahuService.get(name, endpoint)
+				.ifPresent(odahu -> odahuService.terminate(odahu.getName(), name, endpoint, userInfo));
+	}
+
+	@Override
+	public void terminateEndpoint(UserInfo userInfo, List<String> endpoints, String name) {
+		List<ProjectEndpointDTO> projectEndpoint = get(name).getEndpoints().stream()
+				.filter(e -> endpoints.contains(e.getName()))
+				.collect(Collectors.toList());
+		checkProjectRelatedResourcesInProgress(name, projectEndpoint, TERMINATE_ACTION);
+
+		endpoints.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
 	}
 
 	@Override
 	public void terminateProject(UserInfo userInfo, String name) {
-		checkProjectRelatedResourcesInProgress(name, TERMINATE_ACTION);
-		get(name).getEndpoints()
-				.stream()
+		List<ProjectEndpointDTO> endpoints = get(name).getEndpoints();
+		checkProjectRelatedResourcesInProgress(name, endpoints, TERMINATE_ACTION);
+
+		endpoints.stream()
 				.map(ProjectEndpointDTO::getName)
 				.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
 	}
@@ -137,19 +154,30 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	public void start(UserInfo userInfo, List<String> endpoints, String name) {
+		endpoints.forEach(endpoint -> start(userInfo, endpoint, name));
+	}
+
+	@Override
 	public void stop(UserInfo userInfo, String endpoint, String name) {
 		projectActionOnCloud(userInfo, name, STOP_PRJ_API, endpoint);
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STOPPING);
 	}
 
 	@Override
+	public void stop(UserInfo userInfo, List<String> endpoints, String name) {
+		endpoints.forEach(endpoint -> stop(userInfo, endpoint, name));
+	}
+
+	@Override
 	public void stopWithResources(UserInfo userInfo, String projectName) {
-		checkProjectRelatedResourcesInProgress(projectName, STOP_ACTION);
+		List<ProjectEndpointDTO> endpoints = get(projectName).getEndpoints();
+		checkProjectRelatedResourcesInProgress(projectName, endpoints, STOP_ACTION);
 
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName).forEach(e ->
 				exploratoryService.stop(new UserInfo(e.getUser(), userInfo.getAccessToken()), e.getExploratoryName()));
 
-		get(projectName).getEndpoints().stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
+		endpoints.stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED).contains(e.getStatus()))
 				.forEach(e -> stop(userInfo, e.getName(), projectName));
 	}
@@ -168,7 +196,7 @@ public class ProjectServiceImpl implements ProjectService {
 				.collect(Collectors.toList());
 		project.getEndpoints().addAll(endpointsToBeCreated);
 		projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
-				project.getTag(), project.getBudget(), project.getEndpoints()));
+				project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
 		endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, project, e.getName()));
 	}
 
@@ -188,6 +216,17 @@ public class ProjectServiceImpl implements ProjectService {
 				userGroupDao.getUserGroups(userInfo.getName()).stream())
 				.collect(toSet());
 		return projectDAO.isAnyProjectAssigned(userGroups);
+	}
+
+	@Override
+	public boolean checkExploratoriesAndComputationalProgress(String projectName, List<String> endpoints) {
+		return exploratoryDAO.fetchProjectEndpointExploratoriesWhereStatusIn(projectName, endpoints, Arrays.asList(
+				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE,
+				UserInstanceStatus.CONFIGURING, UserInstanceStatus.RECONFIGURING, UserInstanceStatus.STOPPING,
+				UserInstanceStatus.TERMINATING),
+				UserInstanceStatus.CREATING, UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING,
+				UserInstanceStatus.RECONFIGURING, UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.STOPPING,
+				UserInstanceStatus.TERMINATING).isEmpty();
 	}
 
 	private void createProjectOnCloud(UserInfo user, ProjectDTO projectDTO) {
@@ -220,19 +259,14 @@ public class ProjectServiceImpl implements ProjectService {
 		}
 	}
 
-	private void checkProjectRelatedResourcesInProgress(String projectName, String action) {
-        boolean edgeProgress = get(projectName).getEndpoints().stream().anyMatch(e ->
-                Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
-                        UserInstanceStatus.TERMINATING).contains(e.getStatus()));
+	private void checkProjectRelatedResourcesInProgress(String projectName, List<ProjectEndpointDTO> endpoints, String action) {
+		boolean edgeAndOdahuProgress = endpoints.stream().anyMatch(e ->
+				Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
+						UserInstanceStatus.TERMINATING).contains(e.getStatus())
+						|| odahuService.inProgress(projectName, e.getName()));
 
-		List<UserInstanceDTO> userInstanceDTOs = exploratoryDAO.fetchProjectExploratoriesWhereStatusIn(projectName,
-				Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING,
-						UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.CONFIGURING,
-						UserInstanceStatus.RECONFIGURING, UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING),
-                UserInstanceStatus.CREATING, UserInstanceStatus.CONFIGURING, UserInstanceStatus.STARTING,
-				UserInstanceStatus.RECONFIGURING, UserInstanceStatus.CREATING_IMAGE, UserInstanceStatus.STOPPING,
-				UserInstanceStatus.TERMINATING);
-        if (edgeProgress || !userInstanceDTOs.isEmpty()) {
+		List<String> endpointsName = endpoints.stream().map(ProjectEndpointDTO::getName).collect(Collectors.toList());
+		if (edgeAndOdahuProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointsName)) {
 			throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
 					"resource is in processing stage", action)));
 		}

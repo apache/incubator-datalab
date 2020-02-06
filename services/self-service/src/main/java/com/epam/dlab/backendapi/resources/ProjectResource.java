@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -60,11 +61,10 @@ public class ProjectResource {
 	@RolesAllowed("/api/project")
 	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								  @Valid CreateProjectDTO projectDTO) {
-
 		projectService.create(userInfo, new ProjectDTO(projectDTO.getName(), projectDTO.getGroups(),
 				projectDTO.getKey(), projectDTO.getTag(), null,
 				projectDTO.getEndpoints().stream().map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING,
-						null)).collect(Collectors.toList())));
+						null)).collect(Collectors.toList()), projectDTO.isSharedImageEnabled()));
 		final URI uri = uriInfo.getRequestUriBuilder().path(projectDTO.getName()).build();
 		return Response
 				.ok()
@@ -84,8 +84,8 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response startProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								 @Valid ProjectActionFormDTO startProjectDto) {
-		projectService.start(userInfo, startProjectDto.getEndpoint(), startProjectDto.getProjectName());
+								 @NotNull @Valid ProjectActionFormDTO startProjectDto) {
+		projectService.start(userInfo, startProjectDto.getEndpoints(), startProjectDto.getProjectName());
 		return Response
 				.accepted()
 				.build();
@@ -103,8 +103,8 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								@Valid ProjectActionFormDTO stopProjectDTO) {
-		projectService.stop(userInfo, stopProjectDTO.getEndpoint(), stopProjectDTO.getProjectName());
+								@NotNull @Valid ProjectActionFormDTO stopProjectDTO) {
+		projectService.stop(userInfo, stopProjectDTO.getEndpoints(), stopProjectDTO.getProjectName());
 		return Response
 				.accepted()
 				.build();
@@ -228,10 +228,9 @@ public class ProjectResource {
 	@POST
 	@Path("terminate")
 	@RolesAllowed("/api/project")
-	public Response removeProjectEndpoint(
-			@Parameter(hidden = true) @Auth UserInfo userInfo,
-			ProjectActionFormDTO projectActionDTO) {
-		projectService.terminateEndpoint(userInfo, projectActionDTO.getEndpoint(), projectActionDTO.getProjectName());
+	public Response removeProjectEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo,
+										  @NotNull @Valid ProjectActionFormDTO projectActionDTO) {
+		projectService.terminateEndpoint(userInfo, projectActionDTO.getEndpoints(), projectActionDTO.getProjectName());
 		return Response.ok().build();
 	}
 
@@ -262,7 +261,7 @@ public class ProjectResource {
 					List<UpdateProjectBudgetDTO> dtos) {
 		final List<ProjectDTO> projects = dtos
 				.stream()
-				.map(dto -> new ProjectDTO(dto.getProject(), null, null, null, dto.getBudget(), null))
+				.map(dto -> ProjectDTO.builder().name(dto.getProject()).budget(dto.getBudget()).build())
 				.collect(Collectors.toList());
 		projectService.updateBudget(projects);
 		return Response.ok().build();

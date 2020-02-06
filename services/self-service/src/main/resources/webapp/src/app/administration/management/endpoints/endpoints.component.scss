@@ -43,15 +43,19 @@
   }
 
   .action-group {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
   }
 
   .endpoints {
     height: 265px;
 
-    table {
+    table.mat-table {
       width: 100%;
-
+      thead{
+        background: transparent;
+      }
       tr {
         td {
           vertical-align: middle;
@@ -63,8 +67,8 @@
 
       .actions {
         color: #607d8b;
-        width: 10%;
         text-align: center;
+        width: 14%;
 
         span {
           transition: all .5s ease-in-out;

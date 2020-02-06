@@ -16,11 +16,12 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<section>
+<section class="toolbar">
   <div class="info_color" *ngIf="reportData">
     <div class="general">
       <div><span>Service base name: </span><strong>{{ reportData.service_base_name }}</strong></div>
-      <div *ngIf="reportData.tag_resource_id"><span>Resource tag ID: </span><strong>{{ reportData.tag_resource_id }}</strong></div>
+      <div *ngIf="reportData.tag_resource_id"><span>Resource tag ID:
+        </span><strong>{{ reportData.tag_resource_id }}</strong></div>
       <div class="report-period info_color" *ngIf="availablePeriodFrom && availablePeriodTo">
         <span>Available reporting period from:</span>
         <strong>{{ availablePeriodFrom | date }} </strong>
