@@ -40,6 +40,7 @@ class GCPMeta:
                               google.auth.exceptions.DefaultCredentialsError,
                               max_tries=15)
         def get_gcp_cred():
+            credentials, project = google.auth.default()
             return credentials, project
 
         self.auth_type = auth_type
@@ -53,6 +54,7 @@ class GCPMeta:
                     ['https://www.googleapis.com/auth/compute',
                      'https://www.googleapis.com/auth/iam',
                      'https://www.googleapis.com/auth/cloud-platform'])
+            self.service = build('compute', 'v1', credentials=credentials)
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.dataproc = build('dataproc', 'v1', credentials=credentials)
             self.service_storage = build('storage', 'v1', credentials=credentials)
