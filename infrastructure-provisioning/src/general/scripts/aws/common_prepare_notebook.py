@@ -66,14 +66,14 @@ if __name__ == "__main__":
 
     notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
     notebook_config['key_name'] = os.environ['conf_key_name']
-    notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
-                                                               os.environ['project_name'],
+    notebook_config['instance_name'] = '{}-{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
+                                                               os.environ['project_name'], os.environ['endpoint_name'],
                                                                notebook_config['exploratory_name'], args.uuid)
     notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
-    notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
-        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                  os.environ['project_name'])
+    notebook_config['role_profile_name'] = '{}-{}-{}-nb-de-Profile' \
+        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'], os.environ['endpoint_name'])
+    notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
+                                                                  os.environ['project_name'], os.environ['endpoint_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
 
     if os.environ['conf_shared_image_enabled'] == 'false':

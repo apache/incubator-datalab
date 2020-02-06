@@ -70,7 +70,7 @@ if __name__ == "__main__":
         edge_conf['datalake_user_directory_name'] = '{0}-{1}-folder'.format(edge_conf['service_base_name'],
                                                                             edge_conf['project_name'])
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
-        edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + \
+        edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + "-" + os.environ['endpoint_name'] +\
                                                     '-nb-sg'
         edge_conf['master_security_group_name'] = edge_conf['service_base_name'] + '-' \
                                                     + edge_conf['project_name'] + '-dataengine-master-sg'

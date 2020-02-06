@@ -89,8 +89,8 @@ if __name__ == "__main__":
         tag = {"Key": data_engine['tag_name'],
                "Value": "{}-{}-subnet".format(data_engine['service_base_name'], os.environ['project_name'])}
         data_engine['subnet_cidr'] = get_subnet_by_tag(tag)
-        data_engine['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
-            .format(data_engine['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
+        data_engine['notebook_dataengine_role_profile_name'] = '{}-{}-{}-nb-de-Profile' \
+            .format(data_engine['service_base_name'].lower().replace('-', '_'), os.environ['project_name'], os.environ['endpoint_name'])
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['cluster_nodes_tag'] = {"Key": "dataengine_notebook_name",
                                             "Value": os.environ['notebook_instance_name']}

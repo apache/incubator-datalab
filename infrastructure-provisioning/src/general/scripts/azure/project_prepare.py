@@ -67,7 +67,7 @@ if __name__ == "__main__":
         project_conf['network_interface_name'] = '{0}-nif'.format(project_conf['instance_name'])
         project_conf['primary_disk_name'] = project_conf['instance_name'] + '-disk0'
         project_conf['edge_security_group_name'] = project_conf['instance_name'] + '-sg'
-        project_conf['notebook_security_group_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name']\
+        project_conf['notebook_security_group_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name'] + "-" + os.environ['endpoint_name']\
             + '-nb-sg'
         project_conf['master_security_group_name'] = project_conf['service_base_name'] + '-' \
                                                     + project_conf['project_name'] + '-dataengine-master-sg'
