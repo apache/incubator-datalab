@@ -55,16 +55,15 @@ if __name__ == "__main__":
 
     print("Generationg SSH keyfile for dlab-user")
     key = RSA.generate(2048)
-    local("sudo sh -c 'echo \"{}\" >> /home/dlab-user/keys/KEY-FILE.pem'".format(key.exportKey('PEM')))
+    local("sudo sh -c 'echo \"{}\" > /home/dlab-user/keys/KEY-FILE.pem'".format(key.exportKey('PEM')))
     local("sudo chmod 600 /home/dlab-user/keys/KEY-FILE.pem")
     pubkey = key.publickey()
-    local("sudo sh -c 'echo \"{}\" >> /home/dlab-user/.ssh/authorized_keys'".format(pubkey.exportKey('OpenSSH')))
+    local("sudo sh -c 'echo \"{}\" > /home/dlab-user/.ssh/authorized_keys'".format(pubkey.exportKey('OpenSSH')))
 
     print("Generationg MongoDB password")
     mongo_pwd = uuid.uuid4().hex
     try:
-        local("sudo echo -e 'db.changeUserPassword(\"admin\", \"{}\")' | mongo dlabdb --port 27017 -u admin -p MONGO_PASSWORD".format(
-            mongo_pwd))
+        local("sudo echo -e 'db.changeUserPassword(\"admin\", \"{}\")' | mongo dlabdb --port 27017 -u admin -p MONGO_PASSWORD".format(mongo_pwd))
         local('sudo sed -i "s|MONGO_PASSWORD|{}|g" /opt/dlab/conf/billing.yml'.format(mongo_pwd))
 
         local('sudo sed -i "s|MONGO_PASSWORD|{}|g" /opt/dlab/conf/ssn.yml'.format(mongo_pwd))
@@ -113,44 +112,36 @@ if __name__ == "__main__":
 
     local('sudo sed -i "s|DLAB_SBN|{}|g" /opt/dlab/conf/billing.yml'.format(dlab_sbn))
 
-    local(
-        'sudo sed -i "s|DLAB_SBN|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(
-            dlab_sbn))
-    local(
-        'sudo sed -i "s|GCP_PROJECT_ID|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(
-            gcp_projectId))
-    local(
-        'sudo sed -i "s|DLAB_REGION|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(
-            dlab_region))
-    local(
-        'sudo sed -i "s|DLAB_ZONE|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(
-            dlab_zone))
-    local(
-        'sudo sed -i "s|KEYCLOAK_REALM_NAME|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(
-            args.keycloak_realm_name))
-    local(
-        'sudo sed -i "s|KEYCLOAK_AUTH_SERVER_URL|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(
-            args.keycloak_auth_server_url))
-    local(
-        'sudo sed -i "s|KEYCLOAK_CLIENT_NAME|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(
-            args.keycloak_client_name))
-    local(
-        'sudo sed -i "s|KEYCLOAK_CLIENT_SECRET|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(
-            args.keycloak_client_secret))
-    local(
-        'sudo sed -i "s|KEYCLOAK_USER|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(
-            args.keycloak_user))
-    local(
-        'sudo sed -i "s|KEYCLOAK_ADMIN_PASSWORD|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(
-            args.keycloak_admin_password))
+    local('sudo sed -i "s|DLAB_SBN|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(dlab_sbn))
+    local('sudo sed -i "s|GCP_PROJECT_ID|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(gcp_projectId))
+    local('sudo sed -i "s|DLAB_REGION|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(dlab_region))
+    local('sudo sed -i "s|DLAB_ZONE|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(dlab_zone))
+    local('sudo sed -i "s|KEYCLOAK_REALM_NAME|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.keycloak_realm_name))
+    local('sudo sed -i "s|KEYCLOAK_AUTH_SERVER_URL|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.keycloak_auth_server_url))
+    local('sudo sed -i "s|KEYCLOAK_CLIENT_NAME|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.keycloak_client_name))
+    local('sudo sed -i "s|KEYCLOAK_CLIENT_SECRET|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.keycloak_client_secret))
+    local('sudo sed -i "s|KEYCLOAK_USER|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.keycloak_user))
+    local('sudo sed -i "s|KEYCLOAK_ADMIN_PASSWORD|{}|g" /opt/dlab/sources/infrastructure-provisioning/src/general/conf/overwrite.ini'.format(args.keycloak_admin_password))
 
+    print('SSL certificate generating')
+    keystore_passwd = uuid.uuid4().hex
+    local('sudo rm /home/dlab-user/keys/ssn*')
+    local('sudo rm /etc/ssl/certs/dlab*')
+    local('sudo keytool -delete -noprompt -trustcacerts -alias ssn -storepass changeit -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts')
+    local('sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN=localhost/subjectAltName={0}"'.format(server_external_ip))
+    local('sudo openssl pkcs12 -export -in /etc/ssl/certs/dlab.crt -inkey /etc/ssl/certs/dlab.key -name ssn -out /home/dlab-user/keys/ssn.p12 -password pass:{0}'.format(keystore_passwd))
+    local('sudo keytool -importkeystore -srckeystore /home/dlab-user/keys/ssn.p12 -srcstoretype PKCS12 -alias ssn -destkeystore /home/dlab-user/keys/ssn.keystore.jks -deststorepass {0} -srcstorepass {0}'.format(keystore_passwd))
+    local('sudo keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt -storepass changeit -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts')
+    local('sudo sed -i "s|KEYSTORE_PASSWORD|{}|g" /opt/dlab/conf/ssn.yml'.format(keystore_passwd))
+
+    print('Nginx configuration updating')
     local('sudo sed -i "s|SERVER_IP|{}|g" /etc/nginx/conf.d/nginx_proxy.conf'.format(server_external_ip))
     local('sudo systemctl restart nginx')
     local('sudo supervisorctl restart all')
+
+    print('Rebuilding docker images')
     local('cd /opt/dlab/sources/infrastructure-provisioning/src/ && sudo docker-build all')
 
-    print('SUMMARY')
+    print('[SUMMARY]')
     print('Mongo password stored in /opt/dlab/conf/ssn.yml')
     print('SSH key for dlab-user stored in /home/dlab-user/keys/KEY-FILE.pem')
-    if not args:
-        print('Keycloak parameters was not set, please configure Keycloak parameters manually')
