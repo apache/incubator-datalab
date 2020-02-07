@@ -40,6 +40,10 @@ import { SchedulerComponent } from '../scheduler';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
+import {ComputationModel} from '../computational/computational-resource.model';
+
+
+
 
 @Component({
   selector: 'resources-grid',
@@ -129,7 +133,8 @@ export class ResourcesGridComponent implements OnInit {
     if (notebook_name && this.environments && this.environments.length ) {
       const currentProj = this.environments.filter(project => project.project === project_name);
       if (currentProj.length) {
-        return currentProj[0].exploratory.some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name));
+        return currentProj[0].exploratory
+          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name));
       }
       return false;
     }
@@ -186,7 +191,8 @@ export class ResourcesGridComponent implements OnInit {
       this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
         .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'terminate') {
-      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
+      this.dialog.open(ConfirmationDialogComponent, { data:
+          { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
         .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'install') {
       this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
@@ -206,7 +212,7 @@ export class ResourcesGridComponent implements OnInit {
   private getResourceByName(notebook_name: string) {
     return this.getEnvironmentsListCopy()
       .map(env => env.exploratory.find(({ name }) => name === notebook_name))
-      .filter(notebook_name => !!notebook_name)[0];
+      .filter(name => !!name)[0];
   }
 
   private getEnvironmentsListCopy() {
@@ -232,6 +238,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   private applyFilter_btnClick(config: FilterConfigurationModel) {
+
     let filteredData = this.getEnvironmentsListCopy();
 
     const containsStatus = (list, selectedItems) => {
@@ -270,6 +277,17 @@ export class ResourcesGridComponent implements OnInit {
       this.updateUserPreferences(config);
     }
 
+    const failedResource = ComputationModel.computationRes(this.getEnvironmentsListCopy()).flat(3).filter(resourse => resourse.status === 'failed');
+
+    if (this.filteredEnvironments.length && this.activeFiltering) {
+      const creatingResource = ComputationModel.computationRes(this.filteredEnvironments).flat(3).filter(resourse => resourse.status === 'creating');
+      const fail = failedResource
+        .filter(v => creatingResource
+          .some(create => create.project === v.project && create.exploratory === v.exploratory && create.resource === v.resource));
+      if (fail.length) {
+        this.toastr.error('Creating computation resource failed!', 'Oops!');
+      }
+    }
     this.filteredEnvironments = filteredData;
   }
 
