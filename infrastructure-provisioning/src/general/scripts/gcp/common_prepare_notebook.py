@@ -84,8 +84,8 @@ if __name__ == "__main__":
     if os.environ['conf_os_family'] == 'redhat':
         initial_user = 'ec2-user'
         sudo_group = 'wheel'
-    notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
-                                                               notebook_config['project_name'],
+    notebook_config['instance_name'] = '{0}-{1}-{2}-nb-{3}'.format(notebook_config['service_base_name'],
+                                                               notebook_config['project_name'], os.environ['endpoint_name'],
                                                                notebook_config['exploratory_name'])
     notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
     notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']

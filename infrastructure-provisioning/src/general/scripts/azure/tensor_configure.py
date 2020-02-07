@@ -56,8 +56,8 @@ if __name__ == "__main__":
         notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         notebook_config['user_keyname'] = os.environ['project_name']
-        notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
-                                                                notebook_config['project_name'],
+        notebook_config['instance_name'] = '{}-{}-{}-nb-{}'.format(notebook_config['service_base_name'],
+                                                                notebook_config['project_name'], os.environ['endpoint_name'],
                                                                 notebook_config['exploratory_name'])
         notebook_config['image_enabled'] = os.environ['conf_image_enabled']
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
@@ -86,8 +86,8 @@ if __name__ == "__main__":
                                              "Exploratory": notebook_config['exploratory_name'],
                                              os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
-        notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                      notebook_config['project_name'])
+        notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
+                                                                      notebook_config['project_name'], os.environ['endpoint_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],

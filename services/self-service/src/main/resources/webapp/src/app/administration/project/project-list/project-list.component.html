@@ -45,7 +45,7 @@
       <ng-template #list>
         <div *ngFor="let endpoint of element.endpoints" class="resource-wrap">
           <div class="resource-name">
-            <a class="detailed-link">
+            <a class="project-endpoint-name">
               {{ endpoint.name }}
             </a>
           </div>
@@ -91,12 +91,6 @@
             <i class="material-icons">mode_edit</i>
             <a >
               Edit project
-            </a>
-          </li>
-          <li class="project-seting-item" *ngIf="!isInProgress(element) && isActiveEndpoint(element)" (click)="deleteProject(element)">
-            <i class="material-icons">delete_forever</i>
-            <a  class="action" [ngClass]="{'not-allowed' : isInProgress(element) || !isActiveEndpoint(element) }">
-              Delete project
             </a>
           </li>
         </ul>

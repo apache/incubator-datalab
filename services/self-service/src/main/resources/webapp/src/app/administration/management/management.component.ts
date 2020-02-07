@@ -97,8 +97,8 @@ export class ManagementComponent implements OnInit {
   openManageEnvironmentDialog() {
     this.projectService.getProjectsManagingList().subscribe(projectsList => {
       this.getTotalBudgetData().subscribe(total => {
-        this.dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { projectsList, total }, panelClass: 'modal-xl-s' });
-        this.dialogRef.componentInstance.manageEnv.subscribe((data) => this.manageEnvironment(data));
+        this.dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { projectsList, total }, panelClass: 'modal-sm' });
+        // this.dialogRef.componentInstance.manageEnv.subscribe((data) => this.manageEnvironment(data));
         this.dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
       }, () => this.toastr.error('Failed users list loading!', 'Oops!'));
     });
@@ -126,23 +126,23 @@ export class ManagementComponent implements OnInit {
     }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
-  manageEnvironment(event: { action: string, project: any }) {
-    if (event.action === 'stop')
-      this.projectService.stopProjectAction(event.project.project_name)
-        .subscribe(() => this.handleSuccessAction(event.action), error => this.toastr.error(error.message, 'Oops!'));
-
-    if (event.action === 'terminate')
-      this.projectService.deleteProject(event.project.project_name)
-        .subscribe(() => this.handleSuccessAction(event.action), error => this.toastr.error(error.message, 'Oops!'));
-  }
+  // manageEnvironment(event: { action: string, project: any }) {
+  //   if (event.action === 'stop')
+  //     this.projectService.stopProjectAction(event.project.project_name)
+  //       .subscribe(() => this.handleSuccessAction(event.action), error => this.toastr.error(error.message, 'Oops!'));
+  //
+  //   if (event.action === 'terminate')
+  //     this.projectService.deleteProject(event.project.project_name)
+  //       .subscribe(() => this.handleSuccessAction(event.action), error => this.toastr.error(error.message, 'Oops!'));
+  // }
 
   handleSuccessAction(action) {
     this.toastr.success(`Action ${action} is processing!`, 'Processing!');
     this.projectService.getProjectsManagingList().subscribe(data => {
-      this.dialogRef.componentInstance.data.projectsList = data
+      this.dialogRef.componentInstance.data.projectsList = data;
       this.dialogRef.componentInstance.setProjectsControl();
     });
-    this.buildGrid()
+    this.buildGrid();
   }
 
   get creatingBackup(): boolean {

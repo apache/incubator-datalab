@@ -27,7 +27,7 @@ import { Project } from './project.component';
 @Injectable()
 export class ProjectDataService {
   _projects = new BehaviorSubject<any>(null);
-
+  endpointsList: any;
   constructor(private projectService: ProjectService, private endpointService: EndpointService) {
     this.getProjectsList();
   }
@@ -37,18 +37,17 @@ export class ProjectDataService {
   }
 
   private getProjectsList() {
-    let endpointsList;
-    this.endpointService.getEndpointsData().subscribe(list => endpointsList = list);
+    this.endpointService.getEndpointsData().subscribe(list => this.endpointsList = list);
     this.projectService.getProjectsList()
       .pipe(
         mergeMap ((response: Project[]) => {
-            if(response) {
+            if (response) {
               response.forEach(project => project.endpoints.forEach(endpoint => {
-                const filtredEndpoints =  endpointsList.filter(v => v.name === endpoint.name);
-                if(filtredEndpoints.length){
-                  endpoint.endpointStatus = endpointsList.filter(v => v.name === endpoint.name)[0].status;
-                }else{
-                  endpoint.endpointStatus = "N/A"
+                const filtredEndpoints =  this.endpointsList.filter(v => v.name === endpoint.name);
+                if (filtredEndpoints.length) {
+                  endpoint.endpointStatus = this.endpointsList.filter(v => v.name === endpoint.name)[0].status;
+                } else {
+                  endpoint.endpointStatus = 'N/A';
                 }
               }));
             }

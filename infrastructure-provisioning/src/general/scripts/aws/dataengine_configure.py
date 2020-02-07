@@ -204,7 +204,7 @@ if __name__ == "__main__":
         data_engine['subnet_cidr'] = get_subnet_by_tag(tag)
         data_engine['notebook_dataengine_role_profile_name'] = data_engine['service_base_name']. \
                                                                    lower().replace('-', '_') + "-" + \
-                                                               os.environ['project_name'] + '-nb-de-Profile'
+                                                               os.environ['project_name'] + "-" + os.environ['endpoint_name'] + '-nb-de-Profile'
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         master_node_hostname = get_instance_hostname(data_engine['tag_name'], data_engine['master_node_name'])
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']

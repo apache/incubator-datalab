@@ -125,11 +125,13 @@ export class ResourcesGridComponent implements OnInit {
     this.buildGrid();
   }
 
-  public containsNotebook(notebook_name: string): boolean {
+  public containsNotebook(notebook_name: string, project_name: string): boolean {
     if (notebook_name && this.environments && this.environments.length ) {
-      return this.environments
-        .filter(project => project.exploratory
-          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name))).length > 0;
+      const currentProj = this.environments.filter(project => project.project === project_name);
+      if (currentProj.length) {
+        return currentProj[0].exploratory.some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name));
+      }
+      return false;
     }
   }
 

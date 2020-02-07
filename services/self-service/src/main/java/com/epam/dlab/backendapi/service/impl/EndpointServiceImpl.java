@@ -76,19 +76,28 @@ public class EndpointServiceImpl implements EndpointService {
 				.orElseThrow(() -> new ResourceNotFoundException("Endpoint with name " + name + " not found"));
 	}
 
+	/**
+	 * Create new endpoint object in the System.
+	 * The Endpoint objects should contain Unique values of the 'url' and 'name' fields,
+	 * i.e two objects with same URLs should not be created in the system.
+	 * @param userInfo user properties
+	 * @param endpointDTO object with endpoint fields
+	 */
 	@Override
 	public void create(UserInfo userInfo, EndpointDTO endpointDTO) {
-		CloudProvider cloudProvider = checkUrl(userInfo, endpointDTO.getUrl());
-		if (!endpointDAO.get(endpointDTO.getName()).isPresent()) {
-			if (!Objects.nonNull(cloudProvider)) {
-				throw new DlabException("CloudProvider cannot be null");
-			}
-			endpointDAO.create(new EndpointDTO(endpointDTO.getName(), endpointDTO.getUrl(), endpointDTO.getAccount(),
-					endpointDTO.getTag(), EndpointDTO.EndpointStatus.ACTIVE, cloudProvider));
-			userRoleDao.updateMissingRoles(cloudProvider);
-		} else {
-			throw new ResourceConflictException("Endpoint with passed name already exist in system");
+		if (endpointDAO.get(endpointDTO.getName()).isPresent()) {
+			throw new ResourceConflictException("The Endpoint with this name exists in system");
 		}
+		if(endpointDAO.getEndpointWithUrl(endpointDTO.getUrl()).isPresent()) {
+		    throw new ResourceConflictException("The Endpoint URL with this address exists in system");
+		}
+		CloudProvider cloudProvider = checkUrl(userInfo, endpointDTO.getUrl());
+		if (Objects.isNull(cloudProvider)) {
+			throw new DlabException("CloudProvider cannot be null");
+		}
+		endpointDAO.create(new EndpointDTO(endpointDTO.getName(), endpointDTO.getUrl(), endpointDTO.getAccount(),
+				endpointDTO.getTag(), EndpointDTO.EndpointStatus.ACTIVE, cloudProvider));
+		userRoleDao.updateMissingRoles(cloudProvider);
 	}
 
 	@Override
@@ -127,7 +136,7 @@ public class EndpointServiceImpl implements EndpointService {
 			response = provisioningService.get(url + HEALTH_CHECK, userInfo.getAccessToken(), Response.class);
 			cloudProvider = response.readEntity(CloudProvider.class);
 		} catch (Exception e) {
-			log.error("Cannot connect to url '{}'", url);
+			log.error("Cannot connect to url '{}'. {}", url, e.getMessage());
 			throw new DlabException(String.format("Cannot connect to url '%s'", url), e);
 		}
 		if (response.getStatus() != 200) {
