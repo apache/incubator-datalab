@@ -40,6 +40,8 @@ public class AzureCloudSettings extends CloudSettings {
     protected String sbn;
     @JsonProperty("conf_os_family")
     protected String os;
+    @JsonProperty("conf_cloud_provider")
+    protected String cloud;
     @JsonProperty("azure_vpc_name")
     private String azureVpcName;
     @JsonProperty("azure_subnet_name")
