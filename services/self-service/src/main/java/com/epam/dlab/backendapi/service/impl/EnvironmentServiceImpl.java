@@ -26,7 +26,11 @@ import com.epam.dlab.backendapi.dao.UserSettingsDAO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
-import com.epam.dlab.backendapi.service.*;
+import com.epam.dlab.backendapi.service.ComputationalService;
+import com.epam.dlab.backendapi.service.EnvironmentService;
+import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.ResourceConflictException;
@@ -204,7 +208,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.withResourceStatus(userInstance.getStatus())
 				.withCompResources(userInstance.getResources())
 				.withUser(userInstance.getUser())
-				.withProject(userInstance.getProject());
+				.withProject(userInstance.getProject())
+				.withCloudProvider(userInstance.getCloudProvider());
 	}
 
 	private void checkProjectResourceConditions(String project, String action) {

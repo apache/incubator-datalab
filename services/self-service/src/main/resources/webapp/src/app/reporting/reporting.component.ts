@@ -21,7 +21,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
-import { BillingReportService, HealthStatusService } from '../core/services';
+import {BillingReportService, EndpointService, HealthStatusService} from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
@@ -38,7 +38,7 @@ import {ProgressBarService} from '../core/services/progress-bar.service';
                   (setRangeOption)="setRangeOption($event)">
     </dlab-toolbar>
     <mat-divider></mat-divider>
-    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
+    <dlab-reporting-grid [PROVIDER]="PROVIDER" (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
   </div>
 
   `,
@@ -68,25 +68,41 @@ export class ReportingComponent implements OnInit, OnDestroy {
   data: any;
   billingEnabled: boolean;
   admin: boolean;
-  private PROVIDER: string = 'aws';
+  public PROVIDER: string;
 
   constructor(
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
     public toastr: ToastrService,
     private progressBarService: ProgressBarService,
+    private endpointService: EndpointService,
   ) { }
 
   ngOnInit() {
-    this.rebuildBillingReport();
+    this.getBillingProvider();
   }
 
   ngOnDestroy() {
     this.clearStorage();
   }
 
+  getBillingProvider() {
+    this.getEnvironmentHealthStatus();
+    this.endpointService.getEndpointsData().subscribe(list => {
+      // @ts-ignore
+      const endpoints = [...list];
+      const localEndpoint = endpoints.filter(endpoint => endpoint.name === 'local');
+      if (localEndpoint.length) {
+        this.PROVIDER = localEndpoint[0].cloudProvider.toLowerCase();
+        if (this.PROVIDER) {
+              this.rebuildBillingReport();
+            }
+      }
+    });
+  }
+
   getGeneralBillingData() {
-    setTimeout(() => {this.progressBarService.startProgressBar();} , 0);
+    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
@@ -113,12 +129,12 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   rebuildBillingReport($event?): void {
-    this.clearStorage();
-    this.resetRangePicker();
-    this.reportData.defaultConfigurations();
-
-    this.getEnvironmentHealthStatus();
-    this.getGeneralBillingData();
+    if (this.PROVIDER) {
+      this.clearStorage();
+      this.resetRangePicker();
+      this.reportData.defaultConfigurations();
+      this.getGeneralBillingData();
+    }
   }
 
   exportBillingReport(): void {

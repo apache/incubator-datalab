@@ -27,7 +27,7 @@ import { UserResourceService, ProjectService } from '../../../core/services';
 import { CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
-import {tap} from "rxjs/operators";
+import {tap} from 'rxjs/operators';
 
 @Component({
   selector: 'create-environment',
@@ -63,6 +63,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   ngOnInit() {
     this.getUserProjects();
     this.initFormModel();
+    this.createExploratoryForm.get('project').valueChanges.subscribe(v =>
+      this.createExploratoryForm.get('name').updateValueAndValidity()
+    );
   }
 
   public getProjects() {
@@ -91,7 +94,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   public getTemplates(project, endpoint) {
     this.userResourceService.getExploratoryTemplates(project, endpoint)
       .pipe(tap(results => {
-        results.sort((a,b) => (a.exploratory_environment_versions[0].template_name > b.exploratory_environment_versions[0].template_name) ? 1 : -1)
+        results.sort((a, b) =>
+          (a.exploratory_environment_versions[0].template_name > b.exploratory_environment_versions[0].template_name) ?
+            1 : -1);
       }))
       .subscribe(templates =>  {
         this.templates = templates;
@@ -147,7 +152,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   private checkDuplication(control) {
-    if (this.resourceGrid.containsNotebook(control.value))
+    if (this.createExploratoryForm && this.resourceGrid.containsNotebook(control.value, this.createExploratoryForm.controls.project.value))
       return { duplication: true };
   }
 

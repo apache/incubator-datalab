@@ -28,7 +28,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Stores info about the user notebook.
@@ -52,6 +56,8 @@ public class UserInstanceDTO {
 	private String project;
 	@JsonProperty("endpoint")
 	private String endpoint;
+	@JsonProperty("cloud_provider")
+	private String cloudProvider;
 	@JsonProperty("template_name")
 	private String templateName;
 	@JsonProperty
@@ -171,6 +177,11 @@ public class UserInstanceDTO {
 
 	public UserInstanceDTO withEndpoint(String endpoint) {
 		setEndpoint(endpoint);
+		return this;
+	}
+
+	public UserInstanceDTO withCloudProvider(String cloudProvider) {
+		setCloudProvider(cloudProvider);
 		return this;
 	}
 

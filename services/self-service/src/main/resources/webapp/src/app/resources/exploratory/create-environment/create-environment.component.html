@@ -66,7 +66,7 @@
           <div class="control selector-wrapper" [ngClass]="{ 'not-active' : !templates.length }">
             <mat-form-field>
               <mat-select formControlName="version" disableOptionCentering [disabled]="!templates.length"
-                panelClass="create-resources-dialog" placeholder="Select endpoint">
+                panelClass="create-resources-dialog" placeholder="Select template">
                 <mat-option *ngFor="let template of templates"
                   [value]="template.exploratory_environment_versions[0].version" (click)="getShapes(template)">
                   {{ template.exploratory_environment_versions[0].template_name }}

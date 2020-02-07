@@ -347,6 +347,7 @@ export class ApplicationServiceFacade {
       data,
       { responseType: 'text', observe: 'response' });
   }
+
   public buildGetBackupStatusRequest(uuid): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.BACKUP),

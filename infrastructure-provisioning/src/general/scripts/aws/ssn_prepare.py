@@ -61,11 +61,7 @@ if __name__ == "__main__":
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-        ssn_bucket_name_tag = service_base_name + '-ssn-bucket'
         default_endpoint_name = os.environ['default_endpoint_name']
-        shared_bucket_name_tag = '{0}-{1}-shared-bucket'.format(service_base_name, default_endpoint_name)
-        ssn_bucket_name = ssn_bucket_name_tag.lower().replace('_', '-')
-        shared_bucket_name = shared_bucket_name_tag.lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         tag2_name = service_base_name + '-secondary-Tag'
         user_tag = "{0}:{0}-ssn-Role".format(service_base_name)
@@ -386,48 +382,6 @@ if __name__ == "__main__":
                 remove_route_tables(tag2_name, True)
                 remove_vpc(os.environ['aws_vpc2_id'])
             sys.exit(1)
-    try:
-        logging.info('[CREATE BUCKETS]')
-        print('[CREATE BUCKETS]')
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}". \
-                 format(ssn_bucket_name, tag_name, ssn_bucket_name, region, ssn_bucket_name_tag)
-
-        try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}". \
-                 format(shared_bucket_name, tag_name, shared_bucket_name, region, shared_bucket_name_tag)
-
-        try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Unable to create bucket.", str(err))
-        remove_all_iam_resources(instance)
-        if pre_defined_sg:
-            remove_sgroups(tag_name)
-        if pre_defined_subnet:
-            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-            remove_subnets(service_base_name + "-subnet")
-        if pre_defined_vpc:
-            remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            remove_route_tables(tag_name, True)
-            remove_vpc(os.environ['aws_vpc_id'])
-        if pre_defined_vpc2:
-            remove_peering('*')
-            try:
-                remove_vpc_endpoints(os.environ['aws_vpc2_id'])
-            except:
-                print("There are no VPC Endpoints")
-            remove_route_tables(tag2_name, True)
-            remove_vpc(os.environ['aws_vpc2_id'])
-        sys.exit(1)
 
     try:
         logging.info('[CREATE SSN INSTANCE]')
