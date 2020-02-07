@@ -45,25 +45,17 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
                         print("Updating repositories "
                                 "and installing requested tools: {}".format(requisites))
                         print("Attempt number " + str(count) + " to install requested tools. Max 60 tries.")
-                        print("-----Starting-----")
-                        print("Check --->>> {}".format(str(check)))
                         sudo('apt-get update')
                         sudo('apt-get -y install ' + requisites)
                         sudo('unattended-upgrades -v')
                         sudo('export LC_ALL=C')
                         sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
                         sudo('systemctl enable haveged')
-                        print("-----After enabling------")
                         sudo('systemctl start haveged')
-                        print("-----after start-------")
                         if os.environ['conf_cloud_provider'] == 'aws':
                             sudo('apt-get -y install --install-recommends linux-aws-hwe')
                         check = True
-                        print("-----Finishing-----")
-                        print("Check --->>> {}".format(str(check)))
-                    except Exception as err:
-                        print("------Error-------")
-                        print(str(err))
+                    except:
                         count += 1
                         time.sleep(50)
     except:
