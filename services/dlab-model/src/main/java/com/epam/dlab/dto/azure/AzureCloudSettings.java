@@ -50,6 +50,16 @@ public class AzureCloudSettings extends CloudSettings {
     private String azureResourceGroupName;
     @JsonProperty("azure_security_group_name")
     private String azureSecurityGroupName;
+    @JsonProperty("ldap_hostname")
+    protected String ldapHost;
+    @JsonProperty("ldap_dn")
+    protected String ldapDn;
+    @JsonProperty("ldap_ou")
+    protected String ldapOu;
+    @JsonProperty("ldap_service_username")
+    protected String ldapUser;
+    @JsonProperty("ldap_service_password")
+    protected String ldapPassword;
     @JsonProperty("conf_key_dir")
     protected String confKeyDir;
     @JsonProperty("conf_image_enabled")
