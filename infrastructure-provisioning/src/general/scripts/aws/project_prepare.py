@@ -184,7 +184,7 @@ if __name__ == "__main__":
     tag = {"Key": project_conf['tag_name'],
            "Value": "{0}-{1}-subnet".format(project_conf['service_base_name'], project_conf['project_name'])}
     project_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
-    subnet_id = get_subnet_by_cidr(project_conf['private_subnet_cidr'])
+    subnet_id = get_subnet_by_cidr(project_conf['private_subnet_cidr'], project_conf['vpc2_id'])
     print('subnet id: {}'.format(subnet_id))
 
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
