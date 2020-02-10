@@ -64,7 +64,7 @@ if __name__ == "__main__":
                                             '-container').lower()
         edge_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(edge_conf['service_base_name'],
                                                                                    edge_conf['endpoint_name'])
-        edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower()
+        edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['endpoint_name'] + '-shared-container').lower()
         edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'
         edge_conf['datalake_shared_directory_name'] = edge_conf['service_base_name'] + '-shared-folder'
         edge_conf['datalake_user_directory_name'] = '{0}-{1}-folder'.format(edge_conf['service_base_name'],
