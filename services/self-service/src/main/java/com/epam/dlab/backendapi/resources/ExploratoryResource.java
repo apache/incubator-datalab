@@ -58,6 +58,10 @@ public class ExploratoryResource implements ExploratoryAPI {
 		this.exploratoryService = exploratoryService;
 	}
 
+	@GET
+	public Response getExploratoryPopUp(@Auth UserInfo userInfo) {
+		return Response.ok(exploratoryService.getUserInstances(userInfo)).build();
+	}
 	/**
 	 * Creates the exploratory environment for user.
 	 *
