@@ -76,7 +76,7 @@ if __name__ == "__main__":
         project_conf['edge_storage_account_name'] = '{0}-{1}-{2}-storage'.format(project_conf['service_base_name'],
                                                                                  project_conf['project_name'],
                                                                                  project_conf['endpoint_name'])
-        project_conf['edge_container_name'] = (project_conf['service_base_name'] + '-' + project_conf['project_name'] +
+        project_conf['edge_container_name'] = (project_conf['service_base_name'] + '-' + project_conf['project_name'] + '-' + project_conf['endpoint_name'] +
                                             '-container').lower()
         project_conf['datalake_store_name'] = project_conf['service_base_name'] + '-ssn-datalake'
         project_conf['datalake_user_directory_name'] = '{0}-{1}-folder'.format(project_conf['service_base_name'],
