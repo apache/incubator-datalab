@@ -21,7 +21,11 @@ package com.epam.dlab.backendapi.dao;
 
 
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
-import com.epam.dlab.dto.*;
+import com.epam.dlab.dto.ResourceURL;
+import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.dto.StatusEnvBaseDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -35,13 +39,26 @@ import org.bson.conversions.Bson;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.not;
+import static com.mongodb.client.model.Filters.or;
+import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.set;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -132,6 +149,10 @@ public class ExploratoryDAO extends BaseDAO {
 
 	public List<UserInstanceDTO> fetchRunningExploratoryFieldsForProject(String project) {
 		return getUserInstances(and(eq(PROJECT, project), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
+	}
+
+	public List<UserInstanceDTO> fetchExploratoryFieldsForProject(String project) {
+		return getUserInstances(and(eq(PROJECT, project)), false);
 	}
 
 	/**

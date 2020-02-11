@@ -76,7 +76,7 @@ if __name__ == "__main__":
         project_conf['edge_storage_account_name'] = '{0}-{1}-{2}-storage'.format(project_conf['service_base_name'],
                                                                                  project_conf['project_name'],
                                                                                  project_conf['endpoint_name'])
-        project_conf['edge_container_name'] = (project_conf['service_base_name'] + '-' + project_conf['project_name'] +
+        project_conf['edge_container_name'] = (project_conf['service_base_name'] + '-' + project_conf['project_name'] + '-' + project_conf['endpoint_name'] +
                                             '-container').lower()
         project_conf['datalake_store_name'] = project_conf['service_base_name'] + '-ssn-datalake'
         project_conf['datalake_user_directory_name'] = '{0}-{1}-folder'.format(project_conf['service_base_name'],
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         project_conf['primary_disk_size'] = '32'
         project_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(project_conf['service_base_name'],
                                                                                   project_conf['endpoint_name'])
-        project_conf['shared_container_name'] = '{}-shared-container'.format(project_conf['service_base_name']).lower()
+        project_conf['shared_container_name'] = '{}-{}-shared-container'.format(project_conf['service_base_name'], edge_conf['endpoint_name']).lower()
         project_conf['shared_storage_account_tags'] = {"Name": project_conf['shared_storage_account_name'],
                                                    "SBN": project_conf['service_base_name'],
                                                    os.environ['conf_billing_tag_key']: os.environ[
