@@ -129,16 +129,14 @@ export class ResourcesGridComponent implements OnInit {
     this.buildGrid();
   }
 
-  public containsNotebook(notebook_name: string, project_name: string): boolean {
-    if (notebook_name && this.environments && this.environments.length ) {
-      const currentProj = this.environments.filter(project => project.project === project_name);
-      if (currentProj.length) {
-        return currentProj[0].exploratory
-          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name));
+  public containsNotebook(notebook_name: string, envoirmentNames: Array<string>): boolean {
+    if (notebook_name && envoirmentNames.length ) {
+        return envoirmentNames
+          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item));
       }
       return false;
-    }
-  }
+   }
+
 
   public isResourcesInProgress(notebook) {
     const env = this.getResourceByName(notebook.name);
@@ -277,10 +275,15 @@ export class ResourcesGridComponent implements OnInit {
       this.updateUserPreferences(config);
     }
 
-    const failedResource = ComputationModel.computationRes(this.getEnvironmentsListCopy()).flat(3).filter(resourse => resourse.status === 'failed');
+
+
+    let failedResource = ComputationModel.computationRes(this.getEnvironmentsListCopy());
+    failedResource = SortUtils.flatDeep(failedResource, 3).filter(resourse => resourse.status === 'failed');
 
     if (this.filteredEnvironments.length && this.activeFiltering) {
-      const creatingResource = ComputationModel.computationRes(this.filteredEnvironments).flat(3).filter(resourse => resourse.status === 'creating');
+      let creatingResource = ComputationModel.computationRes(this.filteredEnvironments);
+      creatingResource = SortUtils.flatDeep(creatingResource, 3).filter(resourse => resourse.status === 'creating');
+
       const fail = failedResource
         .filter(v => creatingResource
           .some(create => create.project === v.project && create.exploratory === v.exploratory && create.resource === v.resource));
