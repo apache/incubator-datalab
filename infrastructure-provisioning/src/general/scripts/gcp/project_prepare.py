@@ -68,11 +68,11 @@ if __name__ == "__main__":
     project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
     project_conf['edge_service_account_name'] = '{}-{}-edge'.format(project_conf['service_base_name'],
                                                                  project_conf['project_name'])
-    project_conf['edge_role_name'] = '{}-{}{}-edge'.format(project_conf['service_base_name'],
+    project_conf['edge_role_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
                                                       project_conf['project_name'], project_conf['unique_index']) # index looks like this: -354ds
     project_conf['ps_service_account_name'] = '{}-{}-ps'.format(project_conf['service_base_name'],
                                                              project_conf['project_name'])
-    project_conf['ps_role_name'] = '{}-{}{}-ps'.format(project_conf['service_base_name'],
+    project_conf['ps_role_name'] = '{}-{}-{}-ps'.format(project_conf['service_base_name'],
                                                   project_conf['project_name'], project_conf['unique_index']) # index looks like this: -354ds
     project_conf['ps_policy_path'] = '/root/files/ps_policy.json'
     project_conf['ps_roles_path'] = '/root/files/ps_roles.json'
