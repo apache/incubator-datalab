@@ -68,12 +68,16 @@ if __name__ == "__main__":
     project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
     project_conf['edge_service_account_name'] = '{}-{}-edge'.format(project_conf['service_base_name'],
                                                                  project_conf['project_name'])
+    project_conf['edge_service_account_account_id'] = '{}-{}-edge'.format(project_conf['service_base_name'],
+                                                                    project_conf['unique_index'])
     project_conf['edge_role_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
-                                                      project_conf['project_name'], project_conf['unique_index']) # index looks like this: -354ds
+                                                      project_conf['project_name'], project_conf['unique_index'])
     project_conf['ps_service_account_name'] = '{}-{}-ps'.format(project_conf['service_base_name'],
                                                              project_conf['project_name'])
+    project_conf['ps_service_account_account_id'] = '{}-{}-edge'.format(project_conf['service_base_name'],
+                                                                    project_conf['unique_index'])
     project_conf['ps_role_name'] = '{}-{}-{}-ps'.format(project_conf['service_base_name'],
-                                                  project_conf['project_name'], project_conf['unique_index']) # index looks like this: -354ds
+                                                  project_conf['project_name'], project_conf['unique_index'])
     project_conf['ps_policy_path'] = '/root/files/ps_policy.json'
     project_conf['ps_roles_path'] = '/root/files/ps_roles.json'
     project_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(project_conf['service_base_name'],
@@ -154,7 +158,7 @@ if __name__ == "__main__":
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE FOR EDGE NODE]')
         print('[CREATE SERVICE ACCOUNT AND ROLE FOR EDGE NODE]')
         params = "--service_account_name {} --role_name {} --unique_index {} --service_base_name {}".format(project_conf['edge_service_account_name'],
-                                                                   project_conf['edge_role_name'], project_conf['unique_index'], project_conf['service_base_name'])
+                                                                   project_conf['edge_role_name'], project_conf['unique_index'], project_conf['edge_service_account_account_id'])
 
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))
@@ -177,7 +181,7 @@ if __name__ == "__main__":
         print('[CREATE SERVICE ACCOUNT AND ROLE FOR NOTEBOOK NODE]')
         params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {} --unique_index {} --service_base_name {}".format(
             project_conf['ps_service_account_name'], project_conf['ps_role_name'],
-            project_conf['ps_policy_path'], project_conf['ps_roles_path'], project_conf['unique_index'], project_conf['service_base_name'])
+            project_conf['ps_policy_path'], project_conf['ps_roles_path'], project_conf['unique_index'], project_conf['ps_service_account_account_id'])
 
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))

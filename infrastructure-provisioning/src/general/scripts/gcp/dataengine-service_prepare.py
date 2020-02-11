@@ -89,7 +89,7 @@ if __name__ == "__main__":
     }
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
                                                                          dataproc_conf['project_name'])
-    dataproc_conf['unique_index'] = GCPMeta().get_index_by_service_account_name(dataproc_conf['dataproc_service_account_name'], dataproc_conf['service_base_name'])
+    dataproc_conf['unique_index'] = GCPMeta().get_index_by_service_account_name(dataproc_conf['dataproc_service_account_name'])
     service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(dataproc_conf['service_base_name'],
                                                                          dataproc_conf['unique_index'],
                                                                          os.environ['gcp_project_id'])
