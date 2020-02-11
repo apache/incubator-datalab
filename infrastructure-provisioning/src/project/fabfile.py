@@ -39,7 +39,7 @@ def run():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     project_config = dict()
-    project_config['unique_index'] = '_' + str(uuid.uuid4())[:5]
+    project_config['unique_index'] = str(uuid.uuid4())[:5]
     try:
         local("~/scripts/{}.py --unique_index {}".format('project_prepare', project_config['unique_index']))
     except Exception as err:
