@@ -184,13 +184,6 @@
             <artifactId>guacamole-common</artifactId>
             <version>1.0.0</version>
         </dependency>
-
-        <dependency>
-            <groupId>commons-validator</groupId>
-            <artifactId>commons-validator</artifactId>
-            <version>1.4.0</version>
-        </dependency>
-
     </dependencies>
 
     <build>

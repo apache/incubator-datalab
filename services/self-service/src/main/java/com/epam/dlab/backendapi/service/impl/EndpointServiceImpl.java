@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class EndpointServiceImpl implements EndpointService {
 	private static final String HEALTH_CHECK = "healthcheck";
-	private static final String[] endpointUrlSchemes = {"http","https"};
 	private final EndpointDAO endpointDAO;
 	private final ProjectService projectService;
 	private final ExploratoryDAO exploratoryDAO;
