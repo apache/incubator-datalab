@@ -251,11 +251,10 @@ class GCPMeta:
                             next_page = False
                     else:
                         next_page = False
-                print(full_list_of_service_accounts)
                 for service_account in full_list_of_service_accounts:
                     if service_account['displayName'] == service_account_name:
                         service_account_email = service_account['email']
-                        response = service_account_email[len(service_base_name):service_account_email.find('@')] #returns index with '-'. e.g. -53546
+                        response = service_account_email[len(service_base_name):service_account_email.find('@')]
                 return response
             else:
                 return response

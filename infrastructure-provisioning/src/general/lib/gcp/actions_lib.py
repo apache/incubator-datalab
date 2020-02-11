@@ -534,7 +534,7 @@ class GCPActions:
 
     def create_service_account(self, service_account_name, service_base_name, unique_index):
         service_account_id = service_base_name + unique_index
-        print("creating service account with ID:" + service_account_id)
+        print("Creating service account with accountID:" + service_account_id)
         params = {"accountId": service_account_id, "serviceAccount": {"displayName": service_account_name}}
         request = self.service_iam.projects().serviceAccounts().create(name='projects/{}'.format(self.project),
                                                                        body=params)
