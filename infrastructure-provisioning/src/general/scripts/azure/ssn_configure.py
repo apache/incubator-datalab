@@ -389,6 +389,11 @@ if __name__ == "__main__":
                     'key': 'AZURE_CLIENT_ID',
                     'value': ''
                 })
+            cloud_params.append(
+                {
+                    'key': 'AZURE_DATALAKE_ENABLED',
+                    'value': ''
+                })
             if os.environ['azure_oauth2_enabled'] == 'false':
                 ldap_login = 'true'
             tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
@@ -405,6 +410,11 @@ if __name__ == "__main__":
                 {
                     'key': 'AZURE_CLIENT_ID',
                     'value': os.environ['azure_application_id']
+                })
+            cloud_params.append(
+                {
+                    'key': 'AZURE_DATALAKE_ENABLED',
+                    'value': os.environ['azure_datalake_enable']
                 })
             tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
             subscription_id = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')

@@ -381,6 +381,10 @@ if __name__ == "__main__":
                 'value': ''
             },
             {
+                'key': 'AZURE_DATALAKE_ENABLED',
+                'value': ''
+            },
+            {
                 'key': 'GCP_PROJECT_ID',
                 'value': os.environ['gcp_project_id']
             },

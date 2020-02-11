@@ -437,6 +437,10 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                     'value': args.azure_datalake_tag
                 },
                 {
+                    'key': 'AZURE_DATALAKE_ENABLED',
+                    'value': args.azure_datalake_enabled
+                },
+                {
                     'key': "AZURE_CLIENT_ID",
                     'value': args.azure_client_id
                 },
@@ -758,6 +762,7 @@ def init_args():
     parser.add_argument('--azure_ssn_storage_account_tag', type=str, default='')
     parser.add_argument('--azure_shared_storage_account_tag', type=str, default='')
     parser.add_argument('--azure_datalake_tag', type=str, default='')
+    parser.add_argument('--azure_datalake_enabled', type=str, default='')
     parser.add_argument('--azure_client_id', type=str, default='')
     parser.add_argument('--gcp_project_id', type=str, default='')
     parser.add_argument('--ldap_host', type=str, default='')
