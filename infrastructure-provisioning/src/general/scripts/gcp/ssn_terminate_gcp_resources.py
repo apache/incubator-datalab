@@ -102,6 +102,7 @@ if __name__ == "__main__":
     try:
         list_service_accounts = GCPMeta().get_list_service_accounts()
         for service_account in list_service_accounts:
+            print(service_account)
             if service_account.startswith(args.service_base_name):
                 GCPActions().remove_service_account(service_account, args.service_base_name)
         list_roles_names = GCPMeta().get_list_roles()
