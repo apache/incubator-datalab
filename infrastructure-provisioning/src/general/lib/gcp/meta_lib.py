@@ -227,7 +227,7 @@ class GCPMeta:
 
     def get_index_by_service_account_name(self, service_account_name, service_base_name):
         request = self.service_iam.projects().serviceAccounts().list(
-            name='projects/{}'.format(self.project))
+            name='projects/{}'.format(self.project), pageSize=100)
         try:
             result = request.execute()
             response = ''
