@@ -225,8 +225,25 @@ class GCPMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def get_service_account(self, service_account_name):
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+    def get_index_by_service_account_name(self, service_account_name):
+        request = self.service_iam.projects().serviceAccounts().list(
+            name='projects/{}'.format(self.project))
+        try:
+            result = request.execute()
+            response = ''
+            if result:
+                for service_account in result.get('accounts'):
+                    if service_account['displayName'] == service_account_name:
+                        service_account_email = service_account['email']
+                        response = service_account_email[len(service_account_name):service_account_email.find('@')]
+                        print("-------------response:" + response)
+                return response
+            else:
+                return response
+
+    def get_service_account(self, service_account_name, service_base_name):
+        unique_index = GCPMeta().get_index_by_service_account_name(service_account_name)
+        service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         request = self.service_iam.projects().serviceAccounts().get(
             name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_email))
         try:
