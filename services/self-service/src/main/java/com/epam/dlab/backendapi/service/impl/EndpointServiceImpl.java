@@ -29,8 +29,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.validator.routines.UrlValidator;
-
 
 @Slf4j
 public class EndpointServiceImpl implements EndpointService {
@@ -136,11 +134,6 @@ public class EndpointServiceImpl implements EndpointService {
 	public CloudProvider checkUrl(UserInfo userInfo, String url) {
 		Response response;
 		CloudProvider cloudProvider;
-
-		UrlValidator urlValidator = new UrlValidator(endpointUrlSchemes);
-		if (urlValidator.isValid(url)) {
-			throw new ResourceConflictException("The Endpoint URL has incorrect format OR improper symbols");
-		}
 		try {
 			response = provisioningService.get(url + HEALTH_CHECK, userInfo.getAccessToken(), Response.class);
 			cloudProvider = response.readEntity(CloudProvider.class);

@@ -23,6 +23,7 @@ import com.epam.dlab.cloud.CloudProvider;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.URL;
 
 
 @Data
@@ -30,7 +31,7 @@ import lombok.Data;
 public class EndpointDTO {
 
 	private final String name;
-
+	@URL
 	private final String url;
 	private final String account;
 	@JsonProperty("endpoint_tag")
