@@ -10,7 +10,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [Login](#login)
 
-[Setup a Gateway/Edge node](#setup_edge_node)
+[Create project](#setup_edge_node)
 
 [Setting up analytical environment and managing computational power](#setup_environmen)
 
@@ -36,19 +36,17 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Git UI tool (ungit)](#git_ui)
 
-[DLab Health Status Page](#health_page)
+[Administration](#administration)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Backup](#backup)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Manage roles](#manage_roles)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage environment](#manage_environment)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Environment Management Page](#environment_management)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage roles](#manage_roles)
-
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [SSN monitor](#ssn_monitor)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage environment](#manage_environment)
 
 [DLab billing report](#billing_page)
 
-[DLab Environment Management Page](#environment_management)
+
 
 [Web UI filters](#filter)
 
@@ -87,38 +85,33 @@ After login user will see warning in case of exceeding quota or close to this li
 </p>
 
 ----------------------------------
-# Setup a Gateway/Edge node <a name="setup_edge_node"></a>
+# Create project <a name="setup_edge_node"></a>
 
-When you log into DLab Web Application, the first thing you will have to setup is a Gateway Node, or an “Edge” Node.
+When you log into DLab Web Application, the first thing you will have to create new project.
 
-To do this click on “Upload” button on “Create initial infrastructure”, select your personal public key and hit “Create” button or click on "Generate" button on “Create initial infrastructure” and save your private key.
+To do this click on “Upload” button on “Projects” page, select your personal public key and hit “Create” button or click on "Generate" button on “Projects” and save your private key.
 
 <p align="center" class="facebox-popup"> 
-    <img src="doc/upload_or_generate_user_key.png" alt="Upload or generate user key" width="400">
+    <img src="doc/upload_or_generate_user_key.png" alt="Upload or generate user key" width="100%">
 </p>
 
-Please note that you need to have a key pair combination (public and private key) to work with DLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Create initial infrastructure” dialog. DLab build-in wiki page will guide Windows, MasOS and Linux on how to generate SSH key pairs quickly.
+Please note that you need to have a key pair combination (public and private key) to work with DLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Projects” page. DLab build-in wiki page will guide Windows, MasOS and Linux on how to generate SSH key pairs quickly.
 
-After you hit "Create" or "Generate" button, creation of Edge node will start. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process, you will see following popup in your browser:
+After you hit "Create" or "Generate" button, creation of Project will start. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process, project will have status creating.
 
-<p align="center"> 
-    <img src="doc/loading_key.png" alt="Loading user key" width="350">
-</p>
-
-As soon as an Edge node is created, Data Scientist will see a blank “List of Resources” page. The message “To start working, please create new environment” will be displayed:
+As soon as an Project is created, Data Scientist can create  notebook server on “List of Resources” page. The message “To start working, please create new environment” will be displayed:
 
 ![Main page](doc/main_page.png)
 
 ---------------------------------------------------------------------------------------
 # Setting up analytical environment and managing computational power <a name="setup_environmen"></a>
 
-----------------------
+
 ## Create notebook server <a name="notebook_create"></a>
 
 To create new analytical environment from “List of Resources” page click on "Create new" button.
 
-“Create analytical tool” popup will show-up. Data Scientist can choose a preferable analytical tool to be setup. Adding new analytical tools is supported by architecture, so you can expect new templates to show up in upcoming releases.
-
+The "Create analytical tool" popup will show-up. Data Scientist can choose the preferred project, endpoint and analytical tool to be setup. Adding new analytical tools is supported by architecture, so you can expect new templates to show up in upcoming releases.
 Currently by means of DLab, Data Scientists can select between any of the following templates:
 
 -   Jupyter
@@ -410,7 +403,7 @@ Clicking on "Apply changes" button, your credentials will be sent to all running
 On this tab you can also edit your credentials (click on pen icon) or delete (click on bin icon).
 
 ### Git UI tool (ungit) <a name="git_ui"></a>
-
+Confirm you want to do backup by clicking "Apply".
 On every analytical tool instance you can see Git UI tool (ungit):
 
 <p align="center"> 
@@ -448,69 +441,10 @@ After commit you will see your local version and remote repository. To push you 
 Also clicking on "circle" button you can uncommit or revert changes.
 
 --------------------------------
-# DLab Health Status Page <a name="health_page"></a>
+# Administration <a name="administration"></a>
 
-Health Status page is an administration page allowing users to start/stop/recreate gateway node. This might be useful in cases when someone manually deleted corresponding Edge node instance from cloud. This would have made DLab as an application corrupted in general. If any actions are manually done to Edge node instance directly via Cloud Web Console – those changes will be synchronized with DLab automatically and shortly Edge Node status will be updated in DLab.
 
-To access Health status page either navigate to it via main menu:
-
-<p align="center"> 
-    <img src="doc/main_menu.png" alt="Main menu" width="250">
-</p>
-
-or by clicking on an icon close to logged in user name in the top right
-corner of the DLab:
-
--   green ![OK](doc/status_icon_ok.png), if Edge node status is Running;
--   red ![Error](doc/status_icon_error.png),if Edge node is Stopped or Terminated;
-
-![Health_status](doc/health_status.png)
-
-To Stop Edge Node please click on actions icon on Health Status page and hit "Stop".
-
-<p align="center"> 
-    <img src="doc/edge_stop.png" alt="EDGE stop" width="150">
-</p>
-
-Confirm you want to stop Edge node by clicking "Yes":
-
-<p align="center"> 
-    <img src="doc/edge_stop_confirm.png" alt="EDGE stop confirm" width="400">
-</p>
-
-In case you Edge node is Stopped or Terminated – you will have to Start or Recreate it correspondingly to proceed working with DLab. This can done as well via context actions menu.
-
-### Backup <a name="backup"></a>
-
-Administrator can use backup functionality. In order to do it click Backup button. "Backup options" popup will show-up. You can choose a preferable option to be backed up.
-
-<p align="center"> 
-    <img src="doc/backup_options.png" alt="Backup options" width="400">
-</p>
-
-Confirm you want to do backup by clicking "Apply".
-
-### Manage environment <a name="manage_environment"></a>
-
-Administrator can manage users environment clicking on Manage environment button. "Manage environment" popup will show-up. All users environments will be shown which at least one instance has Running status:
-
-<p align="center"> 
-    <img src="doc/manage_environment.png" alt="Manage environment" width="520">
-</p>
-
-If Administrator hit "Stop" icon <img src="doc/stop_icon_env.png" alt="stop" width="22"> all running instances except for dataengine service will be stopped and dataengine service will be terminated. User will be able to Start instances again except for dataengine service after a while and proceed with his analytics.
-
-If Administrator hit "Terminate" icon <img src="doc/terminate_icon_env.png" alt="terminate" width="22"> all running and stopped instances will be terminated. User will not be able to Start the inctance which has been Terminated. Instead, user will have to Upload his personal public key or Generate ssh key pairs.
-
-Administrator should confirm user environment stopping or termination by clicking Yes:
-
-<p align="center"> 
-    <img src="doc/manage_env_confirm.png" alt="Manage environment confirm" width="550">
-</p>
-
-Administrator can manage total billing quota for DLab as well as billing quota per user(s).To do this enter appropriate number in text box(es) per user(s) or/and total budget. Hit "Apply" button.
-
-### Manage roles <a name="manage_roles"></a>
+## Manage roles <a name="manage_roles"></a>
 
 Administrator can choose what instance shape(s) and notebook(s) can be allowed for certain group(s) or user(s).
 To do it click on "Manage roles" button. "Manage roles" popup will show-up:
@@ -522,68 +456,19 @@ To do it click on "Manage roles" button. "Manage roles" popup will show-up:
 To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
 New group will be added and appears on "Manage roles" popup.
 
-Administrator can remove group or user. For that you should only click on "Delete group" button for certain group or click on delete icon <img src="doc/cross_icon.png" alt="delete" width="16"> for particular user. After that Hit "Yes" in confirmation popup.
+Administrator can remove group or user. For that you should only click on "Delete group" button for certain group or click on delete icon <img src="doc/delete_btn.png" alt="delete" width="16"> for particular user. After that Hit "Yes" in confirmation popup.
 
 <p align="center"> 
     <img src="doc/delete_group.png" alt="Delete group" width="780">
 </p>
 
-### SSN monitor <a name="ssn_monitor"></a>
-
-Administrator can monitor SSN HDD, Memory and CPU. 
-Clicking on "SSN monitor button" will open "SSN monitor" popup. 
-There are three tabs on  'SSN monitor' popup: CPU, HDD, Memory:
-
-<p align="center"> 
-    <img src="doc/cpu.png" alt="SSN CPU" width="480">
-</p>
-
-<p align="center"> 
-    <img src="doc/memory.png" alt="SSN memory" width="480">
-</p>
-
-<p align="center"> 
-    <img src="doc/hdd.png" alt="SSN HDD" width="480">
-</p>
-
 --------------------------------
-# DLab Billing report <a name="billing_page"></a>
 
-On this page you can see all billing information, including all costs assosiated with service base name of SSN.
-
-![Billing page](doc/billing_page.png)
-
-In the header you can see 3 fields:
--   Service base name of your environment
--   Resource tag ID
--   Date period of available billing report
-
-On the center of header you can choose period of report in datepicker:
-
-<p align="center"> 
-    <img src="doc/billing_datepicker.png" alt="Billing datepicker" width="400">
-</p>
-
-You can save billing report in csv format hitting "Export" button.
-
-You can also filter data by each column:
-
-![Billing filter](doc/billing_filter.png)
-
-**Note:** Administrator can see billing report of all users, and only he can see/filter "User" column.
-
-In the footer of billing report, you can see Total cost for all environments.
-
---------------------------------
-# DLab Environment Management Page <a name="environment_management"></a>
+## Environment Management Page <a name="environment_management"></a>
 
 DLab Environment Management page is an administration page allowing admins to show the list of all users` environments and to stop/terminate all of them of separate specific resource.
 
 To access Environment management page either navigate to it via main menu:
-
-<p align="center"> 
-    <img src="doc/main_menu_env.png" alt="Main menu" width="250">
-</p>
 
 <p align="center"> 
     <img src="doc/environment_management.png" alt="Environment management">
@@ -609,6 +494,44 @@ Confirm stopping/decommissioning of the Computational resource by hitting Yes:
 </p>
 
 **NOTE:** terminate action is available only for notebooks and computational resources, not for Edge Nodes.
+
+### Manage environment <a name="manage_environment"></a>
+
+Administrator can manage users environment clicking on Manage environment button. "Manage environment" popup will show-up. All users environments will be shown which at least one instance has Running status:
+
+<p align="center"> 
+    <img src="doc/manage_environment.png" alt="Manage environment" width="520">
+</p>
+
+--------------------------------
+
+# DLab Billing report <a name="billing_page"></a>
+
+On this page you can see all billing information, including all costs assosiated with service base name of SSN.
+
+![Billing page]
+(doc/billing_page.png)
+
+In the header you can see 3 fields:
+-   Service base name of your environment
+-   Resource tag ID
+-   Date period of available billing report
+
+On the center of header you can choose period of report in datepicker:
+
+<p align="center"> 
+    <img src="doc/billing_datepicker.png" alt="Billing datepicker" width="400">
+</p>
+
+You can save billing report in csv format hitting "Export" button.
+
+You can also filter data by each column:
+
+![Billing filter](doc/billing_filter.png)
+
+**Note:** Administrator can see billing report of all users, and only he can see/filter "User" column.
+
+In the footer of billing report, you can see Total cost for all environments.
 
 --------------------------------
 
@@ -672,17 +595,3 @@ After login user will be notified  that corresponding resources are about to be 
 <p align="center"> 
     <img src="doc/scheduler reminder.png" alt="Scheduler reminder" width="400">
 </p>
-
-# Key reupload <a name="key_reupload"></a>
-In case when user private key was corrupted, lost etc. DLAB provide a possibility to reupload user public key.
-It can be done on manage environment page using ACTIONS menu on edge instance:
-
-<p align="center"> 
-    <img src="doc/reupload_key_action.png" alt="Reupload key action" width="200">
-</p>
-
-After that similar to create initial environment dialog appeared where you can upload new key or generate new key-pair:
- 
- <p align="center"> 
-     <img src="doc/reupload_key_dialog.png" alt="Reupload key dialog" width="400">
- </p>
