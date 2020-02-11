@@ -168,7 +168,6 @@ cloudProperties:
   azureResourceGroupName: AZURE_RESOURCE_GROUP_NAME
   ssnStorageAccountTagName: AZURE_SSN_STORAGE_ACCOUNT_TAG
   sharedStorageAccountTagName: AZURE_SHARED_STORAGE_ACCOUNT_TAG
-  datalakeEnabled: AZURE_DATALAKE_ENABLED
   datalakeTagName: AZURE_DATALAKE_TAG
   azureClientId: AZURE_CLIENT_ID
   gcpProjectId: GCP_PROJECT_ID

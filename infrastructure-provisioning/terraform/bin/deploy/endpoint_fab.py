@@ -437,10 +437,6 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                     'value': args.azure_datalake_tag
                 },
                 {
-                    'key': 'AZURE_DATALAKE_ENABLED',
-                    'value': args.azure_datalake_enabled
-                },
-                {
                     'key': "AZURE_CLIENT_ID",
                     'value': args.azure_client_id
                 },
