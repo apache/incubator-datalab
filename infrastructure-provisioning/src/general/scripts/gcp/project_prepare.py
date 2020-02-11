@@ -68,15 +68,13 @@ if __name__ == "__main__":
     project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
     project_conf['edge_service_account_name'] = '{}-{}-edge'.format(project_conf['service_base_name'],
                                                                  project_conf['project_name'])
-    project_conf['edge_service_account_account_id'] = '{}-{}-edge'.format(project_conf['service_base_name'],
-                                                                    project_conf['unique_index'])
-    project_conf['edge_role_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
+    project_conf['edge_service_id_base'] = '{}-edge'.format(project_conf['service_base_name'])
+    project_conf['edge_role_name'] = '{}-{}-edge-{}'.format(project_conf['service_base_name'],
                                                       project_conf['project_name'], project_conf['unique_index'])
     project_conf['ps_service_account_name'] = '{}-{}-ps'.format(project_conf['service_base_name'],
                                                              project_conf['project_name'])
-    project_conf['ps_service_account_account_id'] = '{}-{}-edge'.format(project_conf['service_base_name'],
-                                                                    project_conf['unique_index'])
-    project_conf['ps_role_name'] = '{}-{}-{}-ps'.format(project_conf['service_base_name'],
+    project_conf['ps_service_id_base'] = '{}-ps'.format(project_conf['service_base_name'])
+    project_conf['ps_role_name'] = '{}-{}-ps-{}'.format(project_conf['service_base_name'],
                                                   project_conf['project_name'], project_conf['unique_index'])
     project_conf['ps_policy_path'] = '/root/files/ps_policy.json'
     project_conf['ps_roles_path'] = '/root/files/ps_roles.json'
@@ -157,8 +155,8 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE FOR EDGE NODE]')
         print('[CREATE SERVICE ACCOUNT AND ROLE FOR EDGE NODE]')
-        params = "--service_account_name {} --role_name {} --unique_index {} --service_base_name {}".format(project_conf['edge_service_account_name'],
-                                                                   project_conf['edge_role_name'], project_conf['unique_index'], project_conf['edge_service_account_account_id'])
+        params = "--service_account_name {} --role_name {} --unique_index {} --service_id_base {}".format(project_conf['edge_service_account_name'],
+                                                                   project_conf['edge_role_name'], project_conf['unique_index'], project_conf['edge_service_id_base'])
 
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))
@@ -168,7 +166,7 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         try:
-            GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['service_base_name'])
+            GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['edge_service_id_base'])
             GCPActions().remove_role(project_conf['edge_role_name'])
         except:
             print("Service account or role hasn't been created")
@@ -179,9 +177,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE FOR PRIVATE SUBNET]')
         print('[CREATE SERVICE ACCOUNT AND ROLE FOR NOTEBOOK NODE]')
-        params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {} --unique_index {} --service_base_name {}".format(
+        params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {} --unique_index {} --service_id_base {}".format(
             project_conf['ps_service_account_name'], project_conf['ps_role_name'],
-            project_conf['ps_policy_path'], project_conf['ps_roles_path'], project_conf['unique_index'], project_conf['ps_service_account_account_id'])
+            project_conf['ps_policy_path'], project_conf['ps_roles_path'], project_conf['unique_index'], project_conf['ps_service_id_base'])
 
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))
@@ -191,11 +189,11 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         try:
-            GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+            GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['ps_service_id_base'])
             GCPActions().remove_role(project_conf['ps_role_name'])
         except:
             print("Service account or role hasn't been created")
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['edge_service_id_base'])
         GCPActions().remove_role(project_conf['edge_role_name'])
         GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         append_result("Failed to creating service account and role.", str(err))
@@ -281,9 +279,9 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['ps_service_id_base'])
         GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['edge_service_id_base'])
         GCPActions().remove_role(project_conf['edge_role_name'])
         append_result("Failed to create firewall for Edge node.", str(err))
         GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
@@ -364,9 +362,9 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(project_conf['fw_edge_ingress_internal'])
         GCPActions().remove_firewall(project_conf['fw_edge_egress_public'])
         GCPActions().remove_firewall(project_conf['fw_edge_egress_internal'])
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['ps_service_id_base'])
         GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['edge_service_id_base'])
         GCPActions().remove_role(project_conf['edge_role_name'])
         GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
@@ -398,9 +396,9 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(project_conf['fw_ps_ingress'])
         GCPActions().remove_firewall(project_conf['fw_ps_egress_private'])
         GCPActions().remove_firewall(project_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['ps_service_id_base'])
         GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['edge_service_id_base'])
         GCPActions().remove_role(project_conf['edge_role_name'])
         GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
@@ -408,8 +406,8 @@ if __name__ == "__main__":
     try:
         logging.info('[SET PERMISSIONS FOR USER AND SHARED BUCKETS]')
         print('[SET PERMISSIONS FOR USER AND SHARED BUCKETS]')
-        GCPActions().set_bucket_owner(project_conf['bucket_name'], project_conf['ps_service_account_name'], project_conf['service_base_name'])
-        GCPActions().set_bucket_owner(project_conf['shared_bucket_name'], project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions().set_bucket_owner(project_conf['bucket_name'], project_conf['ps_service_account_name'], project_conf['ps_service_id_base'])
+        GCPActions().set_bucket_owner(project_conf['shared_bucket_name'], project_conf['ps_service_account_name'], project_conf['ps_service_id_base'])
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to set bucket permissions.", str(err))
@@ -421,9 +419,9 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(project_conf['fw_ps_ingress'])
         GCPActions().remove_firewall(project_conf['fw_ps_egress_private'])
         GCPActions().remove_firewall(project_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['ps_service_id_base'])
         GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['edge_service_id_base'])
         GCPActions().remove_role(project_conf['edge_role_name'])
         GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
@@ -452,9 +450,9 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(project_conf['fw_ps_ingress'])
         GCPActions().remove_firewall(project_conf['fw_ps_egress_private'])
         GCPActions().remove_firewall(project_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['ps_service_id_base'])
         GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['edge_service_id_base'])
         GCPActions().remove_role(project_conf['edge_role_name'])
         GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
@@ -471,11 +469,11 @@ if __name__ == "__main__":
             GCPMeta().get_static_address(project_conf['region'], project_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE EDGE INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} --static_ip {} --network_tag {} --labels '{}' --service_base_name {}".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} --static_ip {} --network_tag {} --labels '{}' --service_id_base {}".\
             format(project_conf['instance_name'], project_conf['region'], project_conf['zone'], project_conf['vpc_name'],
                    project_conf['subnet_name'], project_conf['instance_size'], project_conf['ssh_key_path'], initial_user,
                    project_conf['edge_service_account_name'], project_conf['image_name'], 'edge', project_conf['static_ip'],
-                   project_conf['network_tag'], json.dumps(project_conf['instance_labels']), project_conf['service_base_name'])
+                   project_conf['network_tag'], json.dumps(project_conf['instance_labels']), project_conf['edge_service_id_base'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -493,9 +491,9 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(project_conf['fw_ps_ingress'])
         GCPActions().remove_firewall(project_conf['fw_ps_egress_private'])
         GCPActions().remove_firewall(project_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['ps_service_id_base'])
         GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['service_base_name'])
+        GCPActions().remove_service_account(project_conf['edge_service_account_name'], project_conf['edge_service_id_base'])
         GCPActions().remove_role(project_conf['edge_role_name'])
         GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)

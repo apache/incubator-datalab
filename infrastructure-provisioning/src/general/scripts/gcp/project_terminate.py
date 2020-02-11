@@ -30,6 +30,7 @@ import requests
 
 def terminate_edge_node(project_name, service_base_name, region, zone):
     print("Terminating Dataengine-service clusters")
+    service_id_base = service_base_name + '-edge'
     try:
         labels = [
             {'sbn': service_base_name},
@@ -96,15 +97,17 @@ def terminate_edge_node(project_name, service_base_name, region, zone):
     print("Removing Service accounts and roles")
     try:
         list_service_accounts = GCPMeta().get_list_service_accounts()
+        edge_service_id_base = service_base_name + '-edge'
+        ps_service_id_base = service_base_name + '-ps'
         for service_account in (set(targets) & set(list_service_accounts)):
-            if service_account.startswith(service_base_name):
-                GCPActions().remove_service_account(service_account, service_base_name)
+            if service_account.startswith(service_base_name) and service_account.endswith('-edge'):
+                GCPActions().remove_service_account(service_account, edge_service_id_base)
+            elif service_account.startswith(service_base_name) and service_account.endswith('-ps'):
+                GCPActions().remove_service_account(service_account, ps_service_id_base)
         list_roles_names = GCPMeta().get_list_roles()
         service_account_name = "{}-{}-edge".format(service_base_name, project_name)
         unique_index = GCPMeta().get_index_by_service_account_name(service_account_name)
-        base = '{}-{}{}'.format(service_base_name, project_name, unique_index)
-        keys = ['edge', 'ps']
-        targets = ['{}-{}'.format(base, k) for k in keys]
+        targets = ['{}-{}-{}'.format(base, k, unique_index) for k in keys]
         for role in (set(targets) & set(list_roles_names)):
             if role.startswith(service_base_name):
                 GCPActions().remove_role(role)
