@@ -241,6 +241,15 @@ class GCPMeta:
             else:
                 return response
 
+        except Exception as err:
+            logging.info(
+                "Unable to get index from service account email: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to get index from service account email",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_service_account(self, service_account_name, service_base_name):
         unique_index = GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
