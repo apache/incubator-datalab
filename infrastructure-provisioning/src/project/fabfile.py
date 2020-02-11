@@ -28,6 +28,7 @@ import sys
 import os
 from dlab.fab import *
 import traceback
+import uuid
 
 
 def run():
@@ -37,9 +38,10 @@ def run():
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
-
+    project_config = dict()
+    project_config['unique_index'] = '-' + str(uuid.uuid4())[:5]
     try:
-        local("~/scripts/{}.py".format('project_prepare'))
+        local("~/scripts/{}.py --unique_index {}".format('project_prepare', project_config['unique_index']))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Project.", str(err))
@@ -53,7 +55,7 @@ def run():
 #        sys.exit(1)
 
     try:
-        local("~/scripts/{}.py".format('edge_configure'))
+        local("~/scripts/{}.py --unique_index {}".format('edge_configure', project_config['unique_index']))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Edge node.", str(err))
