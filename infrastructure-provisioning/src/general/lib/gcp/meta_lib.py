@@ -244,13 +244,14 @@ class GCPMeta:
                         pageToken=page_token).execute()
                     if result2:
                         for account in result2['accounts']:
-                            full_list_of_service_accounts.append(account['displayName'])
+                            full_list_of_service_accounts.append(account)
                         if 'nextPageToken' in result2:
                             page_token = result2['nextPageToken']
                         else:
                             next_page = False
                     else:
                         next_page = False
+                print(full_list_of_service_accounts)
                 for service_account in full_list_of_service_accounts:
                     if service_account['displayName'] == service_account_name:
                         service_account_email = service_account['email']

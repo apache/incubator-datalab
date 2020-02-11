@@ -98,7 +98,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
         list_service_accounts = GCPMeta().get_list_service_accounts()
         for service_account in (set(targets) & set(list_service_accounts)):
             if service_account.startswith(service_base_name):
-                GCPActions().remove_service_account(service_account)
+                GCPActions().remove_service_account(service_account, service_base_name)
         list_roles_names = GCPMeta().get_list_roles()
         for role in (set(targets) & set(list_roles_names)):
             if role.startswith(service_base_name):
