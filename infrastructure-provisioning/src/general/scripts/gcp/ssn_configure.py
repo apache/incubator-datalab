@@ -94,7 +94,7 @@ if __name__ == "__main__":
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
         ssn_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
-        ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-' + ssn_conf['unique_index'] + '-ssn-role'
+        ssn_conf['role_name'] = ssn_conf['service_base_name'] + ssn_conf['unique_index'] + '-ssn-role'
 
         try:
             if os.environ['aws_account_id'] == '':
