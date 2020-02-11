@@ -72,6 +72,14 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+  public getProjectByExploratoryEnvironment(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetExploratoryEnvironmentRequest()
+      .pipe(
+        map(response => response.body.project_exploratories),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public suspendExploratoryEnvironment(notebook: any, action): Observable<{}> {
     const url = '/' + notebook.name + '/' + action;
 

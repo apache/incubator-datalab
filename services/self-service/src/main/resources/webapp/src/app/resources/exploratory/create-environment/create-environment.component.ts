@@ -38,6 +38,7 @@ import {tap} from 'rxjs/operators';
 export class ExploratoryEnvironmentCreateComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   public createExploratoryForm: FormGroup;
+  public projectExploratories: {};
 
   projects: Project[] = [];
   templates = [];
@@ -61,11 +62,14 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.getNamesByProject();
     this.getUserProjects();
     this.initFormModel();
-    this.createExploratoryForm.get('project').valueChanges.subscribe(v =>
-      this.createExploratoryForm.get('name').updateValueAndValidity()
-    );
+    this.createExploratoryForm.get('project').valueChanges.subscribe(v => {
+      if ( this.createExploratoryForm.controls.name.value) {
+        this.createExploratoryForm.get('name').updateValueAndValidity();
+      }
+    });
   }
 
   public getProjects() {
@@ -122,6 +126,11 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     }, error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'));
   }
 
+  public getNamesByProject() {
+    this.userResourceService.getProjectByExploratoryEnvironment().subscribe(responce => {
+      this.projectExploratories = responce;
+    });
+  }
 
   public selectConfiguration() {
     const value = (this.configuration.nativeElement.checked && this.createExploratoryForm)
@@ -152,7 +161,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   private checkDuplication(control) {
-    if (this.createExploratoryForm && this.resourceGrid.containsNotebook(control.value, this.createExploratoryForm.controls.project.value))
+    if (this.createExploratoryForm
+      && this.createExploratoryForm.controls.project.value
+      && this.resourceGrid.containsNotebook(control.value, this.projectExploratories[this.createExploratoryForm.controls.project.value]))
       return { duplication: true };
   }
 
