@@ -268,11 +268,11 @@ if __name__ == "__main__":
         print('[CREATE SSN INSTANCE]')
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5}"\
                  " --ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9}"\
-                 " --instance_class {10} --static_ip {11} --network_tag {12} --labels '{13}' --primary_disk_size {14} --service_base_name {15} --service_base_name {16}".\
+                 " --instance_class {10} --static_ip {11} --network_tag {12} --labels '{13}' --primary_disk_size {14} --service_base_name {15}".\
             format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
                    ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'], initial_user,
                    ssn_conf['service_account_name'], ssn_conf['image_name'], 'ssn', ssn_conf['static_ip'],
-                   ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20', ssn_conf['service_base_name'], ssn_conf['service_base_name'])
+                   ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20', ssn_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
