@@ -109,7 +109,7 @@ def terminate_edge_node(project_name, service_base_name, region, zone):
         targets = ['{}-{}-{}'.format(base, unique_index, k) for k in keys]
         for role in (set(targets) & set(list_roles_names)):
             if role.startswith(service_base_name):
-                GCPActions().(role)
+                GCPActions().remove_role(role)
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
