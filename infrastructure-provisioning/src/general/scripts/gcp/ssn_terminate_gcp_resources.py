@@ -99,7 +99,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Removing Service accounts and roles")
-    service_id_base = service_base_name + '-ssn-sa'
+    service_id_base = args.service_base_name + '-ssn-sa'
     try:
         list_service_accounts = GCPMeta().get_list_service_accounts()
         for service_account in list_service_accounts:
