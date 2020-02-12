@@ -69,12 +69,12 @@ if __name__ == "__main__":
     project_conf['edge_service_account_name'] = '{}-{}-edge'.format(project_conf['service_base_name'],
                                                                  project_conf['project_name'])
     project_conf['edge_service_id_base'] = '{}-edge'.format(project_conf['service_base_name'])
-    project_conf['edge_role_name'] = '{}-{}-edge-{}'.format(project_conf['service_base_name'],
+    project_conf['edge_role_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
                                                       project_conf['project_name'], project_conf['unique_index'])
     project_conf['ps_service_account_name'] = '{}-{}-ps'.format(project_conf['service_base_name'],
                                                              project_conf['project_name'])
     project_conf['ps_service_id_base'] = '{}-ps'.format(project_conf['service_base_name'])
-    project_conf['ps_role_name'] = '{}-{}-ps-{}'.format(project_conf['service_base_name'],
+    project_conf['ps_role_name'] = '{}-{}-{}-ps'.format(project_conf['service_base_name'],
                                                   project_conf['project_name'], project_conf['unique_index'])
     project_conf['ps_policy_path'] = '/root/files/ps_policy.json'
     project_conf['ps_roles_path'] = '/root/files/ps_roles.json'

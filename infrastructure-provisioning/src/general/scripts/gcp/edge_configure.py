@@ -64,12 +64,12 @@ if __name__ == "__main__":
     edge_conf['edge_service_account_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
                                                                  edge_conf['project_name'])
     edge_conf['edge_service_id_base'] = '{}-edge'.format(edge_conf['service_base_name'])
-    edge_conf['edge_role_name'] = '{}-{}-edge-{}'.format(edge_conf['service_base_name'],
+    edge_conf['edge_role_name'] = '{}-{}-{}-edge'.format(edge_conf['service_base_name'],
                                                       edge_conf['project_name'], edge_conf['unique_index'])
     edge_conf['ps_service_account_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
                                                              edge_conf['project_name'])
     edge_conf['ps_service_id_base'] = '{}-ps'.format(edge_conf['service_base_name'])
-    edge_conf['ps_role_name'] = '{}-{}-ps-{}'.format(edge_conf['service_base_name'],
+    edge_conf['ps_role_name'] = '{}-{}-{}-ps'.format(edge_conf['service_base_name'],
                                                   edge_conf['project_name'], edge_conf['unique_index'])
     edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
                                                            edge_conf['project_name'], edge_conf['endpoint_name'])
