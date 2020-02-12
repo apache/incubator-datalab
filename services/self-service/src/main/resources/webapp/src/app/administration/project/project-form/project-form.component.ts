@@ -29,7 +29,7 @@ import { CheckUtils, FileUtils, PATTERNS } from '../../../core/util';
 import { Project } from '../project.component';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
-export interface GenerateKey { privateKey: string, publicKey: string };
+export interface GenerateKey { privateKey: string; publicKey: string; }
 
 @Component({
   selector: 'project-form',
@@ -139,7 +139,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public selectOptions(list, key, select?) {
-    let filter = key === 'endpoints' ? list.map(el => el.name) : list;
+    const filter = key === 'endpoints' ? list.map(el => el.name) : list;
     this.projectForm.controls[key].setValue(select ? filter : []);
   }
 
@@ -156,8 +156,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public editSpecificProject(item) {
-    const endpoints = item.endpoints.map((endpoint: any) => endpoint.name);
-
+    const endpoints = item.endpoints.filter(endpoint => endpoint.status !== 'TERMINATED').map((endpoint: any) => endpoint.name);
     this.projectForm = this._fb.group({
       'key': [''],
       'name': [item.name, Validators.required],
@@ -170,7 +169,11 @@ export class ProjectFormComponent implements OnInit {
 
   isDisabled(endpoint: any): boolean {
     if (this.item) {
-      const endpoints = this.item.endpoints.map((item: any) => item.name);
+      const endpoints = this.item.endpoints.map((item: any) => {
+        if (item.status !== 'TERMINATED') {
+          return item.name;
+        }
+      });
       return endpoints.includes(endpoint);
     }
   }
