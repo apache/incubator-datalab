@@ -140,10 +140,6 @@ variable "product" {
   default = "dlab"
 }
 
-variable "bucket_region" {
-  default = "US" # Allowed US, EU, ASIA
-}
-
 variable "additional_tag" {
   default = "product:dlab"
 }
