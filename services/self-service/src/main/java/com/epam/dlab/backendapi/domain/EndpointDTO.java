@@ -23,15 +23,22 @@ import com.epam.dlab.cloud.CloudProvider;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.URL;
 
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EndpointDTO {
-
+	/*
+	 the URL_REGEXP_VALIDATION constant is a template for URL pattern,
+	  i.e for url verification like "https://localhost:8084/a/$-*^.oLeh;/"
+	 */
+	private static final String URL_REGEXP_VALIDATION = "^(http(s)?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+	private static final String URL_RESPONSE_MESSAGE = "is empty or contains improper format, symbols ";
+	@NotEmpty(message = "endpoint field cannot be empty")
 	private final String name;
-	@URL
+	@URL(regexp = URL_REGEXP_VALIDATION, message = URL_RESPONSE_MESSAGE)
 	private final String url;
 	private final String account;
 	@JsonProperty("endpoint_tag")
