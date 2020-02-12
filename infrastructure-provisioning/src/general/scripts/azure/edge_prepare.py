@@ -70,7 +70,7 @@ if __name__ == "__main__":
         edge_conf['edge_storage_account_name'] = ('{0}-{1}-{2}-storage'.format(edge_conf['service_base_name'],
                                                                                edge_conf['user_name'],
                                                                                edge_conf['endpoint_name']))
-        edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] +
+        edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-' + edge_conf['endpoint_name'] +
                                             '-container').lower()
         edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'
         edge_conf['datalake_user_directory_name'] = '{0}-{1}-folder'.format(edge_conf['service_base_name'],

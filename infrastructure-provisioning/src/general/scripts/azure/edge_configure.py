@@ -60,7 +60,7 @@ if __name__ == "__main__":
         edge_conf['user_storage_account_name'] = '{0}-{1}-{2}-storage'.format(edge_conf['service_base_name'],
                                                                               edge_conf['project_name'],
                                                                               edge_conf['endpoint_name'])
-        edge_conf['user_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['project_name'] +
+        edge_conf['user_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['project_name'] + '-' + edge_conf['endpoint_name'] +
                                             '-container').lower()
         edge_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(edge_conf['service_base_name'],
                                                                                    edge_conf['endpoint_name'])
