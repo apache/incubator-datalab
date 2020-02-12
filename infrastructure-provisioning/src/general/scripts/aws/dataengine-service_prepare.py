@@ -105,7 +105,7 @@ if __name__ == "__main__":
                        'Notebook={4},' \
                        'State=not-configured,' \
                        'ComputationalName={3},' \
-                       'Endpoint_tag ={5}'\                        \
+                       'Endpoint_tag ={5}'\
         .format(emr_conf['service_base_name'],
                 os.environ['project_name'],
                 emr_conf['exploratory_name'],
