@@ -75,6 +75,7 @@ if __name__ == "__main__":
     dataproc_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(dataproc_conf['service_base_name'],
                                                                dataproc_conf['project_name'],
                                                                dataproc_conf['endpoint_name'])
+    dataproc_conf['service_id_base'] = '{}-edge'.format(dataproc_conf['service_base_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_labels'] = {
         os.environ['notebook_instance_name']: "not-configured",
