@@ -41,6 +41,7 @@ import { SchedulerComponent } from '../scheduler';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ComputationModel} from '../computational/computational-resource.model';
+import {NotebookModel} from '../exploratory/notebook.model';
 
 
 
@@ -275,15 +276,24 @@ export class ResourcesGridComponent implements OnInit {
       this.updateUserPreferences(config);
     }
 
-
+    let failedNotebooks = NotebookModel.notebook(this.getEnvironmentsListCopy());
+    failedNotebooks = SortUtils.flatDeep(failedNotebooks, 1).filter(notebook => notebook.status === 'failed');
+    if (this.filteredEnvironments.length && this.activeFiltering) {
+      let creatingNotebook = NotebookModel.notebook(this.filteredEnvironments);
+      creatingNotebook = SortUtils.flatDeep(creatingNotebook, 1).filter(resourse => resourse.status === 'creating');
+      const fail = failedNotebooks
+        .filter(v => creatingNotebook
+          .some(create => create.project === v.project && create.exploratory === v.exploratory && create.resource === v.resource));
+      if (fail.length) {
+        this.toastr.error('Creating notebook failed!', 'Oops!');
+      }
+    }
 
     let failedResource = ComputationModel.computationRes(this.getEnvironmentsListCopy());
-    failedResource = SortUtils.flatDeep(failedResource, 3).filter(resourse => resourse.status === 'failed');
-
+    failedResource = SortUtils.flatDeep(failedResource, 2).filter(resourse => resourse.status === 'failed');
     if (this.filteredEnvironments.length && this.activeFiltering) {
       let creatingResource = ComputationModel.computationRes(this.filteredEnvironments);
-      creatingResource = SortUtils.flatDeep(creatingResource, 3).filter(resourse => resourse.status === 'creating');
-
+      creatingResource = SortUtils.flatDeep(creatingResource, 2).filter(resourse => resourse.status === 'creating');
       const fail = failedResource
         .filter(v => creatingResource
           .some(create => create.project === v.project && create.exploratory === v.exploratory && create.resource === v.resource));
