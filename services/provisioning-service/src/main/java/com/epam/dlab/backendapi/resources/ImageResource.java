@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ImageCreateCallbackHandler;
 import com.epam.dlab.backendapi.service.impl.DockerService;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,6 +39,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Objects;
 
 @Path(ExploratoryAPI.EXPLORATORY_IMAGE)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -64,7 +66,7 @@ public class ImageResource extends DockerService implements DockerCommands {
 	}
 
 	private RunDockerCommand getDockerCommand(DockerAction action, String uuid, ExploratoryImageDTO image) {
-		return new RunDockerCommand()
+		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getImagesDirectory())
@@ -75,5 +77,12 @@ public class ImageResource extends DockerService implements DockerCommands {
 				.withResource(getResourceType())
 				.withImage(image.getNotebookImage())
 				.withName(nameContainer(image.getEdgeUserName(), action.toString(), image.getImageName()));
+		if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+				Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+				!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+			runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+		}
+
+		return runDockerCommand;
 	}
 }

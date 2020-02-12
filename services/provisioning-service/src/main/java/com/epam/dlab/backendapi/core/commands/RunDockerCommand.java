@@ -33,6 +33,7 @@ public class RunDockerCommand implements CmdCommand {
     private static final String ROOT_KEYS_PATH = "/root/keys";
     private static final String RESPONSE_PATH = "/response";
     private static final String LOG_PATH = "/logs";
+    private static final String AZURE_AUTH_FILE = "/root/azure_auth.json";
 
     public RunDockerCommand withVolume(String hostSrcPath, String bindPath) {
         options.add(String.format("-v %s:%s", hostSrcPath, bindPath));
@@ -45,6 +46,10 @@ public class RunDockerCommand implements CmdCommand {
 
     public RunDockerCommand withVolumeForResponse(String hostSrcPath) {
         return withVolume(hostSrcPath, RESPONSE_PATH);
+    }
+
+    public RunDockerCommand withVolumeFoAzureAuthFile(String hostSrcPath) {
+        return withVolume(hostSrcPath, AZURE_AUTH_FILE);
     }
 
     public RunDockerCommand withVolumeForLog(String hostSrcPath, String logDirectory) {

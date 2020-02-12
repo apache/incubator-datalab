@@ -28,6 +28,7 @@ import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
 import com.epam.dlab.backendapi.service.impl.DockerService;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.LibListComputationalDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
@@ -44,6 +45,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Objects;
 
 @Path("/library")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -139,13 +141,20 @@ public class LibraryResource extends DockerService implements DockerCommands {
 	}
 
 	private RunDockerCommand getDockerCommand(DockerAction action, String uuid) {
-		return new RunDockerCommand()
+		RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
 				.withVolumeForRootKeys(configuration.getKeyDirectory())
 				.withVolumeForResponse(configuration.getImagesDirectory())
 				.withRequestId(uuid)
 				.withConfKeyName(configuration.getAdminKey())
 				.withAction(action);
+		if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+				Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+				!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+			runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+		}
+
+		return runDockerCommand;
 	}
 
 	private FileHandlerCallback getFileHandlerCallbackExploratory(DockerAction action, String uuid,

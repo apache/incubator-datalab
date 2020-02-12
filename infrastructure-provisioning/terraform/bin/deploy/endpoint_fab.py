@@ -126,7 +126,18 @@ def ensure_step_certs():
                                                   'http://metadata/computeMetadata/v1/instance/network-interfaces/0/'
                                                   'ip').stdout.replace('\n', '')
                 except:
-                    public_ip_address = None 
+                    public_ip_address = None
+            elif args.cloud_provider == 'azure':
+                local_ip_address = conn.sudo('curl -s -H Metadata:true "http://169.254.169.254/metadata/'
+                                             'instance?api-version=2017-08-01&format=json" | jq -r ".network.'
+                                             'interface[].ipv4.ipAddress[].privateIpAddress"').stdout.replace('\n', '')
+                try:
+                    public_ip_address = conn.sudo('curl -s -H Metadata:true "http://169.254.169.254/metadata/'
+                                                  'instance?api-version=2017-08-01&format=json" | jq -r ".network.'
+                                                  'interface[].ipv4.ipAddress[].publicIpAddress"').stdout.replace('\n',
+                                                                                                                  '')
+                except:
+                    public_ip_address = None
             else:
                 local_ip_address = None
                 public_ip_address = None
@@ -220,7 +231,7 @@ def ensure_docker_endpoint():
                                   .stdout.rstrip("\n\r"))
                 conn.sudo("sed -i 's|DNS_IP_RESOLVE|\"dns\": [\"{0}\"],|g' {1}/tmp/daemon.json"
                           .format(dns_ip_resolve, args.dlab_path))
-            elif args.cloud_provider == "gcp":
+            elif args.cloud_provider == "gcp" or args.cloud_provider == "azure":
                 dns_ip_resolve = ""
                 conn.sudo('sed -i "s|DNS_IP_RESOLVE||g" {1}/tmp/daemon.json'
                           .format(dns_ip_resolve, args.dlab_path))
@@ -242,6 +253,10 @@ def create_key_dir_endpoint():
     try:
         if not exists(conn, '/home/{}/keys'.format(args.os_user)):
             conn.run('mkdir /home/{}/keys'.format(args.os_user))
+            if args.auth_file_path:
+                conn.put(args.auth_file_path, '/tmp/azure_auth.json')
+                conn.sudo('mv /tmp/azure_auth.json /home/{}/keys/'.format(args.os_user))
+                args.auth_file_path = '/home/{}/keys/azure_auth.json'.format(args.os_user)
     except Exception as err:
         logging.error('Failed create keys directory as ~/keys: ', str(err))
         traceback.print_exc()
@@ -304,7 +319,10 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                       .format(args.dlab_path, supervisor_conf))
             conn.put('./provisioning.yml', '{}provisioning.yml'
                      .format(dlab_conf_dir))
-
+            if args.resource_group_name == '':
+                args.resource_group_name = args.service_base_name
+            if args.cloud_provider == 'azure':
+                args.region = args.region.lower().replace(' ', '')
             cloud_properties = [
                 {
                     'key': "OS_USER",
@@ -404,7 +422,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 },
                 {
                     'key': "AZURE_RESOURCE_GROUP_NAME",
-                    'value': args.azure_resource_group_name
+                    'value': args.resource_group_name
                 },
                 {
                     'key': "AZURE_SSN_STORAGE_ACCOUNT_TAG",
@@ -489,6 +507,10 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 {
                     'key': "KEYCLOAK_PASSWORD",
                     'value': args.keycloak_user_password
+                },
+                {
+                    'key': "AZURE_AUTH_FILE_PATH",
+                    'value': args.auth_file_path
                 }
             ]
             for param in cloud_properties:
@@ -569,12 +591,14 @@ def pull_docker_images():
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker pull {}:{}/docker.dlab-tensor-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-tensor-rstudio-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
+                conn.sudo('docker pull {}:{}/docker.dlab-tensor-rstudio-{}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker pull {}:{}/docker.dlab-deeplearning-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-dataengine-service-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
+                conn.sudo('docker pull {}:{}/docker.dlab-dataengine-service-{}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker pull {}:{}/docker.dlab-dataengine-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker tag {}:{}/docker.dlab-base-{} docker.dlab-base'
@@ -592,15 +616,17 @@ def pull_docker_images():
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker tag {}:{}/docker.dlab-tensor-{} docker.dlab-tensor'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-tensor-rstudio-{} '
-                      'docker.dlab-tensor-rstudio'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
+                conn.sudo('docker tag {}:{}/docker.dlab-tensor-rstudio-{} '
+                          'docker.dlab-tensor-rstudio'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker tag {}:{}/docker.dlab-deeplearning-{} '
                       'docker.dlab-deeplearning'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-dataengine-service-{} '
-                      'docker.dlab-dataengine-service'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
+                conn.sudo('docker tag {}:{}/docker.dlab-dataengine-service-{} '
+                          'docker.dlab-dataengine-service'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker tag {}:{}/docker.dlab-dataengine-{} '
                       'docker.dlab-dataengine'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
@@ -618,12 +644,14 @@ def pull_docker_images():
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker rmi {}:{}/docker.dlab-tensor-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-tensor-rstudio-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
+                conn.sudo('docker rmi {}:{}/docker.dlab-tensor-rstudio-{}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker rmi {}:{}/docker.dlab-deeplearning-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-service-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
+                conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-service-{}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-{}'
                       .format(args.repository_address, args.repository_port, args.cloud_provider))
             conn.sudo('chown -R {0}:docker /home/{0}/.docker/'
@@ -726,10 +754,11 @@ def init_args():
     parser.add_argument('--conf_key_dir', type=str, default='/root/keys/', help='Should end by symbol /')
     parser.add_argument('--vpc_id', type=str, default='')
     parser.add_argument('--peering_id', type=str, default='')
-    parser.add_argument('--azure_resource_group_name', type=str, default='')
+    parser.add_argument('--resource_group_name', type=str, default='')
     parser.add_argument('--azure_ssn_storage_account_tag', type=str, default='')
     parser.add_argument('--azure_shared_storage_account_tag', type=str, default='')
     parser.add_argument('--azure_datalake_tag', type=str, default='')
+    parser.add_argument('--azure_datalake_enabled', type=str, default='')
     parser.add_argument('--azure_client_id', type=str, default='')
     parser.add_argument('--gcp_project_id', type=str, default='')
     parser.add_argument('--ldap_host', type=str, default='')
@@ -743,6 +772,7 @@ def init_args():
     parser.add_argument('--step_ca_url', type=str, default='')
     parser.add_argument('--shared_image_enabled', type=str, default='true')
     parser.add_argument('--image_enabled', type=str, default='true')
+    parser.add_argument('--auth_file_path', type=str, default='')
 
     # TEMPORARY
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
@@ -755,6 +785,7 @@ def init_args():
 
 def update_system():
     conn.sudo('apt-get update')
+    conn.sudo('apt-get install -y jq')
 
 
 def init_dlab_connection(ip=None, user=None,
