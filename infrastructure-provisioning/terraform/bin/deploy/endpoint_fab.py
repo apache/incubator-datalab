@@ -572,88 +572,26 @@ def pull_docker_images():
         ensure_file = ('/home/{}/.ensure_dir/docker_images_pulled'
                        .format(args.os_user))
         if not exists(conn, ensure_file):
+            list_images = {
+                'aws': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'tensor-rstudio',
+                        'deeplearning', 'jupyterlab', 'dataengine-service', 'dataengine'],
+                'gcp': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'tensor-rstudio',
+                        'deeplearning', 'superset', 'jupyterlab', 'dataengine-service', 'dataengine'],
+                'azure': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'deeplearning',
+                          'dataengine']
+            }
             conn.sudo('docker login -u {} -p {} {}:{}'
                       .format(args.repository_user,
                               args.repository_pass,
                               args.repository_address,
                               args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-base-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-edge-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-project-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-jupyter-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-rstudio-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-zeppelin-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-tensor-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
-                conn.sudo('docker pull {}:{}/docker.dlab-tensor-rstudio-{}'
-                          .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-deeplearning-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
-                conn.sudo('docker pull {}:{}/docker.dlab-dataengine-service-{}'
-                          .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-dataengine-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-base-{} docker.dlab-base'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-edge-{} docker.dlab-edge'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-project-{} docker.dlab-project'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-jupyter-{} docker.dlab-jupyter'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-rstudio-{} docker.dlab-rstudio'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-zeppelin-{} '
-                      'docker.dlab-zeppelin'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-tensor-{} docker.dlab-tensor'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
-                conn.sudo('docker tag {}:{}/docker.dlab-tensor-rstudio-{} '
-                          'docker.dlab-tensor-rstudio'
-                          .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-deeplearning-{} '
-                      'docker.dlab-deeplearning'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
-                conn.sudo('docker tag {}:{}/docker.dlab-dataengine-service-{} '
-                          'docker.dlab-dataengine-service'
-                          .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-dataengine-{} '
-                      'docker.dlab-dataengine'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-base-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-edge-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-project-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-jupyter-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-rstudio-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-zeppelin-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-tensor-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
-                conn.sudo('docker rmi {}:{}/docker.dlab-tensor-rstudio-{}'
-                          .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-deeplearning-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            if args.cloud_provider == 'aws' or args.cloud_provider == 'gcp':
-                conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-service-{}'
-                          .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            for image in list_images[args.cloud_provider]:
+                conn.sudo('docker pull {0}:{1}/docker.dlab-{3}-{2}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider, image))
+                conn.sudo('docker tag {0}:{1}/docker.dlab-{3}-{2} docker.dlab-{3}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider, image))
+                conn.sudo('docker rmi {0}:{1}/docker.dlab-{3}-{2}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider, image))
             conn.sudo('chown -R {0}:docker /home/{0}/.docker/'
                       .format(args.os_user))
             conn.sudo('touch {}'.format(ensure_file))
