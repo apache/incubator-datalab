@@ -255,8 +255,11 @@ class GCPMeta:
                     if service_account['displayName'] == service_account_name:
                         service_account_email = service_account['email']
                         response = service_account_email[:service_account_email.find('@')][-5:]
+                    else:
+                        print("No service account with such display name.")
                 return response
             else:
+                print("No service accounts list received.")
                 return response
 
         except Exception as err:
