@@ -32,7 +32,7 @@ import json
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--unique_index', type=str, default='')
+parser.add_argument('--ssn_unique_index', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         billing_enabled = True
 
         ssn_conf = dict()
-        ssn_conf['unique_index'] = args.unique_index
+        ssn_conf['ssn_unique_index'] = args.ssn_unique_index
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
         ssn_conf['region'] = os.environ['gcp_region']
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
         ssn_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
-        ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-' + ssn_conf['unique_index'] + '-ssn-role'
+        ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-' + ssn_conf['ssn_unique_index'] + '-ssn-role'
 
         try:
             if os.environ['aws_account_id'] == '':

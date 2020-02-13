@@ -31,7 +31,7 @@ import json
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--unique_index', type=str, default='')
+parser.add_argument('--ssn_unique_index', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     logging.info('[DERIVING NAMES]')
     print('[DERIVING NAMES]')
     ssn_conf = dict()
-    ssn_conf['unique_index'] = args.unique_index
+    ssn_conf['ssn_unique_index'] = args.ssn_unique_index
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
     ssn_conf['region'] = os.environ['gcp_region']
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
     ssn_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
-    ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-' + ssn_conf['unique_index'] + '-ssn-role'
+    ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-' + ssn_conf['ssn_unique_index'] + '-ssn-role'
     ssn_conf['static_address_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
     ssn_conf['ssn_policy_path'] = '/root/files/ssn_policy.json'
     ssn_conf['ssn_roles_path'] = '/root/files/ssn_roles.json'
@@ -202,7 +202,7 @@ if __name__ == "__main__":
         print('[CREATE SERVICE ACCOUNT AND ROLE]')
         params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {} --unique_index {} --service_base_name {}".format(
             ssn_conf['service_account_name'], ssn_conf['role_name'],
-            ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'], ssn_conf['unique_index'], ssn_conf['service_base_name'])
+            ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'], ssn_conf['ssn_unique_index'], ssn_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))
         except:
