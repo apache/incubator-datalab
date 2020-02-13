@@ -258,7 +258,7 @@ class GCPMeta:
                 if response == '':
                     print("No service account with such display name.")
                 else:
-                    print("Service account " + service_account_name + " has " + response + "index.")
+                    print("Service account " + service_account_name + " has " + response + " index.")
                 return response
             else:
                 print("No service accounts list received.")
