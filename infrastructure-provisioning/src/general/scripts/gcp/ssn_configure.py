@@ -52,11 +52,9 @@ if __name__ == "__main__":
         billing_enabled = True
 
         ssn_conf = dict()
-        ssn_conf = dict()
         ssn_conf['unique_index'] = args.unique_index
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
-        ssn_conf['service_id_base'] = '{}-ssn-sa'.format(ssn_conf['service_base_name'])
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
         ssn_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(ssn_conf['service_base_name'])
@@ -112,7 +110,7 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Failed deriving names.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_id_base'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
@@ -153,7 +151,7 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Failed creating ssh user 'dlab-user'.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_id_base'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
@@ -184,7 +182,7 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Failed installing software: pip, packages.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_id_base'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
@@ -219,7 +217,7 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Failed configuring ssn.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_id_base'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
@@ -262,7 +260,7 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Unable to configure docker.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_id_base'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
@@ -487,7 +485,7 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Unable to configure UI.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_id_base'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
@@ -552,7 +550,7 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_id_base'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])

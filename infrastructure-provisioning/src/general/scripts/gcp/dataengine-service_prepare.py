@@ -75,7 +75,6 @@ if __name__ == "__main__":
     dataproc_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(dataproc_conf['service_base_name'],
                                                                dataproc_conf['project_name'],
                                                                dataproc_conf['endpoint_name'])
-    dataproc_conf['service_id_base'] = '{}-ps'.format(dataproc_conf['service_base_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_labels'] = {
         os.environ['notebook_instance_name']: "not-configured",
@@ -90,9 +89,9 @@ if __name__ == "__main__":
     }
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
                                                                          dataproc_conf['project_name'])
-    dataproc_conf['unique_index'] = GCPMeta().get_index_by_service_account_name(dataproc_conf['dataproc_service_account_name'])
-    service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(dataproc_conf['service_id_base'],
-                                                                         dataproc_conf['unique_index'],
+    dataproc_conf['dataproc_unique_index'] = GCPMeta().get_index_by_service_account_name(dataproc_conf['dataproc_service_account_name'])
+    service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(dataproc_conf['service_base_name'],
+                                                                         dataproc_conf['dataproc_unique_index'],
                                                                          os.environ['gcp_project_id'])
     dataproc_conf['edge_instance_hostname'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
                                                                         dataproc_conf['project_name'],

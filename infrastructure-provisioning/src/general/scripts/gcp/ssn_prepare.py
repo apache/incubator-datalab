@@ -50,7 +50,6 @@ if __name__ == "__main__":
     ssn_conf['unique_index'] = args.unique_index
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
-    ssn_conf['service_id_base'] = '{}-ssn-sa'.format(ssn_conf['service_base_name'])
     ssn_conf['region'] = os.environ['gcp_region']
     ssn_conf['zone'] = os.environ['gcp_zone']
     ssn_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(ssn_conf['service_base_name'])
@@ -201,9 +200,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE]')
         print('[CREATE SERVICE ACCOUNT AND ROLE]')
-        params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {} --unique_index {} --service_id_base {}".format(
+        params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {} --unique_index {} --service_base_name {}".format(
             ssn_conf['service_account_name'], ssn_conf['role_name'],
-            ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'], ssn_conf['unique_index'], ssn_conf['service_account_name'])
+            ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'], ssn_conf['unique_index'], ssn_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))
         except:
@@ -213,7 +212,7 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Unable to create Service account and role.", str(err))
         try:
-            GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_id_base'])
+            GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
             GCPActions().remove_role(ssn_conf['role_name'])
         except:
             print("Service account hasn't been created")
@@ -242,7 +241,7 @@ if __name__ == "__main__":
             GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         except:
             print("Static IP address hasn't been created.")
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_id_base'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
@@ -269,11 +268,11 @@ if __name__ == "__main__":
         print('[CREATE SSN INSTANCE]')
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5}"\
                  " --ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9}"\
-                 " --instance_class {10} --static_ip {11} --network_tag {12} --labels '{13}' --primary_disk_size {14} --service_id_base {15}".\
+                 " --instance_class {10} --static_ip {11} --network_tag {12} --labels '{13}' --primary_disk_size {14} --service_base_name {15}".\
             format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
                    ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'], initial_user,
                    ssn_conf['service_account_name'], ssn_conf['image_name'], 'ssn', ssn_conf['static_ip'],
-                   ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20', ssn_conf['service_id_base'])
+                   ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20', ssn_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -282,7 +281,7 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Unable to create ssn instance.", str(err))
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_id_base'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])

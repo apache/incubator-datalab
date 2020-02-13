@@ -26,11 +26,6 @@ from dlab.fab import *
 from dlab.meta_lib import *
 import sys, time, os
 from dlab.actions_lib import *
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--unique_index', type=str, default='')
-args = parser.parse_args()
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -42,7 +37,6 @@ if __name__ == "__main__":
 
     print('Generating infrastructure names and tags')
     edge_conf = dict()
-    edge_conf['unique_index'] = args.unique_index
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['user_keyname'] = os.environ['project_name']
@@ -63,14 +57,14 @@ if __name__ == "__main__":
     edge_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
     edge_conf['edge_service_account_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
                                                                  edge_conf['project_name'])
-    edge_conf['edge_service_id_base'] = '{}-edge'.format(edge_conf['service_base_name'])
+    edge_conf['edge_unique_index'] = GCPMeta().get_index_by_service_account_name(edge_conf['edge_service_account_name'])
     edge_conf['edge_role_name'] = '{}-{}-{}-edge'.format(edge_conf['service_base_name'],
-                                                      edge_conf['project_name'], edge_conf['unique_index'])
+                                                      edge_conf['project_name'], edge_conf['edge_unique_index'])
     edge_conf['ps_service_account_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
                                                              edge_conf['project_name'])
-    edge_conf['ps_service_id_base'] = '{}-ps'.format(edge_conf['service_base_name'])
+    edge_conf['ps_unique_index'] = GCPMeta().get_index_by_service_account_name(edge_conf['ps_service_account_name'])
     edge_conf['ps_role_name'] = '{}-{}-{}-ps'.format(edge_conf['service_base_name'],
-                                                  edge_conf['project_name'], edge_conf['unique_index'])
+                                                  edge_conf['project_name'], edge_conf['ps_unique_index'])
     edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
                                                            edge_conf['project_name'], edge_conf['endpoint_name'])
     edge_conf['firewall_name'] = edge_conf['instance_name'] + '{}-firewall'.format(edge_conf['instance_name'])
@@ -143,9 +137,9 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
         GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
         GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['ps_service_id_base'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['service_base_name'])
         GCPActions().remove_role(edge_conf['ps_role_name'])
-        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['edge_service_id_base'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['service_base_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
@@ -173,9 +167,9 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
         GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
         GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['ps_service_id_base'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['service_base_name'])
         GCPActions().remove_role(edge_conf['ps_role_name'])
-        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['edge_service_id_base'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['service_base_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
@@ -213,9 +207,9 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
         GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
         GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['ps_service_id_base'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['service_base_name'])
         GCPActions().remove_role(edge_conf['ps_role_name'])
-        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['edge_service_id_base'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['service_base_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
@@ -246,9 +240,9 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
         GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
         GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['ps_service_id_base'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['service_base_name'])
         GCPActions().remove_role(edge_conf['ps_role_name'])
-        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['edge_service_id_base'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['service_base_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
@@ -293,9 +287,9 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
         GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
         GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['ps_service_id_base'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['service_base_name'])
         GCPActions().remove_role(edge_conf['ps_role_name'])
-        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['edge_service_id_base'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['service_base_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
