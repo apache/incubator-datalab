@@ -36,6 +36,9 @@
     th {
       padding-right: 5px;
       z-index: 2 !important;
+      &.th_charges{
+        z-index: 3 !important;
+      }
     }
 
     td {
@@ -144,6 +147,7 @@
   }
 
   .header-row {
+    position: unset;
     .label {
       display: inline-block;
       padding-top: 15px;
