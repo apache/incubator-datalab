@@ -23,27 +23,20 @@ import com.epam.dlab.cloud.CloudProvider;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.URL;
-import javax.validation.constraints.Pattern;
 
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EndpointDTO {
-	/*
-	  the URL_REGEXP_VALIDATION constant is a template for URL pattern,
-	  i.e for url verification like "https://localhost:8084/a/$-*^.oLeh;/"
-	 */
+
 	private static final String URL_REGEXP_VALIDATION = "^(http(s)?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-    /*
-      the NAME_REGEXP_VALIDATION - regexp accepts the latin literals and arabic numbers, plus @._ symbols,
-      i.e the loc!a1 field name will be ignored
-    */
-    private static final String NAME_REGEXP_VALIDATION = "[a-zA-Z0-9@_.]+";
-	private static final String IMPROPER_FIELD_MESSAGE = "endpoint field is in improper format!";
-	@Pattern(regexp = NAME_REGEXP_VALIDATION, message = IMPROPER_FIELD_MESSAGE)
+	@NotEmpty
+	@NotBlank
 	private final String name;
-	@URL(regexp = URL_REGEXP_VALIDATION, message = IMPROPER_FIELD_MESSAGE)
+	@URL(regexp = URL_REGEXP_VALIDATION, message = "endpoint field is in improper format!")
 	private final String url;
 	private final String account;
 	@JsonProperty("endpoint_tag")
