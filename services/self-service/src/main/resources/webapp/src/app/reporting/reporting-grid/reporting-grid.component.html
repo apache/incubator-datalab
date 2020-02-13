@@ -214,7 +214,7 @@
 
     <tr [hidden]="!collapseFilterRow || !PROVIDER" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
       class="filter-row"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="DATA"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="content-row"></tr>
 
     <tr [hidden]="!reportData?.length" mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"
       class="header-row"></tr>
