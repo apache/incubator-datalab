@@ -28,7 +28,6 @@ import sys
 import os
 from dlab.fab import *
 import traceback
-import uuid
 
 
 def run():
@@ -38,6 +37,7 @@ def run():
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
+
     try:
         local("~/scripts/{}.py".format('project_prepare'))
     except Exception as err:
