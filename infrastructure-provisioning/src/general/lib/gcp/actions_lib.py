@@ -282,7 +282,7 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_instance(self, instance_name, cluster_name, region, zone, vpc_name, subnet_name, instance_size,
+    def create_instance(self, instance_name, service_base_name, cluster_name, region, zone, vpc_name, subnet_name, instance_size,
                         ssh_key_path,
                         initial_user, image_name, secondary_image_name, service_account_name, instance_class,
                         network_tag, labels, static_ip='',
@@ -290,8 +290,8 @@ class GCPActions:
                         gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name,
-                                                                       self.project)
+        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         access_configs = ''
         if instance_class == 'ssn' or instance_class == 'edge':
             access_configs = [{
@@ -508,16 +508,17 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def remove_service_account(self, service_account_name):
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+    def remove_service_account(self, service_account_name, service_base_name):
+        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         request = self.service_iam.projects().serviceAccounts().delete(
             name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_email))
         try:
             result = request.execute()
-            service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name)
+            service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             while service_account_removed:
                 time.sleep(5)
-                service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name)
+                service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             time.sleep(30)
             print('Service account {} removed.'.format(service_account_name))
             return result
@@ -530,16 +531,18 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_service_account(self, service_account_name):
-        params = {"accountId": service_account_name, "serviceAccount": {"displayName": service_account_name}}
+    def create_service_account(self, service_account_name, service_base_name, unique_index):
+        service_account_id = service_base_name + '-' + unique_index
+        print("Creating service account with accountID:" + service_account_id)
+        params = {"accountId": service_account_id, "serviceAccount": {"displayName": service_account_name}}
         request = self.service_iam.projects().serviceAccounts().create(name='projects/{}'.format(self.project),
                                                                        body=params)
         try:
             result = request.execute()
-            service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name)
+            service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             while not service_account_created:
                 time.sleep(5)
-                service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name)
+                service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             time.sleep(30)
             print('Service account {} created.'.format(service_account_name))
             return result
@@ -552,10 +555,11 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def set_role_to_service_account(self, service_account_name, role_name, role_type='custom'):
+    def set_role_to_service_account(self, service_account_name, role_name, service_base_name, role_type='custom'):
         request = GCPActions().service_resource.projects().getIamPolicy(resource=self.project, body={})
         project_policy = request.execute()
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         params = {
             "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
             "members": [
@@ -687,8 +691,9 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def set_service_account_to_instance(self, service_account_name, instance_name):
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+    def set_service_account_to_instance(self, service_account_name, instance_name, service_base_name):
+        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         params = {
             "email": service_account_email
         }
@@ -814,9 +819,11 @@ class GCPActions:
         except exceptions.NotFound:
             return False
 
-    def set_bucket_owner(self, bucket_name, service_account):
+    def set_bucket_owner(self, bucket_name, service_account_name, service_base_name):
         try:
-            service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account, self.project)
+            unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+            service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index,
+                                                                                  self.project)
             bucket = self.storage_client.get_bucket(bucket_name)
             # setting bucket owner
             acl = bucket.acl

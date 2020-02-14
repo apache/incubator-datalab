@@ -149,14 +149,14 @@ if __name__ == "__main__":
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5} " \
                  "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
                  "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} --secondary_disk_size {13} " \
-                 "--gpu_accelerator_type {14} --network_tag {15} --labels '{16}'".\
+                 "--gpu_accelerator_type {14} --network_tag {15} --labels '{16}' --service_base_name {17}".\
             format(notebook_config['instance_name'], notebook_config['region'], notebook_config['zone'],
                    notebook_config['vpc_name'], notebook_config['subnet_name'], notebook_config['instance_size'],
                    notebook_config['ssh_key_path'], initial_user, notebook_config['notebook_service_account_name'],
                    notebook_config['primary_image_name'], notebook_config['secondary_image_name'], 'notebook',
                    notebook_config['primary_disk_size'], notebook_config['secondary_disk_size'],
                    notebook_config['gpu_accelerator_type'], notebook_config['network_tag'],
-                   json.dumps(notebook_config['labels']))
+                   json.dumps(notebook_config['labels']), notebook_config['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

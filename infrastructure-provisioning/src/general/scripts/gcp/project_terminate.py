@@ -28,7 +28,6 @@ import sys, time, os
 from dlab.actions_lib import *
 import requests
 
-
 def terminate_edge_node(project_name, service_base_name, region, zone):
     print("Terminating Dataengine-service clusters")
     try:
@@ -97,11 +96,14 @@ def terminate_edge_node(project_name, service_base_name, region, zone):
     print("Removing Service accounts and roles")
     try:
         list_service_accounts = GCPMeta().get_list_service_accounts()
+        role_targets = ['{}-{}-{}'.format(base, meta_lib.GCPMeta().get_index_by_service_account_name('{}-{}'.format(base, k)), k) for k in keys]
         for service_account in (set(targets) & set(list_service_accounts)):
-            if service_account.startswith(service_base_name):
-                GCPActions().remove_service_account(service_account)
+            if service_account.startswith(service_base_name) and service_account.endswith('-edge'):
+                GCPActions().remove_service_account(service_account, service_base_name)
+            elif service_account.startswith(service_base_name) and service_account.endswith('-ps'):
+                GCPActions().remove_service_account(service_account, service_base_name)
         list_roles_names = GCPMeta().get_list_roles()
-        for role in (set(targets) & set(list_roles_names)):
+        for role in (set(role_targets) & set(list_roles_names)):
             if role.startswith(service_base_name):
                 GCPActions().remove_role(role)
     except Exception as err:
