@@ -56,8 +56,8 @@ if __name__ == "__main__":
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['user_keyname'] = os.environ['project_name']
     notebook_config['network_type'] = os.environ['conf_network_type']
-    notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
-                                                               os.environ['project_name'],
+    notebook_config['instance_name'] = '{}-{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
+                                                               os.environ['project_name'], os.environ['endpoint_name'],
                                                                notebook_config['exploratory_name'], args.uuid)
     notebook_config['image_enabled'] = os.environ['conf_image_enabled']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
@@ -73,10 +73,10 @@ if __name__ == "__main__":
             os.environ['endpoint_name'],
             os.environ['application'])
     notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
-    notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
-        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                  os.environ['project_name'])
+    notebook_config['role_profile_name'] = '{}-{}-{}-nb-de-Profile' \
+        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'], os.environ['endpoint_name'])
+    notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
+                                                                  os.environ['project_name'], os.environ['endpoint_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     tag = {"Key": notebook_config['tag_name'],

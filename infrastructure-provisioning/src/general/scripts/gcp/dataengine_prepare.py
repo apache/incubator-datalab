@@ -166,14 +166,14 @@ if __name__ == "__main__":
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5} " \
                  "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
                  "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} --secondary_disk_size {13}  " \
-                 "--gpu_accelerator_type {14} --network_tag {15} --cluster_name {16} --labels '{17}'". \
+                 "--gpu_accelerator_type {14} --network_tag {15} --cluster_name {16} --labels '{17}' --service_base_name {18}". \
             format(data_engine['master_node_name'], data_engine['region'], data_engine['zone'], data_engine['vpc_name'],
                    data_engine['subnet_name'], data_engine['master_size'], data_engine['ssh_key_path'], initial_user,
                    data_engine['dataengine_service_account_name'], data_engine['primary_image_name'],
                    data_engine['secondary_image_name'], 'dataengine', data_engine['primary_disk_size'],
                    data_engine['secondary_disk_size'], data_engine['gpu_accelerator_type'],
                    data_engine['network_tag'], data_engine['cluster_name'],
-                   json.dumps(data_engine['master_labels']))
+                   json.dumps(data_engine['master_labels']), data_engine['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -193,7 +193,7 @@ if __name__ == "__main__":
             params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5} " \
                      "--ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9} " \
                      "--secondary_image_name {10} --instance_class {11} --primary_disk_size {12} --secondary_disk_size {13} " \
-                     "--gpu_accelerator_type {14} --network_tag {15} --cluster_name {16} --labels '{17}'". \
+                     "--gpu_accelerator_type {14} --network_tag {15} --cluster_name {16} --labels '{17}' --service_base_name {18}". \
                 format(slave_name, data_engine['region'], data_engine['zone'],
                        data_engine['vpc_name'], data_engine['subnet_name'], data_engine['slave_size'],
                        data_engine['ssh_key_path'], initial_user, data_engine['dataengine_service_account_name'],
@@ -201,7 +201,7 @@ if __name__ == "__main__":
                        data_engine['primary_disk_size'],
                        data_engine['secondary_disk_size'], data_engine['gpu_accelerator_type'],
                        data_engine['network_tag'], data_engine['cluster_name'],
-                       json.dumps(data_engine['slave_labels']))
+                       json.dumps(data_engine['slave_labels']), data_engine['service_base_name'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
             except:

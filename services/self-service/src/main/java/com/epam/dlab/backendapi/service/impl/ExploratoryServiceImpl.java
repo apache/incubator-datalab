@@ -29,6 +29,7 @@ import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.resources.dto.ExploratoryCreatePopUp;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -58,6 +59,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -229,6 +231,20 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	@Override
 	public List<ClusterConfig> getClusterConfig(UserInfo user, String exploratoryName) {
 		return exploratoryDAO.getClusterConfig(user.getName(), exploratoryName);
+	}
+
+	@Override
+	public ExploratoryCreatePopUp getUserInstances(UserInfo user) {
+		List<ProjectDTO> userProjects = projectService.getUserProjects(user, false);
+		Map<String, List<String>> collect = userProjects.stream()
+				.collect(Collectors.toMap(ProjectDTO::getName, this::getProjectExploratoryNames));
+		return new ExploratoryCreatePopUp(userProjects, collect);
+	}
+
+	private List<String> getProjectExploratoryNames(ProjectDTO project) {
+		return exploratoryDAO.fetchExploratoryFieldsForProject(project.getName()).stream()
+				.map(UserInstanceDTO::getExploratoryName)
+				.collect(Collectors.toList());
 	}
 
 

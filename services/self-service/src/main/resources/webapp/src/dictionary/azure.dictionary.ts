@@ -43,7 +43,7 @@ export const NAMING_CONVENTION_AZURE = {
         'service_filter_key': 'category',
         'type': '',
         'resourceType': 'resource_type',
-        'instance_size': 'size',
+        'instance_size': 'shape',
         'dlabId': 'dlabId'
     },
     'service': 'Category',

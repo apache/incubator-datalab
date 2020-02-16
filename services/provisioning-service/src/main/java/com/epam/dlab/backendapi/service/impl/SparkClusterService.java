@@ -27,6 +27,7 @@ import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalClusterConfigDTO;
@@ -38,7 +39,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import static com.epam.dlab.backendapi.core.commands.DockerAction.*;
+import java.util.Objects;
+
+import static com.epam.dlab.backendapi.core.commands.DockerAction.CREATE;
+import static com.epam.dlab.backendapi.core.commands.DockerAction.RECONFIGURE_SPARK;
+import static com.epam.dlab.backendapi.core.commands.DockerAction.START;
+import static com.epam.dlab.backendapi.core.commands.DockerAction.STOP;
+import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
 
 @Singleton
 public class SparkClusterService extends DockerService implements DockerCommands {
@@ -76,7 +83,7 @@ public class SparkClusterService extends DockerService implements DockerCommands
 	private void runReconfigureSparkDockerCommand(UserInfo ui, ComputationalClusterConfigDTO clusterConfigDTO,
 												  String uuid) {
 		try {
-			final RunDockerCommand dockerCommand = new RunDockerCommand()
+			final RunDockerCommand runDockerCommand = new RunDockerCommand()
 					.withInteractive()
 					.withName(nameContainer(clusterConfigDTO.getEdgeUserName(), RECONFIGURE_SPARK,
 							clusterConfigDTO.getExploratoryName(),
@@ -89,8 +96,13 @@ public class SparkClusterService extends DockerService implements DockerCommands
 					.withConfKeyName(configuration.getAdminKey())
 					.withImage(DataEngineType.getDockerImageName(SPARK_ENGINE))
 					.withAction(RECONFIGURE_SPARK);
+			if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+					Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+					!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+				runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+			}
 
-			commandExecutor.executeAsync(ui.getName(), uuid, commandBuilder.buildCommand(dockerCommand,
+			commandExecutor.executeAsync(ui.getName(), uuid, commandBuilder.buildCommand(runDockerCommand,
 					clusterConfigDTO));
 		} catch (JsonProcessingException e) {
 			throw new DlabException("Could not" + RECONFIGURE_SPARK.toString() + "computational resources cluster", e);
@@ -103,7 +115,7 @@ public class SparkClusterService extends DockerService implements DockerCommands
 				configuration.getResourceStatusPollTimeout(),
 				getFileHandlerCallback(action, uuid, dto));
 		try {
-			final RunDockerCommand dockerCommand = new RunDockerCommand()
+			final RunDockerCommand runDockerCommand = new RunDockerCommand()
 					.withInteractive()
 					.withName(nameContainer(dto.getEdgeUserName(), action, dto.getExploratoryName(),
 							dto.getComputationalName()))
@@ -115,8 +127,13 @@ public class SparkClusterService extends DockerService implements DockerCommands
 					.withConfKeyName(configuration.getAdminKey())
 					.withImage(DataEngineType.getDockerImageName(SPARK_ENGINE))
 					.withAction(action);
+			if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+					Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+					!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+				runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+			}
 
-			commandExecutor.executeAsync(ui.getName(), uuid, commandBuilder.buildCommand(dockerCommand, dto));
+			commandExecutor.executeAsync(ui.getName(), uuid, commandBuilder.buildCommand(runDockerCommand, dto));
 		} catch (JsonProcessingException e) {
 			throw new DlabException("Could not" + action.toString() + "computational resources cluster", e);
 		}

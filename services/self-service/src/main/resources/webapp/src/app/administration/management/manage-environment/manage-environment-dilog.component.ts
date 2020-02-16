@@ -49,19 +49,19 @@ export class ManageEnvironmentComponent implements OnInit {
     !this.manageUsersForm && this.initForm();
     this.setProjectsControl();
     this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || '');
-    this.onFormChange()
+    this.onFormChange();
   }
 
   public onFormChange() {
     this.manageUsersForm.valueChanges.subscribe(value => {
-      if((this.getCurrentTotalValue() && this.getCurrentTotalValue() >= this.getCurrentUsersTotal())) {
+      if ((this.getCurrentTotalValue() && this.getCurrentTotalValue() >= this.getCurrentUsersTotal())) {
         this.manageUsersForm.controls['projects']['controls'].forEach(v => {
             v.controls['budget'].setErrors(null);
         }
         );
-        this.manageUsersForm.controls['total'].setErrors(null)
+        this.manageUsersForm.controls['total'].setErrors(null);
       }
-    })
+    });
   }
 
   get usersEnvironments(): FormArray {
@@ -69,10 +69,10 @@ export class ManageEnvironmentComponent implements OnInit {
   }
 
   public setBudgetLimits(value) {
-    if(this.getCurrentTotalValue() >= this.getCurrentUsersTotal()){
+    if (this.getCurrentTotalValue() >= this.getCurrentUsersTotal()) {
       this.dialogRef.close(value);
-    }else{
-      this.manageUsersForm.controls['total'].setErrors({ overrun: true })
+    } else {
+      this.manageUsersForm.controls['total'].setErrors({ overrun: true });
     }
   }
 

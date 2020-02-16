@@ -61,8 +61,8 @@ if __name__ == "__main__":
         notebook_config['vpc_name'] = os.environ['azure_vpc_name']
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
-        notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
-                                                                notebook_config['project_name'],
+        notebook_config['instance_name'] = '{}-{}-{}-nb-{}'.format(notebook_config['service_base_name'],
+                                                                notebook_config['project_name'], os.environ['endpoint_name'],
                                                                 notebook_config['exploratory_name'])
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
@@ -72,8 +72,8 @@ if __name__ == "__main__":
                                    "Exploratory": notebook_config['exploratory_name'],
                                    "product": "dlab"}
         notebook_config['network_interface_name'] = notebook_config['instance_name'] + "-nif"
-        notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                      notebook_config['project_name'])
+        notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
+                                                                      notebook_config['project_name'], os.environ['endpoint_name'])
         notebook_config['private_subnet_name'] = '{}-{}-subnet'.format(notebook_config['service_base_name'],
                                                                        notebook_config['project_name'])
         ssh_key_path = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])

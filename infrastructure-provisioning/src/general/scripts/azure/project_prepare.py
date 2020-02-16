@@ -67,7 +67,7 @@ if __name__ == "__main__":
         project_conf['network_interface_name'] = '{0}-nif'.format(project_conf['instance_name'])
         project_conf['primary_disk_name'] = project_conf['instance_name'] + '-disk0'
         project_conf['edge_security_group_name'] = project_conf['instance_name'] + '-sg'
-        project_conf['notebook_security_group_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name']\
+        project_conf['notebook_security_group_name'] = project_conf['service_base_name'] + "-" + project_conf['project_name'] + "-" + os.environ['endpoint_name']\
             + '-nb-sg'
         project_conf['master_security_group_name'] = project_conf['service_base_name'] + '-' \
                                                     + project_conf['project_name'] + '-dataengine-master-sg'
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         project_conf['edge_storage_account_name'] = '{0}-{1}-{2}-storage'.format(project_conf['service_base_name'],
                                                                                  project_conf['project_name'],
                                                                                  project_conf['endpoint_name'])
-        project_conf['edge_container_name'] = (project_conf['service_base_name'] + '-' + project_conf['project_name'] +
+        project_conf['edge_container_name'] = (project_conf['service_base_name'] + '-' + project_conf['project_name'] + '-' + project_conf['endpoint_name'] +
                                             '-container').lower()
         project_conf['datalake_store_name'] = project_conf['service_base_name'] + '-ssn-datalake'
         project_conf['datalake_user_directory_name'] = '{0}-{1}-folder'.format(project_conf['service_base_name'],
@@ -97,10 +97,9 @@ if __name__ == "__main__":
                                                 "endpoint_tag": project_conf['endpoint_tag'],
                                                 os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         project_conf['primary_disk_size'] = '32'
-        project_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
         project_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(project_conf['service_base_name'],
-                                                                                  project_conf['default_endpoint_name'])
-        project_conf['shared_container_name'] = '{}-shared-container'.format(project_conf['service_base_name']).lower()
+                                                                                  project_conf['endpoint_name'])
+        project_conf['shared_container_name'] = '{}-{}-shared-container'.format(project_conf['service_base_name'], project_conf['endpoint_name']).lower()
         project_conf['shared_storage_account_tags'] = {"Name": project_conf['shared_storage_account_name'],
                                                    "SBN": project_conf['service_base_name'],
                                                    os.environ['conf_billing_tag_key']: os.environ[

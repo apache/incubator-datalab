@@ -188,6 +188,13 @@ export class ApplicationServiceFacade {
       { responseType: 'text', observe: 'response' });
   }
 
+  public buildGetExploratoryEnvironmentRequest(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
+      null,
+      { observe: 'response' });
+  }
+
   public buildRunExploratoryEnvironmentRequest(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
@@ -347,6 +354,7 @@ export class ApplicationServiceFacade {
       data,
       { responseType: 'text', observe: 'response' });
   }
+
   public buildGetBackupStatusRequest(uuid): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.BACKUP),

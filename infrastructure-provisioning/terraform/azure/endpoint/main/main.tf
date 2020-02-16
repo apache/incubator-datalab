@@ -20,16 +20,26 @@
 # ******************************************************************************
 
 locals {
-  shared_bucket_name = "${var.service_base_name}-${var.endpoint_id}-shared-bucket"
-  additional_tag  = split(":", var.additional_tag)
+  json_data = jsondecode(file(var.auth_file_path))
 }
 
-resource "google_storage_bucket" "shared_bucket" {
-  name     = local.shared_bucket_name
-  force_destroy = true
-  labels = {
-    name                              = local.shared_bucket_name
-    "${local.additional_tag[0]}"      = local.additional_tag[1]
-    "${var.service_base_name}-tag"    = local.shared_bucket_name
+provider "azurerm" {
+  subscription_id = local.json_data.subscriptionId
+  client_id       = local.json_data.clientId
+  client_secret   = local.json_data.clientSecret
+  tenant_id       = local.json_data.tenantId
+}
+
+resource "azurerm_resource_group" "endpoint-resource-group" {
+  count  = var.resource_group_name == "" ? 1 : 0
+  name     = var.service_base_name
+  location = var.region
+
+  tags = {
+    Name = var.service_base_name
   }
+}
+
+data "azurerm_resource_group" "data-endpoint-resource-group" {
+  name = var.resource_group_name == "" ? azurerm_resource_group.endpoint-resource-group.0.name : var.resource_group_name
 }

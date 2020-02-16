@@ -23,9 +23,14 @@ package com.epam.dlab.backendapi.resources.base;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.commands.*;
+import com.epam.dlab.backendapi.core.commands.CommandBuilder;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.core.commands.DockerCommands;
+import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
+import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ResourcesStatusCallbackHandler;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.UserEnvironmentResources;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.exceptions.DlabException;
@@ -37,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.epam.dlab.backendapi.core.commands.DockerAction.STATUS;
@@ -69,24 +75,23 @@ public abstract class InfrastructureService implements DockerCommands {
 
 			if (!(dto.getResourceList().getHostList().isEmpty() && dto.getResourceList().getClusterList().isEmpty())) {
 				log.trace("Request the status of resources for user {} after filtering: {}", username, dto);
-				commandExecutor.executeAsync(
-						username,
-						uuid,
-						commandBuilder.buildCommand(
-								new RunDockerCommand()
-										.withInteractive()
-										.withName(nameContainer(dto.getEdgeUserName(), STATUS, "resources"))
-										.withVolumeForRootKeys(configuration.getKeyDirectory())
-										.withVolumeForResponse(configuration.getImagesDirectory())
-										.withVolumeForLog(configuration.getDockerLogDirectory(), Directories
-												.EDGE_LOG_DIRECTORY)
-										.withResource(getResourceType())
-										.withRequestId(uuid)
-										.withConfKeyName(configuration.getAdminKey())
-										.withActionStatus(configuration.getEdgeImage()),
-								dto
-						)
-				);
+				RunDockerCommand runDockerCommand = new RunDockerCommand()
+						.withInteractive()
+						.withName(nameContainer(dto.getEdgeUserName(), STATUS, "resources"))
+						.withVolumeForRootKeys(configuration.getKeyDirectory())
+						.withVolumeForResponse(configuration.getImagesDirectory())
+						.withVolumeForLog(configuration.getDockerLogDirectory(), Directories.EDGE_LOG_DIRECTORY)
+						.withResource(getResourceType())
+						.withRequestId(uuid)
+						.withConfKeyName(configuration.getAdminKey())
+						.withActionStatus(configuration.getEdgeImage());
+				if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+						Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+						!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+					runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+				}
+
+				commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
 			} else {
 				log.debug("Skipping calling status command. Resource lists are empty");
 			}

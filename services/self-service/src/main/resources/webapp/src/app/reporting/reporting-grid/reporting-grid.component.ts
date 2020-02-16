@@ -17,9 +17,10 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, ViewChild, Input} from '@angular/core';
 
 import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dictionary';
+import {logger} from 'codelyzer/util/logger';
 
 @Component({
   selector: 'dlab-reporting-grid',
@@ -37,12 +38,12 @@ export class ReportingGridComponent implements OnInit {
   reportData: Array<any> = [];
   fullReport: Array<any>;
   isFiltered: boolean = false;
-  private PROVIDER: string = 'aws';
 
   @ViewChild('nameFilter', { static: false }) filter;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
+  @Input() PROVIDER: string;
   displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'charge'];
   displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
 

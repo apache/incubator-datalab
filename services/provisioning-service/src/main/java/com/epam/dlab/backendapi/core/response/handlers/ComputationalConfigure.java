@@ -22,8 +22,13 @@ package com.epam.dlab.backendapi.core.response.handlers;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.commands.*;
+import com.epam.dlab.backendapi.core.commands.CommandBuilder;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.core.commands.DockerCommands;
+import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
+import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
@@ -33,6 +38,8 @@ import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Objects;
 
 import static com.epam.dlab.backendapi.core.commands.DockerAction.CONFIGURE;
 
@@ -81,24 +88,27 @@ public class ComputationalConfigure implements DockerCommands {
 				configuration.getResourceStatusPollTimeout(),
 				getFileHandlerCallback(CONFIGURE, uuid, dto));
 		try {
+			RunDockerCommand runDockerCommand = new RunDockerCommand()
+					.withInteractive()
+					.withName(nameContainer(dto.getEdgeUserName(), CONFIGURE,
+							dto.getExploratoryName(), dto.getComputationalName()))
+					.withVolumeForRootKeys(configuration.getKeyDirectory())
+					.withVolumeForResponse(configuration.getImagesDirectory())
+					.withVolumeForLog(configuration.getDockerLogDirectory(), dataEngineType.getName())
+					.withResource(dataEngineType.getName())
+					.withRequestId(uuid)
+					.withConfKeyName(configuration.getAdminKey())
+					.withActionConfigure(getImageConfigure(dto.getApplicationName(), dataEngineType));
+			if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+					Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+					!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+				runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+			}
+
 			commandExecutor.executeAsync(
 					dto.getEdgeUserName(),
 					uuid,
-					commandBuilder.buildCommand(
-							new RunDockerCommand()
-									.withInteractive()
-									.withName(nameContainer(dto.getEdgeUserName(), CONFIGURE,
-											dto.getExploratoryName(), dto.getComputationalName()))
-									.withVolumeForRootKeys(configuration.getKeyDirectory())
-									.withVolumeForResponse(configuration.getImagesDirectory())
-									.withVolumeForLog(configuration.getDockerLogDirectory(), dataEngineType.getName())
-									.withResource(dataEngineType.getName())
-									.withRequestId(uuid)
-									.withConfKeyName(configuration.getAdminKey())
-									.withActionConfigure(getImageConfigure(dto.getApplicationName(), dataEngineType)),
-							dto
-					)
-			);
+					commandBuilder.buildCommand(runDockerCommand, dto));
 		} catch (Exception t) {
 			throw new DlabException("Could not configure computational resource cluster", t);
 		}

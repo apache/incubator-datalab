@@ -27,7 +27,7 @@ import { UserResourceService, ProjectService } from '../../../core/services';
 import { CheckUtils, SortUtils, HTTP_STATUS_CODES, PATTERNS } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
-import {tap} from "rxjs/operators";
+import {tap} from 'rxjs/operators';
 
 @Component({
   selector: 'create-environment',
@@ -38,6 +38,7 @@ import {tap} from "rxjs/operators";
 export class ExploratoryEnvironmentCreateComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   public createExploratoryForm: FormGroup;
+  public projectExploratories: {};
 
   projects: Project[] = [];
   templates = [];
@@ -61,8 +62,14 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.getNamesByProject();
     this.getUserProjects();
     this.initFormModel();
+    this.createExploratoryForm.get('project').valueChanges.subscribe(v => {
+      if ( this.createExploratoryForm.controls.name.value) {
+        this.createExploratoryForm.get('name').updateValueAndValidity();
+      }
+    });
   }
 
   public getProjects() {
@@ -91,7 +98,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   public getTemplates(project, endpoint) {
     this.userResourceService.getExploratoryTemplates(project, endpoint)
       .pipe(tap(results => {
-        results.sort((a,b) => (a.exploratory_environment_versions[0].template_name > b.exploratory_environment_versions[0].template_name) ? 1 : -1)
+        results.sort((a, b) =>
+          (a.exploratory_environment_versions[0].template_name > b.exploratory_environment_versions[0].template_name) ?
+            1 : -1);
       }))
       .subscribe(templates =>  {
         this.templates = templates;
@@ -117,6 +126,11 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
     }, error => this.toastr.error(error.message || 'Exploratory creation failed!', 'Oops!'));
   }
 
+  public getNamesByProject() {
+    this.userResourceService.getProjectByExploratoryEnvironment().subscribe(responce => {
+      this.projectExploratories = responce;
+    });
+  }
 
   public selectConfiguration() {
     const value = (this.configuration.nativeElement.checked && this.createExploratoryForm)
@@ -147,7 +161,9 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   }
 
   private checkDuplication(control) {
-    if (this.resourceGrid.containsNotebook(control.value))
+    if (this.createExploratoryForm
+      && this.createExploratoryForm.controls.project.value
+      && this.resourceGrid.containsNotebook(control.value, this.projectExploratories[this.createExploratoryForm.controls.project.value]))
       return { duplication: true };
   }
 

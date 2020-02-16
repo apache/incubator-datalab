@@ -89,8 +89,8 @@ if __name__ == "__main__":
         tag = {"Key": data_engine['tag_name'],
                "Value": "{}-{}-subnet".format(data_engine['service_base_name'], os.environ['project_name'])}
         data_engine['subnet_cidr'] = get_subnet_by_tag(tag)
-        data_engine['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
-            .format(data_engine['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
+        data_engine['notebook_dataengine_role_profile_name'] = '{}-{}-{}-nb-de-Profile' \
+            .format(data_engine['service_base_name'].lower().replace('-', '_'), os.environ['project_name'], os.environ['endpoint_name'])
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['cluster_nodes_tag'] = {"Key": "dataengine_notebook_name",
                                             "Value": os.environ['notebook_instance_name']}
@@ -151,7 +151,7 @@ if __name__ == "__main__":
             .format(data_engine['master_node_name'], data_engine['ami_id'], data_engine['master_size'],
                     data_engine['key_name'],
                     get_security_group_by_name(data_engine['dataengine_master_security_group_name']),
-                    get_subnet_by_cidr(data_engine['subnet_cidr']),
+                    get_subnet_by_cidr(data_engine['subnet_cidr'], os.environ['aws_notebook_vpc_id']),
                     data_engine['notebook_dataengine_role_profile_name'], data_engine['tag_name'],
                     data_engine['master_node_name'], data_engine['primary_disk_size'], data_engine['instance_class'])
         try:
@@ -179,7 +179,7 @@ if __name__ == "__main__":
                 .format(slave_name, data_engine['ami_id'], data_engine['slave_size'],
                         data_engine['key_name'],
                         get_security_group_by_name(data_engine['dataengine_slave_security_group_name']),
-                        get_subnet_by_cidr(data_engine['subnet_cidr']),
+                        get_subnet_by_cidr(data_engine['subnet_cidr'], os.environ['aws_notebook_vpc_id']),
                         data_engine['notebook_dataengine_role_profile_name'], data_engine['tag_name'],
                         slave_name, data_engine['primary_disk_size'], data_engine['instance_class'])
             try:

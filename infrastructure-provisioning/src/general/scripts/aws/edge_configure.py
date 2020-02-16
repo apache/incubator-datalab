@@ -54,10 +54,10 @@ if __name__ == "__main__":
     edge_conf['edge_security_group_name'] = '{}-sg'.format(edge_conf['instance_name'])
     edge_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'],
                                                             os.environ['project_name'])
-    edge_conf['notebook_role_profile_name'] = '{}-{}-nb-Profile' \
-        .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    edge_conf['notebook_security_group_name'] = '{}-{}-nb-sg'.format(edge_conf['service_base_name'],
-                                                                     os.environ['project_name'])
+    edge_conf['notebook_role_profile_name'] = '{}-{}-{}-nb-Profile' \
+        .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'], os.environ['endpoint_name'])
+    edge_conf['notebook_security_group_name'] = '{}-{}-{}-nb-sg'.format(edge_conf['service_base_name'],
+                                                                     os.environ['project_name'], os.environ['endpoint_name'])
     edge_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
         .format(edge_conf['service_base_name'], os.environ['project_name'])
     tag = {"Key": edge_conf['tag_name'],

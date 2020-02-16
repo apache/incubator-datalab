@@ -75,14 +75,14 @@ if __name__ == "__main__":
                                                             os.environ['project_name'])
     project_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
         .format(project_conf['service_base_name'], os.environ['project_name'])
-    project_conf['notebook_dataengine_role_name'] = '{}-{}-nb-de-Role' \
-        .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    project_conf['notebook_dataengine_policy_name'] = '{}-{}-nb-de-Policy' \
-        .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    project_conf['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
-        .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    project_conf['notebook_security_group_name'] = '{}-{}-nb-sg'.format(project_conf['service_base_name'],
-                                                                     os.environ['project_name'])
+    project_conf['notebook_dataengine_role_name'] = '{}-{}-{}-nb-de-Role' \
+        .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'],os.environ['endpoint_name'])
+    project_conf['notebook_dataengine_policy_name'] = '{}-{}-{}-nb-de-Policy' \
+        .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'],os.environ['endpoint_name'])
+    project_conf['notebook_dataengine_role_profile_name'] = '{}-{}-{}-nb-de-Profile' \
+        .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'],os.environ['endpoint_name'])
+    project_conf['notebook_security_group_name'] = '{}-{}-{}-nb-sg'.format(project_conf['service_base_name'],
+                                                                     os.environ['project_name'],os.environ['endpoint_name'])
     project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
     project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'],
                                                                os.environ['project_name'])
@@ -184,7 +184,7 @@ if __name__ == "__main__":
     tag = {"Key": project_conf['tag_name'],
            "Value": "{0}-{1}-subnet".format(project_conf['service_base_name'], project_conf['project_name'])}
     project_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
-    subnet_id = get_subnet_by_cidr(project_conf['private_subnet_cidr'])
+    subnet_id = get_subnet_by_cidr(project_conf['private_subnet_cidr'], project_conf['vpc2_id'])
     print('subnet id: {}'.format(subnet_id))
 
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
@@ -211,7 +211,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
         print('[CREATE BACKEND (NOTEBOOK) ROLES]')
-        user_tag = "{0}:{0}-{1}-nb-de-Role".format(project_conf['service_base_name'], project_conf['project_name'])
+        user_tag = "{0}:{0}-{1}-{2}-nb-de-Role".format(project_conf['service_base_name'], project_conf['project_name'],os.environ['endpoint_name'])
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
                  "--infra_tag_value {} --user_tag_value {}" \
                  .format(project_conf['notebook_dataengine_role_name'],

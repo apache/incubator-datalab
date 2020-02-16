@@ -19,19 +19,18 @@
 #
 # ******************************************************************************
 
-locals {
-  shared_s3_name = "${var.service_base_name}-${var.endpoint_id}-shared-bucket"
+output "endpoint_eip_address" {
+  value = azurerm_public_ip.endpoint-static-ip.ip_address
 }
 
-resource "aws_s3_bucket" "shared_bucket" {
-  bucket = local.shared_s3_name
-  acl    = "private"
-  tags   = {
-    Name                           = local.shared_s3_name
-    "${local.additional_tag[0]}"   = local.additional_tag[1]
-    "${var.tag_resource_id}"       = "${var.service_base_name}:${local.shared_s3_name}"
-    "${var.service_base_name}-Tag" = local.shared_s3_name
-  }
-  force_destroy = true
+output "subnet_id" {
+  value = data.azurerm_subnet.data-endpoint-subnet.name
 }
 
+output "vpc_id" {
+  value = data.azurerm_virtual_network.data-endpoint-network.name
+}
+
+output "ssn_k8s_sg_id" {
+  value = azurerm_network_security_group.enpoint-sg.name
+}

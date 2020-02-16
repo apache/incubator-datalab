@@ -318,6 +318,10 @@ if __name__ == "__main__":
             {
                 'key': 'CONF_IMAGE_ENABLED',
                 'value': os.environ['conf_image_enabled']
+            },
+            {
+                'key': "AZURE_AUTH_FILE_PATH",
+                'value': ""
             }
         ]
 

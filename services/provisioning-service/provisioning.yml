@@ -123,6 +123,7 @@ cloudProperties:
   azureClientId: AZURE_CLIENT_ID
   gcpProjectId: GCP_PROJECT_ID
   imageEnabled: CONF_IMAGE_ENABLED
+  azureAuthFile: AZURE_AUTH_FILE_PATH
   ldap:
     host: LDAP_HOST
     dn: LDAP_DN

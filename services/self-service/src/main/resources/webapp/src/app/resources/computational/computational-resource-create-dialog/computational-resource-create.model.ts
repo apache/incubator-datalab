@@ -47,7 +47,7 @@ export class ComputationalResourceModel {
         project: env.project,
         custom_tag: parameters.custom_tag
       }, provider);
-    } else if (provider=== 'gcp' && image.image === 'docker.dlab-dataengine-service') {
+    } else if (provider === 'gcp' && image.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         template_name: image.template_name,
         image: image.image,
