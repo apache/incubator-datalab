@@ -72,7 +72,7 @@ if __name__ == "__main__":
     odahu_conf['istio_helm_repo'] = os.environ['odahu_istio_helm_repo']
     odahu_conf['helm_repo'] = os.environ['odahu_helm_repo']
     odahu_conf['k8s_version'] = os.environ['odahu_k8s_version']
-    odahu_conf['oauth_oidc_issuer_url'] = "{}realms/{}".format(os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'])
+    odahu_conf['oauth_oidc_issuer_url'] = "{}/realms/{}".format(os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'])
     odahu_conf['oauth_client_id'] = os.environ['keycloak_client_name']
     odahu_conf['oauth_client_secret'] = os.environ['keycloak_client_secret']
     odahu_conf['oauth_cookie_secret'] = id_generator()
@@ -91,6 +91,7 @@ if __name__ == "__main__":
     odahu_conf['dns_project_id'] = os.environ['odahu_dns_project_id']
     odahu_conf['decrypt_token'] = id_generator()
     odahu_conf['infra_vpc_peering'] = os.environ['odahu_infra_vpc_peering']
+    response_file ="/response/odahu_{}_{}.json".format(odahu_conf['odahu_cluster_name'], os.environ['request_id'])
 
     print('Preparing parameters file')
     try:
@@ -141,8 +142,26 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        local('tf_runner create -o /response')
+        local('tf_runner create -o /response/odahu_{}_{}.json'.format(odahu_conf['odahu_cluster_name'], os.environ['request_id']))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to deploy Odahu cluster.", str(err))
         sys.exit(1)
+
+    # generating output information
+    try:
+        local("sed -e 's|name = |"description": |g' result")
+        local("sed -e 's|url = |"url": |g' result")
+        odahu_urls = local("cat result")
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed to generate output information.", str(err))
+        sys.exit(1)
+
+    print('[SUMMARY]')
+    logging.info('[SUMMARY]')
+    print('Cluster name: {}'.format(odahu_conf['odahu_cluster_name']))
+
+    with open("/root/result.json", 'w') as result:
+        res = {"odahu_urls": [odahu_urls]}
+        result.write(json.dumps(res))
