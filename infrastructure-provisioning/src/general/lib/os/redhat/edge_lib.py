@@ -25,6 +25,7 @@ import os
 import sys
 from fabric.api import *
 from fabric.contrib.files import exists
+from dlab.common_lib import manage_pkg
 
 
 def configure_http_proxy_server(config):

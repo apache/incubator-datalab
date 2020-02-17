@@ -30,6 +30,7 @@ import os
 import json
 import sys
 import traceback
+from dlab.common_lib import manage_pkg
 
 
 def ensure_docker_daemon(dlab_path, os_user, region):

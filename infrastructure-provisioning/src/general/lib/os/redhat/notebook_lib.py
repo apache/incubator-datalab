@@ -31,6 +31,7 @@ import sys
 from dlab.notebook_lib import *
 from dlab.fab import *
 import os, time
+from dlab.common_lib import manage_pkg
 
 
 def enable_proxy(proxy_host, proxy_port):
