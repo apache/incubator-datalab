@@ -75,9 +75,9 @@ public class InactivityServiceImpl implements InactivityService {
 	}
 
 	@Override
-	public void updateLastActivityForComputational(UserInfo userInfo, String exploratoryName,
+	public void updateLastActivityForComputational(UserInfo userInfo, String project, String exploratoryName,
 												   String computationalName, LocalDateTime lastActivity) {
-		computationalDAO.updateLastActivity(userInfo.getName(), exploratoryName, computationalName, lastActivity);
+		computationalDAO.updateLastActivity(userInfo.getName(), project, exploratoryName, computationalName, lastActivity);
 	}
 
 	private void updateLastActivity(UserInstanceDTO ui) {

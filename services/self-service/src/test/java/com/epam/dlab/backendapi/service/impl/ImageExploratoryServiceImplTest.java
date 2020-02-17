@@ -56,7 +56,16 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.anyVararg;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ImageExploratoryServiceImplTest {
@@ -98,10 +107,10 @@ public class ImageExploratoryServiceImplTest {
 
 	@Test
 	public void createImage() {
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString(), anyString())).thenReturn(userInstance);
 		when(imageExploratoryDao.exist(anyString(), anyString())).thenReturn(false);
 
-		when(libDAO.getLibraries(anyString(), anyString())).thenReturn(Collections.singletonList(getLibrary()));
+		when(libDAO.getLibraries(anyString(), anyString(), anyString())).thenReturn(Collections.singletonList(getLibrary()));
 		doNothing().when(imageExploratoryDao).save(any(Image.class));
 		when(exploratoryDAO.updateExploratoryStatus(any(ExploratoryStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
@@ -115,16 +124,16 @@ public class ImageExploratoryServiceImplTest {
 				.thenReturn(expectedUuid);
 
 		String imageName = "someImageName", imageDescription = "someDescription";
-		String actualUuid = imageExploratoryService.createImage(userInfo, EXPLORATORY_NAME, imageName,
-				imageDescription);
+		String actualUuid = imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME,
+				imageName, imageDescription);
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
 
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
 		verify(imageExploratoryDao).exist(imageName, PROJECT);
 		verify(imageExploratoryDao).save(any(Image.class));
-		verify(libDAO).getLibraries(USER, EXPLORATORY_NAME);
+		verify(libDAO).getLibraries(USER, PROJECT, EXPLORATORY_NAME);
 		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName, endpointDTO());
 		verify(endpointService).get(anyString());
 		verify(provisioningService).post(endpointDTO().getUrl() + "exploratory/image", TOKEN, eiDto, String.class);
@@ -134,37 +143,37 @@ public class ImageExploratoryServiceImplTest {
 	@Test
 	public void createImageWhenMethodFetchRunningExploratoryFieldsThrowsException() {
 		doThrow(new DlabException("Running exploratory instance for user with name not found."))
-				.when(exploratoryDAO).fetchRunningExploratoryFields(anyString(), anyString());
+				.when(exploratoryDAO).fetchRunningExploratoryFields(anyString(), anyString(), anyString());
 
 		String imageName = "someImageName", imageDescription = "someDescription";
 
 		try {
-			imageExploratoryService.createImage(userInfo, EXPLORATORY_NAME, imageName, imageDescription);
+			imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME, imageName, imageDescription);
 		} catch (DlabException e) {
 			assertEquals("Running exploratory instance for user with name not found.", e.getMessage());
 		}
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
 		verifyNoMoreInteractions(exploratoryDAO);
 	}
 
 	@Test
 	public void createImageWhenResourceAlreadyExists() {
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString(), anyString())).thenReturn(userInstance);
 		when(imageExploratoryDao.exist(anyString(), anyString())).thenReturn(true);
 
 		expectedException.expect(ResourceAlreadyExistException.class);
 		expectedException.expectMessage("Image with name someImageName is already exist");
 
 		String imageName = "someImageName", imageDescription = "someDescription";
-		imageExploratoryService.createImage(userInfo, EXPLORATORY_NAME, imageName, imageDescription);
+		imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME, imageName, imageDescription);
 	}
 
 	@Test
 	public void createImageWhenMethodNewExploratoryImageCreateThrowsException() {
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString(), anyString())).thenReturn(userInstance);
 		when(imageExploratoryDao.exist(anyString(), anyString())).thenReturn(false);
 
-		when(libDAO.getLibraries(anyString(), anyString())).thenReturn(Collections.singletonList(getLibrary()));
+		when(libDAO.getLibraries(anyString(), anyString(), anyString())).thenReturn(Collections.singletonList(getLibrary()));
 		doNothing().when(imageExploratoryDao).save(any(Image.class));
 		when(exploratoryDAO.updateExploratoryStatus(any(ExploratoryStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
@@ -174,16 +183,16 @@ public class ImageExploratoryServiceImplTest {
 
 		String imageName = "someImageName", imageDescription = "someDescription";
 		try {
-			imageExploratoryService.createImage(userInfo, EXPLORATORY_NAME, imageName, imageDescription);
+			imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME, imageName, imageDescription);
 		} catch (DlabException e) {
 			assertEquals("Cannot create instance of resource class", e.getMessage());
 		}
 
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
 		verify(imageExploratoryDao).exist(imageName, PROJECT);
 		verify(imageExploratoryDao).save(any(Image.class));
-		verify(libDAO).getLibraries(USER, EXPLORATORY_NAME);
+		verify(libDAO).getLibraries(USER, PROJECT, EXPLORATORY_NAME);
 		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName, endpointDTO());
 		verify(endpointService).get(anyString());
 		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao, libDAO, requestBuilder, endpointService);
@@ -194,13 +203,13 @@ public class ImageExploratoryServiceImplTest {
 		when(exploratoryDAO.updateExploratoryStatus(any(ExploratoryStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
 		doNothing().when(imageExploratoryDao).updateImageFields(any(Image.class));
-		doNothing().when(exploratoryDAO).updateExploratoryIp(anyString(), anyString(), anyString());
+		doNothing().when(exploratoryDAO).updateExploratoryIp(anyString(), anyString(), anyString(), anyString());
 
 		String notebookIp = "someIp";
 		imageExploratoryService.finishImageCreate(image, EXPLORATORY_NAME, notebookIp);
 
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
-		verify(exploratoryDAO).updateExploratoryIp(USER, notebookIp, EXPLORATORY_NAME);
+		verify(exploratoryDAO).updateExploratoryIp(USER, PROJECT, notebookIp, EXPLORATORY_NAME);
 		verify(imageExploratoryDao).updateImageFields(image);
 		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao);
 	}
@@ -211,7 +220,7 @@ public class ImageExploratoryServiceImplTest {
 				.thenReturn(mock(UpdateResult.class));
 		doNothing().when(imageExploratoryDao).updateImageFields(any(Image.class));
 		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
-				.when(exploratoryDAO).updateExploratoryIp(anyString(), anyString(), anyString());
+				.when(exploratoryDAO).updateExploratoryIp(anyString(), anyString(), anyString(), anyString());
 
 		String notebookIp = "someIp";
 		try {
@@ -221,7 +230,7 @@ public class ImageExploratoryServiceImplTest {
 		}
 
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
-		verify(exploratoryDAO).updateExploratoryIp(USER, notebookIp, EXPLORATORY_NAME);
+		verify(exploratoryDAO).updateExploratoryIp(USER, PROJECT, notebookIp, EXPLORATORY_NAME);
 		verify(imageExploratoryDao).updateImageFields(image);
 		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao);
 	}
@@ -235,7 +244,7 @@ public class ImageExploratoryServiceImplTest {
 		imageExploratoryService.finishImageCreate(image, EXPLORATORY_NAME, null);
 
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
-		verify(exploratoryDAO, never()).updateExploratoryIp(USER, null, EXPLORATORY_NAME);
+		verify(exploratoryDAO, never()).updateExploratoryIp(USER, PROJECT, null, EXPLORATORY_NAME);
 		verify(imageExploratoryDao).updateImageFields(image);
 		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao);
 	}
@@ -301,6 +310,7 @@ public class ImageExploratoryServiceImplTest {
 				.description("someDescription")
 				.status(ImageStatus.CREATING)
 				.user(USER)
+				.project(PROJECT)
 				.libraries(Collections.singletonList(getLibrary()))
 				.computationalLibraries(Collections.emptyMap())
 				.dockerImage("someImageName")
@@ -313,8 +323,11 @@ public class ImageExploratoryServiceImplTest {
 	}
 
 	private UserInstanceDTO getUserInstanceDto() {
-		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME)
-				.withExploratoryId("explId").withProject(PROJECT);
+		return new UserInstanceDTO()
+				.withUser(USER)
+				.withExploratoryName(EXPLORATORY_NAME)
+				.withExploratoryId("explId")
+				.withProject(PROJECT);
 	}
 
 	private UserInfo getUserInfo() {
