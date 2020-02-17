@@ -30,7 +30,7 @@ from fabric.contrib.files import exists
 def configure_http_proxy_server(config):
     try:
         if not exists('/tmp/http_proxy_ensured'):
-            sudo('yum -y install squid')
+            manage_pkg('-y install', 'remote', 'squid')
             template_file = config['template_file']
             proxy_subnet = config['exploratory_subnet']
             put(template_file, '/tmp/squid.conf')
@@ -62,14 +62,13 @@ def install_nginx_ldap(edge_ip, nginx_version, ldap_ip, ldap_dn, ldap_ou, ldap_s
                        user, hostname, step_cert_sans):
     try:
         if not os.path.exists('/tmp/nginx_installed'):
-            sudo('yum install -y wget')
+            manage_pkg('-y install', 'remote', 'wget')
             sudo('wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm')
             try:
                 sudo('rpm -ivh epel-release-latest-7.noarch.rpm')
             except:
                 print('Looks like EPEL is already installed.')
-            sudo(
-                'yum -y install gcc gcc-c++ make zlib-devel pcre-devel openssl-devel git openldap-devel')
+            manage_pkg('-y install', 'remote', 'gcc gcc-c++ make zlib-devel pcre-devel openssl-devel git openldap-devel')
             if os.environ['conf_stepcerts_enabled'] == 'true':
                 sudo('mkdir -p /home/{0}/keys'.format(user))
                 sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(

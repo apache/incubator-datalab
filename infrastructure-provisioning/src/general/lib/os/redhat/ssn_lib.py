@@ -48,9 +48,9 @@ def ensure_docker_daemon(dlab_path, os_user, region):
                 sudo('echo "gpgcheck=1" >> centos.repo')
                 sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
             sudo('yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo')
-            sudo('yum update-minimal --security -y')
-            sudo('yum install container-selinux -y')
-            sudo('yum install docker-ce-{}.ce -y'.format(docker_version))
+            manage_pkg('update-minimal --security -y', 'remote', '')
+            manage_pkg('-y install', 'remote', 'container-selinux')
+            manage_pkg('-y install', 'remote', 'docker-ce-{}.ce'.format(docker_version))
             sudo('usermod -aG docker {}'.format(os_user))
             sudo('systemctl enable docker.service')
             sudo('systemctl start docker')
@@ -63,7 +63,7 @@ def ensure_docker_daemon(dlab_path, os_user, region):
 def ensure_nginx(dlab_path):
     try:
         if not exists('{}tmp/nginx_ensured'.format(dlab_path)):
-            sudo('yum -y install nginx')
+            manage_pkg('-y install', 'remote', 'nginx')
             sudo('systemctl restart nginx.service')
             sudo('chkconfig nginx on')
             sudo('touch {}tmp/nginx_ensured'.format(dlab_path))
@@ -81,8 +81,8 @@ def ensure_jenkins(dlab_path):
                 sudo('rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key')
             except:
                 pass
-            sudo('yum -y install jenkins')
-            sudo('yum -y install policycoreutils-python')
+            manage_pkg('-y install', 'remote', 'jenkins')
+            manage_pkg('-y install', 'remote', 'policycoreutils-python')
             sudo('touch {}tmp/jenkins_ensured'.format(dlab_path))
     except Exception as err:
         traceback.print_exc()
@@ -160,7 +160,7 @@ def configure_nginx(config, dlab_path, hostname):
 def ensure_supervisor():
     try:
         if not exists('{}tmp/superv_ensured'.format(os.environ['ssn_dlab_path'])):
-            sudo('yum install -y supervisor')
+            manage_pkg('-y install', 'remote', 'supervisor')
             #sudo('pip install supervisor')
             sudo('chkconfig supervisord on')
             sudo('systemctl start supervisord')
@@ -180,7 +180,7 @@ def ensure_mongo():
                  '\nenabled=1'
                  '\ngpgkey=https://www.mongodb.org/static/pgp/server-3.2.asc" '
                  '> /etc/yum.repos.d/mongodb.repo')
-            sudo('yum install -y mongodb-org')
+            manage_pkg('-y install', 'remote', 'mongodb-org')
             sudo('semanage port -a -t mongod_port_t -p tcp 27017')
             sudo('chkconfig mongod on')
             sudo('echo "d /var/run/mongodb 0755 mongod mongod" > /lib/tmpfiles.d/mongodb.conf')
@@ -372,14 +372,14 @@ def install_build_dep():
     try:
         if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path'])):
             maven_version = '3.5.4'
-            sudo('yum install -y java-1.8.0-openjdk java-1.8.0-openjdk-devel git wget unzip')
+            manage_pkg('-y install', 'remote', 'java-1.8.0-openjdk java-1.8.0-openjdk-devel git wget unzip')
             with cd('/opt/'):
                 sudo('wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
                     maven_version.split('.')[0], maven_version))
                 sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
             sudo('bash -c "curl --silent --location https://rpm.nodesource.com/setup_12.x | bash -"')
-            sudo('yum install -y nodejs')
+            manage_pkg('-y install', 'remote', 'nodejs')
             sudo('npm config set unsafe-perm=true')
             sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path']))
     except Exception as err:
