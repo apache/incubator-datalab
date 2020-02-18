@@ -25,7 +25,7 @@ import { ToastrService } from 'ngx-toastr';
 import { RolesGroupsService, HealthStatusService } from '../../core/services';
 import { CheckUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
-import {ProgressBarService} from "../../core/services/progress-bar.service";
+import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'dlab-roles',
@@ -37,7 +37,7 @@ export class RolesComponent implements OnInit {
 
   public groupsData: Array<any> = [];
   public roles: Array<any> = [];
-  public rolesList: Array<string> = [];
+  public rolesList: Array<any> = [];
   public setupGroup: string = '';
   public setupUser: string = '';
   public manageUser: string = '';
@@ -65,18 +65,27 @@ export class RolesComponent implements OnInit {
   }
 
   openManageRolesDialog() {
-    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
+    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.rolesService.getGroupsData().subscribe(groups => {
       this.rolesService.getRolesData().subscribe(
         (roles: any) => {
           this.roles = roles;
-          this.rolesList = roles.map(role => role.description);
+          this.rolesList = roles.map((role, index) => {
+            if (index < 10) {
+              return {role: role.description, label: 'templetes'};
+            } else if (index > 9 && index < 20) {
+              return {role: role.description, label: 'Inctance shapes'};
+            } else {
+              return {role: role.description, label: 'Resource'};
+            }
+          });
+
           this.updateGroupData(groups);
 
           this.stepperView = false;
         },
         error => this.toastr.error(error.message, 'Oops!'));
-        this.progressBarService.stopProgressBar()
+        this.progressBarService.stopProgressBar();
       },
       error => {
       this.toastr.error(error.message, 'Oops!');
@@ -172,7 +181,7 @@ export class RolesComponent implements OnInit {
   }
 
   public updateGroupData(groups) {
-    this.groupsData = groups.map(v=>v).sort((a,b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
+    this.groupsData = groups.map(v => v).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
       item.selected_roles = item.roles.map(role => role.description);
     });
@@ -218,6 +227,10 @@ export class RolesComponent implements OnInit {
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => this.healthStatus = result);
+  }
+
+  public onUpdate($event): void {
+    this.groupsData.filter(group => group.group === $event.type)[0].selected_roles = $event.model;
   }
 }
 
