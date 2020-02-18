@@ -101,6 +101,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     clearTimeout(this.loadLibsTimer);
+    clearTimeout(this.clear);
   }
 
   uploadLibGroups(): void {
@@ -325,6 +326,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
     this.libSearch.disable();
     clearTimeout(this.clear);
+    clearTimeout(this.loadLibsTimer);
     this.selectorsReset();
   }
 
