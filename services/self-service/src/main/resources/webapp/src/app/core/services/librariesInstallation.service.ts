@@ -28,8 +28,8 @@ import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 export class LibrariesInstallationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
-  public getGroupsList(exploratory, computational?): Observable<Response> {
-    let body = `?exploratory_name=${exploratory}`;
+  public getGroupsList(project, exploratory, computational?): Observable<Response> {
+    let body = `?project_name=${project}&exploratory_name=${exploratory}`;
     if (computational) body += `&computational_name=${computational}`;
 
     return this.applicationServiceFacade
@@ -65,8 +65,8 @@ export class LibrariesInstallationService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getInstalledLibrariesList(exploratory): Observable<{}> {
-    const body = `?exploratory_name=${exploratory}`;
+  public getInstalledLibrariesList(project, exploratory): Observable<{}> {
+    const body = `?project_name=${project}&exploratory_name=${exploratory}`;
 
     return this.applicationServiceFacade
       .buildGetInstalledLibrariesList(body)
@@ -75,8 +75,8 @@ export class LibrariesInstallationService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getInstalledLibsByResource(exploratory, computational?): Observable<{}> {
-    let body = `?exploratory_name=${exploratory}`;
+  public getInstalledLibsByResource(project, exploratory, computational?): Observable<{}> {
+    let body = `?project_name=${project}&exploratory_name=${exploratory}`;
     if (computational) body += `&computational_name=${computational}`;
 
     return this.applicationServiceFacade

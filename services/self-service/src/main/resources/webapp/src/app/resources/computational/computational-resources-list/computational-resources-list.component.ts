@@ -60,7 +60,7 @@ export class ComputationalResourcesListComponent {
             });
         } else if (result && action === 'terminate') {
           this.userResourceService
-            .suspendComputationalResource(this.environment.name, resource.computational_name, this.environment.cloud_provider)
+            .suspendComputationalResource(this.environment.project, this.environment.name, resource.computational_name, this.environment.cloud_provider)
             .subscribe(() => {
               this.rebuildGrid();
             });
