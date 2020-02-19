@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.MetadataHolder;
 import com.epam.dlab.backendapi.core.commands.CommandExecutor;
+import com.epam.dlab.backendapi.core.commands.CommandExecutorMock;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
 import com.epam.dlab.backendapi.core.response.handlers.dao.FileSystemCallbackHandlerDao;
@@ -67,7 +68,11 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
 		bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, ServiceConsts
 				.SELF_SERVICE_NAME));
 		bind(MetadataHolder.class).to(DockerWarmuper.class);
-		bind(ICommandExecutor.class).to(CommandExecutor.class).asEagerSingleton();
+		if (true) {
+			bind(ICommandExecutor.class).toInstance(new CommandExecutorMock(configuration.getCloudProvider()));
+		} else {
+			bind(ICommandExecutor.class).to(CommandExecutor.class).asEagerSingleton();
+		}
 		bind(ObjectMapper.class).toInstance(new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true));
 		bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
 		bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
