@@ -38,14 +38,14 @@ def manage_pkg(command, environment, requisites):
             else:
                 print('Package manager is:')
                 if environment == 'remote':
-                    if sudo('pgrep apt-get -a && echo "busy" || echo "ready"') == 'busy':
+                    if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
                         counter += 1
                         time.sleep(10)
                     else:
                         allow = True
                         sudo('apt-get {0} {1}'.format(command, requisites))
                 elif environment == 'local':
-                    if local('sudo pgrep apt-get -a && echo "busy" || echo "ready"', capture=True) == 'busy':
+                    if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
                         counter += 1
                         time.sleep(10)
                     else:
@@ -76,6 +76,8 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
                         manage_pkg('update', 'remote', '')
                         manage_pkg('-y install', 'remote', requisites)
                         sudo('unattended-upgrades -v')
+                        sudo(
+                            'sed -i \'s|APT::Periodic::Unattended-Upgrade "1"|APT::Periodic::Unattended-Upgrade "0"|\' /etc/apt/apt.conf.d/20auto-upgrades')
                         sudo('export LC_ALL=C')
                         sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
                         sudo('systemctl enable haveged')
