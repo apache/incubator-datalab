@@ -33,7 +33,7 @@
   <div id="range-picker">
     <ng-daterangepicker [(ngModel)]="value" [options]="options" (ngModelChange)="onChange($event)"></ng-daterangepicker>
   </div>
-  <div class="action-butt">
+  <div class="action-butt" *ngIf="healthStatus && healthStatus.admin">
     <button mat-raised-button class="butt" (click)="export($event)" [disabled]="!reportData?.lines.length">
       <i class="material-icons">file_download</i>Export
     </button>
