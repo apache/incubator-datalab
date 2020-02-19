@@ -103,7 +103,7 @@ if __name__ == "__main__":
         project_conf['shared_storage_account_tags'] = {"Name": project_conf['shared_storage_account_name'],
                                                    "SBN": project_conf['service_base_name'],
                                                    os.environ['conf_billing_tag_key']: os.environ[
-                                                       'conf_billing_tag_value']}
+                                                       'conf_billing_tag_value'], "endpoint_tag": project_conf['endpoint_tag'],}
 
         # FUSE in case of absence of user's key
         try:
