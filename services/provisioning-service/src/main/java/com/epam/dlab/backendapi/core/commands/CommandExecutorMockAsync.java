@@ -233,7 +233,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 	 * @throws FileNotFoundException may be thrown
 	 */
 	private String findTemplatesDir() throws FileNotFoundException {
-		String dir = "/opt/dlab/sources/infrastructure-provisioning/src/general/files/" + cloudProvider.getName();
+		String dir = System.getProperty("docker.dir");
 
 		if (dir != null) {
 			dir = getAbsolutePath(dir);
@@ -253,6 +253,10 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		dir = getAbsolutePath(
 				ServiceUtils.getUserDir(),
 				"../../infrastructure-provisioning/src/general/files/" + cloudProvider.getName());
+		if (dirExists(dir)) {
+			return dir;
+		}
+		dir = "/opt/dlab/sources/infrastructure-provisioning/src/general/files/" + cloudProvider.getName();
 		if (dirExists(dir)) {
 			return dir;
 		}
