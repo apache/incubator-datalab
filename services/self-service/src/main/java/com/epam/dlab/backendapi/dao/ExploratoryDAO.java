@@ -91,7 +91,7 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	static Bson exploratoryCondition(String user, String exploratoryName, String project) {
-		return and(eq(USER, user), eq(PROJECT, project), eq(EXPLORATORY_NAME, exploratoryName));
+		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName), eq(PROJECT, project));
 	}
 
 	private static Bson runningExploratoryCondition(String user, String exploratoryName, String project) {

@@ -74,9 +74,9 @@ public class ComputationalCallback {
 		UserComputationalResource compResource = computationalService.getComputationalResource(dto.getUser(), dto.getProject(),
 				dto.getExploratoryName(), dto.getComputationalName())
 				.orElseThrow(() ->
-						new DlabException("Computational resource " + dto.getComputationalName() +
-								" of exploratory environment " + dto.getExploratoryName() + " for user " + dto.getUser() +
-								" doesn't exist"));
+						new DlabException(String.format("Computational resource %s of exploratory environment %s of " +
+										"project %s for user %s doesn't exist", dto.getComputationalName(),
+								dto.getExploratoryName(), dto.getProject(), dto.getUser())));
 		log.debug("Current status for computational resource {} of exploratory environment {} for user {} is {}",
 				dto.getComputationalName(), dto.getExploratoryName(), dto.getUser(),
 				compResource.getStatus());
