@@ -369,6 +369,10 @@ if __name__ == "__main__":
         params = "--bucket_name {}".format(project_conf['shared_bucket_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            GCPActions().add_bucket_label(project_conf['shared_bucket_name'], "name", project_conf['shared_bucket_name'])
+            GCPActions().add_bucket_label(project_conf['shared_bucket_name'], "endpoint_tag", project_conf['endpoint_tag'])
+            GCPActions().add_bucket_label(project_conf['shared_bucket_name'], "product", "dlab")
+            GCPActions().add_bucket_label(project_conf['shared_bucket_name'], "sbn", project_conf['service_base_name'])
         except:
             traceback.print_exc()
             raise Exception
@@ -377,6 +381,11 @@ if __name__ == "__main__":
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            GCPActions().add_bucket_label(project_conf['bucket_name'], "name", project_conf['shared_bucket_name'])
+            GCPActions().add_bucket_label(project_conf['bucket_name'], "endpoint_tag", project_conf['endpoint_tag'])
+            GCPActions().add_bucket_label(project_conf['bucket_name'], "product", "dlab")
+            GCPActions().add_bucket_label(project_conf['bucket_name'], "project_tag", project_conf['project_tag'])
+            GCPActions().add_bucket_label(project_conf['bucket_name'], "sbn", project_conf['service_base_name'])
         except:
             traceback.print_exc()
             raise Exception

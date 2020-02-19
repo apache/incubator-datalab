@@ -40,7 +40,6 @@ if __name__ == "__main__":
         else:
             print("Creating Bucket {}".format(args.bucket_name))
             GCPActions().create_bucket(args.bucket_name)
-            GCPActions().add_bucket_label(args.bucket_name)
     else:
         parser.print_help()
         sys.exit(2)

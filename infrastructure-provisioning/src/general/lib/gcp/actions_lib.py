@@ -188,12 +188,12 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def add_bucket_label(self, bucket_name):
+    def add_bucket_label(self, bucket_name, key , value):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
 
             labels = bucket.labels
-            labels['name'] = '{}'.format(bucket_name)
+            labels[key] = '{}'.format(value)
             bucket.labels = labels
             bucket.patch()
             print('Updated labels on {}.'.format(bucket_name))
