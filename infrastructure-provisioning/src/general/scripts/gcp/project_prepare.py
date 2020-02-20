@@ -366,26 +366,30 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
+        project_conf['shared_bucket_tags'] = {
+            "name":project_conf['shared_bucket_name'],
+            "endpoint_tag":project_conf['endpoint_tag'],
+            "product":"dlab",
+            "sbn":project_conf['service_base_name']}
         params = "--bucket_name {}".format(project_conf['shared_bucket_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
-            GCPActions().add_bucket_label(project_conf['shared_bucket_name'], "name", project_conf['shared_bucket_name'])
-            GCPActions().add_bucket_label(project_conf['shared_bucket_name'], "endpoint_tag", project_conf['endpoint_tag'])
-            GCPActions().add_bucket_label(project_conf['shared_bucket_name'], "product", "dlab")
-            GCPActions().add_bucket_label(project_conf['shared_bucket_name'], "sbn", project_conf['service_base_name'])
+            GCPActions().add_bucket_labels(project_conf['shared_bucket_name'], project_conf['shared_bucket_tags'])
         except:
             traceback.print_exc()
             raise Exception
 
         params = "--bucket_name {}".format(project_conf['bucket_name'])
+        project_conf['bucket_tags'] = {
+            "name":project_conf['bucket_name'],
+            "endpoint_tag":project_conf['endpoint_tag'],
+            "product":"dlab",
+            "sbn":project_conf['service_base_name'],
+            "project_tag":project_conf['project_tag']}
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
-            GCPActions().add_bucket_label(project_conf['bucket_name'], "name", project_conf['shared_bucket_name'])
-            GCPActions().add_bucket_label(project_conf['bucket_name'], "endpoint_tag", project_conf['endpoint_tag'])
-            GCPActions().add_bucket_label(project_conf['bucket_name'], "product", "dlab")
-            GCPActions().add_bucket_label(project_conf['bucket_name'], "project_tag", project_conf['project_tag'])
-            GCPActions().add_bucket_label(project_conf['bucket_name'], "sbn", project_conf['service_base_name'])
+            GCPActions().add_bucket_labels(project_conf['bucket_name'], project_conf['bucket_tags'])
         except:
             traceback.print_exc()
             raise Exception
