@@ -21,13 +21,17 @@
 #
 # ******************************************************************************
 
-from dlab.fab import *
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-import sys, os, json
+import sys
+import os
+import json
 from fabric.api import *
-from dlab.ssn_lib import *
 from Crypto.PublicKey import RSA
+import dlab.ssn_lib
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import logging
+import traceback
 
 
 if __name__ == "__main__":
@@ -37,26 +41,31 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        instance = 'ssn'
+        ssn_conf = dict()
+        ssn_conf['instance'] = 'ssn'
 
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
-
-        ssn_conf = dict()
         # Verify vpc deployment
-        if os.environ['conf_network_type'] == 'private' and os.environ.get('azure_vpc_name') == None and os.environ.get('azure_source_vpc_name') == None:
+        if os.environ['conf_network_type'] == 'private' and not os.environ.get('azure_vpc_name') \
+                and not os.environ.get('azure_source_vpc_name'):
             raise Exception('Not possible to deploy private environment without predefined vpc or without source vpc')
-        if os.environ['conf_network_type'] == 'private' and os.environ.get('azure_resource_group_name') == None and os.environ.get('azure_source_resource_group_name') == None:
-            raise Exception('Not possible to deploy private environment without predefined resource_group_name or source_group_name')
+        if os.environ['conf_network_type'] == 'private' and not os.environ.get('azure_resource_group_name') \
+                and not os.environ.get('azure_source_resource_group_name'):
+            raise Exception('Not possible to deploy private environment without predefined resource_group_name '
+                            'or source_group_name')
         # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower()[:20], '-', True)
         # Check azure predefined resources
-        ssn_conf['resource_group_name'] = os.environ.get('azure_resource_group_name', ssn_conf['service_base_name'])
-        ssn_conf['source_resource_group_name'] = os.environ.get('azure_source_resource_group_name', ssn_conf['resource_group_name'])
+        ssn_conf['resource_group_name'] = os.environ.get('azure_resource_group_name',
+                                                         '{}-resource-group'.format(ssn_conf['service_base_name']))
+        ssn_conf['source_resource_group_name'] = os.environ.get(
+            'azure_source_resource_group_name', '{}-resource-group'.format(ssn_conf['service_base_name']))
         ssn_conf['vpc_name'] = os.environ.get('azure_vpc_name', '{}-vpc'.format(ssn_conf['service_base_name']))
-        ssn_conf['subnet_name'] = os.environ.get('azure_subnet_name', '{}-ssn-subnet'.format(ssn_conf['service_base_name']))
-        ssn_conf['security_group_name'] = os.environ.get('azure_security_group_name', '{}-sg'.format(ssn_conf['service_base_name']))
+        ssn_conf['subnet_name'] = os.environ.get('azure_subnet_name', '{}-subnet'.format(ssn_conf['service_base_name']))
+        ssn_conf['security_group_name'] = os.environ.get('azure_security_group_name',
+                                                         '{}-sg'.format(ssn_conf['service_base_name']))
         # Default variables
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
@@ -69,10 +78,11 @@ if __name__ == "__main__":
         if os.environ['conf_network_type'] == 'private':
             ssn_conf['static_public_ip_name'] = 'None'      
         else:
-            ssn_conf['static_public_ip_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
-        key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name']), 'rb').read())
+            ssn_conf['static_public_ip_name'] = '{}-ssn-static-ip'.format(ssn_conf['service_base_name'])
+        ssn_conf['key'] = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'],
+                                                               os.environ['conf_key_name']), 'rb').read())
         ssn_conf['instance_storage_account_type'] = 'Premium_LRS'
-        ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        ssn_conf['public_ssh_key'] = ssn_conf['key'].publickey().exportKey("OpenSSH")
         ssn_conf['instance_tags'] = {"Name": ssn_conf['instance_name'],
                                      "SBN": ssn_conf['service_base_name'],
                                      os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
@@ -82,11 +92,11 @@ if __name__ == "__main__":
                                            os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         ssn_conf['primary_disk_size'] = '32'
     except Exception as err:
-        print("Failed to generate variables dictionary." + str(err))
+        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     if AzureMeta().get_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name']):
-        print("Service base name should be unique and less or equal 12 symbols. Please try again.")
+        dlab.fab.append_result("Service base name should be unique and less or equal 20 symbols. Please try again.")
         sys.exit(1)
 
     try:
@@ -100,8 +110,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('ssn_create_resource_group', params))
     except Exception as err:
         traceback.print_exc()
-        print('Error creating resource group: ' + str(err))
-        append_result("Failed to create Resource Group. Exception: " + str(err))
+        dlab.fab.append_result("Failed to create Resource Group.", str(err))
         sys.exit(1)
     
     try:
@@ -116,13 +125,12 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
     except Exception as err:
         traceback.print_exc()
-        print('Error creating VPC: ' + str(err))
+        dlab.fab.append_result("Failed to create VPC.", str(err))
         try:
             if 'azure_resource_group_name' not in os.environ:
                 AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
         except Exception as err:
-            print("Resources hasn't been removed: " + str(err))
-        append_result("Failed to create VPC. Exception: " + str(err))
+            dlab.fab.append_result("Resources hasn't been removed.", str(err))
         sys.exit(1)
   
     try:
@@ -138,15 +146,15 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
     except Exception as err:
         traceback.print_exc()
-        print('Error creating Subnet: ' + str(err))
+        dlab.fab.append_result("Failed to create Subnet.", str(err))
         try:
             if 'azure_resource_group_name' not in os.environ:
                 AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
             if 'azure_vpc_name' not in os.environ:
                 AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
         except Exception as err:
-            print("Resources hasn't been removed: " + str(err))
-        append_result("Failed to create Subnet. Exception: " + str(err))
+            print("Resources hasn't been removed: {}".format(str(err)))
+            dlab.fab.append_result("Resources hasn't been removed.", str(err))
         sys.exit(1)
     
     try:
@@ -154,12 +162,12 @@ if __name__ == "__main__":
             logging.info('[CREATING VPC PEERING]')
             print("[CREATING VPC PEERING]")
             params = "--source_resource_group_name {} --destination_resource_group_name {} " \
-            "--source_virtual_network_name {} --destination_virtual_network_name {}".format(ssn_conf['source_resource_group_name'], 
-                        ssn_conf['resource_group_name'], os.environ['azure_source_vpc_name'], ssn_conf['vpc_name'])
+                     "--source_virtual_network_name {} --destination_virtual_network_name {}".format(
+                      ssn_conf['source_resource_group_name'], ssn_conf['resource_group_name'],
+                      os.environ['azure_source_vpc_name'], ssn_conf['vpc_name'])
             local("~/scripts/{}.py {}".format('ssn_create_peering', params))
     except Exception as err:
         traceback.print_exc()
-        print('Error creating VPC peering: ' + str(err))
         try:
             if 'azure_resource_group_name' not in os.environ:
                 AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
@@ -167,7 +175,8 @@ if __name__ == "__main__":
                 AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
         except Exception as err:
             print("Resources hasn't been removed: " + str(err))
-        append_result("Failed to create VPC peering. Exception: " + str(err))
+            dlab.fab.append_result("Resources hasn't been removed.", str(err))
+        dlab.fab.append_result("Failed to create VPC peering.", str(err))
         sys.exit(1)
 
     try:
@@ -229,7 +238,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
     except Exception as err:
         traceback.print_exc()
-        print('Error creating Security group: ' + str(err))
+        dlab.fab.append_result("Error creating Security group", str(err))
         try:
             if 'azure_resource_group_name' not in os.environ:
                 AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
@@ -240,7 +249,7 @@ if __name__ == "__main__":
                                              ssn_conf['subnet_name'])
         except Exception as err:
             print("Resources hasn't been removed: " + str(err))
-        append_result("Failed to create Security group. Exception: " + str(err))
+            dlab.fab.append_result("Resources hasn't been removed.", str(err))
         sys.exit(1)
 
     if os.environ['azure_datalake_enable'] == 'true':
@@ -269,7 +278,7 @@ if __name__ == "__main__":
                 raise Exception
         except Exception as err:
             traceback.print_exc()
-            print('Error: {0}'.format(err))
+            dlab.fab.append_result("Failed to create Data Lake Store.", str(err))
             if 'azure_resource_group_name' not in os.environ:
                 AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
             if 'azure_vpc_name' not in os.environ:
@@ -282,7 +291,6 @@ if __name__ == "__main__":
             for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
-            append_result("Failed to create Data Lake Store. Exception:" + str(err))
             sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
@@ -308,7 +316,7 @@ if __name__ == "__main__":
         local("~/scripts/{}.py {}".format('common_create_instance', params))
     except Exception as err:
         traceback.print_exc()
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to create instance.", str(err))
         if 'azure_resource_group_name' not in os.environ:
             AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
         if 'azure_vpc_name' not in os.environ:
@@ -325,5 +333,4 @@ if __name__ == "__main__":
             AzureActions().remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
         except:
             print("The instance {} hasn't been created".format(ssn_conf['instance_name']))
-        append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)

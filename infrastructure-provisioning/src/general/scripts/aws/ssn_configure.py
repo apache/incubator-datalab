@@ -21,13 +21,6 @@
 #
 # ******************************************************************************
 
-# from dlab.fab import *
-# from dlab.actions_lib import *
-# import sys, os, json
-# from fabric.api import *
-# from dlab.ssn_lib import *
-# import traceback
-
 import logging
 import sys
 import os
@@ -45,49 +38,64 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
+
     ssn_conf = dict()
     ssn_conf['instance'] = 'ssn'
+
+    def clear_resources():
+        if ssn_conf['domain_created']:
+            dlab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'],
+                                                    os.environ['ssn_hosted_zone_name'],
+                                                    os.environ['ssn_subdomain'])
+        dlab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
+        dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
+        dlab.actions_lib.remove_s3(ssn_conf['instance'])
+        if ssn_conf['pre_defined_sg']:
+            dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
+        if ssn_conf['pre_defined_subnet']:
+            dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
+                                                      ssn_conf['service_base_name'])
+            dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
+        if ssn_conf['pre_defined_vpc']:
+            dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
+            dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
+            dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
+        if ssn_conf['pre_defined_vpc2']:
+            dlab.actions_lib.remove_peering('*')
+            try:
+                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
+            except:
+                print("There are no VPC Endpoints")
+            dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
+            dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
 
     try:
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'].lower()[:20], '-', True)
-        ssn_conf['role_name'] = '{}-ssn-role'.format(ssn_conf['service_base_name'])
-        ssn_conf['role_profile_name'] = '{}-ssn-profile'.format(ssn_conf['service_base_name'])
-        ssn_conf['policy_name'] = '{}-ssn-policy'.format(ssn_conf['service_base_name'])
-        ssn_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
-        ssn_conf['tag_name'] = '{}-tag'.format(ssn_conf['service_base_name'])
-        ssn_conf['tag2_name'] = '{}-secondary-tag'.format(ssn_conf['service_base_name'])
-        ssn_conf['user_tag'] = "{0}:{0}-ssn-role".format(ssn_conf['service_base_name'])
-        ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
-        ssn_conf['region'] = os.environ['aws_region']
-        ssn_conf['zone_full'] = os.environ['aws_region'] + os.environ['aws_zone']
-        ssn_conf['ssn_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
-        ssn_conf['ssn_ami_id'] = dlab.meta_lib.get_ami_id(ssn_conf['ssn_image_name'])
-        ssn_conf['policy_path'] = '/root/files/ssn_policy.json'
-        ssn_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
-        ssn_conf['vpc2_cidr'] = os.environ['conf_vpc2_cidr']
-        ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
-        ssn_conf['vpc2_name'] = '{}-vpc2'.format(ssn_conf['service_base_name'])
-        ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
-        ssn_conf['allowed_ip_cidr'] = list()
-        for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
-            ssn_conf['allowed_ip_cidr'].append({"CidrIp": cidr.replace(' ', '')})
-        ssn_conf['sg_name'] = '{}-ssn-sg'.format(ssn_conf['service_base_name'])
-        ssn_conf['network_type'] = os.environ['conf_network_type']
-        ssn_conf['all_ip_cidr'] = '0.0.0.0/0'
-        ssn_conf['elastic_ip_name'] = '{0}-ssn-static-ip'.format(ssn_conf['service_base_name'])
-        ssn_conf['pre_defined_vpc'] = False
-        ssn_conf['pre_defined_subnet'] = False
-        ssn_conf['pre_defined_sg'] = False
-        ssn_conf['billing_enabled'] = True
-        ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and \
                 'ssn_subdomain' in os.environ:
             ssn_conf['domain_created'] = True
         else:
             ssn_conf['domain_created'] = False
+        ssn_conf['pre_defined_vpc'] = False
+        ssn_conf['pre_defined_subnet'] = False
+        ssn_conf['pre_defined_sg'] = False
+        ssn_conf['billing_enabled'] = True
+        ssn_conf['role_name'] = '{}-ssn-role'.format(ssn_conf['service_base_name'])
+        ssn_conf['role_profile_name'] = '{}-ssn-profile'.format(ssn_conf['service_base_name'])
+        ssn_conf['policy_name'] = '{}-ssn-policy'.format(ssn_conf['service_base_name'])
+        ssn_conf['tag_name'] = '{}-tag'.format(ssn_conf['service_base_name'])
+        ssn_conf['tag2_name'] = '{}-secondary-tag'.format(ssn_conf['service_base_name'])
+        ssn_conf['user_tag'] = "{0}:{0}-ssn-role".format(ssn_conf['service_base_name'])
+        ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
+        ssn_conf['region'] = os.environ['aws_region']
+        ssn_conf['ssn_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
+        ssn_conf['subnet_name'] = '{}-subnet'.format(ssn_conf['service_base_name'])
+        ssn_conf['sg_name'] = '{}-ssn-sg'.format(ssn_conf['service_base_name'])
+        ssn_conf['network_type'] = os.environ['conf_network_type']
+        ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
 
         try:
             if os.environ['aws_vpc_id'] == '':
@@ -140,7 +148,8 @@ if __name__ == "__main__":
         except KeyError:
             os.environ['aws_report_path'] = ''
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -182,31 +191,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed creating ssh user 'dlab'.", str(err))
-        if ssn_conf['domain_created']:
-            dlab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'],
-                                                    os.environ['ssn_hosted_zone_name'],
-                                                    os.environ['ssn_subdomain'])
-        dlab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
-        dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
-        dlab.actions_lib.remove_s3(ssn_conf['instance'])
-        if ssn_conf['pre_defined_sg']:
-            dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
-        if ssn_conf['pre_defined_subnet']:
-            dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                      ssn_conf['service_base_name'])
-            dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
-        if ssn_conf['pre_defined_vpc']:
-            dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
-        if ssn_conf['pre_defined_vpc2']:
-            dlab.actions_lib.remove_peering('*')
-            try:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
-            except:
-                print("There are no VPC Endpoints")
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -224,31 +209,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed installing software: pip, packages.", str(err))
-        if ssn_conf['domain_created']:
-            dlab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'],
-                                                    os.environ['ssn_hosted_zone_name'],
-                                                    os.environ['ssn_subdomain'])
-        dlab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
-        dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
-        dlab.actions_lib.remove_s3(ssn_conf['instance'])
-        if ssn_conf['pre_defined_sg']:
-            dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
-        if ssn_conf['pre_defined_subnet']:
-            dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                      ssn_conf['service_base_name'])
-            dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
-        if ssn_conf['pre_defined_vpc']:
-            dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
-        if ssn_conf['pre_defined_vpc2']:
-            dlab.actions_lib.remove_peering('*')
-            try:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
-            except:
-                print("There are no VPC Endpoints")
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -273,31 +234,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed configuring ssn.", str(err))
-        if ssn_conf['domain_created']:
-            dlab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'],
-                                                    os.environ['ssn_hosted_zone_name'],
-                                                    os.environ['ssn_subdomain'])
-        dlab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
-        dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
-        dlab.actions_lib.remove_s3(ssn_conf['instance'])
-        if ssn_conf['pre_defined_sg']:
-            dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
-        if ssn_conf['pre_defined_subnet']:
-            dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                      ssn_conf['service_base_name'])
-            dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
-        if ssn_conf['pre_defined_vpc']:
-            dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
-        if ssn_conf['pre_defined_vpc2']:
-            dlab.actions_lib.remove_peering('*')
-            try:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
-            except:
-                print("There are no VPC Endpoints")
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -330,58 +267,10 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Unable to configure docker.", str(err))
-        if ssn_conf['domain_created']:
-            dlab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'],
-                                                    os.environ['ssn_hosted_zone_name'],
-                                                    os.environ['ssn_subdomain'])
-        dlab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
-        dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
-        dlab.actions_lib.remove_s3(ssn_conf['instance'])
-        if ssn_conf['pre_defined_sg']:
-            dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
-        if ssn_conf['pre_defined_subnet']:
-            dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                      ssn_conf['service_base_name'])
-            dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
-        if ssn_conf['pre_defined_vpc']:
-            dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
-        if ssn_conf['pre_defined_vpc2']:
-            dlab.actions_lib.remove_peering('*')
-            try:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
-            except:
-                print("There are no VPC Endpoints")
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+        clear_resources()
         sys.exit(1)
 
     try:
-        # mongo_parameters = {
-        #     "aws_region": os.environ['aws_region'],
-        #     "aws_vpc_id": os.environ['aws_vpc_id'],
-        #     "aws_subnet_id": os.environ['aws_subnet_id'],
-        #     "conf_service_base_name": service_base_name,
-        #     "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
-        #     "conf_os_family": os.environ['conf_os_family'],
-        #     "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
-        #     "conf_key_dir": os.environ['conf_key_dir'],
-        #     "ssn_instance_size": os.environ['aws_ssn_instance_size'],
-        #     "edge_instance_size": os.environ['aws_edge_instance_size']
-        # }
-        # if os.environ['conf_duo_vpc_enable'] == 'true':
-        #     secondary_parameters = {
-        #         "aws_notebook_vpc_id": os.environ['aws_vpc2_id'],
-        #         "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
-        #         "aws_peering_id": os.environ['aws_peering_id']
-        #     }
-        # else:
-        #     secondary_parameters = {
-        #         "aws_notebook_vpc_id": os.environ['aws_vpc_id'],
-        #         "aws_notebook_subnet_id": os.environ['aws_subnet_id'],
-        #     }
-        # mongo_parameters.update(secondary_parameters)
         cloud_params = [
             {
                 'key': 'KEYCLOAK_REDIRECT_URI',
@@ -658,32 +547,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Unable to configure UI.", str(err))
-        print(err)
-        if ssn_conf['domain_created']:
-            dlab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'],
-                                                    os.environ['ssn_hosted_zone_name'],
-                                                    os.environ['ssn_subdomain'])
-        dlab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
-        dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
-        dlab.actions_lib.remove_s3(ssn_conf['instance'])
-        if ssn_conf['pre_defined_sg']:
-            dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
-        if ssn_conf['pre_defined_subnet']:
-            dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                      ssn_conf['service_base_name'])
-            dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
-        if ssn_conf['pre_defined_vpc']:
-            dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
-        if ssn_conf['pre_defined_vpc2']:
-            dlab.actions_lib.remove_peering('*')
-            try:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
-            except:
-                print("There are no VPC Endpoints")
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -747,30 +611,7 @@ if __name__ == "__main__":
         if os.environ['conf_lifecycle_stage'] == 'prod':
             params += "--key_id {}".format(os.environ['aws_access_key'])
             local("~/scripts/{}.py {}".format('ssn_finalize', params))
-    except:
-        if ssn_conf['domain_created']:
-            dlab.actions_lib.remove_route_53_record(os.environ['ssn_hosted_zone_id'],
-                                                    os.environ['ssn_hosted_zone_name'],
-                                                    os.environ['ssn_subdomain'])
-        dlab.actions_lib.remove_ec2(ssn_conf['tag_name'], ssn_conf['instance_name'])
-        dlab.actions_lib.remove_all_iam_resources(ssn_conf['instance'])
-        dlab.actions_lib.remove_s3(ssn_conf['instance'])
-        if ssn_conf['pre_defined_sg']:
-            dlab.actions_lib.remove_sgroups(ssn_conf['tag_name'])
-        if ssn_conf['pre_defined_subnet']:
-            dlab.actions_lib.remove_internet_gateways(os.environ['aws_vpc_id'], ssn_conf['tag_name'],
-                                                      ssn_conf['service_base_name'])
-            dlab.actions_lib.remove_subnets(ssn_conf['subnet_name'])
-        if ssn_conf['pre_defined_vpc']:
-            dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc_id'])
-        if ssn_conf['pre_defined_vpc2']:
-            dlab.actions_lib.remove_peering('*')
-            try:
-                dlab.actions_lib.remove_vpc_endpoints(os.environ['aws_vpc2_id'])
-            except:
-                print("There are no VPC Endpoints")
-            dlab.actions_lib.remove_route_tables(ssn_conf['tag2_name'], True)
-            dlab.actions_lib.remove_vpc(os.environ['aws_vpc2_id'])
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results.", str(err))
+        clear_resources()
         sys.exit(1)

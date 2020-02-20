@@ -119,6 +119,12 @@ def configuring_notebook(dataengine_service_version):
 def append_result(error, exception=''):
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    if exception:
+        error_message = "[Error-{}]: {}. Exception: {}".format(st, error, str(exception))
+        print(error_message)
+    else:
+        error_message = "[Error-{}]: {}.".format(st, error)
+        print(error_message)
     with open('/root/result.json', 'a+') as f:
         text = f.read()
     if len(text) == 0:
@@ -127,10 +133,7 @@ def append_result(error, exception=''):
             f.write(res)
     with open("/root/result.json") as f:
         data = json.load(f)
-    if exception:
-        data['error'] = data['error'] + " [Error-" + st + "]:" + error + " Exception: " + str(exception)
-    else:
-        data['error'] = data['error'] + " [Error-" + st + "]:" + error
+    data['error'] = data['error'] + error_message
     with open("/root/result.json", 'w') as f:
         json.dump(data, f)
     print(data)
