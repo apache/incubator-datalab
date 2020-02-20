@@ -100,7 +100,7 @@ if __name__ == "__main__":
                                     "project_tag": project_conf['project_tag'],
                                     "endpoint_tag": project_conf['endpoint_tag'],
                                     "product": "dlab"}
-    project_conf['tag_name'] = notebook_config['service_base_name'] + '-tag'
+    project_conf['tag_name'] = project_conf['service_base_name'] + '-tag'
     project_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
     if 'conf_user_subnets_range' in os.environ:
         project_conf['user_subnets_range'] = os.environ['conf_user_subnets_range']
