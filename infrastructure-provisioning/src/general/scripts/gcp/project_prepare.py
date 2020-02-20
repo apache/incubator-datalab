@@ -100,6 +100,7 @@ if __name__ == "__main__":
                                     "project_tag": project_conf['project_tag'],
                                     "endpoint_tag": project_conf['endpoint_tag'],
                                     "product": "dlab"}
+    project_conf['tag_name'] = project_conf['service_base_name'] + '-tag'
     project_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
     if 'conf_user_subnets_range' in os.environ:
         project_conf['user_subnets_range'] = os.environ['conf_user_subnets_range']
@@ -366,14 +367,25 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
-        params = "--bucket_name {}".format(project_conf['shared_bucket_name'])
+        project_conf['shared_bucket_tags'] = {
+            project_conf['tag_name']: project_conf['shared_bucket_name'],
+            "endpoint_tag": project_conf['endpoint_tag'],
+            os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
+            "sbn": project_conf['service_base_name']}
+        params = "--bucket_name {} --tags '{}'".format(project_conf['shared_bucket_name'], json.dumps(project_conf['shared_bucket_tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
             traceback.print_exc()
             raise Exception
 
-        params = "--bucket_name {}".format(project_conf['bucket_name'])
+        project_conf['bucket_tags'] = {
+            project_conf['tag_name']: project_conf['bucket_name'],
+            "endpoint_tag": project_conf['endpoint_tag'],
+            os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
+            "sbn": project_conf['service_base_name'],
+            "project_tag": project_conf['project_tag']}
+        params = "--bucket_name {} --tags '{}'".format(project_conf['bucket_name'], json.dumps(project_conf['bucket_tags']))
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
