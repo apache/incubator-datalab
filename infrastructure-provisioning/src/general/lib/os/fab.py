@@ -32,6 +32,7 @@ from dlab.actions_lib import *
 import dlab.actions_lib
 import re
 import traceback
+from dlab.common_lib import manage_pkg
 
 
 def ensure_pip(requisites):
@@ -200,9 +201,9 @@ def configure_docker(os_user):
             sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
             sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
                   stable"')
-            sudo('apt-get update')
+            manage_pkg('update', 'remote', '')
             sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
+            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))

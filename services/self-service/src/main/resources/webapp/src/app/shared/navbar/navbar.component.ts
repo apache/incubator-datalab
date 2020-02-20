@@ -38,8 +38,8 @@ import {
   animateChild,
   state
 } from '@angular/animations';
-import {skip} from "rxjs/operators";
-import {ProgressBarService} from "../../core/services/progress-bar.service";
+import {skip} from 'rxjs/operators';
+import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'dlab-navbar',

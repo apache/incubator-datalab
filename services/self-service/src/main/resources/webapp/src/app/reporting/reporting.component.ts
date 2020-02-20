@@ -98,7 +98,12 @@ export class ReportingComponent implements OnInit, OnDestroy {
               this.rebuildBillingReport();
             }
       }
-    });
+    }, e => {
+      this.PROVIDER = 'gcp';
+      if (this.PROVIDER) {
+        this.rebuildBillingReport();
+      }
+      }) ;
   }
 
   getGeneralBillingData() {
