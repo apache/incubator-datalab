@@ -190,9 +190,11 @@ class GCPActions:
 
     def add_bucket_label(self, bucket_name, key , value):
         try:
+            print('----------adding tags to bucket: ' + bucket_name)
             bucket = self.storage_client.get_bucket(bucket_name)
-
             labels = bucket.labels
+            print('labels:')
+            print(labels)
             labels[key] = '{}'.format(value)
             bucket.labels = labels
             bucket.patch()
