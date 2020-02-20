@@ -20,12 +20,14 @@
 import { Component, ViewChild, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
 
 import { DateUtils, CheckUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { DataengineConfigurationService } from '../../../core/services';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
+import {AmiCreateDialogComponent} from '../ami-create-dialog';
+import {DemoPictureDialogComponent} from '../demo-picture-dialog';
 
 @Component({
   selector: 'detail-dialog',
@@ -41,17 +43,20 @@ export class DetailDialogComponent implements OnInit {
   upTimeSince: string = '';
   tooltip: boolean = false;
   config: Array<{}> = [];
+  demoMode: boolean = true;
 
   public configurationForm: FormGroup;
 
   @ViewChild('configurationNode', { static: false }) configuration;
+
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dataengineConfigurationService: DataengineConfigurationService,
     private _fb: FormBuilder,
     public dialogRef: MatDialogRef<DetailDialogComponent>,
-    public toastr: ToastrService
+    public toastr: ToastrService,
+    private dialog: MatDialog
   ) {
     this.notebook = data;
   }
@@ -119,5 +124,28 @@ export class DetailDialogComponent implements OnInit {
       return this.configuration.nativeElement['checked']
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
+  }
+
+  private openDemoLink(template) {
+    const demoData = {
+      title: template,
+      url: ''
+    };
+
+     if (template === 'Jupyter') {
+      demoData.url = 'assets/img/demo/Jupyter.png';
+    } else if (template === 'Ungit') {
+       demoData.url = 'assets/img/demo/ungit.png';
+    } else if (template === 'TensorBoard') {
+       demoData.url = 'assets/img/demo/tensorboard.png';
+    } else if (template === 'RStudio') {
+      demoData.url = 'assets/img/demo/Rstudio.png';
+    } else if (template === 'Apache Zeppelin') {
+       demoData.url = 'assets/img/demo/zeppeling.png';
+    } else {
+      demoData.url = 'assets/img/demo/Jupyter.png';
+    }
+    this.dialog.open(DemoPictureDialogComponent, { data: demoData, panelClass: 'modal-fullscreen' })
+      .afterClosed().subscribe(() => console.log('done'));
   }
 }

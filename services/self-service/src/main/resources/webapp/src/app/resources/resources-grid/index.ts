@@ -32,6 +32,7 @@ import { InstallLibrariesModule } from '../exploratory/install-libraries';
 import { AmiCreateDialogModule } from '../exploratory/ami-create-dialog';
 import { SchedulerModule } from '../scheduler';
 import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
+import {DemoPictureDialogModule} from '../exploratory/demo-picture-dialog';
 
 @NgModule({
   imports: [
@@ -47,6 +48,7 @@ import { UnderscorelessPipeModule } from '../../core/pipes/underscoreless-pipe';
     InstallLibrariesModule,
     SchedulerModule,
     AmiCreateDialogModule,
+    DemoPictureDialogModule,
     UnderscorelessPipeModule,
     MaterialModule
   ],

@@ -18,7 +18,7 @@
  */
 
 import { Component, ViewChild, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
@@ -26,6 +26,7 @@ import { DateUtils, CheckUtils } from '../../../core/util';
 import { DataengineConfigurationService } from '../../../core/services';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../computational-resource-create-dialog/cluster-configuration-templates';
+import {DemoPictureDialogComponent} from '../../exploratory/demo-picture-dialog';
 
 @Component({
   selector: 'dlab-cluster-details',
@@ -46,13 +47,15 @@ export class DetailComputationalResourcesComponent implements OnInit {
   tooltip: boolean = false;
   config: Array<{}> = [];
   public configurationForm: FormGroup;
+  private demoMode: boolean = true;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public toastr: ToastrService,
     public dialogRef: MatDialogRef<DetailComputationalResourcesComponent>,
     private dataengineConfigurationService: DataengineConfigurationService,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -117,4 +120,20 @@ export class DetailComputationalResourcesComponent implements OnInit {
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
   }
+
+  private openDemoLink(template) {
+    const demoData = {
+      title: template.slice(0, -3),
+      url: ''
+    };
+
+    if (this.data.resource.image === 'docker.dlab-dataengine') {
+      demoData.url = 'assets/img/demo/spark_cluster.png';
+    } else {
+      demoData.url = 'assets/img/demo/handoop_cluster.png';
+    }
+    this.dialog.open(DemoPictureDialogComponent, { data: demoData, panelClass: 'modal-fullscreen' })
+      .afterClosed().subscribe(() => console.log('done'));
+  }
+
 }

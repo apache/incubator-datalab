@@ -48,14 +48,18 @@
             <div class="links_block">
               <p *ngFor="let item of notebook.url">
                 <span class="description">{{item.description}}: &nbsp;</span>
-                <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
+                <a *ngIf="!demoMode" class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
                   target="_blank">
                   &nbsp;{{item.url}}
                 </a>
+                <span *ngIf="demoMode" (click)="openDemoLink(item.description)" class="ellipsis fake-link" matTooltip="{{item.url}}" matTooltipPosition="above">
+                  &nbsp;{{item.url}}
+                </span>
               </p>
+
             </div>
             <p class="flex" *ngIf="notebook.username">Node User: &nbsp;<span
-                class="strong">{{ notebook.username }}</span></p>
+                class="strong" >{{ notebook.username }}</span></p>
             <p class="flex" *ngIf="notebook.password">Password: &nbsp;<span
                 class="strong">{{ notebook.password }}</span></p>
 
