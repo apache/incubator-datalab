@@ -66,7 +66,7 @@ def put_to_bucket(bucket_name, local_file, destination_file):
         return False
 
 
-def create_s3_bucket(bucket_name, bucket_tags, region):
+def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag):
     try:
         s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
         if region == "us-east-1":
@@ -94,7 +94,7 @@ def create_s3_bucket(bucket_name, bucket_tags, region):
                 }
             )
         tagging = bucket.Tagging()
-        tagging.put(Tagging={'TagSet': bucket_tags})
+        tagging.put(Tagging={'TagSet': tags})
         tagging.reload()
         return bucket.name
     except Exception as err:
