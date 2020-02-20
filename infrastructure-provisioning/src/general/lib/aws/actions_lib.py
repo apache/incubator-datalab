@@ -83,6 +83,16 @@ def create_s3_bucket(bucket_name, bucket_tags, region):
                     },
                 ]
             })
+        tags = list()
+        tags.append({'Key': os.environ['conf_tag_resource_id'],
+                     'Value': os.environ['conf_service_base_name'] + ':' + bucket_name_tag})
+        for tag in bucket_tags.split(','):
+            tags.append(
+                {
+                    'Key': tag.split(':')[0],
+                    'Value': tag.split(':')[1]
+                }
+            )
         tagging = bucket.Tagging()
         tagging.put(Tagging={'TagSet': bucket_tags})
         tagging.reload()

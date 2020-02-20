@@ -533,30 +533,22 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
-        tags = list()
-        tags.append({'Key': os.environ['conf_tag_resource_id'],
-                     'Value': os.environ['conf_service_base_name'] + ':' + project_conf['shared_bucket_name_tag']})
-        project_conf['shared_bucket_tags'] = 'endpoint_tag:{};{}:{};{}:{}{}'.format(project_conf['endpoint_tag'],
+        project_conf['shared_bucket_tags'] = 'endpoint_tag:{0};{1}:{2};{3}:{4}{5}'.format(project_conf['endpoint_tag'],
                                                                                   os.environ['conf_billing_tag_key'], os.environ['conf_billing_tag_value'],
-                                                                                  project_conf['tag_name'], project_conf['shared_bucket_name'], project_conf['bucket_additional_tags'])
-        for tag in project_conf['shared_bucket_tags'].split(';'):
-            tags.append(
-                {
-                    'Key': tag.split(':')[0],
-                    'Value': tag.split(':')[1]
-                }
-            )
-        params = "--bucket_name {} --bucket_tags '{}' --region {}". \
-            format(project_conf['shared_bucket_name'], tags, project_conf['region'])
+                                                                                  project_conf['tag_name'], project_conf['shared_bucket_name'], project_conf['bucket_additional_tags']).replace(';', ',')
+        params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {}". \
+            format(project_conf['shared_bucket_name'], project_conf['shared_bucket_tags'], project_conf['region'], project_conf['shared_bucket_name_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
             traceback.print_exc()
             raise Exception
-        tags.append({'Key': 'project_tag',
-                     'Value': project_conf['project_tag']})
-        params = "--bucket_name {} --bucket_tags '{}' --region {}" \
-                 .format(project_conf['bucket_name'], tags, project_conf['region'])
+        project_conf['bucket_tags'] = 'endpoint_tag:{0};{1}:{2};project_tag:{3};{4}:{5}{6}'.format(project_conf['endpoint_tag'],
+                                                                                  os.environ['conf_billing_tag_key'], os.environ['conf_billing_tag_value'],
+                                                                                  project_conf['project_tag'],
+                                                                                  project_conf['tag_name'], project_conf['bucket_name'], project_conf['bucket_additional_tags']).replace(';', ',')
+        params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {}" \
+                 .format(project_conf['bucket_name'], project_conf['bucket_tags'], project_conf['region'], project_conf['bucket_name_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
