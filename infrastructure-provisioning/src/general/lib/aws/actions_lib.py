@@ -66,7 +66,7 @@ def put_to_bucket(bucket_name, local_file, destination_file):
         return False
 
 
-def create_s3_bucket(bucket_name, tag, region, bucket_name_tag):
+def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag):
     try:
         s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
         if region == "us-east-1":
@@ -84,18 +84,15 @@ def create_s3_bucket(bucket_name, tag, region, bucket_name_tag):
                 ]
             })
         tags = list()
-        tags.append(tag)
         tags.append({'Key': os.environ['conf_tag_resource_id'],
                      'Value': os.environ['conf_service_base_name'] + ':' + bucket_name_tag})
-        tags.append({'Key': os.environ['conf_billing_tag_key'], 'Value': os.environ['conf_billing_tag_value']})
-        if 'conf_additional_tags' in os.environ:
-            for tag in os.environ['conf_additional_tags'].split(';'):
-                tags.append(
-                    {
-                        'Key': tag.split(':')[0],
-                        'Value': tag.split(':')[1]
-                    }
-                )
+        for tag in bucket_tags.split(';'):
+            tags.append(
+                {
+                    'Key': tag.split(':')[0],
+                    'Value': tag.split(':')[1]
+                }
+            )
         tagging = bucket.Tagging()
         tagging.put(Tagging={'TagSet': tags})
         tagging.reload()
