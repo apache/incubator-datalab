@@ -136,7 +136,7 @@ if __name__ == "__main__":
     if 'conf_additional_tags' in os.environ:
         project_conf['shared_bucket_additional_tags'] = os.environ['conf_additional_tags'] + \
                                              ';endpoint_tag:{};'.format(project_conf['endpoint_tag'])
-        project_conf['all_bucket_additional_tags'] = os.environ['conf_additional_tags'] + \
+        project_conf['conf_additional_tags'] = os.environ['conf_additional_tags'] + \
                                              ';project_tag:{0};endpoint_tag:{1};'.format(
                                                  project_conf['project_tag'], project_conf['endpoint_tag'])
         os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + \
@@ -144,7 +144,7 @@ if __name__ == "__main__":
                                                  project_conf['project_tag'], project_conf['endpoint_tag'])
     else:
         project_conf['shared_bucket_additional_tags'] = 'endpoint_tag:{};'.format(project_conf['endpoint_tag'])
-        project_conf['all_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'],
+        project_conf['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'],
                                                                                        project_conf['endpoint_tag'])
         os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'],
                                                                                        project_conf['endpoint_tag'])
@@ -547,7 +547,7 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
             raise Exception
-        os.environ['conf_additional_tags'] = project_conf['all_bucket_additional_tags']
+        os.environ['conf_additional_tags'] = project_conf['conf_additional_tags']
         params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}" \
                  .format(project_conf['bucket_name'], project_conf['tag_name'], project_conf['bucket_name'],
                          project_conf['region'], project_conf['bucket_name_tag'])

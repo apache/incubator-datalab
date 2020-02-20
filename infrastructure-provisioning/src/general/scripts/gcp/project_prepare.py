@@ -367,10 +367,10 @@ if __name__ == "__main__":
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
         project_conf['shared_bucket_tags'] = {
-            "name":project_conf['shared_bucket_name'],
-            "endpoint_tag":project_conf['endpoint_tag'],
-            "product":"dlab",
-            "sbn":project_conf['service_base_name']}
+            "name": project_conf['shared_bucket_name'],
+            "endpoint_tag": project_conf['endpoint_tag'],
+            os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
+            "sbn": project_conf['service_base_name']}
         params = "--bucket_name {}".format(project_conf['shared_bucket_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
@@ -381,11 +381,11 @@ if __name__ == "__main__":
 
         params = "--bucket_name {}".format(project_conf['bucket_name'])
         project_conf['bucket_tags'] = {
-            "name":project_conf['bucket_name'],
-            "endpoint_tag":project_conf['endpoint_tag'],
-            "product":"dlab",
-            "sbn":project_conf['service_base_name'],
-            "project_tag":project_conf['project_tag']}
+            "name": project_conf['bucket_name'],
+            "endpoint_tag": project_conf['endpoint_tag'],
+            os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
+            "sbn": project_conf['service_base_name'],
+            "project_tag": project_conf['project_tag']}
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
