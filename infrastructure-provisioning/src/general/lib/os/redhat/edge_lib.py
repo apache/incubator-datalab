@@ -137,8 +137,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('make')
                 sudo('make install')
 
-            with cd('/tmp/src/nginx/'), shell_env(LUAJIT_LIB='/usr/local/lib/', LUAJIT_INC='/usr/local/include/luajit-2.0')::
-            sudo('./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
+            with cd('/tmp/src/nginx/'), shell_env(LUAJIT_LIB='/usr/local/lib/', LUAJIT_INC='/usr/local/include/luajit-2.0'):
+                sudo('./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
                                               --conf-path=/etc/nginx/nginx.conf --pid-path=/run/nginx.pid --lock-path=/run/lock/subsys/nginx \
                                               --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log \
                                               --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module --with-pcre \
@@ -149,7 +149,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('make install')
 
             with cd('/tmp/src/luarocks-2.2.2/'):
-                sudo('./configure')
+                sudo('./configure --with-lua-include=/usr/local/include/luajit-2.0')
                 sudo('make build')
                 sudo('make install')
                 sudo('luarocks install lua-resty-jwt')
