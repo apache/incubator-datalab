@@ -134,10 +134,12 @@ if __name__ == "__main__":
     logging.info(json.dumps(project_conf))
 
     if 'conf_additional_tags' in os.environ:
+        project_conf['bucket_additional_tags'] = ';' + os.environ['conf_additional_tags']
         os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + \
                                              ';project_tag:{0};endpoint_tag:{1};'.format(
                                                  project_conf['project_tag'], project_conf['endpoint_tag'])
     else:
+        project_conf['bucket_additional_tags'] = ''
         os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'],
                                                                                        project_conf['endpoint_tag'])
     print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
@@ -531,17 +533,22 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}". \
-            format(project_conf['shared_bucket_name'], project_conf['tag_name'], project_conf['shared_bucket_name'], project_conf['region'], project_conf['shared_bucket_name_tag'])
+        project_conf['shared_bucket_tags'] = 'endpoint_tag:{0};{1}:{2};{3}:{4}{5}'.format(project_conf['endpoint_tag'],
+                                                                                  os.environ['conf_billing_tag_key'], os.environ['conf_billing_tag_value'],
+                                                                                  project_conf['tag_name'], project_conf['shared_bucket_name'], project_conf['bucket_additional_tags']).replace(';', ',')
+        params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {}". \
+            format(project_conf['shared_bucket_name'], project_conf['shared_bucket_tags'], project_conf['region'], project_conf['shared_bucket_name_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
             traceback.print_exc()
             raise Exception
-
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}" \
-                 .format(project_conf['bucket_name'], project_conf['tag_name'], project_conf['bucket_name'],
-                         project_conf['region'], project_conf['bucket_name_tag'])
+        project_conf['bucket_tags'] = 'endpoint_tag:{0};{1}:{2};project_tag:{3};{4}:{5}{6}'.format(project_conf['endpoint_tag'],
+                                                                                  os.environ['conf_billing_tag_key'], os.environ['conf_billing_tag_value'],
+                                                                                  project_conf['project_tag'],
+                                                                                  project_conf['tag_name'], project_conf['bucket_name'], project_conf['bucket_additional_tags']).replace(';', ',')
+        params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {}" \
+                 .format(project_conf['bucket_name'], project_conf['bucket_tags'], project_conf['region'], project_conf['bucket_name_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
