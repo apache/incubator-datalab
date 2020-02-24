@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
         project_conf['azure_ad_user_name'] = os.environ['azure_iam_user']
         project_conf['key_name'] = os.environ['conf_key_name']
-
+        project_conf['tag_name'] = project_conf['service_base_name'] + '-tag'
         project_conf['vpc_name'] = os.environ['azure_vpc_name']
         project_conf['subnet_name'] = os.environ['azure_subnet_name']
         project_conf['private_subnet_name'] = project_conf['service_base_name'] + '-' + project_conf['project_name'] + '-subnet'
@@ -60,7 +60,7 @@ if __name__ == "__main__":
         project_conf['region'] = os.environ['azure_region']
         project_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
-        project_conf['tag_name'] = project_conf['service_base_name'] + '-tag'
+
         project_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(project_conf['service_base_name'],
                                                                   project_conf['project_name'],
                                                                   project_conf['endpoint_tag'])
@@ -91,19 +91,21 @@ if __name__ == "__main__":
                                         "project_tag": project_conf['project_tag'],
                                         "endpoint_tag": project_conf['endpoint_tag'],
                                         os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
-        project_conf['storage_account_tags'] = {project_conf['tag_name']: project_conf['edge_storage_account_name'],
+        project_conf['storage_account_tags'] = {"Name": project_conf['edge_storage_account_name'],
                                                 "SBN": project_conf['service_base_name'],
                                                 "project_tag": project_conf['project_tag'],
                                                 "endpoint_tag": project_conf['endpoint_tag'],
-                                                os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+                                                os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
+                                                project_conf['tag_name']: project_conf['edge_storage_account_name']}
         project_conf['primary_disk_size'] = '32'
         project_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(project_conf['service_base_name'],
                                                                                   project_conf['endpoint_name'])
         project_conf['shared_container_name'] = '{}-{}-shared-container'.format(project_conf['service_base_name'], project_conf['endpoint_name']).lower()
-        project_conf['shared_storage_account_tags'] = {project_conf['tag_name']: project_conf['shared_storage_account_name'],
+        project_conf['shared_storage_account_tags'] = {"Name": project_conf['shared_storage_account_name'],
                                                    "SBN": project_conf['service_base_name'],
                                                    os.environ['conf_billing_tag_key']: os.environ[
-                                                       'conf_billing_tag_value'], "endpoint_tag": project_conf['endpoint_tag'],}
+                                                       'conf_billing_tag_value'], "endpoint_tag": project_conf['endpoint_tag'],
+                                                       project_conf['tag_name']: project_conf['shared_storage_account_name']}
 
         # FUSE in case of absence of user's key
         try:
