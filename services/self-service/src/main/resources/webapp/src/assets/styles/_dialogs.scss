@@ -49,7 +49,7 @@
 
 .modal-fullscreen {
   width: 100vw;
-  min-height: 80vh;
+  min-height: 60vh;
 }
 
 mat-dialog-container {
@@ -345,6 +345,6 @@ mat-dialog-container {
 
 @media screen and (max-width: 1280px) {
   .modal-fullscreen {
-    max-width: 100vw !important;
+    max-width: 95vw !important;
   }
 }

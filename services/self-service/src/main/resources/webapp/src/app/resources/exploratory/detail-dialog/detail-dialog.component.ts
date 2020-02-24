@@ -136,14 +136,16 @@ export class DetailDialogComponent implements OnInit {
       demoData.url = 'assets/img/demo/Jupyter.png';
     } else if (template === 'Ungit') {
        demoData.url = 'assets/img/demo/ungit.png';
-    } else if (template === 'TensorBoard') {
+    } else if (template === 'JupyterLab') {
+       demoData.url = 'assets/img/demo/jupyterLab.png';
+     } else if (template === 'TensorBoard') {
        demoData.url = 'assets/img/demo/tensorboard.png';
     } else if (template === 'RStudio') {
       demoData.url = 'assets/img/demo/Rstudio.png';
     } else if (template === 'Apache Zeppelin') {
        demoData.url = 'assets/img/demo/zeppeling.png';
-    } else {
-      demoData.url = 'assets/img/demo/Jupyter.png';
+    } else if (template === 'Superset') {
+       demoData.url = 'assets/img/demo/superset.png';
     }
     this.dialog.open(DemoPictureDialogComponent, { data: demoData, panelClass: 'modal-fullscreen' })
       .afterClosed().subscribe(() => console.log('done'));

@@ -17,8 +17,14 @@
  * under the License.
  */
 
+.demo-dialog{
+  .dialog-content{
+    font-size: 0;
 
-
-.demo-picture{
-  width: 100%;
+    .demo-picture{
+      width: 100%;
+    }
+  }
 }
+
+
