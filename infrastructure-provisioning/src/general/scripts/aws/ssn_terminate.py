@@ -40,7 +40,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     # generating variables dictionary
     if 'aws_access_key' in os.environ and 'aws_secret_access_key' in os.environ:
-        dlab.actions_lib.reate_aws_config_files(generate_full_config=True)
+        dlab.actions_lib.create_aws_config_files(generate_full_config=True)
     else:
         dlab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
