@@ -24,9 +24,10 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import traceback
 import os
 import uuid
 import argparse
@@ -53,11 +54,11 @@ if __name__ == "__main__":
             print("Starting notebook")
             AzureActions().start_instance(notebook_config['resource_group_name'], notebook_config['notebook_name'])
             print("Instance {} has been started".format(notebook_config['notebook_name']))
-        except Exception as err:
+        except:
             traceback.print_exc()
-            append_result("Failed to start notebook.", str(err))
             raise Exception
-    except:
+    except Exception as err:
+        dlab.fab.append_result("Failed to start notebook.", str(err))
         sys.exit(1)
 
     try:
@@ -70,11 +71,11 @@ if __name__ == "__main__":
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
-        except Exception as err:
+        except:
             traceback.print_exc()
-            append_result("Failed to setup git credentials.", str(err))
             raise Exception
-    except:
+    except Exception as err:
+        dlab.fab.append_result("Failed to setup git credentials.", str(err))
         sys.exit(1)
 
     if os.environ['azure_datalake_enable'] == 'true':
@@ -90,13 +91,14 @@ if __name__ == "__main__":
             params = '--refresh_token {}'.format(os.environ['azure_user_refresh_token'])
             try:
                 put('~/scripts/common_notebook_update_refresh_token.py', '/tmp/common_notebook_update_refresh_token.py')
-                sudo('mv /tmp/common_notebook_update_refresh_token.py /usr/local/bin/common_notebook_update_refresh_token.py')
+                sudo('mv /tmp/common_notebook_update_refresh_token.py '
+                     '/usr/local/bin/common_notebook_update_refresh_token.py')
                 sudo("/usr/bin/python /usr/local/bin/{}.py {}".format('common_notebook_update_refresh_token', params))
-            except Exception as err:
+            except:
                 traceback.print_exc()
-                append_result("Failed to update storage credentials.", str(err))
                 raise Exception
-        except:
+        except Exception as err:
+            dlab.fab.append_result("Failed to update storage credentials.", str(err))
             sys.exit(1)
 
     try:
@@ -106,16 +108,16 @@ if __name__ == "__main__":
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
-        except Exception as err:
+        except:
             traceback.print_exc()
-            append_result("Failed to update last activity time.", str(err))
             raise Exception
-    except:
+    except Exception as err:
+        dlab.fab.append_result("Failed to update last activity time.", str(err))
         sys.exit(1)
 
     try:
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                 notebook_config['notebook_name'])
+                                                        notebook_config['notebook_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['notebook_name']))
@@ -126,8 +128,8 @@ if __name__ == "__main__":
                    "Action": "Start up notebook server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)
 
 

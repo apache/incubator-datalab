@@ -158,7 +158,7 @@ if __name__ == "__main__":
             else:
                 data_engine['vpc_name'] = os.environ['gcp_vpc_name']
         except KeyError:
-            data_engine['vpc_name'] = '{}-ssn-vpc'.format(data_engine['service_base_name'])
+            data_engine['vpc_name'] = '{}-vpc'.format(data_engine['service_base_name'])
         if 'exploratory_name' in os.environ:
             data_engine['exploratory_name'] = os.environ['exploratory_name'].lower()
         else:

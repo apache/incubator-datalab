@@ -22,10 +22,14 @@
 # ******************************************************************************
 
 import json
-import sys, time, os
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import sys
+import time
+import os
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import logging
+import traceback
 
 
 def terminate_edge_node(resource_group_name, service_base_name, project_tag, subnet_name, vpc_name):
@@ -39,7 +43,7 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
             except:
                 pass
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate instance", str(err))
         sys.exit(1)
 
     print("Removing network interfaces")
@@ -52,7 +56,7 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
             except:
                 pass
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove network interfaces", str(err))
         sys.exit(1)
 
     print("Removing static public IPs")
@@ -65,7 +69,7 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
             except:
                 pass
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove static IPs", str(err))
         sys.exit(1)
 
     print("Removing disks")
@@ -78,7 +82,7 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
             except:
                 pass
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove disks", str(err))
         sys.exit(1)
 
     print("Removing storage account")
@@ -91,7 +95,7 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
             except:
                 pass
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove storage accounts", str(err))
         sys.exit(1)
 
     print("Deleting Data Lake Store directory")
@@ -104,7 +108,7 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
             except:
                 pass
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove Data Lake", str(err))
         sys.exit(1)
 
     print("Removing security groups")
@@ -117,7 +121,7 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
             except:
                 pass
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove security groups", str(err))
         sys.exit(1)
 
     print("Removing private subnet")
@@ -125,12 +129,13 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
         AzureActions().remove_subnet(resource_group_name, vpc_name, subnet_name)
         print("Private subnet {} has been terminated".format(subnet_name))
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove subnet", str(err))
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
@@ -140,10 +145,12 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-    edge_conf['project_name'] = os.environ['project_name'].replace('_', '-')
-    edge_conf['project_tag'] = os.environ['project_name'].replace('_', '-')
-    edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + '-subnet'
+    edge_conf['user_name'] = os.environ['edge_user_name'].lower()
+    edge_conf['project_name'] = os.environ['project_name'].lower()
+    edge_conf['project_tag'] = edge_conf['project_name']
+    edge_conf['endpoint_name'] = os.environ['endpoint_name'].lower()
+    edge_conf['private_subnet_name'] = "{}-{}-{}-subnet".format(edge_conf['service_base_name'],
+                                                                edge_conf['project_name'], edge_conf['endpoint_name'])
     edge_conf['vpc_name'] = os.environ['azure_vpc_name']
 
 
@@ -153,10 +160,11 @@ if __name__ == "__main__":
         try:
             terminate_edge_node(edge_conf['resource_group_name'], edge_conf['service_base_name'],
                                 edge_conf['project_tag'], edge_conf['private_subnet_name'], edge_conf['vpc_name'])
-        except Exception as err:
+        except:
             traceback.print_exc()
-            append_result("Failed to terminate edge.", str(err))
-    except:
+            raise Exception
+    except Exception as err:
+        dlab.fab.append_result("Failed to terminate edge.", str(err))
         sys.exit(1)
 
     try:
@@ -166,6 +174,6 @@ if __name__ == "__main__":
                    "Action": "Terminate edge node"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

@@ -24,11 +24,19 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
 import os
+import traceback
 import uuid
+
+
+def clear_resources():
+    actions_lib.GCPActions().delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
+    actions_lib.GCPActions().remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
+                                            os.environ['dataproc_version'], os.environ['conf_os_user'],
+                                            notebook_config['key_path'])
 
 
 if __name__ == "__main__":
@@ -42,13 +50,13 @@ if __name__ == "__main__":
     # generating variables dictionary
     print('Generating infrastructure names and tags')
     notebook_config = dict()
-    notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
+    notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower()
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-    notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
-    notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    notebook_config['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
-    notebook_config['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
-    notebook_config['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+    notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower()
+    notebook_config['project_name'] = (os.environ['project_name']).lower()
+    notebook_config['project_tag'] = notebook_config['project_name']
+    notebook_config['endpoint_name'] = (os.environ['endpoint_name']).lower()
+    notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     notebook_config['bucket_name'] = '{0}-{1}-{2}-bucket'.format(notebook_config['service_base_name'],
                                                                  notebook_config['project_name'],
@@ -78,11 +86,14 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        params = "--bucket {} --cluster_name {} --dataproc_version {} --keyfile {} --notebook_ip {} --region {} --edge_user_name {} --project_name {} --os_user {}  --edge_hostname {} --proxy_port {} --scala_version {} --application {} --pip_mirror {}" \
+        params = "--bucket {} --cluster_name {} --dataproc_version {} --keyfile {} --notebook_ip {} --region {} " \
+                 "--edge_user_name {} --project_name {} --os_user {}  --edge_hostname {} --proxy_port {} " \
+                 "--scala_version {} --application {} --pip_mirror {}" \
             .format(notebook_config['bucket_name'], notebook_config['cluster_name'], os.environ['dataproc_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['gcp_region'],
-                    notebook_config['edge_user_name'], notebook_config['project_name'], os.environ['conf_os_user'], edge_instance_hostname, '3128',
-                    os.environ['notebook_scala_version'], os.environ['application'], os.environ['conf_pypi_mirror'])
+                    notebook_config['edge_user_name'], notebook_config['project_name'], os.environ['conf_os_user'],
+                    edge_instance_hostname, '3128', os.environ['notebook_scala_version'], os.environ['application'],
+                    os.environ['conf_pypi_mirror'])
         try:
             local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params))
             actions_lib.GCPActions().update_dataproc_cluster(notebook_config['cluster_name'],
@@ -91,11 +102,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing Dataproc kernels.", str(err))
-        actions_lib.GCPActions().delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
-        actions_lib.GCPActions().remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
-                                                os.environ['dataproc_version'], os.environ['conf_os_user'], notebook_config['key_path'])
+        clear_resources()
+        dlab.fab.append_result("Failed installing Dataproc kernels.", str(err))
         sys.exit(1)
 
     try:
@@ -113,11 +121,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure Spark.", str(err))
-        actions_lib.GCPActions().delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
-        actions_lib.GCPActions().remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
-                                                os.environ['dataproc_version'], os.environ['conf_os_user'], notebook_config['key_path'])
+        dlab.fab.append_result("Failed to configure Spark.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -127,6 +132,7 @@ if __name__ == "__main__":
                    "Action": "Configure notebook server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        clear_resources()
+        sys.exit(1)

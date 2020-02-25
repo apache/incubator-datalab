@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 ssn_conf['pre_defined_vpc'] = True
                 ssn_conf['vpc_name'] = os.environ['gcp_vpc_name']
         except KeyError:
-            ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
+            ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
 
         try:
             if os.environ['gcp_subnet_name'] == '':

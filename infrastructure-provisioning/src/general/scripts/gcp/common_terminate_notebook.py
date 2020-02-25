@@ -24,9 +24,10 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import traceback
 import os
 import uuid
 
@@ -47,7 +48,7 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
         else:
             print("There are no Dataproc clusters to terminate.")
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate dataproc", str(err))
         sys.exit(1)
 
     print("Terminating data engine cluster")
@@ -64,15 +65,14 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
             print("There are no data engine clusters to terminate.")
 
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate dataengine", str(err))
         sys.exit(1)
 
     print("Terminating notebook")
     try:
         GCPActions().remove_instance(instance_name, zone)
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to terminate notebook.", str(err))
+        dlab.fab.append_result("Failed to terminate instance", str(err))
         sys.exit(1)
 
 
@@ -86,10 +86,10 @@ if __name__ == "__main__":
     # generating variables dictionary
     print('Generating infrastructure names and tags')
     notebook_config = dict()
-    notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
-    notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
-    notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    notebook_config['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+    notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower()
+    notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower()
+    notebook_config['project_name'] = (os.environ['project_name']).lower()
+    notebook_config['endpoint_name'] = (os.environ['endpoint_name']).lower()
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['bucket_name'] = '{0}-{1}-{2}-bucket'.format(notebook_config['service_base_name'],
                                                                  notebook_config['project_name'],
@@ -106,7 +106,7 @@ if __name__ == "__main__":
                          notebook_config['project_name'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate notebook.", str(err))
+            dlab.fab.append_result("Failed to terminate notebook.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -117,6 +117,6 @@ if __name__ == "__main__":
                    "Action": "Terminate notebook server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

@@ -21,11 +21,12 @@
 #
 # ******************************************************************************
 
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-from dlab.fab import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
 import sys
 import json
+import os
 
 
 if __name__ == "__main__":
@@ -45,6 +46,5 @@ if __name__ == "__main__":
                        "Action": "Delete existing notebook image"}
                 result.write(json.dumps(res))
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to delete existing notebook image", str(err))
+        dlab.fab.append_result("Failed to delete existing notebook image", str(err))
         sys.exit(1)

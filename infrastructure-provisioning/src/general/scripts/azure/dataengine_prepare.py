@@ -130,7 +130,7 @@ if __name__ == "__main__":
             data_engine['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
             print('No pre-configured image found. Using default one: {}'.format(data_engine['image_name']))
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
+        dlab.fab.append_result("Failed to generate variables dictionary", str(err))
         sys.exit(1)
 
     try:

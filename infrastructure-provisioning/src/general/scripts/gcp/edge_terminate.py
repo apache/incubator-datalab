@@ -22,10 +22,14 @@
 # ******************************************************************************
 
 import json
-from dlab.fab import *
-from dlab.meta_lib import *
-import sys, time, os
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import sys
+import time
+import os
+import traceback
+import logging
 
 
 def terminate_edge_node(user_name, service_base_name, region, zone):
@@ -43,7 +47,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
         else:
             print("There are no Dataproc clusters to terminate.")
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate dataproc", str(err))
         sys.exit(1)
 
     print("Terminating EDGE and notebook instances")
@@ -57,7 +61,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
                 if 'user' in i['labels'] and user_name == i['labels']['user']:
                     GCPActions().remove_instance(i['name'], zone)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate instances", str(err))
         sys.exit(1)
 
     print("Removing static addresses")
@@ -68,7 +72,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
                 if bool(set(targets) & set([i['name']])):
                     GCPActions().remove_static_address(i['name'], region)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove static IPs", str(err))
         sys.exit(1)
 
     print("Removing storage bucket")
@@ -79,7 +83,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
                 if bool(set(targets) & set([i['name']])):
                     GCPActions().remove_bucket(i['name'])
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove buckets", str(err))
         sys.exit(1)
 
     print("Removing firewalls")
@@ -90,7 +94,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
                 if bool(set(targets) & set(i['targetTags'])):
                     GCPActions().remove_firewall(i['name'])
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove security groups", str(err))
         sys.exit(1)
 
     print("Removing Service accounts and roles")
@@ -104,7 +108,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
             if role.startswith(service_base_name):
                 GCPActions().remove_role(role)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove service accounts and roles", str(err))
         sys.exit(1)
 
     print("Removing subnets")
@@ -118,12 +122,13 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
                 if bool(set(targets) & set([i['name']])):
                     GCPActions().remove_subnet(i['name'], region)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove subnets", str(err))
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
@@ -132,8 +137,8 @@ if __name__ == "__main__":
     # generating variables dictionary
     print('Generating infrastructure names and tags')
     edge_conf = dict()
-    edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
-    edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
+    edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower()
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
 
@@ -145,9 +150,9 @@ if __name__ == "__main__":
                                 edge_conf['region'], edge_conf['zone'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate edge.", str(err))
-    except Exception as err:
-        print('Error: {0}'.format(err))
+            dlab.fab.append_result("Failed to terminate edge.", str(err))
+            raise Exception
+    except:
         sys.exit(1)
 
     try:
@@ -157,6 +162,6 @@ if __name__ == "__main__":
                    "Action": "Terminate edge node"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)
