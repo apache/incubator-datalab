@@ -894,7 +894,7 @@ def remove_roles_and_profiles(role_name, role_profile_name):
 def remove_all_iam_resources(instance_type, scientist=''):
     try:
         client = boto3.client('iam')
-        service_base_name = os.environ['conf_service_base_name'].lower().replace('-', '_')
+        service_base_name = os.environ['conf_service_base_name'].lower()
         roles_list = []
         for item in client.list_roles(MaxItems=250).get("Roles"):
             if item.get("RoleName").startswith(service_base_name + '-'):
