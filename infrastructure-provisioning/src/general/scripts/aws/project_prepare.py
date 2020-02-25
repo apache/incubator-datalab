@@ -31,6 +31,7 @@ import os
 import traceback
 import boto3
 import logging
+from fabric.api import *
 
 
 if __name__ == "__main__":
@@ -42,7 +43,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        create_aws_config_files()
+        dlab.actions_lib.create_aws_config_files()
         print('Generating infrastructure names and tags')
         project_conf = dict()
         project_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(

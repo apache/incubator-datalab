@@ -27,6 +27,7 @@ import sys
 import dlab.fab
 import dlab.actions_lib
 import dlab.meta_lib
+from fabric.api import *
 import traceback
 import os
 import uuid

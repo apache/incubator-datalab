@@ -30,6 +30,7 @@ import dlab.meta_lib
 import traceback
 import os
 import uuid
+from fabric.api import *
 
 
 def clear_resources():

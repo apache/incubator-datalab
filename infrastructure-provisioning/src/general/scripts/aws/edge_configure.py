@@ -31,6 +31,7 @@ import dlab.meta_lib
 import logging
 import traceback
 import uuid
+from fabric.api import *
 
 
 if __name__ == "__main__":

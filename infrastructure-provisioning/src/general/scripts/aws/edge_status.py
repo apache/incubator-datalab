@@ -31,6 +31,7 @@ import time
 import os
 import logging
 import traceback
+from fabric.api import *
 
 
 if __name__ == "__main__":

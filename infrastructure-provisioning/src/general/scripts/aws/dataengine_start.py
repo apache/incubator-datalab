@@ -29,6 +29,7 @@ import dlab.actions_lib
 import dlab.meta_lib
 import sys
 import traceback
+from fabric.api import *
 
 
 def start_data_engine(cluster_name):

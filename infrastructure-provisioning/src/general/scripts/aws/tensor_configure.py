@@ -31,6 +31,7 @@ import dlab.meta_lib
 import os
 import argparse
 import traceback
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')
