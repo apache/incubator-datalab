@@ -105,6 +105,7 @@ def configure_nginx(config, dlab_path, hostname):
     try:
         random_file_part = id_generator(size=20)
         if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
+            sudo('useradd -r nginx')
             sudo('rm -f /etc/nginx/conf.d/*')
             put(config['nginx_template_dir'] + 'ssn_nginx.conf', '/tmp/ssn_nginx.conf')
             put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
