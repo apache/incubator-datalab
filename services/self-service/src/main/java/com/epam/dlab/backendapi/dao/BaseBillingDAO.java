@@ -122,8 +122,8 @@ public abstract class BaseBillingDAO extends BaseDAO implements BillingDAO {
 		}
 		pipeline.add(groupCriteria());
 		pipeline.add(sortCriteria());
-		final Map<String, BaseShape> shapes = getShapes(filter.getShape());
-		return prepareReport(filter.getStatuses(), !filter.getShape().isEmpty(),
+		final Map<String, BaseShape> shapes = getShapes(filter.getShapes());
+		return prepareReport(filter.getStatuses(), !filter.getShapes().isEmpty(),
 				getCollection(BILLING).aggregate(pipeline), shapes, isFullReport);
 	}
 
@@ -335,13 +335,13 @@ public abstract class BaseBillingDAO extends BaseDAO implements BillingDAO {
 
 		List<Bson> searchCriteria = new ArrayList<>();
 
-		if (filter.getUser() != null && !filter.getUser().isEmpty()) {
-			searchCriteria.add(Filters.in(MongoKeyWords.DLAB_USER, filter.getUser()));
+		if (filter.getUsers() != null && !filter.getUsers().isEmpty()) {
+			searchCriteria.add(Filters.in(MongoKeyWords.DLAB_USER, filter.getUsers()));
 		}
 
-		if (filter.getResourceType() != null && !filter.getResourceType().isEmpty()) {
+		if (filter.getResourceTypes() != null && !filter.getResourceTypes().isEmpty()) {
 			searchCriteria.add(Filters.in("dlab_resource_type",
-					DlabResourceType.getResourceTypeIds(filter.getResourceType())));
+					DlabResourceType.getResourceTypeIds(filter.getResourceTypes())));
 		}
 
 		if (filter.getDlabId() != null && !filter.getDlabId().isEmpty()) {
@@ -474,9 +474,9 @@ public abstract class BaseBillingDAO extends BaseDAO implements BillingDAO {
 
 	protected void setUserFilter(UserInfo userInfo, BillingFilter filter, boolean isFullReport) {
 		if (isFullReport) {
-			usersToLowerCase(filter.getUser());
+			usersToLowerCase(filter.getUsers());
 		} else {
-			filter.setUser(Lists.newArrayList(userInfo.getName().toLowerCase()));
+			filter.setUsers(Lists.newArrayList(userInfo.getName().toLowerCase()));
 		}
 	}
 }

@@ -17,16 +17,28 @@
  * under the License.
  */
 
-package com.epam.dlab.billing.gcp.dao;
+package com.epam.dlab.billing.gcp.controller;
 
-import com.epam.dlab.billing.gcp.model.GcpBillingData;
+import com.epam.dlab.billing.gcp.dao.BillingDAO;
 import com.epam.dlab.dto.billing.BillingData;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-public interface BillingDAO {
+@RestController
+public class BillingController {
 
-    List<GcpBillingData> getBillingData() throws InterruptedException;
+    private final BillingDAO billingDAO;
 
-    List<BillingData> getBillingReport();
+    public BillingController(BillingDAO billingDAO) {
+        this.billingDAO = billingDAO;
+    }
+
+    @GetMapping("/report")
+    public ResponseEntity<List<BillingData>> getBilling() {
+        return new ResponseEntity<>(billingDAO.getBillingReport(), HttpStatus.OK);
+    }
 }

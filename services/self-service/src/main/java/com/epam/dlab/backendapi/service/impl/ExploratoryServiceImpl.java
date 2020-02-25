@@ -192,6 +192,11 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	@Override
+	public List<UserInstanceDTO> findAll() {
+		return exploratoryDAO.getInstances();
+	}
+
+	@Override
 	public void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config) {
 		final String userName = userInfo.getName();
 		final String token = userInfo.getAccessToken();

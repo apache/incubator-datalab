@@ -24,27 +24,43 @@ import com.epam.dlab.billing.gcp.dao.BillingDAO;
 import com.epam.dlab.billing.gcp.model.BillingHistory;
 import com.epam.dlab.billing.gcp.model.GcpBillingData;
 import com.epam.dlab.billing.gcp.repository.BillingHistoryRepository;
-import com.google.cloud.bigquery.*;
+import com.epam.dlab.dto.billing.BillingData;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.FieldValueList;
+import com.google.cloud.bigquery.QueryJobConfiguration;
+import com.google.cloud.bigquery.QueryParameterValue;
+import com.google.cloud.bigquery.Table;
+import com.google.cloud.bigquery.TableInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+
 @Component
 @Slf4j
 public class BigQueryBillingDAO implements BillingDAO {
+	private static final String DATE_FORMAT = "yyyy-MM-dd";
 
 	private static final String SBN_PARAM = "sbn";
 	private static final String DATASET_PARAM = "dataset";
 	private final BillingHistoryRepository billingHistoryRepo;
+	private final MongoTemplate mongoTemplate;
 	private final String sbn;
 
 	private static final String GET_BILLING_DATA_QUERY = "SELECT b.sku.description usageType," +
@@ -55,15 +71,17 @@ public class BigQueryBillingDAO implements BillingDAO {
 			"CROSS JOIN UNNEST(b.labels) as label\n" +
 			"where label.key = 'name' and cost != 0 and label.value like @sbn\n" +
 			"group by usageType, usage_date_from, usage_date_to, product, value, currency";
-	private final BigQuery service;
+	private BigQuery service = null;
 	private final String dataset;
 
 	@Autowired
-	public BigQueryBillingDAO(DlabConfiguration conf, BigQuery service, BillingHistoryRepository billingHistoryRepo) {
+	public BigQueryBillingDAO(DlabConfiguration conf, BillingHistoryRepository billingHistoryRepo,
+							  MongoTemplate mongoTemplate) {
 		dataset = conf.getBigQueryDataset();
 		sbn = conf.getSbn();
-		this.service = service;
+//		this.service = null;
 		this.billingHistoryRepo = billingHistoryRepo;
+		this.mongoTemplate = mongoTemplate;
 	}
 
 	@Override
@@ -79,6 +97,19 @@ public class BigQueryBillingDAO implements BillingDAO {
 				.filter(t -> processedBillingTables.getOrDefault(t.getTableId().getTable(), 0L) < t.getLastModifiedTime())
 				.peek(t -> log.info("Processing table {}", t.getTableId().getTable()))
 				.flatMap(this::bigQueryResultSetStream)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<BillingData> getBillingReport() {
+		GroupOperation groupOperation = group("product", "currency", "usageType", "dlabId")
+				.min("from").as("from")
+				.max("to").as("to")
+				.sum("cost").as("cost");
+		Aggregation aggregation = newAggregation(groupOperation);
+
+		return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults().stream()
+				.map(this::toBillingReportDTO)
 				.collect(Collectors.toList());
 	}
 
@@ -102,19 +133,32 @@ public class BigQueryBillingDAO implements BillingDAO {
 	}
 
 	private GcpBillingData toBillingData(FieldValueList fields) {
-
 		return GcpBillingData.builder()
 				.usageDateFrom(toLocalDate(fields, "usage_date_from"))
 				.usageDateTo(toLocalDate(fields, "usage_date_to"))
-				.cost(fields.get("cost").getNumericValue())
+				.cost(fields.get("cost").getNumericValue().setScale(3, BigDecimal.ROUND_HALF_UP))
 				.product(fields.get("product").getStringValue())
 				.usageType(fields.get("usageType").getStringValue())
 				.currency(fields.get("currency").getStringValue())
-				.tag(fields.get("value").getStringValue()).build();
+				.tag(fields.get("value").getStringValue())
+				.usageDate(toLocalDate(fields, "usage_date_from").format((DateTimeFormatter.ofPattern(DATE_FORMAT))))
+				.build();
 	}
 
 	private LocalDate toLocalDate(FieldValueList fieldValues, String timestampFieldName) {
 		return LocalDate.from(Instant.ofEpochMilli(fieldValues.get(timestampFieldName).getTimestampValue() / 1000)
 				.atZone(ZoneId.systemDefault()));
+	}
+
+	private BillingData toBillingReportDTO(GcpBillingData billingData) {
+		return BillingData.builder()
+				.usageDateFrom(billingData.getUsageDateFrom())
+				.usageDateTo(billingData.getUsageDateTo())
+				.product(billingData.getProduct())
+				.usageType(billingData.getUsageType())
+				.cost(billingData.getCost().setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
+				.currency(billingData.getCurrency())
+				.tag(billingData.getTag())
+				.build();
 	}
 }

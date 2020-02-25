@@ -50,6 +50,8 @@ public interface ExploratoryService {
 	List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
 												   UserInstanceStatus computationalStatus);
 
+	List<UserInstanceDTO> findAll();
+
 	void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config);
 
 	Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName);

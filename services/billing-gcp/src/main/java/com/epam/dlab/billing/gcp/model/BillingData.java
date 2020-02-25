@@ -19,23 +19,24 @@
 
 package com.epam.dlab.billing.gcp.model;
 
+import com.epam.dlab.dto.billing.BillingResourceType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDate;
 
 @Data
 @Builder
-@Document(collection = "billing")
+//@Document(collection = "billing")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BillingData {
     @Id
     private String id;
     private String user;
     @Field("resource_name")
-    private String displayName;
     private String resourceName;
     @Field("from")
     private LocalDate usageDateFrom;
@@ -54,17 +55,5 @@ public class BillingData {
     @Field("dlab_id")
     private String dlabId;
     @Field("dlab_resource_type")
-    private ResourceType resourceType;
-
-
-    public enum ResourceType {
-        EDGE,
-        SSN,
-        SHARED_BUCKET,
-        SSN_BUCKET,
-        EDGE_BUCKET,
-        VOLUME,
-        EXPLORATORY,
-        COMPUTATIONAL
-    }
+    private BillingResourceType resourceType;
 }

@@ -17,16 +17,15 @@
  * under the License.
  */
 
-package com.epam.dlab.billing.gcp.dao;
+package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.billing.gcp.model.GcpBillingData;
-import com.epam.dlab.dto.billing.BillingData;
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.BillingReportDTO;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 
 import java.util.List;
 
-public interface BillingDAO {
+public interface BillingServiceNew {
 
-    List<GcpBillingData> getBillingData() throws InterruptedException;
-
-    List<BillingData> getBillingReport();
+    List<BillingReportDTO> getBillingReport(UserInfo userInfo, BillingFilter filter);
 }

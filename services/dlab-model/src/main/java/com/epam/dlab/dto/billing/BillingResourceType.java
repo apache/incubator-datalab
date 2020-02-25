@@ -17,16 +17,15 @@
  * under the License.
  */
 
-package com.epam.dlab.billing.gcp.dao;
+package com.epam.dlab.dto.billing;
 
-import com.epam.dlab.billing.gcp.model.GcpBillingData;
-import com.epam.dlab.dto.billing.BillingData;
-
-import java.util.List;
-
-public interface BillingDAO {
-
-    List<GcpBillingData> getBillingData() throws InterruptedException;
-
-    List<BillingData> getBillingReport();
+public enum BillingResourceType {
+    EDGE,
+    SSN,
+    SHARED_BUCKET,
+    SSN_BUCKET,
+    EDGE_BUCKET,
+    VOLUME,
+    EXPLORATORY,
+    COMPUTATIONAL
 }

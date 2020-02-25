@@ -21,6 +21,7 @@ package com.epam.dlab.billing.gcp.util;
 
 import com.epam.dlab.billing.gcp.documents.UserInstance;
 import com.epam.dlab.billing.gcp.model.BillingData;
+import com.epam.dlab.dto.billing.BillingResourceType;
 
 import java.util.stream.Stream;
 
@@ -40,9 +41,9 @@ public class BillingUtils {
 		final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project.toLowerCase(), endpoint);
 		final String edgeBucketId = String.format(EDGE_BUCKET_FORMAT, sbn, project.toLowerCase());
 		return Stream.of(
-				BillingData.builder().displayName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(BillingData.ResourceType.EDGE).build(),
-				BillingData.builder().displayName("EDGE volume").user(SHARED_RESOURCE).project(project).dlabId(edgeVolumeId).resourceType(BillingData.ResourceType.VOLUME).build(),
-				BillingData.builder().displayName("EDGE bucket").user(SHARED_RESOURCE).project(project).dlabId(edgeBucketId).resourceType(BillingData.ResourceType.EDGE_BUCKET).build()
+				BillingData.builder().resourceName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(BillingResourceType.EDGE).build(),
+				BillingData.builder().resourceName("EDGE volume").user(SHARED_RESOURCE).project(project).dlabId(edgeVolumeId).resourceType(BillingResourceType.VOLUME).build(),
+				BillingData.builder().resourceName("EDGE bucket").user(SHARED_RESOURCE).project(project).dlabId(edgeBucketId).resourceType(BillingResourceType.EDGE_BUCKET).build()
 		);
 	}
 
@@ -50,12 +51,12 @@ public class BillingUtils {
 		final String ssnId = sbn + "-ssn";
 		final String bucketName = sbn.replaceAll("_", "-");
 		return Stream.of(
-				BillingData.builder().user(SHARED_RESOURCE).displayName("SSN").dlabId(ssnId).resourceType(BillingData.ResourceType.SSN).build(),
-				BillingData.builder().user(SHARED_RESOURCE).displayName("SSN Volume").dlabId(String.format(VOLUME_PRIMARY_FORMAT, ssnId)).resourceType(BillingData.ResourceType.VOLUME).build(),
-				BillingData.builder().user(SHARED_RESOURCE).displayName("SSN bucket").dlabId(bucketName + "-ssn" +
-						"-bucket").resourceType(BillingData.ResourceType.SSN_BUCKET).build(),
-				BillingData.builder().user(SHARED_RESOURCE).displayName("Collaboration bucket").dlabId(bucketName +
-						"-shared-bucket").resourceType(BillingData.ResourceType.SHARED_BUCKET).build()
+				BillingData.builder().user(SHARED_RESOURCE).resourceName("SSN").dlabId(ssnId).resourceType(BillingResourceType.SSN).build(),
+				BillingData.builder().user(SHARED_RESOURCE).resourceName("SSN Volume").dlabId(String.format(VOLUME_PRIMARY_FORMAT, ssnId)).resourceType(BillingResourceType.VOLUME).build(),
+				BillingData.builder().user(SHARED_RESOURCE).resourceName("SSN bucket").dlabId(bucketName + "-ssn" +
+						"-bucket").resourceType(BillingResourceType.SSN_BUCKET).build(),
+				BillingData.builder().user(SHARED_RESOURCE).resourceName("Collaboration bucket").dlabId(bucketName +
+						"-shared-bucket").resourceType(BillingResourceType.SHARED_BUCKET).build()
 		);
 	}
 
@@ -64,15 +65,15 @@ public class BillingUtils {
 				.stream()
 				.filter(cr -> cr.getComputationalId() != null)
 				.flatMap(cr -> Stream.of(computationalBillableResource(userInstance, cr),
-						withExploratoryName(userInstance).displayName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_FORMAT, cr.getComputationalId()))
-								.resourceType(BillingData.ResourceType.VOLUME).computationalName(cr.getComputationalName()).build()));
+						withExploratoryName(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_FORMAT, cr.getComputationalId()))
+								.resourceType(BillingResourceType.VOLUME).computationalName(cr.getComputationalName()).build()));
 		final String exploratoryId = userInstance.getExploratoryId();
 		final String primaryVolumeId = String.format(VOLUME_PRIMARY_FORMAT, exploratoryId);
 		final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);
 		final Stream<BillingData> exploratoryStream = Stream.of(
-				withExploratoryName(userInstance).displayName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(BillingData.ResourceType.EXPLORATORY).build(),
-				withExploratoryName(userInstance).displayName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(BillingData.ResourceType.VOLUME).build(),
-				withExploratoryName(userInstance).displayName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(BillingData.ResourceType.VOLUME).build());
+				withExploratoryName(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(BillingResourceType.EXPLORATORY).build(),
+				withExploratoryName(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(BillingResourceType.VOLUME).build(),
+				withExploratoryName(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(BillingResourceType.VOLUME).build());
 		return Stream.concat(computationalStream, exploratoryStream);
 	}
 
@@ -80,8 +81,8 @@ public class BillingUtils {
 															 UserInstance.ComputationalResource cr) {
 		return withExploratoryName(userInstance)
 				.dlabId(cr.getComputationalId())
-				.displayName(cr.getComputationalName())
-				.resourceType(BillingData.ResourceType.COMPUTATIONAL)
+				.resourceName(cr.getComputationalName())
+				.resourceType(BillingResourceType.COMPUTATIONAL)
 				.computationalName(cr.getComputationalName())
 				.project(userInstance.getProject())
 				.build();

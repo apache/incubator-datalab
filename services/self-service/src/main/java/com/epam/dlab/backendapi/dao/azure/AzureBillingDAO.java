@@ -42,8 +42,8 @@ public class AzureBillingDAO extends BaseBillingDAO {
 
 	@Override
 	protected List<Bson> cloudMatchCriteria(BillingFilter filter) {
-		if (!filter.getService().isEmpty()) {
-			return Collections.singletonList(Filters.in(MongoKeyWords.METER_CATEGORY, filter.getService()));
+		if (!filter.getProducts().isEmpty()) {
+			return Collections.singletonList(Filters.in(MongoKeyWords.METER_CATEGORY, filter.getProducts()));
 		} else {
 			return Collections.emptyList();
 		}

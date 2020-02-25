@@ -97,22 +97,39 @@ public class BillingServiceImpl implements BillingService {
 					.filter(bd -> bd.getDlabId() != null)
 					.collect(Collectors.toMap(BillingData::getDlabId, b -> b));
 			log.info("Billable resources are: {}", billableResources);
-			final Map<String, List<BillingData>> billingDataMap = billingDAO.getBillingData()
-					.stream()
-					.map(bd -> toBillingData(bd, getOrDefault(billableResources, bd.getTag())))
-					.collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0,
-							USAGE_DATE_FORMAT.length())));
+//			final Map<String, List<BillingData>> billingDataMap = billingDAO.getBillingData()
+//					.stream()
+//					.map(bd -> toBillingData(bd, getOrDefault(billableResources, bd.getTag())))
+//					.collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0,
+//							USAGE_DATE_FORMAT.length())));
 
-			billingDataMap.forEach((usageDate, billingDataList) -> {
-				log.info("Updating billing information for month {}", usageDate);
-				billingRepository.deleteByUsageDateRegex("^" + usageDate);
-				billingRepository.insert(billingDataList);
-				updateExploratoryCost(billingDataList);
-			});
+//			billingDataMap.forEach((usageDate, billingDataList) -> {
+//				log.info("Updating billing information for month {}", usageDate);
+//				billingRepository.deleteByUsageDateRegex("^" + usageDate);
+//				billingRepository.insert(billingDataList);
+//				updateExploratoryCost(billingDataList);
+//			});
 
 			log.info("Finished updating billing data");
 
 
+		} catch (Exception e) {
+			log.error("Can not update billing due to: {}", e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public void updateBillingData2() {
+		try {
+			Map<String, List<GcpBillingData>> collect = billingDAO.getBillingData()
+					.stream()
+					.collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0, USAGE_DATE_FORMAT.length())));
+
+			collect.forEach((usageDate, billingDataList) -> {
+				log.info("Updating billing information for month {}", usageDate);
+				billingRepository.deleteByUsageDateRegex("^" + usageDate);
+				billingRepository.insert(billingDataList);
+			});
 		} catch (Exception e) {
 			log.error("Can not update billing due to: {}", e.getMessage(), e);
 		}
@@ -164,23 +181,17 @@ public class BillingServiceImpl implements BillingService {
 
 	}
 
-	private BillingData toBillingData(GcpBillingData bd, BillingData billableResource) {
+	private BillingData toBillingData(GcpBillingData bd) {
 
 		return BillingData.builder()
-				.displayName(billableResource.getDisplayName())
 				.cost(bd.getCost().setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
 				.currency(bd.getCurrency())
 				.product(bd.getProduct())
-				.project(billableResource.getProject())
 				.usageDateTo(bd.getUsageDateTo())
 				.usageDateFrom(bd.getUsageDateFrom())
 				.usageDate(bd.getUsageDateFrom().format((DateTimeFormatter.ofPattern(DATE_FORMAT))))
 				.usageType(bd.getUsageType())
-				.user(billableResource.getUser())
-				.exploratoryName(billableResource.getExploratoryName())
-				.computationalName(billableResource.getComputationalName())
 				.dlabId(bd.getTag())
-				.resourceType(billableResource.getResourceType())
 				.build();
 	}
 }

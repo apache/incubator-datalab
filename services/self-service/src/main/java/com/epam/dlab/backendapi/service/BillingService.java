@@ -59,7 +59,7 @@ public abstract class BillingService {
     }
 
     public Document getBillingReport(UserInfo userInfo, BillingFilter filter) {
-        filter.getUser().replaceAll(s -> s.equalsIgnoreCase(BaseBillingDAO.SHARED_RESOURCE_NAME) ? null : s);
+        filter.getUsers().replaceAll(s -> s.equalsIgnoreCase(BaseBillingDAO.SHARED_RESOURCE_NAME) ? null : s);
         return getReport(userInfo, filter);
     }
 

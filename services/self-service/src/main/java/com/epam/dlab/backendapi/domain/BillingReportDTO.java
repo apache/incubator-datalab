@@ -17,42 +17,31 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.resources.dto;
+package com.epam.dlab.backendapi.domain;
 
-import com.epam.dlab.dto.UserInstanceStatus;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.epam.dlab.dto.billing.BillingResourceType;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class BillingFilter {
-	@NonNull
-	private List<String> users;
-	@NonNull
-	@JsonProperty("dlab_id")
-	private String dlabId;
-	@NonNull
-	@JsonProperty("date_start")
-	private String dateStart;
-	@NonNull
-	@JsonProperty("date_end")
-	private String dateEnd;
-	@NonNull
-	@JsonProperty("resource_type")
-	private List<String> resourceTypes;
-	@NonNull
-	private List<UserInstanceStatus> statuses = Collections.emptyList();
-	@NonNull
-	private List<String> projects;
-	@NonNull
-	private List<String> products;
-	@NonNull
-	private List<String> shapes;
+@Builder
+public class BillingReportDTO {
+    private String dlabId;
+    @JsonProperty("resource_name")
+    private String resourceName;
+    private String project;
+    private String user;
+    @JsonProperty("from")
+    private LocalDate usageDateFrom;
+    @JsonProperty("to")
+    private LocalDate usageDateTo;
+    private String product;
+    private String usageType;
+    private Double cost;
+    private String currency;
+    @JsonProperty("resource_type")
+    private BillingResourceType resourceType;
 }

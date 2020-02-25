@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Configuration;
 public class BillingApplicationConfiguration {
 
 
-    @Bean
+//    @Bean
     public BigQuery bigQueryService() {
         return BigQueryOptions.getDefaultInstance().getService();
     }

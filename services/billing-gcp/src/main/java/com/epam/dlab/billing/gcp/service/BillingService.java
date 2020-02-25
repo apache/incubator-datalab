@@ -22,4 +22,6 @@ package com.epam.dlab.billing.gcp.service;
 public interface BillingService {
 
     void updateBillingData();
+
+    void updateBillingData2();
 }

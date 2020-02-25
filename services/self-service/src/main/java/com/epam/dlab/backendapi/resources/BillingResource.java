@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
+import com.epam.dlab.backendapi.service.BillingServiceNew;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import org.bson.Document;
@@ -29,6 +30,7 @@ import org.bson.Document;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -41,10 +43,12 @@ import javax.ws.rs.core.Response;
 public class BillingResource {
 
     private final BillingService billingService;
+    private final BillingServiceNew billingServiceNew;
 
     @Inject
-    public BillingResource(BillingService billingService) {
+    public BillingResource(BillingService billingService, BillingServiceNew billingServiceNew) {
         this.billingService = billingService;
+        this.billingServiceNew = billingServiceNew;
     }
 
     @POST
@@ -52,6 +56,16 @@ public class BillingResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter formDTO) {
         return billingService.getBillingReport(userInfo, formDTO);
+    }
+
+    @GET
+    @Path("/report2")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBillingReport2(
+//            @Auth UserInfo userInfo,
+//            @Valid @NotNull BillingFilter formDTO
+    ) {
+        return Response.ok(billingServiceNew.getBillingReport(null, null)).build();
     }
 
     @POST

@@ -33,11 +33,13 @@ import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.GcpOauthResource;
 import com.epam.dlab.backendapi.service.BillingService;
+import com.epam.dlab.backendapi.service.BillingServiceNew;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
 import com.epam.dlab.backendapi.service.aws.AwsBillingService;
 import com.epam.dlab.backendapi.service.azure.AzureBillingService;
 import com.epam.dlab.backendapi.service.gcp.GcpBillingService;
+import com.epam.dlab.backendapi.service.impl.BillingServiceImplNew;
 import com.epam.dlab.backendapi.service.impl.InfrastructureInfoServiceImpl;
 import com.epam.dlab.backendapi.service.impl.InfrastructureTemplateServiceImpl;
 import com.epam.dlab.cloud.CloudModule;
@@ -69,6 +71,7 @@ public class CloudProviderModule extends CloudModule {
     @Override
     protected void configure() {
         bindBilling();
+        bind(BillingServiceNew.class).to(BillingServiceImplNew.class);
         bind(InfrastructureInfoService.class).to(InfrastructureInfoServiceImpl.class);
         bind(InfrastructureTemplateService.class).to(InfrastructureTemplateServiceImpl.class);
         bind(SchedulerConfiguration.class).toInstance(
