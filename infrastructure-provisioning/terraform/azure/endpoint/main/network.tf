@@ -38,7 +38,7 @@ resource "azurerm_virtual_network" "endpoint-network" {
     Name                              = local.endpoint_vpc_name
     "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"          = "${var.service_base_name}:${local.endpoint_vpc_name}"
-    "${var.service_base_name}-Tag"    = local.endpoint_vpc_name
+    "${var.service_base_name}-tag"    = local.endpoint_vpc_name
   }
 }
 
@@ -71,7 +71,7 @@ resource "azurerm_public_ip" "endpoint-static-ip" {
     Name                              = local.endpoint_ip_name
     "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"          = "${var.service_base_name}:${local.endpoint_ip_name}"
-    "${var.service_base_name}-Tag"    = local.endpoint_ip_name
+    "${var.service_base_name}-tag"    = local.endpoint_ip_name
   }
 }
 
@@ -93,6 +93,6 @@ resource "azurerm_network_interface" "endpoint-nif" {
     Name                              = local.endpoint_nif_name
     "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"          = "${var.service_base_name}:${local.endpoint_nif_name}"
-    "${var.service_base_name}-Tag"    = local.endpoint_nif_name
+    "${var.service_base_name}-tag"    = local.endpoint_nif_name
   }
 }

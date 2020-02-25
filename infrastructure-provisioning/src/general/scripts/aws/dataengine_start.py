@@ -86,7 +86,7 @@ if __name__ == "__main__":
         logging.info('[UPDATE LAST ACTIVITY TIME]')
         print('[UPDATE LAST ACTIVITY TIME]')
         data_engine['computational_id'] = data_engine['cluster_name'] + '-m'
-        data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
+        data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
         data_engine['notebook_ip'] = dlab.meta_lib.get_instance_ip_address(
             data_engine['tag_name'], os.environ['notebook_instance_name']).get('Private')
         data_engine['computational_ip'] = dlab.meta_lib.get_instance_ip_address(

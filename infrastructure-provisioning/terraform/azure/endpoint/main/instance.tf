@@ -65,6 +65,6 @@ resource "azurerm_virtual_machine" "endpoint_instance" {
     Name                              = local.endpoint_instance_name
     "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"          = "${var.service_base_name}:${local.endpoint_instance_name}"
-    "${var.service_base_name}-Tag"    = local.endpoint_instance_name
+    "${var.service_base_name}-tag"    = local.endpoint_instance_name
   }
 }

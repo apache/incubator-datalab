@@ -36,7 +36,7 @@ resource "aws_lb" "ssn_k8s_nlb" {
     Name                                          = local.ssn_nlb_name
     "${local.additional_tag[0]}"                  = local.additional_tag[1]
     "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.ssn_nlb_name}"
-    "${var.service_base_name}-Tag"                = local.ssn_nlb_name
+    "${var.service_base_name}-tag"                = local.ssn_nlb_name
     "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }
@@ -50,7 +50,7 @@ resource "aws_lb_target_group" "ssn_k8s_nlb_api_target_group" {
     Name                                          = local.ssn_k8s_nlb_api_tg_name
     "${local.additional_tag[0]}"                  = local.additional_tag[1]
     "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.ssn_k8s_nlb_api_tg_name}"
-    "${var.service_base_name}-Tag"                = local.ssn_k8s_nlb_api_tg_name
+    "${var.service_base_name}-tag"                = local.ssn_k8s_nlb_api_tg_name
     "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }
@@ -64,7 +64,7 @@ resource "aws_lb_target_group" "ssn_k8s_nlb_step_ca_target_group" {
     Name                                          = local.ssn_k8s_nlb_step_ca_tg_name
     "${local.additional_tag[0]}"                  = local.additional_tag[1]
     "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.ssn_k8s_nlb_step_ca_tg_name}"
-    "${var.service_base_name}-Tag"                = local.ssn_k8s_nlb_step_ca_tg_name
+    "${var.service_base_name}-tag"                = local.ssn_k8s_nlb_step_ca_tg_name
     "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }
