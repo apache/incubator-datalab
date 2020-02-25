@@ -106,9 +106,12 @@ def configure_nginx(config, dlab_path, hostname):
         random_file_part = id_generator(size=20)
         if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
             sudo('rm -f /etc/nginx/conf.d/*')
+            put(config['nginx_template_dir'] + 'ssn_nginx.conf', '/tmp/ssn_nginx.conf')
             put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
             sudo("sed -i 's|SSN_HOSTNAME|" + hostname + "|' /tmp/nginx_proxy.conf")
+            sudo('mv /tmp/ssn_nginx.conf ' + dlab_path + 'tmp/')
             sudo('mv /tmp/nginx_proxy.conf ' + dlab_path + 'tmp/')
+            sudo('\cp ' + dlab_path + 'tmp/ssn_nginx.conf /etc/nginx/conf.d/')
             sudo('\cp ' + dlab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
             sudo('mkdir -p /etc/nginx/locations')
             sudo('rm -f /etc/nginx/sites-enabled/default')
