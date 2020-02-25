@@ -21,8 +21,8 @@
 
 locals {
   subnet_c_id                      = data.aws_subnet.k8s-subnet-c-data == [] ? "" : data.aws_subnet.k8s-subnet-c-data.0.id
-  ssn_k8s_launch_conf_masters_name = "${var.service_base_name}-ssn-launch-conf-masters"
-  ssn_k8s_launch_conf_workers_name = "${var.service_base_name}-ssn-launch-conf-workers"
+  ssn_k8s_launch_conf_masters_name = "${var.service_base_name}-ssn-lc-masters"
+  ssn_k8s_launch_conf_workers_name = "${var.service_base_name}-ssn-lc-workers"
   ssn_k8s_ag_masters_name          = "${var.service_base_name}-ssn-masters"
   ssn_k8s_ag_workers_name          = "${var.service_base_name}-ssn-workers"
   cluster_name                     = "${var.service_base_name}-k8s-cluster"

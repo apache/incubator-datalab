@@ -21,8 +21,8 @@
 
 locals {
   additional_tag       = split(":", var.additional_tag)
-  ssn_vpc_name      = "${var.service_base_name}-ssn-vpc"
-  ssn_igw_name      = "${var.service_base_name}-ssn-igw"
+  ssn_vpc_name      = "${var.service_base_name}-vpc"
+  ssn_igw_name      = "${var.service_base_name}-igw"
   ssn_subnet_a_name = "${var.service_base_name}-ssn-subnet-az-a"
   ssn_subnet_b_name = "${var.service_base_name}-ssn-subnet-az-b"
   ssn_subnet_c_name = "${var.service_base_name}-ssn-subnet-az-c"

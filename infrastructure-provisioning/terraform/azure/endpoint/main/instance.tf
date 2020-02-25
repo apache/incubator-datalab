@@ -21,7 +21,7 @@
 
 locals {
   endpoint_instance_name      = "${var.service_base_name}-${var.endpoint_id}-endpoint"
-  endpoint_instance_disk_name = "${var.service_base_name}-${var.endpoint_id}-endpoint-disk"
+  endpoint_instance_disk_name = "${var.service_base_name}-${var.endpoint_id}-endpoint-volume"
 }
 
 data "tls_public_key" "enpoint_key" {
