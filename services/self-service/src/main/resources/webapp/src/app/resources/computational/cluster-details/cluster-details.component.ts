@@ -60,8 +60,6 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   ngOnInit() {
     this.open(this.data.environment, this.data.resource);
-
-    console.log(this.PROVIDER);
   }
 
   public open(environment, resource): void {
@@ -123,13 +121,15 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   private openDemoLink(template) {
     const demoData = {
-      title: template.slice(0, -3),
+      title: '',
       url: ''
     };
 
     if (this.data.resource.image === 'docker.dlab-dataengine') {
+      demoData.title = 'Apache Spark Master';
       demoData.url = 'assets/img/demo/spark_cluster.png';
     } else {
+      demoData.title = 'Hadoop';
       demoData.url = 'assets/img/demo/handoop_cluster.png';
     }
     this.dialog.open(DemoPictureDialogComponent, { data: demoData, panelClass: 'modal-fullscreen' })

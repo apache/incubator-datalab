@@ -18,13 +18,7 @@
  */
 
 import { Component, OnInit, Inject } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ToastrService } from 'ngx-toastr';
-
-import { UserResourceService } from '../../../core/services';
-import { HTTP_STATUS_CODES } from '../../../core/util';
-import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'demo-picture-dialog',
@@ -32,63 +26,17 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
   styleUrls: ['./demo-picture-dialog.component.scss']
 })
 export class DemoPictureDialogComponent implements OnInit {
-  readonly DICTIONARY = DICTIONARY;
-  public notebook: any;
-  public createAMIForm: FormGroup;
-  public provider: string;
-  namePattern = '[-_a-zA-Z0-9]+';
-  delimitersRegex = /[-_]?/g;
-  imagesList: any;
+  private isVisible: boolean = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    public toastr: ToastrService,
-    public dialogRef: MatDialogRef<DemoPictureDialogComponent>,
-    private _userResource: UserResourceService,
-    private _fb: FormBuilder,
+    public dialogRef: MatDialogRef<DemoPictureDialogComponent>
   ) { }
 
   ngOnInit() {
-    this.notebook = this.data;
-    this.provider = this.data.cloud_provider;
-
-    this.initFormModel();
-    this._userResource.getImagesList(this.data.project).subscribe(res => this.imagesList = res);
   }
+show() {
+  this.isVisible = true;
+}
 
-  public assignChanges(data) {
-    this._userResource.createAMI(data).subscribe(
-      response => response.status === HTTP_STATUS_CODES.ACCEPTED && this.dialogRef.close(),
-      error => this.toastr.error(error.message || `Image creation failed!`, 'Oops!'));
-  }
-
-  private initFormModel(): void {
-    this.createAMIForm = this._fb.group({
-      name: ['', [Validators.required, Validators.pattern(this.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
-      description: [''],
-      exploratory_name: [this.notebook.name]
-    });
-  }
-
-  private providerMaxLength(control) {
-    if (control && control.value)
-      return control.value.length <= 10 ? null : { valid: false };
-  }
-
-  private checkDuplication(control) {
-    if (control.value)
-      return this.isDuplicate(control.value) ? { duplication: true } : null;
-  }
-
-  private isDuplicate(value: string) {
-    for (let index = 0; index < this.imagesList.length; index++) {
-      if (this.delimitersFiltering(value) === this.delimitersFiltering(this.imagesList[index].name))
-        return true;
-    }
-    return false;
-  }
-
-  private delimitersFiltering(resource): string {
-    return resource.replace(this.delimitersRegex, '').toString().toLowerCase();
-  }
 }

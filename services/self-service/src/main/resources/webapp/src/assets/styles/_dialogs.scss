@@ -49,7 +49,7 @@
 
 .modal-fullscreen {
   width: 100vw;
-  min-height: 60vh;
+  min-height: 85vh;
 }
 
 mat-dialog-container {
@@ -343,8 +343,26 @@ mat-dialog-container {
   cursor: pointer;
 }
 
-@media screen and (max-width: 1280px) {
+@media screen and (max-width: 1650px) {
   .modal-fullscreen {
     max-width: 95vw !important;
   }
 }
+
+
+  @media screen and (max-width: 1370px) {
+    .modal-fullscreen {
+      mat-dialog-container.mat-dialog-container #dialog-box .dialog-header .modal-title {
+        font-size: 16px;
+      }
+    }
+  }
+
+@media screen and (max-width: 1220px) {
+  .modal-fullscreen {
+    mat-dialog-container.mat-dialog-container #dialog-box .dialog-header .modal-title {
+      font-size: 14px;
+    }
+  }
+}
+
