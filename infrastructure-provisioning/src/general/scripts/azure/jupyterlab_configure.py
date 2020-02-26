@@ -53,8 +53,9 @@ if __name__ == "__main__":
         notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         notebook_config['user_keyname'] = os.environ['project_name']
-        notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
+        notebook_config['instance_name'] = '{}-{}-{}-nb-{}'.format(notebook_config['service_base_name'],
                                                                 notebook_config['project_name'],
+                                                                os.environ['endpoint_name'],
                                                                 notebook_config['exploratory_name'])
         notebook_config['image_enabled'] = os.environ['conf_image_enabled']
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
@@ -307,6 +308,47 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Failed to set edge reverse proxy template.", str(err))
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
+    try:
+        print('[CONFIGURING PROXY FOR DOCKER]')
+        logging.info('[CONFIGURING PROXY FOR DOCKER]')
+        params = "--hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} ". \
+            format(instance_hostname,
+                   notebook_config['ssh_key_path'],
+                   notebook_config['dlab_ssh_user'])
+        try:
+            local("~/scripts/configure_proxy_for_docker.py {}".format(params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to configure proxy for docker.", str(err))
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        sys.exit(1)
+
+
+    try:
+        print('[STARTING JUPYTER CONTAINER]')
+        logging.info('[STARTING JUPYTER CONTAINER]')
+        params = "--hostname {} " \
+                 "--keyfile {} " \
+                 "--os_user {} ". \
+            format(instance_hostname,
+                   notebook_config['ssh_key_path'],
+                   notebook_config['dlab_ssh_user'])
+        try:
+           local("~/scripts/jupyterlab_container_start.py {}".format(params))
+        except:
+             traceback.print_exc()
+             raise Exception
+    except Exception as err:
+        print('Error: {0}'.format(err))
+        append_result("Failed to start Jupyter container.", str(err))
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     # generating output information
