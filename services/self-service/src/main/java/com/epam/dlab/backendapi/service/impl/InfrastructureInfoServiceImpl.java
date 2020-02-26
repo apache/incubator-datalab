@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
@@ -70,9 +71,11 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	public List<ProjectInfrastructureInfo> getUserResources(UserInfo user) {
 		log.debug("Loading list of provisioned resources for user {}", user);
 		try {
+			List<EndpointDTO> allEndpoints = endpointService.getEndpoints();
 			return projectService.getUserProjects(user, false).stream()
 					.map(p -> new ProjectInfrastructureInfo(p.getName(), billingDAO.getBillingProjectQuoteUsed(p.getName()),
-							getSharedInfo(p.getName()), expDAO.findExploratory(user.getName(), p.getName()), p.getOdahu()))
+							getSharedInfo(p.getName()), expDAO.findExploratory(user.getName(), p.getName()), p.getOdahu(),
+							getEndpoints(allEndpoints, p)))
 					.collect(Collectors.toList());
 		} catch (Exception e) {
 			log.error("Could not load list of provisioned resources for user: {}", user, e);
@@ -107,6 +110,18 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 				.version(Manifests.read("DLab-Version"))
 				.releaseNotes(String.format(RELEASE_NOTES_FORMAT, branch))
 				.build();
+	}
+
+	private List<EndpointDTO> getEndpoints(List<EndpointDTO> allEndpoints, ProjectDTO projectDTO) {
+		return allEndpoints.stream().filter(endpoint -> projectDTO.getEndpoints().stream()
+				.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
+				.collect(Collectors.toList());
+	}
+
+	private Map<String, Map<String, String>> getSharedInfo(String name) {
+		return projectService.get(name).getEndpoints().stream()
+				.collect(Collectors.toMap(ProjectEndpointDTO::getName,
+						endpointDTO -> getSharedInfo(endpointDTO.getEdgeInfo())));
 	}
 
 	private Map<String, String> getSharedInfo(EdgeInfo edgeInfo) {

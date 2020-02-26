@@ -41,7 +41,6 @@ import { SchedulerComponent } from '../scheduler';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
-import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ComputationModel} from '../computational/computational-resource.model';
 import {NotebookModel} from '../exploratory/notebook.model';
 
@@ -107,6 +106,7 @@ export class ResourcesGridComponent implements OnInit {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
+        console.log("env " + JSON.stringify(this.environments));
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
@@ -218,10 +218,8 @@ export class ResourcesGridComponent implements OnInit {
   // PRIVATE
   private getResourceByName(notebook_name: string) {
     return this.getEnvironmentsListCopy()
-      .map(env => env.exploratory.find(({ name }) => {
-        return name === notebook_name;
-      }))
-      .filter(name => !!name)[0];
+      .map(env => env.exploratory.find(({ name }) => name === notebook_name))
+      .filter(notebook_name => !!notebook_name)[0];
   }
 
   private getEnvironmentsListCopy() {

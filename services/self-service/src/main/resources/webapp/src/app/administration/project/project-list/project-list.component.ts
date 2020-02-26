@@ -28,7 +28,7 @@ import { Project, Endpoint } from '../project.component';
 import { CheckUtils } from '../../../core/util';
 import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
-import {EndpointService} from '../../../core/services';
+import {EndpointService} from "../../../core/services";
 
 
 @Component({
@@ -50,6 +50,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     public toastr: ToastrService,
     private projectDataService: ProjectDataService,
     private progressBarService: ProgressBarService,
+    private endpointService: EndpointService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<ProjectListComponent>,
     public dialog: MatDialog,

@@ -24,7 +24,6 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
-import com.epam.dlab.backendapi.domain.OdahuActionDTO;
 import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
@@ -36,7 +35,6 @@ import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.LibListComputationalDTO;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
-import com.epam.dlab.dto.UserEnvironmentResources;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
 import com.epam.dlab.dto.aws.computational.AwsComputationalTerminateDTO;
@@ -53,14 +51,26 @@ import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.computational.*;
-import com.epam.dlab.dto.exploratory.*;
+import com.epam.dlab.dto.computational.ComputationalCheckInactivityDTO;
+import com.epam.dlab.dto.computational.ComputationalClusterConfigDTO;
+import com.epam.dlab.dto.computational.ComputationalStartDTO;
+import com.epam.dlab.dto.computational.ComputationalStopDTO;
+import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
+import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryCheckInactivityAction;
+import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryReconfigureSparkClusterActionDTO;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
+import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.gcp.computational.ComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.computational.GcpComputationalTerminateDTO;
 import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
-import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
 import com.epam.dlab.dto.odahu.ActionOdahuDTO;
 import com.epam.dlab.dto.odahu.CreateOdahuDTO;
 import com.epam.dlab.dto.project.ProjectActionDTO;
@@ -607,29 +617,30 @@ public class RequestBuilder {
 				.withCloudSettings(cloudSettings(userInfo, endpointDTO.getCloudProvider()));
 	}
 
-	public CreateOdahuDTO newOdahuCreate(UserInfo user, OdahuCreateDTO odahuCreateDTO, ProjectDTO projectDTO) {
+	public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, EndpointDTO endpointDTO) {
+		return new ProjectActionDTO(project, endpointDTO.getName())
+				.withCloudSettings(cloudSettings(userInfo, endpointDTO.getCloudProvider()));
+	}
+
+	public CreateOdahuDTO newOdahuCreate(UserInfo user, OdahuCreateDTO odahuCreateDTO, ProjectDTO projectDTO, EndpointDTO endpointDTO) {
 		return CreateOdahuDTO.builder()
 				.name(odahuCreateDTO.getName())
 				.project(projectDTO.getName())
 				.endpoint(odahuCreateDTO.getEndpoint())
 				.key(projectDTO.getKey().replace("\n", ""))
 				.build()
-				.withEdgeUserName(getEdgeUserName(user))
-				.withCloudSettings(cloudSettings(user));
+				.withEdgeUserName(getEdgeUserName(user, endpointDTO.getCloudProvider()))
+				.withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));
 	}
 
-	public ActionOdahuDTO newOdahuAction(UserInfo user, String name, String project, String endpoint) {
+	public ActionOdahuDTO newOdahuAction(UserInfo user, String name, String project, EndpointDTO endpointDTO) {
 		return ActionOdahuDTO.builder()
 				.name(name)
 				.project(project)
-				.endpoint(endpoint)
+				.endpoint(endpointDTO.getName())
 				.build()
-				.withEdgeUserName(getEdgeUserName(user))
-				.withCloudSettings(cloudSettings(user));
-	}
-
-	private CloudProvider cloudProvider() {
-		return configuration.getCloudProvider();
+				.withEdgeUserName(getEdgeUserName(user, endpointDTO.getCloudProvider()))
+				.withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));
 	}
 
 	/**

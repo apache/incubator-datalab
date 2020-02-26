@@ -32,7 +32,6 @@ import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.SecurityService;
-import com.epam.dlab.backendapi.service.EdgeService;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.ResourceConflictException;

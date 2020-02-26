@@ -23,6 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.OdahuDAO;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
 import com.epam.dlab.backendapi.domain.OdahuDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
@@ -99,11 +100,12 @@ public class OdahuServiceImpl implements OdahuService {
 
         if (isAdded) {
             String url = null;
+            EndpointDTO endpointDTO = endpointService.get(odahuCreateDTO.getEndpoint());
             try {
-                url = endpointService.get(odahuCreateDTO.getEndpoint()).getUrl() + CREATE_ODAHU_API;
+                url = endpointDTO.getUrl() + CREATE_ODAHU_API;
                 String uuid =
                         provisioningService.post(url, user.getAccessToken(),
-                                requestBuilder.newOdahuCreate(user, odahuCreateDTO, projectDTO), String.class);
+                                requestBuilder.newOdahuCreate(user, odahuCreateDTO, projectDTO, endpointDTO), String.class);
                 requestId.put(user.getName(), uuid);
             } catch (Exception e) {
                 log.error("Can not perform {} due to: {}, {}", url, e.getMessage(), e);
@@ -152,11 +154,12 @@ public class OdahuServiceImpl implements OdahuService {
 
     private void actionOnCloud(UserInfo user, String uri, String name, String project, String endpoint) {
         String url = null;
+        EndpointDTO endpointDTO = endpointService.get(endpoint);
         try {
-            url = endpointService.get(endpoint).getUrl() + uri;
+            url = endpointDTO.getUrl() + uri;
             String uuid =
                     provisioningService.post(url, user.getAccessToken(),
-                            requestBuilder.newOdahuAction(user, name, project, endpoint), String.class);
+                            requestBuilder.newOdahuAction(user, name, project, endpointDTO), String.class);
             requestId.put(user.getName(), uuid);
         } catch (Exception e) {
             log.error("Can not perform {} due to: {}, {}", url, e.getMessage(), e);
