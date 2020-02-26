@@ -28,8 +28,7 @@ import sys, time, os
 from dlab.actions_lib import *
 import requests
 
-
-def terminate_edge_node(project_name, service_base_name, region, zone):
+def terminate_edge_node(endpoint_name, project_name, service_base_name, region, zone):
     print("Terminating Dataengine-service clusters")
     try:
         labels = [
@@ -48,7 +47,7 @@ def terminate_edge_node(project_name, service_base_name, region, zone):
         sys.exit(1)
 
     print("Terminating EDGE and notebook instances")
-    base = '{}-{}'.format(service_base_name, project_name)
+    base = '{}-{}-{}'.format(service_base_name, project_name, endpoint_name)
     keys = ['edge', 'ps', 'ip', 'bucket', 'subnet']
     targets = ['{}-{}'.format(base, k) for k in keys]
     try:
@@ -97,11 +96,14 @@ def terminate_edge_node(project_name, service_base_name, region, zone):
     print("Removing Service accounts and roles")
     try:
         list_service_accounts = GCPMeta().get_list_service_accounts()
+        role_targets = ['{}-{}-{}'.format(base, meta_lib.GCPMeta().get_index_by_service_account_name('{}-{}'.format(base, k)), k) for k in keys]
         for service_account in (set(targets) & set(list_service_accounts)):
-            if service_account.startswith(service_base_name):
-                GCPActions().remove_service_account(service_account)
+            if service_account.startswith(service_base_name) and service_account.endswith('-edge'):
+                GCPActions().remove_service_account(service_account, service_base_name)
+            elif service_account.startswith(service_base_name) and service_account.endswith('-ps'):
+                GCPActions().remove_service_account(service_account, service_base_name)
         list_roles_names = GCPMeta().get_list_roles()
-        for role in (set(targets) & set(list_roles_names)):
+        for role in (set(role_targets) & set(list_roles_names)):
             if role.startswith(service_base_name):
                 GCPActions().remove_role(role)
     except Exception as err:
@@ -135,6 +137,7 @@ if __name__ == "__main__":
     project_conf = dict()
     project_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    project_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     project_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     project_conf['region'] = os.environ['gcp_region']
     project_conf['zone'] = os.environ['gcp_zone']
@@ -143,7 +146,7 @@ if __name__ == "__main__":
         logging.info('[TERMINATE EDGE]')
         print('[TERMINATE EDGE]')
         try:
-            terminate_edge_node(project_conf['project_name'], project_conf['service_base_name'],
+            terminate_edge_node(project_conf['endpoint_name'], project_conf['project_name'], project_conf['service_base_name'],
                                 project_conf['region'], project_conf['zone'])
         except Exception as err:
             traceback.print_exc()
@@ -166,7 +169,7 @@ if __name__ == "__main__":
         }
 
         client_params = {
-            "clientId": project_conf['service_base_name'] + '-' + os.environ['project_name'],
+            "clientId": project_conf['service_base_name'] + '-' + os.environ['project_name'] + '-' + os.environ['endpoint_name'],
         }
 
         keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data).json()

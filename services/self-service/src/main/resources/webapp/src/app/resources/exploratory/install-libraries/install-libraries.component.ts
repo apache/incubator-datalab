@@ -18,7 +18,7 @@
  */
 
 
-import { Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
+import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject, OnDestroy} from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
@@ -27,7 +27,7 @@ import { debounceTime } from 'rxjs/operators';
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
 import { SortUtils, HTTP_STATUS_CODES } from '../../../core/util';
-import {FilterLibsModel} from "./filter-libs.model";
+import {FilterLibsModel} from './filter-libs.model';
 
 
 @Component({
@@ -36,7 +36,7 @@ import {FilterLibsModel} from "./filter-libs.model";
   styleUrls: ['./install-libraries.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class InstallLibrariesComponent implements OnInit {
+export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public model: InstallLibrariesModel;
   public notebook: any;
@@ -44,6 +44,7 @@ export class InstallLibrariesComponent implements OnInit {
   public groupsList: Array<string>;
   public notebookLibs: Array<any> = [];
   public notebookFailedLibs: Array<any> = [];
+  public loadLibsTimer: any;
 
   public query: string = '';
   public group: string;
@@ -67,10 +68,9 @@ export class InstallLibrariesComponent implements OnInit {
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
-  private clearCheckInstalling = undefined;
 
-  public filterConfiguration: FilterLibsModel = new FilterLibsModel('',[],[],[],[]);
-  public filterModel: FilterLibsModel = new FilterLibsModel('', [], [], [],[]);
+  public filterConfiguration: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
+  public filterModel: FilterLibsModel = new FilterLibsModel('', [], [], [], []);
   public filtered: boolean;
   public filtredNotebookLibs: Array<any> = [];
 
@@ -97,6 +97,11 @@ export class InstallLibrariesComponent implements OnInit {
         this.filterList();
       });
     this.open(this.data);
+  }
+
+  ngOnDestroy() {
+    clearTimeout(this.loadLibsTimer);
+    clearTimeout(this.clear);
   }
 
   uploadLibGroups(): void {
@@ -182,7 +187,6 @@ export class InstallLibrariesComponent implements OnInit {
 
   public selectLibrary(item): void {
     this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
-
     this.query = '';
     this.libSearch.setValue('');
 
@@ -216,18 +220,13 @@ export class InstallLibrariesComponent implements OnInit {
       ErrorMessageDialogComponent, { data: item.error, width: '550px', panelClass: 'error-modalbox' });
   }
 
-  public isInstallingInProgress(data): void {
-    this.notebookFailedLibs = data.filter(lib => lib.status.some(inner => inner.status === 'failed'));
-    this.installingInProgress = data.filter(lib => lib.status.some(inner => inner.status === 'installing')).length > 0;
-
-    if (this.installingInProgress) {
-      if (this.clearCheckInstalling === undefined)
-        this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 10000);
-    } else {
-      clearInterval(this.clearCheckInstalling);
-      this.clearCheckInstalling = undefined;
+  public isInstallingInProgress(): void {
+    const isInstallingNow = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
+      if (isInstallingNow) {
+        clearTimeout(this.loadLibsTimer);
+        this.loadLibsTimer = window.setTimeout(() => this.getInstalledLibrariesList(), 10000);
+      }
     }
-  }
 
   public reinstallLibrary(item, lib) {
     const retry = [{ group: lib.group, name: lib.name, version: lib.version }];
@@ -242,27 +241,31 @@ export class InstallLibrariesComponent implements OnInit {
   private getInstalledLibrariesList(init?: boolean) {
     this.model.getInstalledLibrariesList(this.notebook)
       .subscribe((data: any) => {
-        if(!this.filtredNotebookLibs.length || data.length !== this.notebookLibs.length){
+        if ( !this.filtredNotebookLibs.length || data.length !== this.notebookLibs.length) {
           this.filtredNotebookLibs = [...data];
         }
+        this.filtredNotebookLibs = data.filter(lib =>
+          this.filtredNotebookLibs.some(v =>
+            (v.name + v.version === lib.name + v.version) && v.resource === lib.resource));
         this.notebookLibs = data ? data : [];
         this.notebookLibs.forEach(lib => {
           lib.filteredStatus = lib.status;
-          if(lib.version && lib.version !== 'N/A')
-            lib.version = 'v.' +  lib.version
+          if (lib.version && lib.version !== 'N/A')
+            lib.version = 'v.' +  lib.version;
           }
         );
         this.changeDetector.markForCheck();
-        this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v=>this.groupsListMap[v.group]));
-        this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.resource)));
-        this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.resourceType)));
-        this.filterConfiguration.status = this.createFilterList(this.notebookLibs.map(lib=>lib.status.map(status=>status.status)));
-        this.isInstallingInProgress(this.notebookLibs);
+        this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v => this.groupsListMap[v.group]));
+        this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.resource)));
+        this.filterConfiguration.resourceType = this.createFilterList(this.notebookLibs.map(lib =>
+          lib.status.map(status => status.resourceType)));
+        this.filterConfiguration.status = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.status)));
+        this.isInstallingInProgress();
       });
   }
 
   public createFilterList(array): [] {
-    return array.flat().filter((v,i,arr)=> arr.indexOf(v) === i);
+    return array.flat().filter((v, i, arr) => arr.indexOf(v) === i);
   }
 
   private getInstalledLibsByResource() {
@@ -323,24 +326,25 @@ export class InstallLibrariesComponent implements OnInit {
 
     this.libSearch.disable();
     clearTimeout(this.clear);
-    clearInterval(this.clearCheckInstalling);
-    this.clearCheckInstalling = undefined;
+    clearTimeout(this.loadLibsTimer);
     this.selectorsReset();
   }
 
   public toggleFilterRow(): void {
-    this.filtered = !this.filtered
+    this.filtered = !this.filtered;
   }
 
   public filterLibs(): void {
     this.filtredNotebookLibs = this.notebookLibs.filter((lib) => {
-      const isName = this.filterModel.name ? lib.name.toLowerCase().indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 || lib.version.indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 : true;
+      const isName = this.filterModel.name ?
+        lib.name.toLowerCase().indexOf(this.filterModel.name.toLowerCase().trim()) !== -1
+        || lib.version.indexOf(this.filterModel.name.toLowerCase().trim()) !== -1 : true;
       const isGroup = this.filterModel.group.length ? this.filterModel.group.includes(this.groupsListMap[lib.group]) : true;
       lib.filteredStatus = lib.status.filter(status => {
-        const isResource = this.filterModel.resource.length ? this.filterModel.resource.includes(status.resource) :true;
+        const isResource = this.filterModel.resource.length ? this.filterModel.resource.includes(status.resource) : true;
         const isResourceType = this.filterModel.resourceType.length ? this.filterModel.resourceType.includes(status.resourceType) : true;
         const isStatus = this.filterModel.status.length ? this.filterModel.status.includes(status.status) : true;
-        return isResource && isResourceType && isStatus
+        return isResource && isResourceType && isStatus;
       });
       return isName && isGroup && lib.filteredStatus.length;
     });

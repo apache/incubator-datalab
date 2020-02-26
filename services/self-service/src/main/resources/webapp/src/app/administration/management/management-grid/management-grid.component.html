@@ -121,8 +121,8 @@
     </ng-container>
 
     <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef class=""></th>
-      <td mat-cell *matCellDef="let element" class=" settings">
+      <th mat-header-cell *matHeaderCellDef class="actions"></th>
+      <td mat-cell *matCellDef="let element" class=" settings actions-col">
         <span #settings class="actions" (click)="actions.toggle($event, settings)" *ngIf="element.type !== 'edge node' && element.type !== 'odahu'"
           [ngClass]="{
             'disabled' : isActiveResources(element),
@@ -199,7 +199,7 @@
       </th>
     </ng-container>
     <ng-container matColumnDef="actions-filter" sticky>
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef  class="actions-col">
         <div class="actions">
           <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
             <i class="material-icons">close</i>
@@ -224,7 +224,7 @@
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
     <tr [hidden]="!collapsedFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
       class="filter-row"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>

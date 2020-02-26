@@ -157,8 +157,10 @@ if __name__ == "__main__":
     dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
                                                                          dataproc_conf['project_name'])
-    service_account_email = "{}@{}.iam.gserviceaccount.com".format(dataproc_conf['dataproc_service_account_name'],
-                                                                   os.environ['gcp_project_id'])
+    dataproc_conf['dataproc_unique_index'] = GCPMeta().get_index_by_service_account_name(dataproc_conf['dataproc_service_account_name'])
+    service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(dataproc_conf['service_base_name'],
+                                                                         dataproc_conf['dataproc_unique_index'],
+                                                                         os.environ['gcp_project_id'])
 
     dataproc_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
                                                                     dataproc_conf['project_name'],
@@ -197,7 +199,7 @@ if __name__ == "__main__":
         raise Exception
 
     try:
-        dataproc_master_acces_url = "http://" + dataproc_conf['edge_instance_hostname'] + "/{}/".format(
+        dataproc_master_access_url = "https://" + dataproc_conf['edge_instance_hostname'] + "/{}/".format(
             dataproc_conf['exploratory_name'] + '_' + dataproc_conf['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
@@ -223,7 +225,7 @@ if __name__ == "__main__":
                    "Action": "Create new Dataproc cluster",
                    "computational_url": [
                        {"description": "Dataproc Master",
-                        "url": dataproc_master_acces_url}
+                        "url": dataproc_master_access_url}
                    ]
                    }
             print(json.dumps(res))

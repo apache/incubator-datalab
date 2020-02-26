@@ -25,7 +25,9 @@
         "Action": [
             "autoscaling:DescribeAutoScalingInstances",
             "ec2:DescribeInstances",
-            "elasticloadbalancing:DescribeTargetHealth"
+            "elasticloadbalancing:DescribeTargetHealth",
+            "elasticloadbalancing:*",
+            "ec2:*"
         ],
         "Resource": "*"
     },

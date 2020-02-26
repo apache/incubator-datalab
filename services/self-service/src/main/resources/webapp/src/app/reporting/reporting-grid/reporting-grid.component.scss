@@ -19,6 +19,7 @@
 
 .table-wrapper {
   width: 100%;
+
 }
 
 .reporting {
@@ -35,6 +36,9 @@
     th {
       padding-right: 5px;
       z-index: 2 !important;
+      &.th_charges{
+        z-index: 3 !important;
+      }
     }
 
     td {
@@ -143,6 +147,7 @@
   }
 
   .header-row {
+    position: unset;
     .label {
       display: inline-block;
       padding-top: 15px;
@@ -170,6 +175,15 @@
       padding: 7px 20px;
     }
   }
+}
+
+.table-footer{
+  position: sticky;
+  bottom: 0;
+  background: inherit;
+  border-top: 1px solid #E0E0E0;
+  transform: translateY(-1px);
+  border-bottom: none;
 }
 
 @media screen and (max-width: 1280px) {

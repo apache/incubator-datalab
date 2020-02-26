@@ -46,6 +46,7 @@ export class ProjectFormComponent implements OnInit {
   public projectList: Project[] = [];
   public accessKeyValid: boolean;
   public keyLabel: string = '';
+  public maxProjectNameLength: number = 10;
 
   @Input() item: any;
   @Output() update: EventEmitter<{}> = new EventEmitter();
@@ -155,7 +156,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public editSpecificProject(item) {
-    const endpoints = item.endpoints.map((item: any) => item.name);
+    const endpoints = item.endpoints.map((endpoint: any) => endpoint.name);
 
     this.projectForm = this._fb.group({
       'key': [''],
@@ -204,6 +205,6 @@ export class ProjectFormComponent implements OnInit {
   }
 
   private providerMaxLength(control) {
-    return control.value.length <= DICTIONARY.max_project_name_length ? null : { limit: true };
+    return control.value.length <= this.maxProjectNameLength ? null : { limit: true };
   }
 }

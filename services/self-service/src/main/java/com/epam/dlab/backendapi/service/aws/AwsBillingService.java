@@ -21,7 +21,7 @@ package com.epam.dlab.backendapi.service.aws;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
-import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
 import com.epam.dlab.model.aws.ReportLine;
@@ -36,10 +36,10 @@ import java.util.List;
 
 @Slf4j
 @Singleton
-public class AwsBillingService extends BillingService<AwsBillingFilter> {
+public class AwsBillingService extends BillingService {
 
 	@Override
-	public String getReportFileName(UserInfo userInfo, AwsBillingFilter filter) {
+	public String getReportFileName(UserInfo userInfo, BillingFilter filter) {
 		return "aws-billing-report.csv";
 	}
 

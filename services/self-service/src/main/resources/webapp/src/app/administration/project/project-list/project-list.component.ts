@@ -30,6 +30,7 @@ import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
 import {EndpointService} from '../../../core/services';
 
+
 @Component({
   selector: 'project-list',
   templateUrl: './project-list.component.html',
@@ -42,7 +43,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   projectList: Project[];
 
   @Output() editItem: EventEmitter<{}> = new EventEmitter();
-  @Output() deleteItem: EventEmitter<{}> = new EventEmitter();
   @Output() toggleStatus: EventEmitter<{}> = new EventEmitter();
   private subscriptions: Subscription = new Subscription();
 
@@ -50,7 +50,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     public toastr: ToastrService,
     private projectDataService: ProjectDataService,
     private progressBarService: ProgressBarService,
-    private endpointService: EndpointService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<ProjectListComponent>,
     public dialog: MatDialog,
@@ -104,10 +103,6 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     this.editItem.emit(item);
   }
 
-  public deleteProject(item: Project[]) {
-    this.deleteItem.emit(item);
-  }
-
   public isInProgress(project) {
     if (project)
       return project.endpoints.some(e => e.status !== 'RUNNING' && e.status !== 'STOPPED' && e.status !== 'TERMINATED' && e.status !== 'FAILED');
@@ -131,7 +126,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
           return endpoint.status === 'STOPPED';
         }
         if (action === 'terminate') {
-          return endpoint.status === 'RUNNING' || endpoint.status == 'STOPPED';
+          return endpoint.status === 'RUNNING' || endpoint.status === 'STOPPED';
         }
       });
       this.dialog.open(EdgeActionDialogComponent, {data: {type: action, item: endpoints}, panelClass: 'modal-sm'})
@@ -144,10 +139,10 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     }
 
   public areStartedEndpoints(project) {
-    return project.endpoints.filter(endpoint => endpoint.status == 'RUNNING').length > 0;
+    return project.endpoints.filter(endpoint => endpoint.status === 'RUNNING').length > 0;
   }
 
   public areStoppedEndpoints(project) {
-    return project.endpoints.filter(endpoint => endpoint.status == 'STOPPED').length > 0;
+    return project.endpoints.filter(endpoint => endpoint.status === 'STOPPED').length > 0;
   }
 }

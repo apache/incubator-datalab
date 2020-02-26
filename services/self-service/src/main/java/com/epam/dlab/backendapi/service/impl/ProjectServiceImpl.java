@@ -6,11 +6,7 @@ import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
-import com.epam.dlab.backendapi.domain.ProjectDTO;
-import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
-import com.epam.dlab.backendapi.domain.ProjectManagingDTO;
-import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
+import com.epam.dlab.backendapi.domain.*;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.OdahuService;
@@ -25,11 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -240,18 +232,17 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private void createEndpoint(UserInfo user, ProjectDTO projectDTO, String endpointName) {
-		String uuid =
-				provisioningService.post(endpointService.get(endpointName).getUrl() + CREATE_PRJ_API,
-						user.getAccessToken(),
-						requestBuilder.newProjectCreate(user, projectDTO, endpointName), String.class);
+		EndpointDTO endpointDTO = endpointService.get(endpointName);
+		String uuid = provisioningService.post(endpointDTO.getUrl() + CREATE_PRJ_API, user.getAccessToken(),
+						requestBuilder.newProjectCreate(user, projectDTO, endpointDTO), String.class);
 		requestId.put(user.getName(), uuid);
 	}
 
 	private void projectActionOnCloud(UserInfo user, String projectName, String provisioningApiUri, String endpoint) {
 		try {
-			String uuid = provisioningService.post(endpointService.get(endpoint).getUrl() + provisioningApiUri,
-					user.getAccessToken(),
-					requestBuilder.newProjectAction(user, projectName, endpoint), String.class);
+			EndpointDTO endpointDTO = endpointService.get(endpoint);
+			String uuid = provisioningService.post(endpointDTO.getUrl() + provisioningApiUri, user.getAccessToken(),
+					requestBuilder.newProjectAction(user, projectName, endpointDTO), String.class);
 			requestId.put(user.getName(), uuid);
 		} catch (Exception e) {
 			log.error("Can not terminate project due to: {}", e.getMessage());

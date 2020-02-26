@@ -51,8 +51,8 @@ if __name__ == "__main__":
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
-    notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
-                                                               notebook_config['project_name'],
+    notebook_config['instance_name'] = '{0}-{1}-{2}-nb-{3}'.format(notebook_config['service_base_name'],
+                                                               notebook_config['project_name'], os.environ['endpoint_name'],
                                                                notebook_config['exploratory_name'])
     notebook_config['image_enabled'] = os.environ['conf_image_enabled']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
@@ -241,7 +241,7 @@ if __name__ == "__main__":
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
-    if notebook_config['shared_image_enabled'] == 'true':
+    if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING IMAGE]')
             primary_image_id = GCPMeta().get_image_by_name(notebook_config['expected_primary_image_name'])

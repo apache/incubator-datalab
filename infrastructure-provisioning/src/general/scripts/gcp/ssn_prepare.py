@@ -28,7 +28,11 @@ import sys, os
 from fabric.api import *
 from dlab.ssn_lib import *
 import json
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--ssn_unique_index', type=str, default='')
+args = parser.parse_args()
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
@@ -43,6 +47,7 @@ if __name__ == "__main__":
     logging.info('[DERIVING NAMES]')
     print('[DERIVING NAMES]')
     ssn_conf = dict()
+    ssn_conf['ssn_unique_index'] = args.ssn_unique_index
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
     ssn_conf['region'] = os.environ['gcp_region']
@@ -61,7 +66,7 @@ if __name__ == "__main__":
     ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
     ssn_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
-    ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-ssn-role'
+    ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-' + ssn_conf['ssn_unique_index'] + '-ssn-role'
     ssn_conf['static_address_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
     ssn_conf['ssn_policy_path'] = '/root/files/ssn_policy.json'
     ssn_conf['ssn_roles_path'] = '/root/files/ssn_roles.json'
@@ -113,9 +118,9 @@ if __name__ == "__main__":
             pre_defined_subnet = True
             logging.info('[CREATE SUBNET]')
             print('[CREATE SUBNET]')
-            params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {}".\
+            params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {} --ssn {}".\
                 format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_prefix'],
-                       ssn_conf['vpc_cidr'])
+                       ssn_conf['vpc_cidr'], True)
             try:
                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
                 os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
@@ -195,9 +200,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE]')
         print('[CREATE SERVICE ACCOUNT AND ROLE]')
-        params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {}".format(
+        params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {} --unique_index {} --service_base_name {}".format(
             ssn_conf['service_account_name'], ssn_conf['role_name'],
-            ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'])
+            ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'], ssn_conf['ssn_unique_index'], ssn_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))
         except:
@@ -207,60 +212,10 @@ if __name__ == "__main__":
         print('Error: {0}'.format(err))
         append_result("Unable to create Service account and role.", str(err))
         try:
-            GCPActions().remove_service_account(ssn_conf['service_account_name'])
+            GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
             GCPActions().remove_role(ssn_conf['role_name'])
         except:
             print("Service account hasn't been created")
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
-        sys.exit(1)
-
-    try:
-        logging.info('[CREATE BUCKETS]')
-        print('[CREATE BUCKETS]')
-        params = "--bucket_name {}".format(ssn_conf['ssn_bucket_name'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-
-        params = "--bucket_name {}".format(ssn_conf['shared_bucket_name'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Unable to create bucket.", str(err))
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
-        sys.exit(1)
-
-    try:
-        logging.info('[SET PERMISSIONS FOR SSN BUCKET]')
-        print('[SET PERMISSIONS FOR SSN BUCKET]')
-        GCPActions().set_bucket_owner(ssn_conf['ssn_bucket_name'], ssn_conf['service_account_name'])
-    except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Unable to set bucket permissions.", str(err))
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
@@ -286,7 +241,7 @@ if __name__ == "__main__":
             GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         except:
             print("Static IP address hasn't been created.")
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
@@ -313,11 +268,11 @@ if __name__ == "__main__":
         print('[CREATE SSN INSTANCE]')
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5}"\
                  " --ssh_key_path {6} --initial_user {7} --service_account_name {8} --image_name {9}"\
-                 " --instance_class {10} --static_ip {11} --network_tag {12} --labels '{13}' --primary_disk_size {14}".\
+                 " --instance_class {10} --static_ip {11} --network_tag {12} --labels '{13}' --primary_disk_size {14} --service_base_name {15}".\
             format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
                    ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'], initial_user,
                    ssn_conf['service_account_name'], ssn_conf['image_name'], 'ssn', ssn_conf['static_ip'],
-                   ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20')
+                   ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20', ssn_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -326,7 +281,7 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Unable to create ssn instance.", str(err))
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])

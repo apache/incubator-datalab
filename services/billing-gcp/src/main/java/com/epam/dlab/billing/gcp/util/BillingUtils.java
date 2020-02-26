@@ -36,9 +36,9 @@ public class BillingUtils {
 	private static final String SHARED_RESOURCE = "Shared resource";
 
 	public static Stream<BillingData> edgeBillingDataStream(String project, String sbn, String endpoint) {
-		final String userEdgeId = String.format(EDGE_FORMAT, sbn, project, endpoint);
-		final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project, endpoint);
-		final String edgeBucketId = String.format(EDGE_BUCKET_FORMAT, sbn, project);
+		final String userEdgeId = String.format(EDGE_FORMAT, sbn, project.toLowerCase(), endpoint);
+		final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project.toLowerCase(), endpoint);
+		final String edgeBucketId = String.format(EDGE_BUCKET_FORMAT, sbn, project.toLowerCase());
 		return Stream.of(
 				BillingData.builder().displayName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(BillingData.ResourceType.EDGE).build(),
 				BillingData.builder().displayName("EDGE volume").user(SHARED_RESOURCE).project(project).dlabId(edgeVolumeId).resourceType(BillingData.ResourceType.VOLUME).build(),

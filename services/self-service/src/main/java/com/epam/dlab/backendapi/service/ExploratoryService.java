@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.service;
 
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.dto.ExploratoryCreatePopUp;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
@@ -54,4 +55,6 @@ public interface ExploratoryService {
 	Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName);
 
 	List<ClusterConfig> getClusterConfig(UserInfo user, String exploratoryName);
+
+	ExploratoryCreatePopUp getUserInstances(UserInfo user);
 }

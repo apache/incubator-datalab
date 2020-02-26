@@ -54,10 +54,10 @@ if __name__ == "__main__":
     edge_conf['edge_security_group_name'] = '{}-sg'.format(edge_conf['instance_name'])
     edge_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'],
                                                             os.environ['project_name'])
-    edge_conf['notebook_role_profile_name'] = '{}-{}-nb-Profile' \
-        .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    edge_conf['notebook_security_group_name'] = '{}-{}-nb-sg'.format(edge_conf['service_base_name'],
-                                                                     os.environ['project_name'])
+    edge_conf['notebook_role_profile_name'] = '{}-{}-{}-nb-Profile' \
+        .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'], os.environ['endpoint_name'])
+    edge_conf['notebook_security_group_name'] = '{}-{}-{}-nb-sg'.format(edge_conf['service_base_name'],
+                                                                     os.environ['project_name'], os.environ['endpoint_name'])
     edge_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
         .format(edge_conf['service_base_name'], os.environ['project_name'])
     tag = {"Key": edge_conf['tag_name'],
@@ -85,9 +85,17 @@ if __name__ == "__main__":
     for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
         edge_conf['allowed_ip_cidr'].append(cidr.replace(' ', ''))
 
-
     instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
     keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
+
+    if os.environ['conf_stepcerts_enabled'] == 'true':
+        step_cert_sans = ' --san {0} '.format(edge_conf['edge_private_ip'])
+        if edge_conf['network_type'] == 'public':
+            step_cert_sans += ' --san {0} --san {1}'.format(
+                get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name']),
+                edge_conf['edge_public_ip'])
+    else:
+        step_cert_sans = ''
 
     try:
         if os.environ['conf_os_family'] == 'debian':
@@ -203,19 +211,24 @@ if __name__ == "__main__":
         print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
         keycloak_client_secret = str(uuid.uuid4())
-        keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} --keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} --edge_public_ip {} --project_name {}" \
-            .format(edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
-                    os.environ['keycloak_user_password'],
-                    keycloak_client_secret, edge_conf['edge_public_ip'], os.environ['project_name'])
+        params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
+                 "--step_cert_sans '{}' " \
+            .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], edge_conf['service_base_name'] +
+                    '-' + os.environ['project_name'] + '-' + os.environ['endpoint_name'], keycloak_client_secret, step_cert_sans)
         try:
-            local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
+            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
         except:
             traceback.print_exc()
             raise Exception
-        params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {}" \
-            .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], edge_conf['service_base_name'] + '-' + os.environ['project_name'], keycloak_client_secret)
+        keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
+                          "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
+                          "--edge_public_ip {} --hostname {} --project_name {} --endpoint_name {} " \
+            .format(edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
+                    os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
+                    os.environ['keycloak_user_password'],
+                    keycloak_client_secret, edge_conf['edge_public_ip'], instance_hostname, os.environ['project_name'], os.environ['endpoint_name'])
         try:
-            local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
+            local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
         except:
             traceback.print_exc()
             raise Exception

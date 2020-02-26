@@ -42,6 +42,8 @@ parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--dry_run', type=str, default='false')
 parser.add_argument('--emr_version', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
+parser.add_argument('--scala_version', type=str, default='')
+parser.add_argument('--r_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--excluded_lines', type=str, default='')
@@ -50,7 +52,6 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--numpy_version', type=str, default='')
 parser.add_argument('--application', type=str, default='')
-parser.add_argument('--r_enabled', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -64,14 +65,13 @@ def r_kernel(args):
     local('mkdir -p {}/r_{}/'.format(kernels_dir, args.cluster_name))
     kernel_path = "{}/r_{}/kernel.json".format(kernels_dir, args.cluster_name)
     template_file = "/tmp/r_dataengine-service_template.json"
-    r_version = local("R --version | awk '/version / {print $3}'", capture = True)
 
     with open(template_file, 'r') as f:
         text = f.read()
     text = text.replace('CLUSTER_NAME', args.cluster_name)
     text = text.replace('SPARK_PATH', spark_path)
     text = text.replace('SPARK_VERSION', 'Spark-' + args.spark_version)
-    text = text.replace('R_KERNEL_VERSION', 'R-{}'.format(str(r_version)))
+    text = text.replace('R_KERNEL_VERSION', 'R-{}'.format(args.r_version))
     text = text.replace('DATAENGINE-SERVICE_VERSION', args.emr_version)
     if 'emr-4.' in args.emr_version:
         text = text.replace('YARN_CLI_TYPE', 'yarn-client')
@@ -85,7 +85,7 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
-    scala_version = local('scala -e "println(scala.util.Properties.versionNumberString)"', capture=True)
+    scala_version = local("Spark-submit --version 2>&1 | awk '/Scala version / {gsub(/,/, \"\"); print $4}'")
     if args.emr_version == 'emr-4.3.0' or args.emr_version == 'emr-4.6.0' or args.emr_version == 'emr-4.8.0':
         local('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/')
         kernel_path = kernels_dir + "toree_" + args.cluster_name + "/kernel.json"
@@ -96,7 +96,7 @@ def toree_kernel(args):
         text = text.replace('SPARK_VERSION', 'Spark-' + args.spark_version)
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('DATAENGINE-SERVICE_VERSION', args.emr_version)
-        text = text.replace('SCALA_VERSION', scala_version)
+        text = text.replace('SCALA_VERSION', args.scala_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
@@ -117,7 +117,7 @@ def toree_kernel(args):
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('OS_USER', args.os_user)
         text = text.replace('DATAENGINE-SERVICE_VERSION', args.emr_version)
-        text = text.replace('SCALA_VERSION', scala_version)
+        text = text.replace('SCALA_VERSION', args.scala_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
@@ -142,27 +142,25 @@ def add_breeze_library_emr(args):
     breeze_tmp_dir = '/tmp/breeze_tmp_emr/'
     local('sudo mkdir -p ' + new_jars_directory_path)
     local('mkdir -p ' + breeze_tmp_dir)
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/breeze_2.11-0.12.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/breeze_2.11-0.12.jar -O ' +
           breeze_tmp_dir + 'breeze_2.11-0.12.jar')
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/breeze-natives_2.11-0.12.jar -O '
+    local('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/breeze-natives_2.11-0.12.jar -O '
           + breeze_tmp_dir + 'breeze-natives_2.11-0.12.jar')
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/breeze-viz_2.11-0.12.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/breeze-viz_2.11-0.12.jar -O ' +
           breeze_tmp_dir + 'breeze-viz_2.11-0.12.jar')
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/breeze-macros_2.11-0.12.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/breeze-macros_2.11-0.12.jar -O ' +
           breeze_tmp_dir + 'breeze-macros_2.11-0.12.jar')
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/breeze-parent_2.11-0.12.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/breeze-parent_2.11-0.12.jar -O ' +
           breeze_tmp_dir + 'breeze-parent_2.11-0.12.jar')
-    local('wget http://central.maven.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar -O ' +
           breeze_tmp_dir + 'jfreechart-1.0.19.jar')
-    local('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
+    local('wget https://repo1.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
           breeze_tmp_dir + 'jcommon-1.0.24.jar')
     local('wget --no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
           breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
     local('sudo mv ' + breeze_tmp_dir + '* ' + new_jars_directory_path)
     local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/s/$/:\/opt\/""" + args.emr_version +
           """\/jars\/usr\/other\/*/' """ + spark_defaults_path + """" """)
-
-
 
 
 if __name__ == "__main__":
@@ -177,7 +175,8 @@ if __name__ == "__main__":
         pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
                        args.project_name, args.region, args.os_user, args.application, args.pip_mirror, args.numpy_version)
         toree_kernel(args)
-        if args.r_enabled == 'true':
+        if args.r_version != 'false':
+            print('R version: {}'.format(args.r_version))
             r_kernel(args)
         spark_defaults(args)
         configuring_notebook(args.emr_version)

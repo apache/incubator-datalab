@@ -89,8 +89,10 @@ if __name__ == "__main__":
     }
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
                                                                          dataproc_conf['project_name'])
-    service_account_email = "{}@{}.iam.gserviceaccount.com".format(dataproc_conf['dataproc_service_account_name'],
-                                                                   os.environ['gcp_project_id'])
+    dataproc_conf['dataproc_unique_index'] = GCPMeta().get_index_by_service_account_name(dataproc_conf['dataproc_service_account_name'])
+    service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(dataproc_conf['service_base_name'],
+                                                                         dataproc_conf['dataproc_unique_index'],
+                                                                         os.environ['gcp_project_id'])
     dataproc_conf['edge_instance_hostname'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
                                                                         dataproc_conf['project_name'],
                                                                         dataproc_conf['endpoint_name'])
@@ -108,7 +110,14 @@ if __name__ == "__main__":
     print("Will create exploratory environment with edge node as access point as following: ".format(json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(dataproc_conf))
 
-    local('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
+    try:
+        meta_lib.GCPMeta().dataproc_waiter(dataproc_conf['cluster_labels'])
+        local('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Dataproc waiter fail.", str(err))
+        sys.exit(1)
+
     local("echo Waiting for changes to propagate; sleep 10")
 
     dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster.json').read().decode('utf-8-sig'))
@@ -133,6 +142,9 @@ if __name__ == "__main__":
     ssh_admin_pubkey = key.publickey().exportKey("OpenSSH")
     dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}\n{0}:{2}'.format(dataproc_conf['dlab_ssh_user'], ssh_user_pubkey, ssh_admin_pubkey)
     dataproc_cluster['config']['gceClusterConfig']['tags'][0] = dataproc_conf['cluster_tag']
+    with open('/root/result.json', 'w') as f:
+        data = {"hostname": dataproc_conf['cluster_name'], "error": ""}
+        json.dump(data, f)
 
     try:
         logging.info('[Creating Dataproc Cluster]')

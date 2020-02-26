@@ -20,6 +20,7 @@
 package com.epam.dlab.backendapi.resources.dto;
 
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -27,7 +28,8 @@ import java.util.Collections;
 import java.util.List;
 
 @Data
-public abstract class BillingFilter {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BillingFilter {
 	@JsonProperty
 	protected List<String> user;
 	@JsonProperty("dlab_id")
@@ -40,9 +42,10 @@ public abstract class BillingFilter {
 	protected String dateEnd;
 	@JsonProperty("status")
 	protected List<UserInstanceStatus> statuses = Collections.emptyList();
-
 	@JsonProperty("project")
 	protected List<String> projects;
-
-	public abstract List<String> getShapes();
+	@JsonProperty
+	private List<String> service;
+	@JsonProperty
+	private List<String> shape;
 }

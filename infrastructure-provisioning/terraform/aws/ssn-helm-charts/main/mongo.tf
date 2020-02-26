@@ -33,12 +33,13 @@ data "template_file" "mongo_values" {
 }
 
 resource "helm_release" "mongodb" {
-    name   = "mongo-ha"
-    chart  = "stable/mongodb"
-    wait   = true
-    values = [
-        data.template_file.mongo_values.rendered
-    ]
-    depends_on = [helm_release.nginx, kubernetes_secret.mongo_db_password_secret,
-                  kubernetes_secret.mongo_root_password_secret]
+  name       = "mongo-ha"
+  chart      = "stable/mongodb"
+  namespace  = kubernetes_namespace.dlab-namespace.metadata[0].name
+  wait       = true
+  values     = [
+      data.template_file.mongo_values.rendered
+  ]
+  depends_on = [helm_release.nginx, kubernetes_secret.mongo_db_password_secret,
+                kubernetes_secret.mongo_root_password_secret]
 }

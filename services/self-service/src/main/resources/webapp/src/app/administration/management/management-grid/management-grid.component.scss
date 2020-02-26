@@ -23,7 +23,7 @@
     .user,
     .name,
     .project {
-      width: 14%;
+      width: 12%;
 
       .list-menu li {
         text-transform: inherit;
@@ -31,11 +31,11 @@
     }
 
     .shape {
-      width: 18% !important;
+      width: 19% !important;
     }
 
     .status {
-      width: 15% !important;
+      width: 13% !important;
     }
 
     .type {
@@ -43,12 +43,12 @@
     }
 
     .resources {
-      width: 25%;
+      width: 22%;
       padding: 5px;
     }
 
     .settings {
-      padding-right: 24px;
+      padding-right: 14px;
 
       .actions {
         margin-top: 2px;
@@ -56,7 +56,7 @@
     }
 
     .actions-col {
-      width: 10%;
+      width: 6%;
     }
 
     .dashboard_table_body {
@@ -83,7 +83,6 @@ table.management {
   }
 
   .header-row {
-    background: transparent;
     height: auto;
     .label {
       display: inline-block;
@@ -92,13 +91,10 @@ table.management {
       padding-left: 5px;
       font-size: 11px;
     }
-
-    button {
-      padding-right: 5px;
-    }
   }
+
   .filter-row {
-    background: transparent;
+    background: inherit;
   }
 
   .actions {

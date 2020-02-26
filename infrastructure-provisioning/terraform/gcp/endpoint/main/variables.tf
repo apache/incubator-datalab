@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-variable "project_id" {
+variable "gcp_project_id" {
   default = ""
 }
 
@@ -47,7 +47,7 @@ variable "endpoint_id" {
   default = ""
 }
 
-variable "vpc_name" {
+variable "vpc_id" {
   default = ""
 }
 
@@ -55,7 +55,7 @@ variable "ami" {
   default = "/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20190628"
 }
 
-variable "subnet_name" {
+variable "subnet_id" {
   default = ""
 }
 
@@ -140,10 +140,16 @@ variable "product" {
   default = "dlab"
 }
 
-variable "static_ip" {
-  default = ""
+variable "additional_tag" {
+  default = "product:dlab"
 }
 
-variable "bucket_region" {
-  default = "US" # Allowed US, EU, ASIA
-}
+variable "ldap_host" {}
+
+variable "ldap_dn" {}
+
+variable "ldap_user" {}
+
+variable "ldap_bind_creds" {}
+
+variable "ldap_users_group" {}

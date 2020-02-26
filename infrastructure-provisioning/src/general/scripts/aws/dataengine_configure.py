@@ -204,7 +204,7 @@ if __name__ == "__main__":
         data_engine['subnet_cidr'] = get_subnet_by_tag(tag)
         data_engine['notebook_dataengine_role_profile_name'] = data_engine['service_base_name']. \
                                                                    lower().replace('-', '_') + "-" + \
-                                                               os.environ['project_name'] + '-nb-de-Profile'
+                                                               os.environ['project_name'] + "-" + os.environ['endpoint_name'] + '-nb-de-Profile'
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         master_node_hostname = get_instance_hostname(data_engine['tag_name'], data_engine['master_node_name'])
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -426,7 +426,8 @@ if __name__ == "__main__":
         ip_address = get_instance_ip_address(data_engine['tag_name'],
                                              data_engine['master_node_name']).get('Private')
         spark_master_url = "http://" + ip_address + ":8080"
-        spark_master_acces_url = "http://" + edge_instance_ip + "/{}/".format(data_engine['exploratory_name'] + '_' + data_engine['computational_name'])
+        spark_master_access_url = "https://" + edge_instance_ip + "/{}/".format(data_engine['exploratory_name'] +
+                                                                               '_' + data_engine['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(data_engine['service_base_name']))
@@ -442,7 +443,7 @@ if __name__ == "__main__":
                    "Action": "Create new Data Engine",
                    "computational_url": [
                        {"description": "Apache Spark Master",
-                        "url": spark_master_acces_url},
+                        "url": spark_master_access_url},
                        #{"description": "Apache Spark Master (via tunnel)",
                         #"url": spark_master_url}
                    ]}

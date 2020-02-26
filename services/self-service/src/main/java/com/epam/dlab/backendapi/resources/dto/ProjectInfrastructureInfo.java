@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.resources.dto;
 
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.OdahuDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -41,4 +42,6 @@ public class ProjectInfrastructureInfo {
 	private Iterable<Document> exploratory;
 	@JsonProperty
 	private List<OdahuDTO> odahu;
+	@JsonProperty
+	private List<EndpointDTO> endpoints;
 }

@@ -151,6 +151,10 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(and(eq(PROJECT, project), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
 	}
 
+	public List<UserInstanceDTO> fetchExploratoryFieldsForProject(String project) {
+		return getUserInstances(and(eq(PROJECT, project)), false);
+	}
+
 	/**
 	 * Finds and returns the info of all user's notebooks whose status is present among predefined ones.
 	 *

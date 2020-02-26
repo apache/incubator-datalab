@@ -26,6 +26,34 @@ from fabric.contrib.files import exists
 import sys
 import os
 
+def manage_pkg(command, environment, requisites):
+    try:
+        allow = False
+        counter = 0
+        while not allow:
+            if counter > 60:
+                print("Notebook is broken please recreate it.")
+                sys.exit(1)
+            else:
+                print('Package manager is:')
+                if environment == 'remote':
+                    if sudo('pgrep yum -a && echo "busy" || echo "ready"') == 'busy':
+                        counter += 1
+                        time.sleep(10)
+                    else:
+                        allow = True
+                        sudo('yum {0} {1}'.format(command, requisites))
+                elif environment == 'local':
+                    if local('sudo pgrep yum -a && echo "busy" || echo "ready"', capture=True) == 'busy':
+                        counter += 1
+                        time.sleep(10)
+                    else:
+                        allow = True
+                        local('sudo yum {0} {1}'.format(command, requisites), capture=True)
+                else:
+                    print('Wrong environment')
+    except:
+        sys.exit(1)
 
 def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel unzip libxml2-devel'):
     try:
@@ -45,15 +73,15 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
                 sudo('echo "gpgcheck=1" >> centOS-base.repo')
                 sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centOS-base.repo'.format(mirror))
             sudo('yum-config-manager --enable rhui-REGION-rhel-server-optional')
-            sudo('yum update-minimal --security -y')
-            sudo('yum -y install wget')
+            manage_pkg('update-minimal --security -y', 'remote', '')
+            manage_pkg('-y install', 'remote', 'wget')
             sudo('wget --no-check-certificate https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm')
             sudo('rpm -ivh epel-release-latest-7.noarch.rpm')
-            sudo('yum repolist')
-            sudo('yum -y install python-pip gcc')
+            manage_pkg('repolist', 'remote', '')
+            manage_pkg('-y install', 'remote', 'python-pip gcc')
             sudo('rm -f epel-release-latest-7.noarch.rpm')
             sudo('export LC_ALL=C')
-            sudo('yum -y install ' + requisites)
+            manage_pkg('-y install', 'remote', requisites)
             sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
     except:
         sys.exit(1)
@@ -80,7 +108,7 @@ def ensure_ntpd(user, edge_private_ip=''):
     try:
         if not exists('/home/{}/.ensure_dir/ntpd_ensured'.format(user)):
             sudo('systemctl disable chronyd')
-            sudo('yum -y install ntp')
+            manage_pkg('-y install', 'remote', 'ntp')
             sudo('echo "tinker panic 0" >> /etc/ntp.conf')
             sudo('systemctl start ntpd')
             if os.environ['conf_resource'] != 'ssn' and os.environ['conf_resource'] != 'edge':
@@ -88,5 +116,27 @@ def ensure_ntpd(user, edge_private_ip=''):
                 sudo('systemctl restart ntpd')
             sudo('systemctl enable ntpd')
             sudo('touch /home/{}/.ensure_dir/ntpd_ensured'.format(user))
+    except:
+        sys.exit(1)
+
+
+def ensure_java(user):
+    try:
+        if not exists('/home/{}/.ensure_dir/java_ensured'.format(user)):
+            manage_pkg('-y install', 'remote', 'java-1.8.0-openjdk-devel')
+            sudo('touch /home/{}/.ensure_dir/java_ensured'.format(user))
+    except:
+        sys.exit(1)
+
+
+def ensure_step(user):
+    try:
+        if not exists('/home/{}/.ensure_dir/step_ensured'.format(user)):
+            manage_pkg('-y install', 'remote', 'wget')
+            sudo('wget https://github.com/smallstep/cli/releases/download/v0.13.3/step_0.13.3_linux_amd64.tar.gz '
+                 '-O /tmp/step_0.13.3_linux_amd64.tar.gz')
+            sudo('tar zxvf /tmp/step_0.13.3_linux_amd64.tar.gz -C /tmp/')
+            sudo('mv /tmp/step_0.13.3/bin/step /usr/bin/')
+            sudo('touch /home/{}/.ensure_dir/step_ensured'.format(user))
     except:
         sys.exit(1)

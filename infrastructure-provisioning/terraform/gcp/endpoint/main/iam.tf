@@ -20,9 +20,9 @@
 # ******************************************************************************
 
 locals {
-  endpoint_policy_name      = "${var.service_base_name}-${var.endpoint_id}-endpoint-policy"
-  endpoint_role_name        = "${var.service_base_name}-${var.endpoint_id}-endpoint_role"
-  service_account_name      = "${var.service_base_name}-${var.endpoint_id}-endt"
+  endpoint_policy_name      = "${var.service_base_name}-${var.endpoint_id}-policy"
+  endpoint_role_name        = "${var.service_base_name}-${var.endpoint_id}-role"
+  service_account_name      = "${var.service_base_name}-${var.endpoint_id}-sa"
 }
 
 resource "google_service_account" "endpoint_sa" {
@@ -32,7 +32,7 @@ resource "google_service_account" "endpoint_sa" {
 
 resource "google_project_iam_custom_role" "endpoint_role" {
   permissions = var.endpoint_policies
-  role_id     = "${replace("${local.endpoint_role_name}", "-", "_")}"
+  role_id     = replace(local.endpoint_role_name, "-", "_")
   title       = local.endpoint_role_name
 }
 

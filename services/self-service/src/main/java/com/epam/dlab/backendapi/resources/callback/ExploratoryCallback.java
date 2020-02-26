@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -30,7 +29,6 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -103,12 +101,7 @@ public class ExploratoryCallback {
 			throw new DlabException("Could not update status for exploratory environment " + dto.getExploratoryName() +
 					" for user " + dto.getUser() + " to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
 		}
-		if (UserInstanceStatus.of(dto.getStatus()) == RUNNING && instance.isReuploadKeyRequired()) {
-			ResourceData resourceData =
-					ResourceData.exploratoryResource(dto.getExploratoryId(), dto.getExploratoryName());
-			UserInfo userInfo = securityService.getUserInfoOffline(dto.getUser());
-			reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
-		}
+
 		return Response.ok().build();
 	}
 

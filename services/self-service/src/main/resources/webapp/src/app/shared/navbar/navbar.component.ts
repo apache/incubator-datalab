@@ -38,8 +38,8 @@ import {
   animateChild,
   state
 } from '@angular/animations';
-import {skip} from "rxjs/operators";
-import {ProgressBarService} from "../../core/services/progress-bar.service";
+import {skip} from 'rxjs/operators';
+import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'dlab-navbar',
@@ -75,7 +75,6 @@ import {ProgressBarService} from "../../core/services/progress-bar.service";
   encapsulation: ViewEncapsulation.None
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  readonly PROVIDER = DICTIONARY.cloud_provider;
 
   private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 55000;
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;

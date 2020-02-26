@@ -66,7 +66,7 @@ def put_to_bucket(bucket_name, local_file, destination_file):
         return False
 
 
-def create_s3_bucket(bucket_name, tag, region, bucket_name_tag):
+def create_s3_bucket(bucket_name, bucket_tags, region, bucket_name_tag):
     try:
         s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
         if region == "us-east-1":
@@ -84,18 +84,15 @@ def create_s3_bucket(bucket_name, tag, region, bucket_name_tag):
                 ]
             })
         tags = list()
-        tags.append(tag)
         tags.append({'Key': os.environ['conf_tag_resource_id'],
                      'Value': os.environ['conf_service_base_name'] + ':' + bucket_name_tag})
-        tags.append({'Key': os.environ['conf_billing_tag_key'], 'Value': os.environ['conf_billing_tag_value']})
-        if 'conf_additional_tags' in os.environ:
-            for tag in os.environ['conf_additional_tags'].split(';'):
-                tags.append(
-                    {
-                        'Key': tag.split(':')[0],
-                        'Value': tag.split(':')[1]
-                    }
-                )
+        for tag in bucket_tags.split(','):
+            tags.append(
+                {
+                    'Key': tag.split(':')[0],
+                    'Value': tag.split(':')[1]
+                }
+            )
         tagging = bucket.Tagging()
         tagging.put(Tagging={'TagSet': tags})
         tagging.reload()
@@ -944,7 +941,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-nb-de-Role' in iam_role:
                     if instance_type == 'notebook' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = '{0}-{1}-nb-de-Profile'.format(service_base_name, scientist)
+                        role_profile_name = '{0}-{1}-{2}-nb-de-Profile'.format(service_base_name, scientist, os.environ['endpoint_name'])
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -1356,10 +1353,10 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
             for ebs in response:
                 if ebs.get('Ebs'):
                     snapshot_id = ebs.get('Ebs').get('SnapshotId')
-                    create_tag(snapshot_id, tag)
                     create_tag(snapshot_id, sbn_tag)
-            create_tag(image.id, tag)
+                    create_tag(snapshot_id, tag)
             create_tag(image.id, sbn_tag)
+            create_tag(image.id, tag)
             if tags:
                 all_tags = json.loads(tags)
                 for key in all_tags.keys():
@@ -1589,8 +1586,8 @@ def ensure_local_jars(os_user, jars_dir):
                     {1}hadoop-aws-{0}.jar'.format('2.7.4', jars_dir))
             sudo('wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/{0}/aws-java-sdk-{0}.jar -O \
                     {1}aws-java-sdk-{0}.jar'.format('1.7.4', jars_dir))
-            #sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
-            #        {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
+            # sudo('wget https://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/{0}/hadoop-lzo-{0}.jar -O \
+            #         {1}hadoop-lzo-{0}.jar'.format('0.4.20', jars_dir))
             sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except:
             sys.exit(1)

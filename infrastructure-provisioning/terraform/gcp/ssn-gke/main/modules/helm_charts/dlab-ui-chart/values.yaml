@@ -25,6 +25,7 @@
 
 replicaCount: 1
 labels: {}
+namespace: ${namespace}
 
 ui:
   service_base_name: ${service_base_name}
@@ -34,29 +35,32 @@ ui:
     tag: '0.1-gcp'
     pullPolicy: Always
   service:
-    type: LoadBalancer
+    type: ClusterIP
     #  port: 58443
-    http_port: 58080
-    https_port: 58443
+    http_port: 80
+    https_port: 443
   ingress:
     enabled: true
     host: ${ssn_k8s_alb_dns_name}
     annotations:
       kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-
-    tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
+    tls:
+      - secretName: dlab-ui-tls
   mongo:
     host: ${mongo_service_name}
     port: ${mongo_port}
     username: ${mongo_user}
     db_name: ${mongo_db_name}
-  provisionService:
-    host: ${provision_service_host}
   keycloak:
-    auth_server_url: http://${ssn_k8s_alb_dns_name}/auth
-    redirect_uri: http://${ssn_k8s_alb_dns_name}/
+    auth_server_url: https://${ssn_k8s_alb_dns_name}/auth
+    redirect_uri: https://${ssn_k8s_alb_dns_name}/
+    realm_name: ${keycloak_realm_name}
+    client_id: ${keycloak_client_id}
+
+  custom_certs:
+    enabled: ${custom_certs_enabled}
+    crt: ${custom_certs_crt}
+    key: ${custom_certs_key}
+    ca: ${step_ca_crt}

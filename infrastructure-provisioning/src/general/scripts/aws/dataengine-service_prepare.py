@@ -104,12 +104,14 @@ if __name__ == "__main__":
                        '{0}-Tag={0}-{1}-des-{2}-{3},' \
                        'Notebook={4},' \
                        'State=not-configured,' \
-                       'ComputationalName={3}' \
+                       'ComputationalName={3},' \
+                       'Endpoint_tag={5}'\
         .format(emr_conf['service_base_name'],
                 os.environ['project_name'],
                 emr_conf['exploratory_name'],
                 emr_conf['computational_name'],
-                os.environ['notebook_instance_name'])
+                os.environ['notebook_instance_name'],
+                emr_conf['endpoint_name'])
     emr_conf['cluster_name'] = '{0}-{1}-des-{2}-{3}-{4}'\
         .format(emr_conf['service_base_name'],
                 os.environ['project_name'],

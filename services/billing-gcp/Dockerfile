@@ -23,6 +23,6 @@ FROM openjdk:8-alpine
 
 USER root
 
-COPY billing-gcp-2.1.jar /root/
+COPY billing-gcp-2.2.jar /root/
 
-CMD java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 /root/billing-gcp-2.1.jar  --spring.config.location=/root/billing.yml
+CMD java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 /root/billing-gcp-2.2.jar  --spring.config.location=/root/billing.yml

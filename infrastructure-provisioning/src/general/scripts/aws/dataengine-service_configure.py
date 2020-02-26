@@ -200,7 +200,7 @@ if __name__ == "__main__":
                        ', ' + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + \
                        os.environ['project_name'] + '-des-' + emr_conf['exploratory_name'] + '-' + \
                        emr_conf['computational_name'] + '-' + args.uuid + \
-                       ', Notebook=' + os.environ['notebook_instance_name'] + ', State=not-configured'
+                       ', Notebook=' + os.environ['notebook_instance_name'] + ', State=not-configured, Endpoint_tag=' + emr_conf['endpoint_name']
     emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['project_name'] + '-des-' + \
                                emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + \
                                args.uuid
@@ -252,9 +252,9 @@ if __name__ == "__main__":
         logging.info('[SUMMARY]')
         ip_address = emr_conf['cluster_master_instances'][0].get('PrivateIpAddress')
         emr_master_url = "http://" + ip_address + ":8088"
-        emr_master_acces_url = "http://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['exploratory_name'] +
-                                                                                        '_' +
-                                                                                        emr_conf['computational_name'])
+        emr_master_acces_url = "https://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['exploratory_name'] +
+                                                                                         '_' +
+                                                                                         emr_conf['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(emr_conf['service_base_name']))

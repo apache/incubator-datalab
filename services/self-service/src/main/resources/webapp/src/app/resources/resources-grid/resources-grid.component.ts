@@ -41,6 +41,12 @@ import { SchedulerComponent } from '../scheduler';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
+import {ProgressBarService} from '../../core/services/progress-bar.service';
+import {ComputationModel} from '../computational/computational-resource.model';
+import {NotebookModel} from '../exploratory/notebook.model';
+
+
+
 
 @Component({
   selector: 'resources-grid',
@@ -73,9 +79,9 @@ export class ResourcesGridComponent implements OnInit {
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', class: 'name-col', filter_class: 'name-filter', filtering: true },
     { title: 'Status', name: 'statuses', class: 'status-col', filter_class: 'status-filter', filtering: true },
-    { title: DICTIONARY.instance_size, name: 'shapes', class: 'shape-col', filter_class: 'shape-filter', filtering: true },
+    { title: 'Instance size', name: 'shapes', class: 'shape-col', filter_class: 'shape-filter', filtering: true },
     { title: 'Tags', name: 'tag', class: 'tag-col', filter_class: 'tag-filter', filtering: false },
-    { title: DICTIONARY.computational_resource, name: 'resources', class: 'resources-col', filter_class: 'resource-filter', filtering: true },
+    { title: 'Computational resource', name: 'resources', class: 'resources-col', filter_class: 'resource-filter', filtering: true },
     { title: 'Cost', name: 'cost', class: 'cost-col', filter_class: 'cost-filter', filtering: false },
     { title: '', name: 'actions', class: 'actions-col', filter_class: 'action-filter', filtering: false }
   ];
@@ -127,12 +133,14 @@ export class ResourcesGridComponent implements OnInit {
     this.buildGrid();
   }
 
-  public containsNotebook(notebook_name: string): boolean {
-    if (notebook_name)
-      return this.environments
-        .filter(project => project.exploratory
-          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name))).length > 0;
-  }
+  public containsNotebook(notebook_name: string, envoirmentNames: Array<string>): boolean {
+    if (notebook_name && envoirmentNames.length ) {
+        return envoirmentNames
+          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item));
+      }
+      return false;
+   }
+
 
   public isResourcesInProgress(notebook) {
     const env = this.getResourceByName(notebook.name);
@@ -190,7 +198,8 @@ export class ResourcesGridComponent implements OnInit {
       this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
         .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'terminate') {
-      this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
+      this.dialog.open(ConfirmationDialogComponent, { data:
+          { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
         .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'install') {
       this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
@@ -200,6 +209,7 @@ export class ResourcesGridComponent implements OnInit {
         .afterClosed().subscribe(() => this.buildGrid());
     } else if (action === 'ami') {
       this.dialog.open(AmiCreateDialogComponent, { data: data, panelClass: 'modal-sm' })
+
         .afterClosed().subscribe(() => this.buildGrid());
     }
   }
@@ -211,7 +221,7 @@ export class ResourcesGridComponent implements OnInit {
       .map(env => env.exploratory.find(({ name }) => {
         return name === notebook_name;
       }))
-      .filter(notebook_name => !!notebook_name)[0];
+      .filter(name => !!name)[0];
   }
 
   private getEnvironmentsListCopy() {
@@ -237,6 +247,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   private applyFilter_btnClick(config: FilterConfigurationModel) {
+
     let filteredData = this.getEnvironmentsListCopy();
 
     const containsStatus = (list, selectedItems) => {
@@ -277,6 +288,31 @@ export class ResourcesGridComponent implements OnInit {
       this.updateUserPreferences(config);
     }
 
+    let failedNotebooks = NotebookModel.notebook(this.getEnvironmentsListCopy());
+    failedNotebooks = SortUtils.flatDeep(failedNotebooks, 1).filter(notebook => notebook.status === 'failed');
+    if (this.filteredEnvironments.length && this.activeFiltering) {
+      let creatingNotebook = NotebookModel.notebook(this.filteredEnvironments);
+      creatingNotebook = SortUtils.flatDeep(creatingNotebook, 1).filter(resourse => resourse.status === 'creating');
+      const fail = failedNotebooks
+        .filter(v => creatingNotebook
+          .some(create => create.project === v.project && create.exploratory === v.exploratory && create.resource === v.resource));
+      if (fail.length) {
+        this.toastr.error('Creating notebook failed!', 'Oops!');
+      }
+    }
+
+    let failedResource = ComputationModel.computationRes(this.getEnvironmentsListCopy());
+    failedResource = SortUtils.flatDeep(failedResource, 2).filter(resourse => resourse.status === 'failed');
+    if (this.filteredEnvironments.length && this.activeFiltering) {
+      let creatingResource = ComputationModel.computationRes(this.filteredEnvironments);
+      creatingResource = SortUtils.flatDeep(creatingResource, 2).filter(resourse => resourse.status === 'creating');
+      const fail = failedResource
+        .filter(v => creatingResource
+          .some(create => create.project === v.project && create.exploratory === v.exploratory && create.resource === v.resource));
+      if (fail.length) {
+        this.toastr.error('Creating computation resource failed!', 'Oops!');
+      }
+    }
     this.filteredEnvironments = filteredData;
   }
 

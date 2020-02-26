@@ -25,12 +25,13 @@ import os
 import sys
 from fabric.api import *
 from fabric.contrib.files import exists
+from dlab.common_lib import manage_pkg
 
 
 def configure_http_proxy_server(config):
     try:
         if not exists('/tmp/http_proxy_ensured'):
-            sudo('apt-get -y install squid')
+            manage_pkg('-y install', 'remote', 'squid')
             template_file = config['template_file']
             proxy_subnet = config['exploratory_subnet']
             put(template_file, '/tmp/squid.conf')
@@ -58,11 +59,55 @@ def configure_http_proxy_server(config):
         sys.exit(1)
 
 
-def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id, keycloak_client_secret):
+def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak_realm_name, keycloak_client_id,
+                      keycloak_client_secret, user, hostname, step_cert_sans):
     try:
         if not os.path.exists('/tmp/nginx_installed'):
-            sudo('apt-get install -y wget')
-            sudo('apt-get -y install gcc build-essential make automake zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev libc6-dev libgd-dev libgeoip-dev libpcre3-dev apt-utils autoconf liblmdb-dev libtool libxml2-dev libyajl-dev pkgconf liblua5.1-0 liblua5.1-0-dev libreadline-dev libreadline6-dev libtinfo-dev libtool-bin lua5.1 zip readline-doc')
+            manage_pkg('-y install', 'remote', 'wget')
+            manage_pkg('-y install', 'remote', 'gcc build-essential make automake zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev libc6-dev libgd-dev libgeoip-dev libpcre3-dev apt-utils autoconf liblmdb-dev libtool libxml2-dev libyajl-dev pkgconf liblua5.1-0 liblua5.1-0-dev libreadline-dev libreadline6-dev libtinfo-dev libtool-bin lua5.1 zip readline-doc')
+            if os.environ['conf_stepcerts_enabled'] == 'true':
+                sudo('mkdir -p /home/{0}/keys'.format(user))
+                sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(
+                     os.environ['conf_stepcerts_root_ca']))
+                fingerprint = sudo('step certificate fingerprint /etc/ssl/certs/root_ca.crt')
+                sudo('step ca bootstrap --fingerprint {0} --ca-url "{1}"'.format(fingerprint,
+                                                                                 os.environ['conf_stepcerts_ca_url']))
+                sudo('echo "{0}" > /home/{1}/keys/provisioner_password'.format(
+                     os.environ['conf_stepcerts_kid_password'], user))
+                sans = "--san localhost --san 127.0.0.1 {0}".format(step_cert_sans)
+                cn = edge_ip
+                sudo('step ca token {3} --kid {0} --ca-url "{1}" --root /etc/ssl/certs/root_ca.crt '
+                     '--password-file /home/{2}/keys/provisioner_password {4} --output-file /tmp/step_token'.format(
+                      os.environ['conf_stepcerts_kid'], os.environ['conf_stepcerts_ca_url'], user, cn, sans))
+                token = sudo('cat /tmp/step_token')
+                sudo('step ca certificate "{0}" /etc/ssl/certs/dlab.crt /etc/ssl/certs/dlab.key '
+                     '--token "{1}" --kty=RSA --size 2048 --provisioner {2} '.format(cn, token,
+                                                                                     os.environ['conf_stepcerts_kid']))
+                sudo('touch /var/log/renew_certificates.log')
+                put('/root/templates/manage_step_certs.sh', '/usr/local/bin/manage_step_certs.sh', use_sudo=True)
+                sudo('chmod +x /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_ROOT_CERT_PATH|/etc/ssl/certs/root_ca.crt|g" '
+                     '/usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_CERT_PATH|/etc/ssl/certs/dlab.crt|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_KEY_PATH|/etc/ssl/certs/dlab.key|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|STEP_CA_URL|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
+                    os.environ['conf_stepcerts_ca_url']))
+                sudo('sed -i "s|RESOURCE_TYPE|edge|g" /usr/local/bin/manage_step_certs.sh')
+                sudo('sed -i "s|SANS|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(sans))
+                sudo('sed -i "s|CN|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(cn))
+                sudo('sed -i "s|KID|{0}|g" /usr/local/bin/manage_step_certs.sh'.format(
+                    os.environ['conf_stepcerts_kid']))
+                sudo('sed -i "s|STEP_PROVISIONER_PASSWORD_PATH|/home/{0}/keys/provisioner_password|g" '
+                     '/usr/local/bin/manage_step_certs.sh'.format(user))
+                sudo('bash -c \'echo "0 * * * * root /usr/local/bin/manage_step_certs.sh >> '
+                     '/var/log/renew_certificates.log 2>&1" >> /etc/crontab \'')
+                put('/root/templates/step-cert-manager.service', '/etc/systemd/system/step-cert-manager.service',
+                    use_sudo=True)
+                sudo('systemctl daemon-reload')
+                sudo('systemctl enable step-cert-manager.service')
+            else:
+                sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
+                     -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
             sudo('mkdir -p /tmp/lua')
             sudo('mkdir -p /tmp/src')
             with cd('/tmp/src/'):
@@ -117,10 +162,14 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             sudo('mkdir -p /opt/dlab/templates')
             put('/root/templates', '/opt/dlab', use_sudo=True)
             sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(edge_ip))
-            sudo('sed -i \'s|KEYCLOAK_AUTH_SERVER_URL|{}|g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_auth_server_url))
-            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_realm_name))
-            sudo('sed -i \'s/KEYCLOAK_CLIENT_ID/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_client_id))
-            sudo('sed -i \'s/KEYCLOAK_CLIENT_SECRET/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(keycloak_client_secret))
+            sudo('sed -i \'s|KEYCLOAK_AUTH_URL|{}|g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+                keycloak_auth_server_url))
+            sudo('sed -i \'s/KEYCLOAK_REALM_NAME/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+                keycloak_realm_name))
+            sudo('sed -i \'s/KEYCLOAK_CLIENT_ID/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+                keycloak_client_id))
+            sudo('sed -i \'s/KEYCLOAK_CLIENT_SECRET/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
+                keycloak_client_secret))
 
             sudo('cp /opt/dlab/templates/nginx.conf /etc/nginx/')
             sudo('mkdir /etc/nginx/conf.d')

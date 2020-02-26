@@ -56,8 +56,8 @@ if __name__ == "__main__":
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['user_keyname'] = os.environ['project_name']
     notebook_config['network_type'] = os.environ['conf_network_type']
-    notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
-                                                               os.environ['project_name'],
+    notebook_config['instance_name'] = '{}-{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
+                                                               os.environ['project_name'], os.environ['endpoint_name'],
                                                                notebook_config['exploratory_name'], args.uuid)
     notebook_config['image_enabled'] = os.environ['conf_image_enabled']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
@@ -73,10 +73,10 @@ if __name__ == "__main__":
             os.environ['endpoint_name'],
             os.environ['application'])
     notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
-    notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
-        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                  os.environ['project_name'])
+    notebook_config['role_profile_name'] = '{}-{}-{}-nb-de-Profile' \
+        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'], os.environ['endpoint_name'])
+    notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
+                                                                  os.environ['project_name'], os.environ['endpoint_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
@@ -313,8 +313,8 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     zeppelin_ip_url = "http://" + ip_address + ":8080/"
     zeppelin_dns_url = "http://" + dns_name + ":8080/"
-    zeppelin_notebook_acces_url = "http://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
-    zeppelin_ungit_acces_url = "http://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
+    zeppelin_notebook_access_url = "https://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
+    zeppelin_ungit_access_url = "https://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
     ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
@@ -346,9 +346,9 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Apache Zeppelin",
-                    "url": zeppelin_notebook_acces_url},
+                    "url": zeppelin_notebook_access_url},
                    {"description": "Ungit",
-                    "url": zeppelin_ungit_acces_url}#,
+                    "url": zeppelin_ungit_access_url}#,
                    #{"description": "Apache Zeppelin (via tunnel)",
                    # "url": zeppelin_ip_url},
                    #{"description": "Ungit (via tunnel)",

@@ -54,8 +54,8 @@ if __name__ == "__main__":
         notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
         notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
         notebook_config['user_keyname'] = os.environ['project_name']
-        notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
-                                                                notebook_config['project_name'],
+        notebook_config['instance_name'] = '{0}-{1}-{2}-nb-{3}'.format(notebook_config['service_base_name'],
+                                                                notebook_config['project_name'], os.environ['endpoint_name'],
                                                                 notebook_config['exploratory_name'])
         notebook_config['image_enabled'] = os.environ['conf_image_enabled']
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
@@ -84,8 +84,8 @@ if __name__ == "__main__":
                                              "Exploratory": notebook_config['exploratory_name'],
                                              os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
-        notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                      notebook_config['project_name'])
+        notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
+                                                                      notebook_config['project_name'], os.environ['endpoint_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
@@ -337,9 +337,9 @@ if __name__ == "__main__":
                                                         notebook_config['instance_name'])
         rstudio_ip_url = "http://" + ip_address + ":8787/"
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
-        rstudio_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+        rstudio_notebook_access_url = "https://" + edge_instance_hostname + "/{}/".format(
             notebook_config['exploratory_name'])
-        rstudio_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
+        rstudio_ungit_access_url = "https://" + edge_instance_hostname + "/{}-ungit/".format(
             notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
@@ -365,9 +365,9 @@ if __name__ == "__main__":
                    "Action": "Create new notebook server",
                    "exploratory_url": [
                        {"description": "RStudio",
-                        "url": rstudio_notebook_acces_url},
+                        "url": rstudio_notebook_access_url},
                        {"description": "Ungit",
-                        "url": rstudio_ungit_acces_url}#,
+                        "url": rstudio_ungit_access_url}#,
                        #{"description": "RStudio (via tunnel)",
                        # "url": rstudio_ip_url},
                        #{"description": "Ungit (via tunnel)",

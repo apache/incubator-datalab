@@ -70,6 +70,10 @@ def configure_notebook(args):
 
 
 if __name__ == "__main__":
+    GCPActions().get_from_bucket(args.bucket, '{0}/{1}/scala_version'.format(args.project_name, args.cluster_name),
+                                 '/tmp/scala_version')
+    with file('/tmp/scala_version') as f:
+        scala_version = str(f.read()).replace(',', '')
     env.hosts = "{}".format(args.notebook_ip)
     env.user = args.os_user
     env.key_filename = "{}".format(args.keyfile)
@@ -84,7 +88,7 @@ if __name__ == "__main__":
     r_enabled = os.environ['notebook_r_enabled']
     sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
     sudo('echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc')
-    sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} --application {11} --r_version {12} --r_enabled {13}'
+    sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} --application {11} --r_version {12} --r_enabled {13} --scala_version {14}'
          .format(os.environ['gcp_project_id'], os.environ['conf_resource'], args.bucket, args.cluster_name,
                  args.dataproc_version, spark_version, hadoop_version, args.region, args.project_name, args.os_user,
-                 args.pip_mirror, args.application, r_version, r_enabled))
+                 args.pip_mirror, args.application, r_version, r_enabled, scala_version))

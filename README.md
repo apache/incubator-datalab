@@ -21,6 +21,8 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Preparing environment for DLab deployment](#Env_for_DLab)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Keycloak server](#Keycloak_server)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Self-Service Node](#Self_Service_Node)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Edge Node](#Edge_Node)
@@ -199,11 +201,64 @@ These directories contain the log files for each template and for DLab back-end 
 -   selfservice.log – Self-Service log file;
 -   edge, notebook, dataengine, dataengine-service – contains logs of Python scripts.
 
+## Keycloak server <a name="Keycloak_server"></a>
+
+**Keycloak** is used to manage user authentication instead of the aplication. To use existing server following parameters must be specified either when running *Dlab* deployment script or in 
+*/opt/dlab/conf/self-service.yml* and */opt/dlab/conf/provisioning.yml* files on SSN node.
+
+| Parameter                | Description/Value             |
+|--------------------------|-------------------------------|
+| keycloak_realm_name      |Keycloak Realm name            |
+| keycloak_auth_server_url |Keycloak auth server URL       |
+| keycloak_client_name     |Keycloak client name           |
+| keycloak_client_secret   |Keycloak client secret         |
+| keycloak_user            |Keycloak user                  |
+| keycloak_user_password   |Keycloak user password         |
+
+### Preparing environment for Keycloak deployment <a name="Env_for_DLab"></a>
+Keycloak can be deployed with Nginx proxy on instance using *deploy_keycloak.py* script. Currently it only works with HTTP.
+
+Preparation steps for deployment:
+
+- Create an VM instance with the following settings:
+    - The instance should have access to Internet in order to install required prerequisites
+    - Boot disk OS Image - Ubuntu 18.04
+- Put private key that is used to connect to instance where Keycloak will be deployed somewhere on the instance where deployment script will be executed.
+- Install Git and clone DLab repository</details>
+### Executing deployment script
+To build Keycloak node, following steps should be executed:
+- Connect to the instance via SSH and run the following commands:
+```
+sudo su
+apt-get update
+apt-get install -y python-pip
+pip install fabric==1.14.0
+```
+- Go to *dlab* directory
+- Run *infrastructure-provisioning/scripts/deploy_keycloak/deploy_keycloak.py* deployment script:
+
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_keycloak/deploy_keycloak.py --os_user ubuntu --keyfile ~/.ssh/key.pem --keycloak_realm_name test_realm_name  --keycloak_user admin --keycloak_user_password admin_password --public_ip_address XXX.XXX.XXX.XXX
+```
+
+List of parameters for Keycloak node deployment:
+
+| Parameter                 | Description/Value                                                                       |
+|---------------------------|-----------------------------------------------------------------------------------------|
+| os_user                   | username, used to connect to the instance |
+| keyfile                   | /path_to_key/private_key.pem, used to connect to instance |
+| keycloak_realm_name       | Keycloak realm name that will be created |
+| keycloak_user             | initial keycloak admin username |
+| keycloak_user_password    | password for initial keycloak admin user |
+| public_ip_address         | Public IP address of the instance (if not specified, keycloak will be deployed on localhost)* (On AWS try to specify Public DNS (IPv4) instead of IPv4 if unable to connect)* |
+
+
 ## Self-Service Node <a name="Self_Service_Node"></a>
 
 ### Preparing environment for DLab deployment <a name="Env_for_DLab"></a>
 
 Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud.
+
 For each cloud provider, prerequisites are different.
 
 <details><summary>In Amazon cloud <i>(click to expand)</i></summary>
@@ -386,11 +441,11 @@ apt-get update
 apt-cache policy docker-ce
 apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
 usermod -a -G docker *username*
-apt-get install python-pip
+apt-get install -y python-pip
 pip install fabric==1.14.0
 ```
 - Go to *dlab* directory
-- Run deployment script:
+- Run *infrastructure-provisioning/scripts/deploy_dlab.py* deployment script:
 
 This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
 
@@ -410,18 +465,20 @@ List of parameters for SSN node deployment:
 | aws\_region               | AWS region                                                                              |
 | conf\_os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
 | conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS)
-| conf\_duo\_vpc\_enable    | "true" - for installing DLab into two Virtual Private Clouds (VPCs) or "false" - for installing DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC
-| aws\_vpc\_id              | ID of the VPC                                                   |
-| aws\_subnet\_id           | ID of the public subnet                                                                 |
-| aws\_security\_groups\_ids| One or more ID\`s of AWS Security Groups, which will be assigned to SSN node            |
+| conf\_duo\_vpc\_enable    | "true" - for installing DLab into two Virtual Private Clouds (VPCs) or "false" - for installing DLab into one VPC. Also this parameter isn't required when deploy DLab in one VPC|
+| aws\_vpc\_id              | ID of the VPC (optional)                                                    |
+| aws\_subnet\_id           | ID of the public subnet (optional)                                                                  |
+| aws\_security\_groups\_ids| One or more ID\`s of AWS Security Groups, which will be assigned to SSN node (optional)             |
 | key\_path                 | Path to admin key (without key name)                                                    |
 | conf\_key\_name           | Name of the uploaded SSH key file (without “.pem” extension)                            |
 | conf\_tag\_resource\_id   | The name of tag for billing reports                                                     |
 | aws\_account\_id          | The The ID of Amazon account                                                            |
 | aws\_billing\_bucket      | The name of S3 bucket where billing reports will be placed                              |
 | aws\_report\_path         | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
-| action                    | In case of SSN node creation, this parameter should be set to “create”
+| action                    | In case of SSN node creation, this parameter should be set to “create”|
 | workspace\_path           | Path to DLab sources root
+| conf\_image\_enabled      | Enable or Disable creating image at first time |
+| conf\_shared\_image\_enabled | Enable or Disable shared images |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   aws\_vpc\_id
@@ -454,13 +511,13 @@ List of parameters for SSN node deployment:
 | Parameter                         | Description/Value                                                                       |
 |-----------------------------------|-----------------------------------------------------------------------------------------|
 | conf\_service\_base\_name         | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
-| azure\_resource\_group\_name      | Resource group name (could be the same as service base name                             |
+| azure\_resource\_group\_name      | Resource group name (can be the same as service base name                             |
 | azure\_region                     | Azure region                                                                            |
 | conf\_os\_family                  | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
 | conf\_cloud\_provider             | Name of the cloud provider, which is supported by DLab (Azure)                          |
-| azure\_vpc\_name                  | Name of the Virtual Network (VN)                                                        |
-| azure\_subnet\_name               | Name of the Azure subnet                                                                |
-| azure\_security\_groups\_name     | One or more Name\`s of Azure Security Groups, which will be assigned to SSN node        |
+| azure\_vpc\_name                  | Name of the Virtual Network (VN) (optional)                                                         |
+| azure\_subnet\_name               | Name of the Azure subnet (optional)                                                                 |
+| azure\_security\_groups\_name     | One or more Name\`s of Azure Security Groups, which will be assigned to SSN node (optional)         |
 | azure\_ssn\_instance\_size        | Instance size of SSN instance in Azure                                                  |
 | key\_path                         | Path to admin key (without key name)                                                    |
 | conf\_key\_name                   | Name of the uploaded SSH key file (without “.pem” extension)                            |
@@ -475,8 +532,11 @@ List of parameters for SSN node deployment:
 | azure\_application\_id            | Azure application ID that is used to log in users in DLab                                                     |
 | azure\_ad\_group\_id              | ID of group in Active directory whose members have full access to shared folder in Azure Data Lake Store                                                                          |
 | action                            | In case of SSN node creation, this parameter should be set to “create”                  |
+| conf\_image\_enabled      | Enable or Disable creating image at first time |
+| conf\_shared\_image\_enabled | Enable or Disable shared images |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
+
 -   azure\_vpc\_nam
 -   azure\_subnet\_name
 -   azure\_security\_groups\_name
@@ -531,16 +591,18 @@ List of parameters for SSN node deployment:
 | gcp\_zone                    | GCP zone                                                                                |
 | conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
 | conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (GCP)                            |
-| gcp\_vpc\_name               | Name of the Virtual Network (VN)                                                        |
-| gcp\_subnet\_name            | Name of the GCP subnet                                                                  |
-| gcp\_firewall\_name          | One or more Name\`s of GCP Security Groups, which will be assigned to SSN node          |
+| gcp\_vpc\_name               | Name of the Virtual Network (VN) (optional)                                                         |
+| gcp\_subnet\_name            | Name of the GCP subnet (optional)                                                                   |
+| gcp\_firewall\_name          | One or more Name\`s of GCP Security Groups, which will be assigned to SSN node (optional)           |
 | key\_path                    | Path to admin key (without key name)                                                    |
 | conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
 | gcp\_service\_account\_path  | Full path to auth json file                                                             |
 | gcp\_ssn\_instance\_size     | Instance size of SSN instance in GCP                                                    |
 | gcp\_project\_id             | ID of GCP project                                                                       |
 | action                       | In case of SSN node creation, this parameter should be set to “create”                  |
-
+| conf\_image\_enabled      | Enable or Disable creating image at first time |
+| conf\_shared\_image\_enabled | Enable or Disable shared images |
+| billing\_dataset\_name | Name of GCP dataset (BigQuery service) |
 
 **Note:** If you gonna use Dataproc cluster, be aware that Dataproc has limited availability in GCP regions. [Cloud Dataproc availability by Region in GCP](https://cloud.google.com/about/locations/)
 
@@ -613,11 +675,15 @@ List of parameters for SSN node termination:
 | gcp\_zone                    | GCP zone                                                                                |
 | conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
 | conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (GCP)                            |
+| gcp\_vpc\_name               | Name of the Virtual Network (VN) (optional)                                                        |
+| gcp\_subnet\_name            | Name of the GCP subnet (optional)                                                                 |
 | key\_path                    | Path to admin key (without key name)                                                    |
 | conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
 | gcp\_service\_account\_path  | Full path to auth json file                                                             |
 | gcp\_project\_id             | ID of GCP project                                                                       |
 | action                       | In case of SSN node termination, this parameter should be set to “terminate”            |
+
+Note: It is required to enter gcp_vpc_name and gcp_subnet_name parameters if Self-Service Node was deployed in pre-defined VPC and Subnet.
 </details>
 
 ## Edge Node <a name="Edge_Node"></a>

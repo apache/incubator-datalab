@@ -52,8 +52,8 @@ if __name__ == "__main__":
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
-    notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
-                                                               notebook_config['project_name'],
+    notebook_config['instance_name'] = '{0}-{1}-{2}-nb-{3}'.format(notebook_config['service_base_name'],
+                                                               notebook_config['project_name'], os.environ['endpoint_name'],
                                                                notebook_config['exploratory_name'])
     notebook_config['image_enabled'] = os.environ['conf_image_enabled']
     notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
@@ -279,9 +279,9 @@ if __name__ == "__main__":
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     zeppelin_ip_url = "http://" + ip_address + ":8080/"
     ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
-    zeppelin_notebook_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+    zeppelin_notebook_access_url = "https://" + edge_instance_hostname + "/{}/".format(
         notebook_config['exploratory_name'])
-    zeppelin_ungit_acces_url = "http://" + edge_instance_hostname + "/{}-ungit/".format(
+    zeppelin_ungit_access_url = "https://" + edge_instance_hostname + "/{}-ungit/".format(
         notebook_config['exploratory_name'])
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
@@ -305,9 +305,9 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Apache Zeppelin",
-                    "url": zeppelin_notebook_acces_url},
+                    "url": zeppelin_notebook_access_url},
                    {"description": "Ungit",
-                    "url": zeppelin_ungit_acces_url}#,
+                    "url": zeppelin_ungit_access_url}#,
                    #{"description": "Apache Zeppelin (via tunnel)",
                    # "url": zeppelin_ip_url},
                    #{"description": "Ungit (via tunnel)",

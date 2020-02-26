@@ -19,6 +19,7 @@
 
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {Endpoint} from '../../../administration/project/project.component';
 
 @Component({
   selector: 'notification-dialog',
@@ -86,7 +87,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
                           </label>
                       </div>
                       <p class="confirm-message">
-                          <span *ngIf="!willNotTerminate">All connected computational resources will be terminated as well</span>
+                          <span *ngIf="!willNotTerminate">All connected computational resources will be terminated as well.</span>
                       </p>
                   </div>
                   <mat-list *ngIf="data.item.endpoints?.length">
@@ -95,7 +96,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
                           <div class="status">Further status</div>
                       </mat-list-item>
                       <div class="scrolling-content">
-                          <mat-list-item *ngFor="let endpoint of data.item.endpoints" class="sans node">
+                          <mat-list-item *ngFor="let endpoint of filterEndpoints()" class="sans node">
                               <div class="endpoint ellipsis">{{endpoint.name}}</div>
                               <div class="status terminated">Terminated</div>
                           </mat-list-item>
@@ -136,25 +137,30 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     .resource-list-header{display: flex; font-weight: 600; font-size: 16px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
     .resource-list-row{display: flex; border-bottom: 1px solid #edf1f5;padding: 0 20px;}
     .confirm-resource-terminating{text-align: left; padding: 10px 20px;}
-    .confirm-message{color: #35afd5;font-size: 13px;min-height: 18px; text-align: center;}
+    .confirm-message{color: #ef5c4b;font-size: 13px;min-height: 18px; text-align: center;}
     .checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
     label{cursor: pointer}
 
 
   `]
 })
-export class NotificationDialogComponent{
+export class NotificationDialogComponent {
   public willNotTerminate: boolean = false;
+  public notFailedEndpoints: Endpoint [];
   constructor(
     public dialogRef: MatDialogRef<NotificationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    if(this.data.list){
+    if (this.data.list) {
     this.willNotTerminate = !this.data.list.length;
     }
   }
 
-  public terminateResource(): void{
+  public terminateResource(): void {
     this.willNotTerminate = !this.willNotTerminate;
+  }
+
+  public filterEndpoints() {
+    return this.data.item.endpoints.filter(e => e.status !== 'FAILED' && e.status !== 'TERMINATED');
   }
 }
