@@ -317,7 +317,7 @@ if __name__ == "__main__":
                  "--keyfile {} " \
                  "--os_user {} ". \
             format(instance_hostname,
-                   notebook_config['ssh_key_path'],
+                   keyfile_name,
                    notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/configure_proxy_for_docker.py {}".format(params))
@@ -338,7 +338,7 @@ if __name__ == "__main__":
                  "--keyfile {} " \
                  "--os_user {} ". \
             format(instance_hostname,
-                   notebook_config['ssh_key_path'],
+                   keyfile_name,
                    notebook_config['dlab_ssh_user'])
         try:
            local("~/scripts/jupyterlab_container_start.py {}".format(params))
