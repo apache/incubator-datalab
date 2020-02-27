@@ -79,7 +79,6 @@ resource "azurerm_network_interface" "endpoint-nif" {
   name                      = local.endpoint_nif_name
   location                  = data.azurerm_resource_group.data-endpoint-resource-group.location
   resource_group_name       = data.azurerm_resource_group.data-endpoint-resource-group.name
-  network_security_group_id = azurerm_network_security_group.enpoint-sg.id
 
   ip_configuration {
     name                          = "configuration"
@@ -95,4 +94,9 @@ resource "azurerm_network_interface" "endpoint-nif" {
     "${var.tag_resource_id}"          = "${var.service_base_name}:${local.endpoint_nif_name}"
     "${var.service_base_name}-Tag"    = local.endpoint_nif_name
   }
+}
+
+resource "azurerm_network_interface_security_group_association" "endpoint-nif-sg" {
+  network_interface_id      = azurerm_network_interface.endpoint-nif.id
+  network_security_group_id = azurerm_network_security_group.enpoint-sg.id
 }
