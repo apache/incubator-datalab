@@ -41,20 +41,22 @@ if __name__ == "__main__":
 
     def clear_resources():
         if 'azure_resource_group_name' not in os.environ:
-            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            AzureActions.remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
         if 'azure_vpc_name' not in os.environ:
-            AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
         if 'azure_subnet_name' not in os.environ:
-            AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
+            AzureActions.remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+                                       ssn_conf['subnet_name'])
         if 'azure_security_group_name' not in os.environ:
-            AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
-        for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
+            AzureActions.remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+        for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
             if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
-        AzureActions().remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
+                AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
+        AzureActions.remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
 
     try:
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         ssn_conf = dict()
         ssn_conf['instance'] = 'ssn'
         
@@ -81,21 +83,21 @@ if __name__ == "__main__":
         ssn_conf['ssh_key_path'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         if os.environ['conf_network_type'] == 'private':
-            ssn_conf['instnace_ip'] = AzureMeta().get_private_ip_address(ssn_conf['resource_group_name'],
-                                                                         ssn_conf['instance_name'])
+            ssn_conf['instnace_ip'] = AzureMeta.get_private_ip_address(ssn_conf['resource_group_name'],
+                                                                       ssn_conf['instance_name'])
         else:
-            ssn_conf['instnace_ip'] = AzureMeta().get_instance_public_ip_address(ssn_conf['resource_group_name'],
-                                                                                 ssn_conf['instance_name'])
+            ssn_conf['instnace_ip'] = AzureMeta.get_instance_public_ip_address(ssn_conf['resource_group_name'],
+                                                                               ssn_conf['instance_name'])
         ssn_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(ssn_conf['instance_name'],
                                                                                ssn_conf['region'])
 
         if os.environ['conf_stepcerts_enabled'] == 'true':
-            ssn_conf['step_cert_sans'] = ' --san {0} --san {1} '.format(AzureMeta().get_private_ip_address(
+            ssn_conf['step_cert_sans'] = ' --san {0} --san {1} '.format(AzureMeta.get_private_ip_address(
                 ssn_conf['resource_group_name'], ssn_conf['instance_name']), ssn_conf['instance_dns_name'])
             if os.environ['conf_network_type'] == 'public':
                 ssn_conf['step_cert_sans'] += ' --san {0}'.format(
-                    AzureMeta().get_instance_public_ip_address(ssn_conf['resource_group_name'],
-                                                               ssn_conf['instance_name']))
+                    AzureMeta.get_instance_public_ip_address(ssn_conf['resource_group_name'],
+                                                             ssn_conf['instance_name']))
         else:
             ssn_conf['step_cert_sans'] = ''
 
@@ -396,8 +398,8 @@ if __name__ == "__main__":
                 })
             if os.environ['azure_oauth2_enabled'] == 'false':
                 ssn_conf['ldap_login'] = 'true'
-            ssn_conf['tenant_id'] = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
-            ssn_conf['subscription_id'] = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')
+            ssn_conf['tenant_id'] = json.dumps(AzureMeta.sp_creds['tenantId']).replace('"', '')
+            ssn_conf['subscription_id'] = json.dumps(AzureMeta.sp_creds['subscriptionId']).replace('"', '')
             ssn_conf['datalake_application_id'] = os.environ['azure_application_id']
             ssn_conf['datalake_store_name'] = None
         else:
@@ -411,10 +413,10 @@ if __name__ == "__main__":
                     'key': 'AZURE_CLIENT_ID',
                     'value': os.environ['azure_application_id']
                 })
-            ssn_conf['tenant_id'] = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
-            ssn_conf['subscription_id'] = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')
+            ssn_conf['tenant_id'] = json.dumps(AzureMeta.sp_creds['tenantId']).replace('"', '')
+            ssn_conf['subscription_id'] = json.dumps(AzureMeta.sp_creds['subscriptionId']).replace('"', '')
             ssn_conf['datalake_application_id'] = os.environ['azure_application_id']
-            for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
+            for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     ssn_conf['datalake_store_name'] = datalake.name
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} " \
@@ -455,7 +457,7 @@ if __name__ == "__main__":
         print("SSN instance size: {}".format(os.environ['azure_ssn_instance_size']))
         ssn_conf['datalake_store_full_name'] = 'None'
         if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
+            for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     ssn_conf['datalake_store_full_name'] = datalake.name
                     print("DataLake store name: {}".format(ssn_conf['datalake_store_full_name']))

@@ -39,6 +39,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     print('Generating infrastructure names and tags')
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
@@ -52,16 +54,16 @@ if __name__ == "__main__":
     logging.info('[START EDGE]')
     print('[START EDGE]')
     try:
-        AzureActions().start_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
+        AzureActions.start_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
     except Exception as err:
         dlab.fab.append_result("Failed to start edge.", str(err))
         sys.exit(1)
 
     try:
-        public_ip_address = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                                       edge_conf['instance_name'])
-        private_ip_address = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                edge_conf['instance_name'])
+        public_ip_address = AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                                     edge_conf['instance_name'])
+        private_ip_address = AzureMeta.get_private_ip_address(edge_conf['resource_group_name'],
+                                                              edge_conf['instance_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(edge_conf['instance_name']))

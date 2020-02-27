@@ -41,6 +41,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
@@ -52,7 +54,7 @@ if __name__ == "__main__":
         print('[START NOTEBOOK]')
         try:
             print("Starting notebook")
-            AzureActions().start_instance(notebook_config['resource_group_name'], notebook_config['notebook_name'])
+            AzureActions.start_instance(notebook_config['resource_group_name'], notebook_config['notebook_name'])
             print("Instance {} has been started".format(notebook_config['notebook_name']))
         except:
             traceback.print_exc()
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
         print('[SETUP USER GIT CREDENTIALS]')
-        notebook_config['notebook_ip'] = AzureMeta().get_private_ip_address(
+        notebook_config['notebook_ip'] = AzureMeta.get_private_ip_address(
             notebook_config['resource_group_name'], notebook_config['notebook_name'])
         notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
@@ -82,7 +84,7 @@ if __name__ == "__main__":
         try:
             logging.info('[UPDATE STORAGE CREDENTIALS]')
             print('[UPDATE STORAGE CREDENTIALS]')
-            notebook_config['notebook_ip'] = AzureMeta().get_private_ip_address(
+            notebook_config['notebook_ip'] = AzureMeta.get_private_ip_address(
                 notebook_config['resource_group_name'], notebook_config['notebook_name'])
             env.hosts = "{}".format(notebook_config['notebook_ip'])
             env.user = os.environ['conf_os_user']
@@ -116,8 +118,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                        notebook_config['notebook_name'])
+        ip_address = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
+                                                      notebook_config['notebook_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(notebook_config['notebook_name']))

@@ -35,10 +35,10 @@ import uuid
 def stop_data_engine(resource_group_name, cluster_name):
     print("Stopping data engine cluster")
     try:
-        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+        for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
             if "Name" in vm.tags:
                 if cluster_name == vm.tags["Name"]:
-                    AzureActions().stop_instance(resource_group_name, vm.name)
+                    AzureActions.stop_instance(resource_group_name, vm.name)
                     print("Instance {} has been stopped".format(vm.name))
     except Exception as err:
         dlab.fab.append_result("Failed to stop dataengine", str(err))
@@ -53,6 +53,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     if 'exploratory_name' in os.environ:

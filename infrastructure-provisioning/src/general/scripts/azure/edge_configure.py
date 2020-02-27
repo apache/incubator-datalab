@@ -41,26 +41,28 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     def clear_resources():
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
-        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
-                                     edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['master_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['slave_security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+        AzureActions.remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
+        AzureActions.remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
+                                   edge_conf['private_subnet_name'])
+        AzureActions.remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions.remove_security_group(edge_conf['resource_group_name'],
+                                           edge_conf['notebook_security_group_name'])
+        AzureActions.remove_security_group(edge_conf['resource_group_name'],
+                                           edge_conf['master_security_group_name'])
+        AzureActions.remove_security_group(edge_conf['resource_group_name'],
+                                           edge_conf['slave_security_group_name'])
+        for storage_account in AzureMeta.list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+                AzureActions.remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
+            for datalake in AzureMeta.list_datalakes(edge_conf['resource_group_name']):
                 if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
+                    AzureActions.remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
 
     try:
         print('Generating infrastructure names and tags')
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         edge_conf = dict()
         edge_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'].lower()[:20], '-', True)
@@ -104,30 +106,30 @@ if __name__ == "__main__":
                                                                                  edge_conf['endpoint_name'])
         edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         edge_conf['keyfile_name'] = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
-        edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'],
-                                                                  edge_conf['vpc_name'],
-                                                                  edge_conf['private_subnet_name']).address_prefix
+        edge_conf['private_subnet_cidr'] = AzureMeta.get_subnet(edge_conf['resource_group_name'],
+                                                                edge_conf['vpc_name'],
+                                                                edge_conf['private_subnet_name']).address_prefix
         if os.environ['conf_network_type'] == 'private':
-            edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                              edge_conf['instance_name'])
+            edge_conf['edge_private_ip'] = AzureMeta.get_private_ip_address(edge_conf['resource_group_name'],
+                                                                            edge_conf['instance_name'])
             edge_conf['edge_public_ip'] = edge_conf['edge_private_ip']
         else:
-            edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                                                     edge_conf['instance_name'])
-            edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                              edge_conf['instance_name'])
-        edge_conf['instance_hostname'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                                                    edge_conf['instance_name'])
-        edge_conf['vpc_cidrs'] = AzureMeta().get_vpc(edge_conf['resource_group_name'],
-                                                     edge_conf['vpc_name']).address_space.address_prefixes
+            edge_conf['edge_public_ip'] = AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                                                   edge_conf['instance_name'])
+            edge_conf['edge_private_ip'] = AzureMeta.get_private_ip_address(edge_conf['resource_group_name'],
+                                                                            edge_conf['instance_name'])
+        edge_conf['instance_hostname'] = AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                                                  edge_conf['instance_name'])
+        edge_conf['vpc_cidrs'] = AzureMeta.get_vpc(edge_conf['resource_group_name'],
+                                                   edge_conf['vpc_name']).address_space.address_prefixes
 
         if os.environ['conf_stepcerts_enabled'] == 'true':
-            edge_conf['step_cert_sans'] = ' --san {0} --san {1} '.format(AzureMeta().get_private_ip_address(
+            edge_conf['step_cert_sans'] = ' --san {0} --san {1} '.format(AzureMeta.get_private_ip_address(
                 edge_conf['resource_group_name'], edge_conf['instance_name']), edge_conf['instance_dns_name'])
             if os.environ['conf_network_type'] == 'public':
                 edge_conf['step_cert_sans'] += ' --san {0}'.format(
-                    AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                               edge_conf['instance_name']))
+                    AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                             edge_conf['instance_name']))
         else:
             edge_conf['step_cert_sans'] = ''
 
@@ -254,7 +256,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+        for storage_account in AzureMeta.list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 edge_conf['shared_storage_account_name'] = storage_account.name
             if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
@@ -270,7 +272,7 @@ if __name__ == "__main__":
         print("User storage account name: {}".format(edge_conf['user_storage_account_name']))
         print("User container name: {}".format(edge_conf['user_container_name']))
         if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
+            for datalake in AzureMeta.list_datalakes(edge_conf['resource_group_name']):
                 if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
                     edge_conf['datalake_id'] = datalake.name
             print("Data Lake name: {}".format(edge_conf['datalake_id']))

@@ -35,10 +35,10 @@ import uuid
 def start_data_engine(resource_group_name, cluster_name):
     print("Starting data engine cluster")
     try:
-        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+        for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
             if "Name" in vm.tags:
                 if cluster_name == vm.tags["Name"]:
-                    AzureActions().start_instance(resource_group_name, vm.name)
+                    AzureActions.start_instance(resource_group_name, vm.name)
                     print("Instance {} has been started".format(vm.name))
     except Exception as err:
         dlab.fab.append_result("Failed to start dataengine", str(err))
@@ -53,6 +53,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     if 'exploratory_name' in os.environ:
@@ -88,10 +90,10 @@ if __name__ == "__main__":
         logging.info('[UPDATE LAST ACTIVITY TIME]')
         print('[UPDATE LAST ACTIVITY TIME]')
         data_engine['computational_id'] = data_engine['cluster_name'] + '-m'
-        data_engine['notebook_ip'] = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
-                                                                        os.environ['notebook_instance_name'])
-        data_engine['computational_ip'] = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
-                                                                             data_engine['computational_id'])
+        data_engine['notebook_ip'] = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
+                                                                      os.environ['notebook_instance_name'])
+        data_engine['computational_ip'] = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
+                                                                           data_engine['computational_id'])
         data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {0} --notebook_ip {1} --keyfile "{2}" --cluster_ip {3}' \
             .format(os.environ['conf_os_user'], data_engine['notebook_ip'], data_engine['keyfile'],

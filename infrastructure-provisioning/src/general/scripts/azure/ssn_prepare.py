@@ -248,7 +248,7 @@ if __name__ == "__main__":
                 AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
             if 'azure_subnet_name' not in os.environ:
                 AzureActions.remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
-                                             ssn_conf['subnet_name'])
+                                           ssn_conf['subnet_name'])
         except Exception as err:
             print("Resources hasn't been removed: " + str(err))
             dlab.fab.append_result("Resources hasn't been removed.", str(err))

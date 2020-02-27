@@ -37,12 +37,12 @@ def stop_notebook(resource_group_name, notebook_name):
     print("Stopping data engine cluster")
     cluster_list = []
     try:
-        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+        for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
             if "notebook_name" in vm.tags:
                 if notebook_name == vm.tags['notebook_name']:
                     if 'master' == vm.tags["Type"]:
                         cluster_list.append(vm.tags["Name"])
-                    AzureActions().stop_instance(resource_group_name, vm.name)
+                    AzureActions.stop_instance(resource_group_name, vm.name)
                     print("Instance {} has been stopped".format(vm.name))
     except Exception as err:
         dlab.fab.append_result("Failed to stop clusters", str(err))
@@ -50,10 +50,10 @@ def stop_notebook(resource_group_name, notebook_name):
 
     print("Stopping notebook")
     try:
-        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+        for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
             if "Name" in vm.tags:
                 if notebook_name == vm.tags["Name"]:
-                    AzureActions().stop_instance(resource_group_name, vm.name)
+                    AzureActions.stop_instance(resource_group_name, vm.name)
                     print("Instance {} has been stopped".format(vm.name))
     except Exception as err:
         dlab.fab.append_result("Failed to stop instance", str(err))
@@ -69,6 +69,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     if 'exploratory_name' in os.environ:

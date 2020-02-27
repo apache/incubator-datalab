@@ -43,6 +43,8 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     try:
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         notebook_config = dict()
         notebook_config['user_name'] = os.environ['edge_user_name'].lower()
         notebook_config['project_name'] = os.environ['project_name'].lower()
@@ -112,7 +114,7 @@ if __name__ == "__main__":
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
-        if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
+        if AzureMeta.get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
             notebook_config['image_name'] = notebook_config['notebook_image_name']
             notebook_config['image_type'] = 'pre-configured'
             print('Pre-configured image found. Using: {}'.format(notebook_config['notebook_image_name']))
@@ -125,15 +127,15 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        edge_status = AzureMeta().get_instance_status(notebook_config['resource_group_name'],
-                                                      '{0}-{1}-{2}-edge'.format(os.environ['conf_service_base_name'],
-                                                                                notebook_config['project_name'],
-                                                                                notebook_config['endpoint_name']))
+        edge_status = AzureMeta.get_instance_status(notebook_config['resource_group_name'],
+                                                    '{0}-{1}-{2}-edge'.format(os.environ['conf_service_base_name'],
+                                                                              notebook_config['project_name'],
+                                                                              notebook_config['endpoint_name']))
 
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+            ssn_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
                                                               os.environ['conf_service_base_name'] + '-ssn')
             dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                          ssn_hostname)
@@ -171,7 +173,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         try:
-            AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+            AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         except:
             print("The instance hasn't been created.")
         dlab.fab.append_result("Failed to create instance.", str(err))

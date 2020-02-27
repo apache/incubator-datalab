@@ -44,6 +44,8 @@ if __name__ == "__main__":
 
     try:
         print('Generating infrastructure names and tags')
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         project_conf = dict()
         project_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'].lower()[:20], '-', True)
@@ -160,16 +162,16 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         try:
-            AzureActions().remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
-                                         project_conf['private_subnet_name'])
+            AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
+                                       project_conf['private_subnet_name'])
         except:
             print("Subnet hasn't been created.")
         dlab.fab.append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
-    project_conf['private_subnet_cidr'] = AzureMeta().get_subnet(project_conf['resource_group_name'],
-                                                                 project_conf['vpc_name'],
-                                                                 project_conf['private_subnet_name']).address_prefix
+    project_conf['private_subnet_cidr'] = AzureMeta.get_subnet(project_conf['resource_group_name'],
+                                                               project_conf['vpc_name'],
+                                                               project_conf['private_subnet_name']).address_prefix
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
 
     try:
@@ -447,11 +449,11 @@ if __name__ == "__main__":
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except Exception as err:
-            AzureActions().remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
-                                         project_conf['private_subnet_name'])
+            AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
+                                       project_conf['private_subnet_name'])
             try:
-                AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                     project_conf['edge_security_group_name'])
+                AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                                   project_conf['edge_security_group_name'])
             except:
                 print("Edge Security group hasn't been created.")
             traceback.print_exc()
@@ -480,9 +482,9 @@ if __name__ == "__main__":
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
-                "source_address_prefix": AzureMeta().get_subnet(project_conf['resource_group_name'],
-                                                                project_conf['vpc_name'],
-                                                                project_conf['subnet_name']).address_prefix,
+                "source_address_prefix": AzureMeta.get_subnet(project_conf['resource_group_name'],
+                                                              project_conf['vpc_name'],
+                                                              project_conf['subnet_name']).address_prefix,
                 "destination_address_prefix": "*",
                 "access": "Allow",
                 "priority": 110,
@@ -516,9 +518,9 @@ if __name__ == "__main__":
                 "source_port_range": "*",
                 "destination_port_range": "*",
                 "source_address_prefix": "*",
-                "destination_address_prefix": AzureMeta().get_subnet(project_conf['resource_group_name'],
-                                                                     project_conf['vpc_name'],
-                                                                     project_conf['subnet_name']).address_prefix,
+                "destination_address_prefix": AzureMeta.get_subnet(project_conf['resource_group_name'],
+                                                                   project_conf['vpc_name'],
+                                                                   project_conf['subnet_name']).address_prefix,
                 "access": "Allow",
                 "priority": 110,
                 "direction": "Outbound"
@@ -556,13 +558,13 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed creating security group for private subnet.", str(err))
-        AzureActions().remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
-                                     project_conf['private_subnet_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['edge_security_group_name'])
+        AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
+                                   project_conf['private_subnet_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['edge_security_group_name'])
         try:
-            AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                 project_conf['notebook_security_group_name'])
+            AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                               project_conf['notebook_security_group_name'])
         except:
             print("Notebook Security group hasn't been created.")
         sys.exit(1)
@@ -587,9 +589,9 @@ if __name__ == "__main__":
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
-                "source_address_prefix": AzureMeta().get_subnet(project_conf['resource_group_name'],
-                                                                project_conf['vpc_name'],
-                                                                project_conf['subnet_name']).address_prefix,
+                "source_address_prefix": AzureMeta.get_subnet(project_conf['resource_group_name'],
+                                                              project_conf['vpc_name'],
+                                                              project_conf['subnet_name']).address_prefix,
                 "destination_address_prefix": "*",
                 "access": "Allow",
                 "priority": 110,
@@ -623,9 +625,9 @@ if __name__ == "__main__":
                 "source_port_range": "*",
                 "destination_port_range": "*",
                 "source_address_prefix": "*",
-                "destination_address_prefix": AzureMeta().get_subnet(project_conf['resource_group_name'],
-                                                                     project_conf['vpc_name'],
-                                                                     project_conf['subnet_name']).address_prefix,
+                "destination_address_prefix": AzureMeta.get_subnet(project_conf['resource_group_name'],
+                                                                   project_conf['vpc_name'],
+                                                                   project_conf['subnet_name']).address_prefix,
                 "access": "Allow",
                 "priority": 110,
                 "direction": "Outbound"
@@ -662,15 +664,15 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        AzureActions().remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
-                                     project_conf['private_subnet_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['notebook_security_group_name'])
+        AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
+                                   project_conf['private_subnet_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['edge_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['notebook_security_group_name'])
         try:
-            AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                 project_conf['master_security_group_name'])
+            AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                               project_conf['master_security_group_name'])
         except:
             print("Master Security group hasn't been created.")
         dlab.fab.append_result("Failed to create Security groups. Exception:" + str(err))
@@ -688,17 +690,17 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        AzureActions().remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
-                                     project_conf['private_subnet_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                 project_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['master_security_group_name'])
+        AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
+                                   project_conf['private_subnet_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['edge_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['notebook_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['master_security_group_name'])
         try:
-            AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                 project_conf['slave_security_group_name'])
+            AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                               project_conf['slave_security_group_name'])
         except:
             print("Slave Security group hasn't been created.")
         dlab.fab.append_result("Failed to create Security groups. Exception:" + str(err))
@@ -713,19 +715,19 @@ if __name__ == "__main__":
         local("~/scripts/{}.py {}".format('common_create_storage_account', params))
     except Exception as err:
         dlab.fab.append_result("Failed to create storage account.", str(err))
-        AzureActions().remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
-                                     project_conf['private_subnet_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['master_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['slave_security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(project_conf['resource_group_name']):
+        AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
+                                   project_conf['private_subnet_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['edge_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['notebook_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['master_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['slave_security_group_name'])
+        for storage_account in AzureMeta.list_storage_accounts(project_conf['resource_group_name']):
             if project_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+                AzureActions.remove_storage_account(project_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
     try:
@@ -742,21 +744,21 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to create storage account.", str(err))
-        AzureActions().remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
-                                     project_conf['private_subnet_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['master_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                 project_conf['slave_security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(project_conf['resource_group_name']):
+        AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
+                                   project_conf['private_subnet_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['edge_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['notebook_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['master_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['slave_security_group_name'])
+        for storage_account in AzureMeta.list_storage_accounts(project_conf['resource_group_name']):
             if project_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+                AzureActions.remove_storage_account(project_conf['resource_group_name'], storage_account.name)
             if project_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+                AzureActions.remove_storage_account(project_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
     if os.environ['azure_datalake_enable'] == 'true':
@@ -776,25 +778,25 @@ if __name__ == "__main__":
                 raise Exception
         except Exception as err:
             dlab.fab.append_result("Failed to create Data Lake Store directory.", str(err))
-            AzureActions().remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
-                                         project_conf['private_subnet_name'])
-            AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                 project_conf['edge_security_group_name'])
-            AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                 project_conf['notebook_security_group_name'])
-            AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                 project_conf['master_security_group_name'])
-            AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                     project_conf['slave_security_group_name'])
-            for storage_account in AzureMeta().list_storage_accounts(project_conf['resource_group_name']):
+            AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
+                                       project_conf['private_subnet_name'])
+            AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                               project_conf['edge_security_group_name'])
+            AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                               project_conf['notebook_security_group_name'])
+            AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                               project_conf['master_security_group_name'])
+            AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                               project_conf['slave_security_group_name'])
+            for storage_account in AzureMeta.list_storage_accounts(project_conf['resource_group_name']):
                 if project_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
-                    AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+                    AzureActions.remove_storage_account(project_conf['resource_group_name'], storage_account.name)
                 if project_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                    AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+                    AzureActions.remove_storage_account(project_conf['resource_group_name'], storage_account.name)
             try:
-                for datalake in AzureMeta().list_datalakes(project_conf['resource_group_name']):
+                for datalake in AzureMeta.list_datalakes(project_conf['resource_group_name']):
                     if project_conf['datalake_store_name'] == datalake.tags["Name"]:
-                        AzureActions().remove_datalake_directory(datalake.name,
+                        AzureActions.remove_datalake_directory(datalake.name,
                                                                  project_conf['datalake_user_directory_name'])
             except:
                 print("Data Lake Store directory hasn't been created.")
@@ -829,28 +831,28 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         try:
-            AzureActions().remove_instance(project_conf['resource_group_name'], project_conf['instance_name'])
+            AzureActions.remove_instance(project_conf['resource_group_name'], project_conf['instance_name'])
         except:
             print("The instance hasn't been created.")
-        AzureActions().remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
-                                     project_conf['private_subnet_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                             project_conf['master_security_group_name'])
-        AzureActions().remove_security_group(project_conf['resource_group_name'],
-                                                 project_conf['slave_security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(project_conf['resource_group_name']):
+        AzureActions.remove_subnet(project_conf['resource_group_name'], project_conf['vpc_name'],
+                                   project_conf['private_subnet_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['edge_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['notebook_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['master_security_group_name'])
+        AzureActions.remove_security_group(project_conf['resource_group_name'],
+                                           project_conf['slave_security_group_name'])
+        for storage_account in AzureMeta.list_storage_accounts(project_conf['resource_group_name']):
             if project_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+                AzureActions.remove_storage_account(project_conf['resource_group_name'], storage_account.name)
             if project_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(project_conf['resource_group_name'], storage_account.name)
+                AzureActions.remove_storage_account(project_conf['resource_group_name'], storage_account.name)
         if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(project_conf['resource_group_name']):
+            for datalake in AzureMeta.list_datalakes(project_conf['resource_group_name']):
                 if project_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions().remove_datalake_directory(datalake.name,
-                                                             project_conf['datalake_user_directory_name'])
+                    AzureActions.remove_datalake_directory(datalake.name,
+                                                           project_conf['datalake_user_directory_name'])
         dlab.fab.append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)

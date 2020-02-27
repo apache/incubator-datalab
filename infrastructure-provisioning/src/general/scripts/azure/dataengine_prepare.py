@@ -44,6 +44,8 @@ if __name__ == "__main__":
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         data_engine = dict()
         data_engine['user_name'] = os.environ['edge_user_name'].lower()
         data_engine['project_name'] = os.environ['project_name'].lower()
@@ -67,9 +69,9 @@ if __name__ == "__main__":
         data_engine['private_subnet_name'] = '{}-{}-{}-subnet'.format(data_engine['service_base_name'],
                                                                       data_engine['project_name'],
                                                                       data_engine['endpoint_name'])
-        data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
-                                                                    data_engine['vpc_name'],
-                                                                    data_engine['private_subnet_name']).address_prefix
+        data_engine['private_subnet_cidr'] = AzureMeta.get_subnet(data_engine['resource_group_name'],
+                                                                  data_engine['vpc_name'],
+                                                                  data_engine['private_subnet_name']).address_prefix
         data_engine['master_security_group_name'] = '{}-{}-{}-de-master-sg'.format(
             data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
         data_engine['slave_security_group_name'] = '{}-{}-{}-de-slave-sg'.format(
@@ -121,7 +123,7 @@ if __name__ == "__main__":
                     else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
 
         print('Searching pre-configured images')
-        if AzureMeta().get_image(data_engine['resource_group_name'], data_engine['notebook_image_name']) and \
+        if AzureMeta.get_image(data_engine['resource_group_name'], data_engine['notebook_image_name']) and \
                         os.environ['application'] in os.environ['dataengine_image_notebooks'].split(','):
             data_engine['image_name'] = data_engine['notebook_image_name']
             data_engine['image_type'] = 'pre-configured'
@@ -134,15 +136,15 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        edge_status = AzureMeta().get_instance_status(data_engine['resource_group_name'],
-                                                      '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
-                                                                                data_engine['project_name'],
-                                                                                data_engine['endpoint_name']))
+        edge_status = AzureMeta.get_instance_status(data_engine['resource_group_name'],
+                                                    '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                                              data_engine['project_name'],
+                                                                              data_engine['endpoint_name']))
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
-                                                              data_engine['service_base_name'] + '-ssn')
+            ssn_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
+                                                            data_engine['service_base_name'] + '-ssn')
             dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                          ssn_hostname)
             dlab.fab.append_result("Edge node is unavailable")
@@ -184,7 +186,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         try:
-            AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+            AzureActions.remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         except:
             print("The instance hasn't been created.")
         dlab.fab.append_result("Failed to create master instance.", str(err))
@@ -220,9 +222,9 @@ if __name__ == "__main__":
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:
-                AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+                AzureActions.remove_instance(data_engine['resource_group_name'], slave_name)
             except:
                 print("The slave instance {} hasn't been created.".format(slave_name))
-        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        AzureActions.remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         dlab.fab.append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

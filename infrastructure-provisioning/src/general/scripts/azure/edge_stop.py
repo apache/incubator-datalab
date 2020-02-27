@@ -38,6 +38,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     print('Generating infrastructure names and tags')
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
@@ -49,7 +51,7 @@ if __name__ == "__main__":
     logging.info('[STOP EDGE]')
     print('[STOP EDGE]')
     try:
-        AzureActions().stop_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
+        AzureActions.stop_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
     except Exception as err:
         dlab.fab.append_result("Failed to stop edge.", str(err))
         sys.exit(1)

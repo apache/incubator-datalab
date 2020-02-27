@@ -35,10 +35,10 @@ import uuid
 def terminate_data_engine(resource_group_name, notebook_name, os_user, key_path, cluster_name):
     print("Terminating data engine cluster")
     try:
-        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+        for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
             if "Name" in vm.tags:
                 if cluster_name == vm.tags["Name"]:
-                    AzureActions().remove_instance(resource_group_name, vm.name)
+                    AzureActions.remove_instance(resource_group_name, vm.name)
                     print("Instance {} has been terminated".format(vm.name))
     except Exception as err:
         dlab.fab.append_result("Failed to terminate dataengine", str(err))
@@ -46,7 +46,7 @@ def terminate_data_engine(resource_group_name, notebook_name, os_user, key_path,
 
     print("Removing Data Engine kernels from notebook")
     try:
-        AzureActions().remove_dataengine_kernels(resource_group_name, notebook_name, os_user, key_path, cluster_name)
+        AzureActions.remove_dataengine_kernels(resource_group_name, notebook_name, os_user, key_path, cluster_name)
     except Exception as err:
         dlab.fab.append_result("Failed to remove dataengine kernels from notebook", str(err))
         sys.exit(1)
@@ -60,6 +60,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     if 'exploratory_name' in os.environ:

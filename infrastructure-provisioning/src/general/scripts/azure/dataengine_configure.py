@@ -144,8 +144,8 @@ def configure_slave(slave_number, data_engine):
 def clear_resources():
     for i in range(data_engine['instance_count'] - 1):
         slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-        AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
-    AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        AzureActions.remove_instance(data_engine['resource_group_name'], slave_name)
+    AzureActions.remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
 
 
 if __name__ == "__main__":
@@ -157,6 +157,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         print('Generating infrastructure names and tags')
         data_engine = dict()
         if 'exploratory_name' in os.environ:
@@ -180,9 +182,9 @@ if __name__ == "__main__":
         data_engine['private_subnet_name'] = '{}-{}-{}-subnet'.format(data_engine['service_base_name'],
                                                                       data_engine['project_name'],
                                                                       data_engine['endpoint_name'])
-        data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
-                                                                    data_engine['vpc_name'],
-                                                                    data_engine['private_subnet_name']).address_prefix
+        data_engine['private_subnet_cidr'] = AzureMeta.get_subnet(data_engine['resource_group_name'],
+                                                                  data_engine['vpc_name'],
+                                                                  data_engine['private_subnet_name']).address_prefix
         data_engine['master_security_group_name'] = '{}-{}-{}-de-master-sg'.format(
             data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
         data_engine['slave_security_group_name'] = '{}-{}-{}-de-slave-sg'.format(
@@ -199,19 +201,19 @@ if __name__ == "__main__":
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
         data_engine['notebook_name'] = os.environ['notebook_instance_name']
-        master_node_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
-                                                                  data_engine['master_node_name'])
+        master_node_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
+                                                                data_engine['master_node_name'])
         edge_instance_name = '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
                                                        data_engine['project_name'],
                                                        data_engine['endpoint_name'])
-        edge_instance_private_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
-                                                                            edge_instance_name)
+        edge_instance_private_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
+                                                                          edge_instance_name)
         if os.environ['conf_network_type'] == 'private':
-            edge_instance_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
-                                                                        edge_instance_name)
+            edge_instance_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
+                                                                      edge_instance_name)
         else:
-            edge_instance_hostname = AzureMeta().get_instance_public_ip_address(data_engine['resource_group_name'],
-                                                                                edge_instance_name)
+            edge_instance_hostname = AzureMeta.get_instance_public_ip_address(data_engine['resource_group_name'],
+                                                                              edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(keyfile_name, 'rb').read())
         data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
@@ -348,8 +350,8 @@ if __name__ == "__main__":
     try:
         print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
-        notebook_instance_ip = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
-                                                                  data_engine['notebook_name'])
+        notebook_instance_ip = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
+                                                                data_engine['notebook_name'])
         additional_info = {
             "computational_name": data_engine['computational_name'],
             "master_node_hostname": master_node_hostname,
@@ -382,8 +384,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        ip_address = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
-                                                        data_engine['master_node_name'])
+        ip_address = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
+                                                      data_engine['master_node_name'])
         spark_master_url = "http://" + ip_address + ":8080"
         spark_master_access_url = "https://" + edge_instance_hostname + "/{}/".format(
             data_engine['exploratory_name'] + '_' + data_engine['computational_name'])

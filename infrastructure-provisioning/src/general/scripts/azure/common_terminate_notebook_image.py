@@ -31,14 +31,16 @@ import os
 
 if __name__ == "__main__":
     try:
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         image_conf = dict()
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
         image_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         image_conf['full_image_name'] = os.environ['notebook_image_name']
 
-        image = AzureMeta().get_image(image_conf['resource_group_name'], image_conf['full_image_name'])
+        image = AzureMeta.get_image(image_conf['resource_group_name'], image_conf['full_image_name'])
         if image != '':
-            AzureActions().remove_image(image_conf['resource_group_name'], image_conf['full_image_name'])
+            AzureActions.remove_image(image_conf['resource_group_name'], image_conf['full_image_name'])
 
             with open("/root/result.json", 'w') as result:
                 res = {"notebook_image_name": image_conf['full_image_name'],

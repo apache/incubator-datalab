@@ -34,8 +34,8 @@ import uuid
 def clear_resources():
     for i in range(notebook_config['instance_count'] - 1):
         slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
-        AzureActions().remove_instance(notebook_config['resource_group_name'], slave_name)
-    AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['master_node_name'])
+        AzureActions.remove_instance(notebook_config['resource_group_name'], slave_name)
+    AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['master_node_name'])
 
 
 if __name__ == "__main__":
@@ -48,6 +48,8 @@ if __name__ == "__main__":
 
     try:
         # generating variables dictionary
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         print('Generating infrastructure names and tags')
         notebook_config = dict()
         if 'exploratory_name' in os.environ:
@@ -77,9 +79,9 @@ if __name__ == "__main__":
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['instance_count'] = int(os.environ['dataengine_instance_count'])
         try:
-            notebook_config['spark_master_ip'] = AzureMeta().get_private_ip_address(
+            notebook_config['spark_master_ip'] = AzureMeta.get_private_ip_address(
                 notebook_config['resource_group_name'], notebook_config['master_node_name'])
-            notebook_config['notebook_ip'] = AzureMeta().get_private_ip_address(
+            notebook_config['notebook_ip'] = AzureMeta.get_private_ip_address(
                 notebook_config['resource_group_name'], notebook_config['notebook_name'])
         except Exception as err:
             dlab.fab.append_result("Failed to get instance IP address", str(err))
