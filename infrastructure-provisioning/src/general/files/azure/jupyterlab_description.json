@@ -1,0 +1,25 @@
+{
+  "exploratory_environment_shapes" :
+  {
+    "Memory optimized" : [
+      {"Size": "S", "Description": "Standard_E4s_v3", "Type": "Standard_E4s_v3","Ram": "32 GB","Cpu": "4"},
+      {"Size": "M", "Description": "Standard_E16s_v3", "Type": "Standard_E16s_v3","Ram": "128 GB","Cpu": "16"},
+      {"Size": "L", "Description": "Standard_E32s_v3", "Type": "Standard_E32s_v3","Ram": "256 GB","Cpu": "32"}
+    ],
+    "Compute optimized": [
+      {"Size": "S", "Description": "Standard_F2s", "Type": "Standard_F2s","Ram": "4 GB","Cpu": "2"},
+      {"Size": "M", "Description": "Standard_F8s", "Type": "Standard_F8s","Ram": "16.0 GB","Cpu": "8"},
+      {"Size": "L", "Description": "Standard_F16s", "Type": "Standard_F16s","Ram": "32.0 GB","Cpu": "16"}
+    ]
+  },
+  "exploratory_environment_versions" :
+  [
+    {
+      "template_name": "JupyterLab 0.35.6",
+      "description": "Base image with JupyterLab node creation routines",
+      "environment_type": "exploratory",
+      "version": "jupyter_lab-0.35.6",
+      "vendor": "Azure"
+    }
+  ]
+}
