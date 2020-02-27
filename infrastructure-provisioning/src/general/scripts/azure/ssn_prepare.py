@@ -41,6 +41,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         ssn_conf = dict()
         ssn_conf['instance'] = 'ssn'
 
@@ -95,7 +97,7 @@ if __name__ == "__main__":
         dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
-    if AzureMeta().get_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name']):
+    if AzureMeta.get_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name']):
         dlab.fab.append_result("Service base name should be unique and less or equal 20 symbols. Please try again.")
         sys.exit(1)
 
@@ -128,7 +130,7 @@ if __name__ == "__main__":
         dlab.fab.append_result("Failed to create VPC.", str(err))
         try:
             if 'azure_resource_group_name' not in os.environ:
-                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+                AzureActions.remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
         except Exception as err:
             dlab.fab.append_result("Resources hasn't been removed.", str(err))
         sys.exit(1)
@@ -149,9 +151,9 @@ if __name__ == "__main__":
         dlab.fab.append_result("Failed to create Subnet.", str(err))
         try:
             if 'azure_resource_group_name' not in os.environ:
-                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+                AzureActions.remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
             if 'azure_vpc_name' not in os.environ:
-                AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+                AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
         except Exception as err:
             print("Resources hasn't been removed: {}".format(str(err)))
             dlab.fab.append_result("Resources hasn't been removed.", str(err))
@@ -170,9 +172,9 @@ if __name__ == "__main__":
         traceback.print_exc()
         try:
             if 'azure_resource_group_name' not in os.environ:
-                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+                AzureActions.remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
             if 'azure_vpc_name' not in os.environ:
-                AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+                AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
         except Exception as err:
             print("Resources hasn't been removed: " + str(err))
             dlab.fab.append_result("Resources hasn't been removed.", str(err))
@@ -241,11 +243,11 @@ if __name__ == "__main__":
         dlab.fab.append_result("Error creating Security group", str(err))
         try:
             if 'azure_resource_group_name' not in os.environ:
-                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+                AzureActions.remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
             if 'azure_vpc_name' not in os.environ:
-                AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+                AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
             if 'azure_subnet_name' not in os.environ:
-                AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+                AzureActions.remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
                                              ssn_conf['subnet_name'])
         except Exception as err:
             print("Resources hasn't been removed: " + str(err))
@@ -280,17 +282,17 @@ if __name__ == "__main__":
             traceback.print_exc()
             dlab.fab.append_result("Failed to create Data Lake Store.", str(err))
             if 'azure_resource_group_name' not in os.environ:
-                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+                AzureActions.remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
             if 'azure_vpc_name' not in os.environ:
-                AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+                AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
             if 'azure_subnet_name' not in os.environ:
-                AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+                AzureActions.remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
                                                 ssn_conf['subnet_name'])
             if 'azure_security_group_name' not in os.environ:
-                AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
-            for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
+                AzureActions.remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+            for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
+                    AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
             sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
@@ -318,19 +320,19 @@ if __name__ == "__main__":
         traceback.print_exc()
         dlab.fab.append_result("Failed to create instance.", str(err))
         if 'azure_resource_group_name' not in os.environ:
-            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            AzureActions.remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
         if 'azure_vpc_name' not in os.environ:
-            AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
         if 'azure_subnet_name' not in os.environ:
-            AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+            AzureActions.remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
                                             ssn_conf['subnet_name'])
         if 'azure_security_group_name' not in os.environ:
-            AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
-        for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
+            AzureActions.remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+        for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
             if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
+                AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
         try:
-            AzureActions().remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
+            AzureActions.remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
         except:
             print("The instance {} hasn't been created".format(ssn_conf['instance_name']))
         sys.exit(1)
