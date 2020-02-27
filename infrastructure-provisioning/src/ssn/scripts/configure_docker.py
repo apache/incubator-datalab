@@ -198,8 +198,8 @@ if __name__ == "__main__":
     if not ensure_docker_daemon(args.dlab_path, args.os_user, args.region):
         sys.exit(1)
 
-    print("Preparing odahu image")
-    prepare_odahu_image(args.nexus_username, args.nexus_password, args.nexus_url, args.dlab_path)
+    #print("Preparing odahu image")
+    #prepare_odahu_image(args.nexus_username, args.nexus_password, args.nexus_url, args.dlab_path)
 
     print("Building dlab images")
     count = 0
