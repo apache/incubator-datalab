@@ -31,7 +31,7 @@ def manage_npm_pkg(command):
     try:
         npm_count = 0
         installed = False
-        npm_registry_first = ['https://registry.npmjs.org/', 'https://registry.npmjs.com/']
+        npm_registry = ['https://registry.npmjs.org/', 'https://registry.npmjs.com/']
         while not installed:
             if npm_count > 60:
                 print("NPM registry is not available, please try later")
@@ -39,9 +39,9 @@ def manage_npm_pkg(command):
             else:
                 try:
                     if npm_count % 2 == 0:
-                        sudo('npm config set registry {}'.format(npm_registry_first[0]))
+                        sudo('npm config set registry {}'.format(npm_registry[0]))
                     else:
-                        sudo('npm config set registry {}'.format(npm_registry_first[1]))
+                        sudo('npm config set registry {}'.format(npm_registry[1]))
                     sudo('npm {}'.format(command))
                     installed = True
                 except:
