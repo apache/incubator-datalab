@@ -78,7 +78,7 @@ if __name__ == "__main__":
             project_conf['service_base_name'], project_conf['project_name'], project_conf['endpoint_name'])
         project_conf['edge_policy_name'] = '{}-{}-{}-edge-policy'.format(
             project_conf['service_base_name'], project_conf['project_name'], project_conf['endpoint_name'])
-        project_conf['edge_security_group_name'] = '{}-{}-{}-edge-sg'.format(project_conf['edge_instance_name'],
+        project_conf['edge_security_group_name'] = '{}-{}-{}-edge-sg'.format(project_conf['service_base_name'],
                                                                              project_conf['project_name'],
                                                                              project_conf['endpoint_name'])
         project_conf['notebook_instance_name'] = '{}-{}-{}-nb'.format(project_conf['service_base_name'],
