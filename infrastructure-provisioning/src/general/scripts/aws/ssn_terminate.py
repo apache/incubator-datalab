@@ -50,7 +50,7 @@ if __name__ == "__main__":
     ssn_conf['tag_name'] = ssn_conf['service_base_name'] + '-tag'
     ssn_conf['edge_sg'] = ssn_conf['service_base_name'] + "*" + '-edge'
     ssn_conf['nb_sg'] = ssn_conf['service_base_name'] + "*" + '-nb'
-    ssn_conf['de_sg'] = ssn_conf['service_base_name'] + "*" + '-dataengine*'
+    ssn_conf['de_sg'] = ssn_conf['service_base_name'] + "*" + '-de*'
     ssn_conf['de-service_sg'] = ssn_conf['service_base_name'] + "*" + '-des-*'
 
     try:
