@@ -45,6 +45,7 @@ if __name__ == "__main__":
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+    notebook_config['user_tag'] = (os.environ['user_tag']).lower().replace('_', '-')
     notebook_config['region'] = os.environ['gcp_region']
     notebook_config['zone'] = os.environ['gcp_zone']
 
@@ -139,7 +140,7 @@ if __name__ == "__main__":
                                  "sbn": notebook_config['service_base_name'],
                                  "project_tag": notebook_config['project_tag'],
                                  "endpoint_tag": notebook_config['endpoint_tag'],
-                                 "user": notebook_config['edge_user_name'],
+                                 "user": notebook_config['user_tag'],
                                  "product": "dlab",
                                  }
     # launching instance for notebook server
