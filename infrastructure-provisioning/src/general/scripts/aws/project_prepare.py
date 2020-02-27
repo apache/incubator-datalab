@@ -568,7 +568,8 @@ if __name__ == "__main__":
             project_conf['project_tag'], project_conf['tag_name'], project_conf['bucket_name'],
             project_conf['bucket_additional_tags']).replace(';', ',')
         params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {}" \
-                 .format(project_conf['bucket_name'], project_conf['bucket_tags'], project_conf['region'], project_conf['bucket_name_tag'])
+                 .format(project_conf['bucket_name'], project_conf['bucket_tags'], project_conf['region'],
+                         project_conf['bucket_name_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:

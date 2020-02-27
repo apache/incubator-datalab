@@ -103,6 +103,7 @@ if __name__ == "__main__":
                                                                      edge_instance_name).get('Public')
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         edge_ip = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
+        notebook_config['rstudio_pass'] = dlab.fab.id_generator()
     except Exception as err:
         dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
         dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
