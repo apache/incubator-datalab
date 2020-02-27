@@ -133,10 +133,10 @@
     <div class="legion-info" *ngIf="data.legion">
       <div class="content-box">
         <div class="detail-info" *ngIf="!legion.error_message">
-        <div class="links_block">
+        <div  class="links_block">
           <p *ngFor="let url of legion.url">
             <span class="description">{{url.description}}: &nbsp;</span>
-            <a class="ellipsis" matTooltip=" http://172.31.48.131:8080/" matTooltipPosition="above" href=" http://172.31.48.131:8080/"
+            <a class="ellipsis" matTooltip="{{ url.url}}" matTooltipPosition="above" href="{{ url.url}}"
                target="_blank">{{ url.url}}              &nbsp;
             </a>
           </p>

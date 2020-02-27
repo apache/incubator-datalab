@@ -93,7 +93,12 @@ export class ExploratoryModel {
         });
 
         const odahu = value.odahu.map(el => {
-          let provider = "azure";
+          let provider;
+          if (el.cloud_provider) {
+            provider = el.cloud_provider.toLowerCase();
+          } else {
+            provider = 'azure';
+          }
           return new ExploratoryModel(
             provider,
             el.name,

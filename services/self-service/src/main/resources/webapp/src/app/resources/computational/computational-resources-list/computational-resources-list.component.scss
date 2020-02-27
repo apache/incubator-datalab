@@ -110,20 +110,20 @@
    }
  }
  @media screen and (max-width: 1520px) {
-   .source {
+   resources-grid {
+     .source {
+       .resource-wrap {
+         .resource-name {
+           width: 45%;
+         }
 
-     .resource-wrap {
+         .resource-status {
+           width: 40%;
+         }
 
-       .resource-name {
-         width: 45%;
-       }
-
-       .resource-status {
-         width: 40%;
-       }
-
-       .resource-actions {
-         width: 15%;
+         .resource-actions {
+           width: 15%;
+         }
        }
      }
    }

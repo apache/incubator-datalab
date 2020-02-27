@@ -62,7 +62,7 @@ const routes: Routes = [{
       canActivate: [AuthorizationGuard, AdminGuard],
     },
      {
-      path: 'legion-deployment',
+      path: 'odahu',
       component: LegionDeploymentComponent,
       canActivate: [AuthorizationGuard,],
     }, {
