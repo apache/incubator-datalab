@@ -32,7 +32,7 @@ from dlab.actions_lib import *
 import dlab.actions_lib
 import re
 import traceback
-from dlab.common_lib import manage_pkg
+from dlab.common_lib import *
 
 
 def ensure_pip(requisites):
@@ -499,10 +499,10 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sys.exit(1)
 
 
-def install_ungit(os_user, notebook_name, edge_ip):
+def (os_user, notebook_name, edge_ip):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
-            sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
+            manage_npm_pkg('-g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
             http_proxy = run('echo $http_proxy')
