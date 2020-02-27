@@ -29,21 +29,29 @@ import os
 def manage_pkg(command, environment, requisites):
     try:
         allow = False
+        counter = 0
         while not allow:
-            if environment == 'remote':
-                if sudo('pgrep yum -a </dev/null &'):
-                    print('Package manager still working, pleae wait')
-                else:
-                    allow = True
-                    sudo('yum {0} {1}'.format(command, requisites))
-            elif environment == 'local':
-                if local('sudo pgrep yum -a </dev/null &'):
-                    print('Package manager still working, pleae wait')
-                else:
-                    allow = True
-                    local('sudo yum {0} {1}'.format(command, requisites))
+            if counter > 60:
+                print("Notebook is broken please recreate it.")
+                sys.exit(1)
             else:
-                print('Wrong environment')
+                print('Package manager is:')
+                if environment == 'remote':
+                    if sudo('pgrep yum -a && echo "busy" || echo "ready"') == 'busy':
+                        counter += 1
+                        time.sleep(10)
+                    else:
+                        allow = True
+                        sudo('yum {0} {1}'.format(command, requisites))
+                elif environment == 'local':
+                    if local('sudo pgrep yum -a && echo "busy" || echo "ready"', capture=True) == 'busy':
+                        counter += 1
+                        time.sleep(10)
+                    else:
+                        allow = True
+                        local('sudo yum {0} {1}'.format(command, requisites), capture=True)
+                else:
+                    print('Wrong environment')
     except:
         sys.exit(1)
 

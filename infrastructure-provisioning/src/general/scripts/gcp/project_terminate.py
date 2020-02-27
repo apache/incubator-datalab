@@ -28,7 +28,7 @@ import sys, time, os
 from dlab.actions_lib import *
 import requests
 
-def terminate_edge_node(project_name, service_base_name, region, zone):
+def terminate_edge_node(endpoint_name, project_name, service_base_name, region, zone):
     print("Terminating Dataengine-service clusters")
     try:
         labels = [
@@ -47,7 +47,7 @@ def terminate_edge_node(project_name, service_base_name, region, zone):
         sys.exit(1)
 
     print("Terminating EDGE and notebook instances")
-    base = '{}-{}'.format(service_base_name, project_name)
+    base = '{}-{}-{}'.format(service_base_name, project_name, endpoint_name)
     keys = ['edge', 'ps', 'ip', 'bucket', 'subnet']
     targets = ['{}-{}'.format(base, k) for k in keys]
     try:
@@ -137,6 +137,7 @@ if __name__ == "__main__":
     project_conf = dict()
     project_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
+    project_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     project_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     project_conf['region'] = os.environ['gcp_region']
     project_conf['zone'] = os.environ['gcp_zone']
@@ -145,7 +146,7 @@ if __name__ == "__main__":
         logging.info('[TERMINATE EDGE]')
         print('[TERMINATE EDGE]')
         try:
-            terminate_edge_node(project_conf['project_name'], project_conf['service_base_name'],
+            terminate_edge_node(project_conf['endpoint_name'], project_conf['project_name'], project_conf['service_base_name'],
                                 project_conf['region'], project_conf['zone'])
         except Exception as err:
             traceback.print_exc()

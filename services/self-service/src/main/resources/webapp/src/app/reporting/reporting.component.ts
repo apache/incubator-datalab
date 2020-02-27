@@ -88,17 +88,29 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   getBillingProvider() {
     this.getEnvironmentHealthStatus();
-    this.endpointService.getEndpointsData().subscribe(list => {
-      // @ts-ignore
-      const endpoints = [...list];
-      const localEndpoint = endpoints.filter(endpoint => endpoint.name === 'local');
-      if (localEndpoint.length) {
-        this.PROVIDER = localEndpoint[0].cloudProvider.toLowerCase();
+    if (this.admin) {
+      this.endpointService.getEndpointsData().subscribe(list => {
+        // @ts-ignore
+        const endpoints = [...list];
+        const localEndpoint = endpoints.filter(endpoint => endpoint.name === 'local');
+        if (localEndpoint.length) {
+          this.PROVIDER = localEndpoint[0].cloudProvider.toLowerCase();
+          if (this.PROVIDER) {
+            this.rebuildBillingReport();
+          }
+        }
+      }, e => {
+        this.PROVIDER = 'gcp';
         if (this.PROVIDER) {
-              this.rebuildBillingReport();
-            }
+          this.rebuildBillingReport();
+        }
+      }) ;
+    } else {
+      this.PROVIDER = 'gcp';
+      if (this.PROVIDER) {
+        this.rebuildBillingReport();
       }
-    });
+    }
   }
 
   getGeneralBillingData() {
