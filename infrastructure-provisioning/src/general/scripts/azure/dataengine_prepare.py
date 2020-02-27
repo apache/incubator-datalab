@@ -70,9 +70,9 @@ if __name__ == "__main__":
         data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
                                                                     data_engine['vpc_name'],
                                                                     data_engine['private_subnet_name']).address_prefix
-        data_engine['master_security_group_name'] = '{}-{}-{}-dataengine-master-sg'.format(
+        data_engine['master_security_group_name'] = '{}-{}-{}-de-master-sg'.format(
             data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
-        data_engine['slave_security_group_name'] = '{}-{}-{}-dataengine-slave-sg'.format(
+        data_engine['slave_security_group_name'] = '{}-{}-{}-de-slave-sg'.format(
             data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
         data_engine['cluster_name'] = '{}-{}-{}-de-{}'.format(data_engine['service_base_name'],
                                                               data_engine['project_name'],

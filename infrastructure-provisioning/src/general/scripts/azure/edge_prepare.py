@@ -64,9 +64,9 @@ if __name__ == "__main__":
         edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + "-" + os.environ['endpoint_name']\
             + '-nb-sg'
         edge_conf['master_security_group_name'] = edge_conf['service_base_name'] + '-' \
-                                                    + edge_conf['user_name'] + '-dataengine-master-sg'
+                                                    + edge_conf['user_name'] + '-de-master-sg'
         edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
-                                                   + edge_conf['user_name'] + '-dataengine-slave-sg'
+                                                   + edge_conf['user_name'] + '-de-slave-sg'
         edge_conf['edge_storage_account_name'] = ('{0}-{1}-{2}-storage'.format(edge_conf['service_base_name'],
                                                                                edge_conf['user_name'],
                                                                                edge_conf['endpoint_name']))

@@ -181,9 +181,9 @@ if __name__ == "__main__":
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
-        data_engine['dataengine_master_security_group_name'] = '{}-{}-{}-dataengine-master-sg' \
+        data_engine['dataengine_master_security_group_name'] = '{}-{}-{}-de-master-sg' \
             .format(data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
-        data_engine['dataengine_slave_security_group_name'] = '{}-{}-{}-dataengine-slave-sg' \
+        data_engine['dataengine_slave_security_group_name'] = '{}-{}-{}-de-slave-sg' \
             .format(data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
         data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
         tag = {"Key": data_engine['tag_name'],
