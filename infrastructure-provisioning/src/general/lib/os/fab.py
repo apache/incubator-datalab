@@ -499,7 +499,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sys.exit(1)
 
 
-def (os_user, notebook_name, edge_ip):
+def install_ungit(os_user, notebook_name, edge_ip):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
             manage_npm_pkg('-g install ungit@{}'.format(os.environ['notebook_ungit_version']))
