@@ -29,6 +29,8 @@ import traceback
 import dlab.fab
 import dlab.actions_lib
 import dlab.meta_lib
+from fabric.api import *
+
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -39,6 +41,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         notebook_config = dict()
         notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower()
@@ -50,13 +54,13 @@ if __name__ == "__main__":
         notebook_config['region'] = os.environ['gcp_region']
         notebook_config['zone'] = os.environ['gcp_zone']
 
-        edge_status = GCPMeta().get_instance_status('{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
-                                                                              notebook_config['project_name'],
-                                                                              notebook_config['endpoint_tag']))
+        edge_status = GCPMeta.get_instance_status('{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
+                                                                            notebook_config['project_name'],
+                                                                            notebook_config['endpoint_tag']))
         if edge_status != 'RUNNING':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = GCPMeta().get_private_ip_address(notebook_config['service_base_name'] + '-ssn')
+            ssn_hostname = GCPMeta.get_private_ip_address(notebook_config['service_base_name'] + '-ssn')
             dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                          ssn_hostname)
             dlab.fab.append_result("Edge node is unavailable")
@@ -112,8 +116,8 @@ if __name__ == "__main__":
             (lambda x: os.environ['notebook_primary_image_name'] if x != 'None'
              else notebook_config['expected_primary_image_name'])(str(os.environ.get('notebook_primary_image_name')))
         print('Searching pre-configured images')
-        notebook_config['primary_image_name'] = GCPMeta().get_image_by_name(
-            otebook_config['expected_primary_image_name'])
+        notebook_config['primary_image_name'] = GCPMeta.get_image_by_name(
+            notebook_config['expected_primary_image_name'])
         if notebook_config['primary_image_name'] == '':
             notebook_config['primary_image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
         else:
@@ -122,7 +126,7 @@ if __name__ == "__main__":
             notebook_config['primary_image_name'] = 'global/images/{}'.format(
                 notebook_config['primary_image_name'].get('name'))
 
-        notebook_config['secondary_image_name'] = GCPMeta().get_image_by_name(
+        notebook_config['secondary_image_name'] = GCPMeta.get_image_by_name(
             notebook_config['expected_secondary_image_name'])
         if notebook_config['secondary_image_name'] == '':
             notebook_config['secondary_image_name'] = 'None'
@@ -183,6 +187,6 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to create instance.", str(err))
-        GCPActions().remove_disk(notebook_config['instance_name'], notebook_config['zone'])
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_disk(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)

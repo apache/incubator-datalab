@@ -43,6 +43,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         ssn_conf = dict()
         ssn_conf['instance'] = 'ssn'
         ssn_conf['pre_defined_vpc'] = False
@@ -78,7 +80,7 @@ if __name__ == "__main__":
         dlab.fab.dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
-    if GCPMeta().get_instance(ssn_conf['instance_name']):
+    if GCPMeta.get_instance(ssn_conf['instance_name']):
         dlab.fab.dlab.fab.append_result("Service base name should be unique and less or equal 20 symbols. "
                                         "Please try again.")
         sys.exit(1)
@@ -104,13 +106,13 @@ if __name__ == "__main__":
             dlab.fab.append_result("Failed to create VPC.", str(err))
             if ssn_conf['pre_defined_vpc']:
                 try:
-                    GCPActions().remove_vpc(ssn_conf['vpc_name'])
+                    GCPActions.remove_vpc(ssn_conf['vpc_name'])
                 except:
                     print("VPC hasn't been created.")
             sys.exit(1)
 
     try:
-        ssn_conf['vpc_selflink'] = GCPMeta().get_vpc(ssn_conf['vpc_name'])['selfLink']
+        ssn_conf['vpc_selflink'] = GCPMeta.get_vpc(ssn_conf['vpc_name'])['selfLink']
         if os.environ['gcp_subnet_name'] == '':
             raise KeyError
         else:
@@ -133,10 +135,10 @@ if __name__ == "__main__":
             dlab.fab.append_result("Failed to create Subnet.", str(err))
             if ssn_conf['pre_defined_vpc']:
                 try:
-                    GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+                    GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
                 except:
                     print("Subnet hasn't been created.")
-                GCPActions().remove_vpc(ssn_conf['vpc_name'])
+                GCPActions.remove_vpc(ssn_conf['vpc_name'])
             sys.exit(1)
 
 
@@ -193,8 +195,8 @@ if __name__ == "__main__":
         except Exception as err:
             dlab.fab.append_result("Failed to create Firewall.", str(err))
             if ssn_conf['pre_defined_vpc']:
-                GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-                GCPActions().remove_vpc(ssn_conf['vpc_name'])
+                GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+                GCPActions.remove_vpc(ssn_conf['vpc_name'])
             sys.exit(1)
 
     try:
@@ -212,17 +214,17 @@ if __name__ == "__main__":
     except Exception as err:
         dlab.fab.append_result("Unable to create Service account and role.", str(err))
         try:
-            GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
-            GCPActions().remove_role(ssn_conf['role_name'])
+            GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
+            GCPActions.remove_role(ssn_conf['role_name'])
         except:
             print("Service account hasn't been created")
         if ssn_conf['pre_defined_firewall']:
-            GCPActions().remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
-            GCPActions().remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
+            GCPActions.remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
+            GCPActions.remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
         if ssn_conf['pre_defined_subnet']:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+            GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if ssn_conf['pre_defined_vpc']:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+            GCPActions.remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
     try:
@@ -237,20 +239,20 @@ if __name__ == "__main__":
     except Exception as err:
         dlab.fab.append_result("Failed to create static ip.", str(err))
         try:
-            GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
+            GCPActions.remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         except:
             print("Static IP address hasn't been created.")
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
+        GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
+        GCPActions.remove_role(ssn_conf['role_name'])
+        GCPActions.remove_bucket(ssn_conf['ssn_bucket_name'])
+        GCPActions.remove_bucket(ssn_conf['shared_bucket_name'])
         if ssn_conf['pre_defined_firewall']:
-            GCPActions().remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
-            GCPActions().remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
+            GCPActions.remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
+            GCPActions.remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
         if ssn_conf['pre_defined_subnet']:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+            GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if ssn_conf['pre_defined_vpc']:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+            GCPActions.remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
@@ -261,8 +263,8 @@ if __name__ == "__main__":
         ssn_conf['sudo_group'] = 'wheel'
 
     try:
-        ssn_conf['static_ip'] = GCPMeta().get_static_address(ssn_conf['region'],
-                                                             ssn_conf['static_address_name'])['address']
+        ssn_conf['static_ip'] = GCPMeta.get_static_address(ssn_conf['region'],
+                                                           ssn_conf['static_address_name'])['address']
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
         params = "--instance_name {0} --region {1} --zone {2} --vpc_name {3} --subnet_name {4} --instance_size {5}"\
@@ -281,16 +283,16 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Unable to create ssn instance.", str(err))
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
+        GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
+        GCPActions.remove_role(ssn_conf['role_name'])
+        GCPActions.remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
+        GCPActions.remove_bucket(ssn_conf['ssn_bucket_name'])
+        GCPActions.remove_bucket(ssn_conf['shared_bucket_name'])
         if ssn_conf['pre_defined_firewall']:
-            GCPActions().remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
-            GCPActions().remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
+            GCPActions.remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
+            GCPActions.remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
         if ssn_conf['pre_defined_subnet']:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+            GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if ssn_conf['pre_defined_vpc']:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+            GCPActions.remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)

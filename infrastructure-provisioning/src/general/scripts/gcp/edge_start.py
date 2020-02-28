@@ -39,6 +39,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
@@ -55,16 +57,16 @@ if __name__ == "__main__":
     logging.info('[START EDGE]')
     print('[START EDGE]')
     try:
-        GCPActions().start_instance(edge_conf['instance_name'], edge_conf['zone'])
+        GCPActions.start_instance(edge_conf['instance_name'], edge_conf['zone'])
     except Exception as err:
         dlab.fab.append_result("Failed to start edge.", str(err))
         sys.exit(1)
 
     try:
-        instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_conf['instance_name'])
+        instance_hostname = GCPMeta.get_instance_public_ip_by_name(edge_conf['instance_name'])
         public_ip_address = \
-            GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
-        ip_address = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
+            GCPMeta.get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
+        ip_address = GCPMeta.get_private_ip_address(edge_conf['instance_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(edge_conf['instance_name']))

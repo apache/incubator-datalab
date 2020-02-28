@@ -29,6 +29,7 @@ import dlab.fab
 import dlab.actions_lib
 import dlab.meta_lib
 import os
+from fabric.api import *
 
 
 if __name__ == "__main__":
@@ -40,6 +41,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         notebook_config = dict()
         try:
             notebook_config['exploratory_name'] = (os.environ['exploratory_name']).lower()
@@ -79,12 +82,12 @@ if __name__ == "__main__":
                                                "endpoint_tag": notebook_config['endpoint_tag'],
                                                "product": "dlab"}
         # generating variables regarding EDGE proxy on Notebook instance
-        instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
+        instance_hostname = GCPMeta.get_private_ip_address(notebook_config['instance_name'])
         edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
                                                        notebook_config['project_name'],
                                                        notebook_config['endpoint_name'])
-        edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
-        edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
+        edge_instance_hostname = GCPMeta.get_instance_public_ip_by_name(edge_instance_name)
+        edge_instance_private_ip = GCPMeta.get_private_ip_address(edge_instance_name)
         notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['zone'] = os.environ['gcp_zone']
@@ -92,7 +95,7 @@ if __name__ == "__main__":
         notebook_config['rstudio_pass'] = dlab.fab.id_generator()
     except Exception as err:
         dlab.fab.append_result("Failed to generate variables dictionary", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     try:
@@ -116,7 +119,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed creating ssh user 'dlab'.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     # configuring proxy on Notebook instance
@@ -135,7 +138,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to configure proxy.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     # updating repositories & installing python packages
@@ -152,7 +155,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed installing apps: apt & pip.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     # installing and configuring RStudio and all dependencies
@@ -175,7 +178,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to configure RStudio.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     try:
@@ -193,7 +196,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed installing users key.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     try:
@@ -209,16 +212,16 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to setup git credentials.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
         
     if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING IMAGE]')
-            primary_image_id = GCPMeta().get_image_by_name(notebook_config['expected_primary_image_name'])
+            primary_image_id = GCPMeta.get_image_by_name(notebook_config['expected_primary_image_name'])
             if primary_image_id == '':
                 print("Looks like it's first time we configure notebook server. Creating images.")
-                image_id_list = GCPActions().create_image_from_instance_disks(
+                image_id_list = GCPActions.create_image_from_instance_disks(
                     notebook_config['expected_primary_image_name'], notebook_config['expected_secondary_image_name'],
                     notebook_config['instance_name'], notebook_config['zone'], notebook_config['image_labels'])
                 if image_id_list and image_id_list[0] != '':
@@ -230,9 +233,9 @@ if __name__ == "__main__":
                     print("Image of secondary disk was successfully created. It's ID is {}".format(image_id_list[1]))
         except Exception as err:
             dlab.fab.append_result("Failed creating image.", str(err))
-            GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
-            GCPActions().remove_image(notebook_config['expected_primary_image_name'])
-            GCPActions().remove_image(notebook_config['expected_secondary_image_name'])
+            GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+            GCPActions.remove_image(notebook_config['expected_primary_image_name'])
+            GCPActions.remove_image(notebook_config['expected_secondary_image_name'])
             sys.exit(1)
 
     try:
@@ -262,12 +265,12 @@ if __name__ == "__main__":
     except Exception as err:
         print('Error: {0}'.format(err))
         dlab.fab.append_result("Failed to set edge reverse proxy template.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     try:
         # generating output information
-        ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
+        ip_address = GCPMeta.get_private_ip_address(notebook_config['instance_name'])
         rstudio_ip_url = "http://" + ip_address + ":8787/"
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
         rstudio_notebook_access_url = "https://" + edge_instance_hostname + "/{}/".format(
@@ -310,5 +313,5 @@ if __name__ == "__main__":
             result.write(json.dumps(res))
     except Exception as err:
         dlab.fab.append_result("Failed to generate output information", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)

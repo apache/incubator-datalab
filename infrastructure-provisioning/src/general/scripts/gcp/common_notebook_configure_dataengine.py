@@ -30,13 +30,14 @@ import dlab.meta_lib
 import traceback
 import os
 import uuid
+from fabric.api import *
 
 
 def clear_resources():
     for i in range(notebook_config['instance_count'] - 1):
         slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
-        GCPActions().remove_instance(slave_name, notebook_config['zone'])
-    GCPActions().remove_instance(notebook_config['master_node_name'], notebook_config['zone'])
+        GCPActions.remove_instance(slave_name, notebook_config['zone'])
+    GCPActions.remove_instance(notebook_config['master_node_name'], notebook_config['zone'])
 
 
 if __name__ == "__main__":
@@ -48,6 +49,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         # generating variables dictionary
         print('Generating infrastructure names and tags')
         notebook_config = dict()
@@ -76,8 +79,8 @@ if __name__ == "__main__":
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['instance_count'] = int(os.environ['dataengine_instance_count'])
         try:
-            notebook_config['spark_master_ip'] = GCPMeta().get_private_ip_address(notebook_config['master_node_name'])
-            notebook_config['notebook_ip'] = GCPMeta().get_private_ip_address(notebook_config['notebook_name'])
+            notebook_config['spark_master_ip'] = GCPMeta.get_private_ip_address(notebook_config['master_node_name'])
+            notebook_config['notebook_ip'] = GCPMeta.get_private_ip_address(notebook_config['notebook_name'])
         except Exception as err:
             dlab.fab.append_result("Failed to get instance IP address", str(err))
             sys.exit(1)

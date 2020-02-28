@@ -39,6 +39,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     print('Generating infrastructure names and tags')
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
     edge_conf['zone'] = os.environ['gcp_zone']
@@ -50,7 +52,7 @@ if __name__ == "__main__":
     logging.info('[STOP EDGE]')
     print('[STOP EDGE]')
     try:
-        GCPActions().stop_instance(edge_conf['instance_name'], edge_conf['zone'])
+        GCPActions.stop_instance(edge_conf['instance_name'], edge_conf['zone'])
     except Exception as err:
         dlab.fab.append_result("Failed to stop edge.", str(err))
         sys.exit(1)

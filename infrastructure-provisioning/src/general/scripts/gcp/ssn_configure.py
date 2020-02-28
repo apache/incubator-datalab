@@ -44,18 +44,20 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     def clear_resources():
-        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
+        GCPActions.remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
+        GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
+        GCPActions.remove_role(ssn_conf['role_name'])
         if ssn_conf['pre_defined_firewall']:
-            GCPActions().remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
-            GCPActions().remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
+            GCPActions.remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
+            GCPActions.remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
         if ssn_conf['pre_defined_subnet']:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+            GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if ssn_conf['pre_defined_vpc']:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+            GCPActions.remove_vpc(ssn_conf['vpc_name'])
 
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
         ssn_conf = dict()
@@ -121,9 +123,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        ssn_conf['instance_hostname'] = GCPMeta().get_instance_public_ip_by_name(ssn_conf['instance_name'])
+        ssn_conf['instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(ssn_conf['instance_name'])
         if os.environ['conf_stepcerts_enabled'] == 'true':
-            ssn_conf['step_cert_sans'] = ' --san {0} --san {1}'.format(GCPMeta().get_instance_public_ip_by_name(
+            ssn_conf['step_cert_sans'] = ' --san {0} --san {1}'.format(GCPMeta.get_instance_public_ip_by_name(
                 ssn_conf['instance_name']), dlab.meta_lib.get_instance_private_ip_address('ssn',
                                                                                           ssn_conf['instance_name']))
         else:

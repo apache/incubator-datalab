@@ -39,18 +39,18 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
         labels = [
             {instance_name: '*'}
         ]
-        clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
+        clusters_list = GCPMeta.get_dataproc_list(labels)
         if clusters_list:
             for cluster_name in clusters_list:
-                computational_name = meta_lib.GCPMeta().get_cluster(cluster_name).get('labels').get(
+                computational_name = GCPMeta.get_cluster(cluster_name).get('labels').get(
                     'computational_name')
-                cluster = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
-                actions_lib.GCPActions().bucket_cleanup(bucket_name, project_name, cluster_name)
+                cluster = GCPMeta.get_list_cluster_statuses([cluster_name])
+                GCPActions.bucket_cleanup(bucket_name, project_name, cluster_name)
                 print('The bucket {} has been cleaned successfully'.format(bucket_name))
-                actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, region)
+                GCPActions.delete_dataproc_cluster(cluster_name, region)
                 print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
-                actions_lib.GCPActions().remove_kernels(instance_name, cluster_name, cluster[0]['version'], ssh_user,
-                                                        key_path, computational_name)
+                GCPActions.remove_kernels(instance_name, cluster_name, cluster[0]['version'], ssh_user,
+                                          key_path, computational_name)
         else:
             print("There are no Dataproc clusters to terminate.")
     except Exception as err:
@@ -59,7 +59,7 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
 
     print("Stopping data engine cluster")
     try:
-        clusters_list = GCPMeta().get_list_instances_by_label(zone, instance_name)
+        clusters_list = GCPMeta.get_list_instances_by_label(zone, instance_name)
         if clusters_list.get('items'):
             for vm in clusters_list['items']:
                 try:
@@ -91,6 +91,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower()

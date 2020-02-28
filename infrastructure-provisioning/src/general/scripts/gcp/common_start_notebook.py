@@ -31,6 +31,7 @@ import traceback
 import os
 import uuid
 import argparse
+from fabric.api import *
 
 
 if __name__ == "__main__":
@@ -41,6 +42,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower()
@@ -52,7 +55,7 @@ if __name__ == "__main__":
         print('[START NOTEBOOK]')
         try:
             print("Starting notebook")
-            GCPActions().start_instance(notebook_config['notebook_name'], notebook_config['zone'])
+            GCPActions.start_instance(notebook_config['notebook_name'], notebook_config['zone'])
         except Exception as err:
             traceback.print_exc()
             dlab.fab.append_result("Failed to start notebook.", str(err))
@@ -63,7 +66,7 @@ if __name__ == "__main__":
     try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
         print('[SETUP USER GIT CREDENTIALS]')
-        notebook_config['notebook_ip'] = GCPMeta().get_private_ip_address(notebook_config['notebook_name'])
+        notebook_config['notebook_ip'] = GCPMeta.get_private_ip_address(notebook_config['notebook_name'])
         notebook_config['keyfile'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])

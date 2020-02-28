@@ -31,6 +31,8 @@ import dlab.fab
 import dlab.actions_lib
 import dlab.meta_lib
 import uuid
+from fabric.api import *
+
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -40,6 +42,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         project_conf = dict()
         project_conf['edge_unique_index'] = str(uuid.uuid4())[:5]
@@ -65,7 +69,7 @@ if __name__ == "__main__":
         project_conf['subnet_name'] = os.environ['gcp_subnet_name']
         project_conf['region'] = os.environ['gcp_region']
         project_conf['zone'] = os.environ['gcp_zone']
-        project_conf['vpc_selflink'] = GCPMeta().get_vpc(project_conf['vpc_name'])['selfLink']
+        project_conf['vpc_selflink'] = GCPMeta.get_vpc(project_conf['vpc_name'])['selfLink']
         project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
         project_conf['edge_service_account_name'] = '{}-{}-{}-edge-sa'.format(project_conf['service_base_name'],
                                                                               project_conf['project_name'],
@@ -152,14 +156,14 @@ if __name__ == "__main__":
                          project_conf['user_subnets_range'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
-            project_conf['private_subnet_cidr'] = GCPMeta().get_subnet(project_conf['private_subnet_name'],
-                                                                    project_conf['region'])['ipCidrRange']
+            project_conf['private_subnet_cidr'] = GCPMeta.get_subnet(project_conf['private_subnet_name'],
+                                                                     project_conf['region'])['ipCidrRange']
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
         try:
-            GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+            GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         except:
             print("Subnet hasn't been created.")
         dlab.fab.append_result("Failed to create subnet.", str(err))
@@ -181,12 +185,12 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         try:
-            GCPActions().remove_service_account(project_conf['edge_service_account_name'],
-                                                project_conf['service_base_name'])
-            GCPActions().remove_role(project_conf['edge_role_name'])
+            GCPActions.remove_service_account(project_conf['edge_service_account_name'],
+                                              project_conf['service_base_name'])
+            GCPActions.remove_role(project_conf['edge_role_name'])
         except:
             print("Service account or role hasn't been created")
-        GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+        GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         dlab.fab.append_result("Failed to creating service account and role.", str(err))
         sys.exit(1)
 
@@ -205,15 +209,15 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         try:
-            GCPActions().remove_service_account(project_conf['ps_service_account_name'],
-                                                project_conf['service_base_name'])
-            GCPActions().remove_role(project_conf['ps_role_name'])
+            GCPActions.remove_service_account(project_conf['ps_service_account_name'],
+                                              project_conf['service_base_name'])
+            GCPActions.remove_role(project_conf['ps_role_name'])
         except:
             print("Service account or role hasn't been created")
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'],
-                                            project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['edge_role_name'])
-        GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+        GCPActions.remove_service_account(project_conf['edge_service_account_name'],
+                                          project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['edge_role_name'])
+        GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         dlab.fab.append_result("Failed to creating service account and role.", str(err))
         sys.exit(1)
 
@@ -296,13 +300,13 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'],
-                                            project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['edge_role_name'])
+        GCPActions.remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['ps_role_name'])
+        GCPActions.remove_service_account(project_conf['edge_service_account_name'],
+                                          project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['edge_role_name'])
         dlab.fab.append_result("Failed to create firewall for Edge node.", str(err))
-        GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+        GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
 
     try:
@@ -318,7 +322,7 @@ if __name__ == "__main__":
             project_conf['ps_firewall_target']
         ]
         ingress_rule['sourceRanges'] = [project_conf['private_subnet_cidr'],
-                                        GCPMeta().get_subnet(project_conf['subnet_name'],
+                                        GCPMeta.get_subnet(project_conf['subnet_name'],
                                                              project_conf['region'])['ipCidrRange']
                                         ]
         rules = [
@@ -337,7 +341,7 @@ if __name__ == "__main__":
             project_conf['ps_firewall_target']
         ]
         egress_rule['destinationRanges'] = [project_conf['private_subnet_cidr'],
-                                            GCPMeta().get_subnet(project_conf['subnet_name'],
+                                            GCPMeta.get_subnet(project_conf['subnet_name'],
                                                                  project_conf['region'])['ipCidrRange']
                                             ]
         rules = [
@@ -375,16 +379,16 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to create firewall for private subnet.", str(err))
-        GCPActions().remove_firewall(project_conf['fw_edge_ingress_public'])
-        GCPActions().remove_firewall(project_conf['fw_edge_ingress_internal'])
-        GCPActions().remove_firewall(project_conf['fw_edge_egress_public'])
-        GCPActions().remove_firewall(project_conf['fw_edge_egress_internal'])
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'],
-                                            project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['edge_role_name'])
-        GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+        GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+        GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
+        GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
+        GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
+        GCPActions.remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['ps_role_name'])
+        GCPActions.remove_service_account(project_conf['edge_service_account_name'],
+                                          project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['edge_role_name'])
+        GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
 
     try:
@@ -419,44 +423,44 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Unable to create bucket.", str(err))
-        GCPActions().remove_firewall(project_conf['fw_edge_ingress_public'])
-        GCPActions().remove_firewall(project_conf['fw_edge_ingress_internal'])
-        GCPActions().remove_firewall(project_conf['fw_edge_egress_public'])
-        GCPActions().remove_firewall(project_conf['fw_edge_egress_internal'])
-        GCPActions().remove_firewall(project_conf['fw_ps_ingress'])
-        GCPActions().remove_firewall(project_conf['fw_ps_egress_private'])
-        GCPActions().remove_firewall(project_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'],
-                                            project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['edge_role_name'])
-        GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+        GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+        GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
+        GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
+        GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
+        GCPActions.remove_firewall(project_conf['fw_ps_ingress'])
+        GCPActions.remove_firewall(project_conf['fw_ps_egress_private'])
+        GCPActions.remove_firewall(project_conf['fw_ps_egress_public'])
+        GCPActions.remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['ps_role_name'])
+        GCPActions.remove_service_account(project_conf['edge_service_account_name'],
+                                          project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['edge_role_name'])
+        GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
 
     try:
         logging.info('[SET PERMISSIONS FOR USER AND SHARED BUCKETS]')
         print('[SET PERMISSIONS FOR USER AND SHARED BUCKETS]')
-        GCPActions().set_bucket_owner(project_conf['bucket_name'], project_conf['ps_service_account_name'],
-                                      project_conf['service_base_name'])
-        GCPActions().set_bucket_owner(project_conf['shared_bucket_name'], project_conf['ps_service_account_name'],
-                                      project_conf['service_base_name'])
+        GCPActions.set_bucket_owner(project_conf['bucket_name'], project_conf['ps_service_account_name'],
+                                    project_conf['service_base_name'])
+        GCPActions.set_bucket_owner(project_conf['shared_bucket_name'], project_conf['ps_service_account_name'],
+                                    project_conf['service_base_name'])
     except Exception as err:
         dlab.fab.append_result("Failed to set bucket permissions.", str(err))
-        GCPActions().remove_bucket(project_conf['bucket_name'])
-        GCPActions().remove_firewall(project_conf['fw_edge_ingress_public'])
-        GCPActions().remove_firewall(project_conf['fw_edge_ingress_internal'])
-        GCPActions().remove_firewall(project_conf['fw_edge_egress_public'])
-        GCPActions().remove_firewall(project_conf['fw_edge_egress_internal'])
-        GCPActions().remove_firewall(project_conf['fw_ps_ingress'])
-        GCPActions().remove_firewall(project_conf['fw_ps_egress_private'])
-        GCPActions().remove_firewall(project_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'],
-                                            project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['edge_role_name'])
-        GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+        GCPActions.remove_bucket(project_conf['bucket_name'])
+        GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+        GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
+        GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
+        GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
+        GCPActions.remove_firewall(project_conf['fw_ps_ingress'])
+        GCPActions.remove_firewall(project_conf['fw_ps_egress_private'])
+        GCPActions.remove_firewall(project_conf['fw_ps_egress_public'])
+        GCPActions.remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['ps_role_name'])
+        GCPActions.remove_service_account(project_conf['edge_service_account_name'],
+                                          project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['edge_role_name'])
+        GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
 
     try:
@@ -471,23 +475,23 @@ if __name__ == "__main__":
     except Exception as err:
         dlab.fab.append_result("Failed to create static ip.", str(err))
         try:
-            GCPActions().remove_static_address(project_conf['static_address_name'], project_conf['region'])
+            GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
         except:
             print("Static IP address hasn't been created.")
-        GCPActions().remove_bucket(project_conf['bucket_name'])
-        GCPActions().remove_firewall(project_conf['fw_edge_ingress_public'])
-        GCPActions().remove_firewall(project_conf['fw_edge_ingress_internal'])
-        GCPActions().remove_firewall(project_conf['fw_edge_egress_public'])
-        GCPActions().remove_firewall(project_conf['fw_edge_egress_internal'])
-        GCPActions().remove_firewall(project_conf['fw_ps_ingress'])
-        GCPActions().remove_firewall(project_conf['fw_ps_egress_private'])
-        GCPActions().remove_firewall(project_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'],
-                                            project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['edge_role_name'])
-        GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+        GCPActions.remove_bucket(project_conf['bucket_name'])
+        GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+        GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
+        GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
+        GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
+        GCPActions.remove_firewall(project_conf['fw_ps_ingress'])
+        GCPActions.remove_firewall(project_conf['fw_ps_egress_private'])
+        GCPActions.remove_firewall(project_conf['fw_ps_egress_public'])
+        GCPActions.remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['ps_role_name'])
+        GCPActions.remove_service_account(project_conf['edge_service_account_name'],
+                                          project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['edge_role_name'])
+        GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
@@ -499,7 +503,7 @@ if __name__ == "__main__":
 
     try:
         project_conf['static_ip'] = \
-            GCPMeta().get_static_address(project_conf['region'], project_conf['static_address_name'])['address']
+            GCPMeta.get_static_address(project_conf['region'], project_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE EDGE INSTANCE]')
         params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} " \
@@ -517,19 +521,19 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to create instance.", str(err))
-        GCPActions().remove_static_address(project_conf['static_address_name'], project_conf['region'])
-        GCPActions().remove_bucket(project_conf['bucket_name'])
-        GCPActions().remove_firewall(project_conf['fw_edge_ingress_public'])
-        GCPActions().remove_firewall(project_conf['fw_edge_ingress_internal'])
-        GCPActions().remove_firewall(project_conf['fw_edge_egress_public'])
-        GCPActions().remove_firewall(project_conf['fw_edge_egress_internal'])
-        GCPActions().remove_firewall(project_conf['fw_ps_ingress'])
-        GCPActions().remove_firewall(project_conf['fw_ps_egress_private'])
-        GCPActions().remove_firewall(project_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['ps_role_name'])
-        GCPActions().remove_service_account(project_conf['edge_service_account_name'],
-                                            project_conf['service_base_name'])
-        GCPActions().remove_role(project_conf['edge_role_name'])
-        GCPActions().remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+        GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
+        GCPActions.remove_bucket(project_conf['bucket_name'])
+        GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+        GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
+        GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
+        GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
+        GCPActions.remove_firewall(project_conf['fw_ps_ingress'])
+        GCPActions.remove_firewall(project_conf['fw_ps_egress_private'])
+        GCPActions.remove_firewall(project_conf['fw_ps_egress_public'])
+        GCPActions.remove_service_account(project_conf['ps_service_account_name'], project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['ps_role_name'])
+        GCPActions.remove_service_account(project_conf['edge_service_account_name'],
+                                          project_conf['service_base_name'])
+        GCPActions.remove_role(project_conf['edge_role_name'])
+        GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)

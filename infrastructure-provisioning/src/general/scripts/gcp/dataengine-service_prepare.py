@@ -43,6 +43,8 @@ if __name__ == "__main__":
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         dataproc_conf = dict()
         if 'exploratory_name' in os.environ:
@@ -92,7 +94,7 @@ if __name__ == "__main__":
         dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-{2}-ps-sa'.format(dataproc_conf['service_base_name'],
                                                                                     dataproc_conf['project_name'],
                                                                                     dataproc_conf['endpoint_name'])
-        dataproc_conf['dataproc_unique_index'] = GCPMeta().get_index_by_service_account_name(
+        dataproc_conf['dataproc_unique_index'] = GCPMeta.get_index_by_service_account_name(
             dataproc_conf['dataproc_service_account_name'])
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(dataproc_conf['service_base_name'],
                                                                           dataproc_conf['dataproc_unique_index'],
@@ -105,11 +107,11 @@ if __name__ == "__main__":
         dlab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
-    edge_status = GCPMeta().get_instance_status(dataproc_conf['edge_instance_hostname'])
+    edge_status = GCPMeta.get_instance_status(dataproc_conf['edge_instance_hostname'])
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
-        ssn_hostname = GCPMeta().get_private_ip_address(dataproc_conf['service_base_name'] + '-ssn')
+        ssn_hostname = GCPMeta.get_private_ip_address(dataproc_conf['service_base_name'] + '-ssn')
         dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                      ssn_hostname)
         dlab.fab.append_result("Edge node is unavailable")
@@ -120,7 +122,7 @@ if __name__ == "__main__":
     logging.info(json.dumps(dataproc_conf))
 
     try:
-        meta_lib.GCPMeta().dataproc_waiter(dataproc_conf['cluster_labels'])
+        GCPMeta.dataproc_waiter(dataproc_conf['cluster_labels'])
         local('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
         traceback.print_exc()

@@ -30,13 +30,14 @@ import dlab.meta_lib
 import os
 import traceback
 import uuid
+from fabric.api import *
 
 
 def clear_resources():
-    actions_lib.GCPActions().delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
-    actions_lib.GCPActions().remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
-                                            os.environ['dataproc_version'], os.environ['conf_os_user'],
-                                            notebook_config['key_path'])
+    GCPActions.delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
+    GCPActions.remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
+                              os.environ['dataproc_version'], os.environ['conf_os_user'],
+                              notebook_config['key_path'])
 
 
 if __name__ == "__main__":
@@ -48,6 +49,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower()
@@ -61,12 +64,12 @@ if __name__ == "__main__":
     notebook_config['bucket_name'] = '{0}-{1}-{2}-bucket'.format(notebook_config['service_base_name'],
                                                                  notebook_config['project_name'],
                                                                  notebook_config['endpoint_name'])
-    notebook_config['cluster_name'] = meta_lib.GCPMeta().get_not_configured_dataproc(notebook_config['notebook_name'])
-    notebook_config['notebook_ip'] = meta_lib.GCPMeta().get_private_ip_address(notebook_config['notebook_name'])
+    notebook_config['cluster_name'] = GCPMeta.get_not_configured_dataproc(notebook_config['notebook_name'])
+    notebook_config['notebook_ip'] = GCPMeta.get_private_ip_address(notebook_config['notebook_name'])
     notebook_config['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
                                                    notebook_config['project_name'], notebook_config['endpoint_tag'])
-    edge_instance_hostname = meta_lib.GCPMeta().get_private_ip_address(edge_instance_name)
+    edge_instance_hostname = GCPMeta.get_private_ip_address(edge_instance_name)
     if os.environ['application'] == 'deeplearning':
         application = 'jupyter'
     else:
@@ -96,8 +99,7 @@ if __name__ == "__main__":
                     os.environ['conf_pypi_mirror'])
         try:
             local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params))
-            actions_lib.GCPActions().update_dataproc_cluster(notebook_config['cluster_name'],
-                                                             notebook_config['cluster_labels'])
+            GCPActions.update_dataproc_cluster(notebook_config['cluster_name'], notebook_config['cluster_labels'])
         except:
             traceback.print_exc()
             raise Exception

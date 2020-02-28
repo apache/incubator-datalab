@@ -38,12 +38,12 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
         labels = [
             {instance_name: '*'}
         ]
-        clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
+        clusters_list = GCPMeta.get_dataproc_list(labels)
         if clusters_list:
             for cluster_name in clusters_list:
-                actions_lib.GCPActions().bucket_cleanup(bucket_name, user_name, cluster_name)
+                GCPActions.bucket_cleanup(bucket_name, user_name, cluster_name)
                 print('The bucket {} has been cleaned successfully'.format(bucket_name))
-                actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, region)
+                GCPActions.delete_dataproc_cluster(cluster_name, region)
                 print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
         else:
             print("There are no Dataproc clusters to terminate.")
@@ -53,7 +53,7 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
 
     print("Terminating data engine cluster")
     try:
-        clusters_list = GCPMeta().get_list_instances_by_label(zone, instance_name)
+        clusters_list = GCPMeta.get_list_instances_by_label(zone, instance_name)
         if clusters_list.get('items'):
             for vm in clusters_list['items']:
                 try:
@@ -84,6 +84,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower()

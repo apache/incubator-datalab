@@ -38,7 +38,7 @@ import multiprocessing
 
 def configure_slave(slave_number, data_engine):
     slave_name = data_engine['slave_node_name'] + '{}'.format(slave_number + 1)
-    slave_hostname = GCPMeta().get_private_ip_address(slave_name)
+    slave_hostname = GCPMeta.get_private_ip_address(slave_name)
     try:
         logging.info('[CREATING DLAB SSH USER ON SLAVE NODE]')
         print('[CREATING DLAB SSH USER ON SLAVE NODE]')
@@ -130,8 +130,8 @@ def configure_slave(slave_number, data_engine):
 def clear_resources():
     for i in range(data_engine['instance_count'] - 1):
         slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-        GCPActions().remove_instance(slave_name, data_engine['zone'])
-    GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        GCPActions.remove_instance(slave_name, data_engine['zone'])
+    GCPActions.remove_instance(data_engine['master_node_name'], data_engine['zone'])
 
 
 if __name__ == "__main__":
@@ -143,6 +143,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         data_engine = dict()
         data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower()
@@ -199,11 +201,11 @@ if __name__ == "__main__":
         data_engine['network_tag'] = '{0}-{1}-{2}-ps'.format(data_engine['service_base_name'],
                                                              data_engine['project_name'],
                                                              data_engine['endpoint_name'])
-        master_node_hostname = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
+        master_node_hostname = GCPMeta.get_private_ip_address(data_engine['master_node_name'])
         edge_instance_name = '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
                                                        data_engine['project_name'], data_engine['endpoint_tag'])
-        edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
-        edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
+        edge_instance_hostname = GCPMeta.get_instance_public_ip_by_name(edge_instance_name)
+        edge_instance_private_ip = GCPMeta.get_private_ip_address(edge_instance_name)
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     except Exception as err:
@@ -317,7 +319,7 @@ if __name__ == "__main__":
     try:
         print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
-        notebook_instance_ip = GCPMeta().get_private_ip_address(data_engine['notebook_name'])
+        notebook_instance_ip = GCPMeta.get_private_ip_address(data_engine['notebook_name'])
         additional_info = {
             "computational_name": data_engine['computational_name'],
             "master_node_hostname": master_node_hostname,
@@ -350,7 +352,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        ip_address = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
+        ip_address = GCPMeta.get_private_ip_address(data_engine['master_node_name'])
         spark_master_url = "http://" + ip_address + ":8080"
         spark_master_access_url = "https://" + edge_instance_hostname + "/{}/".format(
             data_engine['exploratory_name'] + '_' + data_engine['computational_name'])

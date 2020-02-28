@@ -30,15 +30,16 @@ import dlab.meta_lib
 import traceback
 import os
 import uuid
+from fabric.api import *
 
 
 def start_data_engine(zone, cluster_name):
     print("Starting data engine cluster")
     try:
-        instances = GCPMeta().get_list_instances(zone, cluster_name)
+        instances = GCPMeta.get_list_instances(zone, cluster_name)
         if 'items' in instances:
             for i in instances['items']:
-                GCPActions().start_instance(i['name'], zone)
+                GCPActions.start_instance(i['name'], zone)
     except Exception as err:
         dlab.fab.append_result("Failed to start dataengine", str(err))
         sys.exit(1)
@@ -52,6 +53,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     if 'exploratory_name' in os.environ:
@@ -88,8 +91,8 @@ if __name__ == "__main__":
         print('[UPDATE LAST ACTIVITY TIME]')
         data_engine['computational_id'] = data_engine['cluster_name'] + '-m'
         data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
-        data_engine['notebook_ip'] = GCPMeta().get_private_ip_address(os.environ['notebook_instance_name'])
-        data_engine['computational_ip'] = GCPMeta().get_private_ip_address(data_engine['computational_id'])
+        data_engine['notebook_ip'] = GCPMeta.get_private_ip_address(os.environ['notebook_instance_name'])
+        data_engine['computational_ip'] = GCPMeta.get_private_ip_address(data_engine['computational_id'])
         data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {0} --notebook_ip {1} --keyfile "{2}" --cluster_ip {3}' \
             .format(os.environ['conf_os_user'], data_engine['notebook_ip'], data_engine['keyfile'],

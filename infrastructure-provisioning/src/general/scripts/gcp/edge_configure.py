@@ -31,6 +31,8 @@ import dlab.fab
 import dlab.actions_lib
 import dlab.meta_lib
 import uuid
+from fabric.api import *
+
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -41,23 +43,25 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     def clear_resources():
-        GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
-        GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
-        GCPActions().remove_bucket(edge_conf['bucket_name'])
-        GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
-        GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
-        GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
-        GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
-        GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
-        GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
-        GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
-        GCPActions().remove_service_account(edge_conf['ps_service_account_name'], edge_conf['service_base_name'])
-        GCPActions().remove_role(edge_conf['ps_role_name'])
-        GCPActions().remove_service_account(edge_conf['edge_service_account_name'], edge_conf['service_base_name'])
-        GCPActions().remove_role(edge_conf['edge_role_name'])
-        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        GCPActions.remove_instance(edge_conf['instance_name'], edge_conf['zone'])
+        GCPActions.remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
+        GCPActions.remove_bucket(edge_conf['bucket_name'])
+        GCPActions.remove_firewall(edge_conf['fw_edge_ingress_public'])
+        GCPActions.remove_firewall(edge_conf['fw_edge_ingress_internal'])
+        GCPActions.remove_firewall(edge_conf['fw_edge_egress_public'])
+        GCPActions.remove_firewall(edge_conf['fw_edge_egress_internal'])
+        GCPActions.remove_firewall(edge_conf['fw_ps_ingress'])
+        GCPActions.remove_firewall(edge_conf['fw_ps_egress_private'])
+        GCPActions.remove_firewall(edge_conf['fw_ps_egress_public'])
+        GCPActions.remove_service_account(edge_conf['ps_service_account_name'], edge_conf['service_base_name'])
+        GCPActions.remove_role(edge_conf['ps_role_name'])
+        GCPActions.remove_service_account(edge_conf['edge_service_account_name'], edge_conf['service_base_name'])
+        GCPActions.remove_role(edge_conf['edge_role_name'])
+        GCPActions.remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
 
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         edge_conf = dict()
         edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
@@ -78,12 +82,12 @@ if __name__ == "__main__":
                                                                edge_conf['endpoint_name'])
         edge_conf['region'] = os.environ['gcp_region']
         edge_conf['zone'] = os.environ['gcp_zone']
-        edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
+        edge_conf['vpc_selflink'] = GCPMeta.get_vpc(edge_conf['vpc_name'])['selfLink']
         edge_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
         edge_conf['edge_service_account_name'] = '{}-{}-{}-edge-sa'.format(edge_conf['service_base_name'],
                                                                            edge_conf['project_name'],
                                                                            edge_conf['endpoint_name'])
-        edge_conf['edge_unique_index'] = GCPMeta().get_index_by_service_account_name(
+        edge_conf['edge_unique_index'] = GCPMeta.get_index_by_service_account_name(
             edge_conf['edge_service_account_name'])
         edge_conf['edge_role_name'] = '{}-{}-{}-edge-role'.format(edge_conf['service_base_name'],
                                                                   edge_conf['project_name'],
@@ -91,7 +95,7 @@ if __name__ == "__main__":
         edge_conf['ps_service_account_name'] = '{}-{}-{}-ps-sa'.format(edge_conf['service_base_name'],
                                                                        edge_conf['project_name'],
                                                                        edge_conf['endpoint_name'])
-        edge_conf['ps_unique_index'] = GCPMeta().get_index_by_service_account_name(edge_conf['ps_service_account_name'])
+        edge_conf['ps_unique_index'] = GCPMeta.get_index_by_service_account_name(edge_conf['ps_service_account_name'])
         edge_conf['ps_role_name'] = '{}-{}-{}-ps-role'.format(edge_conf['service_base_name'],
                                                               edge_conf['project_name'], edge_conf['ps_unique_index'])
         edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
@@ -110,13 +114,13 @@ if __name__ == "__main__":
         edge_conf['static_address_name'] = '{0}-{1}-{2}-static-ip'.format(edge_conf['service_base_name'],
                                                                           edge_conf['project_name'],
                                                                           edge_conf['endpoint_name'])
-        edge_conf['instance_hostname'] = GCPMeta().get_instance_public_ip_by_name(edge_conf['instance_name'])
+        edge_conf['instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(edge_conf['instance_name'])
         edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-        edge_conf['private_subnet_cidr'] = GCPMeta().get_subnet(edge_conf['subnet_name'],
+        edge_conf['private_subnet_cidr'] = GCPMeta.get_subnet(edge_conf['subnet_name'],
                                                                 edge_conf['region'])['ipCidrRange']
         edge_conf['static_ip'] = \
-            GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
-        edge_conf['private_ip'] = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
+            GCPMeta.get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
+        edge_conf['private_ip'] = GCPMeta.get_private_ip_address(edge_conf['instance_name'])
         edge_conf['vpc_cidrs'] = [edge_conf['vpc_cidr']]
         edge_conf['fw_common_name'] = '{}-{}-{}-ps-sg'.format(edge_conf['service_base_name'], edge_conf['project_name'],
                                                               edge_conf['endpoint_name'])

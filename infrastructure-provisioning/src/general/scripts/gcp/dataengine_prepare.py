@@ -30,6 +30,7 @@ import dlab.meta_lib
 import traceback
 import os
 import argparse
+from fabric.api import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -40,6 +41,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         data_engine = dict()
         data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower()
@@ -51,13 +54,13 @@ if __name__ == "__main__":
         data_engine['region'] = os.environ['gcp_region']
         data_engine['zone'] = os.environ['gcp_zone']
 
-        edge_status = GCPMeta().get_instance_status('{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
-                                                                              data_engine['project_name'],
-                                                                              data_engine['endpoint_name']))
+        edge_status = GCPMeta.get_instance_status('{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                                            data_engine['project_name'],
+                                                                            data_engine['endpoint_name']))
         if edge_status != 'RUNNING':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = GCPMeta().get_private_ip_address(data_engine['service_base_name'] + '-ssn')
+            ssn_hostname = GCPMeta.get_private_ip_address(data_engine['service_base_name'] + '-ssn')
             dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                          ssn_hostname)
             dlab.fab.append_result("Edge node is unavailable")
@@ -123,7 +126,7 @@ if __name__ == "__main__":
         data_engine['notebook_primary_image_name'] = (lambda x: os.environ['notebook_primary_image_name'] if x != 'None'
         else data_engine['expected_primary_image_name'])(str(os.environ.get('notebook_primary_image_name')))
         print('Searching pre-configured images')
-        data_engine['primary_image_name'] = GCPMeta().get_image_by_name(data_engine['notebook_primary_image_name'])
+        data_engine['primary_image_name'] = GCPMeta.get_image_by_name(data_engine['notebook_primary_image_name'])
         if data_engine['primary_image_name'] == '':
             data_engine['primary_image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
         else:
@@ -131,7 +134,7 @@ if __name__ == "__main__":
             data_engine['primary_image_name'] = 'global/images/{}'.format(
                 data_engine['primary_image_name'].get('name'))
 
-        data_engine['secondary_image_name'] = GCPMeta().get_image_by_name(data_engine['expected_secondary_image_name'])
+        data_engine['secondary_image_name'] = GCPMeta.get_image_by_name(data_engine['expected_secondary_image_name'])
         if data_engine['secondary_image_name'] == '':
             data_engine['secondary_image_name'] = 'None'
         else:
@@ -191,7 +194,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to create instance.", str(err))
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        GCPActions.remove_instance(data_engine['master_node_name'], data_engine['zone'])
         sys.exit(1)
 
     try:
@@ -221,9 +224,9 @@ if __name__ == "__main__":
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:
-                GCPActions().remove_instance(slave_name, data_engine['zone'])
+                GCPActions.remove_instance(slave_name, data_engine['zone'])
             except:
                 print("The slave instance {} hasn't been created.".format(slave_name))
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        GCPActions.remove_instance(data_engine['master_node_name'], data_engine['zone'])
         dlab.fab.append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

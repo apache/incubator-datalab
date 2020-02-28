@@ -35,10 +35,10 @@ import uuid
 def terminate_data_engine(zone, notebook_name, os_user, key_path, cluster_name):
     print("Terminating data engine cluster")
     try:
-        instances = GCPMeta().get_list_instances(zone, cluster_name)
+        instances = GCPMeta.get_list_instances(zone, cluster_name)
         if 'items' in instances:
             for i in instances['items']:
-                GCPActions().remove_instance(i['name'], zone)
+                GCPActions.remove_instance(i['name'], zone)
     except Exception as err:
         dlab.fab.append_result("Failed to terminate dataengine", str(err))
         sys.exit(1)
@@ -59,6 +59,8 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     if 'exploratory_name' in os.environ:
