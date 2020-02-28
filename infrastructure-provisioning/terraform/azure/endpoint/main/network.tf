@@ -99,4 +99,5 @@ resource "azurerm_network_interface" "endpoint-nif" {
 resource "azurerm_network_interface_security_group_association" "endpoint-nif-sg" {
   network_interface_id      = azurerm_network_interface.endpoint-nif.id
   network_security_group_id = azurerm_network_security_group.enpoint-sg.id
+  depends_on = [azurerm_virtual_machine.endpoint_instance]
 }
