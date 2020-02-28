@@ -478,7 +478,6 @@ List of parameters for SSN node deployment:
 | action                    | In case of SSN node creation, this parameter should be set to “create”|
 | workspace\_path           | Path to DLab sources root
 | conf\_image\_enabled      | Enable or Disable creating image at first time |
-| conf\_shared\_image\_enabled | Enable or Disable shared images |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   aws\_vpc\_id
@@ -533,7 +532,6 @@ List of parameters for SSN node deployment:
 | azure\_ad\_group\_id              | ID of group in Active directory whose members have full access to shared folder in Azure Data Lake Store                                                                          |
 | action                            | In case of SSN node creation, this parameter should be set to “create”                  |
 | conf\_image\_enabled      | Enable or Disable creating image at first time |
-| conf\_shared\_image\_enabled | Enable or Disable shared images |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 
@@ -601,7 +599,6 @@ List of parameters for SSN node deployment:
 | gcp\_project\_id             | ID of GCP project                                                                       |
 | action                       | In case of SSN node creation, this parameter should be set to “create”                  |
 | conf\_image\_enabled      | Enable or Disable creating image at first time |
-| conf\_shared\_image\_enabled | Enable or Disable shared images |
 | billing\_dataset\_name | Name of GCP dataset (BigQuery service) |
 
 **Note:** If you gonna use Dataproc cluster, be aware that Dataproc has limited availability in GCP regions. [Cloud Dataproc availability by Region in GCP](https://cloud.google.com/about/locations/)
