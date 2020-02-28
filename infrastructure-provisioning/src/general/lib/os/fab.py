@@ -868,3 +868,26 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
     except Exception as err:
         print("Failed configure superset: " + str(err))
         sys.exit(1)
+
+def manage_npm_pkg(command):
+    try:
+        npm_count = 0
+        installed = False
+        npm_registry = ['https://registry.npmjs.org/', 'https://registry.npmjs.com/']
+        while not installed:
+            if npm_count > 60:
+                print("NPM registry is not available, please try later")
+                sys.exit(1)
+            else:
+                try:
+                    if npm_count % 2 == 0:
+                        sudo('npm config set registry {}'.format(npm_registry[0]))
+                    else:
+                        sudo('npm config set registry {}'.format(npm_registry[1]))
+                    sudo('npm {}'.format(command))
+                    installed = True
+                except:
+                    npm_count += 1
+                    time.sleep(50)
+    except:
+        sys.exit(1)
