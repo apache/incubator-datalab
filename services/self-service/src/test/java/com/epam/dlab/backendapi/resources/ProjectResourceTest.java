@@ -2,6 +2,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.KeysDTO;
+import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.exceptions.DlabException;
@@ -17,6 +18,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -29,7 +34,6 @@ public class ProjectResourceTest extends TestBase {
     @Rule
     public final ResourceTestRule resources = getResourceTestRuleInstance(
             new ProjectResource(projectService, keyService));
-
 
     @Before
     public void setup() throws AuthenticationException {
@@ -51,12 +55,12 @@ public class ProjectResourceTest extends TestBase {
     }
 
     @Test
-    public void stopProjectWithResources() {
+    public void stopProject() {
         final Response response = resources.getJerseyTest()
-                .target("project/managing/stop/" + "projectName")
+                .target("project/stop")
                 .request()
                 .header("Authorization", "Bearer " + TOKEN)
-                .post(Entity.json(""));
+                .post(Entity.json(getProjectAvtionDTO()));
 
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
         verify(projectService).stopWithResources(any(UserInfo.class), anyString());
@@ -97,5 +101,12 @@ public class ProjectResourceTest extends TestBase {
 
         verify(keyService).generateKeys(getUserInfo());
         verifyNoMoreInteractions(keyService);
+    }
+
+    private ProjectActionFormDTO getProjectAvtionDTO() {
+        List<String> endPoints = new ArrayList<>();
+        endPoints.add("https://localhost:8083/");
+        String projectName = "DLAB";
+        return new ProjectActionFormDTO(projectName, endPoints);
     }
 }
