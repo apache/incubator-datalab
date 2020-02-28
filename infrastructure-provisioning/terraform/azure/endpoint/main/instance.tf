@@ -35,7 +35,7 @@ resource "azurerm_virtual_machine" "endpoint_instance" {
   network_interface_ids         = [azurerm_network_interface.endpoint-nif.id]
   vm_size                       = var.endpoint_shape
   delete_os_disk_on_termination = true
-  depends_on                    = [azurerm_network_interface.endpoint-nif]
+
   storage_image_reference {
     publisher = element(split("_", var.ami),0)
     offer     = element(split("_", var.ami),1)
