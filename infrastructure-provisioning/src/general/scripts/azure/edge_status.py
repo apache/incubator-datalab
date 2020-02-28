@@ -30,6 +30,7 @@ import dlab.fab
 import dlab.actions_lib
 import dlab.meta_lib
 import logging
+from fabric.api import *
 import traceback
 
 

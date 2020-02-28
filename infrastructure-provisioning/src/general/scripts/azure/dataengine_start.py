@@ -30,6 +30,7 @@ import dlab.meta_lib
 import os
 import traceback
 import uuid
+from fabric.api import *
 
 
 def start_data_engine(resource_group_name, cluster_name):

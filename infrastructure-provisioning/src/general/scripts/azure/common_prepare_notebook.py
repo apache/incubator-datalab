@@ -30,6 +30,7 @@ import dlab.fab
 import dlab.actions_lib
 import dlab.meta_lib
 import traceback
+from fabric.api import *
 
 
 if __name__ == "__main__":

@@ -31,6 +31,7 @@ import traceback
 import os
 import uuid
 import argparse
+from fabric.api import *
 
 
 if __name__ == "__main__":

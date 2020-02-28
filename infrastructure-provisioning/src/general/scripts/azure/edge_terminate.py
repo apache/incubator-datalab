@@ -35,10 +35,10 @@ import traceback
 def terminate_edge_node(resource_group_name, service_base_name, project_tag, subnet_name, vpc_name):
     print("Terminating EDGE, notebook and dataengine virtual machines")
     try:
-        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+        for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
             try:
                 if project_tag == vm.tags["project_tag"]:
-                    AzureActions().remove_instance(resource_group_name, vm.name)
+                    AzureActions.remove_instance(resource_group_name, vm.name)
                     print("Instance {} has been terminated".format(vm.name))
             except:
                 pass
@@ -48,10 +48,10 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
 
     print("Removing network interfaces")
     try:
-        for network_interface in AzureMeta().list_network_interfaces(resource_group_name):
+        for network_interface in AzureMeta.list_network_interfaces(resource_group_name):
             try:
                 if project_tag == network_interface.tags["project_tag"]:
-                    AzureActions().delete_network_if(resource_group_name, network_interface.name)
+                    AzureActions.delete_network_if(resource_group_name, network_interface.name)
                     print("Network interface {} has been removed".format(network_interface.name))
             except:
                 pass
@@ -61,10 +61,10 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
 
     print("Removing static public IPs")
     try:
-        for static_public_ip in AzureMeta().list_static_ips(resource_group_name):
+        for static_public_ip in AzureMeta.list_static_ips(resource_group_name):
             try:
                 if project_tag in static_public_ip.tags["project_tag"]:
-                    AzureActions().delete_static_public_ip(resource_group_name, static_public_ip.name)
+                    AzureActions.delete_static_public_ip(resource_group_name, static_public_ip.name)
                     print("Static public IP {} has been removed".format(static_public_ip.name))
             except:
                 pass
@@ -74,10 +74,10 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
 
     print("Removing disks")
     try:
-        for disk in AzureMeta().list_disks(resource_group_name):
+        for disk in AzureMeta.list_disks(resource_group_name):
             try:
                 if project_tag in disk.tags["project_tag"]:
-                    AzureActions().remove_disk(resource_group_name, disk.name)
+                    AzureActions.remove_disk(resource_group_name, disk.name)
                     print("Disk {} has been removed".format(disk.name))
             except:
                 pass
@@ -87,10 +87,10 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
 
     print("Removing storage account")
     try:
-        for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
+        for storage_account in AzureMeta.list_storage_accounts(resource_group_name):
             try:
                 if project_tag == storage_account.tags["project_tag"]:
-                    AzureActions().remove_storage_account(resource_group_name, storage_account.name)
+                    AzureActions.remove_storage_account(resource_group_name, storage_account.name)
                     print("Storage account {} has been terminated".format(storage_account.name))
             except:
                 pass
@@ -100,10 +100,10 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
 
     print("Deleting Data Lake Store directory")
     try:
-        for datalake in AzureMeta().list_datalakes(resource_group_name):
+        for datalake in AzureMeta.list_datalakes(resource_group_name):
             try:
                 if service_base_name == datalake.tags["SBN"]:
-                    AzureActions().remove_datalake_directory(datalake.name, project_tag + '-folder')
+                    AzureActions.remove_datalake_directory(datalake.name, project_tag + '-folder')
                     print("Data Lake Store directory {} has been deleted".format(project_tag + '-folder'))
             except:
                 pass
@@ -113,10 +113,10 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
 
     print("Removing security groups")
     try:
-        for sg in AzureMeta().network_client.network_security_groups.list(resource_group_name):
+        for sg in AzureMeta.network_client.network_security_groups.list(resource_group_name):
             try:
                 if project_tag == sg.tags["project_tag"]:
-                    AzureActions().remove_security_group(resource_group_name, sg.name)
+                    AzureActions.remove_security_group(resource_group_name, sg.name)
                     print("Security group {} has been terminated".format(sg.name))
             except:
                 pass
@@ -126,7 +126,7 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
 
     print("Removing private subnet")
     try:
-        AzureActions().remove_subnet(resource_group_name, vpc_name, subnet_name)
+        AzureActions.remove_subnet(resource_group_name, vpc_name, subnet_name)
         print("Private subnet {} has been terminated".format(subnet_name))
     except Exception as err:
         dlab.fab.append_result("Failed to remove subnet", str(err))
@@ -142,6 +142,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     print('Generating infrastructure names and tags')
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']

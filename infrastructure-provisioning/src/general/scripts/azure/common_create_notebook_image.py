@@ -28,6 +28,7 @@ import os
 import traceback
 import sys
 import json
+from fabric.api import *
 
 
 if __name__ == "__main__":
