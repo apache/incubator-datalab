@@ -38,7 +38,7 @@ import multiprocessing
 
 def configure_slave(slave_number, data_engine):
     slave_name = data_engine['slave_node_name'] + '{}'.format(slave_number + 1)
-    slave_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'], slave_name)
+    slave_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'], slave_name)
     try:
         logging.info('[CREATING DLAB SSH USER ON SLAVE NODE]')
         print('[CREATING DLAB SSH USER ON SLAVE NODE]')
