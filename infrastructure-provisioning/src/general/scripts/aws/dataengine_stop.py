@@ -65,7 +65,7 @@ if __name__ == "__main__":
     data_engine_config['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine_config['service_base_name'],
                                                                  data_engine_config['project_name'],
                                                                  data_engine_config['endpoint_name'],
-                                                                 data_engine_config['exploratory_name'])
+                                                                 data_engine_config['computational_name'])
 
     logging.info('[STOP DATA ENGINE CLUSTER]')
     print('[STOP DATA ENGINE CLUSTER]')

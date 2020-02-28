@@ -201,7 +201,7 @@ if __name__ == "__main__":
             .format(emr_conf['service_base_name'],
                     emr_conf['project_name'],
                     emr_conf['endpoint_name'],
-                    emr_conf['exploratory_name'],
+                    emr_conf['computational_name'],
                     args.uuid)
         emr_conf['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
                                                                emr_conf['endpoint_name']))

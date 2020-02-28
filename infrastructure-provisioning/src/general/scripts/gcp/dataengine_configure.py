@@ -190,7 +190,7 @@ if __name__ == "__main__":
         data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
                                                               data_engine['project_name'],
                                                               data_engine['endpoint_name'],
-                                                              data_engine['exploratory_name'])
+                                                              data_engine['computational_name'])
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
