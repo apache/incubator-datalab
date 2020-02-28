@@ -473,7 +473,7 @@ if __name__ == "__main__":
             print('[CREATING ROUTE53 RECORD]')
             try:
                 create_route_53_record(os.environ['ssn_hosted_zone_id'], os.environ['ssn_hosted_zone_name'],
-                                       os.environ['ssn_subdomain'], instance_ip)
+                                       os.environ['ssn_subdomain'])
             except:
                 traceback.print_exc()
                 raise Exception
