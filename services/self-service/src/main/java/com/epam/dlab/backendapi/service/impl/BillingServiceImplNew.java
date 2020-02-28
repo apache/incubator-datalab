@@ -84,7 +84,6 @@ public class BillingServiceImplNew implements BillingServiceNew {
                 .stream()
                 .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
                 .flatMap(BillingUtils::exploratoryBillingDataStream);
-
         final Stream<BillingReportDTO> billableEdges = projectService.getProjects()
                 .stream()
                 .collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
@@ -173,6 +172,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
 
     private BillingReportDTO toBillingData(BillingData billingData, BillingReportDTO billingReportDTO) {
         return BillingReportDTO.builder()
+                .cost(billingData.getCost())
                 .currency(billingData.getCurrency())
                 .product(billingData.getProduct())
                 .project(billingReportDTO.getProject())
@@ -182,6 +182,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
                 .user(billingReportDTO.getUser())
                 .dlabId(billingData.getTag())
                 .resourceType(billingReportDTO.getResourceType())
+                .resourceName(billingReportDTO.getResourceName())
                 .build();
     }
 }

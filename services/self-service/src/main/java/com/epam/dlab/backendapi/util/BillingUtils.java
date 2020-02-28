@@ -54,10 +54,8 @@ public class BillingUtils {
         return Stream.of(
                 BillingReportDTO.builder().user(SHARED_RESOURCE).resourceName("SSN").dlabId(ssnId).resourceType(BillingResourceType.SSN).build(),
                 BillingReportDTO.builder().user(SHARED_RESOURCE).resourceName("SSN Volume").dlabId(String.format(VOLUME_PRIMARY_FORMAT, ssnId)).resourceType(BillingResourceType.VOLUME).build(),
-                BillingReportDTO.builder().user(SHARED_RESOURCE).resourceName("SSN bucket").dlabId(bucketName + "-ssn" +
-                        "-bucket").resourceType(BillingResourceType.SSN_BUCKET).build(),
-                BillingReportDTO.builder().user(SHARED_RESOURCE).resourceName("Collaboration bucket").dlabId(bucketName +
-                        "-shared-bucket").resourceType(BillingResourceType.SHARED_BUCKET).build()
+                BillingReportDTO.builder().user(SHARED_RESOURCE).resourceName("SSN bucket").dlabId(bucketName + "-ssn" + "-bucket").resourceType(BillingResourceType.SSN_BUCKET).build(),
+                BillingReportDTO.builder().user(SHARED_RESOURCE).resourceName("Collaboration bucket").dlabId(bucketName + "-shared-bucket").resourceType(BillingResourceType.SHARED_BUCKET).build()
         );
     }
 
