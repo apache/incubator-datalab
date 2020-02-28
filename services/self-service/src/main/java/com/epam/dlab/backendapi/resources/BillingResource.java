@@ -63,9 +63,9 @@ public class BillingResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBillingReport2(
 //            @Auth UserInfo userInfo,
-//            @Valid @NotNull BillingFilter formDTO
+            @Valid @NotNull BillingFilter filter
     ) {
-        return Response.ok(billingServiceNew.getBillingReport(null, null)).build();
+        return Response.ok(billingServiceNew.getBillingReport(null, filter)).build();
     }
 
     @POST

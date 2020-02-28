@@ -87,7 +87,6 @@ public class BillingUtils {
     }
 
     private static BillingReportDTO.BillingReportDTOBuilder withExploratoryName(UserInstanceDTO userInstance) {
-        return BillingReportDTO.builder().user(userInstance.getUser())
-                .project(userInstance.getProject());
+        return BillingReportDTO.builder().user(userInstance.getUser()).project(userInstance.getProject());
     }
 }

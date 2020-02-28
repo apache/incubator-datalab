@@ -43,6 +43,7 @@ import org.apache.http.client.utils.URIBuilder;
 import javax.ws.rs.core.GenericType;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -53,6 +54,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -77,7 +79,6 @@ public class BillingServiceImplNew implements BillingServiceNew {
 
     @Override
     public List<BillingReportDTO> getBillingReport(UserInfo userInfo, BillingFilter filter) {
-//        filter.getUser().replaceAll(s -> s.equalsIgnoreCase(BaseBillingDAO.SHARED_RESOURCE_NAME) ? null : s); // tell front end not to pass SHARED_RESOURCE_NAME and remove this line
         final String serviceBaseName = configuration.getServiceBaseName();
         final Stream<BillingReportDTO> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(serviceBaseName);
         final Stream<BillingReportDTO> billableUserInstances = exploratoryService.findAll()
@@ -93,13 +94,14 @@ public class BillingServiceImplNew implements BillingServiceNew {
 
         final Map<String, BillingReportDTO> billableResources = Stream.of(billableUserInstances, billableEdges, ssnBillingDataStream)
                 .flatMap(s -> s)
-                .filter(bd -> Objects.nonNull(bd.getDlabId()))
                 .collect(Collectors.toMap(BillingReportDTO::getDlabId, b -> b));
         log.debug("Billable resources are: {}", billableResources);
 
         List<BillingReportDTO> billingReport = getRemoteBillingData()
                 .stream()
+                .filter(getBillingDataFilter(filter))
                 .map(bd -> toBillingData(bd, getOrDefault(billableResources, bd.getTag())))
+                .filter(getBillingReportFilter(filter))
                 .collect(Collectors.toList());
         log.debug("Billing report: {}", billingReport);
 
@@ -120,8 +122,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
         List<EndpointDTO> endpoints = endpointService.getEndpoints();
         ExecutorService executor = Executors.newFixedThreadPool(endpoints.size());
         List<Callable<List<BillingData>>> callableTasks = new ArrayList<>();
-        endpoints.forEach(e ->
-                callableTasks.add(getTask(getBillingUrl(e.getUrl()))));
+        endpoints.forEach(e -> callableTasks.add(getTask(getBillingUrl(e.getUrl()))));
 
         List<BillingData> billingData;
         try {
@@ -168,6 +169,21 @@ public class BillingServiceImplNew implements BillingServiceNew {
     private Callable<List<BillingData>> getTask(String url) {
         return () -> provisioningService.get(url, new GenericType<List<BillingData>>() {
         });
+    }
+
+    private Predicate<BillingReportDTO> getBillingReportFilter(BillingFilter filter) {
+        return br -> (filter.getUsers().isEmpty() || filter.getUsers().contains(br.getUser())) &&
+                (filter.getProjects().isEmpty() || filter.getProjects().contains(br.getProject())) &&
+                (filter.getResourceTypes().isEmpty() || filter.getResourceTypes().contains(br.getResourceType().name()));
+    }
+
+    private Predicate<BillingData> getBillingDataFilter(BillingFilter filter) {
+        LocalDate endDate = LocalDate.parse(filter.getDateEnd());
+        LocalDate startDate = LocalDate.parse(filter.getDateStart());
+        return br -> (filter.getDlabId().isEmpty() || filter.getDlabId().equalsIgnoreCase(br.getTag())) &&
+                (filter.getDateStart().isEmpty() || startDate.isEqual(br.getUsageDateFrom()) || startDate.isBefore(br.getUsageDateFrom())) &&
+                (filter.getDateEnd().isEmpty() || endDate.isEqual(br.getUsageDateTo()) || endDate.isAfter(br.getUsageDateTo())) &&
+                (filter.getProducts().isEmpty() || filter.getProducts().contains(br.getProduct()));
     }
 
     private BillingReportDTO toBillingData(BillingData billingData, BillingReportDTO billingReportDTO) {
