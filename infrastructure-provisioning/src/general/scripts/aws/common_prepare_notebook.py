@@ -48,9 +48,9 @@ if __name__ == "__main__":
         # generating variables dictionary
         dlab.actions_lib.create_aws_config_files()
         notebook_config = dict()
-        notebook_config['service_base_name'] = os.environ['conf_service_base_name'].lower()
-        notebook_config['project_name'] = os.environ['project_name'].lower()
-        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower()
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+        notebook_config['project_name'] = os.environ['project_name']
+        notebook_config['endpoint_name'] = os.environ['endpoint_name']
         notebook_config['edge_name'] = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
                                                               notebook_config['project_name'],
                                                               notebook_config['endpoint_name'])
@@ -68,7 +68,7 @@ if __name__ == "__main__":
             sys.exit(1)
         print('Generating infrastructure names and tags')
         try:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
+            notebook_config['exploratory_name'] = os.environ['exploratory_name']
         except:
             notebook_config['exploratory_name'] = ''
 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
                 notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application'])
         notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}'.format(
             notebook_config['service_base_name'], notebook_config['project_name'], os.environ['application'],
-            os.environ['notebook_image_name']).lower() if (x != 'None' and x != '')
+            os.environ['notebook_image_name']) if (x != 'None' and x != '')
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         notebook_config['ami_id'] = dlab.meta_lib.get_ami_id(os.environ['aws_{}_image_name'.format(

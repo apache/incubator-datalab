@@ -46,7 +46,7 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     ssn_conf = dict()
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:20], '-', True)
+            os.environ['conf_service_base_name'][:20], '-', True)
     ssn_conf['tag_name'] = ssn_conf['service_base_name'] + '-tag'
     ssn_conf['edge_sg'] = ssn_conf['service_base_name'] + "*" + '-edge'
     ssn_conf['nb_sg'] = ssn_conf['service_base_name'] + "*" + '-nb'

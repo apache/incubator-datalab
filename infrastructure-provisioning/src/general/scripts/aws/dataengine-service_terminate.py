@@ -73,11 +73,11 @@ if __name__ == "__main__":
     dlab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     emr_conf = dict()
-    emr_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
+    emr_conf['service_base_name'] = (os.environ['conf_service_base_name'])
     emr_conf['emr_name'] = os.environ['emr_cluster_name']
     emr_conf['notebook_name'] = os.environ['notebook_instance_name']
-    emr_conf['project_name'] = os.environ['project_name'].lower()
-    emr_conf['endpoint_name'] = os.environ['endpoint_name'].lower()
+    emr_conf['project_name'] = os.environ['project_name']
+    emr_conf['endpoint_name'] = os.environ['endpoint_name']
     emr_conf['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
                                                            emr_conf['endpoint_name']))
     emr_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'

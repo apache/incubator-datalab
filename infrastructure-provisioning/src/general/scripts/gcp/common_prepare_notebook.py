@@ -45,11 +45,11 @@ if __name__ == "__main__":
         GCPActions = dlab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         notebook_config = dict()
-        notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-        notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower()
-        notebook_config['project_name'] = (os.environ['project_name']).lower()
+        notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
+        notebook_config['edge_user_name'] = (os.environ['edge_user_name'])
+        notebook_config['project_name'] = (os.environ['project_name'])
         notebook_config['project_tag'] = notebook_config['project_name']
-        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower()
+        notebook_config['endpoint_name'] = os.environ['endpoint_name']
         notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
         notebook_config['region'] = os.environ['gcp_region']
         notebook_config['zone'] = os.environ['gcp_zone']
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         except KeyError:
             notebook_config['vpc_name'] = '{}-vpc'.format(notebook_config['service_base_name'])
         try:
-            notebook_config['exploratory_name'] = (os.environ['exploratory_name']).lower()
+            notebook_config['exploratory_name'] = (os.environ['exploratory_name'])
         except:
             notebook_config['exploratory_name'] = ''
         notebook_config['subnet_name'] = '{0}-{1}-subnet'.format(notebook_config['service_base_name'],

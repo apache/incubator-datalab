@@ -167,17 +167,17 @@ if __name__ == "__main__":
         print('Generating infrastructure names and tags')
         emr_conf = dict()
         if 'exploratory_name' in os.environ:
-            emr_conf['exploratory_name'] = os.environ['exploratory_name'].lower()
+            emr_conf['exploratory_name'] = os.environ['exploratory_name']
         else:
             emr_conf['exploratory_name'] = ''
         if 'computational_name' in os.environ:
-            emr_conf['computational_name'] = os.environ['computational_name'].lower()
+            emr_conf['computational_name'] = os.environ['computational_name']
         else:
             emr_conf['computational_name'] = ''
         emr_conf['apps'] = 'Hadoop Hive Hue Spark'
-        emr_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-        emr_conf['project_name'] = os.environ['project_name'].lower()
-        emr_conf['endpoint_name'] = os.environ['endpoint_name'].lower()
+        emr_conf['service_base_name'] = os.environ['conf_service_base_name']
+        emr_conf['project_name'] = os.environ['project_name']
+        emr_conf['endpoint_name'] = os.environ['endpoint_name']
         emr_conf['tag_name'] = emr_conf['service_base_name'] + '-tag'
         emr_conf['key_name'] = os.environ['conf_key_name']
         emr_conf['region'] = os.environ['aws_region']

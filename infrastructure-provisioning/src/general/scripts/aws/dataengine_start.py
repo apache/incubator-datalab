@@ -63,9 +63,9 @@ if __name__ == "__main__":
         data_engine['computational_name'] = os.environ['computational_name']
     except:
         data_engine['computational_name'] = ''
-    data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-    data_engine['project_name'] = os.environ['project_name'].lower()
-    data_engine['endpoint_name'] = os.environ['endpoint_name'].lower()
+    data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
+    data_engine['project_name'] = os.environ['project_name']
+    data_engine['endpoint_name'] = os.environ['endpoint_name']
 
     data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
                                                           data_engine['project_name'],

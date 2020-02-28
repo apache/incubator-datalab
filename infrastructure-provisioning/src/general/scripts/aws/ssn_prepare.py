@@ -62,7 +62,7 @@ if __name__ == "__main__":
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:20], '-', True)
+            os.environ['conf_service_base_name'][:20], '-', True)
         ssn_conf['role_name'] = '{}-ssn-role'.format(ssn_conf['service_base_name'])
         ssn_conf['role_profile_name'] = '{}-ssn-profile'.format(ssn_conf['service_base_name'])
         ssn_conf['policy_name'] = '{}-ssn-policy'.format(ssn_conf['service_base_name'])

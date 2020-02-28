@@ -74,11 +74,11 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     if 'exploratory_name' in os.environ:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
+        notebook_config['exploratory_name'] = os.environ['exploratory_name']
     else:
         notebook_config['exploratory_name'] = ''
     if 'computational_name' in os.environ:
-        notebook_config['computational_name'] = os.environ['computational_name'].lower()
+        notebook_config['computational_name'] = os.environ['computational_name']
     else:
         notebook_config['computational_name'] = ''
     notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']

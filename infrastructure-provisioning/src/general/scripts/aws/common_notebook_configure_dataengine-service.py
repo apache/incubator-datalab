@@ -54,11 +54,11 @@ if __name__ == "__main__":
         print('Generating infrastructure names and tags')
         notebook_config = dict()
         notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-                os.environ['conf_service_base_name'].lower()[:20], '-', True)
+                os.environ['conf_service_base_name'][:20], '-', True)
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-tag'
-        notebook_config['project_name'] = os.environ['project_name'].lower()
-        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower()
+        notebook_config['project_name'] = os.environ['project_name']
+        notebook_config['endpoint_name'] = os.environ['endpoint_name']
         notebook_config['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(notebook_config['service_base_name'],
                                                                       notebook_config['project_name'],
                                                                       notebook_config['endpoint_name']))

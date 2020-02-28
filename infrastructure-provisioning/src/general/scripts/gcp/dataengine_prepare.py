@@ -45,11 +45,11 @@ if __name__ == "__main__":
         GCPActions = dlab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         data_engine = dict()
-        data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-        data_engine['edge_user_name'] = (os.environ['edge_user_name']).lower()
-        data_engine['project_name'] = (os.environ['project_name']).lower()
+        data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
+        data_engine['edge_user_name'] = (os.environ['edge_user_name'])
+        data_engine['project_name'] = (os.environ['project_name'])
         data_engine['project_tag'] = data_engine['project_name']
-        data_engine['endpoint_name'] = os.environ['endpoint_name'].lower()
+        data_engine['endpoint_name'] = os.environ['endpoint_name']
         data_engine['endpoint_tag'] = data_engine['endpoint_name']
         data_engine['region'] = os.environ['gcp_region']
         data_engine['zone'] = os.environ['gcp_zone']
@@ -74,11 +74,11 @@ if __name__ == "__main__":
         except KeyError:
             data_engine['vpc_name'] = '{}-vpc'.format(data_engine['service_base_name'])
         if 'exploratory_name' in os.environ:
-            data_engine['exploratory_name'] = os.environ['exploratory_name'].lower()
+            data_engine['exploratory_name'] = os.environ['exploratory_name']
         else:
             data_engine['exploratory_name'] = ''
         if 'computational_name' in os.environ:
-            data_engine['computational_name'] = os.environ['computational_name'].lower()
+            data_engine['computational_name'] = os.environ['computational_name']
         else:
             data_engine['computational_name'] = ''
 

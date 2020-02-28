@@ -144,10 +144,10 @@ if __name__ == "__main__":
     AzureActions = dlab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     ssn_conf = dict()
-    ssn_conf['service_base_name'] = dlab.fab.replace_multi_symbols(os.environ['conf_service_base_name'].lower()[:20],
+    ssn_conf['service_base_name'] = dlab.fab.replace_multi_symbols(os.environ['conf_service_base_name'][:20],
                                                                    '-', True)
     ssn_conf['resource_group_name'] = dlab.fab.replace_multi_symbols(
-        os.environ['azure_resource_group_name'].lower()[:20], '-', True)
+        os.environ['azure_resource_group_name'][:20], '-', True)
     ssn_conf['region'] = os.environ['azure_region']
     ssn_conf['vpc_name'] = os.environ['azure_vpc_name']
 

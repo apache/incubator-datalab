@@ -105,9 +105,9 @@ if __name__ == "__main__":
     dlab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     project_conf = dict()
-    project_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-    project_conf['project_name'] = os.environ['project_name'].lower()
-    project_conf['endpoint_name'] = os.environ['endpoint_name'].lower()
+    project_conf['service_base_name'] = (os.environ['conf_service_base_name'])
+    project_conf['project_name'] = os.environ['project_name']
+    project_conf['endpoint_name'] = os.environ['endpoint_name']
     project_conf['endpoint_instance_name'] = '{}-{}-endpoint'.format(project_conf['service_base_name'],
                                                                      project_conf['endpoint_name'])
     project_conf['tag_name'] = project_conf['service_base_name'] + '-tag'

@@ -48,12 +48,12 @@ if __name__ == "__main__":
     try:
         notebook_config = dict()
         try:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
+            notebook_config['exploratory_name'] = os.environ['exploratory_name']
         except:
             notebook_config['exploratory_name'] = ''
-        notebook_config['service_base_name'] = os.environ['conf_service_base_name'].lower()
-        notebook_config['project_name'] = os.environ['project_name'].lower()
-        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower()
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+        notebook_config['project_name'] = os.environ['project_name']
+        notebook_config['endpoint_name'] = os.environ['endpoint_name']
         notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['user_keyname'] = notebook_config['project_name']

@@ -147,10 +147,10 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['user_name'] = os.environ['edge_user_name'].lower()
-    edge_conf['project_name'] = os.environ['project_name'].lower()
+    edge_conf['user_name'] = os.environ['edge_user_name']
+    edge_conf['project_name'] = os.environ['project_name']
     edge_conf['project_tag'] = edge_conf['project_name']
-    edge_conf['endpoint_name'] = os.environ['endpoint_name'].lower()
+    edge_conf['endpoint_name'] = os.environ['endpoint_name']
     edge_conf['private_subnet_name'] = "{}-{}-{}-subnet".format(edge_conf['service_base_name'],
                                                                 edge_conf['project_name'], edge_conf['endpoint_name'])
     edge_conf['vpc_name'] = os.environ['azure_vpc_name']

@@ -39,19 +39,19 @@ if __name__ == "__main__":
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
         image_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         image_conf['user_name'] = os.environ['edge_user_name']
-        image_conf['project_name'] = os.environ['project_name'].lower()
+        image_conf['project_name'] = os.environ['project_name']
         image_conf['project_tag'] = image_conf['project_name']
-        image_conf['endpoint_name'] = os.environ['endpoint_name'].lower()
+        image_conf['endpoint_name'] = os.environ['endpoint_name']
         image_conf['endpoint_tag'] = image_conf['endpoint_name']
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['application'] = os.environ['application']
         image_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-        image_conf['image_name'] = os.environ['notebook_image_name'].lower()
+        image_conf['image_name'] = os.environ['notebook_image_name']
         image_conf['full_image_name'] = '{}-{}-{}-{}-{}'.format(image_conf['service_base_name'],
                                                                 image_conf['project_name'],
                                                                 image_conf['endpoint_name'],
                                                                 image_conf['application'],
-                                                                image_conf['image_name']).lower()
+                                                                image_conf['image_name'])
         image_conf['tags'] = {"Name": image_conf['service_base_name'],
                               "SBN": image_conf['service_base_name'],
                               "User": image_conf['user_name'],

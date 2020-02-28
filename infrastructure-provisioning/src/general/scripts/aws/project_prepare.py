@@ -47,10 +47,10 @@ if __name__ == "__main__":
         print('Generating infrastructure names and tags')
         project_conf = dict()
         project_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:20], '-', True)
-        project_conf['endpoint_name'] = os.environ['endpoint_name'].lower()
+            os.environ['conf_service_base_name'][:20], '-', True)
+        project_conf['endpoint_name'] = os.environ['endpoint_name']
         project_conf['endpoint_tag'] = project_conf['endpoint_name']
-        project_conf['project_name'] = os.environ['project_name'].lower()
+        project_conf['project_name'] = os.environ['project_name']
         project_conf['project_tag'] = project_conf['project_name']
         project_conf['key_name'] = os.environ['conf_key_name']
         project_conf['public_subnet_id'] = os.environ['aws_subnet_id']

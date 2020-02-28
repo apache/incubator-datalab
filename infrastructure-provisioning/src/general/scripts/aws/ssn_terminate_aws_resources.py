@@ -38,7 +38,7 @@ parser.add_argument('--de_sg', type=str)
 parser.add_argument('--service_base_name', type=str)
 parser.add_argument('--de_se_sg', type=str)
 args = parser.parse_args()
-tag2 = args.service_base_name.lower() + '-secondary-tag'
+tag2 = args.service_base_name + '-secondary-tag'
 
 ##############
 # Run script #

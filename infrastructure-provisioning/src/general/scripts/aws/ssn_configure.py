@@ -73,7 +73,7 @@ if __name__ == "__main__":
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:20], '-', True)
+            os.environ['conf_service_base_name'][:20], '-', True)
         if 'ssn_hosted_zone_id' in os.environ and 'ssn_hosted_zone_name' in os.environ and \
                 'ssn_subdomain' in os.environ:
             ssn_conf['domain_created'] = True

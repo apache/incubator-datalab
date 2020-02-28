@@ -35,19 +35,19 @@ if __name__ == "__main__":
         image_conf = dict()
         dlab.actions_lib.create_aws_config_files()
         image_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.actions_lib.replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:20], '-', True)
-        image_conf['project_name'] = os.environ['project_name'].lower()
-        image_conf['project_tag'] = os.environ['project_name'].lower()
-        image_conf['endpoint_name'] = os.environ['endpoint_name'].lower()
+            os.environ['conf_service_base_name'][:20], '-', True)
+        image_conf['project_name'] = os.environ['project_name']
+        image_conf['project_tag'] = os.environ['project_name']
+        image_conf['endpoint_name'] = os.environ['endpoint_name']
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['instance_tag'] = '{}-tag'.format(image_conf['service_base_name'])
         image_conf['application'] = os.environ['application']
-        image_conf['image_name'] = os.environ['notebook_image_name'].lower()
+        image_conf['image_name'] = os.environ['notebook_image_name']
         image_conf['full_image_name'] = '{}-{}-{}-{}-{}'.format(image_conf['service_base_name'],
                                                                 image_conf['project_name'],
                                                                 image_conf['endpoint_name'],
                                                                 image_conf['application'],
-                                                                image_conf['image_name']).lower()
+                                                                image_conf['image_name'])
         image_conf['tags'] = {"Name": image_conf['full_image_name'],
                               "SBN": image_conf['service_base_name'],
                               "Project": image_conf['project_name'],

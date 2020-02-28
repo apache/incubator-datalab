@@ -49,10 +49,10 @@ if __name__ == "__main__":
         AzureActions = dlab.actions_lib.AzureActions()
         project_conf = dict()
         project_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:20], '-', True)
-        project_conf['project_name'] = (os.environ['project_name']).lower()
+            os.environ['conf_service_base_name'][:20], '-', True)
+        project_conf['project_name'] = (os.environ['project_name'])
         project_conf['project_tag'] = project_conf['project_name']
-        project_conf['endpoint_name'] = (os.environ['endpoint_name']).lower()
+        project_conf['endpoint_name'] = (os.environ['endpoint_name'])
         project_conf['endpoint_tag'] = project_conf['endpoint_name']
         project_conf['resource_group_name'] = os.environ['azure_resource_group_name']
 

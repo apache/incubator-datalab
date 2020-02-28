@@ -66,7 +66,7 @@ if __name__ == "__main__":
         ssn_conf['billing_enabled'] = True
         # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:20], '-', True)
+            os.environ['conf_service_base_name'][:20], '-', True)
         # Check azure predefined resources
         ssn_conf['resource_group_name'] = os.environ.get('azure_resource_group_name',
                                                          '{}-resource-group'.format(ssn_conf['service_base_name']))

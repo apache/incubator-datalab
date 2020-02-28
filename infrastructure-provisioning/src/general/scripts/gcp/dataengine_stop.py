@@ -57,18 +57,18 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     data_engine = dict()
     if 'exploratory_name' in os.environ:
-        data_engine['exploratory_name'] = os.environ['exploratory_name'].lower()
+        data_engine['exploratory_name'] = os.environ['exploratory_name']
     else:
         data_engine['exploratory_name'] = ''
     if 'computational_name' in os.environ:
-        data_engine['computational_name'] = os.environ['computational_name'].lower()
+        data_engine['computational_name'] = os.environ['computational_name']
     else:
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
     data_engine['zone'] = os.environ['gcp_zone']
-    data_engine['user_name'] = os.environ['edge_user_name'].lower()
-    data_engine['project_name'] = os.environ['project_name'].lower()
-    data_engine['endpoint_name'] = os.environ['endpoint_name'].lower()
+    data_engine['user_name'] = os.environ['edge_user_name']
+    data_engine['project_name'] = os.environ['project_name']
+    data_engine['endpoint_name'] = os.environ['endpoint_name']
     data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
                                                           data_engine['project_name'],
                                                           data_engine['endpoint_name'],

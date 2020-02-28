@@ -59,9 +59,9 @@ if __name__ == "__main__":
         data_engine_config['computational_name'] = os.environ['computational_name']
     except:
         data_engine_config['computational_name'] = ''
-    data_engine_config['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-    data_engine_config['project_name'] = os.environ['project_name'].lower()
-    data_engine_config['endpoint_name'] = os.environ['endpoint_name'].lower()
+    data_engine_config['service_base_name'] = (os.environ['conf_service_base_name'])
+    data_engine_config['project_name'] = os.environ['project_name']
+    data_engine_config['endpoint_name'] = os.environ['endpoint_name']
     data_engine_config['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine_config['service_base_name'],
                                                                  data_engine_config['project_name'],
                                                                  data_engine_config['endpoint_name'],

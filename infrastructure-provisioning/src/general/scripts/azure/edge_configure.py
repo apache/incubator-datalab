@@ -66,16 +66,18 @@ if __name__ == "__main__":
         AzureActions = dlab.actions_lib.AzureActions()
         edge_conf = dict()
         edge_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:20], '-', True)
+            os.environ['conf_service_base_name'][:20], '-', True)
         edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         edge_conf['key_name'] = os.environ['conf_key_name']
         edge_conf['vpc_name'] = os.environ['azure_vpc_name']
         edge_conf['region'] = os.environ['azure_region']
         edge_conf['subnet_name'] = os.environ['azure_subnet_name']
-        edge_conf['project_name'] = (os.environ['project_name']).lower()
-        edge_conf['endpoint_name'] = (os.environ['endpoint_name']).lower()
+        edge_conf['project_name'] = (os.environ['project_name'])
+        edge_conf['endpoint_name'] = (os.environ['endpoint_name'])
         edge_conf['user_keyname'] = edge_conf['project_name']
-        edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + edge_conf['project_name'] + '-subnet'
+        edge_conf['private_subnet_name'] = '{}-{}-{}-subnet'.format(edge_conf['service_base_name'],
+                                                                    edge_conf['project_name'],
+                                                                    edge_conf['endpoint_name'])
         edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
                                                                edge_conf['project_name'], edge_conf['endpoint_name'])
         edge_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(edge_conf['instance_name'],
@@ -103,8 +105,8 @@ if __name__ == "__main__":
                                                                                  edge_conf['project_name'],
                                                                                  edge_conf['endpoint_name'])
         edge_conf['slave_security_group_name'] = '{}-{}-{}-de-slave-sg'.format(edge_conf['service_base_name'],
-                                                                                 edge_conf['project_name'],
-                                                                                 edge_conf['endpoint_name'])
+                                                                               edge_conf['project_name'],
+                                                                               edge_conf['endpoint_name'])
         edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         edge_conf['keyfile_name'] = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
         edge_conf['private_subnet_cidr'] = AzureMeta.get_subnet(edge_conf['resource_group_name'],

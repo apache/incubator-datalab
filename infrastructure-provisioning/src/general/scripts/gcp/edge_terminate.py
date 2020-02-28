@@ -139,8 +139,8 @@ if __name__ == "__main__":
     GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     edge_conf = dict()
-    edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-    edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower()
+    edge_conf['service_base_name'] = (os.environ['conf_service_base_name'])
+    edge_conf['edge_user_name'] = (os.environ['edge_user_name'])
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
 

@@ -144,9 +144,9 @@ if __name__ == "__main__":
     GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     project_conf = dict()
-    project_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-    project_conf['project_name'] = (os.environ['project_name']).lower()
-    project_conf['endpoint_name'] = (os.environ['endpoint_name']).lower()
+    project_conf['service_base_name'] = (os.environ['conf_service_base_name'])
+    project_conf['project_name'] = (os.environ['project_name'])
+    project_conf['endpoint_name'] = (os.environ['endpoint_name'])
     project_conf['project_tag'] = project_conf['project_name']
     project_conf['region'] = os.environ['gcp_region']
     project_conf['zone'] = os.environ['gcp_zone']

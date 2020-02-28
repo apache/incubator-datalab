@@ -46,9 +46,9 @@ if __name__ == "__main__":
     try:
         dlab.actions_lib.create_aws_config_files()
         data_engine = dict()
-        data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-        data_engine['project_name'] = os.environ['project_name'].lower()
-        data_engine['endpoint_name'] = os.environ['endpoint_name'].lower()
+        data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
+        data_engine['project_name'] = os.environ['project_name']
+        data_engine['endpoint_name'] = os.environ['endpoint_name']
         edge_status = dlab.meta_lib.get_instance_status(
             data_engine['service_base_name'] + '-tag', '{0}-{1}-{2}-edge'.format(
                 data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name']))
@@ -63,11 +63,11 @@ if __name__ == "__main__":
             sys.exit(1)
         print('Generating infrastructure names and tags')
         if 'exploratory_name' in os.environ:
-            data_engine['exploratory_name'] = os.environ['exploratory_name'].lower()
+            data_engine['exploratory_name'] = os.environ['exploratory_name']
         else:
             data_engine['exploratory_name'] = ''
         if 'computational_name' in os.environ:
-            data_engine['computational_name'] = os.environ['computational_name'].lower()
+            data_engine['computational_name'] = os.environ['computational_name']
         else:
             data_engine['computational_name'] = ''
         data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
@@ -115,7 +115,7 @@ if __name__ == "__main__":
             lambda x: '{0}-{1}-{4}-{2}-{3}'.format(data_engine['service_base_name'],
                                                    data_engine['project_name'],
                                                    os.environ['application'],
-                                                   os.environ['notebook_image_name'].lower().replace('_', '-'),
+                                                   os.environ['notebook_image_name'],
                                                    data_engine['endpoint_name']) if (
                     x != 'None' and x != '')
             else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))

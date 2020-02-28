@@ -49,15 +49,15 @@ if __name__ == "__main__":
     try:
         emr_conf = dict()
         if 'exploratory_name' in os.environ:
-            emr_conf['exploratory_name'] = os.environ['exploratory_name'].lower()
+            emr_conf['exploratory_name'] = os.environ['exploratory_name']
         else:
             emr_conf['exploratory_name'] = ''
         if os.path.exists('/response/.emr_creating_{}'.format(emr_conf['exploratory_name'])):
             time.sleep(30)
         dlab.actions_lib.create_aws_config_files()
-        emr_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-        emr_conf['project_name'] = os.environ['project_name'].lower()
-        emr_conf['endpoint_name'] = os.environ['endpoint_name'].lower()
+        emr_conf['service_base_name'] = os.environ['conf_service_base_name']
+        emr_conf['project_name'] = os.environ['project_name']
+        emr_conf['endpoint_name'] = os.environ['endpoint_name']
         edge_status = dlab.meta_lib.get_instance_status(
             '{}-tag'.format(emr_conf['service_base_name']),
             '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'], emr_conf['project_name'],
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             sys.exit(1)
         print('Generating infrastructure names and tags')
         if 'computational_name' in os.environ:
-            emr_conf['computational_name'] = os.environ['computational_name'].lower()
+            emr_conf['computational_name'] = os.environ['computational_name']
         else:
             emr_conf['computational_name'] = ''
         emr_conf['apps'] = 'Hadoop Hive Hue Spark'

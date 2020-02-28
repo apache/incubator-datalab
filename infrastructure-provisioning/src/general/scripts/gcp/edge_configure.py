@@ -64,9 +64,9 @@ if __name__ == "__main__":
         GCPActions = dlab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         edge_conf = dict()
-        edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower()
-        edge_conf['project_name'] = (os.environ['project_name']).lower()
-        edge_conf['endpoint_name'] = (os.environ['endpoint_name']).lower()
+        edge_conf['service_base_name'] = (os.environ['conf_service_base_name'])
+        edge_conf['project_name'] = (os.environ['project_name'])
+        edge_conf['endpoint_name'] = (os.environ['endpoint_name'])
         edge_conf['key_name'] = os.environ['conf_key_name']
         edge_conf['user_keyname'] = edge_conf['project_name']
         try:

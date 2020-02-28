@@ -47,20 +47,20 @@ if __name__ == "__main__":
         AzureMeta = dlab.meta_lib.AzureMeta()
         AzureActions = dlab.actions_lib.AzureActions()
         notebook_config = dict()
-        notebook_config['user_name'] = os.environ['edge_user_name'].lower()
-        notebook_config['project_name'] = os.environ['project_name'].lower()
+        notebook_config['user_name'] = os.environ['edge_user_name']
+        notebook_config['project_name'] = os.environ['project_name']
         notebook_config['project_tag'] = notebook_config['project_name']
-        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower()
+        notebook_config['endpoint_name'] = os.environ['endpoint_name']
         notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
         notebook_config['application'] = os.environ['application'].lower()
         
         print('Generating infrastructure names and tags')
         try:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
+            notebook_config['exploratory_name'] = os.environ['exploratory_name']
         except:
             notebook_config['exploratory_name'] = ''
-        notebook_config['service_base_name'] = os.environ['conf_service_base_name'].lower()
-        notebook_config['resource_group_name'] = os.environ['azure_resource_group_name'].lower()
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+        notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
         notebook_config['region'] = os.environ['azure_region']
         notebook_config['vpc_name'] = os.environ['azure_vpc_name']
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
@@ -111,7 +111,7 @@ if __name__ == "__main__":
                 notebook_config['application'])
         notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}'.format(
             notebook_config['service_base_name'], notebook_config['project_name'], os.environ['application'],
-            os.environ['notebook_image_name']).lower().replace('_', '-') if (x != 'None' and x != '')
+            os.environ['notebook_image_name']).replace('_', '-') if (x != 'None' and x != '')
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]

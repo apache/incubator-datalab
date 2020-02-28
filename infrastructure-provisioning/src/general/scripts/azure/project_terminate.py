@@ -148,9 +148,9 @@ if __name__ == "__main__":
     project_conf = dict()
     project_conf['service_base_name'] = os.environ['conf_service_base_name']
     project_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    project_conf['project_name'] = os.environ['project_name'].lower()
+    project_conf['project_name'] = os.environ['project_name']
     project_conf['project_tag'] = project_conf['project_name']
-    project_conf['endpoint_name'] = os.environ['endpoint_name'].lower()
+    project_conf['endpoint_name'] = os.environ['endpoint_name']
     project_conf['private_subnet_name'] = '{}-{}-{}-subnet'.format(project_conf['service_base_name'],
                                                                    project_conf['project_name'],
                                                                    project_conf['endpoint_name'])

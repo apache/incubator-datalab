@@ -45,16 +45,16 @@ if __name__ == "__main__":
         AzureActions = dlab.actions_lib.AzureActions()
         notebook_config = dict()
         try:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower()
+            notebook_config['exploratory_name'] = os.environ['exploratory_name']
         except:
             notebook_config['exploratory_name'] = ''
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']
         notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
-        notebook_config['user_name'] = os.environ['edge_user_name'].lower()
-        notebook_config['project_name'] = os.environ['project_name'].lower()
-        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower()
+        notebook_config['user_name'] = os.environ['edge_user_name']
+        notebook_config['project_name'] = os.environ['project_name']
+        notebook_config['endpoint_name'] = os.environ['endpoint_name']
         notebook_config['project_tag'] = notebook_config['project_name']
         notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
         notebook_config['user_keyname'] = notebook_config['project_name']
@@ -101,7 +101,7 @@ if __name__ == "__main__":
                                    "Exploratory": notebook_config['exploratory_name'],
                                    os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         notebook_config['ip_address'] = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
-                                                                           notebook_config['instance_name'])
+                                                                         notebook_config['instance_name'])
 
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
@@ -119,7 +119,7 @@ if __name__ == "__main__":
                                                                               edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         edge_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
-                                                           edge_instance_name)
+                                                         edge_instance_name)
 
         if os.environ['conf_os_family'] == 'debian':
             notebook_config['initial_user'] = 'ubuntu'
