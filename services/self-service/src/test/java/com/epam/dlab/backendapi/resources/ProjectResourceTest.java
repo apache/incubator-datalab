@@ -68,6 +68,19 @@ public class ProjectResourceTest extends TestBase {
     }
 
     @Test
+    public void startProject() {
+        final Response response = resources.getJerseyTest()
+                .target("project/start")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(getProjectAvtionDTO()));
+
+        assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
+        verify(projectService).start(any(UserInfo.class), anyList(), anyString());
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
     public void generate() {
         when(keyService.generateKeys(any(UserInfo.class))).thenReturn(new KeysDTO("somePublicKey", "somePrivateKey",
                 "user"));
