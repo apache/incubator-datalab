@@ -47,9 +47,9 @@ if __name__ == "__main__":
         notebook_config = dict()
         notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
         notebook_config['edge_user_name'] = (os.environ['edge_user_name'])
-        notebook_config['project_name'] = (os.environ['project_name'])
+        notebook_config['project_name'] = (os.environ['project_name']).replace('_', '-')
         notebook_config['project_tag'] = notebook_config['project_name']
-        notebook_config['endpoint_name'] = os.environ['endpoint_name']
+        notebook_config['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-')
         notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
         notebook_config['region'] = os.environ['gcp_region']
         notebook_config['zone'] = os.environ['gcp_zone']
@@ -77,8 +77,9 @@ if __name__ == "__main__":
             notebook_config['exploratory_name'] = (os.environ['exploratory_name'])
         except:
             notebook_config['exploratory_name'] = ''
-        notebook_config['subnet_name'] = '{0}-{1}-subnet'.format(notebook_config['service_base_name'],
-                                                                 notebook_config['project_name'])
+        notebook_config['subnet_name'] = '{0}-{1}-{2}-subnet'.format(notebook_config['service_base_name'],
+                                                                     notebook_config['project_name'],
+                                                                     notebook_config['endpoint_tag'])
         notebook_config['instance_size'] = os.environ['gcp_notebook_instance_size']
         notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         notebook_config['notebook_service_account_name'] = '{}-{}-{}-ps-sa'.format(notebook_config['service_base_name'],

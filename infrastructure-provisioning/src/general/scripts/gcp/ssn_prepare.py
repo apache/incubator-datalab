@@ -54,7 +54,7 @@ if __name__ == "__main__":
         print('[DERIVING NAMES]')
         ssn_conf['ssn_unique_index'] = args.ssn_unique_index
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-                os.environ['conf_service_base_name'][:20], '-', True)
+                os.environ['conf_service_base_name'].replace('_', '-')[:20], '-', True)
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
