@@ -52,10 +52,7 @@ if __name__ == "__main__":
         os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
     ssn_conf['region'] = os.environ['gcp_region']
     ssn_conf['zone'] = os.environ['gcp_zone']
-    ssn_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(ssn_conf['service_base_name'])
     ssn_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
-    ssn_conf['shared_bucket_name'] = '{0}-{1}-shared-bucket'.format(ssn_conf['service_base_name'],
-                                                                    ssn_conf['default_endpoint_name'])
     ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
     ssn_conf['instance_size'] = os.environ['gcp_ssn_instance_size']
     ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
@@ -245,8 +242,6 @@ if __name__ == "__main__":
             print("Static IP address hasn't been created.")
         GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
@@ -277,7 +272,6 @@ if __name__ == "__main__":
                    ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20', ssn_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
-            local("~/scripts/{}.py {}".format('common_create_instance'))
         except:
             traceback.print_exc()
             raise Exception
@@ -287,9 +281,7 @@ if __name__ == "__main__":
         GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if not pre_defined_firewall:
+       if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if not pre_defined_subnet:
