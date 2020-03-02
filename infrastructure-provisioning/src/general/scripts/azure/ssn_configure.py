@@ -40,19 +40,20 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     def clear_resources():
-        if 'azure_resource_group_name' not in os.environ:
-            AzureActions.remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
-        if 'azure_vpc_name' not in os.environ:
-            AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
-        if 'azure_subnet_name' not in os.environ:
-            AzureActions.remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
-                                       ssn_conf['subnet_name'])
-        if 'azure_security_group_name' not in os.environ:
-            AzureActions.remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+        AzureActions.remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
         for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
             if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                 AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
-        AzureActions.remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
+        if 'azure_security_group_name' not in os.environ:
+            AzureActions.remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+        if 'azure_subnet_name' not in os.environ:
+            AzureActions.remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+                                       ssn_conf['subnet_name'])
+        if 'azure_vpc_name' not in os.environ:
+            AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+        if 'azure_resource_group_name' not in os.environ:
+            AzureActions.remove_resource_group(ssn_conf['resource_group_name'], ssn_conf['region'])
+
 
     try:
         AzureMeta = dlab.meta_lib.AzureMeta()
