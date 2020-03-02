@@ -275,6 +275,7 @@ if __name__ == "__main__":
                    ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20', ssn_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
+            local("~/scripts/{}.py {}".format('common_create_instance'))
         except:
             traceback.print_exc()
             raise Exception
