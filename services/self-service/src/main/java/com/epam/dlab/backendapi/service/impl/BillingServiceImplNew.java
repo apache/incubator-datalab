@@ -42,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.utils.URIBuilder;
 
 import javax.ws.rs.core.GenericType;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -85,13 +86,13 @@ public class BillingServiceImplNew implements BillingServiceNew {
         LocalDate min = billingReportLines.stream().min(Comparator.comparing(BillingReportLines::getUsageDateFrom)).map(BillingReportLines::getUsageDateFrom).orElse(null);
         LocalDate max = billingReportLines.stream().max(Comparator.comparing(BillingReportLines::getUsageDateTo)).map(BillingReportLines::getUsageDateTo).orElse(null);
         double sum = billingReportLines.stream().mapToDouble(BillingReportLines::getCost).sum();
-        String currency = billingReportLines.stream().findAny().map(BillingReportLines::getCurrency).orElse(null);
+        String currency = billingReportLines.stream().map(BillingReportLines::getCurrency).distinct().count() == 1 ? billingReportLines.get(0).getCurrency() : null;
         return BillingReport.builder()
                 .sbn(configuration.getServiceBaseName())
                 .reportLines(billingReportLines)
                 .usageDateFrom(min)
                 .usageDateTo(max)
-                .totalCost(sum)
+                .totalCost(new BigDecimal(sum).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(currency)
                 .build();
     }
