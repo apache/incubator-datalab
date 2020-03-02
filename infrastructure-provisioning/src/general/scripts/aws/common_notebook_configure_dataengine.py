@@ -34,10 +34,10 @@ from fabric.api import *
 
 
 def clear_resources():
-    remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
+    dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
     for i in range(notebook_config['instance_count'] - 1):
         slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
-        remove_ec2(notebook_config['tag_name'], slave_name)
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], slave_name)
 
 
 if __name__ == "__main__":
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         notebook_config['cluster_name'] = "{}-{}-{}-de-{}".format(notebook_config['service_base_name'],
                                                                   notebook_config['project_name'],
                                                                   notebook_config['endpoint_name'],
-                                                                  notebook_config['exploratory_name'])
+                                                                  notebook_config['computational_name'])
         notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-m'
         notebook_config['slave_node_name'] = notebook_config['cluster_name'] + '-s'
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']

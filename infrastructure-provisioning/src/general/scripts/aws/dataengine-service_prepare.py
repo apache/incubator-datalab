@@ -95,8 +95,8 @@ if __name__ == "__main__":
             emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
         emr_conf['role_service_name'] = os.environ['emr_service_role']
         emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
-        emr_conf['tags'] = 'Name={0}-{1}-{5}-des-{2},' \
-                           '{0}-tag={0}-{1}-{5}-des-{2},' \
+        emr_conf['tags'] = 'Name={0}-{1}-{5}-des-{3},' \
+                           '{0}-tag={0}-{1}-{5}-des-{3},' \
                            'Notebook={4},' \
                            'State=not-configured,' \
                            'ComputationalName={3},' \
