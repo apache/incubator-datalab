@@ -92,6 +92,7 @@ if __name__ == "__main__":
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['zone'] = os.environ['gcp_zone']
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+        notebook_config['ip_address'] = GCPMeta.get_private_ip_address(notebook_config['instance_name'])
         notebook_config['rstudio_pass'] = dlab.fab.id_generator()
     except Exception as err:
         dlab.fab.append_result("Failed to generate variables dictionary", str(err))
@@ -165,7 +166,7 @@ if __name__ == "__main__":
         params = "--hostname {0}  --keyfile {1} " \
                  "--region {2} --rstudio_pass {3} " \
                  "--rstudio_version {4} --os_user {5} " \
-                 "--r_mirror {6} --ip_adress {7} --exploratory_name {8} --edge_ip {9}" \
+                 "--r_mirror {6} --ip_address {7} --exploratory_name {8} --edge_ip {9}" \
             .format(instance_hostname, notebook_config['ssh_key_path'],
                     os.environ['gcp_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'],

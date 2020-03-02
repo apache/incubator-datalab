@@ -149,7 +149,7 @@ if __name__ == "__main__":
         dataproc_conf['cluster_name'] = '{0}-{1}-{2}-des-{3}'.format(dataproc_conf['service_base_name'],
                                                                      dataproc_conf['project_name'],
                                                                      dataproc_conf['endpoint_name'],
-                                                                     dataproc_conf['exploratory_name'])
+                                                                     dataproc_conf['computational_name'])
         dataproc_conf['cluster_tag'] = '{0}-{1}-{2}-ps'.format(dataproc_conf['service_base_name'],
                                                                dataproc_conf['project_name'],
                                                                dataproc_conf['endpoint_name'])
