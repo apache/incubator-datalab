@@ -84,10 +84,10 @@ if __name__ == "__main__":
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
         else:
+            pre_defined_vpc = True
             ssn_conf['vpc_name'] = os.environ['gcp_vpc_name']
     except KeyError:
         try:
-            pre_defined_vpc = True
             logging.info('[CREATE VPC]')
             print('[CREATE VPC]')
             params = "--vpc_name {}".format(ssn_conf['vpc_name'])
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         except Exception as err:
             print('Error: {0}'.format(err))
             append_result("Failed to create VPC. Exception:" + str(err))
-            if pre_defined_vpc:
+            if not pre_defined_vpc:
                 try:
                     GCPActions().remove_vpc(ssn_conf['vpc_name'])
                 except:
@@ -112,10 +112,10 @@ if __name__ == "__main__":
         if os.environ['gcp_subnet_name'] == '':
             raise KeyError
         else:
+            pre_defined_subnet = True
             ssn_conf['subnet_name'] = os.environ['gcp_subnet_name']
     except KeyError:
         try:
-            pre_defined_subnet = True
             logging.info('[CREATE SUBNET]')
             print('[CREATE SUBNET]')
             params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {} --ssn {}".\
@@ -130,11 +130,12 @@ if __name__ == "__main__":
         except Exception as err:
             print('Error: {0}'.format(err))
             append_result("Failed to create Subnet.", str(err))
-            if pre_defined_vpc:
+            if not pre_defined_subnet:
                 try:
                     GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
                 except:
                     print("Subnet hasn't been created.")
+            if not pre_defined_vpc:
                 GCPActions().remove_vpc(ssn_conf['vpc_name'])
             sys.exit(1)
 
@@ -143,10 +144,10 @@ if __name__ == "__main__":
         if os.environ['gcp_firewall_name'] == '':
             raise KeyError
         else:
+            pre_defined_firewall = True
             ssn_conf['firewall_name'] = os.environ['gcp_firewall_name']
     except KeyError:
         try:
-            pre_defined_firewall = True
             logging.info('[CREATE FIREWALL]')
             print('[CREATE FIREWALL]')
             firewall_rules = dict()
@@ -192,8 +193,9 @@ if __name__ == "__main__":
         except Exception as err:
             print('Error: {0}'.format(err))
             append_result("Failed to create Firewall.", str(err))
-            if pre_defined_vpc:
+            if not pre_defined_subnet:
                 GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+            if not pre_defined_vpc:
                 GCPActions().remove_vpc(ssn_conf['vpc_name'])
             sys.exit(1)
 
@@ -216,12 +218,12 @@ if __name__ == "__main__":
             GCPActions().remove_role(ssn_conf['role_name'])
         except:
             print("Service account hasn't been created")
-        if pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
+        if not pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
@@ -245,12 +247,12 @@ if __name__ == "__main__":
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
+        if not pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
@@ -275,7 +277,6 @@ if __name__ == "__main__":
                    ssn_conf['network_tag'], json.dumps(ssn_conf['instance_labels']), '20', ssn_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
-            local("~/scripts/{}.py {}".format('common_create_instance'))
         except:
             traceback.print_exc()
             raise Exception
@@ -287,11 +288,11 @@ if __name__ == "__main__":
         GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
+        if not pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)

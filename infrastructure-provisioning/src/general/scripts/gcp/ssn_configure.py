@@ -114,12 +114,12 @@ if __name__ == "__main__":
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
+        if not pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
@@ -155,12 +155,12 @@ if __name__ == "__main__":
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
+        if not pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
@@ -186,12 +186,12 @@ if __name__ == "__main__":
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
+        if not pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
@@ -221,12 +221,12 @@ if __name__ == "__main__":
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
+        if not pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
@@ -264,12 +264,12 @@ if __name__ == "__main__":
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
+        if not pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
@@ -493,12 +493,12 @@ if __name__ == "__main__":
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
+        if not pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
@@ -558,11 +558,11 @@ if __name__ == "__main__":
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
+        if not pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
+        if not pre_defined_vpc:
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
