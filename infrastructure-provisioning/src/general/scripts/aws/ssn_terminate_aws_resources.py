@@ -54,7 +54,7 @@ if __name__ == "__main__":
                 cluster = client.describe_cluster(ClusterId=cluster_id)
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
-                dlab.actions_list.terminate_emr(cluster_id)
+                dlab.actions_lib.terminate_emr(cluster_id)
                 print("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
             print("There are no EMR clusters to terminate.")
