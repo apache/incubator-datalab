@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
         ssn_conf['ssn_unique_index'] = args.ssn_unique_index
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'.replace('_', '-')][:20], '-', True)
+            os.environ['conf_service_base_name'].replace('_', '-')[:20], '-', True)
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['role_name'] = '{}-{}-ssn-role'.format(ssn_conf['service_base_name'], ssn_conf['ssn_unique_index'])
         ssn_conf['region'] = os.environ['gcp_region']
