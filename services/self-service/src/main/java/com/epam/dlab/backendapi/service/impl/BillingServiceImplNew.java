@@ -51,7 +51,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -83,17 +82,17 @@ public class BillingServiceImplNew implements BillingServiceNew {
     @Override
     public BillingReport getBillingReport(UserInfo user, BillingFilter filter) {
         List<BillingReportLines> billingReportLines = getBillingReportLines(user, filter);
-        Optional<LocalDate> min = billingReportLines.stream().min(Comparator.comparing(BillingReportLines::getUsageDateFrom)).map(BillingReportLines::getUsageDateFrom);
-        Optional<LocalDate> max = billingReportLines.stream().max(Comparator.comparing(BillingReportLines::getUsageDateTo)).map(BillingReportLines::getUsageDateTo);
+        LocalDate min = billingReportLines.stream().min(Comparator.comparing(BillingReportLines::getUsageDateFrom)).map(BillingReportLines::getUsageDateFrom).orElse(null);
+        LocalDate max = billingReportLines.stream().max(Comparator.comparing(BillingReportLines::getUsageDateTo)).map(BillingReportLines::getUsageDateTo).orElse(null);
         double sum = billingReportLines.stream().mapToDouble(BillingReportLines::getCost).sum();
-        Optional<String> currency = billingReportLines.stream().findAny().map(BillingReportLines::getCurrency);
+        String currency = billingReportLines.stream().findAny().map(BillingReportLines::getCurrency).orElse(null);
         return BillingReport.builder()
                 .sbn(configuration.getServiceBaseName())
                 .reportLines(billingReportLines)
-                .usageDateFrom(min.orElse(null))
-                .usageDateTo(max.orElse(null))
+                .usageDateFrom(min)
+                .usageDateTo(max)
                 .totalCost(sum)
-                .currency(currency.orElse(null))
+                .currency(currency)
                 .build();
     }
 
