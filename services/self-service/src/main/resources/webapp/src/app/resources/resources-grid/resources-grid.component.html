@@ -136,13 +136,11 @@
             </computational-resources-list>
           </td>
           <td *ngIf="healthStatus?.billingEnabled" class="cost-col">
-            <ng-template>
             <span class="total_cost">{{ element.cost || 'N/A' }} {{ element.currency_code || '' }}</span>
             <span (click)="element.billing && printCostDetails(element)" class="currency_details"
-              [ngClass]="{ 'not-allowed' : !element.billing }">
+              [ngClass]="{ 'not-allowed' : !element.billing || element.shape === 'odahu cluster' }">
               <i class="material-icons">help_outline</i>
             </span>
-            </ng-template>
           </td>
 
           <td class="settings">
