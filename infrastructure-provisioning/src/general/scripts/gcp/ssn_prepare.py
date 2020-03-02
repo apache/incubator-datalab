@@ -281,7 +281,7 @@ if __name__ == "__main__":
         GCPActions().remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
-       if not pre_defined_firewall:
+        if not pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
             GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if not pre_defined_subnet:
