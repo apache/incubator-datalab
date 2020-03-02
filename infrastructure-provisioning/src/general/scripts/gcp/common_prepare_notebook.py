@@ -45,7 +45,6 @@ if __name__ == "__main__":
     notebook_config['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     notebook_config['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
-    notebook_config['user_tag'] = (os.environ['user_tag']).lower().replace('_', '-')
     notebook_config['region'] = os.environ['gcp_region']
     notebook_config['zone'] = os.environ['gcp_zone']
 
@@ -133,16 +132,26 @@ if __name__ == "__main__":
         data = {"notebook_name": notebook_config['instance_name'], "error": ""}
         json.dump(data, f)
 
-    additional_tags = os.environ['tags'].replace("': u'", ": ").replace("', u'", ", ").replace("{u'", "" ).replace("'}", "")
-    print('Additional tags will be added: {}'.format(additional_tags))
+    additional_tags = json.loads(os.environ['tags'].replace("': u'", "\": \"").replace("', u'", "\", \"").replace("{u'", "{\"" ).replace("'}", "\"}"))
 
+    if '@' in additional_tags['user_tag']:
+        notebook_config['user_tag'] = additional_tags['user_tag'][:additional_tags['user_tag'].find('@')]
+    else:
+        notebook_config['user_tag'] = additional_tags['user_tag']
+
+    notebook_config['custom_tag'] = additional_tags['custom_tag']
+    print('Additional tags will be added: {}'.format(additional_tags))
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                  "sbn": notebook_config['service_base_name'],
                                  "project_tag": notebook_config['project_tag'],
                                  "endpoint_tag": notebook_config['endpoint_tag'],
                                  "user": notebook_config['user_tag'],
-                                 "product": "dlab",
+                                 "product": "dlab"
                                  }
+
+    if notebook_config['custom_tag'] != '':
+        notebook_config['labels'].update({'custom_tag': notebook_config['custom_tag']})
+
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')

@@ -256,7 +256,7 @@ class GCPMeta:
                         service_account_email = service_account['email']
                         response = service_account_email[:service_account_email.find('@')][-5:]
                 if response == '':
-                    print("No service account with" + service_account_name + "display name.")
+                    print("No service account with " + service_account_name + " display name.")
                 else:
                     print("Service account " + service_account_name + " has " + response + " index.")
                 return response
