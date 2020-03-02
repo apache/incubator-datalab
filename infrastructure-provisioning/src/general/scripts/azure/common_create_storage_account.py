@@ -46,7 +46,7 @@ if __name__ == "__main__":
                 check_account = True
                 print("REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(storage_account.name))
         if not check_account:
-            account_name = id_generator()
+            account_name = id_generator().lower()
             check = AzureMeta().check_account_availability(account_name)
             if check.name_available:
                 print("Creating storage account {}.".format(account_name))

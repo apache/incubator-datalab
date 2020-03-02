@@ -480,7 +480,6 @@ if __name__ == "__main__":
                    "subnet_id": ssn_conf['subnet_name'],
                    "security_id": ssn_conf['firewall_name'],
                    "instance_shape": ssn_conf['instance_size'],
-                   "shared_bucket_name": ssn_conf['shared_bucket_name'],
                    "region": ssn_conf['region'],
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
