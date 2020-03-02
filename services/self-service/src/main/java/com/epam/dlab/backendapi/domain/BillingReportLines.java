@@ -29,7 +29,7 @@ import java.time.LocalDate;
 
 @Data
 @Builder
-public class BillingReportDTO {
+public class BillingReportLines {
     private String dlabId;
     @JsonProperty("resource_name")
     private String resourceName;

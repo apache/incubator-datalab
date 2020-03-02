@@ -17,17 +17,26 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.domain;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.domain.BillingReport;
-import com.epam.dlab.backendapi.domain.BillingReportLines;
-import com.epam.dlab.backendapi.resources.dto.BillingFilter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
+import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
-public interface BillingServiceNew {
-    BillingReport getBillingReport(UserInfo userInfo, BillingFilter filter);
-
-    List<BillingReportLines> getBillingReportLines(UserInfo userInfo, BillingFilter filter);
+@Data
+@Builder
+public class BillingReport {
+    private String sbn;
+    @JsonProperty("report_lines")
+    private List<BillingReportLines> reportLines;
+    @JsonProperty("from")
+    private LocalDate usageDateFrom;
+    @JsonProperty("to")
+    private LocalDate usageDateTo;
+    @JsonProperty("total_cost")
+    private double totalCost;
+    private String currency;
 }
