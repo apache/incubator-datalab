@@ -139,7 +139,6 @@ if __name__ == "__main__":
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
-            local("~/scripts/{}.py {}".format('create_ssh_user'))
         except:
             traceback.print_exc()
             raise Exception
