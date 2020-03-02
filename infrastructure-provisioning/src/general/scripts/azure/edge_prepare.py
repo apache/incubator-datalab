@@ -59,7 +59,7 @@ if __name__ == "__main__":
         edge_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         edge_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
         edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge'
-        edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-disk0'
+        edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-volume-primary'
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
         edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + "-" + os.environ['endpoint_name']\
             + '-nb-sg'

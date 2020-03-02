@@ -59,7 +59,7 @@ resource "azurerm_virtual_machine" "instance" {
     vm_size               = var.instance_type
 
     storage_os_disk {
-        name              = "${local.node_name}-disk0"
+        name              = "${local.node_name}-volume-primary"
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"

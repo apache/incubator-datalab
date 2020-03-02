@@ -521,7 +521,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-ssn-disk0'.format(service_base_name),
+                            'name': '{}-ssn-volume-primary'.format(service_base_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'tags': tags,
@@ -568,7 +568,8 @@ class AzureActions:
                             },
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-disk0'.format(service_base_name, project_name),
+                                'name': '{}-{}-{}-edge-volume-primary'.format(service_base_name, project_name,
+                                                                              os.environ['endpoint_name'].lower()),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'tags': tags,
@@ -608,7 +609,8 @@ class AzureActions:
                         'storage_profile': {
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-disk0'.format(service_base_name, project_name),
+                                'name': '{}-{}-{}-edge-volume-primary'.format(service_base_name, project_name,
+                                                                              os.environ['endpoint_name'].lower()),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'tags': tags,
@@ -637,7 +639,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-disk0'.format(instance_name),
+                            'name': '{}-volume-primary'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'tags': tags,
@@ -648,11 +650,11 @@ class AzureActions:
                         'data_disks': [
                             {
                                 'lun': 1,
-                                'name': '{}-disk1'.format(instance_name),
+                                'name': '{}-volume-secondary'.format(instance_name),
                                 'create_option': 'empty',
                                 'disk_size_gb': 32,
                                 'tags': {
-                                    'Name': '{}-disk1'.format(instance_name)
+                                    'Name': '{}-volume-secondary'.format(instance_name)
                                 },
                                 'managed_disk': {
                                     'storage_account_type': instance_storage_account_type
@@ -667,7 +669,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-disk0'.format(instance_name),
+                            'name': '{}-volume-primary'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'tags': tags,
@@ -712,7 +714,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-disk0'.format(instance_name),
+                            'name': '{}-volume-primary'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'tags': tags,
@@ -731,7 +733,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-disk0'.format(instance_name),
+                            'name': '{}-volume-primary'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'tags': tags,
