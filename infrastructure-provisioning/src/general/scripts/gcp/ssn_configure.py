@@ -92,7 +92,7 @@ if __name__ == "__main__":
                 ssn_conf['pre_defined_subnet'] = True
                 ssn_conf['subnet_name'] = os.environ['gcp_subnet_name']
         except KeyError:
-            ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
+            ssn_conf['subnet_name'] = '{}-subnet'.format(ssn_conf['service_base_name'])
         try:
             if os.environ['gcp_firewall_name'] == '':
                 raise KeyError

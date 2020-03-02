@@ -323,7 +323,7 @@ if __name__ == "__main__":
         ]
         ingress_rule['sourceRanges'] = [project_conf['private_subnet_cidr'],
                                         GCPMeta.get_subnet(project_conf['subnet_name'],
-                                                             project_conf['region'])['ipCidrRange']
+                                                           project_conf['region'])['ipCidrRange']
                                         ]
         rules = [
             {
@@ -342,7 +342,7 @@ if __name__ == "__main__":
         ]
         egress_rule['destinationRanges'] = [project_conf['private_subnet_cidr'],
                                             GCPMeta.get_subnet(project_conf['subnet_name'],
-                                                                 project_conf['region'])['ipCidrRange']
+                                                               project_conf['region'])['ipCidrRange']
                                             ]
         rules = [
             {
