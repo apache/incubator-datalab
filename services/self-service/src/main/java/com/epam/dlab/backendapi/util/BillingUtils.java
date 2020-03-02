@@ -21,6 +21,8 @@ package com.epam.dlab.backendapi.util;
 
 import com.epam.dlab.backendapi.domain.BillingReportDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.billing.BillingResourceType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 
@@ -37,12 +39,16 @@ public class BillingUtils {
     private static final String VOLUME_SECONDARY = "Volume secondary";
     private static final String SHARED_RESOURCE = "Shared resource";
 
-    public static Stream<BillingReportDTO> edgeBillingDataStream(String project, String sbn, String endpoint) {
+    private static final String DATAENGINE_NAME_FORMAT = "%d x %s";
+    private static final String DATAENGINE_SERVICE_NAME_FORMAT = "Master: %s%sSlave:  %d x %s";
+
+    public static Stream<BillingReportDTO> edgeBillingDataStream(String project, String sbn, String endpoint, String status) {
         final String userEdgeId = String.format(EDGE_FORMAT, sbn, project.toLowerCase(), endpoint);
         final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project.toLowerCase(), endpoint);
         final String edgeBucketId = String.format(EDGE_BUCKET_FORMAT, sbn, project.toLowerCase());
         return Stream.of(
-                BillingReportDTO.builder().resourceName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(BillingResourceType.EDGE).build(),
+                BillingReportDTO.builder().resourceName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(BillingResourceType.EDGE)
+                        .status(UserInstanceStatus.of(status)).build(),
                 BillingReportDTO.builder().resourceName("EDGE volume").user(SHARED_RESOURCE).project(project).dlabId(edgeVolumeId).resourceType(BillingResourceType.VOLUME).build(),
                 BillingReportDTO.builder().resourceName("EDGE bucket").user(SHARED_RESOURCE).project(project).dlabId(edgeBucketId).resourceType(BillingResourceType.EDGE_BUCKET).build()
         );
@@ -70,7 +76,8 @@ public class BillingUtils {
         final String primaryVolumeId = String.format(VOLUME_PRIMARY_FORMAT, exploratoryId);
         final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);
         final Stream<BillingReportDTO> exploratoryStream = Stream.of(
-                withExploratoryName(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(BillingResourceType.EXPLORATORY).build(),
+                withExploratoryName(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(BillingResourceType.EXPLORATORY)
+                        .status(UserInstanceStatus.of(userInstance.getStatus())).shape(userInstance.getShape()).build(),
                 withExploratoryName(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(BillingResourceType.VOLUME).build(),
                 withExploratoryName(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(BillingResourceType.VOLUME).build());
         return Stream.concat(computationalStream, exploratoryStream);
@@ -83,10 +90,18 @@ public class BillingUtils {
                 .resourceName(cr.getComputationalName())
                 .resourceType(BillingResourceType.COMPUTATIONAL)
                 .project(userInstance.getProject())
+                .status(UserInstanceStatus.of(cr.getStatus()))
+                .shape(getComputationalShape(cr))
                 .build();
     }
 
     private static BillingReportDTO.BillingReportDTOBuilder withExploratoryName(UserInstanceDTO userInstance) {
         return BillingReportDTO.builder().user(userInstance.getUser()).project(userInstance.getProject());
+    }
+
+    private static String getComputationalShape(UserComputationalResource resource) {
+        return DataEngineType.fromDockerImageName(resource.getImageName()) == DataEngineType.SPARK_STANDALONE ?
+                String.format(DATAENGINE_NAME_FORMAT, resource.getDataengineInstanceCount(), resource.getDataengineShape()) :
+                String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), System.lineSeparator(), null, null);
     }
 }

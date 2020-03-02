@@ -60,6 +60,7 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         http
                 .anonymous().disable()
                 .authorizeRequests()
-                .antMatchers("/*").authenticated();
+                .anyRequest()
+                .authenticated();
     }
 }

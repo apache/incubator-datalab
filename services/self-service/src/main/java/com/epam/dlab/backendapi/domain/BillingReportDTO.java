@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.domain;
 
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.billing.BillingResourceType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -44,4 +45,6 @@ public class BillingReportDTO {
     private String currency;
     @JsonProperty("resource_type")
     private BillingResourceType resourceType;
+    private UserInstanceStatus status;
+    private String shape;
 }

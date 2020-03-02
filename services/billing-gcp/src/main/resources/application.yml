@@ -26,9 +26,6 @@ server.ssl.key-alias: billing
 logging:
   file: /var/opt/dlab/log/ssn/billing.log
   level:
-    org:
-      springframework:
-        security: DEBUG
     com:
       epam: trace
 

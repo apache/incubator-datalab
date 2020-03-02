@@ -111,7 +111,8 @@ public class BillingServiceImplNew implements BillingServiceNew {
     private Stream<BillingReportDTO> projectEdges(String serviceBaseName, String projectName, List<ProjectEndpointDTO> endpoints) {
         return endpoints
                 .stream()
-                .flatMap(endpoint -> BillingUtils.edgeBillingDataStream(projectName, serviceBaseName, endpoint.getName()));
+                .flatMap(endpoint -> BillingUtils.edgeBillingDataStream(projectName, serviceBaseName, endpoint.getName(),
+                        endpoint.getStatus().toString()));
     }
 
     private BillingReportDTO getOrDefault(Map<String, BillingReportDTO> billableResources, String tag) {
@@ -174,15 +175,15 @@ public class BillingServiceImplNew implements BillingServiceNew {
     private Predicate<BillingReportDTO> getBillingReportFilter(BillingFilter filter) {
         return br -> (filter.getUsers().isEmpty() || filter.getUsers().contains(br.getUser())) &&
                 (filter.getProjects().isEmpty() || filter.getProjects().contains(br.getProject())) &&
-                (filter.getResourceTypes().isEmpty() || filter.getResourceTypes().contains(br.getResourceType().name()));
+                (filter.getResourceTypes().isEmpty() || filter.getResourceTypes().contains(br.getResourceType().name())) &&
+                (filter.getStatuses().isEmpty() || filter.getStatuses().contains(br.getStatus())) &&
+                (filter.getShapes().isEmpty() || filter.getShapes().contains(br.getShape()));
     }
 
     private Predicate<BillingData> getBillingDataFilter(BillingFilter filter) {
-        LocalDate endDate = LocalDate.parse(filter.getDateEnd());
-        LocalDate startDate = LocalDate.parse(filter.getDateStart());
         return br -> (filter.getDlabId().isEmpty() || filter.getDlabId().equalsIgnoreCase(br.getTag())) &&
-                (filter.getDateStart().isEmpty() || startDate.isEqual(br.getUsageDateFrom()) || startDate.isBefore(br.getUsageDateFrom())) &&
-                (filter.getDateEnd().isEmpty() || endDate.isEqual(br.getUsageDateTo()) || endDate.isAfter(br.getUsageDateTo())) &&
+                (filter.getDateStart().isEmpty() || LocalDate.parse(filter.getDateStart()).isEqual(br.getUsageDateFrom()) || LocalDate.parse(filter.getDateStart()).isBefore(br.getUsageDateFrom())) &&
+                (filter.getDateEnd().isEmpty() || LocalDate.parse(filter.getDateEnd()).isEqual(br.getUsageDateTo()) || LocalDate.parse(filter.getDateEnd()).isAfter(br.getUsageDateTo())) &&
                 (filter.getProducts().isEmpty() || filter.getProducts().contains(br.getProduct()));
     }
 
@@ -199,6 +200,8 @@ public class BillingServiceImplNew implements BillingServiceNew {
                 .dlabId(billingData.getTag())
                 .resourceType(billingReportDTO.getResourceType())
                 .resourceName(billingReportDTO.getResourceName())
+                .status(billingReportDTO.getStatus())
+                .shape(billingReportDTO.getShape())
                 .build();
     }
 }
