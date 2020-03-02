@@ -84,7 +84,7 @@ if __name__ == "__main__":
                 pre_defined_firewall = True
                 ssn_conf['firewall_name'] = os.environ['gcp_firewall_name']
         except KeyError:
-            ssn_conf['firewall_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
+            ssn_conf['firewall_name'] = '{}-ssn-firewall'.format(ssn_conf['service_base_name'])
         ssn_conf['subnet_cidr'] = '10.10.1.0/24'
         ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -139,6 +139,7 @@ if __name__ == "__main__":
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
+            local("~/scripts/{}.py {}".format('create_ssh_user'))
         except:
             traceback.print_exc()
             raise Exception
@@ -168,7 +169,6 @@ if __name__ == "__main__":
 
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
-            local("~/scripts/{}.py {}".format('install_prerequisites'))
         except:
             traceback.print_exc()
             raise Exception
