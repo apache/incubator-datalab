@@ -30,7 +30,6 @@ import org.bson.Document;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -58,14 +57,12 @@ public class BillingResource {
         return billingService.getBillingReport(userInfo, formDTO);
     }
 
-    @GET
+    @POST
     @Path("/report2")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getBillingReport2(
-//            @Auth UserInfo userInfo,
-            @Valid @NotNull BillingFilter filter
+    public Response getBillingReport2(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter
     ) {
-        return Response.ok(billingServiceNew.getBillingReport(null, filter)).build();
+        return Response.ok(billingServiceNew.getBillingReport(userInfo, filter)).build();
     }
 
     @POST

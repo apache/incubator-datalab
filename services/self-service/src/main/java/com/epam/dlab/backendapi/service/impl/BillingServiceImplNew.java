@@ -97,7 +97,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
                 .collect(Collectors.toMap(BillingReportDTO::getDlabId, b -> b));
         log.debug("Billable resources are: {}", billableResources);
 
-        List<BillingReportDTO> billingReport = getRemoteBillingData()
+        List<BillingReportDTO> billingReport = getRemoteBillingData(userInfo)
                 .stream()
                 .filter(getBillingDataFilter(filter))
                 .map(bd -> toBillingData(bd, getOrDefault(billableResources, bd.getTag())))
@@ -118,11 +118,11 @@ public class BillingServiceImplNew implements BillingServiceNew {
         return billableResources.getOrDefault(tag, BillingReportDTO.builder().dlabId(tag).build());
     }
 
-    private List<BillingData> getRemoteBillingData() {
+    private List<BillingData> getRemoteBillingData(UserInfo userInfo) {
         List<EndpointDTO> endpoints = endpointService.getEndpoints();
         ExecutorService executor = Executors.newFixedThreadPool(endpoints.size());
         List<Callable<List<BillingData>>> callableTasks = new ArrayList<>();
-        endpoints.forEach(e -> callableTasks.add(getTask(getBillingUrl(e.getUrl()))));
+        endpoints.forEach(e -> callableTasks.add(getTask(userInfo, getBillingUrl(e.getUrl()))));
 
         List<BillingData> billingData;
         try {
@@ -166,8 +166,8 @@ public class BillingServiceImplNew implements BillingServiceNew {
                 .toString();
     }
 
-    private Callable<List<BillingData>> getTask(String url) {
-        return () -> provisioningService.get(url, new GenericType<List<BillingData>>() {
+    private Callable<List<BillingData>> getTask(UserInfo userInfo, String url) {
+        return () -> provisioningService.get(url, userInfo.getAccessToken(), new GenericType<List<BillingData>>() {
         });
     }
 
