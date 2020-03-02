@@ -457,7 +457,6 @@ if __name__ == "__main__":
         print("Firewall Names: {}".format(ssn_conf['firewall_name']))
         print("SSN instance size: {}".format(ssn_conf['instance_size']))
         print("SSN AMI name: {}".format(ssn_conf['image_name']))
-        print("SSN bucket name: {}".format(ssn_conf['ssn_bucket_name']))
         print("Region: {}".format(ssn_conf['region']))
         jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_hostname'])
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_hostname'])
@@ -481,7 +480,6 @@ if __name__ == "__main__":
                    "subnet_id": ssn_conf['subnet_name'],
                    "security_id": ssn_conf['firewall_name'],
                    "instance_shape": ssn_conf['instance_size'],
-                   "bucket_name": ssn_conf['ssn_bucket_name'],
                    "shared_bucket_name": ssn_conf['shared_bucket_name'],
                    "region": ssn_conf['region'],
                    "action": "Create SSN instance"}

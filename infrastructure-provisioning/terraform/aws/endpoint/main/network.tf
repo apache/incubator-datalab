@@ -22,7 +22,7 @@
 locals {
   endpoint_subnet_name       = "${var.service_base_name}-${var.endpoint_id}-subnet"
   endpoint_sg_name           = "${var.service_base_name}-${var.endpoint_id}-sg"
-  endpoint_vpc_name          = "${var.service_base_name}-endpoint-vpc"
+  endpoint_vpc_name          = "${var.service_base_name}-${var.endpoint_id}-vpc"
   additional_tag             = split(":", var.additional_tag)
   endpoint_igw_name          = "${var.service_base_name}-${var.endpoint_id}-igw"
   endpoint_ip_name           = "${var.service_base_name}-${var.endpoint_id}-static-ip"
