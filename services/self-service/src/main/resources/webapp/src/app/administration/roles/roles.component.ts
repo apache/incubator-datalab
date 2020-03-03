@@ -25,7 +25,8 @@ import { ToastrService } from 'ngx-toastr';
 import { RolesGroupsService, HealthStatusService } from '../../core/services';
 import { CheckUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
-import {ProgressBarService} from "../../core/services/progress-bar.service";
+import {ProgressBarService} from '../../core/services/progress-bar.service';
+import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
 
 @Component({
   selector: 'dlab-roles',
@@ -50,6 +51,7 @@ export class RolesComponent implements OnInit {
   stepperView: boolean = false;
   displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
+  private startedGroups;
 
   constructor(
     public toastr: ToastrService,
@@ -65,18 +67,18 @@ export class RolesComponent implements OnInit {
   }
 
   openManageRolesDialog() {
-    setTimeout(() => {this.progressBarService.startProgressBar()} , 0);
+    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.rolesService.getGroupsData().subscribe(groups => {
       this.rolesService.getRolesData().subscribe(
         (roles: any) => {
           this.roles = roles;
           this.rolesList = roles.map(role => role.description);
           this.updateGroupData(groups);
-
+          this.getGroupsListCopy();
           this.stepperView = false;
         },
         error => this.toastr.error(error.message, 'Oops!'));
-        this.progressBarService.stopProgressBar()
+        this.progressBarService.stopProgressBar();
       },
       error => {
       this.toastr.error(error.message, 'Oops!');
@@ -142,10 +144,29 @@ export class RolesComponent implements OnInit {
         }, () => this.toastr.error('Group creation failed!', 'Oops!'));
         break;
       case 'update':
-        this.rolesService.updateGroup($event.value).subscribe(res => {
-          this.toastr.success('Group data successfully updated!', 'Success!');
-          this.getGroupsData();
-        }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
+        const currGroup =  this.startedGroups.filter(group => group.group === $event.value.name);
+        const deletedUsers = currGroup[0].users.filter(user => {
+          if ($event.value.users.includes(user)) {
+            return false;
+          } else {
+            return true;
+          }
+        });
+        if (deletedUsers.length) {
+          this.dialog.open(ConfirmationDialogComponent, { data:
+              { notebook: deletedUsers, type: ConfirmationDialogType.deleteUser }, panelClass: 'modal-sm' })
+            .afterClosed().subscribe((res) => {
+            if (!res) {
+              $event.value.users = $event.value.users.concat(deletedUsers);
+              this.updateGroup($event.value, ', but users did\'t delete from group');
+            } else {
+              this.updateGroup($event.value, '');
+            }
+          });
+        } else {
+          this.updateGroup($event.value, '');
+        }
+
         break;
       case 'delete':
         if ($event.type === 'users') {
@@ -171,11 +192,22 @@ export class RolesComponent implements OnInit {
     }, []);
   }
 
+  public updateGroup(value, extraMesssage){
+    this.rolesService.updateGroup(value).subscribe(res => {
+      this.toastr.success(`Group data successfully updated${extraMesssage}!`, 'Success!');
+      this.getGroupsData();
+    }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
+  }
+
   public updateGroupData(groups) {
-    this.groupsData = groups.map(v=>v).sort((a,b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
+    this.groupsData = groups.map(v => v).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
       item.selected_roles = item.roles.map(role => role.description);
     });
+  }
+
+  private getGroupsListCopy() {
+    this.startedGroups = this.groupsData.map(env => JSON.parse(JSON.stringify(env)));
   }
 
   public groupValidarion(): ValidatorFn {
