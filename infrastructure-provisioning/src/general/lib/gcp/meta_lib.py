@@ -172,7 +172,8 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
 
     def get_instance(self, instance_name):
-        request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
+        meta = GCPMeta()
+        request = meta.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
                                                instance=instance_name)
         try:
             return request.execute()
