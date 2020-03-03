@@ -48,20 +48,20 @@ if __name__ == "__main__":
         print('Generating infrastructure names and tags')
         dataproc_conf = dict()
         if 'exploratory_name' in os.environ:
-            dataproc_conf['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
+            dataproc_conf['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-').lower()
         else:
             dataproc_conf['exploratory_name'] = ''
         if 'computational_name' in os.environ:
-            dataproc_conf['computational_name'] = os.environ['computational_name'].replace('_', '-')
+            dataproc_conf['computational_name'] = os.environ['computational_name'].replace('_', '-').lower()
         else:
             dataproc_conf['computational_name'] = ''
         if os.path.exists('/response/.dataproc_creating_{}'.format(dataproc_conf['exploratory_name'])):
             time.sleep(30)
         dataproc_conf['service_base_name'] = (os.environ['conf_service_base_name'])
         dataproc_conf['edge_user_name'] = (os.environ['edge_user_name'])
-        dataproc_conf['project_name'] = (os.environ['project_name']).replace('_', '-')
+        dataproc_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
         dataproc_conf['project_tag'] = dataproc_conf['project_name']
-        dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-')
+        dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
         dataproc_conf['endpoint_tag'] = dataproc_conf['endpoint_name']
         dataproc_conf['key_name'] = os.environ['conf_key_name']
         dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
@@ -81,6 +81,16 @@ if __name__ == "__main__":
                                                                    dataproc_conf['project_name'],
                                                                    dataproc_conf['endpoint_name'])
         dataproc_conf['release_label'] = os.environ['dataproc_version']
+        additional_tags = json.loads(
+            os.environ['tags'].replace("': u'", "\": \"").replace("', u'", "\", \"").replace(
+                "{u'", "{\"").replace("'}", "\"}"))
+
+        if '@' in additional_tags['user_tag']:
+            dataproc_conf['user_tag'] = additional_tags['user_tag'][:additional_tags['user_tag'].find('@')]
+        else:
+            dataproc_conf['user_tag'] = additional_tags['user_tag']
+
+        dataproc_conf['custom_tag'] = additional_tags['custom_tag']
         dataproc_conf['cluster_labels'] = {
             os.environ['notebook_instance_name']: "not-configured",
             "name": dataproc_conf['cluster_name'],
@@ -92,6 +102,8 @@ if __name__ == "__main__":
             "product": "dlab",
             "computational_name": dataproc_conf['computational_name']
         }
+        if dataproc_conf['custom_tag'] != '':
+            dataproc_conf['cluster_labels'].update({'custom_tag': dataproc_conf['custom_tag']})
         dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-{2}-ps-sa'.format(dataproc_conf['service_base_name'],
                                                                                     dataproc_conf['project_name'],
                                                                                     dataproc_conf['endpoint_name'])

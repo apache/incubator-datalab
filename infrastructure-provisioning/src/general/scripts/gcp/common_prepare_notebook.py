@@ -47,9 +47,9 @@ if __name__ == "__main__":
         notebook_config = dict()
         notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
         notebook_config['edge_user_name'] = (os.environ['edge_user_name'])
-        notebook_config['project_name'] = (os.environ['project_name']).replace('_', '-')
+        notebook_config['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
         notebook_config['project_tag'] = notebook_config['project_name']
-        notebook_config['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-')
+        notebook_config['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-').lower()
         notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
         notebook_config['region'] = os.environ['gcp_region']
         notebook_config['zone'] = os.environ['gcp_zone']
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         except KeyError:
             notebook_config['vpc_name'] = '{}-vpc'.format(notebook_config['service_base_name'])
         try:
-            notebook_config['exploratory_name'] = (os.environ['exploratory_name'])
+            notebook_config['exploratory_name'] = (os.environ['exploratory_name']).replace('_', '-').lower()
         except:
             notebook_config['exploratory_name'] = ''
         notebook_config['subnet_name'] = '{0}-{1}-{2}-subnet'.format(notebook_config['service_base_name'],
@@ -150,17 +150,27 @@ if __name__ == "__main__":
             data = {"notebook_name": notebook_config['instance_name'], "error": ""}
             json.dump(data, f)
 
-        additional_tags = \
-            os.environ['tags'].replace("': u'", ": ").replace("', u'", ", ").replace("{u'", "" ).replace("'}", "")
-        print('Additional tags will be added: {}'.format(additional_tags))
+        additional_tags = json.loads(
+            os.environ['tags'].replace("': u'", "\": \"").replace("', u'", "\", \"").replace(
+                "{u'", "{\"").replace("'}", "\"}"))
 
+        if '@' in additional_tags['user_tag']:
+            notebook_config['user_tag'] = additional_tags['user_tag'][:additional_tags['user_tag'].find('@')]
+        else:
+            notebook_config['user_tag'] = additional_tags['user_tag']
+
+        notebook_config['custom_tag'] = additional_tags['custom_tag']
+        print('Additional tags will be added: {}'.format(additional_tags))
         notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                      "sbn": notebook_config['service_base_name'],
                                      "project_tag": notebook_config['project_tag'],
                                      "endpoint_tag": notebook_config['endpoint_tag'],
-                                     "user": notebook_config['edge_user_name'],
-                                     "product": "dlab",
+                                     "user": notebook_config['user_tag'],
+                                     "product": "dlab"
                                      }
+
+        if notebook_config['custom_tag'] != '':
+            notebook_config['labels'].update({'custom_tag': notebook_config['custom_tag']})
     except Exception as err:
         dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)

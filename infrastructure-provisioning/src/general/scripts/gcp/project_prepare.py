@@ -50,10 +50,10 @@ if __name__ == "__main__":
         project_conf['ps_unique_index'] = str(uuid.uuid4())[:5]
         project_conf['service_base_name'] = (os.environ['conf_service_base_name'])
         project_conf['key_name'] = os.environ['conf_key_name']
-        project_conf['project_name'] = (os.environ['project_name']).replace('_', '-')
+        project_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
         project_conf['user_keyname'] = project_conf['project_name']
         project_conf['project_tag'] = (project_conf['project_name'])
-        project_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-')
+        project_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
         project_conf['endpoint_tag'] = project_conf['endpoint_name']
         try:
             if os.environ['gcp_vpc_name'] == '':

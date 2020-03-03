@@ -67,8 +67,8 @@ if __name__ == "__main__":
     dataproc_conf = dict()
     dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
     dataproc_conf['edge_user_name'] = (os.environ['edge_user_name'])
-    dataproc_conf['project_name'] = (os.environ['project_name']).replace('_', '-')
-    dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-')
+    dataproc_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
+    dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
     dataproc_conf['dataproc_name'] = os.environ['dataproc_cluster_name']
     dataproc_conf['gcp_project_id'] = os.environ['gcp_project_id']
     dataproc_conf['gcp_region'] = os.environ['gcp_region']
