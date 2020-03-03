@@ -18,14 +18,15 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 
 public class ProjectResourceTest extends TestBase {
     private ProjectService projectService = mock(ProjectService.class);
@@ -117,9 +118,6 @@ public class ProjectResourceTest extends TestBase {
     }
 
     private ProjectActionFormDTO getProjectAvtionDTO() {
-        List<String> endPoints = new ArrayList<>();
-        endPoints.add("https://localhost:8083/");
-        String projectName = "DLAB";
-        return new ProjectActionFormDTO(projectName, endPoints);
+        return new ProjectActionFormDTO("DLAB", Collections.singletonList("https://localhost:8083/"));
     }
 }
