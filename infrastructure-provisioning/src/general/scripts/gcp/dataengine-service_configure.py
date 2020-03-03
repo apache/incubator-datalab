@@ -176,7 +176,7 @@ if __name__ == "__main__":
         dataproc_conf['master_name'] = dataproc_conf['cluster_name'] + '-m'
         dataproc_conf['master_ip'] = GCPMeta.get_private_ip_address(dataproc_conf['master_name'])
     except Exception as err:
-        dlab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
+        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
         GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
 
@@ -203,7 +203,9 @@ if __name__ == "__main__":
         for job in jobs:
             if job.exitcode != 0:
                 raise Exception
-    except:
+    except Exception as err:
+        GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
+        dlab.fab.append_result("Failed to configure Dataengine-service", str(err))
         traceback.print_exc()
         raise Exception
 
