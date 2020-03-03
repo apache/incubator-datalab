@@ -112,7 +112,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
             return builder.toString();
         } catch (Exception e) {
             log.error("Cannot write billing data ", e);
-            throw new DlabException("Cannot write billing file due to" + e.getMessage());
+            throw new DlabException("Cannot write billing file due to " + e.getMessage());
         }
     }
 
