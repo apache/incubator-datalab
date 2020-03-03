@@ -58,20 +58,28 @@ public class BillingResource {
     }
 
     @POST
-    @Path("/report2")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getBillingReport2(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter
-    ) {
-        return Response.ok(billingServiceNew.getBillingReport(userInfo, filter)).build();
-    }
-
-    @POST
     @Path("/report/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter formDTO) {
         return Response.ok(billingService.downloadReport(userInfo, formDTO))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + billingService.getReportFileName(userInfo, formDTO) + "\"")
+                .build();
+    }
+
+    @POST
+    @Path("/report2")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBillingReport2(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
+        return Response.ok(billingServiceNew.getBillingReport(userInfo, filter)).build();
+    }
+
+    @POST
+    @Path("/report2/download")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response downloadBillingReport2(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
+        return Response.ok(billingServiceNew.downloadReport(userInfo, filter))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"billing-report.csv\"")
                 .build();
     }
 }

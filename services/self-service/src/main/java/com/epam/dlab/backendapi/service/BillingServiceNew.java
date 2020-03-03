@@ -21,7 +21,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.BillingReport;
-import com.epam.dlab.backendapi.domain.BillingReportLines;
+import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 
 import java.util.List;
@@ -29,5 +29,7 @@ import java.util.List;
 public interface BillingServiceNew {
     BillingReport getBillingReport(UserInfo userInfo, BillingFilter filter);
 
-    List<BillingReportLines> getBillingReportLines(UserInfo userInfo, BillingFilter filter);
+    String downloadReport(UserInfo userInfo, BillingFilter filter);
+
+    List<BillingReportLine> getBillingReportLines(UserInfo userInfo, BillingFilter filter);
 }

@@ -31,7 +31,7 @@ import java.util.List;
 public class BillingReport {
     private String sbn;
     @JsonProperty("report_lines")
-    private List<BillingReportLines> reportLines;
+    private List<BillingReportLine> reportLines;
     @JsonProperty("from")
     private LocalDate usageDateFrom;
     @JsonProperty("to")
@@ -39,4 +39,6 @@ public class BillingReport {
     @JsonProperty("total_cost")
     private double totalCost;
     private String currency;
+    @JsonProperty("is_full")
+    private boolean isFull;
 }

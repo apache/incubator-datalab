@@ -22,11 +22,13 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.domain.BillingReport;
-import com.epam.dlab.backendapi.domain.BillingReportLines;
+import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.BillingServiceNew;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
@@ -36,6 +38,7 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.billing.BillingData;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
@@ -82,11 +85,11 @@ public class BillingServiceImplNew implements BillingServiceNew {
 
     @Override
     public BillingReport getBillingReport(UserInfo user, BillingFilter filter) {
-        List<BillingReportLines> billingReportLines = getBillingReportLines(user, filter);
-        LocalDate min = billingReportLines.stream().min(Comparator.comparing(BillingReportLines::getUsageDateFrom)).map(BillingReportLines::getUsageDateFrom).orElse(null);
-        LocalDate max = billingReportLines.stream().max(Comparator.comparing(BillingReportLines::getUsageDateTo)).map(BillingReportLines::getUsageDateTo).orElse(null);
-        double sum = billingReportLines.stream().mapToDouble(BillingReportLines::getCost).sum();
-        String currency = billingReportLines.stream().map(BillingReportLines::getCurrency).distinct().count() == 1 ? billingReportLines.get(0).getCurrency() : null;
+        List<BillingReportLine> billingReportLines = getBillingReportLines(user, filter);
+        LocalDate min = billingReportLines.stream().min(Comparator.comparing(BillingReportLine::getUsageDateFrom)).map(BillingReportLine::getUsageDateFrom).orElse(null);
+        LocalDate max = billingReportLines.stream().max(Comparator.comparing(BillingReportLine::getUsageDateTo)).map(BillingReportLine::getUsageDateTo).orElse(null);
+        double sum = billingReportLines.stream().mapToDouble(BillingReportLine::getCost).sum();
+        String currency = billingReportLines.stream().map(BillingReportLine::getCurrency).distinct().count() == 1 ? billingReportLines.get(0).getCurrency() : null;
         return BillingReport.builder()
                 .sbn(configuration.getServiceBaseName())
                 .reportLines(billingReportLines)
@@ -94,30 +97,47 @@ public class BillingServiceImplNew implements BillingServiceNew {
                 .usageDateTo(max)
                 .totalCost(new BigDecimal(sum).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(currency)
+                .isFull(isFullReport(user))
                 .build();
     }
 
     @Override
-    public List<BillingReportLines> getBillingReportLines(UserInfo user, BillingFilter filter) {
+    public String downloadReport(UserInfo user, BillingFilter filter) {
+        BillingReport report = getBillingReport(user, filter);
+        StringBuilder builder = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
+        builder.append(BillingUtils.getHeader());
+        try {
+            report.getReportLines().forEach(r -> builder.append(BillingUtils.printLine(r)));
+            builder.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency()));
+            return builder.toString();
+        } catch (Exception e) {
+            log.error("Cannot write billing data ", e);
+            throw new DlabException("Cannot write billing file due to" + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<BillingReportLine> getBillingReportLines(UserInfo user, BillingFilter filter) {
+        setUserFilter(user, filter);
         final String serviceBaseName = configuration.getServiceBaseName();
-        final Stream<BillingReportLines> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(serviceBaseName);
-        final Stream<BillingReportLines> billableUserInstances = exploratoryService.findAll()
+        final Stream<BillingReportLine> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(serviceBaseName);
+        final Stream<BillingReportLine> billableUserInstances = exploratoryService.findAll()
                 .stream()
                 .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
                 .flatMap(BillingUtils::exploratoryBillingDataStream);
-        final Stream<BillingReportLines> billableEdges = projectService.getProjects()
+        final Stream<BillingReportLine> billableEdges = projectService.getProjects()
                 .stream()
                 .collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
                 .entrySet()
                 .stream()
                 .flatMap(e -> projectEdges(serviceBaseName, e.getKey(), e.getValue()));
 
-        final Map<String, BillingReportLines> billableResources = Stream.of(billableUserInstances, billableEdges, ssnBillingDataStream)
+        final Map<String, BillingReportLine> billableResources = Stream.of(billableUserInstances, billableEdges, ssnBillingDataStream)
                 .flatMap(s -> s)
-                .collect(Collectors.toMap(BillingReportLines::getDlabId, b -> b));
+                .collect(Collectors.toMap(BillingReportLine::getDlabId, b -> b));
         log.debug("Billable resources are: {}", billableResources);
 
-        List<BillingReportLines> billingReport = getRemoteBillingData(user)
+        List<BillingReportLine> billingReport = getRemoteBillingData(user)
                 .stream()
                 .filter(getBillingDataFilter(filter))
                 .map(bd -> toBillingData(bd, getOrDefault(billableResources, bd.getTag())))
@@ -128,15 +148,15 @@ public class BillingServiceImplNew implements BillingServiceNew {
         return billingReport;
     }
 
-    private Stream<BillingReportLines> projectEdges(String serviceBaseName, String projectName, List<ProjectEndpointDTO> endpoints) {
+    private Stream<BillingReportLine> projectEdges(String serviceBaseName, String projectName, List<ProjectEndpointDTO> endpoints) {
         return endpoints
                 .stream()
                 .flatMap(endpoint -> BillingUtils.edgeBillingDataStream(projectName, serviceBaseName, endpoint.getName(),
                         endpoint.getStatus().toString()));
     }
 
-    private BillingReportLines getOrDefault(Map<String, BillingReportLines> billableResources, String tag) {
-        return billableResources.getOrDefault(tag, BillingReportLines.builder().dlabId(tag).build());
+    private BillingReportLine getOrDefault(Map<String, BillingReportLine> billableResources, String tag) {
+        return billableResources.getOrDefault(tag, BillingReportLine.builder().dlabId(tag).build());
     }
 
     private List<BillingData> getRemoteBillingData(UserInfo userInfo) {
@@ -192,7 +212,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
         });
     }
 
-    private Predicate<BillingReportLines> getBillingReportFilter(BillingFilter filter) {
+    private Predicate<BillingReportLine> getBillingReportFilter(BillingFilter filter) {
         return br -> (filter.getUsers().isEmpty() || filter.getUsers().contains(br.getUser())) &&
                 (filter.getProjects().isEmpty() || filter.getProjects().contains(br.getProject())) &&
                 (filter.getResourceTypes().isEmpty() || filter.getResourceTypes().contains(br.getResourceType().name())) &&
@@ -207,21 +227,32 @@ public class BillingServiceImplNew implements BillingServiceNew {
                 (filter.getProducts().isEmpty() || filter.getProducts().contains(br.getProduct()));
     }
 
-    private BillingReportLines toBillingData(BillingData billingData, BillingReportLines billingReportLines) {
-        return BillingReportLines.builder()
+    private boolean isFullReport(UserInfo userInfo) {
+        return UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing",
+                userInfo.getRoles());
+    }
+
+    private void setUserFilter(UserInfo userInfo, BillingFilter filter) {
+        if (!isFullReport(userInfo)) {
+            filter.setUsers(Lists.newArrayList(userInfo.getName()));
+        }
+    }
+
+    private BillingReportLine toBillingData(BillingData billingData, BillingReportLine billingReportLine) {
+        return BillingReportLine.builder()
                 .cost(billingData.getCost())
                 .currency(billingData.getCurrency())
                 .product(billingData.getProduct())
-                .project(billingReportLines.getProject())
+                .project(billingReportLine.getProject())
                 .usageDateTo(billingData.getUsageDateTo())
                 .usageDateFrom(billingData.getUsageDateFrom())
                 .usageType(billingData.getUsageType())
-                .user(billingReportLines.getUser())
+                .user(billingReportLine.getUser())
                 .dlabId(billingData.getTag())
-                .resourceType(billingReportLines.getResourceType())
-                .resourceName(billingReportLines.getResourceName())
-                .status(billingReportLines.getStatus())
-                .shape(billingReportLines.getShape())
+                .resourceType(billingReportLine.getResourceType())
+                .resourceName(billingReportLine.getResourceName())
+                .status(billingReportLine.getStatus())
+                .shape(billingReportLine.getShape())
                 .build();
     }
 }
