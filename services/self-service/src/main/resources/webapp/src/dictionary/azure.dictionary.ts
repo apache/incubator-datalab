@@ -44,7 +44,7 @@ export const NAMING_CONVENTION_AZURE = {
         'type': '',
         'resourceType': 'resource_type',
         'instance_size': 'shape',
-        'dlabId': 'dlabId'
+        'dlabId': 'dlab_id'
     },
     'service': 'Category',
     'type': '',

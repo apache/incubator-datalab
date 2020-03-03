@@ -47,7 +47,6 @@ export class RolesComponent implements OnInit {
   public healthStatus: any;
   public delimitersRegex = /[-_]?/g;
   public groupnamePattern = new RegExp(/^[a-zA-Z0-9_\-]+$/);
-  public deletedUsers = [];
 
   stepperView: boolean = false;
   displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
