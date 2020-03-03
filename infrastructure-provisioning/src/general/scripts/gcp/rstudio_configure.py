@@ -45,16 +45,16 @@ if __name__ == "__main__":
         GCPActions = dlab.actions_lib.GCPActions()
         notebook_config = dict()
         try:
-            notebook_config['exploratory_name'] = (os.environ['exploratory_name']).replace('_', '-')
+            notebook_config['exploratory_name'] = (os.environ['exploratory_name']).replace('_', '-').lower()
         except:
             notebook_config['exploratory_name'] = ''
         notebook_config['service_base_name'] = (os.environ['conf_service_base_name'])
         notebook_config['instance_type'] = os.environ['gcp_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['edge_user_name'] = (os.environ['edge_user_name'])
-        notebook_config['project_name'] = (os.environ['project_name']).replace('_', '-')
+        notebook_config['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
         notebook_config['project_tag'] = notebook_config['project_name']
-        notebook_config['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-')
+        notebook_config['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
         notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
         notebook_config['instance_name'] = '{0}-{1}-{2}-nb-{3}'.format(notebook_config['service_base_name'],
                                                                        notebook_config['project_name'],

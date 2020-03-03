@@ -128,17 +128,17 @@ if __name__ == "__main__":
         print('Generating infrastructure names and tags')
         dataproc_conf = dict()
         if 'exploratory_name' in os.environ:
-            dataproc_conf['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
+            dataproc_conf['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-').lower()
         else:
             dataproc_conf['exploratory_name'] = ''
         if 'computational_name' in os.environ:
-            dataproc_conf['computational_name'] = os.environ['computational_name'].replace('_', '-')
+            dataproc_conf['computational_name'] = os.environ['computational_name'].replace('_', '-').lower()
         else:
             dataproc_conf['computational_name'] = ''
         dataproc_conf['service_base_name'] = (os.environ['conf_service_base_name'])
         dataproc_conf['edge_user_name'] = (os.environ['edge_user_name'])
-        dataproc_conf['project_name'] = (os.environ['project_name']).replace('_', '-')
-        dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-')
+        dataproc_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
+        dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
         dataproc_conf['key_name'] = os.environ['conf_key_name']
         dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         dataproc_conf['region'] = os.environ['gcp_region']
