@@ -35,7 +35,7 @@ export const NAMING_CONVENTION_GCP = {
         'resourceName': 'resource_name',
         'cost': 'cost',
         'costTotal': 'cost_total',
-        'currencyCode': 'currency_code',
+        'currency_code': 'currency_code',
         'dateFrom': 'from',
         'dateTo': 'to',
         'service': 'product',
