@@ -41,7 +41,7 @@ export class ProjectDataService {
     this.projectService.getProjectsList()
       .pipe(
         mergeMap ((response: Project[]) => {
-            if (response) {
+            if (response && this.endpointsList.length) {
               response.forEach(project => project.endpoints.forEach(endpoint => {
                 const filtredEndpoints =  this.endpointsList.filter(v => v.name === endpoint.name);
                 if (filtredEndpoints.length) {
