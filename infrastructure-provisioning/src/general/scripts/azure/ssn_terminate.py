@@ -125,8 +125,8 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
 
     print("Removing Resource Group")
     try:
-        if AzureMeta.get_resource_group(service_base_name):
-            AzureActions.remove_resource_group(service_base_name, region)
+        if AzureMeta.get_resource_group(resource_group_name):
+            AzureActions.remove_resource_group(resource_group_name, region)
             print("Resource group {} has been terminated".format(vpc_name))
     except Exception as err:
         dlab.fab.append_result("Failed to remove resource group", str(err))
