@@ -18,9 +18,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -61,7 +59,7 @@ public class ProjectResourceTest extends TestBase {
                 .target("project/stop")
                 .request()
                 .header("Authorization", "Bearer " + TOKEN)
-                .post(Entity.json(getProjectAvtionDTO()));
+                .post(Entity.json(getProjectActionDTO()));
 
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
         verify(projectService).stopWithResources(any(UserInfo.class), anyString());
@@ -74,7 +72,7 @@ public class ProjectResourceTest extends TestBase {
                 .target("project/start")
                 .request()
                 .header("Authorization", "Bearer " + TOKEN)
-                .post(Entity.json(getProjectAvtionDTO()));
+                .post(Entity.json(getProjectActionDTO()));
 
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
         verify(projectService).start(any(UserInfo.class), anyList(), anyString());
@@ -117,7 +115,7 @@ public class ProjectResourceTest extends TestBase {
         verifyNoMoreInteractions(keyService);
     }
 
-    private ProjectActionFormDTO getProjectAvtionDTO() {
+    private ProjectActionFormDTO getProjectActionDTO() {
         return new ProjectActionFormDTO("DLAB", Collections.singletonList("https://localhost:8083/"));
     }
 }
