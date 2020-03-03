@@ -152,6 +152,16 @@ if __name__ == "__main__":
             data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
         data_engine['network_tag'] = '{0}-{1}-{2}-ps'.format(data_engine['service_base_name'],
                                                              data_engine['project_name'], data_engine['endpoint_name'])
+        additional_tags = json.loads(
+            os.environ['tags'].replace("': u'", "\": \"").replace("', u'", "\", \"").replace(
+                "{u'", "{\"").replace("'}", "\"}"))
+
+        if '@' in additional_tags['user_tag']:
+            data_engine['user_tag'] = additional_tags['user_tag'][:additional_tags['user_tag'].find('@')]
+        else:
+            data_engine['user_tag'] = additional_tags['user_tag']
+
+        data_engine['custom_tag'] = additional_tags['custom_tag']
         data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
                                        "sbn": data_engine['service_base_name'],
                                        "user": data_engine['edge_user_name'],
@@ -168,6 +178,9 @@ if __name__ == "__main__":
                                         "type": "master",
                                         "notebook_name": data_engine['notebook_name'],
                                         "product": "dlab"}
+        if data_engine['custom_tag'] != '':
+            data_engine['slave_labels'].update({'custom_tag': data_engine['custom_tag']})
+            data_engine['master_labels'].update({'custom_tag': data_engine['custom_tag']})
     except Exception as err:
         dlab.fab.append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)

@@ -34,9 +34,9 @@ export const NAMING_CONVENTION_AZURE = {
     'max_cluster_name_length': 10,
     'billing': {
         'resourceName': 'resourceName',
-        'cost': 'costString',
+        'cost': 'cost',
         'costTotal': 'cost_total',
-        'currencyCode': 'currencyCode',
+        'currencyCode': 'currency_code',
         'dateFrom': 'from',
         'dateTo': 'to',
         'service': 'meterCategory',
@@ -44,7 +44,7 @@ export const NAMING_CONVENTION_AZURE = {
         'type': '',
         'resourceType': 'resource_type',
         'instance_size': 'shape',
-        'dlabId': 'dlabId'
+        'dlabId': 'dlab_id'
     },
     'service': 'Category',
     'type': '',

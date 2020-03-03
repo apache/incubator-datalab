@@ -27,6 +27,7 @@ import sys
 import os
 import time
 
+
 def manage_pkg(command, environment, requisites):
     try:
         allow = False

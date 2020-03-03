@@ -74,17 +74,27 @@ if __name__ == "__main__":
         application = 'jupyter'
     else:
         application = os.environ['application']
+    additional_tags = json.loads(os.environ['tags'].replace("': u'", "\": \"").replace("', u'", "\", \"").replace("{u'", "{\"" ).replace("'}", "\"}"))
+
+    if '@' in additional_tags['user_tag']:
+        notebook_config['user_tag'] = additional_tags['user_tag'][:additional_tags['user_tag'].find('@')]
+    else:
+        notebook_config['user_tag'] = additional_tags['user_tag']
+
+    notebook_config['custom_tag'] = additional_tags['custom_tag']
     notebook_config['cluster_labels'] = {
         os.environ['notebook_instance_name']: "configured",
         "name": notebook_config['cluster_name'],
         "sbn": notebook_config['service_base_name'],
-        "user": notebook_config['edge_user_name'],
+        "user": notebook_config['user_tag'],
         "notebook_name": os.environ['notebook_instance_name'],
         "project_tag": notebook_config['project_tag'],
         "endpoint_tag": notebook_config['endpoint_tag'],
         "product": "dlab",
         "computational_name": (os.environ['computational_name'].replace('_', '-'))
     }
+    if notebook_config['custom_tag'] != '':
+        notebook_config['cluster_labels'].update({'custom_tag': notebook_config['custom_tag']})
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')

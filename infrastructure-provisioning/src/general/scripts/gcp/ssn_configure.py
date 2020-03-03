@@ -47,12 +47,12 @@ if __name__ == "__main__":
         GCPActions.remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
         GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
         GCPActions.remove_role(ssn_conf['role_name'])
-        if ssn_conf['pre_defined_firewall']:
+        if not ssn_conf['pre_defined_firewall']:
             GCPActions.remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
             GCPActions.remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
-        if ssn_conf['pre_defined_subnet']:
+        if  not ssn_conf['pre_defined_subnet']:
             GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if ssn_conf['pre_defined_vpc']:
+        if not ssn_conf['pre_defined_vpc']:
             GCPActions.remove_vpc(ssn_conf['vpc_name'])
 
     try:
@@ -75,6 +75,7 @@ if __name__ == "__main__":
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
         ssn_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
+        ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_size'] = os.environ['gcp_ssn_instance_size']
         try:
             if os.environ['gcp_vpc_name'] == '':
@@ -359,10 +360,6 @@ if __name__ == "__main__":
             {
                 'key': 'PEERING_ID',
                 'value': ''
-            },
-            {
-                'key': 'SHARED_IMAGE_ENABLED',
-                'value': os.environ['conf_shared_image_enabled']
             },
             {
                 'key': 'CONF_IMAGE_ENABLED',
