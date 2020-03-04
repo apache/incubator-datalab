@@ -293,6 +293,10 @@ class GCPActions:
         unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
         service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         access_configs = ''
+        if instance_class == 'edge':
+            ip_forward = True
+        else:
+            ip_forward = False
         if instance_class == 'ssn' or instance_class == 'edge':
             access_configs = [{
                 "type": "ONE_TO_ONE_NAT",
@@ -374,6 +378,7 @@ class GCPActions:
             "name": instance_name,
             "machineType": "zones/{}/machineTypes/{}".format(zone, instance_size),
             "labels": labels,
+            "canIpForward": ip_forward,
             "networkInterfaces": [
                 {
                     "network": "global/networks/{}".format(vpc_name),
