@@ -173,7 +173,7 @@ if __name__ == "__main__":
         print('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         params = "--hostname {0} --keyfile {1} " \
                  "--region {2} --os_user {3} " \
-                 "--ip_adress {4} --exploratory_name {5} --edge_ip {6}" \
+                 "--ip_address {4} --exploratory_name {5} --edge_ip {6}" \
                  .format(instance_hostname, keyfile_name,
                          os.environ['aws_region'], notebook_config['dlab_ssh_user'],
                          notebook_config['ip_address'], notebook_config['exploratory_name'], edge_ip)

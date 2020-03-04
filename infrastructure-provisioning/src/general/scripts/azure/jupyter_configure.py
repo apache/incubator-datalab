@@ -191,7 +191,7 @@ if __name__ == "__main__":
                  "--region {2} --spark_version {3} " \
                  "--hadoop_version {4} --os_user {5} " \
                  "--scala_version {6} --r_mirror {7} " \
-                 "--ip_adress {8} --exploratory_name {9} --edge_ip {10}".\
+                 "--ip_address {8} --exploratory_name {9} --edge_ip {10}".\
             format(instance_hostname, keyfile_name,
                    os.environ['azure_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],

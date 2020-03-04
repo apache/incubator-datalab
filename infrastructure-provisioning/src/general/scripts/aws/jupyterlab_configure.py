@@ -177,7 +177,7 @@ if __name__ == "__main__":
                  "--os_user {} " \
                  "--scala_version {} " \
                  "--r_mirror {} " \
-                 "--ip_adress {} " \
+                 "--ip_address {} " \
                  "--exploratory_name {}".\
             format(instance_hostname,
                    keyfile_name,
