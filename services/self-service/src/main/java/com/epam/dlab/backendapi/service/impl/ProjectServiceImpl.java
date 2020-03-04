@@ -74,7 +74,7 @@ public class ProjectServiceImpl implements ProjectService {
 	public List<ProjectManagingDTO> getProjectsForManaging() {
 		return projectDAO.getProjects().stream().map(p -> new ProjectManagingDTO(
 				p.getName(), p.getBudget(), isCanBeStopped(p), isCanBeTerminated(p)))
-				.filter(ProjectManagingDTO::isCanBeTerminated)
+				.filter(projectManagingDTO -> projectManagingDTO.isCanBeTerminated())
 				.collect(Collectors.toList());
 	}
 
