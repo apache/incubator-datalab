@@ -53,7 +53,7 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
 
     print("Terminating EDGE and notebook instances")
     base = '{}-{}-{}'.format(service_base_name, project_name, endpoint_name)
-    keys = ['edge', 'ps', 'ip', 'bucket', 'subnet']
+    keys = ['edge', 'ps', 'static-ip', 'bucket', 'subnet']
     targets = ['{}-{}'.format(base, k) for k in keys]
     try:
         instances = GCPMeta.get_list_instances(zone, base)
