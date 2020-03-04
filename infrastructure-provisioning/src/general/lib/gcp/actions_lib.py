@@ -39,6 +39,7 @@ import dlab.fab
 import dlab.common_lib
 import backoff
 import ast
+import random
 
 
 class GCPActions:
@@ -554,7 +555,9 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def set_role_to_service_account(self, service_account_name, role_name, service_base_name, role_type='custom'):
+    def set_role_to_service_account(self, service_account_name, role_name, service_base_name, role_type='custom',
+                                    num=0):
+        num += 1
         request = GCPActions().service_resource.projects().getIamPolicy(resource=self.project, body={})
         project_policy = request.execute()
         unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
@@ -577,6 +580,10 @@ class GCPActions:
         try:
             return request.execute()
         except Exception as err:
+            if "There were concurrent policy changes. " \
+               "Please retry the whole read-modify-write with exponential backoff." in str(err) and num <= 10:
+                time.sleep(random.randint(5, 20))
+                self.set_role_to_service_account(service_base_name, role_name, service_base_name, role_type, num)
             logging.info(
                 "Unable to set Service account policy: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
