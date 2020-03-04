@@ -139,7 +139,6 @@ if __name__ == "__main__":
     else:
         notebook_config['user_tag'] = additional_tags['user_tag']
 
-    notebook_config['custom_tag'] = additional_tags['custom_tag']
     print('Additional tags will be added: {}'.format(additional_tags))
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                  "sbn": notebook_config['service_base_name'],
@@ -149,8 +148,8 @@ if __name__ == "__main__":
                                  "product": "dlab"
                                  }
 
-    if notebook_config['custom_tag'] != '':
-        notebook_config['labels'].update({'custom_tag': notebook_config['custom_tag']})
+    if additional_tags['custom_tag'] and additional_tags['custom_tag'] != '':
+        notebook_config['labels'].update({'custom_tag': additional_tags['custom_tag']})
 
     # launching instance for notebook server
     try:

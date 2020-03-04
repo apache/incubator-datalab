@@ -150,7 +150,6 @@ if __name__ == "__main__":
     else:
         data_engine['user_tag'] = additional_tags['user_tag']
 
-    data_engine['custom_tag'] = additional_tags['custom_tag']
     data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
                                    "sbn": data_engine['service_base_name'],
                                    "user": data_engine['user_tag'],
@@ -167,9 +166,9 @@ if __name__ == "__main__":
                                     "type": "master",
                                     "notebook_name": data_engine['notebook_name'],
                                     "product": "dlab"}
-    if data_engine['custom_tag'] != '':
-        data_engine['slave_labels'].update({'custom_tag': data_engine['custom_tag']})
-        data_engine['master_labels'].update({'custom_tag': data_engine['custom_tag']})
+    if additional_tags['custom_tag'] and additional_tags['custom_tag'] != '':
+        data_engine['slave_labels'].update({'custom_tag': additional_tags['custom_tag']})
+        data_engine['master_labels'].update({'custom_tag': additional_tags['custom_tag']})
 
     try:
         logging.info('[CREATE MASTER NODE]')
