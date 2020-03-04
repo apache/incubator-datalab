@@ -32,7 +32,7 @@ import traceback
 import logging
 
 
-def terminate_edge_node(user_name, service_base_name, region, zone):
+def terminate_edge_node(user_name, service_base_name, region, zone, project_name, endpoint_name):
     print("Terminating Dataengine-service clusters")
     try:
         labels = [
@@ -51,8 +51,8 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
         sys.exit(1)
 
     print("Terminating EDGE and notebook instances")
-    base = '{}-{}'.format(service_base_name, user_name)
-    keys = ['edge', 'ps', 'ip', 'bucket', 'subnet']
+    base = '{}-{}-{}'.format(service_base_name, project_name, endpoint_name)
+    keys = ['edge', 'ps', 'static-ip', 'bucket', 'subnet']
     targets = ['{}-{}'.format(base, k) for k in keys]
     try:
         instances = GCPMeta.get_list_instances(zone, base)
@@ -141,6 +141,8 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name'])
     edge_conf['edge_user_name'] = (os.environ['edge_user_name'])
+    edge_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
+    edge_conf['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-').lower()
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
 
@@ -149,7 +151,8 @@ if __name__ == "__main__":
         print('[TERMINATE EDGE]')
         try:
             terminate_edge_node(edge_conf['edge_user_name'], edge_conf['service_base_name'],
-                                edge_conf['region'], edge_conf['zone'])
+                                edge_conf['region'], edge_conf['zone'], edge_conf['project_name'],
+                                edge_conf['endpoint_name'])
         except Exception as err:
             traceback.print_exc()
             dlab.fab.append_result("Failed to terminate edge.", str(err))
