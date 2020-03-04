@@ -155,6 +155,10 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(and(eq(PROJECT, project)), false);
 	}
 
+	public List<UserInstanceDTO> findExploratories(String project, String endpoint, String user) {
+		return getUserInstances(and(eq(PROJECT, project), eq(ENDPOINT, endpoint), eq(USER, user)), true);
+	}
+
 	/**
 	 * Finds and returns the info of all user's notebooks whose status is present among predefined ones.
 	 *

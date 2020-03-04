@@ -74,7 +74,11 @@ public class RESTService {
 	}
 
 	public <T> T get(String path, String accessToken, GenericType<T> genericType) {
-		Invocation.Builder builder = getBuilder(path, accessToken, Collections.emptyMap());
+		return get(path, accessToken, genericType, Collections.emptyMap());
+	}
+
+	public <T> T get(String path, String accessToken, GenericType<T> genericType, Map<String, Object> queryParams) {
+		Invocation.Builder builder = getBuilder(path, accessToken, queryParams);
 		log.debug("REST get secured {} {}", path, accessToken);
 		return builder.get(genericType);
 	}
