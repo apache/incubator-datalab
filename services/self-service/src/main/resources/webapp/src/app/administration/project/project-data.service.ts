@@ -26,7 +26,7 @@ import { Project } from './project.component';
 
 @Injectable()
 export class ProjectDataService {
-  private _projects = new BehaviorSubject<any>(null);
+  public _projects = new BehaviorSubject<any>(null);
   private endpointsList: any = [];
   constructor(
     private projectService: ProjectService,
