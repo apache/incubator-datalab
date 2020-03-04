@@ -320,7 +320,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
             conn.put('./provisioning.yml', '{}provisioning.yml'
                      .format(dlab_conf_dir))
             if args.resource_group_name == '':
-                args.resource_group_name = args.service_base_name
+                args.resource_group_name = '{}-resource-group'.format(args.service_base_name)
             if args.cloud_provider == 'azure':
                 args.region = args.region.lower().replace(' ', '')
             cloud_properties = [
