@@ -113,7 +113,7 @@
 
   .th_charges {
     width: 8%;
-    min-width: 110px;
+    min-width: 130px;
     padding-right: 15px;
     text-align: right;
 
@@ -161,6 +161,16 @@
       text-align: right;
     }
   }
+
+  .table-footer{
+    position: sticky;
+    bottom: 0;
+    background: inherit;
+    border-top: 1px solid #E0E0E0;
+    transform: translateY(-1px);
+    border-bottom: none;
+    padding-left: 0 !important;
+  }
 }
 
 .dashboard_table_body {
@@ -177,14 +187,7 @@
   }
 }
 
-.table-footer{
-  position: sticky;
-  bottom: 0;
-  background: inherit;
-  border-top: 1px solid #E0E0E0;
-  transform: translateY(-1px);
-  border-bottom: none;
-}
+
 
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {

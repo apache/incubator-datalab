@@ -132,6 +132,9 @@ table {
     padding-right: 24px;
     text-align: right;
     background-color: inherit;
+    .label{
+      padding-right: 5px;
+    }
   }
 }
 
@@ -227,6 +230,7 @@ tr.detail-row {
 .filter-row .actions {
   text-align: right;
   display: flex;
+  justify-content: flex-end;
 }
 
 .filter-row .actions button {

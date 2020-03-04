@@ -24,6 +24,7 @@ locals {
 }
 
 provider "azurerm" {
+  features {}
   subscription_id = local.json_data.subscriptionId
   client_id       = local.json_data.clientId
   client_secret   = local.json_data.clientSecret

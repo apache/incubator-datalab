@@ -50,13 +50,17 @@
     .settings {
       padding-right: 14px;
 
-      .actions {
-        margin-top: 2px;
+
+    }
+    .actions {
+      margin-top: 0px;
+      .label{
+        padding-right: 5px;
       }
     }
-
     .actions-col {
       width: 6%;
+
     }
 
     .dashboard_table_body {

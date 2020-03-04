@@ -90,7 +90,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             else:
                 r_repository = 'https://cloud.r-project.org'
             manage_pkg('-y install', 'remote', 'cmake')
-            manage_pkg('-y install', 'remote', 'libcur')
+            manage_pkg('-y install', 'remote', 'libcur*')
             sudo('echo -e "[base]\nname=CentOS-7-Base\nbaseurl=http://buildlogs.centos.org/centos/7/os/x86_64-20140704-1/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7\npriority=1\nexclude=php mysql" >> /etc/yum.repos.d/CentOS-base.repo')
             manage_pkg('-y install', 'remote', 'R R-core R-core-devel R-devel --nogpgcheck')
             sudo('R CMD javareconf')
