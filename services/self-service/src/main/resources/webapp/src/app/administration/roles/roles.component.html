@@ -62,31 +62,40 @@
         <ng-template matStepLabel>Roles</ng-template>
         <div class="inner-step mat-reset roles">
           <div class="selector-wrapper">
-            <mat-form-field>
-              <mat-select
-                multiple [compareWith]="compareObjects"
-                name="roles"
-                [(value)]="setupRoles"
-                disableOptionCentering
-                placeholder="Select roles"
-                panelClass="select-role"
-              >
-                <mat-option class="multiple-select" disabled>
-                  <a class="select ani" (click)="selectAllOptions(setupRoles, rolesList)">
-                    <i class="material-icons">playlist_add_check</i>&nbsp;All
-                  </a>
-                  <a class="deselect ani" (click)="selectAllOptions(setupRoles)">
-                    <i class="material-icons">clear</i>&nbsp;None
-                  </a>
-                </mat-option>
-                <mat-option *ngFor="let role of rolesList" [value]="role">
-                  {{ role }}
-                </mat-option>
-              </mat-select>
-              <button class="caret">
-                <i class="material-icons">keyboard_arrow_down</i>
-              </button>
-            </mat-form-field>
+            <multi-level-select-dropdown
+              (selectionChange)="onUpdate($event)"
+              name="roles"
+              [items]="rolesList"
+              [model]="setupRoles"
+            >
+ <!--           [type]="element.group" -->
+            </multi-level-select-dropdown>
+<!--            <mat-form-field>-->
+
+<!--              <mat-select-->
+<!--                multiple [compareWith]="compareObjects"-->
+<!--                name="roles"-->
+<!--                -->
+<!--                disableOptionCentering-->
+<!--                placeholder="Select roles"-->
+<!--                panelClass="select-role"-->
+<!--              >-->
+<!--                <mat-option class="multiple-select" disabled>-->
+<!--                  <a class="select ani" (click)="selectAllOptions(setupRoles, rolesList)">-->
+<!--                    <i class="material-icons">playlist_add_check</i>&nbsp;All-->
+<!--                  </a>-->
+<!--                  <a class="deselect ani" (click)="selectAllOptions(setupRoles)">-->
+<!--                    <i class="material-icons">clear</i>&nbsp;None-->
+<!--                  </a>-->
+<!--                </mat-option>-->
+<!--                <mat-option *ngFor="let role of rolesList" [value]="role">-->
+<!--                  {{ role }}-->
+<!--                </mat-option>-->
+<!--              </mat-select>-->
+<!--              <button class="caret">-->
+<!--                <i class="material-icons">keyboard_arrow_down</i>-->
+<!--              </button>-->
+<!--            </mat-form-field>-->
           </div>
         </div>
         <div class="text-center m-bott-10">
