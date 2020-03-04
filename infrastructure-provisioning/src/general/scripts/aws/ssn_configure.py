@@ -466,10 +466,6 @@ if __name__ == "__main__":
                 'value': ''
             },
             {
-                'key': 'SHARED_IMAGE_ENABLED',
-                'value': os.environ['conf_shared_image_enabled']
-            },
-            {
                 'key': 'CONF_IMAGE_ENABLED',
                 'value': os.environ['conf_image_enabled']
             },

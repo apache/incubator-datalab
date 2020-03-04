@@ -25,14 +25,16 @@ ARG NB_USER="jovyan"
 
 EXPOSE 8888
 
+USER root
+
+RUN usermod -aG sudo $NB_USER
+
 COPY jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
 
 #Prepearing Start script
 COPY jupyterlab_run.sh /jupyterlab_run.sh
 RUN  sed -i 's|CONF_PATH|/etc/jupyter/jupyter_notebook_config.py|' /jupyterlab_run.sh \
-  && chmod +x /jupyterlab_run.sh \
-  && chown -R 1001:1001 /etc/jupyter \
-  && chown -R 1001:1001 /opt/odahu-flow
+  && chmod +x /jupyterlab_run.sh
 
 RUN apt update && apt install -y vim netcat-openbsd
 

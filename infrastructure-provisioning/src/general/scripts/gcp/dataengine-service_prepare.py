@@ -76,17 +76,28 @@ if __name__ == "__main__":
                                                                dataproc_conf['project_name'],
                                                                dataproc_conf['endpoint_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
+    additional_tags = json.loads(os.environ['tags'].replace("': u'", "\": \"").replace("', u'", "\", \"").replace("{u'", "{\"" ).replace("'}", "\"}"))
+
+    if '@' in additional_tags['user_tag']:
+        dataproc_conf['user_tag'] = additional_tags['user_tag'][:additional_tags['user_tag'].find('@')]
+    else:
+        dataproc_conf['user_tag'] = additional_tags['user_tag']
+
+    dataproc_conf['custom_tag'] = additional_tags['custom_tag']
     dataproc_conf['cluster_labels'] = {
         os.environ['notebook_instance_name']: "not-configured",
         "name": dataproc_conf['cluster_name'],
         "sbn": dataproc_conf['service_base_name'],
-        "user": dataproc_conf['edge_user_name'],
+        "user": dataproc_conf['user_tag'],
         "project_tag": dataproc_conf['project_tag'],
         "endpoint_tag": dataproc_conf['endpoint_tag'],
         "notebook_name": os.environ['notebook_instance_name'],
         "product": "dlab",
         "computational_name": dataproc_conf['computational_name']
     }
+    if dataproc_conf['custom_tag'] != '':
+        dataproc_conf['cluster_labels'].update({'custom_tag': dataproc_conf['custom_tag']})
+
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
                                                                          dataproc_conf['project_name'])
     dataproc_conf['dataproc_unique_index'] = GCPMeta().get_index_by_service_account_name(dataproc_conf['dataproc_service_account_name'])
