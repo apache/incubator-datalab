@@ -647,6 +647,57 @@ def configure_guacamole():
         print('Failed to configure guacamole: ', str(err))
         return False
 
+def configure_billing_endpoint():
+    try:
+        if billing_enable:
+            billing_yml_path = "{}/conf/billing.yml".format(args.dlab_path)
+            with open(billing_yml_path, 'r') as config_yml_r:
+                config_orig = config_yml_r.read()
+
+            config_orig = config_orig.replace('billingEnabled: false', 'billingEnabled: true')
+            if args.cloud_provider == 'aws':
+                if args.aws_job_enabled == 'true':
+                    args.tag_resource_id = 'resourceTags' + ':' + args.tag_resource_id
+                config_orig = config_orig.replace('<BILLING_BUCKET_NAME>', args.billing_bucket)
+                config_orig = config_orig.replace('<AWS_JOB_ENABLED>', args.aws_job_enabled)
+                config_orig = config_orig.replace('<REPORT_PATH>', args.report_path)
+                config_orig = config_orig.replace('<ACCOUNT_ID>', args.billing_aws_account_id)
+                config_orig = config_orig.replace('<ACCESS_KEY_ID>', args.access_key_id)
+                config_orig = config_orig.replace('<SECRET_ACCESS_KEY>', args.secret_access_key)
+                config_orig = config_orig.replace('<CONF_BILLING_TAG>', args.billing_tag)
+                config_orig = config_orig.replace('<CONF_SERVICE_BASE_NAME>', args.service_base_name)
+                config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
+                config_orig = config_orig.replace('<DLAB_ID>', args.billing_dlab_id)
+                config_orig = config_orig.replace('<USAGE_DATE>', args.billing_usage_date)
+                config_orig = config_orig.replace('<PRODUCT>', args.billing_product)
+                config_orig = config_orig.replace('<USAGE_TYPE>', args.billing_usage_type)
+                config_orig = config_orig.replace('<USAGE>', args.billing_usage)
+                config_orig = config_orig.replace('<COST>', args.billing_cost)
+                config_orig = config_orig.replace('<RESOURCE_ID>', args.billing_resource_id)
+                config_orig = config_orig.replace('<TAGS>', args.billing_tags)
+            elif args.cloud_provider == 'azure':
+                config_orig = config_orig.replace('<CLIENT_ID>', args.azure_client_id)
+                config_orig = config_orig.replace('<CLIENT_SECRET>', args.azure_client_secret)
+                config_orig = config_orig.replace('<TENANT_ID>', args.tenant_id)
+                config_orig = config_orig.replace('<SUBSCRIPTION_ID>', args.subscription_id)
+                config_orig = config_orig.replace('<AUTHENTICATION_FILE>', args.authentication_file)
+                config_orig = config_orig.replace('<OFFER_NUMBER>', args.offer_number)
+                config_orig = config_orig.replace('<CURRENCY>', args.currency)
+                config_orig = config_orig.replace('<LOCALE>', args.locale)
+                config_orig = config_orig.replace('<REGION_INFO>', args.region_info)
+                config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
+            elif args.cloud_provider == 'gcp':
+                config_orig = config_orig.replace('<CONF_SERVICE_BASE_NAME>', args.service_base_name)
+                config_orig = config_orig.replace('<MONGO_PASSWORD>', args.mongo_password)
+                config_orig = config_orig.replace('<BILLING_DATASET_NAME>', args.billing_dataset_name)
+            f = open(path, 'w')
+            f.write(config_orig)
+            f.close()
+
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure billing: ', str(err))
+        return False
 
 def init_args():
     global args
@@ -663,7 +714,7 @@ def init_args():
     parser.add_argument('--ss_host', type=str, default='')
     parser.add_argument('--ss_port', type=str, default='8443')
     parser.add_argument('--ssn_ui_host', type=str, default='')
-    # parser.add_argument('--mongo_password', type=str, default='')
+    parser.add_argument('--mongo_password', type=str, default='')
     parser.add_argument('--repository_address', type=str, default='')
     parser.add_argument('--repository_port', type=str, default='')
     parser.add_argument('--repository_user', type=str, default='')
@@ -698,6 +749,7 @@ def init_args():
     parser.add_argument('--azure_datalake_tag', type=str, default='')
     parser.add_argument('--azure_datalake_enabled', type=str, default='')
     parser.add_argument('--azure_client_id', type=str, default='')
+    parser.add_argument('--azure_client_secret', type=str, default='')
     parser.add_argument('--gcp_project_id', type=str, default='')
     parser.add_argument('--ldap_host', type=str, default='')
     parser.add_argument('--ldap_dn', type=str, default='')
@@ -711,6 +763,29 @@ def init_args():
     parser.add_argument('--shared_image_enabled', type=str, default='true')
     parser.add_argument('--image_enabled', type=str, default='true')
     parser.add_argument('--auth_file_path', type=str, default='')
+    parser.add_argument('--aws_job_enabled', type=str, default='false')
+    parser.add_argument('--billing_bucket', type=str, default='')
+    parser.add_argument('--report_path', type=str, default='')
+    parser.add_argument('--billing_aws_account_id', type=str, default='')
+    parser.add_argument('--access_key_id', type=str, default='')
+    parser.add_argument('--secret_access_key', type=str, default='')
+    parser.add_argument('--billing_tag', type=str, default='dlab')
+    parser.add_argument('--billing_dlab_id', type=str, default='')
+    parser.add_argument('--billing_usage_date', type=str, default='')
+    parser.add_argument('--billing_product', type=str, default='')
+    parser.add_argument('--billing_usage_type', type=str, default='')
+    parser.add_argument('--billing_usage', type=str, default='')
+    parser.add_argument('--billing_usage_cost', type=str, default='')
+    parser.add_argument('--billing_resource_id', type=str, default='')
+    parser.add_argument('--billing_tags', type=str, default='')
+    parser.add_argument('--tenant_id', type=str, default='')
+    parser.add_argument('--subscription_id', type=str, default='')
+    parser.add_argument('--authentication_file', type=str, default='')
+    parser.add_argument('--offer_number', type=str, default='')
+    parser.add_argument('--currency', type=str, default='')
+    parser.add_argument('--locale', type=str, default='')
+    parser.add_argument('--region_info', type=str, default='')
+    parser.add_argument('--billing_dataset_name', type=str, default='')
 
     # TEMPORARY
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
@@ -816,6 +891,9 @@ def start_deploy():
 
     logging.info("Configuring guacamole")
     configure_guacamole()
+
+    logging.info("Configuring billing")
+    configure_billing_endpoint()
 
     logging.info("Starting supervisor")
     start_supervisor_endpoint()
