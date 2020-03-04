@@ -70,7 +70,7 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
 
     print("Terminating notebook")
     try:
-        GCPActions().remove_instance(instance_name, zone)
+        GCPActions.remove_instance(instance_name, zone)
     except Exception as err:
         dlab.fab.append_result("Failed to terminate instance", str(err))
         sys.exit(1)
