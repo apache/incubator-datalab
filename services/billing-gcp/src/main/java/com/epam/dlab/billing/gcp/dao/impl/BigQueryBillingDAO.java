@@ -36,6 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -108,8 +110,24 @@ public class BigQueryBillingDAO implements BillingDAO {
 				.sum("cost").as("cost");
 		Aggregation aggregation = newAggregation(groupOperation);
 
-		return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults().stream()
-				.map(this::toBillingReportDTO)
+		return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults()
+				.stream()
+				.map(this::toBillingData)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<BillingData> getBillingReport(List<String> dlabIds) {
+		GroupOperation groupOperation = group("product", "currency", "usageType", "dlabId")
+				.min("from").as("from")
+				.max("to").as("to")
+				.sum("cost").as("cost");
+		MatchOperation matchOperation = Aggregation.match(Criteria.where("dlabId").in(dlabIds));
+		Aggregation aggregation = newAggregation(matchOperation, groupOperation);
+
+		return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults()
+				.stream()
+				.map(this::toBillingData)
 				.collect(Collectors.toList());
 	}
 
@@ -124,7 +142,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 					.build();
 			final Stream<GcpBillingData> gcpBillingDataStream =
 					StreamSupport.stream(service.query(queryConfig).getValues().spliterator(), false)
-							.map(this::toBillingData);
+							.map(this::toGcpBillingData);
 			billingHistoryRepo.save(new BillingHistory(tableName, table.getLastModifiedTime()));
 			return gcpBillingDataStream;
 		} catch (InterruptedException e) {
@@ -132,7 +150,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 		}
 	}
 
-	private GcpBillingData toBillingData(FieldValueList fields) {
+	private GcpBillingData toGcpBillingData(FieldValueList fields) {
 		return GcpBillingData.builder()
 				.usageDateFrom(toLocalDate(fields, "usage_date_from"))
 				.usageDateTo(toLocalDate(fields, "usage_date_to"))
@@ -150,7 +168,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 				.atZone(ZoneId.systemDefault()));
 	}
 
-	private BillingData toBillingReportDTO(GcpBillingData billingData) {
+	private BillingData toBillingData(GcpBillingData billingData) {
 		return BillingData.builder()
 				.usageDateFrom(billingData.getUsageDateFrom())
 				.usageDateTo(billingData.getUsageDateTo())
