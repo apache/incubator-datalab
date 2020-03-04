@@ -56,7 +56,7 @@ if __name__ == "__main__":
                 and not os.environ.get('azure_source_resource_group_name'):
             raise Exception('Not possible to deploy private environment without predefined resource_group_name '
                             'or source_group_name')
-        # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
+        # We need to cut service_base_name to 20 symbols do to the Azure Name length limitation
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         # Check azure predefined resources
