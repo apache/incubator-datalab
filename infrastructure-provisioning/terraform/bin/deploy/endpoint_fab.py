@@ -649,7 +649,9 @@ def configure_guacamole():
 
 def configure_billing_endpoint():
     try:
-        if billing_enable:
+        if args.billing_enable:
+            conn.put('./provisioning.yml', '{}/conf/provisioning.yml'
+                     .format(args.dlab_path))
             billing_yml_path = "{}/conf/billing.yml".format(args.dlab_path)
             with open(billing_yml_path, 'r') as config_yml_r:
                 config_orig = config_yml_r.read()
@@ -763,6 +765,9 @@ def init_args():
     parser.add_argument('--shared_image_enabled', type=str, default='true')
     parser.add_argument('--image_enabled', type=str, default='true')
     parser.add_argument('--auth_file_path', type=str, default='')
+
+    #Billing parameter
+    parser.add_argument('--billing_enable', type=bool, default=False)
     parser.add_argument('--aws_job_enabled', type=str, default='false')
     parser.add_argument('--billing_bucket', type=str, default='')
     parser.add_argument('--report_path', type=str, default='')

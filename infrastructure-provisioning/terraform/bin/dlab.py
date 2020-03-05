@@ -1167,6 +1167,9 @@ class GCPEndpointBuilder(AbstractDeployBuilder):
          .add_str('--endpoint_policies', 'Endpoint policies list', group='endpoint')
          .add_str('--endpoint_roles', 'Endpoint roles list', group='endpoint')
          .add_str('--bucket_region', 'Bucket region', group='endpoint')
+         .add_bool('--billing_enable', 'Billing enable', group='endpoint', default=False)
+         .add_str('--billing_dataset_name', 'Billing dataset name', group='endpoint')
+         .add_str('--mongo_password', 'Mongo database password', group='endpoint')
          )
         return params.build()
 
