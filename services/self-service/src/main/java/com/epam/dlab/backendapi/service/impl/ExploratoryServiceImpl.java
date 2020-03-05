@@ -320,13 +320,14 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 * Instantiates and returns the descriptor of exploratory environment status.
 	 *
 	 * @param user            user name
-	 * @param project
+	 * @param project         project
 	 * @param exploratoryName name of exploratory environment.
 	 * @param status          status for exploratory environment.
 	 */
 	private StatusEnvBaseDTO<?> createStatusDTO(String user, String project, String exploratoryName, UserInstanceStatus status) {
 		return new ExploratoryStatusDTO()
 				.withUser(user)
+				.withProject(project)
 				.withExploratoryName(exploratoryName)
 				.withStatus(status);
 	}
