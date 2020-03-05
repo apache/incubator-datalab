@@ -888,13 +888,13 @@ def remove_roles_and_profiles(role_name, role_profile_name):
         traceback.print_exc(file=sys.stdout)
 
 
-def remove_all_iam_resources(instance_type, scientist=''):
+def remove_all_iam_resources(instance_type, project_name='', endpoint_name=''):
     try:
         client = boto3.client('iam')
         service_base_name = os.environ['conf_service_base_name']
         roles_list = []
-        if scientist:
-            start_prefix = '{}-{}-'.format(service_base_name, scientist)
+        if project_name:
+            start_prefix = '{}-{}-{}-'.format(service_base_name, project_name, endpoint_name)
         else:
             start_prefix = '{}-'.format(service_base_name)
         for item in client.list_roles(MaxItems=250).get("Roles"):
@@ -920,9 +920,9 @@ def remove_all_iam_resources(instance_type, scientist=''):
                         client.delete_role(RoleName=iam_role)
                         print("The IAM role {} has been deleted successfully".format(iam_role))
                 if '-edge-role' in iam_role:
-                    if instance_type == 'edge' and scientist in iam_role:
+                    if instance_type == 'edge' and project_name in iam_role:
                         remove_detach_iam_policies(iam_role, 'delete')
-                        role_profile_name = '{0}-{1}-{2}-edge-profile'.format(service_base_name, scientist,
+                        role_profile_name = '{0}-{1}-{2}-edge-profile'.format(service_base_name, project_name,
                                                                               os.environ['endpoint_name'].lower())
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
@@ -944,9 +944,9 @@ def remove_all_iam_resources(instance_type, scientist=''):
                             client.delete_role(RoleName=iam_role)
                             print("The IAM role {} has been deleted successfully".format(iam_role))
                 if '-nb-de-role' in iam_role:
-                    if instance_type == 'notebook' and scientist in iam_role:
+                    if instance_type == 'notebook' and project_name in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = '{0}-{1}-{2}-nb-de-profile'.format(service_base_name, scientist,
+                        role_profile_name = '{0}-{1}-{2}-nb-de-profile'.format(service_base_name, project_name,
                                                                                os.environ['endpoint_name'].lower())
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
@@ -971,7 +971,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
             print("There are no IAM roles to delete. Checking instance profiles...")
         profile_list = []
         for item in client.list_instance_profiles(MaxItems=250).get("InstanceProfiles"):
-            if item.get("InstanceProfileName").startswith('{}-'.format(service_base_name)):
+            if item.get("InstanceProfileName").startswith(start_prefix):
                 profile_list.append(item.get('InstanceProfileName'))
         if profile_list:
             for instance_profile in profile_list:
@@ -979,14 +979,14 @@ def remove_all_iam_resources(instance_type, scientist=''):
                     client.delete_instance_profile(InstanceProfileName=instance_profile)
                     print("The instance profile {} has been deleted successfully".format(instance_profile))
                 if '-edge-profile' in instance_profile:
-                    if instance_type == 'edge' and scientist in instance_profile:
+                    if instance_type == 'edge' and project_name in instance_profile:
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
                         print("The instance profile {} has been deleted successfully".format(instance_profile))
                     if instance_type == 'all':
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
                         print("The instance profile {} has been deleted successfully".format(instance_profile))
                 if '-nb-de-profile' in instance_profile:
-                    if instance_type == 'notebook' and scientist in instance_profile:
+                    if instance_type == 'notebook' and project_name in instance_profile:
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
                         print("The instance profile {} has been deleted successfully".format(instance_profile))
                     if instance_type == 'all':

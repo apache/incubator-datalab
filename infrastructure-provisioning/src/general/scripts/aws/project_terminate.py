@@ -34,7 +34,7 @@ import boto3
 import requests
 
 
-def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg):
+def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg, endpoint_name):
     print('Terminating EMR cluster')
     try:
         clusters_list = dlab.meta_lib.get_emr_list(tag_name)
@@ -69,8 +69,8 @@ def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg
 
     print("Removing IAM roles and profiles")
     try:
-        dlab.actions_lib.remove_all_iam_resources('notebook', project_name)
-        dlab.actions_lib.remove_all_iam_resources('edge', project_name)
+        dlab.actions_lib.remove_all_iam_resources('notebook', project_name, endpoint_name)
+        dlab.actions_lib.remove_all_iam_resources('edge', project_name, endpoint_name)
     except Exception as err:
         dlab.fab.append_result("Failed to remove IAM roles and profiles.", str(err))
         sys.exit(1)
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         try:
             terminate_edge_node(project_conf['tag_name'], project_conf['project_name'], project_conf['tag_value'],
                                 project_conf['nb_sg'], project_conf['edge_sg'], project_conf['de_sg'],
-                                project_conf['emr_sg'])
+                                project_conf['emr_sg'], project_conf['endpoint_name'])
         except Exception as err:
             traceback.print_exc()
             dlab.fab.append_result("Failed to terminate project.", str(err))
