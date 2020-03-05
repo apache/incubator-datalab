@@ -47,7 +47,12 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
@@ -61,8 +66,14 @@ import static com.epam.dlab.model.aws.ReportLine.FIELD_USAGE_DATE;
 import static com.mongodb.client.model.Accumulators.sum;
 import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Aggregates.match;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gte;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.lte;
+import static com.mongodb.client.model.Filters.regex;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 import static java.util.Collections.singletonList;
 
 @Slf4j
@@ -344,7 +355,16 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 			searchCriteria.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
 		}
 		if (filter.getProjects() != null && !filter.getProjects().isEmpty()) {
-			searchCriteria.add(in(PROJECT, filter.getProjects()));
+			List<String> projects = filter.getProjects();
+			if (filter.getProjects().contains(SHARED_RESOURCE_NAME)) {
+				if (filter.getProjects().size() == 1) {
+					projects.remove(SHARED_RESOURCE_NAME);
+				} else {
+					searchCriteria.add(in(PROJECT, projects));
+				}
+			} else {
+				searchCriteria.add(in(PROJECT, projects));
+			}
 		}
 
 		searchCriteria.addAll(cloudMatchCriteria((T) filter));
