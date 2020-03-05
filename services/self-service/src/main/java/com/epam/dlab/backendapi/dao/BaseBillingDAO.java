@@ -37,6 +37,7 @@ import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.model.aws.ReportLine;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Aggregates;
@@ -70,6 +71,7 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.gte;
 import static com.mongodb.client.model.Filters.in;
 import static com.mongodb.client.model.Filters.lte;
+import static com.mongodb.client.model.Filters.or;
 import static com.mongodb.client.model.Filters.regex;
 import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
@@ -358,9 +360,9 @@ public abstract class BaseBillingDAO<T extends BillingFilter> extends BaseDAO im
 			List<String> projects = filter.getProjects();
 			if (filter.getProjects().contains(SHARED_RESOURCE_NAME)) {
 				if (filter.getProjects().size() == 1) {
-					projects.remove(SHARED_RESOURCE_NAME);
+					searchCriteria.add(new BasicDBObject("project", new BasicDBObject("$exists", false)));
 				} else {
-					searchCriteria.add(in(PROJECT, projects));
+					searchCriteria.add(or(in(PROJECT, projects), new BasicDBObject("project", new BasicDBObject("$exists", false))));
 				}
 			} else {
 				searchCriteria.add(in(PROJECT, projects));
