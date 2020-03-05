@@ -682,7 +682,7 @@ def configure_billing_endpoint():
                     },
                     {
                         'key': "KEYSTORE_PASSWORD",
-                        'value': endpoint_keystore_password
+                        'value': args.endpoint_keystore_password
                     },
                     {
                         'key': "DATASET_NAME",
