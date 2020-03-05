@@ -121,8 +121,8 @@ if __name__ == "__main__":
                                                                 project_conf['project_name'],
                                                                 project_conf['endpoint_name'])
     project_conf['de_sg'] = '{}-{}-{}-de*'.format(project_conf['service_base_name'],
-                                                 project_conf['project_name'],
-                                                 project_conf['endpoint_name'])
+                                                  project_conf['project_name'],
+                                                  project_conf['endpoint_name'])
     project_conf['emr_sg'] = '{}-{}-{}-des-*'.format(project_conf['service_base_name'],
                                                      project_conf['project_name'],
                                                      project_conf['endpoint_name'])
