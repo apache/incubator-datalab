@@ -94,8 +94,9 @@ if __name__ == "__main__":
         "product": "dlab",
         "computational_name": dataproc_conf['computational_name']
     }
-    if additional_tags['custom_tag'] and additional_tags['custom_tag'] != '':
-        dataproc_conf['cluster_labels'].update({'custom_tag': additional_tags['custom_tag']})
+    if additional_tags['custom_tag']:
+        if additional_tags['custom_tag'] != '':
+            dataproc_conf['cluster_labels'].update({'custom_tag': additional_tags['custom_tag']})
 
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
                                                                          dataproc_conf['project_name'])

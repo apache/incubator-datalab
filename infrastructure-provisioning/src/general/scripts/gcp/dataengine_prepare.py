@@ -166,9 +166,10 @@ if __name__ == "__main__":
                                     "type": "master",
                                     "notebook_name": data_engine['notebook_name'],
                                     "product": "dlab"}
-    if additional_tags['custom_tag'] and additional_tags['custom_tag'] != '':
-        data_engine['slave_labels'].update({'custom_tag': additional_tags['custom_tag']})
-        data_engine['master_labels'].update({'custom_tag': additional_tags['custom_tag']})
+    if additional_tags['custom_tag']:
+        if additional_tags['custom_tag'] != '':
+            data_engine['slave_labels'].update({'custom_tag': additional_tags['custom_tag']})
+            data_engine['master_labels'].update({'custom_tag': additional_tags['custom_tag']})
 
     try:
         logging.info('[CREATE MASTER NODE]')

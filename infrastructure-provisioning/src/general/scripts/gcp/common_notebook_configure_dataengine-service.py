@@ -81,8 +81,9 @@ if __name__ == "__main__":
         "product": "dlab",
         "computational_name": (os.environ['computational_name']).lower().replace('_', '-')
     }
-    if additional_tags['custom_tag'] and additional_tags['custom_tag'] != '':
-        notebook_config['cluster_labels'].update({'custom_tag': additional_tags['custom_tag']})
+    if additional_tags['custom_tag']:
+        if additional_tags['custom_tag'] != '':
+            notebook_config['cluster_labels'].update({'custom_tag': additional_tags['custom_tag']})
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
