@@ -658,23 +658,47 @@ def configure_billing_endpoint():
                     args.tag_resource_id = 'resourceTags' + ':' + args.tag_resource_id
                 billing_properties = [
                     {
-                        'key': "<BILLING_BUCKET_NAME>",
+                        'key': "BILLING_BUCKET_NAME",
                         'value': args.billing_bucket
                     }
                 ]
             elif args.cloud_provider == 'gcp':
                 billing_properties = [
                     {
-                        'key': "<CONF_SERVICE_BASE_NAME>",
-                        'value': args.billing_bucket
+                        'key': "OS_USER",
+                        'value': args.os_user
                     },
                     {
-                        'key': "<MONGO_PASSWORD>",
-                        'value': args.billing_bucket
+                        'key': "MONGO_PASSWORD",
+                        'value': args.mongo_password
                     },
                     {
-                        'key': "<BILLING_DATASET_NAME>",
-                        'value': args.billing_bucket
+                        'key': "MONGO_PORT",
+                        'value': args.mongo_port
+                    },
+                    {
+                        'key': "MONGO_HOST",
+                        'value': args.mongo_host
+                    },
+                    {
+                        'key': "KEYSTORE_PASSWORD",
+                        'value': endpoint_keystore_password
+                    },
+                    {
+                        'key': "DATASET_NAME",
+                        'value': args.billing_dataset_name
+                    },
+                    {
+                        'key': "KEYCLOAK_CLIENT_ID",
+                        'value': args.keycloak_client_id
+                    },
+                    {
+                        'key': "CLIENT_SECRET",
+                        'value': args.keycloak_client_secret
+                    },
+                    {
+                        'key': "KEYCLOAK_AUTH_SERVER_URL",
+                        'value': args.keycloak_auth_server_url
                     }
                 ]
             for param in billing_properties:
