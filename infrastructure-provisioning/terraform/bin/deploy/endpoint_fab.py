@@ -647,7 +647,7 @@ def configure_guacamole():
         print('Failed to configure guacamole: ', str(err))
         return False
 
-def configure_billing_endpoint(endpoint_keystore_passwor):
+def configure_billing_endpoint(endpoint_keystore_password):
     try:
         if args.billing_enable:
             conn.put('./billing_{}.yml'.format(args.cloud_provider), '{}/conf/billing.yml'
