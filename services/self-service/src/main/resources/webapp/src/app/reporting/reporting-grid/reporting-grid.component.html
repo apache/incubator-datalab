@@ -135,7 +135,7 @@
       </th>
 
       <td mat-cell *matCellDef="let element">
-        {{ element[DICTIONARY[PROVIDER].billing.cost].toFixed(2) }} {{ element[DICTIONARY[PROVIDER].billing.currencyCode] }}
+        {{ element[DICTIONARY[PROVIDER].billing.cost] }} {{ element[DICTIONARY[PROVIDER].billing.currencyCode] }}
       </td>
       <td mat-footer-cell *matFooterCellDef class="table-footer">
         Total <span *ngIf="reportData?.length"> {{ fullReport['cost_total'] }}

@@ -69,15 +69,16 @@
               <label class="label">Cluster alias</label>
               <div class="control">
                 <input
-                  [class.danger_field]="computationalResourceExist || !resourceForm?.controls['cluster_alias_name'].valid
+                  [class.danger_field]="!resourceForm?.controls['cluster_alias_name'].valid
                         && resourceForm?.controls['cluster_alias_name'].dirty && resourceForm?.controls['cluster_alias_name'].hasError('duplication')"
                   type="text" class="form-control" placeholder="Enter cluster alias"
                   formControlName="cluster_alias_name" />
-                <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('duplication')">This
-                  cluster name already exists.</span>
+                <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('user-duplication')">You have cluster with this name in current project.</span>
+                <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('other-user-duplication')">Other user has cluster with this name in current project.</span>
                 <span class="error" *ngIf="!resourceForm?.controls.cluster_alias_name.valid
                                             && resourceForm?.controls['cluster_alias_name'].dirty
-                                            && !resourceForm?.controls['cluster_alias_name'].hasError('duplication')">
+                                            && !resourceForm?.controls['cluster_alias_name'].hasError('user-duplication')
+                                            && !resourceForm?.controls['cluster_alias_name'].hasError('other-user-duplication')">
                   Cluster name cannot be longer than {{DICTIONARY[PROVIDER].max_cluster_name_length}} characters
                   and can only contain letters, numbers, hyphens and '_' but can not end with special
                   characters
