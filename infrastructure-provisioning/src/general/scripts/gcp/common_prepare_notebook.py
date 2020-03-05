@@ -132,25 +132,22 @@ if __name__ == "__main__":
         data = {"notebook_name": notebook_config['instance_name'], "error": ""}
         json.dump(data, f)
 
-    additional_tags = json.loads(os.environ['tags'].replace("': u'", "\": \"").replace("', u'", "\", \"").replace("{u'", "{\"" ).replace("'}", "\"}"))
+    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "")
 
-    if '@' in additional_tags['user_tag']:
-        notebook_config['user_tag'] = additional_tags['user_tag'][:additional_tags['user_tag'].find('@')]
-    else:
-        notebook_config['user_tag'] = additional_tags['user_tag']
-
-    notebook_config['custom_tag'] = additional_tags['custom_tag']
     print('Additional tags will be added: {}'.format(additional_tags))
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
                                  "sbn": notebook_config['service_base_name'],
-                                 "project_tag": notebook_config['project_tag'],
-                                 "endpoint_tag": notebook_config['endpoint_tag'],
-                                 "user": notebook_config['user_tag'],
                                  "product": "dlab"
                                  }
 
-    if notebook_config['custom_tag'] != '':
-        notebook_config['labels'].update({'custom_tag': notebook_config['custom_tag']})
+    for tag in additional_tags.split(','):
+        label_key = tag.split(':')[0]
+        label_value = tag.split(':')[1]
+        if label_key == 'user_tag':
+            if '@' in label_value:
+                label_value = label_value[:label_value.find('@')]
+        if label_value != '':
+            notebook_config['labels'].update({label_key: label_value})
 
     # launching instance for notebook server
     try:

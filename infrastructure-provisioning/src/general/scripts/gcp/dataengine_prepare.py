@@ -143,33 +143,29 @@ if __name__ == "__main__":
         data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
     data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
                                                      data_engine['project_name'])
-    additional_tags = json.loads(os.environ['tags'].replace("': u'", "\": \"").replace("', u'", "\", \"").replace("{u'", "{\"" ).replace("'}", "\"}"))
 
-    if '@' in additional_tags['user_tag']:
-        data_engine['user_tag'] = additional_tags['user_tag'][:additional_tags['user_tag'].find('@')]
-    else:
-        data_engine['user_tag'] = additional_tags['user_tag']
+    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "")
 
-    data_engine['custom_tag'] = additional_tags['custom_tag']
     data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
                                    "sbn": data_engine['service_base_name'],
-                                   "user": data_engine['user_tag'],
-                                   "project_tag": data_engine['project_tag'],
-                                   "endpoint_tag": data_engine['endpoint_tag'],
                                    "type": "slave",
                                    "notebook_name": data_engine['notebook_name'],
                                    "product": "dlab"}
     data_engine['master_labels'] = {"name": data_engine['cluster_name'],
                                     "sbn": data_engine['service_base_name'],
-                                    "user": data_engine['user_tag'],
-                                    "project_tag": data_engine['project_tag'],
-                                    "endpoint_tag": data_engine['endpoint_tag'],
                                     "type": "master",
                                     "notebook_name": data_engine['notebook_name'],
                                     "product": "dlab"}
-    if data_engine['custom_tag'] != '':
-        data_engine['slave_labels'].update({'custom_tag': data_engine['custom_tag']})
-        data_engine['master_labels'].update({'custom_tag': data_engine['custom_tag']})
+
+    for tag in additional_tags.split(','):
+        label_key = tag.split(':')[0]
+        label_value = tag.split(':')[1]
+        if label_key == 'user_tag':
+            if '@' in label_value:
+                label_value = label_value[:label_value.find('@')]
+        if label_value != '':
+            data_engine['slave_labels'].update({label_key: label_value})
+            data_engine['master_labels'].update({label_key: label_value})
 
     try:
         logging.info('[CREATE MASTER NODE]')
