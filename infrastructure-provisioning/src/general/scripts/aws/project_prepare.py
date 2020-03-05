@@ -589,11 +589,11 @@ if __name__ == "__main__":
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         params = '--bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} ' \
                  '--notebook_role_name {} --service_base_name {} --region {} ' \
-                 '--user_predefined_s3_policies "{}"'.format(
+                 '--user_predefined_s3_policies "{}" --endpoint_name {}'.format(
                   project_conf['bucket_name'], project_conf['shared_bucket_name'], project_conf['project_name'],
                   project_conf['edge_role_name'], project_conf['notebook_dataengine_role_name'],
                   project_conf['service_base_name'], project_conf['region'],
-                  os.environ['aws_user_predefined_s3_policies'])
+                  os.environ['aws_user_predefined_s3_policies'], project_conf['endpoint_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_policy', params))
         except:
