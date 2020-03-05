@@ -650,7 +650,7 @@ def configure_guacamole():
 def configure_billing_endpoint():
     try:
         if args.billing_enable:
-            conn.put('./provisioning.yml', '{}/conf/provisioning.yml'
+            conn.put('./billing.yml', '{}/conf/billing.yml'
                      .format(args.dlab_path))
             billing_yml_path = "{}/conf/billing.yml".format(args.dlab_path)
             with open(billing_yml_path, 'r') as config_yml_r:
