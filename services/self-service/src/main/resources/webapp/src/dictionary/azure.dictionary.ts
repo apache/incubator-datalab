@@ -40,7 +40,7 @@ export const NAMING_CONVENTION_AZURE = {
         'dateFrom': 'from',
         'dateTo': 'to',
         'service': 'meterCategory',
-        'service_filter_key': 'category',
+        'service_filter_key': 'meterCategory',
         'type': '',
         'resourceType': 'resource_type',
         'instance_size': 'shape',
