@@ -650,8 +650,8 @@ def configure_guacamole():
 def configure_billing_endpoint():
     try:
         if args.billing_enable:
-            conn.put('./billing_{0}.yml', '{1}/conf/billing.yml'
-                     .format(args.cloud_provider, args.dlab_path))
+            conn.put('./billing_{0}.yml'.format(args.cloud_provider), '{1}/conf/billing.yml'
+                     .format(args.dlab_path))
             billing_yml_path = "{}/conf/billing.yml".format(args.dlab_path)
             if args.cloud_provider == 'aws':
                 if args.aws_job_enabled == 'true':
