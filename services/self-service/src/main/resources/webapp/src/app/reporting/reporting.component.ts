@@ -79,7 +79,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.getBillingProvider();
+
+    this.getEnvironmentHealthStatus();
   }
 
   ngOnDestroy() {
@@ -87,14 +88,13 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getBillingProvider() {
-    this.getEnvironmentHealthStatus();
     if (this.admin) {
       this.endpointService.getEndpointsData().subscribe(list => {
-        // @ts-ignore
-        const endpoints = [...list];
+        const endpoints = JSON.parse(JSON.stringify(list));
         const localEndpoint = endpoints.filter(endpoint => endpoint.name === 'local');
         if (localEndpoint.length) {
           this.PROVIDER = localEndpoint[0].cloudProvider.toLowerCase();
+          console.log(this.PROVIDER);
           if (this.PROVIDER) {
             this.rebuildBillingReport();
           }
@@ -212,8 +212,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   setRangeOption(dateRangeOption: any): void {
-    this.reportData.date_start = dateRangeOption.start_date;
-    this.reportData.date_end = dateRangeOption.end_date;
+    this.reportData.dateStart = dateRangeOption.start_date;
+    this.reportData.dateEnd = dateRangeOption.end_date;
     this.getGeneralBillingData();
   }
 
@@ -227,6 +227,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
       .subscribe((result: any) => {
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
+        this.getBillingProvider();
       });
   }
 }

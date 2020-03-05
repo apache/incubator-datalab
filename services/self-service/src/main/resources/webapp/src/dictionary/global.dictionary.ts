@@ -36,27 +36,27 @@ export class ReportingConfigModel {
   }
 
   constructor(
-    public user: Array<string>,
-    public service: Array<string>,
-    public resource_type: Array<string>,
-    public status: Array<string>,
-    public shape: Array<string>,
-    public date_start: string,
-    public date_end: string,
-    public dlab_id: string,
-    public project?: Array<string>
+    public users: Array<string>,
+    public products: Array<string>,
+    public resourceTypes: Array<string>,
+    public statuses: Array<string>,
+    public shapes: Array<string>,
+    public dateStart: string,
+    public dateEnd: string,
+    public dlabId: string,
+    public projects: Array<string>
   ) { }
 
   defaultConfigurations(): void {
-    this.user = [];
-    this.service = [];
-    this.resource_type = [];
-    this.status = [];
-    this.shape = [];
-    this.date_start = '';
-    this.date_end = '';
-    this.dlab_id = '';
-    this.project = [];
+    this.users = [];
+    this.products = [];
+    this.resourceTypes = [];
+    this.statuses = [];
+    this.shapes = [];
+    this.dateStart = '';
+    this.dateEnd = '';
+    this.dlabId = '';
+    this.projects = [];
   }
 }
 
