@@ -650,52 +650,36 @@ def configure_guacamole():
 def configure_billing_endpoint():
     try:
         if args.billing_enable:
-            conn.put('./billing.yml', '{}/conf/billing.yml'
-                     .format(args.dlab_path))
+            conn.put('./billing_{0}.yml', '{1}/conf/billing.yml'
+                     .format(args.cloud_provider, args.dlab_path))
             billing_yml_path = "{}/conf/billing.yml".format(args.dlab_path)
-            with open(billing_yml_path, 'r') as config_yml_r:
-                config_orig = config_yml_r.read()
-
-            config_orig = config_orig.replace('billingEnabled: false', 'billingEnabled: true')
             if args.cloud_provider == 'aws':
                 if args.aws_job_enabled == 'true':
                     args.tag_resource_id = 'resourceTags' + ':' + args.tag_resource_id
-                config_orig = config_orig.replace('<BILLING_BUCKET_NAME>', args.billing_bucket)
-                config_orig = config_orig.replace('<AWS_JOB_ENABLED>', args.aws_job_enabled)
-                config_orig = config_orig.replace('<REPORT_PATH>', args.report_path)
-                config_orig = config_orig.replace('<ACCOUNT_ID>', args.billing_aws_account_id)
-                config_orig = config_orig.replace('<ACCESS_KEY_ID>', args.access_key_id)
-                config_orig = config_orig.replace('<SECRET_ACCESS_KEY>', args.secret_access_key)
-                config_orig = config_orig.replace('<CONF_BILLING_TAG>', args.billing_tag)
-                config_orig = config_orig.replace('<CONF_SERVICE_BASE_NAME>', args.service_base_name)
-                config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
-                config_orig = config_orig.replace('<DLAB_ID>', args.billing_dlab_id)
-                config_orig = config_orig.replace('<USAGE_DATE>', args.billing_usage_date)
-                config_orig = config_orig.replace('<PRODUCT>', args.billing_product)
-                config_orig = config_orig.replace('<USAGE_TYPE>', args.billing_usage_type)
-                config_orig = config_orig.replace('<USAGE>', args.billing_usage)
-                config_orig = config_orig.replace('<COST>', args.billing_cost)
-                config_orig = config_orig.replace('<RESOURCE_ID>', args.billing_resource_id)
-                config_orig = config_orig.replace('<TAGS>', args.billing_tags)
-            elif args.cloud_provider == 'azure':
-                config_orig = config_orig.replace('<CLIENT_ID>', args.azure_client_id)
-                config_orig = config_orig.replace('<CLIENT_SECRET>', args.azure_client_secret)
-                config_orig = config_orig.replace('<TENANT_ID>', args.tenant_id)
-                config_orig = config_orig.replace('<SUBSCRIPTION_ID>', args.subscription_id)
-                config_orig = config_orig.replace('<AUTHENTICATION_FILE>', args.authentication_file)
-                config_orig = config_orig.replace('<OFFER_NUMBER>', args.offer_number)
-                config_orig = config_orig.replace('<CURRENCY>', args.currency)
-                config_orig = config_orig.replace('<LOCALE>', args.locale)
-                config_orig = config_orig.replace('<REGION_INFO>', args.region_info)
-                config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
+                billing_properties = [
+                    {
+                        'key': "<BILLING_BUCKET_NAME>",
+                        'value': args.billing_bucket
+                    }
+                ]
             elif args.cloud_provider == 'gcp':
-                config_orig = config_orig.replace('<CONF_SERVICE_BASE_NAME>', args.service_base_name)
-                config_orig = config_orig.replace('<MONGO_PASSWORD>', args.mongo_password)
-                config_orig = config_orig.replace('<BILLING_DATASET_NAME>', args.billing_dataset_name)
-            f = open(path, 'w')
-            f.write(config_orig)
-            f.close()
-
+                billing_properties = [
+                    {
+                        'key': "<CONF_SERVICE_BASE_NAME>",
+                        'value': args.billing_bucket
+                    },
+                    {
+                        'key': "<MONGO_PASSWORD>",
+                        'value': args.billing_bucket
+                    },
+                    {
+                        'key': "<BILLING_DATASET_NAME>",
+                        'value': args.billing_bucket
+                    }
+                ]
+            for param in billing_properties:
+                conn.sudo('sed -i "s|{0}|{1}|g" {2}'
+                          .format(param['key'], param['value'], billing_yml_path))
     except Exception as err:
         traceback.print_exc()
         print('Failed to configure billing: ', str(err))
