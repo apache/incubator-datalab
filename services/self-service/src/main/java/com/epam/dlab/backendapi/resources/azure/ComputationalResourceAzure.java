@@ -21,26 +21,27 @@ package com.epam.dlab.backendapi.resources.azure;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
-import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.ComputationalDAO;
-import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
-import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -53,22 +54,19 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ComputationalResourceAzure {
+	private final ComputationalService computationalService;
 
 	@Inject
-	private ExploratoryDAO exploratoryDAO;
+	public ComputationalResourceAzure(ComputationalService computationalService) {
+		this.computationalService = computationalService;
+	}
 
-	@Inject
-	private ComputationalDAO computationalDAO;
-
-	@Inject
-	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-	private RESTService provisioningService;
-
-	@Inject
-	private SelfServiceApplicationConfiguration configuration;
-
-	@Inject
-	private ComputationalService computationalService;
+	@GET
+	@Path("/{project}/{endpoint}/templates")
+	public Response getTemplates(@Auth @Parameter(hidden = true) UserInfo userInfo, @PathParam("project") String project,
+								 @PathParam("endpoint") String endpoint) {
+		return Response.ok(computationalService.getComputationalNamesAndTemplates(userInfo, project, endpoint)).build();
+	}
 
 	/**
 	 * Asynchronously creates computational Spark cluster.

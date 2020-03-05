@@ -29,9 +29,11 @@ import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.ComputationalTemplatesDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EndpointService;
+import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.TagService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -41,7 +43,12 @@ import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.computational.*;
+import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
+import com.epam.dlab.dto.computational.ComputationalClusterConfigDTO;
+import com.epam.dlab.dto.computational.ComputationalStatusDTO;
+import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
+import com.epam.dlab.dto.computational.SparkStandaloneClusterResource;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.rest.client.RESTService;
@@ -51,12 +58,19 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static com.epam.dlab.dto.UserInstanceStatus.*;
+import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
+import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
+import static com.epam.dlab.dto.UserInstanceStatus.RECONFIGURING;
+import static com.epam.dlab.dto.UserInstanceStatus.STARTING;
+import static com.epam.dlab.dto.UserInstanceStatus.STOPPING;
+import static com.epam.dlab.dto.UserInstanceStatus.TERMINATING;
 import static com.epam.dlab.dto.base.DataEngineType.CLOUD_SERVICE;
 import static com.epam.dlab.dto.base.DataEngineType.SPARK_STANDALONE;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC;
@@ -78,24 +92,54 @@ public class ComputationalServiceImpl implements ComputationalService {
 		DATA_ENGINE_TYPE_TERMINATE_URLS.put(CLOUD_SERVICE, ComputationalAPI.COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC);
 	}
 
-	@Inject
-	private ProjectService projectService;
-	@Inject
-	private ExploratoryDAO exploratoryDAO;
-	@Inject
-	private ComputationalDAO computationalDAO;
-	@Inject
-	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-	private RESTService provisioningService;
-	@Inject
-	private RequestBuilder requestBuilder;
-	@Inject
-	private RequestId requestId;
-	@Inject
-	private TagService tagService;
-	@Inject
-	private EndpointService endpointService;
+	private final ProjectService projectService;
+	private final ExploratoryDAO exploratoryDAO;
+	private final ComputationalDAO computationalDAO;
+	private final RESTService provisioningService;
+	private final RequestBuilder requestBuilder;
+	private final RequestId requestId;
+	private final TagService tagService;
+	private final EndpointService endpointService;
+	private final InfrastructureTemplateService templateService;
 
+	@Inject
+	public ComputationalServiceImpl(ProjectService projectService, ExploratoryDAO exploratoryDAO, ComputationalDAO computationalDAO,
+									@Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
+									RequestBuilder requestBuilder, RequestId requestId, TagService tagService,
+									EndpointService endpointService, InfrastructureTemplateService templateService) {
+		this.projectService = projectService;
+		this.exploratoryDAO = exploratoryDAO;
+		this.computationalDAO = computationalDAO;
+		this.provisioningService = provisioningService;
+		this.requestBuilder = requestBuilder;
+		this.requestId = requestId;
+		this.tagService = tagService;
+		this.endpointService = endpointService;
+		this.templateService = templateService;
+	}
+
+
+	@Override
+	public ComputationalTemplatesDTO getComputationalNamesAndTemplates(UserInfo user, String project, String endpoint) {
+		List<FullComputationalTemplate> computationalTemplates = templateService.getComputationalTemplates(user, project, endpoint);
+		List<UserInstanceDTO> userInstances = exploratoryDAO.fetchExploratoryFieldsForProjectWithComp(project);
+
+		List<String> projectComputations = userInstances
+				.stream()
+				.map(UserInstanceDTO::getResources)
+				.flatMap(Collection::stream)
+				.map(UserComputationalResource::getComputationalName)
+				.collect(Collectors.toList());
+		List<String> userComputations = userInstances
+				.stream()
+				.filter(instance -> instance.getUser().equalsIgnoreCase(user.getName()))
+				.map(UserInstanceDTO::getResources)
+				.flatMap(Collection::stream)
+				.map(UserComputationalResource::getComputationalName)
+				.collect(Collectors.toList());
+
+		return new ComputationalTemplatesDTO(computationalTemplates, userComputations, projectComputations);
+	}
 
 	@BudgetLimited
 	@Override
@@ -367,5 +411,4 @@ public class ComputationalServiceImpl implements ComputationalService {
 				compResource.getDataEngineType() == SPARK_STANDALONE &&
 				compResource.getComputationalName().equals(computationalName);
 	}
-
 }
