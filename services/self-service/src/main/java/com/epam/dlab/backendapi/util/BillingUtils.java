@@ -70,10 +70,10 @@ public class BillingUtils {
         final String ssnId = sbn + "-ssn";
         final String bucketName = sbn.replaceAll("_", "-");
         return Stream.of(
-                BillingReportLine.builder().user(SHARED_RESOURCE).resourceName("SSN").dlabId(ssnId).resourceType(BillingResourceType.SSN).build(),
-                BillingReportLine.builder().user(SHARED_RESOURCE).resourceName("SSN Volume").dlabId(String.format(VOLUME_PRIMARY_FORMAT, ssnId)).resourceType(BillingResourceType.VOLUME).build(),
-                BillingReportLine.builder().user(SHARED_RESOURCE).resourceName("SSN bucket").dlabId(bucketName + "-ssn" + "-bucket").resourceType(BillingResourceType.SSN_BUCKET).build(),
-                BillingReportLine.builder().user(SHARED_RESOURCE).resourceName("Collaboration bucket").dlabId(bucketName + "-shared-bucket").resourceType(BillingResourceType.SHARED_BUCKET).build()
+                BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("SSN").dlabId(ssnId).resourceType(BillingResourceType.SSN).build(),
+                BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("SSN Volume").dlabId(String.format(VOLUME_PRIMARY_FORMAT, ssnId)).resourceType(BillingResourceType.VOLUME).build(),
+                BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("SSN bucket").dlabId(bucketName + "-ssn" + "-bucket").resourceType(BillingResourceType.SSN_BUCKET).build(),
+                BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("Collaboration bucket").dlabId(bucketName + "-shared-bucket").resourceType(BillingResourceType.SHARED_BUCKET).build()
         );
     }
 
@@ -81,34 +81,31 @@ public class BillingUtils {
         final Stream<BillingReportLine> computationalStream = userInstance.getResources()
                 .stream()
                 .filter(cr -> cr.getComputationalId() != null)
-                .flatMap(cr -> Stream.of(computationalBillableResource(userInstance, cr),
-                        withExploratoryName(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_FORMAT, cr.getComputationalId()))
+                .flatMap(cr -> Stream.of(withUserProject(userInstance).dlabId(cr.getComputationalId()).resourceName(cr.getComputationalName()).resourceType(BillingResourceType.COMPUTATIONAL)
+                                .status(UserInstanceStatus.of(cr.getStatus())).shape(getComputationalShape(cr)).build(),
+                        withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_FORMAT, cr.getComputationalId()))
                                 .resourceType(BillingResourceType.VOLUME).build()));
         final String exploratoryId = userInstance.getExploratoryId();
         final String primaryVolumeId = String.format(VOLUME_PRIMARY_FORMAT, exploratoryId);
         final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);
         final Stream<BillingReportLine> exploratoryStream = Stream.of(
-                withExploratoryName(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(BillingResourceType.EXPLORATORY)
+                withUserProject(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(BillingResourceType.EXPLORATORY)
                         .status(UserInstanceStatus.of(userInstance.getStatus())).shape(userInstance.getShape()).build(),
-                withExploratoryName(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(BillingResourceType.VOLUME).build(),
-                withExploratoryName(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(BillingResourceType.VOLUME).build());
+                withUserProject(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(BillingResourceType.VOLUME).build(),
+                withUserProject(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(BillingResourceType.VOLUME).build());
         return Stream.concat(computationalStream, exploratoryStream);
     }
 
-    private static BillingReportLine computationalBillableResource(UserInstanceDTO userInstance,
-                                                                   UserComputationalResource cr) {
-        return withExploratoryName(userInstance)
-                .dlabId(cr.getComputationalId())
-                .resourceName(cr.getComputationalName())
-                .resourceType(BillingResourceType.COMPUTATIONAL)
-                .project(userInstance.getProject())
-                .status(UserInstanceStatus.of(cr.getStatus()))
-                .shape(getComputationalShape(cr))
-                .build();
+    private static BillingReportLine.BillingReportLineBuilder withUserProject(UserInstanceDTO userInstance) {
+        return BillingReportLine.builder().user(userInstance.getUser()).project(userInstance.getProject());
     }
 
-    private static BillingReportLine.BillingReportLineBuilder withExploratoryName(UserInstanceDTO userInstance) {
-        return BillingReportLine.builder().user(userInstance.getUser()).project(userInstance.getProject());
+    public static List<String> getComputationalIds(String computationalId) {
+        return Arrays.asList(computationalId, String.format(VOLUME_PRIMARY_FORMAT, computationalId));
+    }
+
+    public static List<String> getExploratoryIds(String exploratoryId) {
+        return Arrays.asList(exploratoryId, String.format(VOLUME_PRIMARY_FORMAT, exploratoryId), String.format(VOLUME_SECONDARY_FORMAT, exploratoryId));
     }
 
     private static String getComputationalShape(UserComputationalResource resource) {

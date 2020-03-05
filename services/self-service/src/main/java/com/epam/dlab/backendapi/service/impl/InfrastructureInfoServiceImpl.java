@@ -28,6 +28,7 @@ import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
+import com.epam.dlab.backendapi.service.BillingServiceNew;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -35,6 +36,7 @@ import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.epam.dlab.dto.billing.BillingData;
 import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -42,6 +44,7 @@ import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,25 +57,32 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 
 	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-dlab/blob/%s" +
 			"/RELEASE_NOTES.md";
-	@Inject
-	private ExploratoryDAO expDAO;
-	@Inject
-	private EnvDAO envDAO;
-	@Inject
-	private SelfServiceApplicationConfiguration configuration;
-	@Inject
-	private BillingDAO billingDAO;
-	@Inject
-	private ProjectService projectService;
-	@Inject
-	private EndpointService endpointService;
+	private final ExploratoryDAO expDAO;
+	private final EnvDAO envDAO;
+	private final SelfServiceApplicationConfiguration configuration;
+	private final BillingDAO billingDAO;
+	private final ProjectService projectService;
+	private final EndpointService endpointService;
+	private final BillingServiceNew billingServiceNew;
 
+	@Inject
+	public InfrastructureInfoServiceImpl(ExploratoryDAO expDAO, EnvDAO envDAO, SelfServiceApplicationConfiguration configuration,
+										 BillingDAO billingDAO, ProjectService projectService, EndpointService endpointService,
+										 BillingServiceNew billingServiceNew) {
+		this.expDAO = expDAO;
+		this.envDAO = envDAO;
+		this.configuration = configuration;
+		this.billingDAO = billingDAO;
+		this.projectService = projectService;
+		this.endpointService = endpointService;
+		this.billingServiceNew = billingServiceNew;
+	}
 
 	@Override
-	public List<ProjectInfrastructureInfo> getUserResources(String user) {
+	public List<ProjectInfrastructureInfo> getUserResources(UserInfo user) {
 		log.debug("Loading list of provisioned resources for user {}", user);
 		try {
-			Iterable<Document> documents = expDAO.findExploratory(user);
+			Iterable<Document> documents = expDAO.findExploratory(user.getName());
 			List<EndpointDTO> allEndpoints = endpointService.getEndpoints();
 			return StreamSupport.stream(documents.spliterator(),
 					false)
@@ -85,12 +95,20 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 								.filter(endpoint -> endpoints.stream()
 										.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
 								.collect(Collectors.toList());
+
+						List<BillingData> collect = e.getValue()
+								.stream()
+								.map(exp -> billingServiceNew.getExploratoryRemoteBillingData(user, (String) exp.get("endpoint"),
+										expDAO.findExploratories(e.getKey(), (String) exp.get("endpoint"), user.getName())))
+								.flatMap(Collection::stream)
+								.collect(Collectors.toList());
+
 						final Map<String, Map<String, String>> projectEdges =
 								endpoints.stream()
 										.collect(Collectors.toMap(ProjectEndpointDTO::getName,
 												endpointDTO -> getSharedInfo(endpointDTO.getEdgeInfo())));
 						return new ProjectInfrastructureInfo(e.getKey(),
-								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), endpointResult);
+								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), collect, endpointResult);
 					})
 					.collect(Collectors.toList());
 		} catch (Exception e) {

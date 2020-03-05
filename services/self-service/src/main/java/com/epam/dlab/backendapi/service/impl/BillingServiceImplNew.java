@@ -35,6 +35,7 @@ import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.util.BillingUtils;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.billing.BillingData;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -51,6 +52,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +68,9 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class BillingServiceImplNew implements BillingServiceNew {
+    private static final String BILLING_PATH = "/api/billing";
+    private static final String BILLING_REPORT_PATH = "/api/billing/report";
+
     private final ProjectService projectService;
     private final EndpointService endpointService;
     private final ExploratoryService exploratoryService;
@@ -112,7 +117,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
             return builder.toString();
         } catch (Exception e) {
             log.error("Cannot write billing data ", e);
-            throw new DlabException("Cannot write billing file due to " + e.getMessage());
+            throw new DlabException("Cannot write billing file ", e);
         }
     }
 
@@ -159,11 +164,34 @@ public class BillingServiceImplNew implements BillingServiceNew {
         return billableResources.getOrDefault(tag, BillingReportLine.builder().dlabId(tag).build());
     }
 
+    public List<BillingData> getExploratoryRemoteBillingData(UserInfo user, String endpoint, List<UserInstanceDTO> userInstanceDTOS) {
+        List<String> dlabIds = null;
+        try {
+            dlabIds = userInstanceDTOS
+                    .stream()
+                    .map(instance -> Stream.concat(BillingUtils.getExploratoryIds(instance.getExploratoryId()).stream(), instance.getResources()
+                            .stream()
+                            .map(cr -> BillingUtils.getComputationalIds(cr.getComputationalId()))
+                            .flatMap(Collection::stream)
+                    ))
+                    .flatMap(a -> a)
+                    .collect(Collectors.toList());
+
+            EndpointDTO endpointDTO = endpointService.get(endpoint);
+            return provisioningService.get(getBillingUrl(endpointDTO.getUrl(), BILLING_PATH), user.getAccessToken(),
+                    new GenericType<List<BillingData>>() {
+                    }, Collections.singletonMap("dlabIds", String.join(",", dlabIds)));
+        } catch (Exception e) {
+            log.error("Cannot retrieve billing information for {} {}", dlabIds, e.getMessage(), e);
+            throw new DlabException("Cannot retrieve billing information ", e);
+        }
+    }
+
     private List<BillingData> getRemoteBillingData(UserInfo userInfo) {
         List<EndpointDTO> endpoints = endpointService.getEndpoints();
         ExecutorService executor = Executors.newFixedThreadPool(endpoints.size());
         List<Callable<List<BillingData>>> callableTasks = new ArrayList<>();
-        endpoints.forEach(e -> callableTasks.add(getTask(userInfo, getBillingUrl(e.getUrl()))));
+        endpoints.forEach(e -> callableTasks.add(getTask(userInfo, getBillingUrl(e.getUrl(), BILLING_REPORT_PATH))));
 
         List<BillingData> billingData;
         try {
@@ -176,7 +204,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
         } catch (Exception e) {
             executor.shutdown();
             log.error("Cannot retrieve billing information {}", e.getMessage(), e);
-            throw new DlabException("Cannot retrieve billing information");
+            throw new DlabException("Cannot retrieve billing information", e);
         }
         executor.shutdown();
         return billingData;
@@ -191,7 +219,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
         }
     }
 
-    private String getBillingUrl(String endpointUrl) {
+    private String getBillingUrl(String endpointUrl, String path) {
         URI uri;
         try {
             uri = new URI(endpointUrl);
@@ -203,7 +231,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
                 .setScheme(uri.getScheme())
                 .setHost(uri.getHost())
                 .setPort(8081)
-                .setPath("/api/billing/report")
+                .setPath(path)
                 .toString();
     }
 
