@@ -113,16 +113,16 @@ if __name__ == "__main__":
     project_conf['tag_name'] = project_conf['service_base_name'] + '-tag'
     project_conf['tag_value'] = '{}-{}-{}-*'.format(project_conf['service_base_name'], project_conf['project_name'],
                                                     project_conf['endpoint_name'])
-    project_conf['edge_sg'] = '{}-{}-{}-edge-sg'.format(project_conf['service_base_name'], project_conf['project_name'],
-                                                        project_conf['endpoint_name'])
-    project_conf['nb_sg'] = '{}-{}-{}-nb-sg'.format(project_conf['service_base_name'], project_conf['project_name'],
-                                                    project_conf['endpoint_name'])
+    project_conf['edge_sg'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'], project_conf['project_name'],
+                                                     project_conf['endpoint_name'])
+    project_conf['nb_sg'] = '{}-{}-{}-nb'.format(project_conf['service_base_name'], project_conf['project_name'],
+                                                 project_conf['endpoint_name'])
     project_conf['edge_instance_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
                                                                 project_conf['project_name'],
                                                                 project_conf['endpoint_name'])
-    project_conf['de_sg'] = '{}-{}-{}-dataengine-*-sg'.format(project_conf['service_base_name'],
-                                                              project_conf['project_name'],
-                                                              project_conf['endpoint_name'])
+    project_conf['de_sg'] = '{}-{}-{}-de*'.format(project_conf['service_base_name'],
+                                                 project_conf['project_name'],
+                                                 project_conf['endpoint_name'])
     project_conf['emr_sg'] = '{}-{}-{}-des-*'.format(project_conf['service_base_name'],
                                                      project_conf['project_name'],
                                                      project_conf['endpoint_name'])
