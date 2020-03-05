@@ -39,7 +39,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -55,12 +61,22 @@ import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ComputationalResourceGcp implements ComputationalAPI {
+	private final SelfServiceApplicationConfiguration configuration;
+	private final ComputationalService computationalService;
 
 	@Inject
-	private SelfServiceApplicationConfiguration configuration;
-	@Inject
-	private ComputationalService computationalService;
+	public ComputationalResourceGcp(SelfServiceApplicationConfiguration configuration, ComputationalService computationalService) {
+		this.configuration = configuration;
+		this.computationalService = computationalService;
+	}
 
+
+	@GET
+	@Path("/{project}/{endpoint}/templates")
+	public Response getTemplates(@Auth @Parameter(hidden = true) UserInfo userInfo, @PathParam("project") String project,
+								 @PathParam("endpoint") String endpoint) {
+		return Response.ok(computationalService.getComputationalNamesAndTemplates(userInfo, project, endpoint)).build();
+	}
 
 	/**
 	 * Asynchronously creates Dataproc cluster
