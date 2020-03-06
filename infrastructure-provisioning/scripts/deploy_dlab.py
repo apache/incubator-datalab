@@ -143,6 +143,10 @@ parser.add_argument('--conf_stepcerts_root_ca', type=str, default='', help='Step
 parser.add_argument('--conf_stepcerts_kid', type=str, default='', help='Step KID')
 parser.add_argument('--conf_stepcerts_kid_password', type=str, default='', help='Step KID password')
 parser.add_argument('--conf_stepcerts_ca_url', type=str, default='', help='Step CA URL')
+parser.add_argument('--conf_domain_name_enabled', type=str, default='false',
+                    help='IF true, nginx will be configured to use subdomain in specified domain name as service_name')
+parser.add_argument('--conf_domain_name', type=str, default='',
+                    help='Previously registered Domain name. N.B. if used all DNS records must be created by the user manually')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()
