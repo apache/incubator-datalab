@@ -38,6 +38,8 @@ public class EndpointDTO {
 	private final String name;
 	@URL(regexp = URL_REGEXP_VALIDATION, message = "endpoint field is in improper format!")
 	private final String url;
+	@NotEmpty
+	@NotBlank
 	private final String account;
 	@JsonProperty("endpoint_tag")
 	private final String tag;
