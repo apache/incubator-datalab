@@ -37,7 +37,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 
 export class OdahuActionDialogComponent {
-  private label = {
+  public label = {
     stop: 'stopped',
     start: 'started',
     terminate: 'terminated',
