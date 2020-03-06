@@ -93,12 +93,8 @@ if __name__ == "__main__":
         edge_instance_hostname = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
         edge_instance_private_ip = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
                                                                          edge_instance_name).get('Private')
-        if notebook_config['network_type'] == 'private':
-            edge_instance_ip = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
-                                                                     edge_instance_name).get('Private')
-        else:
-            edge_instance_ip = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
-                                                                     edge_instance_name).get('Public')
+        notebook_config['edge_instance_hostname'] = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'],
+                                                                                        edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         edge_ip = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
     except Exception as err:
@@ -308,9 +304,12 @@ if __name__ == "__main__":
         dns_name = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
         tensor_board_url = 'http://' + ip_address + ':6006'
         jupyter_url = 'http://' + ip_address + ':8888/{}/'.format(notebook_config['exploratory_name'])
-        jupyter_notebook_access_url = "https://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
-        jupyter_ungit_access_url = "https://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
-        tensorboard_access_url = "https://" + edge_instance_ip + "/{}-tensor/".format(notebook_config['exploratory_name'])
+        jupyter_notebook_access_url = "https://{}/{}/".format(notebook_config['edge_instance_hostname'],
+                                                              notebook_config['exploratory_name'])
+        jupyter_ungit_access_url = "https://{}/{}-ungit/".format(notebook_config['edge_instance_hostname'],
+                                                                 notebook_config['exploratory_name'])
+        tensorboard_access_url = "https://{}/{}-tensor/".format(notebook_config['edge_instance_hostname'],
+                                                                notebook_config['exploratory_name'])
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')

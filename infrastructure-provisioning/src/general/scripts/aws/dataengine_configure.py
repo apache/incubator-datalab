@@ -203,13 +203,8 @@ if __name__ == "__main__":
         edge_instance_hostname = dlab.meta_lib.get_instance_hostname(data_engine['tag_name'], edge_instance_name)
         edge_instance_private_ip = dlab.meta_lib.get_instance_ip_address(data_engine['tag_name'],
                                                                          edge_instance_name).get('Private')
-        if data_engine['network_type'] == 'private':
-            edge_instance_ip = dlab.meta_lib.get_instance_ip_address(data_engine['tag_name'],
-                                                                     edge_instance_name).get('Private')
-        else:
-            edge_instance_ip = dlab.meta_lib.get_instance_ip_address(data_engine['tag_name'],
-                                                                     edge_instance_name).get('Public')
-
+        data_engine['edge_instance_hostname'] = dlab.meta_lib.get_instance_hostname(data_engine['tag_name'],
+                                                                                    edge_instance_name)
         if os.environ['conf_os_family'] == 'debian':
             data_engine['initial_user'] = 'ubuntu'
             data_engine['sudo_group'] = 'sudo'
@@ -384,8 +379,9 @@ if __name__ == "__main__":
         ip_address = dlab.meta_lib.get_instance_ip_address(data_engine['tag_name'],
                                                            data_engine['master_node_name']).get('Private')
         spark_master_url = "http://" + ip_address + ":8080"
-        spark_master_access_url = "https://" + edge_instance_ip + "/{}/".format(data_engine['exploratory_name'] +
-                                                                                '_' + data_engine['computational_name'])
+        spark_master_access_url = "https://{}/{}_{}/".format(data_engine['edge_instance_hostname'],
+                                                             data_engine['exploratory_name'],
+                                                             data_engine['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(data_engine['service_base_name']))
