@@ -111,12 +111,13 @@ if __name__ == "__main__":
                                                        notebook_config['endpoint_name'])
         edge_instance_private_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
                                                                           edge_instance_name)
+        notebook_config['edge_instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(edge_instance_name,
+                                                                                           os.environ['azure_region'])
         if os.environ['conf_network_type'] == 'private':
             edge_instance_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
                                                                       edge_instance_name)
         else:
-            edge_instance_hostname = AzureMeta.get_instance_public_ip_address(notebook_config['resource_group_name'],
-                                                                              edge_instance_name)
+            edge_instance_hostname = notebook_config['edge_instance_dns_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         edge_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
                                                          edge_instance_name)
@@ -325,7 +326,7 @@ if __name__ == "__main__":
 
     try:
         ip_address = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
-                                                        notebook_config['instance_name'])
+                                                      notebook_config['instance_name'])
         tensorboard_ip_url = 'http://' + ip_address + ':6006'
         jupyter_ip_url = 'http://' + ip_address + ':8888/{}/'.format(notebook_config['exploratory_name'])
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
