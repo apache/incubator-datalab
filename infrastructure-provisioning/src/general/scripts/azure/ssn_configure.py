@@ -213,7 +213,7 @@ if __name__ == "__main__":
         cloud_params = [
             {
                 'key': 'KEYCLOAK_REDIRECT_URI',
-                'value': "https://{0}/".format(ssn_conf['instnace_ip'])
+                'value': "https://{0}/".format(ssn_conf['instance_host'])
             },
             {
                 'key': 'KEYCLOAK_REALM_NAME',
