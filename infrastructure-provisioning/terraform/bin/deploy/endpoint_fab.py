@@ -906,7 +906,7 @@ def start_deploy():
     configure_guacamole()
 
     logging.info("Configuring billing")
-    configure_billing_endpoint(endpoint_keystore_passwor)
+    configure_billing_endpoint(endpoint_keystore_password)
 
     logging.info("Starting supervisor")
     start_supervisor_endpoint()
