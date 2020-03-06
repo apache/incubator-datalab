@@ -83,22 +83,25 @@ if __name__ == "__main__":
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['ssh_key_path'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        ssn_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(ssn_conf['instance_name'],
+                                                                               ssn_conf['region'])
         if os.environ['conf_network_type'] == 'private':
             ssn_conf['instnace_ip'] = AzureMeta.get_private_ip_address(ssn_conf['resource_group_name'],
                                                                        ssn_conf['instance_name'])
+            ssn_conf['instance_host'] = ssn_conf['instnace_ip']
         else:
             ssn_conf['instnace_ip'] = AzureMeta.get_instance_public_ip_address(ssn_conf['resource_group_name'],
                                                                                ssn_conf['instance_name'])
-        ssn_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(ssn_conf['instance_name'],
-                                                                               ssn_conf['region'])
+            ssn_conf['instance_host'] = ssn_conf['instance_dns_name']
 
         if os.environ['conf_stepcerts_enabled'] == 'true':
-            ssn_conf['step_cert_sans'] = ' --san {0} --san {1} '.format(AzureMeta.get_private_ip_address(
-                ssn_conf['resource_group_name'], ssn_conf['instance_name']), ssn_conf['instance_dns_name'])
+            ssn_conf['step_cert_sans'] = ' --san {0} '.format(AzureMeta.get_private_ip_address(
+                ssn_conf['resource_group_name'], ssn_conf['instance_name']))
             if os.environ['conf_network_type'] == 'public':
-                ssn_conf['step_cert_sans'] += ' --san {0}'.format(
+                ssn_conf['step_cert_sans'] += ' --san {0} --san {1} '.format(
                     AzureMeta.get_instance_public_ip_address(ssn_conf['resource_group_name'],
-                                                             ssn_conf['instance_name']))
+                                                             ssn_conf['instance_name']),
+                    ssn_conf['instance_dns_name'])
         else:
             ssn_conf['step_cert_sans'] = ''
 
@@ -133,7 +136,8 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], ssn_conf['initial_user'], ssn_conf['dlab_ssh_user'], ssn_conf['sudo_group'])
+            (ssn_conf['instance_host'], ssn_conf['ssh_key_path'], ssn_conf['initial_user'], ssn_conf['dlab_ssh_user'],
+             ssn_conf['sudo_group'])
         local("~/scripts/{}.py {}".format('create_ssh_user', params))
     except Exception as err:
         traceback.print_exc()
@@ -145,7 +149,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'backoff argparse fabric==1.14.0 pymongo pyyaml " \
-                 "pycrypto azure==2.0.0' --user {} --region {}".format(ssn_conf['instnace_ip'],
+                 "pycrypto azure==2.0.0' --user {} --region {}".format(ssn_conf['instance_host'],
                                                                        ssn_conf['ssh_key_path'],
                                                                        ssn_conf['dlab_ssh_user'],
                                                                        ssn_conf['region'])
@@ -165,7 +169,7 @@ if __name__ == "__main__":
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} " \
                  "--tag_resource_id {} --step_cert_sans '{}'". \
-            format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
+            format(ssn_conf['instance_host'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'],
                    ssn_conf['step_cert_sans'])
         local("~/scripts/{}.py {}".format('configure_ssn_node', params))
@@ -189,7 +193,7 @@ if __name__ == "__main__":
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} " \
-                 "--cloud_provider {} --region {}".format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'],
+                 "--cloud_provider {} --region {}".format(ssn_conf['instance_host'], ssn_conf['ssh_key_path'],
                                                           json.dumps(additional_config), os.environ['conf_os_family'],
                                                           ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
                                                           os.environ['conf_cloud_provider'], ssn_conf['region'])
@@ -421,7 +425,7 @@ if __name__ == "__main__":
                  "--authentication_file {} --offer_number {} --currency {} --locale {} --region_info {}  " \
                  "--ldap_login {} --tenant_id {} --application_id {} --datalake_store_name {} --cloud_params '{}' " \
                  "--subscription_id {} --validate_permission_scope {} --default_endpoint_name {}".format(
-                  ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
+                  ssn_conf['instance_host'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
                   ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
                   os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
                   ssn_conf['billing_enabled'], ssn_conf['azure_auth_path'], os.environ['azure_offer_number'],
@@ -460,12 +464,12 @@ if __name__ == "__main__":
                     print("DataLake store name: {}".format(ssn_conf['datalake_store_full_name']))
             print("DataLake shared directory name: {}".format(ssn_conf['datalake_shared_directory_name']))
         print("Region: {}".format(ssn_conf['region']))
-        jenkins_url = "http://{}/jenkins".format(ssn_conf['instnace_ip'])
-        jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instnace_ip'])
+        jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_host'])
+        jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_host'])
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
-        print("DLab UI HTTP URL: http://{}".format(ssn_conf['instnace_ip']))
-        print("DLab UI HTTPS URL: https://{}".format(ssn_conf['instnace_ip']))
+        print("DLab UI HTTP URL: http://{}".format(ssn_conf['instance_host']))
+        print("DLab UI HTTPS URL: https://{}".format(ssn_conf['instance_host']))
 
         try:
             with open('jenkins_creds.txt') as f:
@@ -478,7 +482,7 @@ if __name__ == "__main__":
             if os.environ['azure_datalake_enable'] == 'false':
                 res = {"service_base_name": ssn_conf['service_base_name'],
                        "instance_name": ssn_conf['instance_name'],
-                       "instance_hostname": ssn_conf['instnace_ip'],
+                       "instance_hostname": ssn_conf['instance_host'],
                        "master_keyname": os.environ['conf_key_name'],
                        "vpc_id": ssn_conf['vpc_name'],
                        "subnet_id": ssn_conf['subnet_name'],
@@ -489,7 +493,7 @@ if __name__ == "__main__":
             else:
                 res = {"service_base_name": ssn_conf['service_base_name'],
                        "instance_name": ssn_conf['instance_name'],
-                       "instance_hostname": ssn_conf['instnace_ip'],
+                       "instance_hostname": ssn_conf['instance_host'],
                        "master_keyname": os.environ['conf_key_name'],
                        "vpc_id": ssn_conf['vpc_name'],
                        "subnet_id": ssn_conf['subnet_name'],

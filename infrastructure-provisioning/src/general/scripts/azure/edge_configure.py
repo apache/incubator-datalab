@@ -116,23 +116,24 @@ if __name__ == "__main__":
             edge_conf['edge_private_ip'] = AzureMeta.get_private_ip_address(edge_conf['resource_group_name'],
                                                                             edge_conf['instance_name'])
             edge_conf['edge_public_ip'] = edge_conf['edge_private_ip']
+            edge_conf['instance_hostname'] = edge_conf['edge_private_ip']
         else:
             edge_conf['edge_public_ip'] = AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
                                                                                    edge_conf['instance_name'])
             edge_conf['edge_private_ip'] = AzureMeta.get_private_ip_address(edge_conf['resource_group_name'],
                                                                             edge_conf['instance_name'])
-        edge_conf['instance_hostname'] = AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                                                  edge_conf['instance_name'])
+            edge_conf['instance_hostname'] = edge_conf['instance_dns_name']
         edge_conf['vpc_cidrs'] = AzureMeta.get_vpc(edge_conf['resource_group_name'],
                                                    edge_conf['vpc_name']).address_space.address_prefixes
 
         if os.environ['conf_stepcerts_enabled'] == 'true':
-            edge_conf['step_cert_sans'] = ' --san {0} --san {1} '.format(AzureMeta.get_private_ip_address(
-                edge_conf['resource_group_name'], edge_conf['instance_name']), edge_conf['instance_dns_name'])
+            edge_conf['step_cert_sans'] = ' --san {0} '.format(AzureMeta.get_private_ip_address(
+                edge_conf['resource_group_name'], edge_conf['instance_name']))
             if os.environ['conf_network_type'] == 'public':
-                edge_conf['step_cert_sans'] += ' --san {0}'.format(
+                edge_conf['step_cert_sans'] += ' --san {0} --san {1} '.format(
                     AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                             edge_conf['instance_name']))
+                                                             edge_conf['instance_name']),
+                    edge_conf['instance_dns_name'])
         else:
             edge_conf['step_cert_sans'] = ''
 
