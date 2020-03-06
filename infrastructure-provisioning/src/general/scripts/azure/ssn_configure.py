@@ -102,6 +102,8 @@ if __name__ == "__main__":
                     AzureMeta.get_instance_public_ip_address(ssn_conf['resource_group_name'],
                                                              ssn_conf['instance_name']),
                     ssn_conf['instance_dns_name'])
+                if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+                    ssn_conf['step_cert_sans'] += ' --san ssn.{0}'.format(os.environ['conf_domain_name'])
         else:
             ssn_conf['step_cert_sans'] = ''
 
@@ -211,10 +213,6 @@ if __name__ == "__main__":
         ssn_conf['ldap_login'] = 'false'
 
         cloud_params = [
-            {
-                'key': 'KEYCLOAK_REDIRECT_URI',
-                'value': "https://{0}/".format(ssn_conf['instance_host'])
-            },
             {
                 'key': 'KEYCLOAK_REALM_NAME',
                 'value': os.environ['keycloak_realm_name']
@@ -383,6 +381,38 @@ if __name__ == "__main__":
             cloud_params.append(
                 {
                     'key': 'STEP_CA_URL',
+                    'value': ''
+                })
+        if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+            cloud_params.append(
+                {
+                    'key': 'KEYCLOAK_REDIRECT_URI',
+                    'value': "https://ssn.{0}/".format(os.environ['conf_domain_name'])
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME_ENABLED',
+                    'value': os.environ['conf_domain_name_enabled']
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME',
+                    'value': os.environ['conf_domain_name']
+                })
+        else:
+            cloud_params.append(
+                {
+                    'key': 'KEYCLOAK_REDIRECT_URI',
+                    'value': "https://{0}/".format(ssn_conf['instance_host'])
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME',
                     'value': ''
                 })
 

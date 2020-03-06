@@ -175,6 +175,8 @@ if __name__ == "__main__":
                     dlab.meta_lib.get_instance_hostname(ssn_conf['tag_name'], ssn_conf['instance_name']),
                     dlab.meta_lib.get_instance_ip_address(ssn_conf['tag_name'],
                                                           ssn_conf['instance_name']).get('Public'))
+                if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+                    ssn_conf['step_cert_sans'] += ' --san ssn.{0}'.format(os.environ['conf_domain_name'])
         else:
             ssn_conf['step_cert_sans'] = ''
 
@@ -272,11 +274,6 @@ if __name__ == "__main__":
 
     try:
         cloud_params = [
-            {
-                'key': 'KEYCLOAK_REDIRECT_URI',
-                'value': "https://{0}/".format(dlab.meta_lib.get_instance_hostname(ssn_conf['tag_name'],
-                                                                                   ssn_conf['instance_name']))
-            },
             {
                 'key': 'KEYCLOAK_REALM_NAME',
                 'value': os.environ['keycloak_realm_name']
@@ -480,6 +477,39 @@ if __name__ == "__main__":
             cloud_params.append(
                 {
                     'key': 'STEP_CA_URL',
+                    'value': ''
+                })
+        if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+            cloud_params.append(
+                {
+                    'key': 'KEYCLOAK_REDIRECT_URI',
+                    'value': "https://ssn.{0}/".format(os.environ['conf_domain_name'])
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME_ENABLED',
+                    'value': os.environ['conf_domain_name_enabled']
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME',
+                    'value': os.environ['conf_domain_name']
+                })
+        else:
+            cloud_params.append(
+                {
+                    'key': 'KEYCLOAK_REDIRECT_URI',
+                    'value': "https://{0}/".format(dlab.meta_lib.get_instance_hostname(ssn_conf['tag_name'],
+                                                                                   ssn_conf['instance_name']))
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME',
                     'value': ''
                 })
         logging.info('[CONFIGURE SSN INSTANCE UI]')
