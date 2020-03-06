@@ -133,7 +133,7 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace(
-        "'}", "").lower().replace('_', '-')
+        "'}", "").lower()
 
     print('Additional tags will be added: {}'.format(additional_tags))
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
@@ -143,10 +143,9 @@ if __name__ == "__main__":
 
     for tag in additional_tags.split(','):
         label_key = tag.split(':')[0]
-        label_value = tag.split(':')[1]
-        if label_key == 'user_tag':
-            if '@' in label_value:
-                label_value = label_value[:label_value.find('@')]
+        label_value = tag.split(':')[1].replace('_', '-')
+        if '@' in label_value:
+            label_value = label_value[:label_value.find('@')]
         if label_value != '':
             notebook_config['labels'].update({label_key: label_value})
 
