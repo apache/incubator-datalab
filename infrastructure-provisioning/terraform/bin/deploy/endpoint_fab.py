@@ -647,6 +647,67 @@ def configure_guacamole():
         print('Failed to configure guacamole: ', str(err))
         return False
 
+def configure_billing_endpoint(endpoint_keystore_password):
+    try:
+        if args.billing_enable:
+            conn.put('./billing_{}.yml'.format(args.cloud_provider), '{}/conf/billing.yml'
+                     .format(args.dlab_path))
+            billing_yml_path = "{}/conf/billing.yml".format(args.dlab_path)
+            if args.cloud_provider == 'aws':
+                if args.aws_job_enabled == 'true':
+                    args.tag_resource_id = 'resourceTags' + ':' + args.tag_resource_id
+                billing_properties = [
+                    {
+                        'key': "BILLING_BUCKET_NAME",
+                        'value': args.billing_bucket
+                    }
+                ]
+            elif args.cloud_provider == 'gcp':
+                billing_properties = [
+                    {
+                        'key': "OS_USER",
+                        'value': args.os_user
+                    },
+                    {
+                        'key': "MONGO_PASSWORD",
+                        'value': args.mongo_password
+                    },
+                    {
+                        'key': "MONGO_PORT",
+                        'value': args.mongo_port
+                    },
+                    {
+                        'key': "MONGO_HOST",
+                        'value': args.mongo_host
+                    },
+                    {
+                        'key': "KEYSTORE_PASSWORD",
+                        'value': endpoint_keystore_password
+                    },
+                    {
+                        'key': "DATASET_NAME",
+                        'value': args.billing_dataset_name
+                    },
+                    {
+                        'key': "KEYCLOAK_CLIENT_ID",
+                        'value': args.keycloak_client_id
+                    },
+                    {
+                        'key': "CLIENT_SECRET",
+                        'value': args.keycloak_client_secret
+                    },
+                    {
+                        'key': "KEYCLOAK_AUTH_SERVER_URL",
+                        'value': args.keycloak_auth_server_url
+                    }
+                ]
+            for param in billing_properties:
+                conn.sudo('sed -i "s|{0}|{1}|g" {2}'
+                          .format(param['key'], param['value'], billing_yml_path))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure billing: ', str(err))
+        return False
 
 def init_args():
     global args
@@ -663,7 +724,7 @@ def init_args():
     parser.add_argument('--ss_host', type=str, default='')
     parser.add_argument('--ss_port', type=str, default='8443')
     parser.add_argument('--ssn_ui_host', type=str, default='')
-    # parser.add_argument('--mongo_password', type=str, default='')
+    parser.add_argument('--mongo_password', type=str, default='')
     parser.add_argument('--repository_address', type=str, default='')
     parser.add_argument('--repository_port', type=str, default='')
     parser.add_argument('--repository_user', type=str, default='')
@@ -698,6 +759,7 @@ def init_args():
     parser.add_argument('--azure_datalake_tag', type=str, default='')
     parser.add_argument('--azure_datalake_enabled', type=str, default='')
     parser.add_argument('--azure_client_id', type=str, default='')
+    parser.add_argument('--azure_client_secret', type=str, default='')
     parser.add_argument('--gcp_project_id', type=str, default='')
     parser.add_argument('--ldap_host', type=str, default='')
     parser.add_argument('--ldap_dn', type=str, default='')
@@ -711,6 +773,32 @@ def init_args():
     parser.add_argument('--shared_image_enabled', type=str, default='true')
     parser.add_argument('--image_enabled', type=str, default='true')
     parser.add_argument('--auth_file_path', type=str, default='')
+
+    #Billing parameter
+    parser.add_argument('--billing_enable', type=bool, default=False)
+    parser.add_argument('--aws_job_enabled', type=str, default='false')
+    parser.add_argument('--billing_bucket', type=str, default='')
+    parser.add_argument('--report_path', type=str, default='')
+    parser.add_argument('--billing_aws_account_id', type=str, default='')
+    parser.add_argument('--access_key_id', type=str, default='')
+    parser.add_argument('--secret_access_key', type=str, default='')
+    parser.add_argument('--billing_tag', type=str, default='dlab')
+    parser.add_argument('--billing_dlab_id', type=str, default='')
+    parser.add_argument('--billing_usage_date', type=str, default='')
+    parser.add_argument('--billing_product', type=str, default='')
+    parser.add_argument('--billing_usage_type', type=str, default='')
+    parser.add_argument('--billing_usage', type=str, default='')
+    parser.add_argument('--billing_usage_cost', type=str, default='')
+    parser.add_argument('--billing_resource_id', type=str, default='')
+    parser.add_argument('--billing_tags', type=str, default='')
+    parser.add_argument('--tenant_id', type=str, default='')
+    parser.add_argument('--subscription_id', type=str, default='')
+    parser.add_argument('--authentication_file', type=str, default='')
+    parser.add_argument('--offer_number', type=str, default='')
+    parser.add_argument('--currency', type=str, default='')
+    parser.add_argument('--locale', type=str, default='')
+    parser.add_argument('--region_info', type=str, default='')
+    parser.add_argument('--billing_dataset_name', type=str, default='')
 
     # TEMPORARY
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
@@ -816,6 +904,9 @@ def start_deploy():
 
     logging.info("Configuring guacamole")
     configure_guacamole()
+
+    logging.info("Configuring billing")
+    configure_billing_endpoint(endpoint_keystore_password)
 
     logging.info("Starting supervisor")
     start_supervisor_endpoint()
