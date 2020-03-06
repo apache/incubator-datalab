@@ -25,7 +25,6 @@ import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.BillingServiceNew;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import org.bson.Document;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -50,34 +49,34 @@ public class BillingResource {
         this.billingServiceNew = billingServiceNew;
     }
 
+//    @POST
+//    @Path("/report")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter formDTO) {
+//        return billingService.getBillingReport(userInfo, formDTO);
+//    }
+//
+//    @POST
+//    @Path("/report/download")
+//    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+//    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter formDTO) {
+//        return Response.ok(billingService.downloadReport(userInfo, formDTO))
+//                .header(HttpHeaders.CONTENT_DISPOSITION,
+//                        "attachment; filename=\"" + billingService.getReportFileName(userInfo, formDTO) + "\"")
+//                .build();
+//    }
+
     @POST
     @Path("/report")
     @Produces(MediaType.APPLICATION_JSON)
-    public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter formDTO) {
-        return billingService.getBillingReport(userInfo, formDTO);
+    public Response getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
+        return Response.ok(billingServiceNew.getBillingReport(userInfo, filter)).build();
     }
 
     @POST
     @Path("/report/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter formDTO) {
-        return Response.ok(billingService.downloadReport(userInfo, formDTO))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + billingService.getReportFileName(userInfo, formDTO) + "\"")
-                .build();
-    }
-
-    @POST
-    @Path("/report2")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getBillingReport2(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
-        return Response.ok(billingServiceNew.getBillingReport(userInfo, filter)).build();
-    }
-
-    @POST
-    @Path("/report2/download")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadBillingReport2(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
+    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
         return Response.ok(billingServiceNew.downloadReport(userInfo, filter))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"billing-report.csv\"")
                 .build();

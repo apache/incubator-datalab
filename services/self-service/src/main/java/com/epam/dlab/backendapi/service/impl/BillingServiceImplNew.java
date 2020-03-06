@@ -43,6 +43,8 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 
 import javax.ws.rs.core.GenericType;
@@ -241,18 +243,18 @@ public class BillingServiceImplNew implements BillingServiceNew {
     }
 
     private Predicate<BillingReportLine> getBillingReportFilter(BillingFilter filter) {
-        return br -> (filter.getUsers().isEmpty() || filter.getUsers().contains(br.getUser())) &&
-                (filter.getProjects().isEmpty() || filter.getProjects().contains(br.getProject())) &&
-                (filter.getResourceTypes().isEmpty() || filter.getResourceTypes().contains(br.getResourceType().name())) &&
-                (filter.getStatuses().isEmpty() || filter.getStatuses().contains(br.getStatus())) &&
-                (filter.getShapes().isEmpty() || filter.getShapes().contains(br.getShape()));
+        return br -> (CollectionUtils.isEmpty(filter.getUsers()) || filter.getUsers().contains(br.getUser())) &&
+                (CollectionUtils.isEmpty(filter.getProjects()) || filter.getProjects().contains(br.getProject())) &&
+                (CollectionUtils.isEmpty(filter.getResourceTypes()) || filter.getResourceTypes().contains(br.getResourceType().name())) &&
+                (CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(br.getStatus())) &&
+                (CollectionUtils.isEmpty(filter.getShapes()) || filter.getShapes().contains(br.getShape()));
     }
 
     private Predicate<BillingData> getBillingDataFilter(BillingFilter filter) {
-        return br -> (filter.getDlabId().isEmpty() || filter.getDlabId().equalsIgnoreCase(br.getTag())) &&
-                (filter.getDateStart().isEmpty() || LocalDate.parse(filter.getDateStart()).isEqual(br.getUsageDateFrom()) || LocalDate.parse(filter.getDateStart()).isBefore(br.getUsageDateFrom())) &&
-                (filter.getDateEnd().isEmpty() || LocalDate.parse(filter.getDateEnd()).isEqual(br.getUsageDateTo()) || LocalDate.parse(filter.getDateEnd()).isAfter(br.getUsageDateTo())) &&
-                (filter.getProducts().isEmpty() || filter.getProducts().contains(br.getProduct()));
+        return br -> (StringUtils.isEmpty(filter.getDlabId()) || filter.getDlabId().equalsIgnoreCase(br.getTag())) &&
+                (StringUtils.isEmpty(filter.getDateStart()) || LocalDate.parse(filter.getDateStart()).isEqual(br.getUsageDateFrom()) || LocalDate.parse(filter.getDateStart()).isBefore(br.getUsageDateFrom())) &&
+                (StringUtils.isEmpty(filter.getDateEnd()) || LocalDate.parse(filter.getDateEnd()).isEqual(br.getUsageDateTo()) || LocalDate.parse(filter.getDateEnd()).isAfter(br.getUsageDateTo())) &&
+                (CollectionUtils.isEmpty(filter.getProducts()) || filter.getProducts().contains(br.getProduct()));
     }
 
     private boolean isFullReport(UserInfo userInfo) {
