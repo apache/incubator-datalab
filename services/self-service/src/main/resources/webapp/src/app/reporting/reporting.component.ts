@@ -98,15 +98,20 @@ export class ReportingComponent implements OnInit, OnDestroy {
           if (this.PROVIDER) {
             this.rebuildBillingReport();
           }
+        } else {
+          this.PROVIDER = 'azure';
+          if (this.PROVIDER) {
+            this.rebuildBillingReport();
+          }
         }
       }, e => {
-        this.PROVIDER = 'gcp';
+        this.PROVIDER = 'azure';
         if (this.PROVIDER) {
           this.rebuildBillingReport();
         }
       }) ;
     } else {
-      this.PROVIDER = 'gcp';
+      this.PROVIDER = 'azure';
       if (this.PROVIDER) {
         this.rebuildBillingReport();
       }

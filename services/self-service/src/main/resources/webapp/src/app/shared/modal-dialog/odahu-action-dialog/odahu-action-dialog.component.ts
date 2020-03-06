@@ -11,7 +11,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
       <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
     </header>
       <div mat-dialog-content class="content message mat-dialog-content">
-          <h3 class="strong">Odahu cluster {{data.item.name}} will be {{data.type}}</h3>
+          <h3>Odahu cluster <span class="strong">{{data.item.name}} </span>will be {{label[data.type]}}</h3>
       <p class="m-top-20 action-text"><span class="strong">Do you want to proceed?</span></p>
 
       <div class="text-center m-top-30 m-bott-30">
@@ -25,6 +25,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400; margin: 0; }
     .info .confirm-dialog { color: #607D8B; }
     header { display: flex; justify-content: space-between; color: #607D8B; }
+    h3 { font-weight: 300; }
     header h4 i { vertical-align: bottom; }
     header a i { font-size: 20px; }
     header a:hover i { color: #35afd5; cursor: pointer; }
@@ -36,6 +37,12 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 
 export class OdahuActionDialogComponent {
+  public label = {
+    stop: 'stopped',
+    start: 'started',
+    terminate: 'terminated',
+  };
+
   constructor(
     public dialogRef: MatDialogRef<OdahuActionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
