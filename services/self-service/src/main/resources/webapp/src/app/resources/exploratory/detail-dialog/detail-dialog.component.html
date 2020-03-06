@@ -18,11 +18,23 @@
   -->
 
 <div class="detail-dialog" id="dialog-box">
-  <header class="dialog-header " [ngClass]="{'header-white': data.notebook}">
-    <h4 *ngIf="data.legion" class="modal-title" >Odahu cluster</h4>
+  <header class="dialog-header header-white" >
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
+    <div *ngIf="data.legion">
+      <table class="detail-header">
+        <tr>
+          <td>{{legion.name}}</td>
+          <td>
+            <span class="status" ngClass="{{legion.status || ''}}">
+              {{legion.status}}
+            </span>
+          </td>
+          <td>{{legion.shape}}</td>
+        </tr>
+      </table>
+    </div>
     <div *ngIf="data.notebook">
       <table class="detail-header">
         <tr>
