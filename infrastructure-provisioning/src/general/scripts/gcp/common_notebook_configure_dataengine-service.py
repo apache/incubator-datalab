@@ -64,7 +64,8 @@ if __name__ == "__main__":
     else:
         application = os.environ['application']
 
-    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "").lower().replace('_', '-')
+    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace(
+        "'}", "").lower().replace('_', '-')
 
     notebook_config['cluster_labels'] = {
         os.environ['notebook_instance_name']: "configured",

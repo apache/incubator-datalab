@@ -132,7 +132,8 @@ if __name__ == "__main__":
         data = {"notebook_name": notebook_config['instance_name'], "error": ""}
         json.dump(data, f)
 
-    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "").lower().replace('_', '-')
+    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace(
+        "'}", "").lower().replace('_', '-')
 
     print('Additional tags will be added: {}'.format(additional_tags))
     notebook_config['labels'] = {"name": notebook_config['instance_name'],
