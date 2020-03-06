@@ -39,20 +39,15 @@ def run():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    notebook_config = dict()
-    notebook_config['uuid'] = str(uuid.uuid4())[:5]
-
     try:
-        params = "--uuid {}".format(notebook_config['uuid'])
-        local("~/scripts/{}.py {}".format('odahu_prepare', params))
+        local("~/scripts/{}.py".format('odahu_prepare'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Notebook node.", str(err))
         sys.exit(1)
 
     try:
-        params = "--uuid {}".format(notebook_config['uuid'])
-        local("~/scripts/{}.py {}".format('odahu_deploy', params))
+        local("~/scripts/{}.py".format('odahu_deploy'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to deploy Odahuflow cluster.", str(err))
@@ -81,8 +76,7 @@ def stop():
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        params = "--uuid {}".format(notebook_config['uuid'])
-        local("~/scripts/{}.py {}".format('odahu_suspend', params))
+        local("~/scripts/{}.py".format('odahu_suspend'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to suspend Odahuflow cluster.", str(err))
@@ -96,9 +90,8 @@ def start():
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
-
     try:
-        local("tf_runner resume")
+        local("~/scripts/{}.py".format('odahu_resume'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to resume Odahuflow cluster.", str(err))

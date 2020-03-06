@@ -38,16 +38,13 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-
-
     print('Generating infrastructure names and tags')
     odahu_conf = dict()
-    odahu_conf['allowed_cidr'] = json.dumps(os.environ['odahu_allowed_cidr'].split(','))
-    odahu_conf['bastion_tag'] = os.environ['odahu_bastion_tag']
+    odahu_conf['allowed_cidr'] = os.environ['odahu_allowed_cidr'].split(',')
     odahu_conf['project_id'] = (os.environ['gcp_project_id'])
     odahu_conf['region'] = (os.environ['gcp_region'])
     odahu_conf['zone'] = (os.environ['gcp_zone'])
-    odahu_conf['node_locations'] = json.dumps(GCPMeta().get_available_zones())
+    odahu_conf['node_locations'] = os.environ['odahu_node_locations'].split(',')
     odahu_conf['dns_zone_name'] = os.environ['odahu_dns_zone_name']
     odahu_conf['docker_repo'] = os.environ['odahu_docker_repo']
     odahu_conf['odahu_cidr'] = os.environ['odahu_cidr']
@@ -72,10 +69,12 @@ if __name__ == "__main__":
     odahu_conf['istio_helm_repo'] = os.environ['odahu_istio_helm_repo']
     odahu_conf['helm_repo'] = os.environ['odahu_helm_repo']
     odahu_conf['k8s_version'] = os.environ['odahu_k8s_version']
-    odahu_conf['oauth_oidc_issuer_url'] = "{}/realms/{}".format(os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'])
+    odahu_conf['oauth_oidc_issuer_url'] = "{}/realms/{}".format(os.environ['keycloak_auth_server_url'],
+                                                                os.environ['keycloak_realm_name'])
+    odahu_conf['oauth_oidc_host'] = os.environ['odahu_oauth_oidc_host']
     odahu_conf['oauth_client_id'] = os.environ['keycloak_client_name']
     odahu_conf['oauth_client_secret'] = os.environ['keycloak_client_secret']
-    odahu_conf['oauth_cookie_secret'] = id_generator()
+    odahu_conf['oauth_cookie_secret'] = base64.b64encode(id_generator(16))
     odahu_conf['odahu_infra_version'] = os.environ['odahu_infra_version']
     odahu_conf['odahuflow_version'] = os.environ['odahu_odahuflow_version']
     odahu_conf['mlflow_toolchain_version'] = os.environ['odahu_mlflow_toolchain_version']
@@ -91,77 +90,160 @@ if __name__ == "__main__":
     odahu_conf['dns_project_id'] = os.environ['odahu_dns_project_id']
     odahu_conf['decrypt_token'] = id_generator()
     odahu_conf['infra_vpc_peering'] = os.environ['odahu_infra_vpc_peering']
-    response_file ="/response/odahu_{}_{}.json".format(odahu_conf['odahu_cluster_name'], os.environ['request_id'])
 
     print('Preparing parameters file')
     try:
         local("cp /root/templates/profile.json /tmp/")
-        local("sed -i \'s|<ALLOWED_IP_CIDR>|{}|g\' /tmp/profile.json".format(odahu_conf['allowed_cidr']))
-        local("sed -i \'s|<BASTION_TAG>|{}|g\' /tmp/profile.json".format(odahu_conf['bastion_tag']))
-        local("sed -i \'s|<PROJECT_ID>|{}|g\' /tmp/profile.json".format(odahu_conf['project_id']))
-        local("sed -i \'s|<CLUSTER_NAME>|{}|g\' /tmp/profile.json".format(odahu_conf['odahu_cluster_name']))
-        local("sed -i \'s|<REGION>|{}|g\' /tmp/profile.json".format(odahu_conf['region']))
-        local("sed -i \'s|<ZONE>|{}|g\' /tmp/profile.json".format(odahu_conf['zone']))
-        local("sed -i \'s|<DNS_ZONE_NAME>|{}|g\' /tmp/profile.json".format(odahu_conf['dns_zone_name']))
-        local("sed -i \'s|<DOCKER_REPO>|{}|g\' /tmp/profile.json".format(odahu_conf['docker_repo']))
-        local("sed -i \'s|<ODAHU_CIDR>|{}|g\' /tmp/profile.json".format(odahu_conf['odahu_cidr']))
-        local("sed -i \'s|<GRAFANA_ADMIN>|{}|g\' /tmp/profile.json".format(odahu_conf['grafana_admin']))
-        local("sed -i \'s|<GRAFANA_PASS>|{}|g\' /tmp/profile.json".format(odahu_conf['grafana_pass']))
-        local("sed -i \'s|<INITIAL_NODE_COUNT>|{}|g\' /tmp/profile.json".format(odahu_conf['initial_node_count']))
-        local("sed -i \'s|<ISTIO_HELM_REPO>|{}|g\' /tmp/profile.json".format(odahu_conf['istio_helm_repo']))
-        local("sed -i \'s|<HELM_REPO>|{}|g\' /tmp/profile.json".format(odahu_conf['helm_repo']))
-        local("sed -i \'s|<K8S_VERSION>|{}|g\' /tmp/profile.json".format(odahu_conf['k8s_version']))
-        local("sed -i \'s|<ODAHU_INFRA_VERSION>|{}|g\' /tmp/profile.json".format(odahu_conf['odahu_infra_version']))
-        local("sed -i \'s|<ODAHUFLOW_VERSION>|{}|g\' /tmp/profile.json".format(odahu_conf['odahuflow_version']))
-        local("sed -i \'s|<MLFLOW_TOOLCHAIN_VERSION>|{}|g\' /tmp/profile.json".format(odahu_conf['mlflow_toolchain_version']))
-        local("sed -i \'s|<JUPYTERLAB_VERSION>|{}|g\' /tmp/profile.json".format(odahu_conf['jupyterlab_version']))
-        local("sed -i \'s|<PACKAGER_VERSION>|{}|g\' /tmp/profile.json".format(odahu_conf['packager_version']))
-        local("sed -i \'s|<NODE_LOCATIONS>|{}|g\' /tmp/profile.json".format(odahu_conf['node_locations']))
-        local("sed -i \'s|<NODE_VERSION>|{}|g\' /tmp/profile.json".format(odahu_conf['node_version']))
-        local("sed -i \'s|<OAUTH_OIDC_ISSUER_URL>|{}|g\' /tmp/profile.json".format(odahu_conf['oauth_oidc_issuer_url']))
-        local("sed -i \'s|<VPC_NAME>|{}|g\' /tmp/profile.json".format(odahu_conf['vpc_name']))
-        local("sed -i \'s|<SUBNET_NAME>|{}|g\' /tmp/profile.json".format(odahu_conf['private_subnet_name']))
-        local("sed -i \'s|<OAUTH_CLIENT_ID>|{}|g\' /tmp/profile.json".format(odahu_conf['oauth_client_id']))
-        local("sed -i \'s|<OAUTH_CLIENT_SECRET>|{}|g\' /tmp/profile.json".format(odahu_conf['oauth_client_secret']))
-        local("sed -i \'s|<OAUTH_COOCKIE_SECRET>|{}|g\' /tmp/profile.json".format(odahu_conf['oauth_cookie_secret']))
-        local("sed -i \'s|<PODS_CIDR>|{}|g\' /tmp/profile.json".format(odahu_conf['pods_cidr']))
-        local("sed -i \'s|<ROOT_DOMAIN>|{}|g\' /tmp/profile.json".format(odahu_conf['root_domain']))
-        local("sed -i \'s|<SERVICE_CIDR>|{}|g\' /tmp/profile.json".format(odahu_conf['service_cidr']))
-        local("sed -i \'s|<TLS_CRT>|{}|g\' /tmp/profile.json".format(odahu_conf['tls_crt'].replace('\n', '')))
-        local("sed -i \'s|<TLS_KEY>|{}|g\' /tmp/profile.json".format(odahu_conf['tls_key'].replace('\n', '')))
-        local("sed -i \'s|<SSH_KEY>|{}|g\' /tmp/profile.json".format(odahu_conf['ssh_key'].replace('\n', '')))
-        local("sed -i \'s|<DNS_PROJECT_ID>|{}|g\' /tmp/profile.json".format(odahu_conf['dns_project_id']))
-        local("sed -i \'s|<DECRYPT_TOKEN>|{}|g\' /tmp/profile.json".format(odahu_conf['decrypt_token']))
-        local("sed -i \'s|<INFRA_VPC_PEERING>|{}|g\' /tmp/profile.json".format(odahu_conf['infra_vpc_peering']))
-        local("sed -i \'s|\r||g\' /tmp/profile.json")
+        with open("/tmp/profile.json", 'w') as profile:
+            prof = {"allowed_ips": odahu_conf['allowed_cidr'],
+                    "cloud_type": "gcp",
+                    "cluster_name": "{}".format(odahu_conf['odahu_cluster_name']),
+                    "cluster_type": "gcp/gke",
+                    "cluster_context": "",
+                    "dns_zone_name": "{}".format(odahu_conf['dns_zone_name']),
+                    "docker_password": "",
+                    "docker_repo": "{}".format(odahu_conf['docker_repo']),
+                    "docker_user": "",
+                    "gcp_cidr": "{}".format(odahu_conf['odahu_cidr']),
+                    "gke_node_tag": "{}-gke-node".format(odahu_conf['odahu_cluster_name']).split(','),
+                    "grafana_admin": "{}".format(odahu_conf['grafana_admin']),
+                    "grafana_pass": "BMuYxTw6v5",
+                    "oauth_oidc_audience": "legion",
+                    "oauth_oidc_issuer_url": "{}".format(odahu_conf['oauth_oidc_issuer_url']),
+                    "data_bucket": "{}-data-bucket".format(odahu_conf['odahu_cluster_name']),
+                    "helm_repo": "{}".format(odahu_conf['helm_repo']),
+                    "odahu_infra_version": "{}".format(odahu_conf['odahu_infra_version']),
+                    "odahuflow_version": "{}".format(odahu_conf['odahuflow_version']),
+                    "mlflow_toolchain_version": "{}".format(odahu_conf['mlflow_toolchain_version']),
+                    "jupyterlab_version": "{}".format(odahu_conf['jupyterlab_version']),
+                    "packager_version": "{}".format(odahu_conf['packager_version']),
+                    "vpc_name": "{}".format(odahu_conf['vpc_name']),
+                    "subnet_name": "{}".format(odahu_conf['private_subnet_name']),
+                    "node_locations": odahu_conf['node_locations'],
+                    "oauth_client_id": "{}".format(odahu_conf['oauth_client_id']),
+                    "oauth_client_secret": "{}".format(odahu_conf['oauth_client_secret']),
+                    "oauth_cookie_secret": "OWl6VnV3SHNIQzVyMThqVw==",
+                    "oauth_oidc_scope": "openid profile email offline_access groups",
+                    "oauth_oidc_host": "{}".format(odahu_conf['oauth_oidc_host']),
+                    "oauth_oidc_jwks_url": "https://idp.demo.dlabanalytics.com/auth/realms/dlab/protocol/openid-connect/certs",
+                    "oauth_oidc_port": 443,
+                    "pods_cidr": "{}".format(odahu_conf['pods_cidr']),
+                    "project_id": "{}".format(odahu_conf['project_id']),
+                    "region": "{}".format(odahu_conf['region']),
+                    "root_domain": "{}".format(odahu_conf['root_domain']),
+                    "service_cidr": "{}".format(odahu_conf['service_cidr']),
+                    "ssh_key": "{}".format(odahu_conf['ssh_key'].replace('\n', '')),
+                    "tfstate_bucket": "{}-tfstate".format(odahu_conf['odahu_cluster_name']),
+                    "tls_crt": "{}".format(odahu_conf['tls_crt']),
+                    "tls_key": "{}".format(odahu_conf['tls_key']),
+                    "zone": "{}".format(odahu_conf['zone']),
+                    "dns_project_id": "{}".format(odahu_conf['dns_project_id']),
+                    "odahuflow_connection_decrypt_token": "qfY2k5bA2M",
+                    "authorization_enabled": "true",
+                    "authz_dry_run": "true",
+                    "github_org_name": "",
+                    "oauth_local_jwks": "",
+                    "oauth_mesh_enabled": "false",
+                    "k8s_version": "1.14.10-gke.17",
+                    "opa_policies": {
+                        "policy.rego": "cGFja2FnZSBvZGFodQoKIyByb2xlcy5yZWdvCgphZG1pbiA6PSAiYWRtaW4iCmRhdGFfc2NpZW50aXN0IDo9ICJkYXRhX3NjaWVudGlzdCIKCiMgcmJhYy5yZWdvCgpyYmFjIDo9IHsKCWRhdGFfc2NpZW50aXN0OiBbCiAgICAJWyIqIiwgImFwaS92MS9tb2RlbC9kZXBsb3ltZW50LioiXSwKICAgIAlbIioiLCAiYXBpL3YxL21vZGVsL3BhY2thZ2luZy4qIl0sCiAgICAJWyIqIiwgImFwaS92MS9tb2RlbC90cmFpbmluZy4qIl0sCiAgICAJWyJHRVQiLCAiYXBpL3YxL2Nvbm5lY3Rpb24uKiJdLAogICAgCVsiUE9TVCIsICJhcGkvdjEvY29ubmVjdGlvbi4qIl0sCiAgICAJWyJHRVQiLCAiYXBpL3YxL3BhY2thZ2luZy9pbnRlZ3JhdGlvbi4qIl0sCiAgICAJWyJHRVQiLCAiYXBpL3YxL3Rvb2xjaGFpbi9pbnRlZ3JhdGlvbi4qIl0KICAgIF0sCiAgYWRtaW4gOiBbCiAgICAgIFsiLioiLCAiLioiXQogIF0KfQoKIyBpbnB1dF9tYXBwZXIKCnJvbGVzX21hcCA9IHsKCSJvZGFodV9hZG1pbiI6IGFkbWluLAogICAgIm9kYWh1X2RhdGFfc2NpZW50aXN0IjogZGF0YV9zY2llbnRpc3QKfQoKand0ID0gaW5wdXQuYXR0cmlidXRlcy5tZXRhZGF0YV9jb250ZXh0LmZpbHRlcl9tZXRhZGF0YVsiZW52b3kuZmlsdGVycy5odHRwLmp3dF9hdXRobiJdLmZpZWxkcy5qd3RfcGF5bG9hZAoKa2V5Y2xvYWtfdXNlcl9yb2xlc1tyb2xlXXsKCXJvbGUgPSBqd3QuS2luZC5TdHJ1Y3RWYWx1ZS5maWVsZHMucmVhbG1fYWNjZXNzLktpbmQuU3RydWN0VmFsdWUuZmllbGRzLnJvbGVzLktpbmQuTGlzdFZhbHVlLnZhbHVlc1tfXS5LaW5kLlN0cmluZ1ZhbHVlCn0KCnVzZXJfcm9sZXNbcm9sZV17Cglyb2xlID0gcm9sZXNfbWFwW2tleWNsb2FrX3VzZXJfcm9sZXNbX11dCn0KCgpwYXJzZWRfaW5wdXQgPSB7CgkiYWN0aW9uIjogaW5wdXQuYXR0cmlidXRlcy5yZXF1ZXN0Lmh0dHAubWV0aG9kLAogICJyZXNvdXJjZSI6IGlucHV0LmF0dHJpYnV0ZXMucmVxdWVzdC5odHRwLnBhdGgsCiAgInVzZXIiOiB7CiAgICAicm9sZXMiOiB1c2VyX3JvbGVzCiAgfQp9CgoKIyBjb3JlCgpkZWZhdWx0IGFsbG93ID0gZmFsc2UKYWxsb3cgewoJYW55X3VzZXJfcm9sZSA6PSBwYXJzZWRfaW5wdXQudXNlci5yb2xlc1tfXQogICAgYW55X3Blcm1pc3Npb25fb2ZfdXNlcl9yb2xlIDo9IHJiYWNbYW55X3VzZXJfcm9sZV1bX10KICAgIGFjdGlvbiA6PSBhbnlfcGVybWlzc2lvbl9vZl91c2VyX3JvbGVbMF0KICAgIHJlc291cmNlIDo9IGFueV9wZXJtaXNzaW9uX29mX3VzZXJfcm9sZVsxXQoKICAgIHJlX21hdGNoKGFjdGlvbiwgcGFyc2VkX2lucHV0LmFjdGlvbikKICAgIHJlX21hdGNoKHJlc291cmNlLCBwYXJzZWRfaW5wdXQucmVzb3VyY2UpCn0="},
+                    "node_pools": {
+                        "packaging": {
+                            "disk_size_gb": 64,
+                            "max_node_count": 3,
+                            "labels": {
+                                "mode": "odahu-flow-packaging"
+                            },
+                            "taints": [
+                                {
+                                    "value": "packaging",
+                                    "effect": "NO_SCHEDULE",
+                                    "key": "dedicated"
+                                }
+                            ],
+                            "machine_type": "n1-standard-4",
+                            "disk_type": "pd-ssd"
+                        },
+                        "training": {
+                            "labels": {
+                                "mode": "odahu-flow-training"
+                            },
+                            "disk_size_gb": 100,
+                            "taints": [
+                                {
+                                    "value": "training",
+                                    "effect": "NO_SCHEDULE",
+                                    "key": "dedicated"
+                                }
+                            ],
+                            "machine_type": "n1-highcpu-8"
+                        },
+                        "main": {
+                            "init_node_count": 3,
+                            "disk_size_gb": 64,
+                            "min_node_count": 1,
+                            "max_node_count": 5
+                        },
+                        "training_gpu": {
+                            "labels": {
+                                "mode": "odahu-flow-training-gpu"
+                            },
+                            "gpu": [
+                                {
+                                    "count": 2,
+                                    "type": "nvidia-tesla-p100"
+                                }
+                            ],
+                            "disk_size_gb": 100,
+                            "taints": [
+                                {
+                                    "value": "training-gpu",
+                                    "effect": "NO_SCHEDULE",
+                                    "key": "dedicated"
+                                }
+                            ],
+                            "machine_type": "n1-standard-8"
+                        },
+                        "model_deployment": {
+                            "labels": {
+                                "mode": "odahu-flow-deployment"
+                            },
+                            "taints": [
+                                {
+                                    "value": "deployment",
+                                    "effect": "NO_SCHEDULE",
+                                    "key": "dedicated"
+                                }
+                            ],
+                            "max_node_count": 3
+                        }
+                    }
+                    }
+            profile.write(json.dumps(prof))
+        local('cat /tmp/profile.json')
         local('cp /tmp/profile.json /')
-        local('cat /profile.json')
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to configure parameter file.", str(err))
         sys.exit(1)
 
     try:
-        local('tf_runner create -o /response/odahu_{}_{}.json'.format(odahu_conf['odahu_cluster_name'], os.environ['request_id']))
+        local('tf_runner create -o /tmp/result.json')
+        local("sed -i 's|name|description|g' /tmp/result.json")
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to deploy Odahu cluster.", str(err))
         sys.exit(1)
 
     # generating output information
-    try:
-        local("sed -e 's|name = |"description": |g' result")
-        local("sed -e 's|url = |"url": |g' result")
-        odahu_urls = local("cat result")
-    except Exception as err:
-        traceback.print_exc()
-        append_result("Failed to generate output information.", str(err))
-        sys.exit(1)
-
     print('[SUMMARY]')
     logging.info('[SUMMARY]')
     print('Cluster name: {}'.format(odahu_conf['odahu_cluster_name']))
-
+    with open('/tmp/result.json', 'r') as f:
+        output = json.load(f)
+        odahu_urls = json.dumps(output['odahu_urls']['value'], sort_keys=True, indent=4)
+    print('Odahu urls: {}'.format(odahu_urls))
+    res = dict()
+    res['odahu_urls'] = output['odahu_urls']['value']
     with open("/root/result.json", 'w') as result:
-        res = {"odahu_urls": [odahu_urls]}
         result.write(json.dumps(res))
