@@ -231,7 +231,7 @@ if __name__ == "__main__":
                            edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
                            os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
                            os.environ['keycloak_user_password'], edge_conf['keycloak_client_secret'],
-                           edge_conf['edge_public_ip'], edge_conf['instance_hostname'], edge_conf['project_name'],
+                           edge_conf['instance_hostname'], edge_conf['instance_hostname'], edge_conf['project_name'],
                            edge_conf['endpoint_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
