@@ -126,9 +126,15 @@ if __name__ == "__main__":
     try:
         ssn_conf['instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(ssn_conf['instance_name'])
         if os.environ['conf_stepcerts_enabled'] == 'true':
-            ssn_conf['step_cert_sans'] = ' --san {0} --san {1}'.format(GCPMeta.get_instance_public_ip_by_name(
-                ssn_conf['instance_name']), dlab.meta_lib.get_instance_private_ip_address('ssn',
-                                                                                          ssn_conf['instance_name']))
+            if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+                ssn_conf['step_cert_sans'] = ' --san {0} --san {1} --san ssn.{2}'.format(
+                    GCPMeta.get_instance_public_ip_by_name(ssn_conf['instance_name']),
+                    dlab.meta_lib.get_instance_private_ip_address('ssn',ssn_conf['instance_name']),
+                    os.environ['conf_domain_name'])
+            else:
+                ssn_conf['step_cert_sans'] = ' --san {0} --san {1}'.format(GCPMeta.get_instance_public_ip_by_name(
+                    ssn_conf['instance_name']), dlab.meta_lib.get_instance_private_ip_address('ssn', ssn_conf[
+                                                                                                  'instance_name']))
         else:
             ssn_conf['step_cert_sans'] = ''
         if os.environ['conf_os_family'] == 'debian':
@@ -233,10 +239,6 @@ if __name__ == "__main__":
         print('[CONFIGURE SSN INSTANCE UI]')
 
         cloud_params = [
-            {
-                'key': 'KEYCLOAK_REDIRECT_URI',
-                'value': "https://{0}/".format(ssn_conf['instance_hostname'])
-            },
             {
                 'key': 'KEYCLOAK_REALM_NAME',
                 'value': os.environ['keycloak_realm_name']
@@ -370,6 +372,38 @@ if __name__ == "__main__":
                 'value': ""
             }
         ]
+        if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+            cloud_params.append(
+                {
+                    'key': 'KEYCLOAK_REDIRECT_URI',
+                    'value': "https://ssn.{}/*".format(os.environ['conf_domain_name'])
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME_ENABLED',
+                    'value': os.environ['conf_domain_name_enabled']
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME',
+                    'value': os.environ['conf_domain_name']
+                })
+        else:
+            cloud_params.append(
+                {
+                    'key': 'KEYCLOAK_REDIRECT_URI',
+                    'value': "https://{0}/*".format(ssn_conf['instance_hostname'])
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'DOMAIN_NAME',
+                    'value': ''
+                })
         if os.environ['conf_stepcerts_enabled'] == 'true':
             cloud_params.append(
                 {

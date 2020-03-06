@@ -231,6 +231,9 @@ if __name__ == "__main__":
         set_hostname(os.environ['ssn_subdomain'], os.environ['ssn_hosted_zone_name'])
         args.hostname = "{0}.{1}".format(os.environ['ssn_subdomain'], os.environ['ssn_hosted_zone_name'])
 
+    if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+        args.hostname = "ssn.{}".format(os.environ['conf_domain_name'])
+
     print("Installing nginx as frontend.")
     ensure_nginx(args.dlab_path)
 
