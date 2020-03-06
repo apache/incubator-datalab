@@ -225,6 +225,10 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
             raise Exception
+        if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+            hostname_param = "--hostname {}.{}".format(os.environ['project_name'], os.environ['conf_domain_name'])
+        else:
+            hostname_param = ''
         keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                           "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
                           "--edge_public_ip {} --hostname {} --project_name {} --endpoint_name {} ".format(
@@ -234,7 +238,7 @@ if __name__ == "__main__":
                            edge_conf['instance_hostname'], edge_conf['instance_hostname'], edge_conf['project_name'],
                            edge_conf['endpoint_name'])
         try:
-            local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
+            local("~/scripts/{}.py {} {}".format('configure_keycloak', keycloak_params, hostname_param))
         except:
             traceback.print_exc()
             raise Exception
