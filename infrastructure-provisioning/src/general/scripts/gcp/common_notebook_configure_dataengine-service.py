@@ -63,27 +63,26 @@ if __name__ == "__main__":
         application = 'jupyter'
     else:
         application = os.environ['application']
-    additional_tags = json.loads(os.environ['tags'].replace("': u'", "\": \"").replace("', u'", "\", \"").replace("{u'", "{\"" ).replace("'}", "\"}"))
 
-    if '@' in additional_tags['user_tag']:
-        notebook_config['user_tag'] = additional_tags['user_tag'][:additional_tags['user_tag'].find('@')]
-    else:
-        notebook_config['user_tag'] = additional_tags['user_tag']
+    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "")
 
-    notebook_config['custom_tag'] = additional_tags['custom_tag']
     notebook_config['cluster_labels'] = {
         os.environ['notebook_instance_name']: "configured",
         "name": notebook_config['cluster_name'],
         "sbn": notebook_config['service_base_name'],
-        "user": notebook_config['user_tag'],
         "notebook_name": os.environ['notebook_instance_name'],
-        "project_tag": notebook_config['project_tag'],
-        "endpoint_tag": notebook_config['endpoint_tag'],
         "product": "dlab",
         "computational_name": (os.environ['computational_name']).lower().replace('_', '-')
     }
-    if notebook_config['custom_tag'] != '':
-        notebook_config['cluster_labels'].update({'custom_tag': notebook_config['custom_tag']})
+
+    for tag in additional_tags.split(','):
+        label_key = tag.split(':')[0]
+        label_value = tag.split(':')[1]
+        if label_key == 'user_tag':
+            if '@' in label_value:
+                label_value = label_value[:label_value.find('@')]
+        if label_value != '':
+            notebook_config['cluster_labels'].update({label_key: label_value})
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')

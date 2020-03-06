@@ -148,9 +148,15 @@
 
   .header-row {
     position: unset;
+    .th_charges {
+      padding-top: 0;
+      .label {
+        padding-top: 12px;
+      }
+    }
     .label {
       display: inline-block;
-      padding-top: 15px;
+      padding-top: 13px;
       vertical-align: super !important;
       padding-left: 15px;
     }
