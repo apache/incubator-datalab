@@ -77,7 +77,7 @@ if __name__ == "__main__":
                                                                dataproc_conf['endpoint_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
 
-    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "")
+    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "").lower().replace('_', '-')
 
     dataproc_conf['cluster_labels'] = {
         os.environ['notebook_instance_name']: "not-configured",

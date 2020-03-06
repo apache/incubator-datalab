@@ -144,7 +144,7 @@ if __name__ == "__main__":
     data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
                                                      data_engine['project_name'])
 
-    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "")
+    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "").lower().replace('_', '-')
 
     data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
                                    "sbn": data_engine['service_base_name'],
