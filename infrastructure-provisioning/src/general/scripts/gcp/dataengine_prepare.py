@@ -144,7 +144,8 @@ if __name__ == "__main__":
     data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
                                                      data_engine['project_name'])
 
-    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "")
+    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace(
+        "'}", "").lower()
 
     data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
                                    "sbn": data_engine['service_base_name'],
@@ -159,10 +160,9 @@ if __name__ == "__main__":
 
     for tag in additional_tags.split(','):
         label_key = tag.split(':')[0]
-        label_value = tag.split(':')[1]
-        if label_key == 'user_tag':
-            if '@' in label_value:
-                label_value = label_value[:label_value.find('@')]
+        label_value = tag.split(':')[1].replace('_', '-')
+        if '@' in label_value:
+            label_value = label_value[:label_value.find('@')]
         if label_value != '':
             data_engine['slave_labels'].update({label_key: label_value})
             data_engine['master_labels'].update({label_key: label_value})
