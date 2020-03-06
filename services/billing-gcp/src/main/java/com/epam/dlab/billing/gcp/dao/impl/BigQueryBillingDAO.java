@@ -58,11 +58,13 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.newA
 @Slf4j
 public class BigQueryBillingDAO implements BillingDAO {
 	private static final String DATE_FORMAT = "yyyy-MM-dd";
-
 	private static final String SBN_PARAM = "sbn";
 	private static final String DATASET_PARAM = "dataset";
+
 	private final BillingHistoryRepository billingHistoryRepo;
 	private final MongoTemplate mongoTemplate;
+	private final BigQuery service;
+	private final String dataset;
 	private final String sbn;
 
 	private static final String GET_BILLING_DATA_QUERY = "SELECT b.sku.description usageType," +
@@ -73,17 +75,15 @@ public class BigQueryBillingDAO implements BillingDAO {
 			"CROSS JOIN UNNEST(b.labels) as label\n" +
 			"where label.key = 'name' and cost != 0 and label.value like @sbn\n" +
 			"group by usageType, usage_date_from, usage_date_to, product, value, currency";
-	private BigQuery service = null;
-	private final String dataset;
 
 	@Autowired
 	public BigQueryBillingDAO(DlabConfiguration conf, BillingHistoryRepository billingHistoryRepo,
-							  MongoTemplate mongoTemplate) {
+							  BigQuery service, MongoTemplate mongoTemplate) {
 		dataset = conf.getBigQueryDataset();
-		sbn = conf.getSbn();
-//		this.service = null;
+		this.service = service;
 		this.billingHistoryRepo = billingHistoryRepo;
 		this.mongoTemplate = mongoTemplate;
+		sbn = conf.getSbn();
 	}
 
 	@Override

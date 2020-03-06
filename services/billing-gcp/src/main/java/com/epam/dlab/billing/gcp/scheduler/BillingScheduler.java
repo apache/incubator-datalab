@@ -37,6 +37,6 @@ public class BillingScheduler {
 
 	@Scheduled(cron = "${dlab.cron}")
 	public void getBillingReport() {
-//		billingService.updateBillingData();
+		billingService.updateBillingData();
 	}
 }
