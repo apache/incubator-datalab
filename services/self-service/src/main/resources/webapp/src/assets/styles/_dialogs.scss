@@ -268,7 +268,7 @@ mat-dialog-container {
     }
   }
 
-  span {
+  span:not(.description) {
     font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -64,7 +64,8 @@ if __name__ == "__main__":
     else:
         application = os.environ['application']
 
-    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace("'}", "")
+    additional_tags = os.environ['tags'].replace("': u'", ":").replace("', u'", ",").replace("{u'", "" ).replace(
+        "'}", "").lower()
 
     notebook_config['cluster_labels'] = {
         os.environ['notebook_instance_name']: "configured",
@@ -77,10 +78,9 @@ if __name__ == "__main__":
 
     for tag in additional_tags.split(','):
         label_key = tag.split(':')[0]
-        label_value = tag.split(':')[1]
-        if label_key == 'user_tag':
-            if '@' in label_value:
-                label_value = label_value[:label_value.find('@')]
+        label_value = tag.split(':')[1].replace('_', '-')
+        if '@' in label_value:
+            label_value = label_value[:label_value.find('@')]
         if label_value != '':
             notebook_config['cluster_labels'].update({label_key: label_value})
 
