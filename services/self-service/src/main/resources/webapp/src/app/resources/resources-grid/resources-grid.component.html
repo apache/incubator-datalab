@@ -147,7 +147,9 @@
             <span #settings (click)="actions.toggle($event, settings)" class="actions"
               [ngClass]="{ 'disabled': element.status.toLowerCase() === 'creating'
               || (element.image === 'docker.dlab-superset' && element.status !== 'running' && element.status !== 'stopped')
-              || (element.image === 'docker.dlab-jupyterlab' && element.status !== 'running' && element.status !== 'stopped') }">
+              || (element.image === 'docker.dlab-jupyterlab' && element.status !== 'running' && element.status !== 'stopped')
+              ||  element.status.toLowerCase() === 'stopping'
+              }">
             </span>
 
             <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
@@ -226,7 +228,7 @@
                     Stop
                   </a>
                 </li>
-                <li class="project-seting-item" *ngIf="element.status !== 'terminated' && element.status !== 'terminating'" (click)="odahuAction(element, 'terminate')">
+                <li class="project-seting-item" *ngIf="element.status !== 'terminated' && element.status !== 'terminating' && element.status !== 'stopped' && element.status !== 'stopping'" (click)="odahuAction(element, 'terminate')">
                   <i class="material-icons">phonelink_off</i>
                   <a class="action">
                     Terminate

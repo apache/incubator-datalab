@@ -26,6 +26,8 @@
 }
 
 .links_block {
+  max-height: 300px;
+  overflow-y: auto;
   .odahu-links:not(:last-child){
     margin-bottom: 20px;
   }
