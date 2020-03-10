@@ -81,7 +81,7 @@ export class UserResourceService {
   }
 
   public suspendExploratoryEnvironment(notebook: any, action): Observable<{}> {
-    const url = '/' + notebook.name + '/' + action;
+    const url = '/' + notebook.project + '/' + notebook.name + '/' + action;
 
     return this.applicationServiceFacade
       .buildSuspendExploratoryEnvironmentRequest(JSON.stringify(url))
@@ -108,8 +108,8 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public suspendComputationalResource(notebookName: string, computationalResourceName: string, provider: string): Observable<{}> {
-    const body = JSON.stringify('/' + notebookName + '/' + computationalResourceName + '/terminate');
+  public suspendComputationalResource(projectName: string, notebookName: string, computationalResourceName: string, provider: string): Observable<{}> {
+    const body = JSON.stringify('/' + projectName + '/' + notebookName + '/' + computationalResourceName + '/terminate');
     return this.applicationServiceFacade
       .buildDeleteComputationalResourcesRequest(body, provider)
       .pipe(

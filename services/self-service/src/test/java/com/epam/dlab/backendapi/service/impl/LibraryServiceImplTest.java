@@ -56,38 +56,46 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyListOf;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.refEq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LibraryServiceImplTest {
 
-	private static final String LIB_NAME = "name";
-	private static final String LIB_GROUP = "group";
-	private static final String LIB_VERSION = "version";
-	private static final String UUID = "id";
-	private final String USER = "test";
-	private final String EXPLORATORY_NAME = "explName";
-	private final String COMPUTATIONAL_NAME = "compName";
+    private static final String LIB_NAME = "name";
+    private static final String LIB_GROUP = "group";
+    private static final String LIB_VERSION = "version";
+    private static final String UUID = "id";
+    private final String USER = "test";
+    private final String EXPLORATORY_NAME = "explName";
+    private final String PROJECT = "projectName";
+    private final String COMPUTATIONAL_NAME = "compName";
 
-	private LibInstallDTO liDto;
-	private List<LibInstallDTO> libs;
-	private LibInstallFormDTO libInstallFormDTO;
-	private LibraryInstallDTO libraryInstallDto;
+    private LibInstallDTO liDto;
+    private List<LibInstallDTO> libs;
+    private LibInstallFormDTO libInstallFormDTO;
+    private LibraryInstallDTO libraryInstallDto;
 
-	@Mock
-	private ExploratoryDAO exploratoryDAO;
-	@Mock
-	private ExploratoryLibDAO libraryDAO;
-	@Mock
-	private RequestBuilder requestBuilder;
-	@Mock
-	private RequestId requestId;
-	@Mock
-	private RESTService provisioningService;
-	@Mock
-	private EndpointService endpointService;
+    @Mock
+    private ExploratoryDAO exploratoryDAO;
+    @Mock
+    private ExploratoryLibDAO libraryDAO;
+    @Mock
+    private RequestBuilder requestBuilder;
+    @Mock
+    private RequestId requestId;
+    @Mock
+    private RESTService provisioningService;
+    @Mock
+    private EndpointService endpointService;
 
-	@Rule
+    @Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
 	@InjectMocks
@@ -100,243 +108,245 @@ public class LibraryServiceImplTest {
 
 	@Test
 	public void testGetLibs() {
-		Document document = new Document();
-		when(libraryDAO.findExploratoryLibraries(anyString(), anyString())).thenReturn(document);
+        Document document = new Document();
+        when(libraryDAO.findExploratoryLibraries(anyString(), anyString(), anyString())).thenReturn(document);
 
-		List<Document> expectedList = new ArrayList<>();
-		List<Document> actualList = libraryService.getLibs(USER, EXPLORATORY_NAME, "");
-		assertNotNull(actualList);
-		assertEquals(expectedList, actualList);
+        List<Document> expectedList = new ArrayList<>();
+        List<Document> actualList = libraryService.getLibs(USER, PROJECT, EXPLORATORY_NAME, "");
+        assertNotNull(actualList);
+        assertEquals(expectedList, actualList);
 
-		verify(libraryDAO).findExploratoryLibraries(USER, EXPLORATORY_NAME);
-		verifyNoMoreInteractions(libraryDAO);
-	}
+        verify(libraryDAO).findExploratoryLibraries(USER, PROJECT, EXPLORATORY_NAME);
+        verifyNoMoreInteractions(libraryDAO);
+    }
 
 	@Test
 	public void getLibInfo() {
-		Document document = new Document();
-		when(libraryDAO.findAllLibraries(anyString(), anyString())).thenReturn(document);
+        Document document = new Document();
+        when(libraryDAO.findAllLibraries(anyString(), anyString(), anyString())).thenReturn(document);
 
-		List<LibInfoRecord> expectedList = new ArrayList<>();
-		List<LibInfoRecord> actualList = libraryService.getLibInfo(USER, EXPLORATORY_NAME);
-		assertNotNull(actualList);
-		assertEquals(expectedList, actualList);
+        List<LibInfoRecord> expectedList = new ArrayList<>();
+        List<LibInfoRecord> actualList = libraryService.getLibInfo(USER, PROJECT, EXPLORATORY_NAME);
+        assertNotNull(actualList);
+        assertEquals(expectedList, actualList);
 
-		verify(libraryDAO).findAllLibraries(USER, EXPLORATORY_NAME);
-		verifyNoMoreInteractions(libraryDAO);
-	}
+        verify(libraryDAO).findAllLibraries(USER, PROJECT, EXPLORATORY_NAME);
+        verifyNoMoreInteractions(libraryDAO);
+    }
 
 	@Test
 	public void getLibInfoWhenListsOfExploratoryAndComputationalLibsAreNotEmpty() {
-		when(libraryDAO.findAllLibraries(anyString(), anyString()))
-				.thenReturn(getDocumentWithExploratoryAndComputationalLibs());
+        when(libraryDAO.findAllLibraries(anyString(), anyString(), anyString()))
+                .thenReturn(getDocumentWithExploratoryAndComputationalLibs());
 
-		List<LibInfoRecord> expectedList = getLibInfoRecordList();
-		List<LibInfoRecord> actualList = libraryService.getLibInfo(USER, EXPLORATORY_NAME);
-		assertNotNull(actualList);
-		assertEquals(expectedList, actualList);
+        List<LibInfoRecord> expectedList = getLibInfoRecordList();
+        List<LibInfoRecord> actualList = libraryService.getLibInfo(USER, PROJECT, EXPLORATORY_NAME);
+        assertNotNull(actualList);
+        assertEquals(expectedList, actualList);
 
-		verify(libraryDAO).findAllLibraries(USER, EXPLORATORY_NAME);
-		verifyNoMoreInteractions(libraryDAO);
-	}
+        verify(libraryDAO).findAllLibraries(USER, PROJECT, EXPLORATORY_NAME);
+        verifyNoMoreInteractions(libraryDAO);
+    }
 
 	@Test
 	public void installComputationalLibsWithoutOverride() {
-		final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
-		final List<LibInstallDTO> libsToInstall = getLibs("installing");
-		libraryInstallDTO.setLibs(libsToInstall);
-		final UserInfo user = getUser();
+        final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
+        final List<LibInstallDTO> libsToInstall = getLibs("installing");
+        libraryInstallDTO.setLibs(libsToInstall);
+        final UserInfo user = getUser();
 
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
-		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
-		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
-				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class))).thenReturn(libraryInstallDTO);
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
+        when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
+        when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
+                any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class))).thenReturn(libraryInstallDTO);
 
 
-		final String uuid = libraryService.installComputationalLibs(user, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
-				getLibs(null));
+        final String uuid = libraryService.installComputationalLibs(user, PROJECT, EXPLORATORY_NAME,
+                COMPUTATIONAL_NAME, getLibs(null));
 
-		assertEquals(UUID, uuid);
+        assertEquals(UUID, uuid);
 
-		verify(libraryDAO).getLibrary(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME, LIB_GROUP, LIB_NAME);
-		verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()),
-				refEq(getUserComputationalResourceWithName(COMPUTATIONAL_NAME)), eq(libsToInstall), refEq(endpointDTO()));
-		verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/computational/lib_install"), eq(user.getAccessToken()),
-				refEq(libraryInstallDTO), eq(String.class));
-		verify(libraryDAO).addLibrary(eq(USER), eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME),
-				refEq(libsToInstall.get(0)), eq(false));
-		verify(requestId).put(user.getName(), UUID);
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
-		verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
-	}
+        verify(libraryDAO).getLibrary(USER, PROJECT, EXPLORATORY_NAME, COMPUTATIONAL_NAME, LIB_GROUP, LIB_NAME);
+        verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()),
+                refEq(getUserComputationalResourceWithName(COMPUTATIONAL_NAME)), eq(libsToInstall), refEq(endpointDTO()));
+        verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/computational/lib_install"), eq(user.getAccessToken()),
+                refEq(libraryInstallDTO), eq(String.class));
+        verify(libraryDAO).addLibrary(eq(USER), eq(PROJECT), eq(EXPLORATORY_NAME),
+                eq(COMPUTATIONAL_NAME), refEq(libsToInstall.get(0)), eq(false));
+        verify(requestId).put(user.getName(), UUID);
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
+        verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
+    }
 
 	@Test
 	public void installComputationalLibsWhenComputationalNotFound() {
-		final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
-		final List<LibInstallDTO> libsToInstall = getLibs("installing");
-		libraryInstallDTO.setLibs(libsToInstall);
-		final UserInfo user = getUser();
+        final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
+        final List<LibInstallDTO> libsToInstall = getLibs("installing");
+        libraryInstallDTO.setLibs(libsToInstall);
+        libraryInstallDTO.setProject(PROJECT);
+        final UserInfo user = getUser();
 
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
-		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
-		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
-				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class)))
-				.thenReturn(libraryInstallDTO);
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
+        when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
+        when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
+                any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class)))
+                .thenReturn(libraryInstallDTO);
 
 
-		expectedException.expect(DlabException.class);
-		expectedException.expectMessage("Computational with name " + COMPUTATIONAL_NAME + "X was not found");
+        expectedException.expect(DlabException.class);
+        expectedException.expectMessage("Computational with name " + COMPUTATIONAL_NAME + "X was not found");
 
-		libraryService.installComputationalLibs(user, EXPLORATORY_NAME, COMPUTATIONAL_NAME + "X",
-				getLibs(null));
-	}
+        libraryService.installComputationalLibs(user, PROJECT, EXPLORATORY_NAME,
+                COMPUTATIONAL_NAME + "X", getLibs(null));
+    }
 
 	@Test
 	public void installComputationalLibsWithOverride() {
-		final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
-		final List<LibInstallDTO> libsToInstall = getLibs("installing");
-		libraryInstallDTO.setLibs(libsToInstall);
-		final UserInfo user = getUser();
+        final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
+        final List<LibInstallDTO> libsToInstall = getLibs("installing");
+        libraryInstallDTO.setProject(PROJECT);
+        libraryInstallDTO.setLibs(libsToInstall);
+        final UserInfo user = getUser();
 
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
-		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
-		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
-				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class)))
-				.thenReturn(libraryInstallDTO);
-		when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLED));
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
+        when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
+        when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
+                any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class)))
+                .thenReturn(libraryInstallDTO);
+        when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLED));
 
-		final String uuid = libraryService.installComputationalLibs(user, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
-				getLibs(null));
+        final String uuid = libraryService.installComputationalLibs(user, PROJECT, EXPLORATORY_NAME,
+                COMPUTATIONAL_NAME, getLibs(null));
 
-		assertEquals(UUID, uuid);
+        assertEquals(UUID, uuid);
 
-		libsToInstall.get(0).setOverride(true);
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
-		verify(libraryDAO).getLibrary(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME, LIB_GROUP, LIB_NAME);
-		verify(libraryDAO).addLibrary(eq(USER), eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME),
-				refEq(libsToInstall.get(0)), eq(true));
-		verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()),
-				refEq(getUserComputationalResourceWithName(COMPUTATIONAL_NAME)), eq(libsToInstall), refEq(endpointDTO()));
-		verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/computational/lib_install"),
-				eq(user.getAccessToken()),
-				refEq(libraryInstallDTO), eq(String.class));
-		verify(requestId).put(user.getName(), UUID);
-		verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
+        libsToInstall.get(0).setOverride(true);
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
+        verify(libraryDAO).getLibrary(USER, PROJECT, EXPLORATORY_NAME, COMPUTATIONAL_NAME, LIB_GROUP, LIB_NAME);
+        verify(libraryDAO).addLibrary(eq(USER), eq(PROJECT), eq(EXPLORATORY_NAME),
+                eq(COMPUTATIONAL_NAME), refEq(libsToInstall.get(0)), eq(true));
+        verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()),
+                refEq(getUserComputationalResourceWithName(COMPUTATIONAL_NAME)), eq(libsToInstall), refEq(endpointDTO()));
+        verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/computational/lib_install"),
+                eq(user.getAccessToken()),
+                refEq(libraryInstallDTO), eq(String.class));
+        verify(requestId).put(user.getName(), UUID);
+        verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
 
-	}
+    }
 
 
 	@Test
 	public void installComputationalLibsWhenLibraryIsAlreadyInstalling() {
-		final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
-		final List<LibInstallDTO> libsToInstall = getLibs("installing");
-		libraryInstallDTO.setLibs(libsToInstall);
-		final UserInfo user = getUser();
+        final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
+        final List<LibInstallDTO> libsToInstall = getLibs("installing");
+        libraryInstallDTO.setLibs(libsToInstall);
+        final UserInfo user = getUser();
 
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
-		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
-		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
-				any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class)))
-				.thenReturn(libraryInstallDTO);
-		when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLING));
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
+        when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
+        when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class),
+                any(UserComputationalResource.class), anyListOf(LibInstallDTO.class), any(EndpointDTO.class)))
+                .thenReturn(libraryInstallDTO);
+        when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLING));
 
-		try {
-			libraryService.installComputationalLibs(user, EXPLORATORY_NAME, COMPUTATIONAL_NAME,
-					getLibs(null));
-		} catch (DlabException e) {
-			assertEquals("Library name is already installing", e.getMessage());
-		}
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
-		verify(libraryDAO).getLibrary(USER, EXPLORATORY_NAME, COMPUTATIONAL_NAME, LIB_GROUP, LIB_NAME);
-		verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
-	}
+        try {
+            libraryService.installComputationalLibs(user, PROJECT, EXPLORATORY_NAME,
+                    COMPUTATIONAL_NAME, getLibs(null));
+        } catch (DlabException e) {
+            assertEquals("Library name is already installing", e.getMessage());
+        }
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME, COMPUTATIONAL_NAME);
+        verify(libraryDAO).getLibrary(USER, PROJECT, EXPLORATORY_NAME, COMPUTATIONAL_NAME, LIB_GROUP, LIB_NAME);
+        verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
+    }
 
 	@Test
 	public void installExploratoryLibsWithoutOverride() {
-		final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
-		final List<LibInstallDTO> libsToInstall = getLibs("installing");
-		libraryInstallDTO.setLibs(libsToInstall);
-		final UserInfo user = getUser();
+        final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
+        final List<LibInstallDTO> libsToInstall = getLibs("installing");
+        libraryInstallDTO.setLibs(libsToInstall);
+        final UserInfo user = getUser();
 
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
-		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
-		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
-				anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
+        when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
+        when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
+                anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
 
 
-		final String uuid = libraryService.installExploratoryLibs(user, EXPLORATORY_NAME, getLibs(null));
+        final String uuid = libraryService.installExploratoryLibs(user, PROJECT, EXPLORATORY_NAME, getLibs(null));
 
-		assertEquals(UUID, uuid);
+        assertEquals(UUID, uuid);
 
-		verify(libraryDAO).getLibrary(USER, EXPLORATORY_NAME, LIB_GROUP, LIB_NAME);
-		verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()), eq(endpointDTO()), eq(libsToInstall));
-		verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/exploratory/lib_install"), eq(user.getAccessToken()),
-				refEq(libraryInstallDTO), eq(String.class));
-		verify(libraryDAO).addLibrary(eq(USER), eq(EXPLORATORY_NAME), refEq(libsToInstall.get(0)), eq(false));
-		verify(requestId).put(user.getName(), UUID);
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
-		verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
-	}
+        verify(libraryDAO).getLibrary(USER, PROJECT, EXPLORATORY_NAME, LIB_GROUP, LIB_NAME);
+        verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()), eq(endpointDTO()), eq(libsToInstall));
+        verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/exploratory/lib_install"), eq(user.getAccessToken()),
+                refEq(libraryInstallDTO), eq(String.class));
+        verify(libraryDAO).addLibrary(eq(USER), eq(PROJECT), eq(EXPLORATORY_NAME), refEq(libsToInstall.get(0)), eq(false));
+        verify(requestId).put(user.getName(), UUID);
+        verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+        verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
+    }
 
 	@Test
 	public void installExploratoryLibsWithOverride() {
-		final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
-		final List<LibInstallDTO> libsToInstall = getLibs("installing");
-		libraryInstallDTO.setLibs(libsToInstall);
-		final UserInfo user = getUser();
+        final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
+        final List<LibInstallDTO> libsToInstall = getLibs("installing");
+        libraryInstallDTO.setLibs(libsToInstall);
+        final UserInfo user = getUser();
 
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
-		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
-		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
-				anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
-		when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLED));
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
+        when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
+        when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
+                anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
+        when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLED));
 
-		final String uuid = libraryService.installExploratoryLibs(user, EXPLORATORY_NAME, getLibs(null));
+        final String uuid = libraryService.installExploratoryLibs(user, PROJECT, EXPLORATORY_NAME, getLibs(null));
 
-		assertEquals(UUID, uuid);
+        assertEquals(UUID, uuid);
 
-		libsToInstall.get(0).setOverride(true);
-		verify(libraryDAO).getLibrary(USER, EXPLORATORY_NAME, LIB_GROUP, LIB_NAME);
-		verify(libraryDAO).addLibrary(eq(USER), eq(EXPLORATORY_NAME), refEq(libsToInstall.get(0)), eq(true));
-		verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()), eq(endpointDTO()), eq(libsToInstall));
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
-		verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/exploratory/lib_install"), eq(user.getAccessToken()),
-				refEq(libraryInstallDTO), eq(String.class));
-		verify(requestId).put(USER, uuid);
-		verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
-	}
+        libsToInstall.get(0).setOverride(true);
+        verify(libraryDAO).getLibrary(USER, PROJECT, EXPLORATORY_NAME, LIB_GROUP, LIB_NAME);
+        verify(libraryDAO).addLibrary(eq(USER), eq(PROJECT), eq(EXPLORATORY_NAME), refEq(libsToInstall.get(0)), eq(true));
+        verify(requestBuilder).newLibInstall(refEq(user), refEq(getUserInstanceDto()), eq(endpointDTO()), eq(libsToInstall));
+        verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+        verify(provisioningService).post(eq(endpointDTO().getUrl() + "library/exploratory/lib_install"), eq(user.getAccessToken()),
+                refEq(libraryInstallDTO), eq(String.class));
+        verify(requestId).put(USER, uuid);
+        verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
+    }
 
 	@Test
 	public void installExploratoryLibsWhenLibIsAlreadyInstalling() {
-		final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
-		final List<LibInstallDTO> libsToInstall = getLibs("installing");
-		libraryInstallDTO.setLibs(libsToInstall);
-		final UserInfo user = getUser();
+        final LibraryInstallDTO libraryInstallDTO = new LibraryInstallDTO();
+        final List<LibInstallDTO> libsToInstall = getLibs("installing");
+        libraryInstallDTO.setLibs(libsToInstall);
+        final UserInfo user = getUser();
 
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
-		when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
-		when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
-				anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
-		when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLING));
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
+        when(provisioningService.post(anyString(), anyString(), any(LibraryInstallDTO.class), any())).thenReturn(UUID);
+        when(requestBuilder.newLibInstall(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
+                anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
+        when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLING));
 
-		try {
-			libraryService.installExploratoryLibs(user, EXPLORATORY_NAME, getLibs(null));
-		} catch (DlabException e) {
-			assertEquals("Library name is already installing", e.getMessage());
-		}
+        try {
+            libraryService.installExploratoryLibs(user, PROJECT, EXPLORATORY_NAME, getLibs(null));
+        } catch (DlabException e) {
+            assertEquals("Library name is already installing", e.getMessage());
+        }
 
-		verify(libraryDAO).getLibrary(USER, EXPLORATORY_NAME, LIB_GROUP, LIB_NAME);
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
-		verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
+        verify(libraryDAO).getLibrary(USER, PROJECT, EXPLORATORY_NAME, LIB_GROUP, LIB_NAME);
+        verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+        verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
 
-	}
+    }
 
 	private Library getLibrary(LibStatus status) {
 		return new Library(LIB_GROUP, LIB_NAME, "1", status, "");

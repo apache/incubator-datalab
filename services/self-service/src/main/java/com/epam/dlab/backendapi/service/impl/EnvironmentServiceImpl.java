@@ -112,14 +112,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@Override
-	public void stopEnvironment(UserInfo userInfo, String user) {
-		log.debug("Stopping environment for user {}", user);
-		checkState(user, "stop");
-		exploratoryDAO.fetchRunningExploratoryFields(user)
-				.forEach(e -> stopExploratory(userInfo, user, e.getExploratoryName()));
-	}
-
-	@Override
 	public void stopEnvironmentWithServiceAccount(String user) {
 		log.debug("Stopping environment for user {} by scheduler", user);
 		checkState(user, "stop");
@@ -138,28 +130,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.filter(e -> UserInstanceStatus.RUNNING == e.getStatus())
 				.forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo("admin"),
 						endpoint.getName(), project));
-	}
-
-	@Override
-	public void stopExploratory(UserInfo userInfo, String user, String exploratoryName) {
-		exploratoryService.stop(new UserInfo(user, userInfo.getAccessToken()), exploratoryName);
-	}
-
-	@Override
-	public void stopComputational(UserInfo userInfo, String user, String exploratoryName, String computationalName) {
-		computationalService.stopSparkCluster(new UserInfo(user, userInfo.getAccessToken()),
-				exploratoryName, computationalName);
-	}
-
-	@Override
-	public void terminateExploratory(UserInfo userInfo, String user, String exploratoryName) {
-		exploratoryService.terminate(new UserInfo(user, userInfo.getAccessToken()), exploratoryName);
-	}
-
-	@Override
-	public void terminateComputational(UserInfo userInfo, String user, String exploratoryName, String computationalName) {
-		computationalService.terminateComputational(new UserInfo(user, userInfo.getAccessToken()), exploratoryName,
-				computationalName);
 	}
 
 	private UserDTO toUserDTO(String u, UserDTO.Status status) {
@@ -181,7 +151,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	private void stopNotebookWithServiceAccount(UserInstanceDTO instance) {
 		final UserInfo userInfo = securityService.getServiceAccountInfo(instance.getUser());
-		exploratoryService.stop(userInfo, instance.getExploratoryName());
+		exploratoryService.stop(userInfo, instance.getProject(), instance.getExploratoryName());
 	}
 
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {

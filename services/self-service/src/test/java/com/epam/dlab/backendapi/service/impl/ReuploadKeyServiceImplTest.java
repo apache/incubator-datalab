@@ -25,13 +25,10 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
-import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyCallbackDTO;
-import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.client.RESTService;
@@ -45,14 +42,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static com.epam.dlab.dto.UserInstanceStatus.REUPLOADING_KEY;
 import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReuploadKeyServiceImplTest {
@@ -111,16 +110,16 @@ public class ReuploadKeyServiceImplTest {
 	@Test
 	public void updateResourceDataForExploratoryWhenStatusCompleted() {
 		ResourceData resource = new ResourceData(ResourceType.EXPLORATORY, "someId", EXPLORATORY_NAME, null);
-		when(exploratoryDAO.updateStatusForExploratory(anyString(), anyString(),
+		when(exploratoryDAO.updateStatusForExploratory(anyString(), anyString(), anyString(),
 				any(UserInstanceStatus.class))).thenReturn(mock(UpdateResult.class));
-		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratory(anyString(), anyString(), anyBoolean());
+		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratory(anyString(), anyString(), anyString(), anyBoolean());
 
 		ReuploadKeyStatusDTO dto = getReuploadKeyStatusDTO(resource, ReuploadKeyStatus.COMPLETED);
 
 		reuploadKeyService.updateResourceData(dto);
 
-		verify(exploratoryDAO).updateStatusForExploratory(USER, EXPLORATORY_NAME, RUNNING);
-		verify(exploratoryDAO).updateReuploadKeyForExploratory(USER, EXPLORATORY_NAME, false);
+		verify(exploratoryDAO).updateStatusForExploratory(USER, null, EXPLORATORY_NAME, RUNNING);
+		verify(exploratoryDAO).updateReuploadKeyForExploratory(USER, null, EXPLORATORY_NAME, false);
 		verifyNoMoreInteractions(exploratoryDAO);
 		verifyZeroInteractions(computationalDAO);
 	}
@@ -128,14 +127,14 @@ public class ReuploadKeyServiceImplTest {
 	@Test
 	public void updateResourceDataForExploratoryWhenStatusFailed() {
 		ResourceData resource = new ResourceData(ResourceType.EXPLORATORY, "someId", EXPLORATORY_NAME, null);
-		when(exploratoryDAO.updateStatusForExploratory(anyString(), anyString(),
+		when(exploratoryDAO.updateStatusForExploratory(anyString(), anyString(), anyString(),
 				any(UserInstanceStatus.class))).thenReturn(mock(UpdateResult.class));
 
 		ReuploadKeyStatusDTO dto = getReuploadKeyStatusDTO(resource, ReuploadKeyStatus.FAILED);
 
 		reuploadKeyService.updateResourceData(dto);
 
-		verify(exploratoryDAO).updateStatusForExploratory(USER, EXPLORATORY_NAME, RUNNING);
+		verify(exploratoryDAO).updateStatusForExploratory(USER, null, EXPLORATORY_NAME, RUNNING);
 		verifyNoMoreInteractions(exploratoryDAO);
 		verifyZeroInteractions(computationalDAO);
 	}
@@ -144,16 +143,16 @@ public class ReuploadKeyServiceImplTest {
 	public void updateResourceDataForClusterWhenStatusCompleted() {
 		ResourceData resource = new ResourceData(ResourceType.COMPUTATIONAL, "someId", EXPLORATORY_NAME, "compName");
 		doNothing().when(computationalDAO).updateStatusForComputationalResource(anyString(), anyString(), anyString(),
-				any(UserInstanceStatus.class));
+				anyString(), any(UserInstanceStatus.class));
 		doNothing().when(computationalDAO).updateReuploadKeyFlagForComputationalResource(anyString(), anyString(),
-				anyString(), anyBoolean());
+				anyString(), anyString(), anyBoolean());
 		ReuploadKeyStatusDTO dto = getReuploadKeyStatusDTO(resource, ReuploadKeyStatus.COMPLETED);
 
 		reuploadKeyService.updateResourceData(dto);
 
-		verify(computationalDAO).updateStatusForComputationalResource(USER, EXPLORATORY_NAME, "compName", RUNNING);
-		verify(computationalDAO).updateReuploadKeyFlagForComputationalResource(USER, EXPLORATORY_NAME, "compName",
-				false);
+		verify(computationalDAO).updateStatusForComputationalResource(USER, null, EXPLORATORY_NAME, "compName", RUNNING);
+		verify(computationalDAO).updateReuploadKeyFlagForComputationalResource(USER, null, EXPLORATORY_NAME,
+				"compName", false);
 		verifyNoMoreInteractions(computationalDAO);
 		verifyZeroInteractions(exploratoryDAO);
 	}
@@ -162,22 +161,18 @@ public class ReuploadKeyServiceImplTest {
 	public void updateResourceDataForClusterWhenStatusFailed() {
 		ResourceData resource = new ResourceData(ResourceType.COMPUTATIONAL, "someId", EXPLORATORY_NAME, "compName");
 		doNothing().when(computationalDAO).updateStatusForComputationalResource(anyString(), anyString(), anyString(),
-				any(UserInstanceStatus.class));
+				anyString(), any(UserInstanceStatus.class));
 		ReuploadKeyStatusDTO dto = getReuploadKeyStatusDTO(resource, ReuploadKeyStatus.FAILED);
 
 		reuploadKeyService.updateResourceData(dto);
 
-		verify(computationalDAO).updateStatusForComputationalResource(USER, EXPLORATORY_NAME, "compName", RUNNING);
+		verify(computationalDAO).updateStatusForComputationalResource(USER, null, EXPLORATORY_NAME, "compName", RUNNING);
 		verifyNoMoreInteractions(computationalDAO);
 		verifyZeroInteractions(exploratoryDAO);
 	}
 
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
-	}
-
-	private UserInstanceDTO getUserInstance() {
-		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME);
 	}
 
 	private ReuploadKeyStatusDTO getReuploadKeyStatusDTO(ResourceData resource, ReuploadKeyStatus status) {
