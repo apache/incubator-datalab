@@ -21,7 +21,6 @@
 
 locals {
  shared_bucket_name = "${var.service_base_name}-${var.endpoint_id}-shared-bucket"
- additional_tag  = split(":", var.additional_tag)
 }
 
 resource "random_string" "shared_bucket_service_name" {
