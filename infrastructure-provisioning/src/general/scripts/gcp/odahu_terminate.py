@@ -64,8 +64,8 @@ if __name__ == "__main__":
     odahu_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
     odahu_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(odahu_conf['service_base_name'],
                                                                 odahu_conf['project_name'])
-    odahu_conf['grafana_admin'] = os.environ['odahu_grafana_admin']
-    odahu_conf['grafana_pass'] = id_generator()
+    odahu_conf['grafana_admin'] = os.environ['grafana_admin']
+    odahu_conf['grafana_pass'] = os.environ['grafana_pass']
     odahu_conf['initial_node_count'] = os.environ['odahu_initial_node_count']
     odahu_conf['istio_helm_repo'] = os.environ['odahu_istio_helm_repo']
     odahu_conf['helm_repo'] = os.environ['odahu_helm_repo']
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     odahu_conf['oauth_oidc_host'] = os.environ['odahu_oauth_oidc_host']
     odahu_conf['oauth_client_id'] = os.environ['keycloak_client_name']
     odahu_conf['oauth_client_secret'] = os.environ['keycloak_client_secret']
-    odahu_conf['oauth_cookie_secret'] = base64.b64encode(id_generator(16))
+    odahu_conf['oauth_cookie_secret'] = os.environ['oauth_cookie_secret']
     odahu_conf['odahu_infra_version'] = os.environ['odahu_infra_version']
     odahu_conf['odahuflow_version'] = os.environ['odahu_odahuflow_version']
     odahu_conf['mlflow_toolchain_version'] = os.environ['odahu_mlflow_toolchain_version']
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     odahu_conf['tls_key'] = base64.b64decode(os.environ['odahu_tls_key'] + "==")
     odahu_conf['ssh_key'] = os.environ['ssh_key']
     odahu_conf['dns_project_id'] = os.environ['odahu_dns_project_id']
-    odahu_conf['decrypt_token'] = id_generator()
+    odahu_conf['decrypt_token'] = os.environ['odahuflow_connection_decrypt_token']
     odahu_conf['infra_vpc_peering'] = os.environ['odahu_infra_vpc_peering']
 
     print('Preparing parameters file')
