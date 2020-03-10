@@ -20,6 +20,7 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.domain.OdahuDTO;
+import com.epam.dlab.backendapi.domain.OdahuFieldsDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.odahu.OdahuResult;
 
@@ -28,6 +29,8 @@ import java.util.Optional;
 
 public interface OdahuDAO {
     Optional<OdahuDTO> getByProjectEndpoint(String project, String endpoint);
+
+    OdahuFieldsDTO getFields(String name, String project, String endpoint);
 
     List<OdahuDTO> findOdahuClusters();
 

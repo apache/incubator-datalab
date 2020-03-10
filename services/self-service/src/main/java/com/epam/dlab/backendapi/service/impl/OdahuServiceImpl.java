@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.dao.OdahuDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
 import com.epam.dlab.backendapi.domain.OdahuDTO;
+import com.epam.dlab.backendapi.domain.OdahuFieldsDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EndpointService;
@@ -155,10 +156,11 @@ public class OdahuServiceImpl implements OdahuService {
         String url = null;
         EndpointDTO endpointDTO = endpointService.get(endpoint);
         try {
+            OdahuFieldsDTO fields = odahuDAO.getFields(name, project, endpoint);
             url = endpointDTO.getUrl() + uri;
             String uuid =
                     provisioningService.post(url, user.getAccessToken(),
-                            requestBuilder.newOdahuAction(user, name, project, endpointDTO), String.class);
+                            requestBuilder.newOdahuAction(user, name, project, endpointDTO, fields), String.class);
             requestId.put(user.getName(), uuid);
         } catch (Exception e) {
             log.error("Can not perform {} due to: {}, {}", url, e.getMessage(), e);
