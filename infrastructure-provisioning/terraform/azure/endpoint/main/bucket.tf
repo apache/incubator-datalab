@@ -24,8 +24,9 @@ locals {
 }
 
 resource "random_string" "shared_bucket_service_name" {
-  length = 10
+  length  = 10
   special = false
+  lower   = true
 }
 
 resource "azurerm_storage_account" "shared-endpoint-storage-account" {
