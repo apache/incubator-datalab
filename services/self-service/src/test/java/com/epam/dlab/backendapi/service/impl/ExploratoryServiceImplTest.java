@@ -529,6 +529,7 @@ public class ExploratoryServiceImplTest {
 
 	private StatusEnvBaseDTO getStatusEnvBaseDTOWithStatus(String status) {
 		return new ExploratoryStatusDTO()
+                .withProject(PROJECT)
 				.withUser(USER)
 				.withExploratoryName(EXPLORATORY_NAME)
 				.withStatus(status);
