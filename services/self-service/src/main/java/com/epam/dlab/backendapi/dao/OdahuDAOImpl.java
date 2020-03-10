@@ -20,14 +20,18 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.domain.OdahuDTO;
+import com.epam.dlab.backendapi.domain.OdahuFieldsDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.base.odahu.OdahuResult;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,19 +55,37 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
     private static final String ENDPOINT_FIELD = "endpoint";
     private static final String PROJECT_FIELD = "project";
     private static final String STATUS_FIELD = "status";
+    private static final String GRAFANA_ADMIN_FIELD = "grafana_admin";
+    private static final String GRAFANA_PASSWORD_FIELD = "grafana_pass";
+    private static final String OAUTH_COOKIE_SECRET_FIELD = "oauth_cookie_secret";
+    private static final String DECRYPT_TOKEN_FIELD = "odahuflow_connection_decrypt_token";
     private static final String URLS_FIELD = "urls";
     private static final String COMPUTATIONAL_URL_DESC = "description";
     private static final String COMPUTATIONAL_URL_URL = "url";
 
     @Override
     public Optional<OdahuDTO> getByProjectEndpoint(String project, String endpoint) {
-        Optional<ProjectDTO> one = findOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(project, endpoint),
+        Optional<ProjectDTO> projectDTO = findOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(project, endpoint),
                 fields(include(ODAHU_FIELD), excludeId()),
                 ProjectDTO.class);
 
-        return one.flatMap(projectDTO -> projectDTO.getOdahu().stream()
+        return projectDTO.flatMap(p -> p.getOdahu()
+                .stream()
                 .filter(odahu -> project.equals(odahu.getProject()) && endpoint.equals(odahu.getEndpoint()))
                 .findAny());
+    }
+
+    @Override
+    public OdahuFieldsDTO getFields(String name, String project, String endpoint) {
+        Optional<Document> one = findOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(name, project, endpoint),
+                fields(include(ODAHU_FIELD), excludeId()));
+        OdahuFieldsDTO odahuFields = null;
+        if (one.isPresent()) {
+            List<OdahuFieldsDTO> list = convertFromDocument(one.get().get(ODAHU_FIELD, ArrayList.class), new TypeReference<List<OdahuFieldsDTO>>() {
+            });
+            odahuFields = list.get(0);
+        }
+        return odahuFields;
     }
 
     @Override
@@ -92,13 +114,20 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
     }
 
     @Override
-    public void updateStatusAndUrls(String name, String project, String endpoint, List<ResourceURL> urls,
-                                    UserInstanceStatus status) {
+    public void updateStatusAndUrls(OdahuResult result, UserInstanceStatus status) {
         BasicDBObject dbObject = new BasicDBObject();
         dbObject.put(ODAHU_FIELD + ".$." + STATUS_FIELD, status.name());
-        dbObject.put(ODAHU_FIELD + ".$." + URLS_FIELD, getResourceUrlData(urls));
-        updateOne(PROJECTS_COLLECTION, and(elemMatch(ODAHU_FIELD, eq(NAME_FIELD, name)),
-                odahuProjectEndpointCondition(project, endpoint)), new Document(SET, dbObject));
+        dbObject.put(ODAHU_FIELD + ".$." + URLS_FIELD, getResourceUrlData(result.getResourceUrls()));
+        dbObject.put(ODAHU_FIELD + ".$." + GRAFANA_ADMIN_FIELD, result.getGrafanaAdmin());
+        dbObject.put(ODAHU_FIELD + ".$." + GRAFANA_PASSWORD_FIELD, result.getGrafanaPassword());
+        dbObject.put(ODAHU_FIELD + ".$." + OAUTH_COOKIE_SECRET_FIELD, result.getOauthCookieSecret());
+        dbObject.put(ODAHU_FIELD + ".$." + DECRYPT_TOKEN_FIELD, result.getDecryptToken());
+        updateOne(PROJECTS_COLLECTION, odahuProjectEndpointCondition(result.getName(), result.getProjectName(), result.getEndpointName()),
+                new Document(SET, dbObject));
+    }
+
+    private Bson odahuProjectEndpointCondition(String name, String projectName, String endpointName) {
+        return and(elemMatch(ODAHU_FIELD, eq(NAME_FIELD, name)), odahuProjectEndpointCondition(projectName, endpointName));
     }
 
     private Bson odahuProjectEndpointCondition(String projectName, String endpointName) {

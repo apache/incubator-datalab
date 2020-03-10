@@ -17,22 +17,15 @@
  * under the License.
  */
 
-package com.epam.dlab.dto.odahu;
+package com.epam.dlab.backendapi.domain;
 
-import com.epam.dlab.dto.ResourceBaseDTO;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
-public class ActionOdahuDTO extends ResourceBaseDTO<ActionOdahuDTO> {
-    @JsonProperty("odahu_cluster_name")
-    private final String name;
-    @JsonProperty("project_name")
-    private final String project;
-    @JsonProperty("endpoint_name")
-    private final String endpoint;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OdahuFieldsDTO {
     @JsonProperty("grafana_admin")
     private String grafanaAdmin;
     @JsonProperty("grafana_pass")

@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
+import com.epam.dlab.backendapi.domain.OdahuFieldsDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
@@ -633,11 +634,16 @@ public class RequestBuilder {
 				.withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));
 	}
 
-	public ActionOdahuDTO newOdahuAction(UserInfo user, String name, String project, EndpointDTO endpointDTO) {
+	public ActionOdahuDTO newOdahuAction(UserInfo user, String name, String project, EndpointDTO endpointDTO,
+										 OdahuFieldsDTO odahuFields) {
 		return ActionOdahuDTO.builder()
 				.name(name)
 				.project(project)
 				.endpoint(endpointDTO.getName())
+				.grafanaAdmin(odahuFields.getGrafanaAdmin())
+				.grafanaPassword(odahuFields.getGrafanaPassword())
+				.oauthCookieSecret(odahuFields.getOauthCookieSecret())
+				.decryptToken(odahuFields.getDecryptToken())
 				.build()
 				.withEdgeUserName(getEdgeUserName(user, endpointDTO.getCloudProvider()))
 				.withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));

@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.dao.OdahuDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
 import com.epam.dlab.backendapi.domain.OdahuDTO;
+import com.epam.dlab.backendapi.domain.OdahuFieldsDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EndpointService;
@@ -35,6 +36,7 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.odahu.OdahuResult;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -130,15 +132,20 @@ public class OdahuServiceImpl implements OdahuService {
 
     @Override
     public void terminate(String name, String project, String endpoint, UserInfo user) {
-        odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.TERMINATING);
-        actionOnCloud(user, TERMINATE_ODAHU_API, name, project, endpoint);
+        Optional<OdahuDTO> odahuDTO = get(project, endpoint);
+        if (odahuDTO.isPresent() && UserInstanceStatus.RUNNING == odahuDTO.get().getStatus()) {
+            odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.TERMINATING);
+            actionOnCloud(user, TERMINATE_ODAHU_API, name, project, endpoint);
+        } else {
+            log.error("Cannot terminate odahu cluster {}", odahuDTO);
+            throw new DlabException(String.format("Cannot terminate odahu cluster %s", odahuDTO));
+        }
     }
 
     @Override
     public void updateStatus(OdahuResult result, UserInstanceStatus status) {
         if (Objects.nonNull(result.getResourceUrls()) && !result.getResourceUrls().isEmpty()) {
-            odahuDAO.updateStatusAndUrls(result.getName(), result.getProjectName(), result.getEndpointName(),
-                    result.getResourceUrls(), status);
+            odahuDAO.updateStatusAndUrls(result, status);
         } else {
             odahuDAO.updateStatus(result.getName(), result.getProjectName(), result.getEndpointName(), status);
         }
@@ -156,10 +163,11 @@ public class OdahuServiceImpl implements OdahuService {
         String url = null;
         EndpointDTO endpointDTO = endpointService.get(endpoint);
         try {
+            OdahuFieldsDTO fields = odahuDAO.getFields(name, project, endpoint);
             url = endpointDTO.getUrl() + uri;
             String uuid =
                     provisioningService.post(url, user.getAccessToken(),
-                            requestBuilder.newOdahuAction(user, name, project, endpointDTO), String.class);
+                            requestBuilder.newOdahuAction(user, name, project, endpointDTO, fields), String.class);
             requestId.put(user.getName(), uuid);
         } catch (Exception e) {
             log.error("Can not perform {} due to: {}, {}", url, e.getMessage(), e);
