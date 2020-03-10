@@ -229,7 +229,7 @@
                 </li>
                 <li class="project-seting-item"
                     [ngClass]="{'disabled': element.status === 'stopped' || element.status.toLowerCase() === 'stopping' || element.status.toLowerCase() === 'starting'}"
-                    *ngIf="element.status === element.status !== 'TERMINATED' && element.status !== 'TERMINATING'" (click)="odahuAction(element, 'terminate')"
+                    *ngIf="element.status === element.status !== 'terminated' && element.status !== 'terminating'" (click)="odahuAction(element, 'terminate')"
                 >
                   <i class="material-icons">phonelink_off</i>
                   <a class="action">
