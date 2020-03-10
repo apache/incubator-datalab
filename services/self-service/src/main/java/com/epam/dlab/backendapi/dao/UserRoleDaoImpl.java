@@ -55,6 +55,7 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	private static final String USERS_FIELD = "users";
 	private static final String GROUPS_FIELD = "groups";
 	private static final String DESCRIPTION = "description";
+	private static final String TYPE = "type";
 	private static final String ROLES = "roles";
 	private static final String GROUPS = "$groups";
 	private static final String GROUP = "group";
@@ -169,6 +170,7 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	private Document roleDocument() {
 		return new Document().append(ID, "$" + ID)
 				.append(DESCRIPTION, "$" + DESCRIPTION)
+				.append(TYPE, "$" + TYPE)
 				.append(USERS_FIELD, "$" + USERS_FIELD)
 				.append(EXPLORATORY_SHAPES_FIELD, "$" + EXPLORATORY_SHAPES_FIELD)
 				.append(PAGES_FIELD, "$" + PAGES_FIELD)

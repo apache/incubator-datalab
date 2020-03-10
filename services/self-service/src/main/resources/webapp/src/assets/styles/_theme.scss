@@ -656,3 +656,9 @@ mat-progress-bar {
     background-color: #baf0f7;
   }
 }
+.manage-roles{
+  .mat-horizontal-content-container{
+    overflow: visible !important;
+  }
+}
+
