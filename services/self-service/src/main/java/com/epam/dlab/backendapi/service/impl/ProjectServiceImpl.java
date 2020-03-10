@@ -6,7 +6,12 @@ import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
-import com.epam.dlab.backendapi.domain.*;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.dlab.backendapi.domain.ProjectManagingDTO;
+import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.OdahuService;
@@ -21,7 +26,11 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -115,6 +124,7 @@ public class ProjectServiceImpl implements ProjectService {
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
 		exploratoryService.updateProjectExploratoryStatuses(name, endpoint, UserInstanceStatus.TERMINATING);
 		odahuService.get(name, endpoint)
+				.filter(o -> UserInstanceStatus.RUNNING == o.getStatus())
 				.ifPresent(odahu -> odahuService.terminate(odahu.getName(), name, endpoint, userInfo));
 	}
 

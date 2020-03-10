@@ -36,6 +36,7 @@ import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.odahu.OdahuResult;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -131,8 +132,14 @@ public class OdahuServiceImpl implements OdahuService {
 
     @Override
     public void terminate(String name, String project, String endpoint, UserInfo user) {
-        odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.TERMINATING);
-        actionOnCloud(user, TERMINATE_ODAHU_API, name, project, endpoint);
+        Optional<OdahuDTO> odahuDTO = get(project, endpoint);
+        if (odahuDTO.isPresent() && UserInstanceStatus.RUNNING == odahuDTO.get().getStatus()) {
+            odahuDAO.updateStatus(name, project, endpoint, UserInstanceStatus.TERMINATING);
+            actionOnCloud(user, TERMINATE_ODAHU_API, name, project, endpoint);
+        } else {
+            log.error("Cannot terminate odahu cluster {}", odahuDTO);
+            throw new DlabException(String.format("Cannot terminate odahu cluster %s", odahuDTO));
+        }
     }
 
     @Override
