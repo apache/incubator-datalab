@@ -26,7 +26,6 @@ import { Input, Output, Component, EventEmitter } from '@angular/core';
 })
 
 export class MultiLevelSelectDropdownComponent {
-  isOpen: boolean = false;
 
   @Input() items: Array<any>;
   @Input() model: Array<any>;
@@ -36,30 +35,31 @@ export class MultiLevelSelectDropdownComponent {
   public isOpenCategory = {
   };
 
+  public labels = {
+    COMPUTATIONAL_SHAPE: 'Compute shapes',
+    NOTEBOOK_SHAPE: 'Notebook shape'
+  };
+
   toggleSelectedOptions($event, model, value) {
     $event.preventDefault();
-    const currRole = this.model.filter(v => v.role === value.role).length;
+    const currRole = model.filter(v => v.role === value.role).length;
     currRole ? this.model = model.filter(v => v.role !== value.role) : model.push(value);
-
     this.onUpdate($event);
-
-    $event.preventDefault();
   }
 
   toggleselectedCategory($event, model, value) {
     $event.preventDefault();
-    const categoryItems = this.items.filter(role => role.label === value);
-    this.selectedAllInCattegory(value) ? this.model = this.model.filter(role => role.label !== value) : categoryItems.forEach(role => {
-      if (!model.includes(role)) {model.push(role); }
+    const categoryItems = this.items.filter(role => role.type === value);
+    this.selectedAllInCattegory(value) ? this.model = this.model.filter(role => role.type !== value) : categoryItems.forEach(role => {
+      if (!model.filter(mod => mod.role === role.role).length) {this.model.push(role); }
     });
     this.onUpdate($event);
   }
 
   selectAllOptions($event) {
-    $event.preventDefault();
-    this.model = [];
-    this.items.forEach((item) => { this.model.push(item); });
 
+    $event.preventDefault();
+    this.model = [...this.items];
     this.onUpdate($event);
     $event.preventDefault();
   }
@@ -71,7 +71,7 @@ export class MultiLevelSelectDropdownComponent {
   }
 
   onUpdate($event): void {
-    this.selectionChange.emit({ model: this.model.map(v => v.role), type: this.type, $event });
+    this.selectionChange.emit({ model: this.model, type: this.type, $event });
   }
 
   public toggleItemsForLable(label, $event) {
@@ -80,14 +80,14 @@ export class MultiLevelSelectDropdownComponent {
   }
 
   public selectedAllInCattegory(category) {
-    const selected = this.model.filter(role => role.label === category);
-    const categoryItems = this.items.filter(role => role.label === category);
+    const selected = this.model.filter(role => role.type === category);
+    const categoryItems = this.items.filter(role => role.type === category);
     return selected.length === categoryItems.length;
   }
 
   public selectedSomeInCattegory(category) {
-    const selected = this.model.filter(role => role.label === category);
-    const categoryItems = this.items.filter(role => role.label === category);
+    const selected = this.model.filter(role => role.type === category);
+    const categoryItems = this.items.filter(role => role.type === category);
     return selected.length && selected.length !== categoryItems.length;
   }
 

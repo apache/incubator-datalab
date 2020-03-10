@@ -41,7 +41,7 @@ export class RolesComponent implements OnInit {
   public setupGroup: string = '';
   public setupUser: string = '';
   public manageUser: string = '';
-  public setupRoles: Array<string> = [];
+  public setupRoles: Array<any> = [];
   public updatedRoles: Array<string> = [];
   public healthStatus: any;
   public delimitersRegex = /[-_]?/g;
@@ -71,13 +71,7 @@ export class RolesComponent implements OnInit {
         (roles: any) => {
           this.roles = roles;
           this.rolesList = roles.map((role, index) => {
-            if (index < 10) {
-              return {role: role.description, label: 'templetes'};
-            } else if (index > 9 && index < 20) {
-              return {role: role.description, label: 'Inctance shapes'};
-            } else {
-              return {role: role.description, label: 'Resource'};
-            }
+              return {role: role.description, type: role.type};
           });
 
           this.updateGroupData(groups);
@@ -110,7 +104,7 @@ export class RolesComponent implements OnInit {
           action, type, value: {
             name: this.setupGroup,
             users: this.setupUser ? this.setupUser.split(',').map(elem => elem.trim()) : [],
-            roleIds: this.extractIds(this.roles, this.setupRoles)
+            roleIds: this.extractIds(this.roles, this.setupRoles.map(v => v.role))
           }
         });
       this.stepperView = false;
@@ -133,7 +127,7 @@ export class RolesComponent implements OnInit {
       this.manageRolesGroups({
         action, type, value: {
           name: item.group,
-          roleIds: this.extractIds(this.roles, item.selected_roles),
+          roleIds: this.extractIds(this.roles, item.selected_roles.map(v => v.role)),
           users: item.users || []
         }
       });
@@ -183,7 +177,7 @@ export class RolesComponent implements OnInit {
   public updateGroupData(groups) {
     this.groupsData = groups.map(v => v).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
-      item.selected_roles = item.roles.map(role => role.description);
+      item.selected_roles = item.roles.map(role => ({role: role.description, type: role.type}));
     });
   }
 
@@ -199,10 +193,6 @@ export class RolesComponent implements OnInit {
 
       return null;
     });
-  }
-
-  public compareObjects(o1: any, o2: any): boolean {
-    return o1.toLowerCase() === o2.toLowerCase();
   }
 
   public resetDialog() {
@@ -230,7 +220,11 @@ export class RolesComponent implements OnInit {
   }
 
   public onUpdate($event): void {
-    this.groupsData.filter(group => group.group === $event.type)[0].selected_roles = $event.model;
+   if ($event.type) {
+     this.groupsData.filter(group => group.group === $event.type)[0].selected_roles = $event.model;
+   } else {
+     this.setupRoles = $event.model;
+   }
   }
 }
 
@@ -254,6 +248,7 @@ export class RolesComponent implements OnInit {
   `,
   styles: [`.group-name { max-width: 96%; display: inline-block; vertical-align: bottom; }`]
 })
+
 export class ConfirmDeleteUserAccountDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ConfirmDeleteUserAccountDialogComponent>,
