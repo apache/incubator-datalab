@@ -20,8 +20,8 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.domain.OdahuDTO;
-import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.base.odahu.OdahuResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,5 +35,5 @@ public interface OdahuDAO {
 
     void updateStatus(String name, String project, String endpoint, UserInstanceStatus status);
 
-    void updateStatusAndUrls(String name, String project, String endpoint, List<ResourceURL> urls, UserInstanceStatus status);
+    void updateStatusAndUrls(OdahuResult result, UserInstanceStatus status);
 }

@@ -137,8 +137,7 @@ public class OdahuServiceImpl implements OdahuService {
     @Override
     public void updateStatus(OdahuResult result, UserInstanceStatus status) {
         if (Objects.nonNull(result.getResourceUrls()) && !result.getResourceUrls().isEmpty()) {
-            odahuDAO.updateStatusAndUrls(result.getName(), result.getProjectName(), result.getEndpointName(),
-                    result.getResourceUrls(), status);
+            odahuDAO.updateStatusAndUrls(result, status);
         } else {
             odahuDAO.updateStatus(result.getName(), result.getProjectName(), result.getEndpointName(), status);
         }

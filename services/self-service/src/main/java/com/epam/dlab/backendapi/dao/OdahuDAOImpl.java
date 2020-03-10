@@ -23,6 +23,7 @@ import com.epam.dlab.backendapi.domain.OdahuDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.dto.base.odahu.OdahuResult;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
@@ -51,6 +52,10 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
     private static final String ENDPOINT_FIELD = "endpoint";
     private static final String PROJECT_FIELD = "project";
     private static final String STATUS_FIELD = "status";
+    private static final String GRAFANA_ADMIN_FIELD = "grafana_admin";
+    private static final String GRAFANA_PASSWORD_FIELD = "grafana_pass";
+    private static final String OAUTH_COOKIE_SECRET_FIELD = "oauth_cookie_secret";
+    private static final String DECRYPT_TOKEN_FIELD = "odahuflow_connection_decrypt_token";
     private static final String URLS_FIELD = "urls";
     private static final String COMPUTATIONAL_URL_DESC = "description";
     private static final String COMPUTATIONAL_URL_URL = "url";
@@ -92,13 +97,16 @@ public class OdahuDAOImpl extends BaseDAO implements OdahuDAO {
     }
 
     @Override
-    public void updateStatusAndUrls(String name, String project, String endpoint, List<ResourceURL> urls,
-                                    UserInstanceStatus status) {
+    public void updateStatusAndUrls(OdahuResult result, UserInstanceStatus status) {
         BasicDBObject dbObject = new BasicDBObject();
         dbObject.put(ODAHU_FIELD + ".$." + STATUS_FIELD, status.name());
-        dbObject.put(ODAHU_FIELD + ".$." + URLS_FIELD, getResourceUrlData(urls));
-        updateOne(PROJECTS_COLLECTION, and(elemMatch(ODAHU_FIELD, eq(NAME_FIELD, name)),
-                odahuProjectEndpointCondition(project, endpoint)), new Document(SET, dbObject));
+        dbObject.put(ODAHU_FIELD + ".$." + URLS_FIELD, getResourceUrlData(result.getResourceUrls()));
+        dbObject.put(ODAHU_FIELD + ".$." + GRAFANA_ADMIN_FIELD, result.getGrafanaAdmin());
+        dbObject.put(ODAHU_FIELD + ".$." + GRAFANA_PASSWORD_FIELD, result.getGrafanaPassword());
+        dbObject.put(ODAHU_FIELD + ".$." + OAUTH_COOKIE_SECRET_FIELD, result.getOauthCookieSecret());
+        dbObject.put(ODAHU_FIELD + ".$." + DECRYPT_TOKEN_FIELD, result.getDecryptToken());
+        updateOne(PROJECTS_COLLECTION, and(elemMatch(ODAHU_FIELD, eq(NAME_FIELD, result.getName())),
+                odahuProjectEndpointCondition(result.getProjectName(), result.getEndpointName())), new Document(SET, dbObject));
     }
 
     private Bson odahuProjectEndpointCondition(String projectName, String endpointName) {
