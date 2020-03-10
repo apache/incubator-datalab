@@ -65,7 +65,7 @@ if __name__ == "__main__":
     try:
         if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
             args.hostname = "{}.{}".format(os.environ['project_name'], os.environ['conf_domain_name'])
-            local('touch /home/' + os_user + '/.ensure_dir/domain_name_ensured')
+            local('touch /home/' + args.user + '/.ensure_dir/domain_name_ensured')
         install_nginx_lua(args.hostname, os.environ['reverse_proxy_nginx_version'],
                           os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'],
                           args.keycloak_client_id, args.keycloak_client_secret, args.user, args.hostname,

@@ -233,7 +233,7 @@ if __name__ == "__main__":
 
     if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
         args.hostname = "ssn.{}".format(os.environ['conf_domain_name'])
-        local('touch /home/' + os_user + '/.ensure_dir/domain_name_ensured')
+        local('touch /home/' + args.os_user + '/.ensure_dir/domain_name_ensured')
 
     print("Installing nginx as frontend.")
     ensure_nginx(args.dlab_path)
