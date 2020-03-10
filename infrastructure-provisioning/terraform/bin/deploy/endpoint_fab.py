@@ -672,6 +672,10 @@ def configure_billing_endpoint(endpoint_keystore_password):
             elif args.cloud_provider == 'gcp':
                 billing_properties = [
                     {
+                        'key': "SERVICE_BASE_NAME",
+                        'value': args.service_base_name
+                    },
+                    {
                         'key': "OS_USER",
                         'value': args.os_user
                     },
@@ -688,7 +692,7 @@ def configure_billing_endpoint(endpoint_keystore_password):
                         'value': args.mongo_host
                     },
                     {
-                        'key': "KEYSTORE_PASSWORD",
+                        'key': "KEY_STORE_PASSWORD",
                         'value': endpoint_keystore_password
                     },
                     {

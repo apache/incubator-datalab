@@ -159,3 +159,5 @@ variable "billing_enable" {}
 variable "billing_dataset_name" {}
 
 variable "mongo_password" {}
+
+variable "mongo_host" {}
