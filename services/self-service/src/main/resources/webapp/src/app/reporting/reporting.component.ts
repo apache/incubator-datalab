@@ -79,7 +79,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.getBillingProvider();
+    this.getEnvironmentHealthStatus();
   }
 
   ngOnDestroy() {
@@ -87,18 +87,29 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getBillingProvider() {
-    this.getEnvironmentHealthStatus();
-    this.endpointService.getEndpointsData().subscribe(list => {
-      // @ts-ignore
-      const endpoints = [...list];
-      const localEndpoint = endpoints.filter(endpoint => endpoint.name === 'local');
-      if (localEndpoint.length) {
-        this.PROVIDER = localEndpoint[0].cloudProvider.toLowerCase();
+    if (this.admin) {
+      this.endpointService.getEndpointsData().subscribe(list => {
+        const endpoints = JSON.parse(JSON.stringify(list));
+        const localEndpoint = endpoints.filter(endpoint => endpoint.name === 'local');
+        if (localEndpoint.length) {
+          this.PROVIDER = localEndpoint[0].cloudProvider.toLowerCase();
+          console.log(this.PROVIDER);
+          if (this.PROVIDER) {
+            this.rebuildBillingReport();
+          }
+        }
+      }, e => {
+        this.PROVIDER = 'azure';
         if (this.PROVIDER) {
-              this.rebuildBillingReport();
-            }
+          this.rebuildBillingReport();
+        }
+      }) ;
+    } else {
+      this.PROVIDER = 'azure';
+      if (this.PROVIDER) {
+        this.rebuildBillingReport();
       }
-    });
+    }
   }
 
   getGeneralBillingData() {
@@ -215,6 +226,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
       .subscribe((result: any) => {
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
+        this.getBillingProvider();
       });
   }
 }

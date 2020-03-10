@@ -268,7 +268,7 @@ mat-dialog-container {
     }
   }
 
-  span {
+  span:not(.description) {
     font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -333,6 +333,12 @@ mat-dialog-container {
 
 .mat-step-icon-state-number .mat-step-icon-content{
   top: 49%;
+}
+
+.confirmation-dialog p.delete-user{
+  font-weight: 500;
+  max-height: 200px;
+  overflow: auto;
 }
 
 @media screen and (max-width: 1280px) {

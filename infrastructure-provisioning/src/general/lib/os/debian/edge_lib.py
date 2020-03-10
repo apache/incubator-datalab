@@ -25,12 +25,13 @@ import os
 import sys
 from fabric.api import *
 from fabric.contrib.files import exists
+from dlab.common_lib import manage_pkg
 
 
 def configure_http_proxy_server(config):
     try:
         if not exists('/tmp/http_proxy_ensured'):
-            sudo('apt-get -y install squid')
+            manage_pkg('-y install', 'remote', 'squid')
             template_file = config['template_file']
             proxy_subnet = config['exploratory_subnet']
             put(template_file, '/tmp/squid.conf')
@@ -62,8 +63,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                       keycloak_client_secret, user, hostname, step_cert_sans):
     try:
         if not os.path.exists('/tmp/nginx_installed'):
-            sudo('apt-get install -y wget')
-            sudo('apt-get -y install gcc build-essential make automake zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev libc6-dev libgd-dev libgeoip-dev libpcre3-dev apt-utils autoconf liblmdb-dev libtool libxml2-dev libyajl-dev pkgconf liblua5.1-0 liblua5.1-0-dev libreadline-dev libreadline6-dev libtinfo-dev libtool-bin lua5.1 zip readline-doc')
+            manage_pkg('-y install', 'remote', 'wget')
+            manage_pkg('-y install', 'remote', 'gcc build-essential make automake zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev libc6-dev libgd-dev libgeoip-dev libpcre3-dev apt-utils autoconf liblmdb-dev libtool libxml2-dev libyajl-dev pkgconf liblua5.1-0 liblua5.1-0-dev libreadline-dev libreadline6-dev libtinfo-dev libtool-bin lua5.1 zip readline-doc')
             if os.environ['conf_stepcerts_enabled'] == 'true':
                 sudo('mkdir -p /home/{0}/keys'.format(user))
                 sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(

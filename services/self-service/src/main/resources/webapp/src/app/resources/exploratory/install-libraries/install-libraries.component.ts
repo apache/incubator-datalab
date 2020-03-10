@@ -101,10 +101,11 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     clearTimeout(this.loadLibsTimer);
+    clearTimeout(this.clear);
   }
 
   uploadLibGroups(): void {
-    this.librariesInstallationService.getGroupsList(this.notebook.name, this.model.computational_name)
+    this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
       .subscribe(
         response => {
           this.libsUploadingStatus(response);
@@ -268,7 +269,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   private getInstalledLibsByResource() {
-    this.librariesInstallationService.getInstalledLibsByResource(this.notebook.name, this.model.computational_name)
+    this.librariesInstallationService.getInstalledLibsByResource(this.notebook.project, this.notebook.name, this.model.computational_name)
       .subscribe((data: any) => this.destination.libs = data);
   }
 
@@ -325,6 +326,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
     this.libSearch.disable();
     clearTimeout(this.clear);
+    clearTimeout(this.loadLibsTimer);
     this.selectorsReset();
   }
 

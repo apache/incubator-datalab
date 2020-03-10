@@ -96,8 +96,9 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
 	@Override
 	protected ComputationalStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
 		return super.getBaseStatusDTO(status)
-				.withExploratoryName(dto.getExploratoryName())
-				.withComputationalName(dto.getComputationalName());
+                .withExploratoryName(dto.getExploratoryName())
+                .withComputationalName(dto.getComputationalName())
+                .withProject(dto.getProject());
 	}
 
 	private String instanceId(JsonNode jsonNode) {

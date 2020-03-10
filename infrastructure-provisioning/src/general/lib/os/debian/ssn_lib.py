@@ -30,6 +30,7 @@ import os
 import json
 import traceback
 import sys
+from dlab.common_lib import manage_pkg
 
 
 def ensure_docker_daemon(dlab_path, os_user, region):
@@ -39,9 +40,9 @@ def ensure_docker_daemon(dlab_path, os_user, region):
             sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
             sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
                   stable"')
-            sudo('apt-get update')
+            manage_pkg('update', 'remote', '')
             sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
+            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
             sudo('usermod -a -G docker ' + os_user)
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')
@@ -54,7 +55,7 @@ def ensure_docker_daemon(dlab_path, os_user, region):
 def ensure_nginx(dlab_path):
     try:
         if not exists(dlab_path + 'tmp/nginx_ensured'):
-            sudo('apt-get -y install nginx')
+            manage_pkg('-y install', 'remote', 'nginx')
             sudo('service nginx restart')
             sudo('update-rc.d nginx defaults')
             sudo('update-rc.d nginx enable')
@@ -70,8 +71,8 @@ def ensure_jenkins(dlab_path):
         if not exists(dlab_path + 'tmp/jenkins_ensured'):
             sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -')
             sudo('echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list')
-            sudo('apt-get -y update')
-            sudo('apt-get -y install jenkins')
+            manage_pkg('-y update', 'remote', '')
+            manage_pkg('-y install', 'remote', 'jenkins')
             sudo('touch ' + dlab_path + 'tmp/jenkins_ensured')
     except Exception as err:
         traceback.print_exc()
@@ -104,10 +105,14 @@ def configure_nginx(config, dlab_path, hostname):
     try:
         random_file_part = id_generator(size=20)
         if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
+            sudo('useradd -r nginx')
             sudo('rm -f /etc/nginx/conf.d/*')
+            put(config['nginx_template_dir'] + 'ssn_nginx.conf', '/tmp/nginx.conf')
             put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
             sudo("sed -i 's|SSN_HOSTNAME|" + hostname + "|' /tmp/nginx_proxy.conf")
+            sudo('mv /tmp/nginx.conf ' + dlab_path + 'tmp/')
             sudo('mv /tmp/nginx_proxy.conf ' + dlab_path + 'tmp/')
+            sudo('\cp ' + dlab_path + 'tmp/nginx.conf /etc/nginx/')
             sudo('\cp ' + dlab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
             sudo('mkdir -p /etc/nginx/locations')
             sudo('rm -f /etc/nginx/sites-enabled/default')
@@ -143,7 +148,7 @@ def configure_nginx(config, dlab_path, hostname):
 def ensure_supervisor():
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/superv_ensured'):
-            sudo('apt-get -y install supervisor')
+            manage_pkg('-y install', 'remote', 'supervisor')
             sudo('update-rc.d supervisor defaults')
             sudo('update-rc.d supervisor enable')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/superv_ensured')
@@ -158,7 +163,7 @@ def ensure_mongo():
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured'):
             sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
             sudo('ver=`lsb_release -cs`; echo "deb http://repo.mongodb.org/apt/ubuntu $ver/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; apt-get update')
-            sudo('apt-get -y --allow-unauthenticated install mongodb-org')
+            manage_pkg('-y --allow-unauthenticated install', 'remote', 'mongodb-org')
             sudo('systemctl enable mongod.service')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured')
     except Exception as err:
@@ -345,14 +350,14 @@ def install_build_dep():
     try:
         if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path'])):
             maven_version = '3.5.4'
-            sudo('apt-get install -y openjdk-8-jdk git wget unzip')
+            manage_pkg('-y install', 'remote', 'openjdk-8-jdk git wget unzip')
             with cd('/opt/'):
                 sudo('wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
                     maven_version.split('.')[0], maven_version))
                 sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
             sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_12.x | bash -"')
-            sudo('apt-get install -y nodejs')
+            manage_pkg('-y install', 'remote', 'nodejs')
             sudo('npm config set unsafe-perm=true')
             sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path']))
     except Exception as err:

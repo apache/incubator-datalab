@@ -24,10 +24,11 @@ import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -57,64 +58,5 @@ public class EnvironmentResource {
 	public Response getAllEnv(@Auth UserInfo userInfo) {
 		log.debug("Admin {} requested information about all user's environment", userInfo.getName());
 		return Response.ok(environmentService.getAllEnv()).build();
-	}
-
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("stop")
-	public Response stopEnv(@Auth UserInfo userInfo,
-							@NotEmpty String user) {
-		log.info("User {} is stopping {} environment", userInfo.getName(), user);
-		environmentService.stopEnvironment(userInfo, user);
-		return Response.ok().build();
-	}
-
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("stop/{exploratoryName}")
-	public Response stopNotebook(@Auth UserInfo userInfo, @NotEmpty String user,
-								 @PathParam("exploratoryName") String exploratoryName) {
-		log.info("Admin {} is stopping notebook {} of user {}", userInfo.getName(), exploratoryName, user);
-		environmentService.stopExploratory(userInfo, user, exploratoryName);
-		return Response.ok().build();
-	}
-
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("stop/{exploratoryName}/{computationalName}")
-	public Response stopCluster(@Auth UserInfo userInfo, @NotEmpty String user,
-								@PathParam("exploratoryName") String exploratoryName,
-								@PathParam("computationalName") String computationalName) {
-		log.info("Admin {} is stopping computational resource {} affiliated with exploratory {} of user {}",
-				userInfo.getName(), computationalName, exploratoryName, user);
-		environmentService.stopComputational(userInfo, user, exploratoryName, computationalName);
-		return Response.ok().build();
-	}
-
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("terminate/{exploratoryName}")
-	public Response terminateNotebook(@Auth UserInfo userInfo, @NotEmpty String user,
-									  @PathParam("exploratoryName") String exploratoryName) {
-		log.info("Admin {} is terminating notebook {} of user {}", userInfo.getName(), exploratoryName, user);
-		environmentService.terminateExploratory(userInfo, user, exploratoryName);
-		return Response.ok().build();
-	}
-
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("terminate/{exploratoryName}/{computationalName}")
-	public Response terminateCluster(@Auth UserInfo userInfo, @NotEmpty String user,
-									 @PathParam("exploratoryName") String exploratoryName,
-									 @PathParam("computationalName") String computationalName) {
-		log.info("Admin {} is terminating computational resource {} affiliated with exploratory {} of user {}",
-				userInfo.getName(), computationalName, exploratoryName, user);
-		environmentService.terminateComputational(userInfo, user, exploratoryName, computationalName);
-		return Response.ok().build();
 	}
 }

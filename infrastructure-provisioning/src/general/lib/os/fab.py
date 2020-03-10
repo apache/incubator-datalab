@@ -32,6 +32,7 @@ from dlab.actions_lib import *
 import dlab.actions_lib
 import re
 import traceback
+from dlab.common_lib import *
 
 
 def ensure_pip(requisites):
@@ -200,9 +201,9 @@ def configure_docker(os_user):
             sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
             sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
                   stable"')
-            sudo('apt-get update')
+            manage_pkg('update', 'remote', '')
             sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
+            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))
@@ -501,7 +502,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
 def install_ungit(os_user, notebook_name, edge_ip):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
-            sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
+            manage_npm_pkg('-g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
             http_proxy = run('echo $http_proxy')
@@ -866,4 +867,27 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
             sudo('touch /tmp/superset-notebook_installed')
     except Exception as err:
         print("Failed configure superset: " + str(err))
+        sys.exit(1)
+
+def manage_npm_pkg(command):
+    try:
+        npm_count = 0
+        installed = False
+        npm_registry = ['https://registry.npmjs.org/', 'https://registry.npmjs.com/']
+        while not installed:
+            if npm_count > 60:
+                print("NPM registry is not available, please try later")
+                sys.exit(1)
+            else:
+                try:
+                    if npm_count % 2 == 0:
+                        sudo('npm config set registry {}'.format(npm_registry[0]))
+                    else:
+                        sudo('npm config set registry {}'.format(npm_registry[1]))
+                    sudo('npm {}'.format(command))
+                    installed = True
+                except:
+                    npm_count += 1
+                    time.sleep(50)
+    except:
         sys.exit(1)

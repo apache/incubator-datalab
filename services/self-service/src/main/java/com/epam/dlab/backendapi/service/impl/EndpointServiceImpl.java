@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Slf4j
 public class EndpointServiceImpl implements EndpointService {
 	private static final String HEALTH_CHECK = "healthcheck";

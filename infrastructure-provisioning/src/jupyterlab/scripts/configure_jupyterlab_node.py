@@ -95,13 +95,6 @@ if __name__ == "__main__":
     print("Mount additional volume")
     prepare_disk(args.os_user)
 
-    # INSTALL LANGUAGES
-    print("Install Java")
-    ensure_jre_jdk(args.os_user)
-    if os.environ['notebook_r_enabled'] == 'true':
-        print("Installing R")
-        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
-
     # INSTALL DOCKER
     print ("Install Docker")
     configure_docker(args.os_user)

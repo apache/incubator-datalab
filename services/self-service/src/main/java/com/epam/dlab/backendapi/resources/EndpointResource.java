@@ -35,6 +35,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -70,7 +71,7 @@ public class EndpointResource {
 	})
 	@Consumes(MediaType.APPLICATION_JSON)
 	@POST
-	public Response createEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo, EndpointDTO endpointDTO) {
+	public Response createEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo, @Valid EndpointDTO endpointDTO) {
 		endpointService.create(userInfo, endpointDTO);
 		final URI uri = uriInfo.getRequestUriBuilder().path(endpointDTO.getName()).build();
 		return Response

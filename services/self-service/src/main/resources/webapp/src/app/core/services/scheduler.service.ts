@@ -29,8 +29,8 @@ import { ScheduleSchema } from '../../resources/scheduler/scheduler.model';
 export class SchedulerService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
-  public getExploratorySchedule(notebook, resource?): Observable<{}> {
-    const param = resource ? `/${notebook}/${resource}` : `/${notebook}`;
+  public getExploratorySchedule(project, notebook, resource?): Observable<{}> {
+    const param = resource ? `/${project}/${notebook}/${resource}` : `/${project}/${notebook}`;
     return this.applicationServiceFacade
       .buildGetExploratorySchedule(param)
       .pipe(
@@ -38,8 +38,8 @@ export class SchedulerService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public setExploratorySchedule(notebook, data, resource?): Observable<ScheduleSchema> {
-    const param = resource ? `/${notebook}/${resource}` : `/${notebook}`;
+  public setExploratorySchedule(project, notebook, data, resource?): Observable<ScheduleSchema> {
+    const param = resource ? `/${project}/${notebook}/${resource}` : `/${project}/${notebook}`;
     return this.applicationServiceFacade
       .buildSetExploratorySchedule(param, data)
       .pipe(
