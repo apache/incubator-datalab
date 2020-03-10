@@ -335,6 +335,12 @@ mat-dialog-container {
   top: 49%;
 }
 
+.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 @media screen and (max-width: 1280px) {
   .modal-fullscreen {
     max-width: 100vw !important;
