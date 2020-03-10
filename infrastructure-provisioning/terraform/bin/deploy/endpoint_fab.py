@@ -538,8 +538,15 @@ def ensure_jar_endpoint():
                      '2.2.jar --no-check-certificate'
                      .format(web_path, args.repository_user,
                              args.repository_pass, args.repository_address))
-            conn.run('mv {0}/*.jar {0}/provisioning-service.jar'
+            conn.run('mv {0}/provisioning-service-2.2.jar {0}/provisioning-service.jar'
                      .format(web_path))
+            conn.run('wget -P {}  --user={} --password={} '
+                     'https://{}/repository/packages/billing-{}-'
+                     '2.2.jar --no-check-certificate'
+                     .format(web_path, args.repository_user,
+                             args.repository_pass, args.repository_address, args.cloud_provider))
+            conn.run('mv {0}/billing-{1}-2.2.jar {0}/billing.jar'
+                     .format(web_path, args.cloud_provider))
             conn.sudo('touch {}'.format(ensure_file))
     except Exception as err:
         logging.error('Failed to download jar-provisioner: ', str(err))
