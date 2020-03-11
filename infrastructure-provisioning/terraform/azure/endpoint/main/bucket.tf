@@ -39,7 +39,7 @@ resource "azurerm_storage_account" "shared-endpoint-storage-account" {
   account_kind             = "BlobStorage"
 
   tags = {
-    name                              = local.shared_bucket_name
+    Name                              = local.shared_bucket_name
     "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.service_base_name}-tag"    = local.shared_bucket_name
     "endpoint_tag"                    = var.endpoint_id
