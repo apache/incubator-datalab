@@ -1,6 +1,5 @@
 from fabric import Connection
 from patchwork.files import exists
-from pymongo import MongoClient
 import logging
 import argparse
 import sys
