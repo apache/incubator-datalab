@@ -1,5 +1,6 @@
 from fabric import Connection
 from patchwork.files import exists
+from pymongo import MongoClient
 import logging
 import argparse
 import sys
@@ -248,6 +249,34 @@ def ensure_docker_endpoint():
         traceback.print_exc()
         sys.exit(1)
 
+def ensure_mongo_endpoint():
+    try:
+        print('[INSTALLING MONGO DATABASE]')
+        if not exists(conn, '/home/{}/.ensure_dir/mongo_ensured'.format(args.os_user)):
+            conn.sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
+            conn.sudo('ver=`lsb_release -cs`; echo "deb http://repo.mongodb.org/apt/ubuntu $ver/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; apt-get update')
+            conn.sudo('apt-get install mongodb-org -y --allow-unauthenticated install')
+            conn.sudo('systemctl enable mongod.service')
+            conn.sudo('touch /home/{}/.ensure_dir/mongo_ensured'
+                      .format(args.os_user))
+        print('[CONFIGURING MONGO DATABASE]')
+        if not exists(conn, '/lib/systemd/system/mongod.service'):
+            conn.put('./mongo_files/mongod.service_template', '/tmp/mongod.service_template')
+            conn.sudo('sed -i "s/MONGO_USR/mongodb/g" /tmp/mongod.service_template'.format(args.os_user))
+            conn.sudo('cp -i /tmp/mongod.service_template /lib/systemd/system/mongod.service'))
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable mongod.service')
+        if not exist(conn, '/tmp/configure_mongo.py'):
+            conn.put('./mongo_files/configure_mongo.py', '/tmp/configure_mongo.py')
+            conn.sudo('sed -i "s|PASSWORD|{}|g" /tmp/configure_mongo.py'.format(args.mongo_password))
+        if not exist(conn, '/tmp/mongo_roles.json'):
+            conn.put('./mongo_files/gcp/mongo_roles.json', '/tmp/mongo_roles.json')
+        conn.sudo('python /tmp/configure_mongo.py')
+    except Exception as err:
+        logging.error('Failed to install Mongo: ', str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
 
 def create_key_dir_endpoint():
     try:
@@ -309,6 +338,9 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                                            'subnet-id'.format(interface)).stdout
                 args.vpc2_id = args.vpc_id
                 args.subnet2_id = args.subnet_id
+            if args.cloud_provider == 'gcp':
+                conn.sudo('sed -i "s|CONF_PARAMETER_NAME|--spring.config.location=|g" {}/tmp/supervisor_svc.conf'
+                          .format(args.dlab_path))
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
                       .format(args.os_user, args.dlab_path))
             conn.sudo('sed -i "s|WEB_CONF|{}|g" {}/tmp/supervisor_svc.conf'
@@ -894,6 +926,9 @@ def start_deploy():
 
     logging.info("Installing Docker")
     ensure_docker_endpoint()
+
+    logging.info("Installing Mongo Database")
+    ensure_mongo_endpoint()
 
     logging.info("Configuring Supervisor")
     configure_supervisor_endpoint(endpoint_keystore_password)
