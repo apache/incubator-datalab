@@ -256,7 +256,7 @@ def ensure_mongo_endpoint():
 
             conn.sudo('add-apt-repository "deb [arch=amd64] '
                       'http://repo.mongodb.org/apt/ubuntu '
-                      '$(lsb_release -cs)mongodb-org/3.2 multiverse"')
+                      '$(lsb_release -cs)/mongodb-org/3.2 multiverse"')
 
             conn.sudo('apt-get update')
 
