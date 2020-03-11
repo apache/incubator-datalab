@@ -322,8 +322,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
             if not exists(conn, '{}/tmp'.format(args.dlab_path)):
                 conn.run('mkdir -p {}/tmp'.format(args.dlab_path))
-            conn.put('./supervisor_svc.conf',
-                     '{}/tmp/supervisor_svc.conf'.format(args.dlab_path))
+            conn.put('./supervisor_svc.conf', '{}/tmp/supervisor_svc.conf'.format(args.dlab_path))
             dlab_conf_dir = '{}/conf/'.format(args.dlab_path)
             if not exists(conn, dlab_conf_dir):
                 conn.run('mkdir -p {}'.format(dlab_conf_dir))
