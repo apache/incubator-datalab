@@ -24,8 +24,9 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import traceback
 import os
 
 
@@ -34,14 +35,14 @@ def terminate_data_engine(tag_name, notebook_name,
                           cluster_name, remote_kernel_name):
     print("Terminating data engine cluster")
     try:
-        remove_ec2(os.environ['conf_tag_resource_id'], cluster_name)
+        dlab.actions_lib.remove_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
         sys.exit(1)
 
     print("Removing Data Engine kernels from notebook")
     try:
-        remove_dataengine_kernels(tag_name, notebook_name,
-                                  os_user, key_path, remote_kernel_name)
+        dlab.actions_lib.remove_dataengine_kernels(tag_name, notebook_name,
+                                                   os_user, key_path, remote_kernel_name)
     except:
         sys.exit(1)
 
@@ -57,7 +58,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     # generating variables dictionary
     print('Generating infrastructure names and tags')
-    create_aws_config_files()
+    dlab.actions_lib.create_aws_config_files()
     data_engine = dict()
     
     try:
@@ -68,18 +69,16 @@ if __name__ == "__main__":
         data_engine['computational_name'] = os.environ['computational_name']
     except:
         data_engine['computational_name'] = ''
-    data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
+    data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
+    data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
     data_engine['project_name'] = os.environ['project_name']
-    data_engine['cluster_name'] = \
-        data_engine['service_base_name'] + '-' + \
-        data_engine['project_name'] + '-de-' + \
-        data_engine['exploratory_name'] + '-' +\
-        data_engine['computational_name']
+    data_engine['endpoint_name'] = os.environ['endpoint_name']
+    data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
+                                                          data_engine['project_name'],
+                                                          data_engine['endpoint_name'],
+                                                          data_engine['computational_name'])
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
-    data_engine['key_path'] = os.environ['conf_key_dir'] + '/' + \
-                              os.environ['conf_key_name'] + '.pem'
+    data_engine['key_path'] = "{}/{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
     try:
         logging.info('[TERMINATE DATA ENGINE]')
@@ -93,7 +92,7 @@ if __name__ == "__main__":
                     data_engine['cluster_name']), data_engine['cluster_name'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate Data Engine.", str(err))
+            dlab.fab.append_result("Failed to terminate Data Engine.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -104,6 +103,6 @@ if __name__ == "__main__":
                    "Action": "Terminate Data Engine"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

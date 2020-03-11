@@ -119,6 +119,12 @@ def configuring_notebook(dataengine_service_version):
 def append_result(error, exception=''):
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    if exception:
+        error_message = "[Error-{}]: {}. Exception: {}".format(st, error, str(exception))
+        print(error_message)
+    else:
+        error_message = "[Error-{}]: {}.".format(st, error)
+        print(error_message)
     with open('/root/result.json', 'a+') as f:
         text = f.read()
     if len(text) == 0:
@@ -127,10 +133,7 @@ def append_result(error, exception=''):
             f.write(res)
     with open("/root/result.json") as f:
         data = json.load(f)
-    if exception:
-        data['error'] = data['error'] + " [Error-" + st + "]:" + error + " Exception: " + str(exception)
-    else:
-        data['error'] = data['error'] + " [Error-" + st + "]:" + error
+    data['error'] = data['error'] + error_message
     with open("/root/result.json", 'w') as f:
         json.dump(data, f)
     print(data)
@@ -551,7 +554,7 @@ def install_ungit(os_user, notebook_name, edge_ip):
     run('git config --global https.proxy $https_proxy')
 
 
-def install_inactivity_checker(os_user, ip_adress, rstudio=False):
+def install_inactivity_checker(os_user, ip_address, rstudio=False):
     if not exists('/home/{}/.ensure_dir/inactivity_ensured'.format(os_user)):
         try:
             if not exists('/opt/inactivity'):
@@ -562,7 +565,7 @@ def install_inactivity_checker(os_user, ip_adress, rstudio=False):
                 put('/root/templates/inactive_rs.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
             else:
                 put('/root/templates/inactive.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
-            sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_adress))
+            sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_address))
             sudo("chmod 755 /opt/inactivity/inactive.sh")
             sudo("chown root:root /etc/systemd/system/inactive.service")
             sudo("chown root:root /etc/systemd/system/inactive.timer")

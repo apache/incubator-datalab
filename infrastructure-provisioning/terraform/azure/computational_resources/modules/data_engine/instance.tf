@@ -57,7 +57,7 @@ resource "azurerm_virtual_machine" "master" {
     vm_size               = var.master_shape
 
     storage_os_disk {
-        name              = "${local.cluster_name}-m-disk0"
+        name              = "${local.cluster_name}-m-volume-primary"
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"
@@ -129,7 +129,7 @@ resource "azurerm_virtual_machine" "slave" {
     vm_size               = var.slave_shape
 
     storage_os_disk {
-        name              = "${local.notebook_name}-s-${count.index + 1}-disk0"
+        name              = "${local.notebook_name}-s-${count.index + 1}-volume-primary"
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"

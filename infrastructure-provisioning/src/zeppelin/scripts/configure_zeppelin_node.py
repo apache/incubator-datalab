@@ -50,7 +50,7 @@ parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
 parser.add_argument('--endpoint_url', type=str, default='')
-parser.add_argument('--ip_adress', type=str, default='')
+parser.add_argument('--ip_address', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
 parser.add_argument('--edge_ip', type=str, default='')
 args = parser.parse_args()
@@ -256,7 +256,7 @@ if __name__ == "__main__":
 
     # INSTALL INACTIVITY CHECKER
     print("Install inactivity checker")
-    install_inactivity_checker(args.os_user, args.ip_adress)
+    install_inactivity_checker(args.os_user, args.ip_address)
 
     # INSTALL OPTIONAL PACKAGES
     if os.environ['notebook_r_enabled'] == 'true':

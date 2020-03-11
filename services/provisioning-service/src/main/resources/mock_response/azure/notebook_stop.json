@@ -4,7 +4,7 @@
       "result": {
          "Action": "Stop notebook server",
          "user_own_bucket_name": "${CONF_SERVICE_BASE_NAME}-ssn-bucket",
-         "Tag_name": "${CONF_SERVICE_BASE_NAME}-Tag",
+         "Tag_name": "${CONF_SERVICE_BASE_NAME}-tag",
          "notebook_name": "${NOTEBOOK_INSTANCE_NAME}"
       },
       "log": "/var/log/dlab/notebook/notebook_${EDGE_USER_NAME}_${REQUEST_ID}.log"

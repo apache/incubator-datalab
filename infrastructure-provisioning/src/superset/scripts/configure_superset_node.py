@@ -42,7 +42,7 @@ parser.add_argument('--keycloak_client_secret', type=str, default='')
 parser.add_argument('--edge_instance_private_ip', type=str, default='')
 parser.add_argument('--edge_instance_public_ip', type=str, default='')
 parser.add_argument('--superset_name', type=str, default='')
-parser.add_argument('--ip_adress', type=str, default='')
+parser.add_argument('--ip_address', type=str, default='')
 args = parser.parse_args()
 
 gitlab_certfile = os.environ['conf_gitlab_certfile']
@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
         # INSTALL INACTIVITY CHECKER
     print("Install inactivity checker")
-    install_inactivity_checker(args.os_user, args.ip_adress)
+    install_inactivity_checker(args.os_user, args.ip_address)
 
     # PREPARE SUPERSET
     try:

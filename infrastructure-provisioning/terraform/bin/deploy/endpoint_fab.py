@@ -320,7 +320,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
             conn.put('./provisioning.yml', '{}provisioning.yml'
                      .format(dlab_conf_dir))
             if args.resource_group_name == '':
-                args.resource_group_name = args.service_base_name
+                args.resource_group_name = '{}-{}-resource-group'.format(args.service_base_name, args.endpoint_id)
             if args.cloud_provider == 'azure':
                 args.region = args.region.lower().replace(' ', '')
             cloud_properties = [
@@ -654,6 +654,7 @@ def init_args():
     parser.add_argument('--dlab_path', type=str, default='/opt/dlab')
     parser.add_argument('--key_name', type=str, default='', help='Name of admin key without .pem extension')
     parser.add_argument('--endpoint_eip_address', type=str)
+    parser.add_argument('--endpoint_id', type=str, default='')
     parser.add_argument('--pkey', type=str, default='')
     parser.add_argument('--hostname', type=str, default='')
     parser.add_argument('--os_user', type=str, default='dlab-user')

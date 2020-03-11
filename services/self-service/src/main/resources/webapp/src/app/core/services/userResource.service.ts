@@ -37,10 +37,10 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getComputationalTemplates(project, endpoint): Observable<any> {
-    const url = `/${project}/${endpoint}/computational_templates`;
+  public getComputationalTemplates(project, endpoint, provider): Observable<any> {
+    const url = `/${project}/${endpoint}/templates`;
     return this.applicationServiceFacade
-      .buildGetTemplatesRequest(url)
+      .buildGetComputationTemplatesRequest(url, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

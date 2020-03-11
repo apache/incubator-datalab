@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.ComputationalTemplatesDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
 import com.epam.dlab.dto.computational.UserComputationalResource;
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ComputationalService {
+	ComputationalTemplatesDTO getComputationalNamesAndTemplates(UserInfo user, String project, String endpoint);
+
 	/**
 	 * Asynchronously triggers creation of Spark cluster
 	 *
