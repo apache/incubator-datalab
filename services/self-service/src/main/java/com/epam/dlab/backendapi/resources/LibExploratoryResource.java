@@ -41,7 +41,12 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -81,6 +86,7 @@ public class LibExploratoryResource {
 	@GET
 	@Path("/lib_groups")
 	public Iterable<String> getLibGroupList(@Auth UserInfo userInfo,
+											@QueryParam("project_name") @NotBlank String projectName,
 											@QueryParam("exploratory_name") @NotBlank String exploratoryName,
 											@QueryParam("computational_name") String computationalName) {
 
@@ -88,11 +94,11 @@ public class LibExploratoryResource {
 				exploratoryName, computationalName);
 		try {
 			if (StringUtils.isEmpty(computationalName)) {
-				UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+				UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), projectName,
 						exploratoryName);
 				return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
 			} else {
-				UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+				UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), projectName,
 						exploratoryName, computationalName);
 
 				userInstance.setResources(userInstance.getResources().stream()
@@ -120,13 +126,14 @@ public class LibExploratoryResource {
 	@GET
 	@Path("/lib_list")
 	public List<Document> getLibList(@Auth UserInfo userInfo,
+									 @QueryParam("project_name") @NotBlank String projectName,
 									 @QueryParam("exploratory_name") @NotBlank String exploratoryName,
 									 @QueryParam("computational_name") String computationalName) {
 
 		log.debug("Loading list of libraries for user {} and exploratory {} and computational {}", userInfo.getName(),
 				exploratoryName, computationalName);
 		try {
-			return libraryService.getLibs(userInfo.getName(), exploratoryName, computationalName);
+			return libraryService.getLibs(userInfo.getName(), projectName, exploratoryName, computationalName);
 
 		} catch (Exception t) {
 			log.error("Cannot load installed libraries for user {} and exploratory {} an", userInfo.getName(),
@@ -147,14 +154,14 @@ public class LibExploratoryResource {
 	 */
 	@GET
 	@Path("/lib_list/formatted")
-
 	public List<LibInfoRecord> getLibListFormatted(@Auth UserInfo userInfo,
+												   @QueryParam("project_name") @NotBlank String projectName,
 												   @QueryParam("exploratory_name") @NotBlank String exploratoryName) {
 
 		log.debug("Loading formatted list of libraries for user {} and exploratory {}", userInfo.getName(),
 				exploratoryName);
 		try {
-			return libraryService.getLibInfo(userInfo.getName(), exploratoryName);
+			return libraryService.getLibInfo(userInfo.getName(), projectName, exploratoryName);
 		} catch (Exception t) {
 			log.error("Cannot load list of libraries for user {} and exploratory {}", userInfo.getName(),
 					exploratoryName, t);
@@ -175,15 +182,16 @@ public class LibExploratoryResource {
 	public Response libInstall(@Auth UserInfo userInfo,
 							   @Valid @NotNull LibInstallFormDTO formDTO) {
 		log.debug("Installing libs to environment {} for user {}", formDTO, userInfo.getName());
+		String project = formDTO.getProject();
 		final String exploratoryName = formDTO.getNotebookName();
 		final List<LibInstallDTO> libs = formDTO.getLibs();
 		final String computationalName = formDTO.getComputationalName();
 		String uuid = StringUtils.isEmpty(computationalName) ?
-				libraryService.installExploratoryLibs(userInfo, exploratoryName, libs) :
-				libraryService.installComputationalLibs(userInfo, exploratoryName, computationalName, libs);
+				libraryService.installExploratoryLibs(userInfo, project, exploratoryName, libs) :
+				libraryService.installComputationalLibs(userInfo, project, exploratoryName, computationalName, libs);
 		return Response.ok(uuid)
 				.build();
-	}
+    }
 
 	/**
 	 * Returns the list of available libraries for exploratory basing on search conditions provided in @formDTO.
@@ -203,7 +211,7 @@ public class LibExploratoryResource {
 
 			if (StringUtils.isNotEmpty(formDTO.getComputationalName())) {
 
-				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getProjectName(),
 						formDTO.getNotebookName(), formDTO.getComputationalName());
 
 				userInstance.setResources(userInstance.getResources().stream()
@@ -211,7 +219,8 @@ public class LibExploratoryResource {
 						.collect(Collectors.toList()));
 
 			} else {
-				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
+				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getProjectName(),
+						formDTO.getNotebookName());
 			}
 
 			return ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO

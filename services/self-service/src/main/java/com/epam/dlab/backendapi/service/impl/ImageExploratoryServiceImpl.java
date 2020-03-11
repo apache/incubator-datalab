@@ -73,15 +73,15 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	private EndpointService endpointService;
 
 	@Override
-	public String createImage(UserInfo user, String exploratoryName, String imageName, String imageDescription) {
+	public String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription) {
 
-		UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), exploratoryName);
+		UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), project, exploratoryName);
 
 		if (imageExploratoryDao.exist(imageName, userInstance.getProject())) {
 			log.error(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
 			throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
 		}
-		final List<Library> libraries = libDAO.getLibraries(user.getName(), exploratoryName);
+		final List<Library> libraries = libDAO.getLibraries(user.getName(), project, exploratoryName);
 
 		imageExploratoryDao.save(Image.builder()
 				.name(imageName)
@@ -98,6 +98,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
 		exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
 				.withUser(user.getName())
+				.withProject(project)
 				.withExploratoryName(exploratoryName)
 				.withStatus(UserInstanceStatus.CREATING_IMAGE));
 
@@ -113,13 +114,14 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 				exploratoryName, image.getUser());
 		exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
 				.withUser(image.getUser())
+				.withProject(image.getProject())
 				.withExploratoryName(exploratoryName)
 				.withStatus(UserInstanceStatus.RUNNING));
 		imageExploratoryDao.updateImageFields(image);
 		if (newNotebookIp != null) {
 			log.debug("Changing exploratory ip with name {} for user {} to {}", exploratoryName, image.getUser(),
 					newNotebookIp);
-			exploratoryDAO.updateExploratoryIp(image.getUser(), newNotebookIp, exploratoryName);
+			exploratoryDAO.updateExploratoryIp(image.getUser(), image.getProject(), newNotebookIp, exploratoryName);
 		}
 
 	}

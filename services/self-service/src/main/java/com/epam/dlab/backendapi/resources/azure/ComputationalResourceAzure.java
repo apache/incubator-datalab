@@ -103,14 +103,15 @@ public class ComputationalResourceAzure {
 	 * @return 200 OK if operation is successfully triggered
 	 */
 	@DELETE
-	@Path("/{exploratoryName}/{computationalName}/terminate")
+	@Path("/{projectName}/{exploratoryName}/{computationalName}/terminate")
 	public Response terminate(@Auth UserInfo userInfo,
+							  @PathParam("projectName") String projectName,
 							  @PathParam("exploratoryName") String exploratoryName,
 							  @PathParam("computationalName") String computationalName) {
 
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputational(userInfo, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, projectName, exploratoryName, computationalName);
 
 		return Response.ok().build();
 	}
@@ -125,12 +126,13 @@ public class ComputationalResourceAzure {
 	 */
 	@DELETE
 	@Path("/{project}/{exploratoryName}/{computationalName}/stop")
-	public Response stop( @Auth UserInfo userInfo,
+	public Response stop(@Auth UserInfo userInfo,
+						 @PathParam("project") String project,
 						 @PathParam("exploratoryName") String exploratoryName,
 						 @PathParam("computationalName") String computationalName) {
 		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.stopSparkCluster(userInfo, exploratoryName, computationalName);
+		computationalService.stopSparkCluster(userInfo, project, exploratoryName, computationalName);
 
 		return Response.ok().build();
 	}
@@ -157,21 +159,23 @@ public class ComputationalResourceAzure {
 	}
 
 	@PUT
-	@Path("dataengine/{exploratoryName}/{computationalName}/config")
+	@Path("dataengine/{projectName}/{exploratoryName}/{computationalName}/config")
 	public Response updateDataEngineConfig(@Auth UserInfo userInfo,
+										   @PathParam("projectName") String projectName,
 										   @PathParam("exploratoryName") String exploratoryName,
 										   @PathParam("computationalName") String computationalName,
 										   @Valid @NotNull List<ClusterConfig> config) {
 
-		computationalService.updateSparkClusterConfig(userInfo, exploratoryName, computationalName, config);
+		computationalService.updateSparkClusterConfig(userInfo, projectName, exploratoryName, computationalName, config);
 		return Response.ok().build();
 	}
 
 	@GET
-	@Path("{exploratoryName}/{computationalName}/config")
+	@Path("/{projectName}/{exploratoryName}/{computationalName}/config")
 	public Response getClusterConfig(@Auth UserInfo userInfo,
+									 @PathParam("projectName") String projectName,
 									 @PathParam("exploratoryName") String exploratoryName,
 									 @PathParam("computationalName") String computationalName) {
-		return Response.ok(computationalService.getClusterConfig(userInfo, exploratoryName, computationalName)).build();
+		return Response.ok(computationalService.getClusterConfig(userInfo, projectName, exploratoryName, computationalName)).build();
 	}
 }

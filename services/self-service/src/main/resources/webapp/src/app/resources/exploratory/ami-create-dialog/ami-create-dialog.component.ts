@@ -66,7 +66,8 @@ export class AmiCreateDialogComponent implements OnInit {
     this.createAMIForm = this._fb.group({
       name: ['', [Validators.required, Validators.pattern(this.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
       description: [''],
-      exploratory_name: [this.notebook.name]
+      exploratory_name: [this.notebook.name],
+      project_name: [this.notebook.project]
     });
   }
 

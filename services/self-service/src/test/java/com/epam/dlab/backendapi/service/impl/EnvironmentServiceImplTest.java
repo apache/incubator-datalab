@@ -34,7 +34,6 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.exceptions.ResourceConflictException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,11 +42,26 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anySet;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.refEq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvironmentServiceImplTest {
@@ -57,8 +71,6 @@ public class EnvironmentServiceImplTest {
 	private static final String EXPLORATORY_NAME_2 = "expName2";
 	private static final String TOKEN = "token";
 	private static final String UUID = "213-12312-321";
-	private static final String RUNNING_STATE = "running";
-	private static final String STOPPED_STATE = "stopped";
 	private static final String PROJECT_NAME = "projectName";
 	private static final String ENDPOINT_NAME = "endpointName";
 	private static final String ADMIN = "admin";
@@ -134,67 +146,21 @@ public class EnvironmentServiceImplTest {
 		environmentService.getUserNames();
 	}
 
-
-	@Test
-	public void stopEnvironment() {
-		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
-		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
-
-		environmentService.stopEnvironment(userInfo, USER);
-
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
-		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
-		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
-				UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(exploratoryDAO, exploratoryService);
-	}
-
-	@Test
-	@SuppressWarnings("unchecked")
-	public void stopEnvironmentWithWrongResourceState() {
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), any(List.class), anyVararg()))
-				.thenReturn(getUserInstances());
-		expectedException.expect(ResourceConflictException.class);
-
-		environmentService.stopEnvironment(getUserInfo(), USER);
-	}
-
-	@Test
-	public void stopEnvironmentWithoutEdge() {
-		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
-		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
-
-		environmentService.stopEnvironment(userInfo, USER);
-
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
-		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
-		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
-				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(envDAO, exploratoryDAO, exploratoryService);
-	}
-
 	@Test
 	public void stopProjectEnvironment() {
 		final UserInfo userInfo = getUserInfo();
 		final ProjectDTO projectDTO = getProjectDTO();
 		when(exploratoryDAO.fetchRunningExploratoryFieldsForProject(anyString())).thenReturn(getUserInstances());
 		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
-		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
+		when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString())).thenReturn(UUID);
 		when(projectService.get(anyString())).thenReturn(projectDTO);
 		doNothing().when(projectService).stop(any(UserInfo.class), anyString(), anyString());
 
 		environmentService.stopProjectEnvironment(PROJECT_NAME);
 
 		verify(exploratoryDAO).fetchRunningExploratoryFieldsForProject(PROJECT_NAME);
-		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
-		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_2));
+		verify(exploratoryService).stop(refEq(userInfo), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1));
+		verify(exploratoryService).stop(refEq(userInfo), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_2));
 		verify(securityService, times(2)).getServiceAccountInfo(USER);
 		verify(securityService).getServiceAccountInfo(ADMIN);
 		verify(projectService).get(eq(PROJECT_NAME));
@@ -205,60 +171,14 @@ public class EnvironmentServiceImplTest {
 		verifyNoMoreInteractions(exploratoryDAO, exploratoryService, securityService, projectService);
 	}
 
-	@Test
-	public void stopExploratory() {
-		final UserInfo userInfo = getUserInfo();
-		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn(UUID);
-
-		environmentService.stopExploratory(new UserInfo(USER, TOKEN), USER, EXPLORATORY_NAME_1);
-
-		verify(exploratoryService).stop(refEq(userInfo), eq(EXPLORATORY_NAME_1));
-		verifyNoMoreInteractions(securityService, exploratoryService);
-	}
-
-	@Test
-	public void stopComputational() {
-		final UserInfo userInfo = getUserInfo();
-		doNothing().when(computationalService).stopSparkCluster(any(UserInfo.class), anyString(), anyString());
-
-		environmentService.stopComputational(userInfo, USER, EXPLORATORY_NAME_1, "compName");
-
-		verify(computationalService).stopSparkCluster(refEq(userInfo), eq(EXPLORATORY_NAME_1), eq("compName"));
-		verifyNoMoreInteractions(securityService, computationalService);
-	}
-
-	@Test
-	public void terminateExploratory() {
-		final UserInfo userInfo = getUserInfo();
-		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn(UUID);
-
-		environmentService.terminateExploratory(userInfo, USER, EXPLORATORY_NAME_1);
-
-		verify(exploratoryService).terminate(refEq(userInfo), eq(EXPLORATORY_NAME_1));
-		verifyNoMoreInteractions(securityService, exploratoryService);
-	}
-
-	@Test
-	public void terminateComputational() {
-		final UserInfo userInfo = getUserInfo();
-		doNothing().when(computationalService)
-				.terminateComputational(any(UserInfo.class), anyString(), anyString());
-
-		environmentService.terminateComputational(userInfo, USER, EXPLORATORY_NAME_1, "compName");
-
-		verify(computationalService)
-				.terminateComputational(refEq(userInfo), eq(EXPLORATORY_NAME_1), eq("compName"));
-		verifyNoMoreInteractions(securityService, computationalService);
-	}
-
 	private UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
 	}
 
 	private List<UserInstanceDTO> getUserInstances() {
 		return Arrays.asList(
-				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER).withProject("prj"),
-				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER).withProject("prj"));
+				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_1).withUser(USER).withProject(PROJECT_NAME),
+				new UserInstanceDTO().withExploratoryName(EXPLORATORY_NAME_2).withUser(USER).withProject(PROJECT_NAME));
 	}
 
 	private ProjectDTO getProjectDTO() {

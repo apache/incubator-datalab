@@ -31,10 +31,10 @@ import java.util.Set;
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRoleDto {
-
 	@JsonProperty("_id")
 	private String id;
 	private String description;
+	private Type type;
 	private Set<String> pages;
 	private Set<String> computationals;
 	private Set<String> exploratories;
@@ -42,4 +42,12 @@ public class UserRoleDto {
 	private Set<String> exploratoryShapes;
 	private Set<String> groups;
 
+	private enum Type {
+		NOTEBOOK,
+		COMPUTATIONAL,
+		NOTEBOOK_SHAPE,
+		COMPUTATIONAL_SHAPE,
+		BILLING,
+		ADMINISTRATION
+	}
 }
