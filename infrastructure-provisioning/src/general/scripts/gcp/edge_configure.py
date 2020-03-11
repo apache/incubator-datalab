@@ -136,6 +136,9 @@ if __name__ == "__main__":
             edge_conf['step_cert_sans'] = ' --san {0} --san {1} --san {2}'.format(edge_conf['static_ip'],
                                                                                   edge_conf['instance_hostname'],
                                                                                   edge_conf['private_ip'])
+            if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+                edge_conf['step_cert_sans'] += ' --san {}.{}'.format(edge_conf['project_name'],
+                                                                     os.environ['conf_domain_name'])
         else:
             edge_conf['step_cert_sans'] = ''
 

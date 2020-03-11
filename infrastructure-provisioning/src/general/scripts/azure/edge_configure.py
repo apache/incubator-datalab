@@ -130,10 +130,10 @@ if __name__ == "__main__":
             edge_conf['step_cert_sans'] = ' --san {0} '.format(AzureMeta.get_private_ip_address(
                 edge_conf['resource_group_name'], edge_conf['instance_name']))
             if os.environ['conf_network_type'] == 'public':
-                edge_conf['step_cert_sans'] += ' --san {0} --san {1} '.format(
-                    AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                             edge_conf['instance_name']),
-                    edge_conf['instance_dns_name'])
+                if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+                    edge_conf['step_cert_sans'] += ' --san {}.{}'.format(edge_conf['project_name'], os.environ['conf_domain_name'])
+                edge_conf['step_cert_sans'] += ' --san {0} --san {1} '.format(AzureMeta.get_instance_public_ip_address(
+                    edge_conf['resource_group_name'], edge_conf['instance_name']), edge_conf['instance_dns_name'])
         else:
             edge_conf['step_cert_sans'] = ''
 

@@ -116,6 +116,8 @@ if __name__ == "__main__":
         if os.environ['conf_stepcerts_enabled'] == 'true':
             edge_conf['step_cert_sans'] = ' --san {0} '.format(edge_conf['edge_private_ip'])
             if edge_conf['network_type'] == 'public':
+                if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+                    edge_conf['step_cert_sans'] += ' --san {}.{}'.format(edge_conf['project_name'], os.environ['conf_domain_name'])
                 edge_conf['step_cert_sans'] += ' --san {0} --san {1}'.format(
                     dlab.meta_lib.get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name']),
                     edge_conf['edge_public_ip'])
