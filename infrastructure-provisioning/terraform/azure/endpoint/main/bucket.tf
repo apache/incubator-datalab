@@ -20,7 +20,7 @@
 # ******************************************************************************
 
 locals {
- shared_bucket_name = "${var.service_base_name}-${var.endpoint_id}-shared-bucket"
+ shared_bucket_name = lower("${var.service_base_name}-${var.endpoint_id}-shared-bucket")
 }
 
 resource "random_string" "shared_bucket_service_name" {

@@ -89,12 +89,12 @@ if __name__ == "__main__":
         project_conf['slave_security_group_name'] = '{}-{}-{}-de-slave-sg'.format(project_conf['service_base_name'],
                                                                                   project_conf['project_name'],
                                                                                   project_conf['endpoint_name'])
-        project_conf['edge_storage_account_name'] = '{0}-{1}-{2}-bucket'.format(project_conf['service_base_name'],
-                                                                                project_conf['project_name'],
-                                                                                project_conf['endpoint_name'])
-        project_conf['edge_container_name'] = '{0}-{1}-{2}-bucket'.format(project_conf['service_base_name'],
-                                                                          project_conf['project_name'],
-                                                                          project_conf['endpoint_name'])
+        project_conf['edge_storage_account_name'] = ('{0}-{1}-{2}-bucket'.format(project_conf['service_base_name'],
+                                                                                 project_conf['project_name'],
+                                                                                 project_conf['endpoint_name'])).lower()
+        project_conf['edge_container_name'] = ('{0}-{1}-{2}-bucket'.format(project_conf['service_base_name'],
+                                                                           project_conf['project_name'],
+                                                                           project_conf['endpoint_name'])).lower()
         project_conf['datalake_store_name'] = '{}-ssn-datalake'.format(project_conf['service_base_name'])
         project_conf['datalake_user_directory_name'] = '{0}-{1}-{2}-folder'.format(project_conf['service_base_name'],
                                                                                    project_conf['project_name'],
@@ -117,10 +117,10 @@ if __name__ == "__main__":
                                                     os.environ['conf_billing_tag_value'],
                                                 project_conf['tag_name']: project_conf['edge_storage_account_name']}
         project_conf['primary_disk_size'] = '32'
-        project_conf['shared_storage_account_name'] = '{0}-{1}-shared-bucket'.format(project_conf['service_base_name'],
-                                                                                     project_conf['endpoint_name'])
-        project_conf['shared_container_name'] = '{}-{}-shared-bucket'.format(project_conf['service_base_name'],
-                                                                             project_conf['endpoint_name'])
+        project_conf['shared_storage_account_name'] = ('{0}-{1}-shared-bucket'.format(
+            project_conf['service_base_name'], project_conf['endpoint_name'])).lower()
+        project_conf['shared_container_name'] = ('{}-{}-shared-bucket'.format(project_conf['service_base_name'],
+                                                                              project_conf['endpoint_name'])).lower()
         project_conf['shared_storage_account_tags'] = {"Name": project_conf['shared_storage_account_name'],
                                                        "SBN": project_conf['service_base_name'],
                                                        os.environ['conf_billing_tag_key']: os.environ[
