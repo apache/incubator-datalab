@@ -263,7 +263,7 @@ def ensure_mongo_endpoint():
         if not exists(conn, '/lib/systemd/system/mongod.service'):
             conn.put('./mongo_files/mongod.service_template', '/tmp/mongod.service_template')
             conn.sudo('sed -i "s/MONGO_USR/mongodb/g" /tmp/mongod.service_template'.format(args.os_user))
-            conn.sudo('cp -i /tmp/mongod.service_template /lib/systemd/system/mongod.service'))
+            conn.sudo('cp -i /tmp/mongod.service_template /lib/systemd/system/mongod.service')
             conn.sudo('systemctl daemon-reload')
             conn.sudo('systemctl enable mongod.service')
         if not exist(conn, '/tmp/configure_mongo.py'):
