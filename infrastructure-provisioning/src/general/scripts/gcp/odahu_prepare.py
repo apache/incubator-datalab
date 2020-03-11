@@ -41,6 +41,9 @@ if __name__ == "__main__":
     odahu_conf = dict()
     odahu_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     odahu_conf['odahu_cluster_name'] = (os.environ['odahu_cluster_name']).lower().replace('_', '-')
+    odahu_conf['tag_name'] = '{}-tag'.format(odahu_conf['service_base_name'])
+    odahu_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+    odahu_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     odahu_conf['region'] = os.environ['gcp_region']
     odahu_conf['bucket_name'] = "{}-tfstate".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
     odahu_conf['static_address_name'] = "{}-nat-gw".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
@@ -49,7 +52,15 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE STATE BUCKETS]')
         print('[CREATE STATE BUCKETS]')
-        params = "--bucket_name {}".format(odahu_conf['bucket_name'])
+
+        odahu_conf['bucket_tags'] = {
+            odahu_conf['tag_name']: odahu_conf['bucket_name'],
+            "endpoint_tag": odahu_conf['endpoint_tag'],
+            os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
+            "sbn": odahu_conf['service_base_name'],
+            "project_tag": odahu_conf['project_tag']}
+
+        params = "--bucket_name {} --tags '{}'".format(odahu_conf['bucket_name'], odahu_conf['bucket_tags'])
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
