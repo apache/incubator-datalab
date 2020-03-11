@@ -251,9 +251,10 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
             raise Exception
+        print('[CONFIGURING KEYCLOAK]')
+        logging.info('[CONFIGURING KEYCLOAK]')
         if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
-            hostname_param = "--hostname {}.{}".format(os.environ['project_name'], os.environ['conf_domain_name'])
-            sudo('touch /home/' + edge_conf['dlab_ssh_user'] + '/.ensure_dir/domain_name_ensured')
+            hostname_param = "--hostname {}.{}".format(edge_conf['project_name'], os.environ['conf_domain_name'])
         else:
             hostname_param = ''
         keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
@@ -265,7 +266,7 @@ if __name__ == "__main__":
                     edge_conf['keycloak_client_secret'], edge_conf['instance_hostname'], edge_conf['project_name'],
                     edge_conf['endpoint_name'])
         try:
-            local("~/scripts/{}.py {} {}".format('configure_keycloak', keycloak_params, hostname_param))
+            local("~/scripts/{}.py {}{}".format('configure_keycloak', keycloak_params, hostname_param))
         except:
             traceback.print_exc()
             raise Exception
