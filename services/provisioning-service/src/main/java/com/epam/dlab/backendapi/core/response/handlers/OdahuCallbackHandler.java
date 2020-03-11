@@ -35,6 +35,10 @@ import java.util.Objects;
 public class OdahuCallbackHandler extends ResourceCallbackHandler<OdahuResult> {
 
     private static final String ODAHU_URLS_FIELD = "odahu_urls";
+    private static final String GRAFANA_ADMIN = "grafana_admin";
+    private static final String GRAFANA_PASSWORD = "grafana_pass";
+    private static final String OAUTH_COOKIE_SECRET = "oauth_cookie_secret";
+    private static final String DECRYPT_TOKEN = "odahuflow_connection_decrypt_token";
     private final String callbackUri;
     private final String name;
     private final String projectName;
@@ -63,11 +67,16 @@ public class OdahuCallbackHandler extends ResourceCallbackHandler<OdahuResult> {
         if (resultNode == null) {
             return result;
         }
-        final JsonNode nodeUrl = resultNode.get(ODAHU_URLS_FIELD);
+        result.setGrafanaAdmin(getTextValue(resultNode.get(GRAFANA_ADMIN)));
+        result.setGrafanaPassword(getTextValue(resultNode.get(GRAFANA_PASSWORD)));
+        result.setOauthCookieSecret(getTextValue(resultNode.get(OAUTH_COOKIE_SECRET)));
+        result.setDecryptToken(getTextValue(resultNode.get(DECRYPT_TOKEN)));
+
+        final JsonNode odahuUrls = resultNode.get(ODAHU_URLS_FIELD);
         List<ResourceURL> urls = null;
-        if (nodeUrl != null) {
+        if (odahuUrls != null) {
             try {
-                urls = mapper.readValue(nodeUrl.toString(), new TypeReference<List<ResourceURL>>() {
+                urls = mapper.readValue(odahuUrls.toString(), new TypeReference<List<ResourceURL>>() {
                 });
                 result.setResourceUrls(urls);
             } catch (IOException e) {

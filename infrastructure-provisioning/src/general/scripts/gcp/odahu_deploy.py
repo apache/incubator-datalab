@@ -245,5 +245,9 @@ if __name__ == "__main__":
     print('Odahu urls: {}'.format(odahu_urls))
     res = dict()
     res['odahu_urls'] = output['odahu_urls']['value']
+    res['oauth_cookie_secret'] = odahu_conf['oauth_cookie_secret']
+    res['odahuflow_connection_decrypt_token'] = odahu_conf['decrypt_token']
+    res['grafana_pass'] = odahu_conf['grafana_pass']
+    res['grafana_admin'] = odahu_conf['grafana_admin']
     with open("/root/result.json", 'w') as result:
         result.write(json.dumps(res))

@@ -142,16 +142,23 @@
         </div>
       </div>
     </div>
+
     <div class="legion-info" *ngIf="data.legion">
       <div class="content-box">
         <div class="detail-info" *ngIf="!legion.error_message">
         <div  class="links_block">
-          <p *ngFor="let url of legion.url">
-            <span class="description">{{url.description}}: &nbsp;</span>
-            <a class="ellipsis" matTooltip="{{ url.url}}" matTooltipPosition="above" href="{{ url.url}}"
-               target="_blank">{{ url.url}}              &nbsp;
-            </a>
-          </p>
+          <div *ngFor="let url of legion.url" class="odahu-links">
+            <div class="odahu-link">
+              <span class="description">{{url.description }}: &nbsp;</span>
+              <a class="ellipsis" matTooltip="{{ url.url}}" matTooltipPosition="above" href="{{ url.url}}"
+                 target="_blank">{{ url.url}}
+              </a>
+            </div>
+            <div class="grafana" *ngIf="url.description === 'Grafana'">
+              <div><span>Gafana user:&nbsp;</span><span class="creds">{{legion.bucket_name}}</span></div>
+              <div><span>Gafana password:&nbsp;</span><span class="creds">{{legion.shared_bucket_name}}</span></div>
+            </div>
+          </div>
         </div>
     </div>
       </div>

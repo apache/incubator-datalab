@@ -89,7 +89,7 @@ export class ExploratoryModel {
             el.project,
             el.endpoint,
             el.tags
-          )
+          );
         });
 
         const odahu = value.odahu.map(el => {
@@ -113,8 +113,8 @@ export class ExploratoryModel {
             el.private_ip,
           el.exploratory_user,
           el.exploratory_pass,
-          '',
-          '',
+          el.grafana_admin,
+          el.grafana_pass,
           el.error_message,
           el[DICTIONARY[provider].billing.cost],
             el[DICTIONARY[provider].billing.currencyCode],
@@ -127,7 +127,8 @@ export class ExploratoryModel {
             '',
             el.project,
             el.endpoint,
-            el.tags)});
+            el.tags
+          )});
         return {
           project: value.project,
           exploratory: [...exploratory, ...odahu]

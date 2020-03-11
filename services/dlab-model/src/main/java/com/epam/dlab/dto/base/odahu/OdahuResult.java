@@ -35,6 +35,14 @@ public class OdahuResult extends StatusBaseDTO<OdahuResult> {
     private String projectName;
     @JsonProperty("endpoint_name")
     private String endpointName;
+    @JsonProperty("grafana_admin")
+    private String grafanaAdmin;
+    @JsonProperty("grafana_pass")
+    private String grafanaPassword;
+    @JsonProperty("oauth_cookie_secret")
+    private String oauthCookieSecret;
+    @JsonProperty("odahuflow_connection_decrypt_token")
+    private String decryptToken;
     @JsonProperty("odahu_urls")
     private List<ResourceURL> resourceUrls;
 }

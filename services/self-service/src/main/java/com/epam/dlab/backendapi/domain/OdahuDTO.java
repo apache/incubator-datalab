@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.domain;
 import com.epam.dlab.dto.ResourceURL;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -35,6 +36,10 @@ public class OdahuDTO {
     private final String name;
     private final String project;
     private final String endpoint;
+    @JsonProperty("grafana_admin")
+    private String grafanaAdmin;
+    @JsonProperty("grafana_pass")
+    private String grafanaPassword;
     private final List<ResourceURL> urls = new ArrayList<>();
     private final UserInstanceStatus status;
     private final Map<String, String> tags;
