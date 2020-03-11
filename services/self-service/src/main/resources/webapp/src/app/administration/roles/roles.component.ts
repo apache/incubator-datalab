@@ -27,6 +27,7 @@ import { CheckUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
+import {logger} from 'codelyzer/util/logger';
 
 
 @Component({
@@ -127,12 +128,31 @@ export class RolesComponent implements OnInit {
         }
       });
     } else if (action === 'update') {
-      this.manageRolesGroups({
-        action, type, value: {
-          name: item.group,
-          roleIds: this.extractIds(this.roles, item.selected_roles.map(v => v.role)),
-          users: item.users || []
+      const currGroupSource = this.startedGroups.filter(cur => cur.group === item.group)[0];
+      let deletedUsers = currGroupSource.users.filter(user => {
+        if (item.users.includes(user)) {
+           return false;
         }
+        return true;
+      });
+      this.dialog.open(ConfirmationDialogComponent, { data:
+          { notebook: deletedUsers, type: ConfirmationDialogType.deleteUser }, panelClass: 'modal-sm' })
+        .afterClosed().subscribe((res) => {
+        if (!res) {
+          item.users = [...currGroupSource.users];
+          item.selected_roles = [...currGroupSource.selected_roles];
+          item.roles = [...currGroupSource.roles];
+        } else {
+          this.manageRolesGroups({
+            action, type, value: {
+              name: item.group,
+              roleIds: this.extractIds(this.roles, item.selected_roles.map(v => v.role)),
+              users: item.users || []
+            }
+          });
+          this.openManageRolesDialog();
+        }
+        deletedUsers = [];
       });
     }
     this.getEnvironmentHealthStatus();
@@ -142,36 +162,21 @@ export class RolesComponent implements OnInit {
   public manageRolesGroups($event) {
     switch ($event.action) {
       case 'create':
+
         this.rolesService.setupNewGroup($event.value).subscribe(res => {
           this.toastr.success('Group creation success!', 'Created!');
           this.getGroupsData();
         }, () => this.toastr.error('Group creation failed!', 'Oops!'));
         break;
+
       case 'update':
-        const currGroup =  this.startedGroups.filter(group => group.group === $event.value.name);
-        const deletedUsers = currGroup[0].users.filter(user => {
-          if ($event.value.users.includes(user)) {
-            return false;
-          } else {
-            return true;
-          }
-        });
-        if (deletedUsers.length) {
-          this.dialog.open(ConfirmationDialogComponent, { data:
-              { notebook: deletedUsers, type: ConfirmationDialogType.deleteUser }, panelClass: 'modal-sm' })
-            .afterClosed().subscribe((res) => {
-            if (!res) {
-              $event.value.users = $event.value.users.concat(deletedUsers);
-              this.updateGroup($event.value, ', but users did\'t delete from group');
-            } else {
-              this.updateGroup($event.value, '');
-            }
-          });
-        } else {
-          this.updateGroup($event.value, '');
-        }
+        this.rolesService.updateGroup($event.value).subscribe(res => {
+          this.toastr.success(`Group data is updated successfully!`, 'Success!');
+          this.getGroupsData();
+        }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
 
         break;
+
       case 'delete':
         if ($event.type === 'users') {
           this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
@@ -185,6 +190,7 @@ export class RolesComponent implements OnInit {
           }, (error) => this.toastr.error(error.message, 'Oops!'));
         }
         break;
+
       default:
     }
   }
@@ -196,13 +202,6 @@ export class RolesComponent implements OnInit {
     }, []);
   }
 
-  public updateGroup(value, extraMesssage){
-    this.rolesService.updateGroup(value).subscribe(res => {
-      this.toastr.success(`Group data successfully updated${extraMesssage}!`, 'Success!');
-      this.getGroupsData();
-    }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
-  }
-
   public updateGroupData(groups) {
     this.groupsData = groups.map(v => v).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
@@ -211,7 +210,7 @@ export class RolesComponent implements OnInit {
   }
 
   private getGroupsListCopy() {
-    this.startedGroups = this.groupsData.map(env => JSON.parse(JSON.stringify(env)));
+    this.startedGroups = JSON.parse(JSON.stringify(this.groupsData));
   }
 
   public groupValidarion(): ValidatorFn {
@@ -226,6 +225,21 @@ export class RolesComponent implements OnInit {
 
       return null;
     });
+  }
+
+  private isGroupChanded(currGroup) {
+    const currGroupSource = this.startedGroups.filter(cur => cur.group === currGroup.group)[0];
+   if (currGroup.users.length !== currGroupSource.users.length &&
+     currGroup.selected_roles.length !== currGroupSource.selected_roles.length) {
+     return false;
+   }
+   return JSON.stringify(currGroup.users) === JSON.stringify(currGroupSource.users) &&
+     JSON.stringify(
+       currGroup.selected_roles.map(role => role.role).sort()
+     ) === JSON
+       .stringify(
+         currGroupSource.selected_roles.map(role => role.role).sort()
+       );
   }
 
   public resetDialog() {
