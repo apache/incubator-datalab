@@ -333,13 +333,13 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)
             sudo('service supervisor start')
-            sudo('service nginx restart')
+            #sudo('service nginx restart')
             sudo('service supervisor restart')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/ss_started')
     except Exception as err:
         traceback.print_exc()
         print('Failed to start Self-service: ', str(err))
-        #sys.exit(1)
+        sys.exit(1)
 
 
 def install_build_dep():
