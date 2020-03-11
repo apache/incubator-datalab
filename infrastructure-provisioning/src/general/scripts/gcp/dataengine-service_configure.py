@@ -170,8 +170,12 @@ if __name__ == "__main__":
         dataproc_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
                                                                         dataproc_conf['project_name'],
                                                                         dataproc_conf['endpoint_name'])
-        dataproc_conf['edge_instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(
-            dataproc_conf['edge_instance_name'])
+        if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+            dataproc_conf['edge_instance_hostname'] = '{}.{}'.format(notebook_config['project_name'],
+                                                                     os.environ['conf_domain_name'])
+        else:
+            dataproc_conf['edge_instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(
+                dataproc_conf['edge_instance_name'])
         dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         dataproc_conf['master_name'] = dataproc_conf['cluster_name'] + '-m'
         dataproc_conf['master_ip'] = GCPMeta.get_private_ip_address(dataproc_conf['master_name'])
