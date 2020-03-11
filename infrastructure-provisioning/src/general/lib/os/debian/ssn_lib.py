@@ -339,7 +339,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
     except Exception as err:
         traceback.print_exc()
         print('Failed to start Self-service: ', str(err))
-        sys.exit(0)
+        #sys.exit(1)
 
 
 def install_build_dep():
