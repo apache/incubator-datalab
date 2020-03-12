@@ -765,7 +765,7 @@ def init_args():
     parser.add_argument('--hostname', type=str, default='')
     parser.add_argument('--os_user', type=str, default='dlab-user')
     parser.add_argument('--cloud_provider', type=str, default='')
-    parser.add_argument('--mongo_host', type=str, default='MONGO_HOST')
+    parser.add_argument('--mongo_host', type=str, default='localhost')
     parser.add_argument('--mongo_port', type=str, default='27017')
     parser.add_argument('--ss_host', type=str, default='')
     parser.add_argument('--ss_port', type=str, default='8443')

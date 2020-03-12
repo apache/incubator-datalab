@@ -1170,7 +1170,7 @@ class GCPEndpointBuilder(AbstractDeployBuilder):
          .add_bool('--billing_enable', 'Billing enable', group='endpoint', default=False)
          .add_str('--billing_dataset_name', 'Billing dataset name', group='endpoint')
          .add_str('--mongo_password', 'Mongo database password', group='endpoint')
-         .add_str('--mongo_host', 'Mongo database host', group='endpoint')
+         .add_str('--mongo_host', 'Mongo database host', group='endpoint', default='localhost')
          )
         return params.build()
 
