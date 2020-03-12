@@ -130,7 +130,7 @@ export class RolesComponent implements OnInit {
     } else if (action === 'update') {
       const currGroupSource = this.startedGroups.filter(cur => cur.group === item.group)[0];
       let deletedUsers = currGroupSource.users.filter(user => {
-        if (item.users && item.users.includes(user)) {
+        if (item.users.includes(user)) {
            return false;
         }
         return true;
@@ -172,7 +172,6 @@ export class RolesComponent implements OnInit {
       case 'update':
         this.rolesService.updateGroup($event.value).subscribe(res => {
           this.toastr.success(`Group data is updated successfully!`, 'Success!');
-          // this.getGroupsData();
         }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
 
         break;
