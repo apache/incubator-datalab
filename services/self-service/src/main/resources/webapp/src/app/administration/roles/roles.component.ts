@@ -130,7 +130,7 @@ export class RolesComponent implements OnInit {
     } else if (action === 'update') {
       const currGroupSource = this.startedGroups.filter(cur => cur.group === item.group)[0];
       let deletedUsers = currGroupSource.users.filter(user => {
-        if (item.users.includes(user)) {
+        if (item.users && item.users.includes(user)) {
            return false;
         }
         return true;
@@ -172,7 +172,7 @@ export class RolesComponent implements OnInit {
       case 'update':
         this.rolesService.updateGroup($event.value).subscribe(res => {
           this.toastr.success(`Group data is updated successfully!`, 'Success!');
-          this.getGroupsData();
+          // this.getGroupsData();
         }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
 
         break;
@@ -203,7 +203,12 @@ export class RolesComponent implements OnInit {
   }
 
   public updateGroupData(groups) {
-    this.groupsData = groups.map(v => v).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
+    this.groupsData = groups.map(v => {
+      if (!v.users) {
+        v.users = [];
+      }
+      return v;
+    }).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
       item.selected_roles = item.roles.map(role => ({role: role.description, type: role.type}));
     });
