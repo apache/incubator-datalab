@@ -98,7 +98,10 @@ if __name__ == "__main__":
                                                                 notebook_config['instance_name'])
         edge_instance_name = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
                                                     notebook_config['project_name'], notebook_config['endpoint_name'])
-        edge_instance_hostname = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
+        if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+            edge_instance_hostname = '{}.{}'.format(notebook_config['project_name'], os.environ['conf_domain_name'])
+        else:
+            edge_instance_hostname = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
         edge_instance_private_ip = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
                                                                          edge_instance_name).get('Private')
         notebook_config['edge_instance_hostname'] = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'],

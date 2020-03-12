@@ -74,7 +74,7 @@ def configure_slave(slave_number, data_engine):
     try:
         logging.info('[CONFIGURE PROXY ON SLAVE NODE]')
         print('[CONFIGURE PROXY ON ON SLAVE NODE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": data_engine['edge_instance_hostname'], "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(slave_hostname, slave_name, keyfile_name, json.dumps(additional_config),
                     data_engine['dlab_ssh_user'])
@@ -200,10 +200,12 @@ if __name__ == "__main__":
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         edge_instance_name = '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
                                                        data_engine['project_name'], data_engine['endpoint_name'])
-        edge_instance_hostname = dlab.meta_lib.get_instance_hostname(data_engine['tag_name'], edge_instance_name)
         edge_instance_private_ip = dlab.meta_lib.get_instance_ip_address(data_engine['tag_name'],
                                                                          edge_instance_name).get('Private')
-        data_engine['edge_instance_hostname'] = dlab.meta_lib.get_instance_hostname(data_engine['tag_name'],
+        if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+            data_engine['edge_instance_hostname'] = '{}.{}'.format(data_engine['project_name'], os.environ['conf_domain_name'])
+        else:
+            data_engine['edge_instance_hostname'] = dlab.meta_lib.get_instance_hostname(data_engine['tag_name'],
                                                                                     edge_instance_name)
         if os.environ['conf_os_family'] == 'debian':
             data_engine['initial_user'] = 'ubuntu'
@@ -258,7 +260,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE PROXY ON MASTER NODE]')
         print('[CONFIGURE PROXY ON ON MASTER NODE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": data_engine['edge_instance_hostname'], "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(master_node_hostname, data_engine['master_node_name'], keyfile_name, json.dumps(additional_config),
                     data_engine['dlab_ssh_user'])
@@ -359,7 +361,7 @@ if __name__ == "__main__":
                  "--type {} " \
                  "--exploratory_name {} " \
                  "--additional_info '{}'"\
-            .format(edge_instance_hostname,
+            .format(data_engine['edge_instance_hostname'],
                     keyfile_name,
                     data_engine['dlab_ssh_user'],
                     'spark',
