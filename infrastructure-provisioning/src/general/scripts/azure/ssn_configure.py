@@ -138,7 +138,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
             (ssn_conf['instance_host'], ssn_conf['ssh_key_path'], ssn_conf['initial_user'], ssn_conf['dlab_ssh_user'],
              ssn_conf['sudo_group'])
-        local("~/scripts/{}.py {}".format('create_ssh_user', params))
+        local("~/scripts/{}.py {}".format('create_ssh_user'))
     except Exception as err:
         traceback.print_exc()
         clear_resources()
