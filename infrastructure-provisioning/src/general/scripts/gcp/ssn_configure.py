@@ -376,7 +376,7 @@ if __name__ == "__main__":
             cloud_params.append(
                 {
                     'key': 'KEYCLOAK_REDIRECT_URI',
-                    'value': "https://ssn.{0}/*".format(os.environ['conf_domain_name'])
+                    'value': "https://ssn.{0}/".format(os.environ['conf_domain_name'])
                 })
             cloud_params.append(
                 {
