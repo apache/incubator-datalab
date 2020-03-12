@@ -39,7 +39,7 @@ resource "aws_instance" "edge" {
     Name                           = local.edge_instance_name
     "${local.additional_tag[0]}"   = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.edge_instance_name}"
-    "${var.service_base_name}-Tag" = local.edge_instance_name
+    "${var.service_base_name}-tag" = local.edge_instance_name
     "Endpoint_tag"                 = var.endpoint_tag
   }
 }

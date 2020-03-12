@@ -1322,7 +1322,7 @@ if __name__ == "__main__":
         ec2_client = boto3.client('ec2', region_name=args.region)
         efs_client = boto3.client('efs', region_name=args.region)
         route53_client = boto3.client('route53')
-    tag_name = args.service_base_name + '-Tag'
+    tag_name = args.service_base_name + '-tag'
     pre_defined_vpc = True
     pre_defined_subnet = True
     pre_defined_sg = True

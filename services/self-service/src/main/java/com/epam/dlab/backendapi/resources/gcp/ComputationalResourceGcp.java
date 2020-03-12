@@ -61,12 +61,22 @@ import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ComputationalResourceGcp implements ComputationalAPI {
+	private final SelfServiceApplicationConfiguration configuration;
+	private final ComputationalService computationalService;
 
 	@Inject
-	private SelfServiceApplicationConfiguration configuration;
-	@Inject
-	private ComputationalService computationalService;
+	public ComputationalResourceGcp(SelfServiceApplicationConfiguration configuration, ComputationalService computationalService) {
+		this.configuration = configuration;
+		this.computationalService = computationalService;
+	}
 
+
+	@GET
+	@Path("/{project}/{endpoint}/templates")
+	public Response getTemplates(@Auth @Parameter(hidden = true) UserInfo userInfo, @PathParam("project") String project,
+								 @PathParam("endpoint") String endpoint) {
+		return Response.ok(computationalService.getComputationalNamesAndTemplates(userInfo, project, endpoint)).build();
+	}
 
 	/**
 	 * Asynchronously creates Dataproc cluster

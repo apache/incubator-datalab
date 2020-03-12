@@ -51,6 +51,7 @@ def general_clean():
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+
 def clean_jupyter():
     try:
         sudo('systemctl stop jupyter-notebook')
@@ -67,6 +68,7 @@ def clean_jupyter():
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+
 def clean_zeppelin():
     try:
         sudo('systemctl stop zeppelin-notebook')
@@ -81,6 +83,7 @@ def clean_zeppelin():
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+
 def clean_rstudio():
     try:
         remove_os_pkg(['rstudio-server'])
@@ -89,6 +92,7 @@ def clean_rstudio():
     except Exception as err:
         print('Error:', str(err))
         sys.exit(1)
+
 
 def clean_tensor():
     try:
@@ -100,6 +104,7 @@ def clean_tensor():
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+
 def clean_tensor_rstudio():
     try:
         clean_rstudio()
@@ -110,6 +115,7 @@ def clean_tensor_rstudio():
         print('Error: {0}'.format(err))
         sys.exit(1)
 
+
 if __name__ == "__main__":
     print('Configure connections')
     env['connection_attempts'] = 100
@@ -117,19 +123,19 @@ if __name__ == "__main__":
     env.host_string = args.os_user + '@' + args.hostname
 
     if os.environ['conf_cloud_provider'] == 'azure':
-         de_master_name = '{}-{}-de-{}-{}-m'.format(
-            os.environ['conf_service_base_name'],
-            os.environ['project_name'].replace("_", "-"),
-            os.environ['exploratory_name'].replace("_", "-"),
-            os.environ['computational_name'].replace("_", "-"))
-         de_ami_id = AzureMeta().get_instance_image(os.environ['azure_resource_group_name'],
-            de_master_name)
-         default_ami_id = 'default'
-    else:
-        de_master_name = '{}-{}-de-{}-{}-m'.format(
+        de_master_name = '{}-{}-{}-de-{}-m'.format(
             os.environ['conf_service_base_name'],
             os.environ['project_name'],
-            os.environ['exploratory_name'],
+            os.environ['endpoint_name'],
+            os.environ['computational_name'])
+        de_ami_id = AzureMeta().get_instance_image(os.environ['azure_resource_group_name'],
+                                                   de_master_name)
+        default_ami_id = 'default'
+    else:
+        de_master_name = '{}-{}-{}-de-{}-m'.format(
+            os.environ['conf_service_base_name'],
+            os.environ['project_name'],
+            os.environ['endpoint_name'],
             os.environ['computational_name'])
         de_ami_id = get_ami_id_by_instance_name(de_master_name)
         default_ami_id = get_ami_id(

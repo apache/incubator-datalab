@@ -62,12 +62,17 @@ import static com.epam.dlab.dto.base.DataEngineType.SPARK_STANDALONE;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ComputationalResourceAws implements ComputationalAPI {
-
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
 	@Inject
 	private ComputationalService computationalService;
 
+	@GET
+	@Path("/{project}/{endpoint}/templates")
+	public Response getTemplates(@Auth @Parameter(hidden = true) UserInfo userInfo, @PathParam("project") String project,
+								 @PathParam("endpoint") String endpoint) {
+		return Response.ok(computationalService.getComputationalNamesAndTemplates(userInfo, project, endpoint)).build();
+	}
 
 	/**
 	 * Asynchronously creates EMR cluster
