@@ -252,12 +252,12 @@ def ensure_mongo_endpoint():
     try:
         print('[INSTALLING MONGO DATABASE]')
         if not exists(conn, '/home/{}/.ensure_dir/mongo_ensured'.format(args.os_user)):
-            conn.sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
-            conn.sudo('bash -c '
-                      'echo "deb http://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/3.2 multiverse" | '
-                      'sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; '
-                      'sudo apt-get update')
-            conn.sudo('apt-get -y --allow-unauthenticated install mongodb-org ')
+            conn.sudo('bash -c wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -')
+            conn.sudo('bash -c echo "deb [ arch=amd64,arm64 ] '
+                      'https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/4.2 multiverse" | sudo '
+                      'tee /etc/apt/sources.list.d/mongodb-org-4.2.list')
+            conn.sudo('apt-get update')
+            conn.sudo('apt-get -y --allow-unauthenticated install mongodb-org')
             conn.sudo('systemctl enable mongod.service')
             conn.sudo('touch /home/{}/.ensure_dir/mongo_ensured'
                       .format(args.os_user))
