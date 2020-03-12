@@ -268,10 +268,10 @@ def ensure_mongo_endpoint():
             conn.sudo('cp -i /tmp/mongod.service_template /lib/systemd/system/mongod.service')
             conn.sudo('systemctl daemon-reload')
             conn.sudo('systemctl enable mongod.service')
-        if not exist(conn, '/tmp/configure_mongo.py'):
+        if not exists(conn, '/tmp/configure_mongo.py'):
             conn.put('./mongo_files/configure_mongo.py', '/tmp/configure_mongo.py')
             conn.sudo('sed -i "s|PASSWORD|{}|g" /tmp/configure_mongo.py'.format(args.mongo_password))
-        if not exist(conn, '/tmp/mongo_roles.json'):
+        if not exists(conn, '/tmp/mongo_roles.json'):
             conn.put('./mongo_files/gcp/mongo_roles.json', '/tmp/mongo_roles.json')
         conn.sudo('python /tmp/configure_mongo.py')
     except Exception as err:
