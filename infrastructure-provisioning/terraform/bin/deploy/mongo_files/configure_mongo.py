@@ -22,20 +22,12 @@
 # ******************************************************************************
 
 from pymongo import MongoClient
-import yaml, json, sys
+import yaml
 import subprocess
 import time
-import argparse
-from dlab.fab import *
 
 path = "/etc/mongod.conf"
 outfile = "/etc/mongo_params.yml"
-
-parser = argparse.ArgumentParser()
-
-#parser.add_argument('--mongo_parameters', type=str, default='')
-args = parser.parse_args()
-
 
 def add_2_yml_config(path, section, param, value):
     try:
