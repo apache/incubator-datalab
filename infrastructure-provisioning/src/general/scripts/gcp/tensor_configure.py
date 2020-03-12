@@ -90,7 +90,7 @@ if __name__ == "__main__":
             edge_instance_hostname = '{}.{}'.format(notebook_config['project_name'], os.environ['conf_domain_name'])
         else:
             edge_instance_hostname = GCPMeta.get_instance_public_ip_by_name(edge_instance_name)
-            edge_instance_private_ip = GCPMeta.get_private_ip_address(edge_instance_name)
+        edge_instance_private_ip = GCPMeta.get_private_ip_address(edge_instance_name)
         notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['zone'] = os.environ['gcp_zone']
