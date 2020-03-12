@@ -252,7 +252,7 @@ def ensure_mongo_endpoint():
     try:
         print('[INSTALLING MONGO DATABASE]')
         if not exists(conn, '/home/{}/.ensure_dir/mongo_ensured'.format(args.os_user)):
-            conn.sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
+            conn.sudo('bash -c wget -qO - https://www.mongodb.org/static/pgp/server-3.2.asc | sudo apt-key add -')
 
             conn.sudo('add-apt-repository "deb [arch=amd64] '
                       'http://repo.mongodb.org/apt/ubuntu '
