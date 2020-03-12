@@ -205,7 +205,7 @@ if __name__ == "__main__":
         edge_instance_name = '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
                                                        data_engine['project_name'], data_engine['endpoint_tag'])
         if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
-            edge_instance_hostname = '{}.{}'.format(notebook_config['project_name'], os.environ['conf_domain_name'])
+            edge_instance_hostname = '{}.{}'.format(data_engine['project_name'], os.environ['conf_domain_name'])
         else:
             edge_instance_hostname = GCPMeta.get_instance_public_ip_by_name(edge_instance_name)
         edge_instance_private_ip = GCPMeta.get_private_ip_address(edge_instance_name)

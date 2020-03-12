@@ -171,7 +171,7 @@ if __name__ == "__main__":
                                                                         dataproc_conf['project_name'],
                                                                         dataproc_conf['endpoint_name'])
         if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
-            dataproc_conf['edge_instance_hostname'] = '{}.{}'.format(notebook_config['project_name'],
+            dataproc_conf['edge_instance_hostname'] = '{}.{}'.format(dataproc_conf['project_name'],
                                                                      os.environ['conf_domain_name'])
         else:
             dataproc_conf['edge_instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(
