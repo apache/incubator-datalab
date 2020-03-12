@@ -67,7 +67,7 @@ if __name__ == "__main__":
                                                        image_conf['project_name'],
                                                        image_conf['endpoint_name'])
         if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
-            edge_instance_hostname = '{}.{}'.format(notebook_config['project_name'], os.environ['conf_domain_name'])
+            edge_instance_hostname = '{}.{}'.format(image_conf['project_name'], os.environ['conf_domain_name'])
         else:
             edge_instance_hostname = AzureMeta.get_private_ip_address(image_conf['resource_group_name'],
                                                                     edge_instance_name)

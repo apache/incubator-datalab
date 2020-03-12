@@ -215,7 +215,7 @@ if __name__ == "__main__":
                                                                       edge_instance_name)
         else:
             if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
-                edge_instance_hostname = '{}.{}'.format(notebook_config['project_name'], os.environ['conf_domain_name'])
+                edge_instance_hostname = '{}.{}'.format(data_engine['project_name'], os.environ['conf_domain_name'])
             else:
                 edge_instance_hostname = data_engine['edge_instance_dns_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
