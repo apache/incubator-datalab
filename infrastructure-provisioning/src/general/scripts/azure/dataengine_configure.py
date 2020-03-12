@@ -214,7 +214,10 @@ if __name__ == "__main__":
             edge_instance_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
                                                                       edge_instance_name)
         else:
-            edge_instance_hostname = data_engine['edge_instance_dns_name']
+            if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+                edge_instance_hostname = '{}.{}'.format(notebook_config['project_name'], os.environ['conf_domain_name'])
+            else:
+                edge_instance_hostname = data_engine['edge_instance_dns_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(keyfile_name, 'rb').read())
         data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
