@@ -70,7 +70,10 @@ if __name__ == "__main__":
         notebook_config['cluster_id'] = dlab.meta_lib.get_emr_id_by_name(notebook_config['cluster_name'])
         edge_instance_name = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
                                                     os.environ['project_name'], os.environ['endpoint_name'])
-        edge_instance_hostname = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
+        if os.environ['conf_domain_name_enabled'] and 'conf_domain_name' in os.environ:
+            edge_instance_hostname = '{}.{}'.format(notebook_config['project_name'], os.environ['conf_domain_name'])
+        else:
+            edge_instance_hostname = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
         if os.environ['application'] == 'deeplearning':
             application = 'jupyter'
         else:
