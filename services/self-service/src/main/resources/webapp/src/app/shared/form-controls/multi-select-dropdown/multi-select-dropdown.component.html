@@ -40,7 +40,8 @@
           <li role="presentation" *ngIf="model">
             <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
               <span class="material-icons" *ngIf="model.indexOf(item) >= 0">done</span>
-              {{item}}
+              <ng-container *ngIf="type[0] !== 'resource_type'">{{item}}</ng-container>
+              <ng-container *ngIf="type[0] === 'resource_type'">{{item | titlecase}}</ng-container>
             </a>
           </li>
         </ng-template>
