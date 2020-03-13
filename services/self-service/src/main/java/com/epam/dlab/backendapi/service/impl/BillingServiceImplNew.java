@@ -251,7 +251,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
     }
 
     private Predicate<BillingData> getBillingDataFilter(BillingFilter filter) {
-        return br -> (StringUtils.isEmpty(filter.getDlabId()) || filter.getDlabId().equalsIgnoreCase(br.getTag())) &&
+        return br -> (StringUtils.isEmpty(filter.getDlabId()) || StringUtils.containsIgnoreCase(br.getTag(), filter.getDlabId())) &&
                 (StringUtils.isEmpty(filter.getDateStart()) || LocalDate.parse(filter.getDateStart()).isEqual(br.getUsageDateFrom()) || LocalDate.parse(filter.getDateStart()).isBefore(br.getUsageDateFrom())) &&
                 (StringUtils.isEmpty(filter.getDateEnd()) || LocalDate.parse(filter.getDateEnd()).isEqual(br.getUsageDateTo()) || LocalDate.parse(filter.getDateEnd()).isAfter(br.getUsageDateTo())) &&
                 (CollectionUtils.isEmpty(filter.getProducts()) || filter.getProducts().contains(br.getProduct()));
