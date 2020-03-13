@@ -521,7 +521,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-ssn-disk0'.format(service_base_name),
+                            'name': '{}-ssn-volume-primary'.format(service_base_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'tags': tags,
@@ -531,7 +531,7 @@ class AzureActions:
                         }
                     },
                     'os_profile': {
-                        'computer_name': instance_name,
+                        'computer_name': instance_name.replace('_', '-'),
                         'admin_username': dlab_ssh_user_name,
                         'linux_configuration': {
                             'disable_password_authentication': True,
@@ -568,7 +568,8 @@ class AzureActions:
                             },
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-disk0'.format(service_base_name, project_name),
+                                'name': '{}-{}-{}-edge-volume-primary'.format(service_base_name, project_name,
+                                                                              os.environ['endpoint_name'].lower()),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'tags': tags,
@@ -578,7 +579,7 @@ class AzureActions:
                             }
                         },
                         'os_profile': {
-                            'computer_name': instance_name,
+                            'computer_name': instance_name.replace('_', '-'),
                             'admin_username': dlab_ssh_user_name,
                             'linux_configuration': {
                                 'disable_password_authentication': True,
@@ -608,7 +609,8 @@ class AzureActions:
                         'storage_profile': {
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-disk0'.format(service_base_name, project_name),
+                                'name': '{}-{}-{}-edge-volume-primary'.format(service_base_name, project_name,
+                                                                              os.environ['endpoint_name'].lower()),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'tags': tags,
@@ -637,7 +639,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-disk0'.format(instance_name),
+                            'name': '{}-volume-primary'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'tags': tags,
@@ -648,11 +650,11 @@ class AzureActions:
                         'data_disks': [
                             {
                                 'lun': 1,
-                                'name': '{}-disk1'.format(instance_name),
+                                'name': '{}-volume-secondary'.format(instance_name),
                                 'create_option': 'empty',
                                 'disk_size_gb': 32,
                                 'tags': {
-                                    'Name': '{}-disk1'.format(instance_name)
+                                    'Name': '{}-volume-secondary'.format(instance_name)
                                 },
                                 'managed_disk': {
                                     'storage_account_type': instance_storage_account_type
@@ -667,7 +669,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-disk0'.format(instance_name),
+                            'name': '{}-volume-primary'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'tags': tags,
@@ -684,7 +686,7 @@ class AzureActions:
                     },
                     'storage_profile': storage_profile,
                     'os_profile': {
-                        'computer_name': instance_name,
+                        'computer_name': instance_name.replace('_', '-'),
                         'admin_username': dlab_ssh_user_name,
                         'linux_configuration': {
                             'disable_password_authentication': True,
@@ -712,7 +714,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-disk0'.format(instance_name),
+                            'name': '{}-volume-primary'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'tags': tags,
@@ -731,7 +733,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-disk0'.format(instance_name),
+                            'name': '{}-volume-primary'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'tags': tags,
@@ -748,7 +750,7 @@ class AzureActions:
                     },
                     'storage_profile': storage_profile,
                     'os_profile': {
-                        'computer_name': instance_name,
+                        'computer_name': instance_name.replace('_', '-'),
                         'admin_username': dlab_ssh_user_name,
                         'linux_configuration': {
                             'disable_password_authentication': True,
@@ -1082,19 +1084,20 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
                 spark_jars_paths = sudo('cat /opt/spark/conf/spark-defaults.conf | grep -e "^spark.jars " ')
             except:
                 spark_jars_paths = None
-        user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['project_name'].lower().replace('_', '-')).\
-            replace('_', '-') + '-' + os.environ['endpoint_name'].lower().replace('_', '-') + '-storage'
-        shared_storage_account_tag = '{0}-{1}-shared-storage'.format(os.environ['conf_service_base_name'],
-                                                                     os.environ['endpoint_name'])
+        user_storage_account_tag = "{}-{}-{}-bucket".format(os.environ['conf_service_base_name'],
+                                                            os.environ['project_name'].lower(),
+                                                            os.environ['endpoint_name'].lower())
+        shared_storage_account_tag = '{0}-{1}-shared-bucket'.format(os.environ['conf_service_base_name'],
+                                                                    os.environ['endpoint_name'].lower())
         for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if user_storage_account_tag == storage_account.tags["Name"]:
                 user_storage_account_name = storage_account.name
-                user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
-                                                                                  user_storage_account_name)[0]
+                user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(
+                    os.environ['azure_resource_group_name'], user_storage_account_name)[0]
             if shared_storage_account_tag == storage_account.tags["Name"]:
                 shared_storage_account_name = storage_account.name
-                shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
-                                                                                    shared_storage_account_name)[0]
+                shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(
+                    os.environ['azure_resource_group_name'], shared_storage_account_name)[0]
         if os.environ['azure_datalake_enable'] == 'false':
             put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
         else:

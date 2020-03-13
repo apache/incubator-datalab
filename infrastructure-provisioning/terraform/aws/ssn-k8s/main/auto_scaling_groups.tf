@@ -21,8 +21,8 @@
 
 locals {
   subnet_c_id                      = data.aws_subnet.k8s-subnet-c-data == [] ? "" : data.aws_subnet.k8s-subnet-c-data.0.id
-  ssn_k8s_launch_conf_masters_name = "${var.service_base_name}-ssn-launch-conf-masters"
-  ssn_k8s_launch_conf_workers_name = "${var.service_base_name}-ssn-launch-conf-workers"
+  ssn_k8s_launch_conf_masters_name = "${var.service_base_name}-ssn-lc-masters"
+  ssn_k8s_launch_conf_workers_name = "${var.service_base_name}-ssn-lc-workers"
   ssn_k8s_ag_masters_name          = "${var.service_base_name}-ssn-masters"
   ssn_k8s_ag_workers_name          = "${var.service_base_name}-ssn-workers"
   cluster_name                     = "${var.service_base_name}-k8s-cluster"
@@ -122,7 +122,7 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_masters" {
       propagate_at_launch = true
     },
     {
-      key                 = "${var.service_base_name}-Tag"
+      key                 = "${var.service_base_name}-tag"
       value               = local.ssn_k8s_ag_masters_name
       propagate_at_launch = true
     },
@@ -162,7 +162,7 @@ resource "aws_autoscaling_group" "ssn_k8s_autoscaling_group_workers" {
       propagate_at_launch = true
     },
     {
-      key                 = "${var.service_base_name}-Tag"
+      key                 = "${var.service_base_name}-tag"
       value               = local.ssn_k8s_ag_workers_name
       propagate_at_launch = true
     },

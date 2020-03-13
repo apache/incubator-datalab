@@ -24,14 +24,18 @@
 import logging
 import json
 import os
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
 import sys
+import traceback
+from fabric.api import *
 
 
 def start_data_engine(cluster_name):
     print("Start Data Engine")
     try:
-        start_ec2(os.environ['conf_tag_resource_id'], cluster_name)
+        dlab.actions_lib.start_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
         sys.exit(1)
 
@@ -47,7 +51,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    create_aws_config_files()
+    dlab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     data_engine = dict()
     
@@ -59,15 +63,14 @@ if __name__ == "__main__":
         data_engine['computational_name'] = os.environ['computational_name']
     except:
         data_engine['computational_name'] = ''
-    data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
     data_engine['project_name'] = os.environ['project_name']
-    data_engine['cluster_name'] = \
-        data_engine['service_base_name'] + '-' + \
-        data_engine['project_name'] + '-de-' + \
-        data_engine['exploratory_name'] + '-' + \
-        data_engine['computational_name']
+    data_engine['endpoint_name'] = os.environ['endpoint_name']
 
+    data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
+                                                          data_engine['project_name'],
+                                                          data_engine['endpoint_name'],
+                                                          data_engine['computational_name'])
 
     logging.info('[START DATA ENGINE CLUSTER]')
     print('[START DATA ENGINE CLUSTER]')
@@ -76,19 +79,18 @@ if __name__ == "__main__":
                                          data_engine['cluster_name']))
     except Exception as err:
         print('Error: {0}'.format(err))
-        append_result("Failed to start Data Engine.", str(err))
+        dlab.fab.append_result("Failed to start Data Engine.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[UPDATE LAST ACTIVITY TIME]')
         print('[UPDATE LAST ACTIVITY TIME]')
         data_engine['computational_id'] = data_engine['cluster_name'] + '-m'
-        data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
-        data_engine['notebook_ip'] = get_instance_ip_address(data_engine['tag_name'],
-                                                                    os.environ['notebook_instance_name']).get('Private')
-        data_engine['computational_ip'] = get_instance_ip_address(data_engine['tag_name'],
-                                                                         data_engine['computational_id']).get(
-            'Private')
+        data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
+        data_engine['notebook_ip'] = dlab.meta_lib.get_instance_ip_address(
+            data_engine['tag_name'], os.environ['notebook_instance_name']).get('Private')
+        data_engine['computational_ip'] = dlab.meta_lib.get_instance_ip_address(
+            data_engine['tag_name'], data_engine['computational_id']).get('Private')
         data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {0} --notebook_ip {1} --keyfile "{2}" --cluster_ip {3}' \
             .format(os.environ['conf_os_user'], data_engine['notebook_ip'], data_engine['keyfile'],
@@ -97,7 +99,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to update last activity time.", str(err))
+            dlab.fab.append_result("Failed to update last activity time.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -108,6 +110,6 @@ if __name__ == "__main__":
                    "Action": "Start Data Engine"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

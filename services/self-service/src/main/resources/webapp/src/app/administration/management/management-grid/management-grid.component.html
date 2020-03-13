@@ -77,7 +77,8 @@
             <span [hidden]="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">more_vert</span>
           </i>
         </button> </th>
-      <td mat-cell *matCellDef="let element" class="ani status" ngClass="{{element.status || ''}}">{{ element.status }}
+      <td mat-cell *matCellDef="let element" class="ani status" >
+        <span ngClass="{{element.status || ''}}">{{ element.status }}</span>
       </td>
     </ng-container>
 

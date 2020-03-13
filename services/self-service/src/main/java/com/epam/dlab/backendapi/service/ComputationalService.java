@@ -21,16 +21,17 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.ComputationalTemplatesDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
-import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
-import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ComputationalService {
+	ComputationalTemplatesDTO getComputationalNamesAndTemplates(UserInfo user, String project, String endpoint);
+
 	/**
 	 * Asynchronously triggers creation of Spark cluster
 	 *
@@ -46,29 +47,25 @@ public interface ComputationalService {
 	 * Asynchronously triggers termination of computational resources
 	 *
 	 * @param userInfo          user info of authenticated user
+	 * @param project           project name
 	 * @param exploratoryName   name of exploratory where to terminate computational resources with
 	 *                          <code>computationalName</code>
 	 * @param computationalName computational name
 	 */
-	void terminateComputational(UserInfo userInfo, String exploratoryName, String computationalName);
+	void terminateComputational(UserInfo userInfo, String project, String exploratoryName, String computationalName);
 
 	boolean createDataEngineService(UserInfo userInfo, ComputationalCreateFormDTO formDTO, UserComputationalResource
 			computationalResource, String project);
 
-	void stopSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName);
+	void stopSparkCluster(UserInfo userInfo, String project, String exploratoryName, String computationalName);
 
 	void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName, String project);
 
-	void updateSparkClusterConfig(UserInfo userInfo, String exploratoryName, String computationalName,
+	void updateSparkClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName,
 								  List<ClusterConfig> config);
 
-	void updateComputationalsReuploadKeyFlag(String user, List<UserInstanceStatus> exploratoryStatuses,
-											 List<DataEngineType> computationalTypes,
-											 boolean reuploadKeyRequired,
-											 UserInstanceStatus... computationalStatuses);
-
-	Optional<UserComputationalResource> getComputationalResource(String user, String exploratoryName,
+	Optional<UserComputationalResource> getComputationalResource(String user, String project, String exploratoryName,
 																 String computationalName);
 
-	List<ClusterConfig> getClusterConfig(UserInfo userInfo, String exploratoryName, String computationalName);
+	List<ClusterConfig> getClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName);
 }

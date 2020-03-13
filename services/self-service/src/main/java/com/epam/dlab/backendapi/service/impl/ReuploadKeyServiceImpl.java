@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.service.impl;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -27,11 +26,8 @@ import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ReuploadKeyService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.UserInstanceStatus;
-import com.epam.dlab.dto.base.DataEngineType;
-import com.epam.dlab.dto.reuploadkey.ReuploadKeyDTO;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatus;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.rest.client.RESTService;
@@ -39,16 +35,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.UUID;
 
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
-import static com.epam.dlab.dto.UserInstanceStatus.REUPLOADING_KEY;
 import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
-import static com.epam.dlab.rest.contracts.KeyAPI.REUPLOAD_KEY;
 
 @Singleton
 @Slf4j
@@ -75,34 +64,33 @@ public class ReuploadKeyServiceImpl implements ReuploadKeyService {
 
 	@Override
 	public void updateResourceData(ReuploadKeyStatusDTO dto) {
-		String user = dto.getUser();
-		ResourceData resource = dto.getReuploadKeyCallbackDTO().getResource();
-		log.debug("Updating resource {} to status RUNNING...", resource.toString());
-		updateResourceStatus(user, resource, RUNNING);
-		if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
-			log.debug(REUPLOAD_KEY_UPDATE_MSG, resource.toString());
-			updateResourceReuploadKeyFlag(user, resource, false);
-		} else {
-			log.error(REUPLOAD_KEY_ERROR_MSG, resource.toString());
-		}
-	}
+        String user = dto.getUser();
+        ResourceData resource = dto.getReuploadKeyCallbackDTO().getResource();
+        log.debug("Updating resource {} to status RUNNING...", resource.toString());
+        updateResourceStatus(user, null, resource, RUNNING);
+        if (dto.getReuploadKeyStatus() == ReuploadKeyStatus.COMPLETED) {
+            log.debug(REUPLOAD_KEY_UPDATE_MSG, resource.toString());
+            updateResourceReuploadKeyFlag(user, null, resource, false);
+        } else {
+            log.error(REUPLOAD_KEY_ERROR_MSG, resource.toString());
+        }
+    }
 
-	private void updateResourceStatus(String user, ResourceData resourceData, UserInstanceStatus newStatus) {
-		if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
-			exploratoryDAO.updateStatusForExploratory(user, resourceData.getExploratoryName(), newStatus);
-		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
-			computationalDAO.updateStatusForComputationalResource(user, resourceData.getExploratoryName(),
-					resourceData.getComputationalName(), newStatus);
-		}
-	}
+    private void updateResourceStatus(String user, String project, ResourceData resourceData, UserInstanceStatus newStatus) {
+        if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
+            exploratoryDAO.updateStatusForExploratory(user, project, resourceData.getExploratoryName(), newStatus);
+        } else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
+            computationalDAO.updateStatusForComputationalResource(user, project,
+                    resourceData.getExploratoryName(), resourceData.getComputationalName(), newStatus);
+        }
+    }
 
-	private void updateResourceReuploadKeyFlag(String user, ResourceData resourceData, boolean reuploadKeyRequired) {
-		if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
-			exploratoryDAO.updateReuploadKeyForExploratory(user, resourceData.getExploratoryName(),
-					reuploadKeyRequired);
-		} else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
-			computationalDAO.updateReuploadKeyFlagForComputationalResource(user, resourceData.getExploratoryName(),
-					resourceData.getComputationalName(), reuploadKeyRequired);
-		}
-	}
+    private void updateResourceReuploadKeyFlag(String user, String project, ResourceData resourceData, boolean reuploadKeyRequired) {
+        if (resourceData.getResourceType() == ResourceType.EXPLORATORY) {
+            exploratoryDAO.updateReuploadKeyForExploratory(user, project, resourceData.getExploratoryName(), reuploadKeyRequired);
+        } else if (resourceData.getResourceType() == ResourceType.COMPUTATIONAL) {
+            computationalDAO.updateReuploadKeyFlagForComputationalResource(user, project,
+                    resourceData.getExploratoryName(), resourceData.getComputationalName(), reuploadKeyRequired);
+        }
+    }
 }

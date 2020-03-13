@@ -39,6 +39,9 @@ public class LibInstallFormDTO {
     @JsonProperty("computational_name")
     private String computationalName;
 
+    @JsonProperty("project_name")
+    private String project;
+
     @NotEmpty
     @JsonProperty
     private List<LibInstallDTO> libs;

@@ -32,29 +32,21 @@ import java.util.Optional;
 
 public interface ExploratoryService {
 
-	String start(UserInfo userInfo, String exploratoryName, String project);
+    String start(UserInfo userInfo, String exploratoryName, String project);
 
-	String stop(UserInfo userInfo, String exploratoryName);
+    String stop(UserInfo userInfo, String project, String exploratoryName);
 
-	String terminate(UserInfo userInfo, String exploratoryName);
+    String terminate(UserInfo userInfo, String project, String exploratoryName);
 
-	String create(UserInfo userInfo, Exploratory exploratory, String project);
+    String create(UserInfo userInfo, Exploratory exploratory, String project);
 
-	void updateExploratoryStatuses(String user, UserInstanceStatus status);
+    void updateProjectExploratoryStatuses(String project, String endpoint, UserInstanceStatus status);
 
-	void updateProjectExploratoryStatuses(String project, String endpoint, UserInstanceStatus status);
+    void updateClusterConfig(UserInfo userInfo, String project, String exploratoryName, List<ClusterConfig> config);
 
-	void updateExploratoriesReuploadKeyFlag(String user, boolean reuploadKeyRequired,
-											UserInstanceStatus... exploratoryStatuses);
+    Optional<UserInstanceDTO> getUserInstance(String user, String project, String exploratoryName);
 
-	List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
-												   UserInstanceStatus computationalStatus);
+    List<ClusterConfig> getClusterConfig(UserInfo user, String project, String exploratoryName);
 
-	void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config);
-
-	Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName);
-
-	List<ClusterConfig> getClusterConfig(UserInfo user, String exploratoryName);
-
-	ExploratoryCreatePopUp getUserInstances(UserInfo user);
+    ExploratoryCreatePopUp getUserInstances(UserInfo user);
 }

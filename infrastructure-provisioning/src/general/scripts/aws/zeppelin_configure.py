@@ -24,12 +24,14 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import traceback
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
 import os
 import argparse
 import traceback
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--uuid', type=str, default='')
@@ -44,77 +46,83 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
-
-    notebook_config = dict()
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        notebook_config['exploratory_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
-    notebook_config['key_name'] = os.environ['conf_key_name']
-    notebook_config['user_keyname'] = os.environ['project_name']
-    notebook_config['network_type'] = os.environ['conf_network_type']
-    notebook_config['instance_name'] = '{}-{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
-                                                               os.environ['project_name'], os.environ['endpoint_name'],
-                                                               notebook_config['exploratory_name'], args.uuid)
-    notebook_config['image_enabled'] = os.environ['conf_image_enabled']
-    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
-    if os.environ['conf_shared_image_enabled'] == 'false':
-        notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
-            notebook_config['service_base_name'],
-            os.environ['endpoint_name'],
-            os.environ['project_name'],
-            os.environ['application'])
-    else:
-        notebook_config['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(
-            notebook_config['service_base_name'],
-            os.environ['endpoint_name'],
-            os.environ['application'])
-    notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
-    notebook_config['role_profile_name'] = '{}-{}-{}-nb-de-Profile' \
-        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['project_name'], os.environ['endpoint_name'])
-    notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                  os.environ['project_name'], os.environ['endpoint_name'])
-    notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
-    notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-    notebook_config['ip_address'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
-
-    region = os.environ['aws_region']
-    if region == 'us-east-1':
-        endpoint_url = 'https://s3.amazonaws.com'
-    elif region == 'cn-north-1':
-        endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
-    else:
-        endpoint_url = 'https://s3-{}.amazonaws.com'.format(region)
-
-    # generating variables regarding EDGE proxy on Notebook instance
-    instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
-    edge_instance_name = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
-                                                os.environ['project_name'], os.environ['endpoint_name'])
-    edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
-    edge_instance_private_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
-    if notebook_config['network_type'] == 'private':
-        edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
-    else:
-        edge_instance_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Public')
-    keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    edge_ip = get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
+        notebook_config = dict()
+        try:
+            notebook_config['exploratory_name'] = os.environ['exploratory_name']
+        except:
+            notebook_config['exploratory_name'] = ''
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+        notebook_config['project_name'] = os.environ['project_name']
+        notebook_config['endpoint_name'] = os.environ['endpoint_name']
+        notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
+        notebook_config['key_name'] = os.environ['conf_key_name']
+        notebook_config['user_keyname'] = notebook_config['project_name']
+        notebook_config['network_type'] = os.environ['conf_network_type']
+        notebook_config['instance_name'] = '{}-{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
+                                                                      notebook_config['project_name'],
+                                                                      notebook_config['endpoint_name'],
+                                                                      notebook_config['exploratory_name'], args.uuid)
+        notebook_config['image_enabled'] = os.environ['conf_image_enabled']
+        notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
+        if os.environ['conf_shared_image_enabled'] == 'false':
+            notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+                notebook_config['service_base_name'],
+                notebook_config['project_name'],
+                notebook_config['endpoint_name'],
+                os.environ['application'])
+        else:
+            notebook_config['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(
+                notebook_config['service_base_name'],
+                notebook_config['endpoint_name'],
+                os.environ['application'])
+        notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
+        notebook_config['role_profile_name'] = '{}-{}-{}-nb-de-profile'.format(
+            notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'])
+        notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
+                                                                         notebook_config['project_name'],
+                                                                         notebook_config['endpoint_name'])
+        notebook_config['tag_name'] = '{}-tag'.format(notebook_config['service_base_name'])
+        notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+        notebook_config['ip_address'] = dlab.meta_lib.get_instance_ip_address(
+            notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
+        notebook_config['region'] = os.environ['aws_region']
+        if notebook_config['region'] == 'us-east-1':
+            notebook_config['endpoint_url'] = 'https://s3.amazonaws.com'
+        elif notebook_config['region'] == 'cn-north-1':
+            notebook_config['endpoint_url'] = "https://s3.{}.amazonaws.com.cn".format(notebook_config['region'])
+        else:
+            notebook_config['endpoint_url'] = 'https://s3-{}.amazonaws.com'.format(notebook_config['region'])
+        # generating variables regarding EDGE proxy on Notebook instance
+        instance_hostname = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'],
+                                                                notebook_config['instance_name'])
+        edge_instance_name = '{}-{}-{}-edge'.format(notebook_config['service_base_name'],
+                                                    notebook_config['project_name'], notebook_config['endpoint_name'])
+        edge_instance_hostname = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
+        edge_instance_private_ip = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
+                                                                         edge_instance_name).get('Private')
+        notebook_config['edge_instance_hostname'] = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'],
+                                                                                        edge_instance_name)
+        keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        edge_ip = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'], edge_instance_name).get('Private')
+    except Exception as err:
+        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
 
     try:
         if os.environ['conf_os_family'] == 'debian':
-            initial_user = 'ubuntu'
-            sudo_group = 'sudo'
+            notebook_config['initial_user'] = 'ubuntu'
+            notebook_config['sudo_group'] = 'sudo'
         if os.environ['conf_os_family'] == 'redhat':
-            initial_user = 'ec2-user'
-            sudo_group = 'wheel'
+            notebook_config['initial_user'] = 'ec2-user'
+            notebook_config['sudo_group'] = 'wheel'
 
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
-        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", initial_user,
-             notebook_config['dlab_ssh_user'], sudo_group)
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
+            instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
+            notebook_config['initial_user'], notebook_config['dlab_ssh_user'], notebook_config['sudo_group'])
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -122,9 +130,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed creating ssh user 'dlab'.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed creating ssh user 'dlab'.", str(err))
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # configuring proxy on Notebook instance
@@ -141,9 +148,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result('Unable to configure proxy on zeppelin notebook. Exception: ' + str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        dlab.fab.append_result('Unable to configure proxy on zeppelin notebook. Exception: ' + str(err))
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # updating repositories & installing python packages
@@ -160,8 +166,8 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        append_result("Failed installing apps: apt & pip.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed installing apps: apt & pip.", str(err))
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # installing and configuring zeppelin and all dependencies
@@ -169,7 +175,8 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE ZEPPELIN NOTEBOOK INSTANCE]')
         print('[CONFIGURE ZEPPELIN NOTEBOOK INSTANCE]')
         additional_config = {"frontend_hostname": edge_instance_hostname,
-                             "backend_hostname": get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name']),
+                             "backend_hostname": dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'],
+                                                                                     notebook_config['instance_name']),
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
         params = "--hostname {0} --instance_name {1} " \
@@ -180,13 +187,13 @@ if __name__ == "__main__":
                  "--zeppelin_version {10} --scala_version {11} " \
                  "--livy_version {12} --multiple_clusters {13} " \
                  "--r_mirror {14} --endpoint_url {15} " \
-                 "--ip_adress {16} --exploratory_name {17} --edge_ip {18}" \
+                 "--ip_address {16} --exploratory_name {17} --edge_ip {18}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['aws_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
-                    os.environ['notebook_r_mirror'], endpoint_url, notebook_config['ip_address'],
+                    os.environ['notebook_r_mirror'], notebook_config['endpoint_url'], notebook_config['ip_address'],
                     notebook_config['exploratory_name'], edge_ip)
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
@@ -194,9 +201,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure zeppelin.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to configure zeppelin.", str(err))
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -212,9 +218,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing users key.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed installing users key.", str(err))
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -225,12 +230,11 @@ if __name__ == "__main__":
         try:
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except:
-            append_result("Failed setup git credentials")
+            dlab.fab.append_result("Failed setup git credentials")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to setup git credentials.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to setup git credentials.", str(err))
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
     
     try:
@@ -246,9 +250,8 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to post configuring instance.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to post configuring instance.", str(err))
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -259,99 +262,106 @@ if __name__ == "__main__":
             'tensor': False
         }
         params = "--edge_hostname {} --keyfile {} --os_user {} --type {} --exploratory_name {} --additional_info '{}'"\
-            .format(edge_instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], 'zeppelin', notebook_config['exploratory_name'], json.dumps(additional_info))
+            .format(edge_instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], 'zeppelin',
+                    notebook_config['exploratory_name'], json.dumps(additional_info))
         try:
             local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
         except:
-            append_result("Failed edge reverse proxy template")
+            dlab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to set edge reverse proxy template.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to set edge reverse proxy template.", str(err))
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
-            ami_id = get_ami_id_by_name(`notebook_config['expected_image_name']`)
+            ami_id = dlab.meta_lib.get_ami_id_by_name(notebook_config['expected_image_name'])
             if ami_id == '' and notebook_config['shared_image_enabled'] == 'false':
                 print("Looks like it's first time we configure notebook server. Creating image.")
                 try:
-                    os.environ['conf_additional_tags'] = os.environ[
-                                                             'conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(
-                        os.environ['project_name'], os.environ['endpoint_name'])
+                    os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1};'.format(
+                        os.environ['project_name'], os.environ['endpoint_name'], os.environ['conf_additional_tags'])
                 except KeyError:
                     os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(
                         os.environ['project_name'], os.environ['endpoint_name'])
-                image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
-                                                      instance_name=notebook_config['instance_name'],
-                                                      image_name=notebook_config['expected_image_name'])
+                image_id = dlab.actions_lib.create_image_from_instance(
+                    tag_name=notebook_config['tag_name'], instance_name=notebook_config['instance_name'],
+                    image_name=notebook_config['expected_image_name'])
                 if image_id != '':
                     print("Image was successfully created. It's ID is {}".format(image_id))
             else:
+                print("Looks like it's first time we configure notebook server. Creating image.")
                 try:
-                    os.environ['conf_additional_tags'] = os.environ[
-                                                             'conf_additional_tags'] + ';ami:shared;endpoint_tag:{};'.format(
-                        os.environ['endpoint_name'])
+                    os.environ['conf_additional_tags'] = '{};ami:shared;endpoint_tag:{};'.format(
+                        os.environ['conf_additional_tags'], os.environ['endpoint_name'])
                 except KeyError:
                     os.environ['conf_additional_tags'] = 'ami:shared;endpoint_tag:{}'.format(
                         os.environ['endpoint_name'])
-                image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
-                                                      instance_name=notebook_config['instance_name'],
-                                                      image_name=notebook_config['expected_image_name'])
+                image_id = dlab.actions_lib.create_image_from_instance(
+                    tag_name=notebook_config['tag_name'], instance_name=notebook_config['instance_name'],
+                    image_name=notebook_config['expected_image_name'])
                 if image_id != '':
                     print("Image was successfully created. It's ID is {}".format(image_id))
         except Exception as err:
-            print('Error: {0}'.format(err))
-            append_result("Failed creating image.", str(err))
-            remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+            dlab.fab.append_result("Failed creating image.", str(err))
+            dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
             sys.exit(1)
+    try:
+        # generating output information
+        ip_address = dlab.meta_lib.get_instance_ip_address(notebook_config['tag_name'],
+                                                           notebook_config['instance_name']).get('Private')
+        dns_name = dlab.meta_lib.get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
+        zeppelin_ip_url = "http://" + ip_address + ":8080/"
+        zeppelin_dns_url = "http://" + dns_name + ":8080/"
+        zeppelin_notebook_access_url = "https://{}/{}/".format(notebook_config['edge_instance_hostname'],
+                                                               notebook_config['exploratory_name'])
+        zeppelin_ungit_access_url = "https://{}/{}-ungit/".format(notebook_config['edge_instance_hostname'],
+                                                                  notebook_config['exploratory_name'])
+        ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
+        print('[SUMMARY]')
+        logging.info('[SUMMARY]')
+        print("Instance name: {}".format(notebook_config['instance_name']))
+        print("Private DNS: {}".format(dns_name))
+        print("Private IP: {}".format(ip_address))
+        print("Instance ID: {}".format(dlab.meta_lib.get_instance_by_name(notebook_config['tag_name'],
+                                                                          notebook_config['instance_name'])))
+        print("Instance type: {}".format(notebook_config['instance_type']))
+        print("Key name: {}".format(notebook_config['key_name']))
+        print("User key name: {}".format(notebook_config['user_keyname']))
+        print("AMI name: {}".format(notebook_config['notebook_image_name']))
+        print("Profile name: {}".format(notebook_config['role_profile_name']))
+        print("SG name: {}".format(notebook_config['security_group_name']))
+        print("Zeppelin URL: {}".format(zeppelin_ip_url))
+        print("Zeppelin URL: {}".format(zeppelin_dns_url))
+        print("Ungit URL: {}".format(ungit_ip_url))
+        print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
+              format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
+        print('SSH access (from Edge node, via FQDN): ssh -i {0}.pem {1}@{2}'.
+              format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], dns_name))
 
-    # generating output information
-    ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
-    dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
-    zeppelin_ip_url = "http://" + ip_address + ":8080/"
-    zeppelin_dns_url = "http://" + dns_name + ":8080/"
-    zeppelin_notebook_access_url = "https://" + edge_instance_ip + "/{}/".format(notebook_config['exploratory_name'])
-    zeppelin_ungit_access_url = "https://" + edge_instance_ip + "/{}-ungit/".format(notebook_config['exploratory_name'])
-    ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
-    print('[SUMMARY]')
-    logging.info('[SUMMARY]')
-    print("Instance name: {}".format(notebook_config['instance_name']))
-    print("Private DNS: {}".format(dns_name))
-    print("Private IP: {}".format(ip_address))
-    print("Instance ID: {}".format(get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name'])))
-    print("Instance type: {}".format(notebook_config['instance_type']))
-    print("Key name: {}".format(notebook_config['key_name']))
-    print("User key name: {}".format(notebook_config['user_keyname']))
-    print("AMI name: {}".format(notebook_config['notebook_image_name']))
-    print("Profile name: {}".format(notebook_config['role_profile_name']))
-    print("SG name: {}".format(notebook_config['security_group_name']))
-    print("Zeppelin URL: {}".format(zeppelin_ip_url))
-    print("Zeppelin URL: {}".format(zeppelin_dns_url))
-    print("Ungit URL: {}".format(ungit_ip_url))
-    print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
-          format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
-    print('SSH access (from Edge node, via FQDN): ssh -i {0}.pem {1}@{2}'.
-          format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], dns_name))
-
-    with open("/root/result.json", 'w') as result:
-        res = {"hostname": dns_name,
-               "ip": ip_address,
-               "instance_id": get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name']),
-               "master_keyname": os.environ['conf_key_name'],
-               "notebook_name": notebook_config['instance_name'],
-               "notebook_image_name": notebook_config['notebook_image_name'],
-               "Action": "Create new notebook server",
-               "exploratory_url": [
-                   {"description": "Apache Zeppelin",
-                    "url": zeppelin_notebook_access_url},
-                   {"description": "Ungit",
-                    "url": zeppelin_ungit_access_url}#,
-                   #{"description": "Apache Zeppelin (via tunnel)",
-                   # "url": zeppelin_ip_url},
-                   #{"description": "Ungit (via tunnel)",
-                   # "url": ungit_ip_url}
-               ]}
-        result.write(json.dumps(res))
+        with open("/root/result.json", 'w') as result:
+            res = {"hostname": dns_name,
+                   "ip": ip_address,
+                   "instance_id": dlab.meta_lib.get_instance_by_name(notebook_config['tag_name'],
+                                                                     notebook_config['instance_name']),
+                   "master_keyname": os.environ['conf_key_name'],
+                   "notebook_name": notebook_config['instance_name'],
+                   "notebook_image_name": notebook_config['notebook_image_name'],
+                   "Action": "Create new notebook server",
+                   "exploratory_url": [
+                       {"description": "Apache Zeppelin",
+                        "url": zeppelin_notebook_access_url},
+                       {"description": "Ungit",
+                        "url": zeppelin_ungit_access_url}#,
+                       #{"description": "Apache Zeppelin (via tunnel)",
+                       # "url": zeppelin_ip_url},
+                       #{"description": "Ungit (via tunnel)",
+                       # "url": ungit_ip_url}
+                   ]}
+            result.write(json.dumps(res))
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results.", str(err))
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)

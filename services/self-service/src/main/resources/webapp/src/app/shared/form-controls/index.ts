@@ -25,6 +25,7 @@ import { MultiSelectDropdownComponent } from './multi-select-dropdown/multi-sele
 import { DirectivesModule } from '../../core/directives';
 import { KeysPipeModule, UnderscorelessPipeModule } from '../../core/pipes';
 import { BubbleModule } from '..';
+import {MultiLevelSelectDropdownComponent} from './multi-level-select-dropdown/multi-level-select-dropdown.component';
 
 export * from './multi-select-dropdown/multi-select-dropdown.component';
 export * from './dropdown-list/dropdown-list.component';
@@ -37,7 +38,7 @@ export * from './dropdown-list/dropdown-list.component';
     UnderscorelessPipeModule,
     BubbleModule
   ],
-  declarations: [DropdownListComponent, MultiSelectDropdownComponent],
-  exports: [DropdownListComponent, MultiSelectDropdownComponent]
+  declarations: [DropdownListComponent, MultiSelectDropdownComponent, MultiLevelSelectDropdownComponent],
+  exports: [DropdownListComponent, MultiSelectDropdownComponent, MultiLevelSelectDropdownComponent]
 })
 export class FormControlsModule {}

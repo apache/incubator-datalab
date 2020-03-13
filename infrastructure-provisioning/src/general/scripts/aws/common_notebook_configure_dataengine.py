@@ -24,11 +24,20 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import traceback
 import os
 import uuid
+from fabric.api import *
+
+
+def clear_resources():
+    dlab.actions_lib.remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
+    for i in range(notebook_config['instance_count'] - 1):
+        slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
+        dlab.actions_lib.remove_ec2(notebook_config['tag_name'], slave_name)
 
 
 if __name__ == "__main__":
@@ -41,25 +50,27 @@ if __name__ == "__main__":
 
     try:
         # generating variables dictionary
-        create_aws_config_files()
+        dlab.actions_lib.create_aws_config_files()
         print('Generating infrastructure names and tags')
         notebook_config = dict()
-        try:
+        if 'exploratory_name' in os.environ:
             notebook_config['exploratory_name'] = os.environ['exploratory_name']
-        except:
+        else:
             notebook_config['exploratory_name'] = ''
-        try:
+        if 'computational_name' in os.environ:
             notebook_config['computational_name'] = os.environ['computational_name']
-        except:
+        else:
             notebook_config['computational_name'] = ''
-        notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+            os.environ['conf_service_base_name'][:20], '-', True)
         notebook_config['region'] = os.environ['aws_region']
-        notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
+        notebook_config['tag_name'] = notebook_config['service_base_name'] + '-tag'
         notebook_config['project_name'] = os.environ['project_name']
-        notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + notebook_config['project_name'] + \
-                                          '-de-' + notebook_config['exploratory_name'] + '-' + \
-                                          notebook_config['computational_name']
+        notebook_config['endpoint_name'] = os.environ['endpoint_name']
+        notebook_config['cluster_name'] = "{}-{}-{}-de-{}".format(notebook_config['service_base_name'],
+                                                                  notebook_config['project_name'],
+                                                                  notebook_config['endpoint_name'],
+                                                                  notebook_config['computational_name'])
         notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-m'
         notebook_config['slave_node_name'] = notebook_config['cluster_name'] + '-s'
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -67,21 +78,18 @@ if __name__ == "__main__":
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['instance_count'] = int(os.environ['dataengine_instance_count'])
         try:
-            notebook_config['spark_master_ip'] = get_instance_private_ip_address(
+            notebook_config['spark_master_ip'] = dlab.meta_lib.get_instance_private_ip_address(
                 notebook_config['tag_name'], notebook_config['master_node_name'])
-            notebook_config['notebook_ip'] = get_instance_private_ip_address(
+            notebook_config['notebook_ip'] = dlab.meta_lib.get_instance_private_ip_address(
                 notebook_config['tag_name'], notebook_config['notebook_name'])
         except Exception as err:
-            print('Error: {0}'.format(err))
+            dlab.fab.append_result("Failed to get ip address", str(err))
             sys.exit(1)
         notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 
     except Exception as err:
-        remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
-        for i in range(notebook_config['instance_count'] - 1):
-            slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(notebook_config['tag_name'], slave_name)
-        append_result("Failed to generate infrastructure names", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to generate infrastructure names", str(err))
         sys.exit(1)
 
     try:
@@ -99,11 +107,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
-        for i in range(notebook_config['instance_count'] - 1):
-            slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(notebook_config['tag_name'], slave_name)
-        append_result("Failed installing Dataengine kernels.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed installing Dataengine kernels.", str(err))
         sys.exit(1)
 
     try:
@@ -123,11 +128,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
-        for i in range(notebook_config['instance_count'] - 1):
-            slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(notebook_config['tag_name'], slave_name)
-        append_result("Failed to configure Spark.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to configure Spark.", str(err))
         sys.exit(1)
 
     try:
@@ -136,6 +138,7 @@ if __name__ == "__main__":
                    "Action": "Configure notebook server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        clear_resources()
+        sys.exit(1)
