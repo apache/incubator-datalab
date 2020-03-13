@@ -25,6 +25,7 @@ import com.epam.dlab.billing.gcp.model.BillingHistory;
 import com.epam.dlab.billing.gcp.model.GcpBillingData;
 import com.epam.dlab.billing.gcp.repository.BillingHistoryRepository;
 import com.epam.dlab.dto.billing.BillingData;
+import com.epam.dlab.exceptions.DlabException;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.QueryJobConfiguration;
@@ -104,31 +105,42 @@ public class BigQueryBillingDAO implements BillingDAO {
 
 	@Override
 	public List<BillingData> getBillingReport() {
-		GroupOperation groupOperation = group("product", "currency", "usageType", "dlabId")
-				.min("from").as("from")
-				.max("to").as("to")
-				.sum("cost").as("cost");
-		Aggregation aggregation = newAggregation(groupOperation);
+		try {
+			GroupOperation groupOperation = getGroupOperation();
+			Aggregation aggregation = newAggregation(groupOperation);
 
-		return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults()
-				.stream()
-				.map(this::toBillingData)
-				.collect(Collectors.toList());
+			return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults()
+					.stream()
+					.map(this::toBillingData)
+					.collect(Collectors.toList());
+		} catch (Exception e) {
+			log.error("Cannot retrieve billing information ", e);
+			throw new DlabException("Cannot retrieve billing information", e);
+		}
 	}
 
 	@Override
 	public List<BillingData> getBillingReport(List<String> dlabIds) {
-		GroupOperation groupOperation = group("product", "currency", "usageType", "dlabId")
+		try {
+			GroupOperation groupOperation = getGroupOperation();
+			MatchOperation matchOperation = Aggregation.match(Criteria.where("dlabId").in(dlabIds));
+			Aggregation aggregation = newAggregation(matchOperation, groupOperation);
+
+			return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults()
+					.stream()
+					.map(this::toBillingData)
+					.collect(Collectors.toList());
+		} catch (Exception e) {
+			log.error("Cannot retrieve billing information ", e);
+			throw new DlabException("Cannot retrieve billing information", e);
+		}
+	}
+
+	private GroupOperation getGroupOperation() {
+		return group("product", "currency", "usageType", "dlabId")
 				.min("from").as("from")
 				.max("to").as("to")
 				.sum("cost").as("cost");
-		MatchOperation matchOperation = Aggregation.match(Criteria.where("dlabId").in(dlabIds));
-		Aggregation aggregation = newAggregation(matchOperation, groupOperation);
-
-		return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults()
-				.stream()
-				.map(this::toBillingData)
-				.collect(Collectors.toList());
 	}
 
 	private Stream<? extends GcpBillingData> bigQueryResultSetStream(Table table) {
