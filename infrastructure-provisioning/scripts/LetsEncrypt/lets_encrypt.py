@@ -81,7 +81,7 @@ def find_replace_line(file_path, searched_str, replacement_line):
                 if searched_str in line:
                     line = replacement_line
             with open(file_path, 'w') as file:
-                file.writelines(data)
+                file.writelines(lines)
     except Exception as err:
         print('Failed to replace string: ' + str(err))
         sys.exit(1)
