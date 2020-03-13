@@ -191,7 +191,7 @@ public class AdapterMongoDb extends DBAdapterBase {
 	}
 
 	@Override
-	public void writeHeader(List<String> header) throws AdapterException {
+	public void writeHeader(List<String> header) {
 		// Nothing to do
 	}
 
@@ -234,13 +234,6 @@ public class AdapterMongoDb extends DBAdapterBase {
 			}
 		} catch (Exception e) {
 			throw new AdapterException("Cannot update total monthly cost. " + e.getLocalizedMessage(), e);
-		}
-		try {
-			if (months.size() > 0) {
-				resourceTypeDAO.updateExploratoryCost();
-			}
-		} catch (Exception e) {
-			throw new AdapterException("Cannot update total cost of exploratory. " + e.getLocalizedMessage(), e);
 		}
 	}
 

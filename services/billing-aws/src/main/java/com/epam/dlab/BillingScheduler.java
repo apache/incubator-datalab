@@ -229,7 +229,7 @@ public class BillingScheduler implements Runnable {
 	 * @param args the arguments of command line.
 	 * @throws InitializationException
 	 */
-	public static void main(String[] args) throws InitializationException {
+	public static void startScheduler(String[] args) throws InitializationException {
 		if (ServiceUtils.printAppVersion(BillingTool.class, args)) {
 			return;
 		}
@@ -247,8 +247,6 @@ public class BillingScheduler implements Runnable {
 				} else {
 					throw new InitializationException("Missing the name of configuration file");
 				}
-			} else {
-				throw new InitializationException("Unknow argument: " + args[i]);
 			}
 		}
 
