@@ -28,6 +28,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { FileUtils } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
 import {ProgressBarService} from '../core/services/progress-bar.service';
+import {logger} from 'codelyzer/util/logger';
 
 @Component({
   selector: 'dlab-reporting',
@@ -94,7 +95,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
         const localEndpoint = endpoints.filter(endpoint => endpoint.name === 'local');
         if (localEndpoint.length) {
           this.PROVIDER = localEndpoint[0].cloudProvider.toLowerCase();
-          console.log(this.PROVIDER);
           if (this.PROVIDER) {
             this.rebuildBillingReport();
           }
@@ -118,7 +118,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
-        this.reportingGrid.refreshData(this.data, this.data.lines);
+        this.reportingGrid.refreshData(this.data, this.data.report_lines);
         this.reportingGrid.setFullReport(this.data.full_report);
 
         this.reportingToolbar.reportData = this.data;
@@ -159,7 +159,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   getDefaultFilterConfiguration(data): void {
     const users = [], types = [], shapes = [], services = [], statuses = [], projects = [];
 
-    data.lines.forEach((item: any) => {
+    data.report_lines.forEach((item: any) => {
       if (item.user && users.indexOf(item.user) === -1)
         users.push(item.user);
 
@@ -169,30 +169,32 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item.project && projects.indexOf(item.project) === -1)
         projects.push(item.project);
 
-      if (item[DICTIONARY[this.PROVIDER].billing.resourceType] && types.indexOf(item[DICTIONARY[this.PROVIDER].billing.resourceType]) === -1)
-        types.push(item[DICTIONARY[this.PROVIDER].billing.resourceType]);
+      if (item['resource_type'] && types.indexOf(item['resource_type']) === -1)
+        types.push(item['resource_type']);
 
-      if (item[DICTIONARY[this.PROVIDER].billing.instance_size]) {
-        if (item[DICTIONARY[this.PROVIDER].billing.instance_size].indexOf('Master') > -1) {
-          for (let shape of item[DICTIONARY[this.PROVIDER].billing.instance_size].split('\n')) {
-            shape = shape.replace('Master: ', '');
-            shape = shape.replace(/Slave:\s+\d+ x /, '');
-            shape = shape.replace(/\s+/g, '');
-
-            shapes.indexOf(shape) === -1 && shapes.push(shape);
-          }
-        } else if (item[DICTIONARY[this.PROVIDER].billing.instance_size].match(/\d x \S+/)) {
-          const parsedShape = item[DICTIONARY[this.PROVIDER].billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
-          if (shapes.indexOf(parsedShape) === -1) {
-            shapes.push(parsedShape);
-          }
-        } else {
-          shapes.indexOf(item[DICTIONARY[this.PROVIDER].billing.instance_size]) === -1 && shapes.push(item[DICTIONARY[this.PROVIDER].billing.instance_size]);
-        }
+      if (item.shape && types.indexOf(item.shape)) {
+        shapes.push(item.shape);
       }
+        // if (item.shapes.indexOf('Master') > -1) {
+        //   for (let shape of item.shapes.split('\n')) {
+        //     shape = shape.replace('Master: ', '');
+        //     shape = shape.replace(/Slave:\s+\d+ x /, '');
+        //     shape = shape.replace(/\s+/g, '');
+        //
+        //     shapes.indexOf(shape) === -1 && shapes.push(shape);
+        //   }
+        // } else if (item.shapes.match(/\d x \S+/)) {
+        //   const parsedShape = item.shapes.match(/\d x \S+/)[0].split(' x ')[1];
+        //   if (shapes.indexOf(parsedShape) === -1) {
+        //     shapes.push(parsedShape);
+        //   }
+        // } else {
+        //   shapes.indexOf(item.shapes) === -1 && shapes.push(item.shapes);
+        // }
+      // }
 
-      if (item[DICTIONARY[this.PROVIDER].billing.service] && services.indexOf(item[DICTIONARY[this.PROVIDER].billing.service]) === -1)
-        services.push(item[DICTIONARY[this.PROVIDER].billing.service]);
+      if (item.product && services.indexOf(item.product) === -1)
+        services.push(item.product);
     });
 
     if (!this.reportingGrid.filterConfiguration || !localStorage.getItem('report_config')) {
@@ -212,8 +214,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   setRangeOption(dateRangeOption: any): void {
-    this.reportData.dateStart = dateRangeOption.start_date;
-    this.reportData.dateEnd = dateRangeOption.end_date;
+    this.reportData.date_start = dateRangeOption.start_date;
+    this.reportData.date_end = dateRangeOption.end_date;
     this.getGeneralBillingData();
   }
 
