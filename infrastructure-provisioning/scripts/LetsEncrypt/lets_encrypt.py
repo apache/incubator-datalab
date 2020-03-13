@@ -110,10 +110,10 @@ if __name__ == "__main__":
     try:
         if args.node_type != 'ssn_node' and  node_type != 'edge_node':
             print('Valid node type should be specified. Available options: ssn_node, edge_node')
-            sys.exit(1)
+            raise Exception
         if args.os_family != 'debian' and args.os_family != 'redhat':
             print('Valid os family should be specified. Available options: debian, redhat')
-            sys.exit(1)
+            raise Exception
         install_certbot(args.os_family)
         run_certbot(args.domain_name, args.email)
         configure_nginx(args.domain_name, args.node_type)
