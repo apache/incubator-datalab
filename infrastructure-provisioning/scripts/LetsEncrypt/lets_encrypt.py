@@ -94,12 +94,12 @@ def configure_nginx(domain_name, node_type):
         certbot_service = 'ExecStart = /usr/bin/certbot -q renew --pre-hook "service nginx stop" --post-hook "service nginx start"'
         certbot_service_path = '/lib/systemd/system/certbot.service'
         if node_type == 'ssn_node':
-            file_path = '/etc/nginx/conf.d/nginx_proxy.conf'
+            nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
         else:
-            file_path = '/etc/nginx/conf.d/proxy.conf'
-        find_replace_line(file_path,'server_name' ,server_name_line)
-        find_replace_line(file_path,'ssl_certificate' ,cert_path_line)
-        find_replace_line(file_path,'ssl_certificate_key' ,cert_key_line)
+            nginx_config_path = '/etc/nginx/conf.d/proxy.conf'
+        find_replace_line(nginx_config_path,'server_name' ,server_name_line)
+        find_replace_line(nginx_config_path,'ssl_certificate' ,cert_path_line)
+        find_replace_line(nginx_config_path,'ssl_certificate_key' ,cert_key_line)
         find_replace_line(certbot_service_path, 'ExecStart', certbot_service)
         local('sudo systemctl restart nginx')
     except Exception as err:
