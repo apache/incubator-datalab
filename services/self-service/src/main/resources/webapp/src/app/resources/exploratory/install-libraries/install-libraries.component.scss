@@ -456,3 +456,16 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
     }
   }
 }
+
+@media screen and (max-height: 800px) {
+  .libs-info {
+    height: 50%;
+
+    .mat-list {
+      .scrollingList {
+        max-height: 140px;
+        height: 60%;
+      }
+    }
+  }
+}
