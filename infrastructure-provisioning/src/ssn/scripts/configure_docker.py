@@ -28,6 +28,7 @@ import sys
 from dlab.ssn_lib import *
 import os
 import time
+import base64
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -80,9 +81,10 @@ def add_china_repository(dlab_path):
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
 def login_in_gcr(gcr_creds):
+    decoded_creds = base64.b64decode(gcr_creds + "==")
     try:
         with open('/tmp/dlab-gcr-ro-sa.json', 'w') as f:
-            f.write(json.dumps(gcr_creds))
+            f.write(json.dumps(decoded_creds))
         sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
         sudo('rm /tmp/dlab-gcr-ro-sa.json')
     except Exception as err:
