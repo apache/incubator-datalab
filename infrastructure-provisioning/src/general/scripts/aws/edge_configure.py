@@ -65,10 +65,10 @@ if __name__ == "__main__":
         edge_conf['tag_name'] = edge_conf['service_base_name'] + '-tag'
         edge_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(edge_conf['service_base_name'],
                                                                edge_conf['project_name'],
-                                                               edge_conf['endpoint_name']).replace('_', '-').lover()
+                                                               edge_conf['endpoint_name']).replace('_', '-').lower()
         edge_conf['shared_bucket_name'] = '{0}-{1}-shared-bucket'.format(edge_conf['service_base_name'],
                                                                          edge_conf['endpoint_name']
-                                                                         ).replace('_', '-').lover()
+                                                                         ).replace('_', '-').lower()
         edge_conf['edge_security_group_name'] = '{}-{}-{}-edge-sg'.format(edge_conf['service_base_name'],
                                                                           edge_conf['project_name'],
                                                                           edge_conf['endpoint_name'])
