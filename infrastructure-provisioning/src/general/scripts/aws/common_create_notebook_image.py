@@ -34,7 +34,7 @@ if __name__ == "__main__":
     try:
         image_conf = dict()
         dlab.actions_lib.create_aws_config_files()
-        image_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.actions_lib.replace_multi_symbols(
+        image_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
         image_conf['project_name'] = os.environ['project_name']
         image_conf['project_tag'] = os.environ['project_name']
