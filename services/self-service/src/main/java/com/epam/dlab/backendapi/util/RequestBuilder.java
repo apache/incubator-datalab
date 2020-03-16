@@ -634,11 +634,12 @@ public class RequestBuilder {
 				.withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));
 	}
 
-	public ActionOdahuDTO newOdahuAction(UserInfo user, String name, String project, EndpointDTO endpointDTO,
+	public ActionOdahuDTO newOdahuAction(UserInfo user, String name, ProjectDTO projectDTO, EndpointDTO endpointDTO,
 										 OdahuFieldsDTO odahuFields) {
 		return ActionOdahuDTO.builder()
 				.name(name)
-				.project(project)
+				.project(projectDTO.getName())
+				.key(projectDTO.getKey().replace("\n", ""))
 				.endpoint(endpointDTO.getName())
 				.grafanaAdmin(odahuFields.getGrafanaAdmin())
 				.grafanaPassword(odahuFields.getGrafanaPassword())

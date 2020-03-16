@@ -33,6 +33,8 @@ public class ActionOdahuDTO extends ResourceBaseDTO<ActionOdahuDTO> {
     private final String project;
     @JsonProperty("endpoint_name")
     private final String endpoint;
+    @JsonProperty("ssh_key")
+    private final String key;
     @JsonProperty("grafana_admin")
     private String grafanaAdmin;
     @JsonProperty("grafana_pass")
