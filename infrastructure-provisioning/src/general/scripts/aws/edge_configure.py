@@ -266,7 +266,7 @@ if __name__ == "__main__":
                    "ip": edge_conf['edge_private_ip'],
                    "instance_id": dlab.meta_lib.get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name']),
                    "key_name": edge_conf['key_name'],
-                   "user_own_bucket_name": edge_conf['bucket_name'],
+                   "user_own_bicket_name": edge_conf['bucket_name'],
                    "shared_bucket_name": edge_conf['shared_bucket_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
