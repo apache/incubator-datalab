@@ -34,6 +34,7 @@ keycloak:
   auth-server-url: http://52.11.45.11:8080/auth
 
 dlab:
+  billingEnabled: false
   clientId: <CLIENT_ID>
   clientSecret: <CLIENT_SECRET>
   tenantId: <TENANT_ID>
@@ -46,7 +47,6 @@ dlab:
   regionInfo: <REGION_INFO>
   initialDelay: 10
   period: 60
-  billingEnabled: false
   aggregationOutputMongoDataSource:
     host: localhost
     port: 27017
