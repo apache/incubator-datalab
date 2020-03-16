@@ -162,12 +162,13 @@ public class OdahuServiceImpl implements OdahuService {
     private void actionOnCloud(UserInfo user, String uri, String name, String project, String endpoint) {
         String url = null;
         EndpointDTO endpointDTO = endpointService.get(endpoint);
+        ProjectDTO projectDTO = projectService.get(project);
         try {
             OdahuFieldsDTO fields = odahuDAO.getFields(name, project, endpoint);
             url = endpointDTO.getUrl() + uri;
             String uuid =
                     provisioningService.post(url, user.getAccessToken(),
-                            requestBuilder.newOdahuAction(user, name, project, endpointDTO, fields), String.class);
+                            requestBuilder.newOdahuAction(user, name, projectDTO, endpointDTO, fields), String.class);
             requestId.put(user.getName(), uuid);
         } catch (Exception e) {
             log.error("Can not perform {} due to: {}, {}", url, e.getMessage(), e);
