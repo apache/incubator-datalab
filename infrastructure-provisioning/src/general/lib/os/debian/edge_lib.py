@@ -123,8 +123,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz')
                 sudo('tar -xzf LuaJIT-2.0.5.tar.gz')
 
-                sudo('wget http://keplerproject.github.io/luarocks/releases/luarocks-2.2.2.tar.gz')
-                sudo('tar -xzf luarocks-2.2.2.tar.gz')
+                sudo('wget http://keplerproject.github.io/luarocks/releases/luarocks-3.3.1.tar.gz')
+                sudo('tar -xzf luarocks-3.3.1.tar.gz')
 
                 sudo('ln -sf nginx-{} nginx'.format(nginx_version))
 
@@ -143,7 +143,7 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('make')
                 sudo('make install')
 
-            with cd('/tmp/src/luarocks-2.2.2/'):
+            with cd('/tmp/src/luarocks-3.3.1/'):
                 sudo('./configure')
                 sudo('make build')
                 sudo('make install')
