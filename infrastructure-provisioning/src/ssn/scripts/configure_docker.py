@@ -39,9 +39,7 @@ parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--region', type=str, default='')
-parser.add_argument('--nexus_username', type=str, default='')
-parser.add_argument('--nexus_password', type=str, default='')
-parser.add_argument('--nexus_url', type=str, default='')
+parser.add_argument('--gcr_creds', type=str, default='')
 args = parser.parse_args()
 
 
@@ -81,21 +79,12 @@ def add_china_repository(dlab_path):
         sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
-def prepare_odahu_image(nexus_username, nexus_password, nexus_url, dlab_path):
+def login_in_gcr(gcr_creds):
     try:
-        put('/root/templates/daemon.json', '/etc/docker/daemon.json', use_sudo=True)
-        print('daemon.json was placed')
-        # sudo('mv daemon.json /etc/docker/daemon.json')
-        # print ('daemon.json was moved')
-        sudo("sed -i \'s|<NEXUS_URL>|{}|g\' /etc/docker/daemon.json".format(nexus_url))
-        print('nexus url was filled in')
-        sudo('systemctl restart docker')
-        sudo('docker login -u {} -p {} {}'.format(nexus_username, nexus_password, nexus_url))
-        sudo(
-            "sed -i \'s|<NEXUS_URL>|{}|g\' {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile".format(
-                nexus_url, dlab_path))
-    #            sudo("sed -i \'s|<ODAHU_REPO>|{}|g\' {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile". \
-    #                 format(os.environ['odahu_docker_private_repo'], os.environ['ssn_dlab_path']))
+        with open('/tmp/dlab-gcr-ro-sa.json', 'w') as f:
+            f.write(json.dumps(gcr_creds))
+        sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
+        sudo('rm /tmp/dlab-gcr-ro-sa.json')
     except Exception as err:
         traceback.print_exc()
         print('Failed to prepare odahu image: ', str(err))
@@ -198,8 +187,9 @@ if __name__ == "__main__":
     if not ensure_docker_daemon(args.dlab_path, args.os_user, args.region):
         sys.exit(1)
 
-    #print("Preparing odahu image")
-    #prepare_odahu_image(args.nexus_username, args.nexus_password, args.nexus_url, args.dlab_path)
+    print("Login in Google Container Registry")
+    if not login_in_gcre(args.gcr_creds):
+        sys.exit(1)
 
     print("Building dlab images")
     count = 0

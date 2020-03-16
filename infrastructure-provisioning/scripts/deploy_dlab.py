@@ -142,8 +142,8 @@ parser.add_argument('--billing_dataset_name', type=str, default='', help='Name o
                                                                          ' for billing')
 parser.add_argument('--default_endpoint_name', type=str, default='local', help='Name of localhost provisioning service,'
                                                                                'that created by default')
-parser.add_argument('--nexus_username', type=str, default='', help='Nexus repository username')
-parser.add_argument('--nexus_password', type=str, default='', help='Nexus repository password')
+parser.add_argument('--ssn_gcr_username', type=str, default='_json_key', help='Username for GCR authentication')
+parser.add_argument('--ssn_gcr_creds', type=str, default='', help='Base64 encrypted json key for GCR authentication')
 parser.add_argument('--conf_stepcerts_enabled', type=str, default='false', help='Enable or disable step certificates')
 parser.add_argument('--conf_stepcerts_root_ca', type=str, default='', help='Step root CA')
 parser.add_argument('--conf_stepcerts_kid', type=str, default='', help='Step KID')

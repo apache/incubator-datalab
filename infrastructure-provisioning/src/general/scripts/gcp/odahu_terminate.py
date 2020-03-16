@@ -45,13 +45,13 @@ if __name__ == "__main__":
     odahu_conf['project_id'] = (os.environ['gcp_project_id'])
     odahu_conf['region'] = (os.environ['gcp_region'])
     odahu_conf['zone'] = (os.environ['gcp_zone'])
-    odahu_conf['node_locations'] = os.environ['odahu_node_locations'].split(',')
+    odahu_conf['node_locations'] = GCPMeta().get_available_zones()
     odahu_conf['dns_zone_name'] = os.environ['odahu_dns_zone_name']
     odahu_conf['docker_repo'] = os.environ['odahu_docker_repo']
     odahu_conf['odahu_cidr'] = os.environ['odahu_cidr']
     odahu_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     odahu_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    odahu_conf['odahu_cluster_name'] = (os.environ['odahu_cluster_name']).lower().replace('_', '-')
+    odahu_conf['cluster_name'] = (os.environ['odahu_cluster_name']).lower().replace('_', '-')
     odahu_conf['bucket_name'] = "{}-tfstate".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
     odahu_conf['static_address_name'] = "{}-nat-gw".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
     try:
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     odahu_conf['k8s_version'] = os.environ['odahu_k8s_version']
     odahu_conf['oauth_oidc_issuer_url'] = "{}/realms/{}".format(os.environ['keycloak_auth_server_url'],
                                                                 os.environ['keycloak_realm_name'])
-    odahu_conf['oauth_oidc_host'] = os.environ['odahu_oauth_oidc_host']
+    odahu_conf['oauth_oidc_host'] = os.environ['keycloak_auth_server_url'].replace('https://', '').replace('/auth', '')
     odahu_conf['oauth_client_id'] = os.environ['keycloak_client_name']
     odahu_conf['oauth_client_secret'] = os.environ['keycloak_client_secret']
     odahu_conf['oauth_cookie_secret'] = os.environ['oauth_cookie_secret']
@@ -98,7 +98,7 @@ if __name__ == "__main__":
         with open("/tmp/profile.json", 'w') as profile:
             prof = {"allowed_ips": odahu_conf['allowed_cidr'],
                     "cloud_type": "gcp",
-                    "cluster_name": "{}".format(odahu_conf['odahu_cluster_name']),
+                    "cluster_name": "{}".format(odahu_conf['cluster_name']),
                     "cluster_type": "gcp/gke",
                     "cluster_context": "",
                     "dns_zone_name": "{}".format(odahu_conf['dns_zone_name']),
@@ -106,12 +106,12 @@ if __name__ == "__main__":
                     "docker_repo": "{}".format(odahu_conf['docker_repo']),
                     "docker_user": "",
                     "gcp_cidr": "{}".format(odahu_conf['odahu_cidr']),
-                    "gke_node_tag": "{}-gke-node".format(odahu_conf['odahu_cluster_name']).split(','),
+                    "gke_node_tag": "{}-gke-node".format(odahu_conf['cluster_name']).split(','),
                     "grafana_admin": "{}".format(odahu_conf['grafana_admin']),
                     "grafana_pass": "BMuYxTw6v5",
                     "oauth_oidc_audience": "legion",
                     "oauth_oidc_issuer_url": "{}".format(odahu_conf['oauth_oidc_issuer_url']),
-                    "data_bucket": "{}-data-bucket".format(odahu_conf['odahu_cluster_name']),
+                    "data_bucket": "{}-data-bucket".format(odahu_conf['cluster_name']),
                     "helm_repo": "{}".format(odahu_conf['helm_repo']),
                     "odahu_infra_version": "{}".format(odahu_conf['odahu_infra_version']),
                     "odahuflow_version": "{}".format(odahu_conf['odahuflow_version']),
@@ -134,7 +134,7 @@ if __name__ == "__main__":
                     "root_domain": "{}".format(odahu_conf['root_domain']),
                     "service_cidr": "{}".format(odahu_conf['service_cidr']),
                     "ssh_key": "{}".format(odahu_conf['ssh_key'].replace('\n', '')),
-                    "tfstate_bucket": "{}-tfstate".format(odahu_conf['odahu_cluster_name']),
+                    "tfstate_bucket": "{}-tfstate".format(odahu_conf['cluster_name']),
                     "tls_crt": "{}".format(odahu_conf['tls_crt']),
                     "tls_key": "{}".format(odahu_conf['tls_key']),
                     "zone": "{}".format(odahu_conf['zone']),
@@ -237,7 +237,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        buckets = GCPMeta().get_list_buckets(odahu_conf['odahu_cluster_name'])
+        buckets = GCPMeta().get_list_buckets(odahu_conf['cluster_name'])
         if 'items' in buckets:
             for i in buckets['items']:
                 GCPActions().remove_bucket(i['name'])
@@ -246,7 +246,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        static_addresses = GCPMeta().get_list_static_addresses(odahu_conf['region'], odahu_conf['odahu_cluster_name'])
+        static_addresses = GCPMeta().get_list_static_addresses(odahu_conf['region'], odahu_conf['cluster_name'])
         if 'items' in static_addresses:
             for i in static_addresses['items']:
                 GCPActions().remove_static_address(i['name'], odahu_conf['region'])

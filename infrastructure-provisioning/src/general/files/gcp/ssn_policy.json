@@ -33,5 +33,6 @@
     "iam.serviceAccountKeys.delete",
     "iam.serviceAccountKeys.get",
     "dns.resourceRecordSets.list",
-    "dns.managedZones.get"
+    "dns.managedZones.get",
+    "dns.managedZones.delete"
 ]

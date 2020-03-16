@@ -44,13 +44,13 @@ if __name__ == "__main__":
     odahu_conf['project_id'] = (os.environ['gcp_project_id'])
     odahu_conf['region'] = (os.environ['gcp_region'])
     odahu_conf['zone'] = (os.environ['gcp_zone'])
-    odahu_conf['node_locations'] = os.environ['odahu_node_locations'].split(',')
+    odahu_conf['node_locations'] = GCPMeta().get_available_zones()
     odahu_conf['dns_zone_name'] = os.environ['odahu_dns_zone_name']
     odahu_conf['docker_repo'] = os.environ['odahu_docker_repo']
     odahu_conf['odahu_cidr'] = os.environ['odahu_cidr']
     odahu_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     odahu_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    odahu_conf['odahu_cluster_name'] = (os.environ['odahu_cluster_name']).lower().replace('_', '-')
+    odahu_conf['cluster_name'] = (os.environ['odahu_cluster_name']).lower().replace('_', '-')
     odahu_conf['bucket_name'] = "{}-tfstate".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
     odahu_conf['static_address_name'] = "{}-nat-gw".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
     try:
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     odahu_conf['k8s_version'] = os.environ['odahu_k8s_version']
     odahu_conf['oauth_oidc_issuer_url'] = "{}/realms/{}".format(os.environ['keycloak_auth_server_url'],
                                                                 os.environ['keycloak_realm_name'])
-    odahu_conf['oauth_oidc_host'] = os.environ['odahu_oauth_oidc_host']
+    odahu_conf['oauth_oidc_host'] = os.environ['keycloak_auth_server_url'].replace('https://', '').replace('/auth', '')
     odahu_conf['oauth_client_id'] = os.environ['keycloak_client_name']
     odahu_conf['oauth_client_secret'] = os.environ['keycloak_client_secret']
     odahu_conf['oauth_cookie_secret'] = os.environ['oauth_cookie_secret']
