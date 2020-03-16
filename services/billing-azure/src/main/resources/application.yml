@@ -8,8 +8,6 @@ spring:
       database: dlabdb
       port: 27017
       host: localhost
-dlab:
-
 
 server:
   port: 8088
@@ -34,3 +32,27 @@ keycloak:
   credentials.secret: cf5a484b-039b-4161-8707-ad65c0f25962
   ssl-required: none
   auth-server-url: http://52.11.45.11:8080/auth
+
+dlab:
+  clientId: <CLIENT_ID>
+  clientSecret: <CLIENT_SECRET>
+  tenantId: <TENANT_ID>
+  subscriptionId: <SUBSCRIPTION_ID>
+  authenticationFile: <AUTHENTICATION_FILE>
+  # Billing configuration for RateCard API. For more details please see https://msdn.microsoft.com/en-us/library/mt219004.aspx
+  offerNumber: <OFFER_NUMBER>
+  currency: <CURRENCY>
+  locale: <LOCALE>
+  regionInfo: <REGION_INFO>
+  initialDelay: 10
+  period: 60
+  billingEnabled: false
+  aggregationOutputMongoDataSource:
+    host: localhost
+    port: 27017
+    username: admin
+    password: <MONGODB_PASSWORD>
+    database: dlabdb
+  ssnStorageAccountTagName: <AZURE_SSN_STORAGE_ACCOUNT_TAG>
+  sharedStorageAccountTagName: <AZURE_SHARED_STORAGE_ACCOUNT_TAG>
+  datalakeTagName: <AZURE_DATALAKE_TAG>

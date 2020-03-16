@@ -22,18 +22,13 @@ package com.epam.dlab.billing.azure;
 import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.billing.azure.config.AzureAuthFile;
 import com.epam.dlab.billing.azure.config.BillingConfigurationAzure;
-import com.epam.dlab.billing.azure.logging.AppenderConsole;
-import com.epam.dlab.billing.azure.logging.AppenderFile;
 import com.epam.dlab.billing.azure.model.AzureDailyResourceInvoice;
 import com.epam.dlab.billing.azure.model.AzureDlabBillableResource;
 import com.epam.dlab.billing.azure.model.BillingPeriod;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.util.mongo.modules.IsoDateModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
@@ -44,8 +39,10 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.io.FileInputStream;
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,59 +54,43 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Component
 public class BillingSchedulerAzure {
 	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 	private BillingConfigurationAzure billingConfigurationAzure;
 	private MongoDbBillingClient mongoDbBillingClient;
 
-	public BillingSchedulerAzure(String filePath) throws IOException, InitializationException {
-		try (FileInputStream fin = new FileInputStream(filePath)) {
-			final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).registerModule(new GuavaModule());
-			objectMapper.registerSubtypes(AppenderFile.class, AppenderConsole.class);
-			this.billingConfigurationAzure = objectMapper.readValue(fin,
-							BillingConfigurationAzure.class);
+	@Autowired
+	public BillingSchedulerAzure(BillingConfigurationAzure configuration) throws IOException {
+		billingConfigurationAzure = configuration;
+		Path path = Paths.get(billingConfigurationAzure.getAuthenticationFile());
 
-			Path path = Paths.get(billingConfigurationAzure.getAuthenticationFile());
-
-			if (path.toFile().exists()) {
-
-				log.info("Read and override configs using auth file");
-
-				try {
-					AzureAuthFile azureAuthFile = new ObjectMapper().readValue(path.toFile(), AzureAuthFile.class);
-					this.billingConfigurationAzure.setClientId(azureAuthFile.getClientId());
-					this.billingConfigurationAzure.setClientSecret(azureAuthFile.getClientSecret());
-					this.billingConfigurationAzure.setTenantId(azureAuthFile.getTenantId());
-					this.billingConfigurationAzure.setSubscriptionId(azureAuthFile.getSubscriptionId());
-				} catch (IOException e) {
-					log.error("Cannot read configuration file", e);
-					throw e;
-				}
-				log.info("Configs from auth file are used");
-			} else {
-				log.info("Configs from yml file are used");
+		if (path.toFile().exists()) {
+			log.info("Read and override configs using auth file");
+			try {
+				AzureAuthFile azureAuthFile = new ObjectMapper().readValue(path.toFile(), AzureAuthFile.class);
+				this.billingConfigurationAzure.setClientId(azureAuthFile.getClientId());
+				this.billingConfigurationAzure.setClientSecret(azureAuthFile.getClientSecret());
+				this.billingConfigurationAzure.setTenantId(azureAuthFile.getTenantId());
+				this.billingConfigurationAzure.setSubscriptionId(azureAuthFile.getSubscriptionId());
+			} catch (IOException e) {
+				log.error("Cannot read configuration file", e);
+				throw e;
 			}
-
-			this.mongoDbBillingClient = new MongoDbBillingClient
-					(billingConfigurationAzure.getAggregationOutputMongoDataSource().getHost(),
-							billingConfigurationAzure.getAggregationOutputMongoDataSource().getPort(),
-							billingConfigurationAzure.getAggregationOutputMongoDataSource().getDatabase(),
-							billingConfigurationAzure.getAggregationOutputMongoDataSource().getUsername(),
-							billingConfigurationAzure.getAggregationOutputMongoDataSource().getPassword());
-			this.billingConfigurationAzure.getLogging().configure();
-		}
-	}
-
-	public static void main(String[] args) throws Exception {
-		if (args != null && args.length == 2) {
-			BillingSchedulerAzure billingSchedulerAzure = new BillingSchedulerAzure(args[1]);
-			billingSchedulerAzure.start();
-
+			log.info("Configs from auth file are used");
 		} else {
-			log.info("Wrong arguments. Please provide with path to billing configuration");
+			log.info("Configs from yml file are used");
 		}
+
+		this.mongoDbBillingClient = new MongoDbBillingClient
+				(billingConfigurationAzure.getAggregationOutputMongoDataSource().getHost(),
+						billingConfigurationAzure.getAggregationOutputMongoDataSource().getPort(),
+						billingConfigurationAzure.getAggregationOutputMongoDataSource().getDatabase(),
+						billingConfigurationAzure.getAggregationOutputMongoDataSource().getUsername(),
+						billingConfigurationAzure.getAggregationOutputMongoDataSource().getPassword());
 	}
 
+	@PostConstruct
 	public void start() {
 		if (billingConfigurationAzure.isBillingEnabled()) {
 			executorService.scheduleWithFixedDelay(new CalculateBilling(billingConfigurationAzure,
@@ -139,8 +120,7 @@ public class BillingSchedulerAzure {
 	@Slf4j
 	private static class CalculateBilling implements Runnable {
 		private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern
-				("yyyy-MM-dd'T'HH:mm:ss" +
-						".SSS'Z");
+				("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
 		private static final String SCHEDULER_ID = "azureBillingScheduler";
 		private AzureBillingDetailsService azureBillingDetailsService;
 		private BillingConfigurationAzure billingConfigurationAzure;
