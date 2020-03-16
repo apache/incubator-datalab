@@ -248,6 +248,39 @@ def ensure_docker_endpoint():
         traceback.print_exc()
         sys.exit(1)
 
+def ensure_mongo_endpoint():
+    try:
+        print('[INSTALLING MONGO DATABASE]')
+        if not exists(conn, '/home/{}/.ensure_dir/mongo_ensured'.format(args.os_user)):
+            conn.sudo("bash -c 'wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -'")
+            conn.sudo("bash -c 'echo \"deb [ arch=amd64,arm64 ] "
+                      "https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/4.2 multiverse\" | sudo "
+                      "tee /etc/apt/sources.list.d/mongodb-org-4.2.list'")
+            conn.sudo('apt-get update')
+            conn.sudo('apt-get -y --allow-unauthenticated install mongodb-org')
+            conn.sudo('systemctl enable mongod.service')
+            conn.sudo('sudo apt-get -y install python-pip')
+            conn.sudo('pip install -U pymongo pyyaml --no-cache-dir ')
+            conn.sudo('touch /home/{}/.ensure_dir/mongo_ensured'
+                      .format(args.os_user))
+        print('[CONFIGURING MONGO DATABASE]')
+        if not exists(conn, '/lib/systemd/system/mongod.service'):
+            conn.put('./mongo_files/mongod.service_template', '/tmp/mongod.service_template')
+            conn.sudo('sed -i "s/MONGO_USR/mongodb/g" /tmp/mongod.service_template'.format(args.os_user))
+            conn.sudo('cp -i /tmp/mongod.service_template /lib/systemd/system/mongod.service')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable mongod.service')
+        if not exists(conn, '/tmp/configure_mongo.py'):
+            conn.put('./mongo_files/configure_mongo.py', '/tmp/configure_mongo.py')
+            conn.sudo('sed -i "s|PASSWORD|{}|g" /tmp/configure_mongo.py'.format(args.mongo_password))
+        if not exists(conn, '/tmp/mongo_roles.json'):
+            conn.put('./mongo_files/gcp/mongo_roles.json', '/tmp/mongo_roles.json')
+        conn.sudo('python /tmp/configure_mongo.py')
+    except Exception as err:
+        logging.error('Failed to install Mongo: ', str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
 
 def create_key_dir_endpoint():
     try:
@@ -293,8 +326,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
             if not exists(conn, '{}/tmp'.format(args.dlab_path)):
                 conn.run('mkdir -p {}/tmp'.format(args.dlab_path))
-            conn.put('./supervisor_svc.conf',
-                     '{}/tmp/supervisor_svc.conf'.format(args.dlab_path))
+            conn.put('./supervisor_svc.conf', '{}/tmp/supervisor_svc.conf'.format(args.dlab_path))
             dlab_conf_dir = '{}/conf/'.format(args.dlab_path)
             if not exists(conn, dlab_conf_dir):
                 conn.run('mkdir -p {}'.format(dlab_conf_dir))
@@ -309,6 +341,9 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                                            'subnet-id'.format(interface)).stdout
                 args.vpc2_id = args.vpc_id
                 args.subnet2_id = args.subnet_id
+            if args.cloud_provider == 'gcp':
+                conn.sudo('sed -i "s|CONF_PARAMETER_NAME|--spring.config.location=|g" {}/tmp/supervisor_svc.conf'
+                          .format(args.dlab_path))
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
                       .format(args.os_user, args.dlab_path))
             conn.sudo('sed -i "s|WEB_CONF|{}|g" {}/tmp/supervisor_svc.conf'
@@ -538,8 +573,15 @@ def ensure_jar_endpoint():
                      '2.2.jar --no-check-certificate'
                      .format(web_path, args.repository_user,
                              args.repository_pass, args.repository_address))
-            conn.run('mv {0}/*.jar {0}/provisioning-service.jar'
+            conn.run('mv {0}/provisioning-service-2.2.jar {0}/provisioning-service.jar'
                      .format(web_path))
+            conn.run('wget -P {}  --user={} --password={} '
+                     'https://{}/repository/packages/billing-{}-'
+                     '2.2.jar --no-check-certificate'
+                     .format(web_path, args.repository_user,
+                             args.repository_pass, args.repository_address, args.cloud_provider))
+            conn.run('mv {0}/billing-{1}-2.2.jar {0}/billing.jar'
+                     .format(web_path, args.cloud_provider))
             conn.sudo('touch {}'.format(ensure_file))
     except Exception as err:
         logging.error('Failed to download jar-provisioner: ', str(err))
@@ -665,6 +707,10 @@ def configure_billing_endpoint(endpoint_keystore_password):
             elif args.cloud_provider == 'gcp':
                 billing_properties = [
                     {
+                        'key': "SERVICE_BASE_NAME",
+                        'value': args.service_base_name
+                    },
+                    {
                         'key': "OS_USER",
                         'value': args.os_user
                     },
@@ -681,7 +727,7 @@ def configure_billing_endpoint(endpoint_keystore_password):
                         'value': args.mongo_host
                     },
                     {
-                        'key': "KEYSTORE_PASSWORD",
+                        'key': "KEY_STORE_PASSWORD",
                         'value': endpoint_keystore_password
                     },
                     {
@@ -719,7 +765,7 @@ def init_args():
     parser.add_argument('--hostname', type=str, default='')
     parser.add_argument('--os_user', type=str, default='dlab-user')
     parser.add_argument('--cloud_provider', type=str, default='')
-    parser.add_argument('--mongo_host', type=str, default='MONGO_HOST')
+    parser.add_argument('--mongo_host', type=str, default='localhost')
     parser.add_argument('--mongo_port', type=str, default='27017')
     parser.add_argument('--ss_host', type=str, default='')
     parser.add_argument('--ss_port', type=str, default='8443')
@@ -883,6 +929,9 @@ def start_deploy():
 
     logging.info("Installing Docker")
     ensure_docker_endpoint()
+
+    logging.info("Installing Mongo Database")
+    ensure_mongo_endpoint()
 
     logging.info("Configuring Supervisor")
     configure_supervisor_endpoint(endpoint_keystore_password)

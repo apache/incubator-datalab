@@ -5,7 +5,7 @@ spring:
     mongodb:
       username: admin
       password: MONGO_PASSWORD
-      database: MONGO_PORT
+      database: dlabdb
       port: 27017
       host: MONGO_HOST
 dlab:
