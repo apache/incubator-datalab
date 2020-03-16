@@ -63,7 +63,7 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
         if clusters_list.get('items'):
             for vm in clusters_list['items']:
                 try:
-                    GCPActions().stop_instance(vm['name'], zone)
+                    GCPActions.stop_instance(vm['name'], zone)
                     print("Instance {} has been stopped".format(vm['name']))
                 except:
                     pass
@@ -76,7 +76,7 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
 
     print("Stopping notebook")
     try:
-        GCPActions().stop_instance(instance_name, zone)
+        GCPActions.stop_instance(instance_name, zone)
     except Exception as err:
         dlab.fab.append_result("Failed to stop instance", str(err))
         sys.exit(1)
