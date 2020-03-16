@@ -85,6 +85,7 @@ def login_in_gcr(gcr_creds):
     try:
         with open('/tmp/dlab-gcr-ro-sa.json', 'w') as f:
             f.write(json.dumps(decoded_creds))
+        local('scp -i {} /tmp/dlab-gcr-ro-sa.json {}:/tmp/dlab-gcr-ro-sa.json'.format(args.keyfile, env.host_string))
         sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
         sudo('rm /tmp/dlab-gcr-ro-sa.json')
     except Exception as err:
