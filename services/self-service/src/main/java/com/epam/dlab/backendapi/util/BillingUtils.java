@@ -44,9 +44,12 @@ public class BillingUtils {
     private static final String TOTAL_LINE = "Total: %s %s";
     private static final String EDGE_FORMAT = "%s-%s-%s-edge";
     private static final String EDGE_VOLUME_FORMAT = "%s-%s-%s-edge-volume-primary";
-    private static final String EDGE_BUCKET_FORMAT = "%s-%s-bucket";
+    private static final String PROJECT_ENDPOINT_BUCKET_FORMAT = "%s-%s-%s-bucket";
+    private static final String ENDPOINT_SHARED_BUCKET_FORMAT = "%s-%s-shared-bucket";
     private static final String VOLUME_PRIMARY_FORMAT = "%s-volume-primary";
+    private static final String VOLUME_PRIMARY_COMPUTATIONAL_FORMAT = "%s-%s-volume-primary";
     private static final String VOLUME_SECONDARY_FORMAT = "%s-volume-secondary";
+    private static final String VOLUME_SECONDARY_COMPUTATIONAL_FORMAT = "%s-%s-volume-secondary";
     private static final String VOLUME_PRIMARY = "Volume primary";
     private static final String VOLUME_SECONDARY = "Volume secondary";
     private static final String SHARED_RESOURCE = "Shared resource";
@@ -57,34 +60,39 @@ public class BillingUtils {
     public static Stream<BillingReportLine> edgeBillingDataStream(String project, String sbn, String endpoint, String status) {
         final String userEdgeId = String.format(EDGE_FORMAT, sbn, project.toLowerCase(), endpoint);
         final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project.toLowerCase(), endpoint);
-        final String edgeBucketId = String.format(EDGE_BUCKET_FORMAT, sbn, project.toLowerCase());
+        final String endpointBucketId = String.format(PROJECT_ENDPOINT_BUCKET_FORMAT, sbn, project.toLowerCase(), endpoint);
+        final String projectEndpointBucketId = String.format(ENDPOINT_SHARED_BUCKET_FORMAT, sbn, endpoint);
+
         return Stream.of(
-                BillingReportLine.builder().resourceName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(BillingResourceType.EDGE)
-                        .status(UserInstanceStatus.of(status)).build(),
+                BillingReportLine.builder().resourceName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(BillingResourceType.EDGE).status(UserInstanceStatus.of(status)).build(),
                 BillingReportLine.builder().resourceName("EDGE volume").user(SHARED_RESOURCE).project(project).dlabId(edgeVolumeId).resourceType(BillingResourceType.VOLUME).build(),
-                BillingReportLine.builder().resourceName("EDGE bucket").user(SHARED_RESOURCE).project(project).dlabId(edgeBucketId).resourceType(BillingResourceType.EDGE_BUCKET).build()
+                BillingReportLine.builder().resourceName("Project endpoint shared bucket").user(SHARED_RESOURCE).project(project).dlabId(endpointBucketId).resourceType(BillingResourceType.BUCKET).build(),
+                BillingReportLine.builder().resourceName("Endpoint shared bucket").user(SHARED_RESOURCE).project(SHARED_RESOURCE).dlabId(projectEndpointBucketId).resourceType(BillingResourceType.BUCKET).build()
         );
     }
 
     public static Stream<BillingReportLine> ssnBillingDataStream(String sbn) {
         final String ssnId = sbn + "-ssn";
-        final String bucketName = sbn.replaceAll("_", "-");
         return Stream.of(
                 BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("SSN").dlabId(ssnId).resourceType(BillingResourceType.SSN).build(),
-                BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("SSN Volume").dlabId(String.format(VOLUME_PRIMARY_FORMAT, ssnId)).resourceType(BillingResourceType.VOLUME).build(),
-                BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("SSN bucket").dlabId(bucketName + "-ssn" + "-bucket").resourceType(BillingResourceType.SSN_BUCKET).build(),
-                BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("Collaboration bucket").dlabId(bucketName + "-shared-bucket").resourceType(BillingResourceType.SHARED_BUCKET).build()
+                BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("SSN Volume").dlabId(String.format(VOLUME_PRIMARY_FORMAT, ssnId)).resourceType(BillingResourceType.VOLUME).build()
         );
     }
 
-    public static Stream<BillingReportLine> exploratoryBillingDataStream(UserInstanceDTO userInstance) {
+    public static Stream<BillingReportLine> exploratoryBillingDataStream(UserInstanceDTO userInstance, Integer maxSparkInstanceCount) {
         final Stream<BillingReportLine> computationalStream = userInstance.getResources()
                 .stream()
                 .filter(cr -> cr.getComputationalId() != null)
-                .flatMap(cr -> Stream.of(withUserProject(userInstance).dlabId(cr.getComputationalId()).resourceName(cr.getComputationalName()).resourceType(BillingResourceType.COMPUTATIONAL)
+                .flatMap(cr -> Stream.concat(Stream.of(
+                        withUserProject(userInstance).dlabId(cr.getComputationalId()).resourceName(cr.getComputationalName()).resourceType(BillingResourceType.COMPUTATIONAL)
                                 .status(UserInstanceStatus.of(cr.getStatus())).shape(getComputationalShape(cr)).build(),
-                        withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_FORMAT, cr.getComputationalId()))
-                                .resourceType(BillingResourceType.VOLUME).build()));
+                        withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "m"))
+                                .resourceType(BillingResourceType.VOLUME).build(),
+                        withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_SECONDARY).dlabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "m"))
+                                .resourceType(BillingResourceType.VOLUME).build()
+                        ),
+                        getSlaveVolumes(userInstance, cr, maxSparkInstanceCount)
+                ));
         final String exploratoryId = userInstance.getExploratoryId();
         final String primaryVolumeId = String.format(VOLUME_PRIMARY_FORMAT, exploratoryId);
         final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);
@@ -94,6 +102,17 @@ public class BillingUtils {
                 withUserProject(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(BillingResourceType.VOLUME).build(),
                 withUserProject(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(BillingResourceType.VOLUME).build());
         return Stream.concat(computationalStream, exploratoryStream);
+    }
+
+    private static Stream<BillingReportLine> getSlaveVolumes(UserInstanceDTO userInstance, UserComputationalResource cr, Integer maxSparkInstanceCount) {
+        List<BillingReportLine> list = new ArrayList<>();
+        for (int i = 1; i <= maxSparkInstanceCount; i++) {
+            list.add(withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "s" + i))
+                    .resourceType(BillingResourceType.VOLUME).build());
+            list.add(withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "s" + i))
+                    .resourceType(BillingResourceType.VOLUME).build());
+        }
+        return list.stream();
     }
 
     private static BillingReportLine.BillingReportLineBuilder withUserProject(UserInstanceDTO userInstance) {

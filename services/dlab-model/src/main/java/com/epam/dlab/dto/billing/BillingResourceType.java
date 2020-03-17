@@ -22,9 +22,7 @@ package com.epam.dlab.dto.billing;
 public enum BillingResourceType {
     EDGE,
     SSN,
-    SHARED_BUCKET,
-    SSN_BUCKET,
-    EDGE_BUCKET,
+    BUCKET,
     VOLUME,
     EXPLORATORY,
     COMPUTATIONAL

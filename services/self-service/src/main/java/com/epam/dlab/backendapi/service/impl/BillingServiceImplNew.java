@@ -131,7 +131,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
         final Stream<BillingReportLine> billableUserInstances = exploratoryService.findAll()
                 .stream()
                 .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
-                .flatMap(BillingUtils::exploratoryBillingDataStream);
+                .flatMap(ui -> BillingUtils.exploratoryBillingDataStream(ui, configuration.getMaxSparkInstanceCount()));
         final Stream<BillingReportLine> billableEdges = projectService.getProjects()
                 .stream()
                 .collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
@@ -242,19 +242,21 @@ public class BillingServiceImplNew implements BillingServiceNew {
         });
     }
 
-    private Predicate<BillingReportLine> getBillingReportFilter(BillingFilter filter) {
-        return br -> (CollectionUtils.isEmpty(filter.getUsers()) || filter.getUsers().contains(br.getUser())) &&
-                (CollectionUtils.isEmpty(filter.getProjects()) || filter.getProjects().contains(br.getProject())) &&
-                (CollectionUtils.isEmpty(filter.getResourceTypes()) || filter.getResourceTypes().contains(br.getResourceType().name())) &&
-                (CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(br.getStatus())) &&
-                (CollectionUtils.isEmpty(filter.getShapes()) || filter.getShapes().contains(br.getShape()));
+    private Predicate<BillingData> getBillingDataFilter(BillingFilter filter) {
+        return br ->
+                (StringUtils.isEmpty(filter.getDlabId()) || StringUtils.containsIgnoreCase(br.getTag(), filter.getDlabId())) &&
+                        (StringUtils.isEmpty(filter.getDateStart()) || LocalDate.parse(filter.getDateStart()).isEqual(br.getUsageDateFrom()) || LocalDate.parse(filter.getDateStart()).isBefore(br.getUsageDateFrom())) &&
+                        (StringUtils.isEmpty(filter.getDateEnd()) || LocalDate.parse(filter.getDateEnd()).isEqual(br.getUsageDateTo()) || LocalDate.parse(filter.getDateEnd()).isAfter(br.getUsageDateTo())) &&
+                        (CollectionUtils.isEmpty(filter.getProducts()) || filter.getProducts().contains(br.getProduct()));
     }
 
-    private Predicate<BillingData> getBillingDataFilter(BillingFilter filter) {
-        return br -> (StringUtils.isEmpty(filter.getDlabId()) || StringUtils.containsIgnoreCase(br.getTag(), filter.getDlabId())) &&
-                (StringUtils.isEmpty(filter.getDateStart()) || LocalDate.parse(filter.getDateStart()).isEqual(br.getUsageDateFrom()) || LocalDate.parse(filter.getDateStart()).isBefore(br.getUsageDateFrom())) &&
-                (StringUtils.isEmpty(filter.getDateEnd()) || LocalDate.parse(filter.getDateEnd()).isEqual(br.getUsageDateTo()) || LocalDate.parse(filter.getDateEnd()).isAfter(br.getUsageDateTo())) &&
-                (CollectionUtils.isEmpty(filter.getProducts()) || filter.getProducts().contains(br.getProduct()));
+    private Predicate<BillingReportLine> getBillingReportFilter(BillingFilter filter) {
+        return br ->
+                (CollectionUtils.isEmpty(filter.getUsers()) || filter.getUsers().contains(br.getUser())) &&
+                        (CollectionUtils.isEmpty(filter.getProjects()) || filter.getProjects().contains(br.getProject())) &&
+                        (CollectionUtils.isEmpty(filter.getResourceTypes()) || filter.getResourceTypes().contains(String.valueOf(br.getResourceType()))) &&
+                        (CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(br.getStatus())) &&
+                        (CollectionUtils.isEmpty(filter.getShapes()) || filter.getShapes().contains(br.getShape()));
     }
 
     private boolean isFullReport(UserInfo userInfo) {
