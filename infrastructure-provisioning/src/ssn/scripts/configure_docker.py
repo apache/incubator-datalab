@@ -41,6 +41,7 @@ parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--gcr_creds', type=str, default='')
+parser.add_argument('--odahu_image', type=str, default='')
 args = parser.parse_args()
 
 
@@ -80,21 +81,21 @@ def add_china_repository(dlab_path):
         sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
-def login_in_gcr(gcr_creds):
-    try:
-        with open('/tmp/dlab-gcr-ro-sa', 'w') as f:
-            f.write(gcr_creds)
-        local('scp -i {} /tmp/dlab-gcr-ro-sa {}:/tmp/dlab-gcr-ro-sa'.format(args.keyfile, env.host_string))
-        sudo('cat /tmp/dlab-gcr-ro-sa | base64 --decode > /tmp/dlab-gcr-ro-sa.json')
-        sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
-        print("Login in gcr has been completed")
-    except Exception as err:
-        traceback.print_exc()
-        print('Failed to prepare odahu image: ', str(err))
-        sys.exit(1)
+def login_in_gcr(gcr_creds, odahu_image, dlab_path):
+    if os.environ['conf_cloud_provider'] == 'gcp':
+        try:
+            with open('/tmp/dlab-gcr-ro-sa', 'w') as f:
+                f.write(gcr_creds)
+            local('scp -i {} /tmp/dlab-gcr-ro-sa {}:/tmp/dlab-gcr-ro-sa'.format(args.keyfile, env.host_string))
+            sudo('cat /tmp/dlab-gcr-ro-sa | base64 --decode > /tmp/dlab-gcr-ro-sa.json')
+            sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
+            sudo('sed -i "s|ODAHU_IMAGE|{}|" {}general/files/gcp/odahu_Dockerfile'.format(odahu_image, dlab_path))
+        except Exception as err:
+            traceback.print_exc()
+            print('Failed to prepare odahu image: ', str(err))
+            sys.exit(1)
 
 def build_docker_images(image_list, region, dlab_path):
-    print("Building docker images")
     try:
         if os.environ['conf_cloud_provider'] == 'azure':
             local('scp -i {} /root/azure_auth.json {}:{}sources/infrastructure-provisioning/src/base/'
@@ -192,7 +193,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Login in Google Container Registry")
-    login_in_gcr(args.gcr_creds)
+    login_in_gcr(args.gcr_creds, args.odahu_image, args.dlab_path)
 
     print("Building dlab images")
     count = 0
