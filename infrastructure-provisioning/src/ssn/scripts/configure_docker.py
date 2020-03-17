@@ -87,7 +87,6 @@ def login_in_gcr(gcr_creds):
         local('scp -i {} /tmp/dlab-gcr-ro-sa {}:/tmp/dlab-gcr-ro-sa'.format(args.keyfile, env.host_string))
         sudo('cat /tmp/dlab-gcr-ro-sa | base64 --decode > /tmp/dlab-gcr-ro-sa.json')
         sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
-        sudo('rm /tmp/dlab-gcr-ro-sa.json')
     except Exception as err:
         traceback.print_exc()
         print('Failed to prepare odahu image: ', str(err))
