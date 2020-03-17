@@ -203,8 +203,8 @@ if __name__ == "__main__":
                     emr_conf['endpoint_name'],
                     emr_conf['computational_name'],
                     args.uuid)
-        emr_conf['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
-                                                               emr_conf['endpoint_name']))
+        emr_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
+                                                               emr_conf['endpoint_name']).lower().replace('_', '-')
         tag = {"Key": "{}-tag".format(emr_conf['service_base_name']), "Value": "{}-{}-{}-subnet".format(
             emr_conf['service_base_name'], emr_conf['project_name'], emr_conf['endpoint_name'])}
         emr_conf['subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)

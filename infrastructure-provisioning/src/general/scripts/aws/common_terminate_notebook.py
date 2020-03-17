@@ -82,9 +82,10 @@ if __name__ == "__main__":
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['project_name'] = os.environ['project_name']
     notebook_config['endpoint_name'] = os.environ['endpoint_name']
-    notebook_config['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(notebook_config['service_base_name'],
+    notebook_config['bucket_name'] = '{0}-{1}-{2}-bucket'.format(notebook_config['service_base_name'],
                                                                   notebook_config['project_name'],
-                                                                  notebook_config['endpoint_name']))
+                                                                  notebook_config['endpoint_name']
+                                                                 ).lower().replace('_', '-')
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-tag'
 
     try:
