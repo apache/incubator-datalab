@@ -248,7 +248,7 @@ if __name__ == "__main__":
                              {"name": "dataengine", "tag": "latest"},
                              {"name": "dataengine-service", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {}" \
-                 " --cloud_provider {} --region {} --gcr_creds {} --odahu_image". \
+                 " --cloud_provider {} --region {} --gcr_creds {} --odahu_image {}". \
             format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
                    os.environ['conf_cloud_provider'], ssn_conf['region'], os.environ['ssn_gcr_creds'], os.environ['odahu_deploy_image'])
