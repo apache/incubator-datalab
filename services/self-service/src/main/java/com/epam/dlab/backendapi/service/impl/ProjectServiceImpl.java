@@ -175,7 +175,7 @@ public class ProjectServiceImpl implements ProjectService {
 				exploratoryService.stop(new UserInfo(e.getUser(), userInfo.getAccessToken()), projectName, e.getExploratoryName()));
 
 		endpointDTOS.stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
-				UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED).contains(e.getStatus()))
+				UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED, UserInstanceStatus.FAILED).contains(e.getStatus()))
 				.forEach(e -> stop(userInfo, e.getName(), projectName));
 	}
 
