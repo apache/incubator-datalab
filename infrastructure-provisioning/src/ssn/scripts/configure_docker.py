@@ -185,8 +185,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Login in Google Container Registry")
-    if not login_in_gcr(args.gcr_creds):
-        sys.exit(1)
+    login_in_gcr(args.gcr_creds)''
 
     print("Building dlab images")
     count = 0
