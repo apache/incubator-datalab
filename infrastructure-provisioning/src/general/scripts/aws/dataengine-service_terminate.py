@@ -79,7 +79,7 @@ if __name__ == "__main__":
     emr_conf['project_name'] = os.environ['project_name']
     emr_conf['endpoint_name'] = os.environ['endpoint_name']
     emr_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
-                                                           emr_conf['endpoint_name']).lower()
+                                                           emr_conf['endpoint_name']).lower().replace('_', '-')
     emr_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
     emr_conf['tag_name'] = emr_conf['service_base_name'] + '-tag'
 

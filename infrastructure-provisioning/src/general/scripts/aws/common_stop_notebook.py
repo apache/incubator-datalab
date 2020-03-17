@@ -105,7 +105,8 @@ if __name__ == "__main__":
     notebook_config['endpoint_name'] = os.environ['endpoint_name']
     notebook_config['bucket_name'] = '{0}-{1}-{2}-bucket'.format(notebook_config['service_base_name'],
                                                                   notebook_config['project_name'],
-                                                                  notebook_config['endpoint_name']).lower()
+                                                                  notebook_config['endpoint_name']
+                                                                 ).lower().replace('_', '-')
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-tag'
     notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
 
