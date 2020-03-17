@@ -104,7 +104,7 @@ public class ProjectResource {
 	@RolesAllowed("/api/project")
 	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								@NotNull @Valid ProjectActionFormDTO stopProjectDTO) {
-		projectService.stopWithResources(userInfo, stopProjectDTO.getProjectName());
+		projectService.stopWithResources(userInfo, stopProjectDTO.getEndpoints(), stopProjectDTO.getProjectName());
 		return Response
 				.accepted()
 				.build();
