@@ -23,7 +23,6 @@ import com.epam.dlab.MongoKeyWords;
 import com.epam.dlab.billing.azure.config.AzureAuthFile;
 import com.epam.dlab.billing.azure.config.BillingConfigurationAzure;
 import com.epam.dlab.billing.azure.model.AzureDailyResourceInvoice;
-import com.epam.dlab.billing.azure.model.AzureDlabBillableResource;
 import com.epam.dlab.billing.azure.model.BillingPeriod;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.util.mongo.modules.IsoDateModule;
@@ -47,7 +46,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -122,7 +120,6 @@ public class BillingSchedulerAzure {
 		private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern
 				("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
 		private static final String SCHEDULER_ID = "azureBillingScheduler";
-		private AzureBillingDetailsService azureBillingDetailsService;
 		private BillingConfigurationAzure billingConfigurationAzure;
 		private MongoDbBillingClient client;
 		private ObjectMapper objectMapper = new ObjectMapper().registerModule(new IsoDateModule());
@@ -131,8 +128,6 @@ public class BillingSchedulerAzure {
 		public CalculateBilling(BillingConfigurationAzure billingConfigurationAzure, MongoDbBillingClient client) {
 			this.billingConfigurationAzure = billingConfigurationAzure;
 			this.client = client;
-			this.azureBillingDetailsService = new AzureBillingDetailsService(client,
-					billingConfigurationAzure.getCurrency());
 		}
 
 		@Override
@@ -146,14 +141,7 @@ public class BillingSchedulerAzure {
 					log.info("Billing period from db is {}", billingPeriod);
 
 					if (shouldTriggerJobByTime(currentTime, billingPeriod)) {
-
 						boolean hasNew = run(billingPeriod);
-						if (hasNew) {
-							log.info("Updating billing details");
-							azureBillingDetailsService.updateBillingDetails();
-						}
-
-
 						updateBillingPeriod(billingPeriod, currentTime, hasNew);
 					}
 				}
@@ -193,32 +181,20 @@ public class BillingSchedulerAzure {
 		}
 
 		private boolean run(BillingPeriod billingPeriod) {
-
-			AzureBillableResourcesService azureBillableResourcesService = new AzureBillableResourcesService(client,
-					billingConfigurationAzure.getSharedStorageAccountTagName(),
-					billingConfigurationAzure.getSsnStorageAccountTagName(),
-					billingConfigurationAzure.getDatalakeTagName());
-			Set<AzureDlabBillableResource> billableResources = azureBillableResourcesService.getBillableResources();
-
 			AzureInvoiceCalculationService azureInvoiceCalculationService
-					= new AzureInvoiceCalculationService(billingConfigurationAzure, billableResources);
+					= new AzureInvoiceCalculationService(billingConfigurationAzure);
 
 			List<AzureDailyResourceInvoice> dailyInvoices = azureInvoiceCalculationService.generateInvoiceData(
 					DATE_TIME_FORMATTER.print(new DateTime(billingPeriod.getFrom()).withZone(DateTimeZone.UTC)),
 					DATE_TIME_FORMATTER.print(new DateTime(billingPeriod.getTo()).withZone(DateTimeZone.UTC)));
 
-
 			if (!dailyInvoices.isEmpty()) {
-
 				client.getDatabase().getCollection(MongoKeyWords.BILLING_DETAILS)
 						.insertMany(dailyInvoices.stream().map(AzureDailyResourceInvoice::to)
 								.collect(Collectors.toList()));
-
 				return true;
-
 			} else {
 				log.warn("Daily invoices is empty for period {}", billingPeriod);
-
 				return false;
 			}
 		}

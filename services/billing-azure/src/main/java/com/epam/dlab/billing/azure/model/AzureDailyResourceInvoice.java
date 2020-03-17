@@ -19,34 +19,20 @@
 
 package com.epam.dlab.billing.azure.model;
 
-import com.epam.dlab.billing.DlabResourceType;
 import com.epam.dlab.billing.azure.MongoDocument;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
+@Builder
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AzureDailyResourceInvoice extends MongoDocument<AzureDailyResourceInvoice> {
 	@JsonProperty
 	private String dlabId;
-	@JsonProperty
-	private String user;
-	@JsonProperty
-	private String project;
-	@JsonProperty
-	private String exploratoryId;
-	@JsonProperty
-	private String computationalId;
-	@JsonProperty
-	private DlabResourceType resourceType;
-	@JsonProperty
-	private String resourceName;
 	@JsonProperty
 	private String meterCategory;
 	@JsonProperty
@@ -59,22 +45,4 @@ public class AzureDailyResourceInvoice extends MongoDocument<AzureDailyResourceI
 	private double cost;
 	@JsonProperty
 	private String currencyCode;
-
-	@Builder
-	public AzureDailyResourceInvoice(AzureDlabBillableResource azureDlabBillableResource) {
-		this.dlabId = azureDlabBillableResource.getId();
-		this.user = azureDlabBillableResource.getUser();
-		this.project = azureDlabBillableResource.getProject();
-		this.resourceType = azureDlabBillableResource.getType();
-		this.resourceName = azureDlabBillableResource.getResourceName();
-
-		if (resourceType == DlabResourceType.EXPLORATORY) {
-			this.exploratoryId = azureDlabBillableResource.getId();
-		} else if (resourceType == DlabResourceType.COMPUTATIONAL) {
-			this.computationalId = azureDlabBillableResource.getId();
-			this.exploratoryId = azureDlabBillableResource.getNotebookId();
-		} else if (resourceType == DlabResourceType.VOLUME) {
-			this.exploratoryId = azureDlabBillableResource.getNotebookId();
-		}
-	}
 }
