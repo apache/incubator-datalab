@@ -83,7 +83,7 @@ def add_china_repository(dlab_path):
 def login_in_gcr(gcr_creds):
     try:
         with open('/tmp/dlab-gcr-ro-sa', 'w') as f:
-            f.write(json.dumps(gcr_creds))
+            f.write(gcr_creds)
         local('scp -i {} /tmp/dlab-gcr-ro-sa {}:/tmp/dlab-gcr-ro-sa'.format(args.keyfile, env.host_string))
         sudo('cat /tmp/dlab-gcr-ro-sa | base64 --decode > /tmp/dlab-gcr-ro-sa.json')
         sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
