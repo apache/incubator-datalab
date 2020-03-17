@@ -113,8 +113,8 @@ if __name__ == "__main__":
                     emr_conf['endpoint_name'],
                     emr_conf['computational_name'],
                     args.uuid)
-        emr_conf['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
-                                                               emr_conf['endpoint_name'])).lower()
+        emr_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
+                                                               emr_conf['endpoint_name']).lower()
         emr_conf['configurations'] = '[]'
         if 'emr_configurations' in os.environ:
             emr_conf['configurations'] = os.environ['emr_configurations']
