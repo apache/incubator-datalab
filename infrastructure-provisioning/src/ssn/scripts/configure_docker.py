@@ -81,16 +81,11 @@ def add_china_repository(dlab_path):
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
 def login_in_gcr(gcr_creds):
-    try:
-        with open('/tmp/dlab-gcr-ro-sa', 'w') as f:
-            f.write(gcr_creds)
-        local('scp -i {} /tmp/dlab-gcr-ro-sa {}:/tmp/dlab-gcr-ro-sa'.format(args.keyfile, env.host_string))
-        sudo('cat /tmp/dlab-gcr-ro-sa | base64 --decode > /tmp/dlab-gcr-ro-sa.json')
-        sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
-    except Exception as err:
-        traceback.print_exc()
-        print('Failed to prepare odahu image: ', str(err))
-        sys.exit(1)
+    with open('/tmp/dlab-gcr-ro-sa', 'w') as f:
+        f.write(gcr_creds)
+    local('scp -i {} /tmp/dlab-gcr-ro-sa {}:/tmp/dlab-gcr-ro-sa'.format(args.keyfile, env.host_string))
+    sudo('cat /tmp/dlab-gcr-ro-sa | base64 --decode > /tmp/dlab-gcr-ro-sa.json')
+    sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
 
 def build_docker_images(image_list, region, dlab_path):
     try:
