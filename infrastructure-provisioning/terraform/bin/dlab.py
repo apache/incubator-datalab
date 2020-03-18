@@ -986,6 +986,8 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          .add_str('--ldap_users_group', 'ldap users group', required=True,
                   group='endpoint')
          )
+         .add_str('--mongo_password', 'Mongo database password', group='endpoint')
+         .add_str('--mongo_host', 'Mongo database host', group='endpoint', default='localhost')
         return params.build()
 
     def deploy(self):
