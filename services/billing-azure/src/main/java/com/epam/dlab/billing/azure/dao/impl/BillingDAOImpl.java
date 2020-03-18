@@ -20,10 +20,10 @@
 package com.epam.dlab.billing.azure.dao.impl;
 
 import com.epam.dlab.billing.azure.dao.BillingDAO;
+import com.epam.dlab.billing.azure.model.AzureDailyResourceInvoice;
 import com.epam.dlab.dto.billing.BillingData;
 import com.epam.dlab.exceptions.DlabException;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
@@ -37,12 +37,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.model.aws.ReportLine.FIELD_COST;
-import static com.epam.dlab.model.aws.ReportLine.FIELD_CURRENCY_CODE;
-import static com.epam.dlab.model.aws.ReportLine.FIELD_DLAB_ID;
-import static com.epam.dlab.model.aws.ReportLine.FIELD_PRODUCT;
-import static com.epam.dlab.model.aws.ReportLine.FIELD_RESOURCE_TYPE;
-import static com.epam.dlab.model.aws.ReportLine.FIELD_USAGE_DATE;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 
@@ -61,7 +55,7 @@ public class BillingDAOImpl implements BillingDAO {
             GroupOperation groupOperation = getGroupOperation();
             Aggregation aggregation = newAggregation(groupOperation);
 
-            return mongoTemplate.aggregate(aggregation, "billing", Document.class).getMappedResults()
+            return mongoTemplate.aggregate(aggregation, "billing", AzureDailyResourceInvoice.class).getMappedResults()
                     .stream()
                     .map(this::toBillingData)
                     .collect(Collectors.toList());
@@ -78,7 +72,7 @@ public class BillingDAOImpl implements BillingDAO {
             MatchOperation matchOperation = Aggregation.match(Criteria.where("dlab_id").in(dlabIds));
             Aggregation aggregation = newAggregation(matchOperation, groupOperation);
 
-            return mongoTemplate.aggregate(aggregation, "billing", Document.class).getMappedResults()
+            return mongoTemplate.aggregate(aggregation, "billing", AzureDailyResourceInvoice.class).getMappedResults()
                     .stream()
                     .map(this::toBillingData)
                     .collect(Collectors.toList());
@@ -89,21 +83,20 @@ public class BillingDAOImpl implements BillingDAO {
     }
 
     private GroupOperation getGroupOperation() {
-        return group(FIELD_PRODUCT, FIELD_CURRENCY_CODE, FIELD_RESOURCE_TYPE, FIELD_DLAB_ID)
-                .min(FIELD_USAGE_DATE).as("from")
-                .max(FIELD_USAGE_DATE).as("to")
-                .sum(FIELD_COST).as(FIELD_COST);
+        return group("meterCategory", "currencyCode", "dlabId")
+                .min("usageStartDate").as("usageStartDate")
+                .max("usageEndDate").as("usageEndDate")
+                .sum("cost").as("cost");
     }
 
-    private BillingData toBillingData(Document billingData) {
+    private BillingData toBillingData(AzureDailyResourceInvoice billingData) {
         return BillingData.builder()
-                .tag(billingData.getString(FIELD_DLAB_ID))
-                .usageDateFrom(Optional.ofNullable(billingData.getString("from")).map(LocalDate::parse).orElse(null))
-                .usageDateTo(Optional.ofNullable(billingData.getString("to")).map(LocalDate::parse).orElse(null))
-                .product(billingData.getString(FIELD_PRODUCT))
-                .usageType(billingData.getString(FIELD_RESOURCE_TYPE))
-                .cost(BigDecimal.valueOf(billingData.getDouble(FIELD_COST)).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
-                .currency(billingData.getString(FIELD_CURRENCY_CODE))
+                .tag(billingData.getDlabId())
+                .usageDateFrom(Optional.ofNullable(billingData.getUsageStartDate()).map(LocalDate::parse).orElse(null))
+                .usageDateTo(Optional.ofNullable(billingData.getUsageEndDate()).map(LocalDate::parse).orElse(null))
+                .product(billingData.getMeterCategory())
+                .cost(BigDecimal.valueOf(billingData.getCost()).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
+                .currency(billingData.getCurrencyCode())
                 .build();
     }
 }
