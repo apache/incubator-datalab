@@ -60,7 +60,7 @@ if __name__ == "__main__":
             "sbn": odahu_conf['service_base_name'],
             "project_tag": odahu_conf['project_tag']}
 
-        params = "--bucket_name {} --tags '{}'".format(odahu_conf['bucket_name'], odahu_conf['bucket_tags'])
+        params = "--bucket_name {} --tags '{}'".format(odahu_conf['bucket_name'], json.dumps(odahu_conf['bucket_tags']))
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
