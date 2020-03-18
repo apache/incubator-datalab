@@ -158,7 +158,7 @@ public class SchedulerJobDAO extends BaseDAO {
 								eq(CONSIDER_INACTIVITY_FLAG, false)
 						)
 				),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA))))
+				fields(excludeId(), include(USER, PROJECT, EXPLORATORY_NAME, SCHEDULER_DATA))))
 				.map(d -> convertFromDocument(d, SchedulerJobData.class))
 				.collect(toList());
 	}
