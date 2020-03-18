@@ -8,5 +8,6 @@
     "compute.instanceAdmin",
     "bigquery.dataViewer",
     "bigquery.jobUser",
-    "container.admin"
+    "container.admin",
+    "dns.admin"
 ]

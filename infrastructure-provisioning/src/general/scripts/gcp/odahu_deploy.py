@@ -44,6 +44,7 @@ if __name__ == "__main__":
     odahu_conf['project_id'] = (os.environ['gcp_project_id'])
     odahu_conf['region'] = (os.environ['gcp_region'])
     odahu_conf['zone'] = (os.environ['gcp_zone'])
+    odahu_conf['edge_user_name'] = os.environ['edge_user_name']
     odahu_conf['node_locations'] = GCPMeta().get_available_zones()
     odahu_conf['dns_zone_name'] = os.environ['odahu_dns_zone_name']
     odahu_conf['docker_repo'] = os.environ['odahu_docker_repo']
@@ -120,6 +121,12 @@ if __name__ == "__main__":
                     "vpc_name": "{}".format(odahu_conf['vpc_name']),
                     "subnet_name": "{}".format(odahu_conf['private_subnet_name']),
                     "node_locations": odahu_conf['node_locations'],
+                    "node_labels": {
+                        "name": "{}".format(odahu_conf['cluster_name']),
+                        "product": "dlab",
+                        "user": "{}".format(odahu_conf['edge_user_name']),
+                        "sbn": "{}".format(odahu_conf['service_base_name'])
+                    },
                     "oauth_client_id": "{}".format(odahu_conf['oauth_client_id']),
                     "oauth_client_secret": "{}".format(odahu_conf['oauth_client_secret']),
                     "oauth_cookie_secret": "OWl6VnV3SHNIQzVyMThqVw==",
