@@ -341,8 +341,10 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                                            'subnet-id'.format(interface)).stdout
                 args.vpc2_id = args.vpc_id
                 args.subnet2_id = args.subnet_id
+                conn.sudo('sed -i "s|CONF_PARAMETER|--spring.config.location={0}billing_app.yml --conf {0}|g" {1}/tmp/supervisor_svc.conf'
+                          .format(args.dlab_conf_dir, args.dlab_path))
             if args.cloud_provider == 'gcp':
-                conn.sudo('sed -i "s|CONF_PARAMETER_NAME|--spring.config.location=|g" {}/tmp/supervisor_svc.conf'
+                conn.sudo('sed -i "s|CONF_PARAMETER|--spring.config.location=|g" {}/tmp/supervisor_svc.conf'
                           .format(args.dlab_path))
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
                       .format(args.os_user, args.dlab_path))
@@ -696,12 +698,93 @@ def configure_billing_endpoint(endpoint_keystore_password):
                      .format(args.dlab_path))
             billing_yml_path = "{}/conf/billing.yml".format(args.dlab_path)
             if args.cloud_provider == 'aws':
+
+                conn.put('./billing_app_{}.yml'.format(args.cloud_provider), '{}/conf/billing_app.yml'
+                         .format(args.dlab_path))
+                billing_app_yml_path = "{}/conf/billing_app.yml".format(args.dlab_path)
+                billing_app_properties = [
+                    {
+                        'key': "MONGO_HOST",
+                        'value': args.mongo_host
+                    },
+                    {
+                        'key': "MONGO_PASSWORD",
+                        'value': args.mongo_password
+                    },
+                    {
+                        'key': "MONGO_PORT",
+                        'value': args.mongo_port
+                    },
+                    {
+                        'key': "OS_USER",
+                        'value': args.os_user
+                    },
+                    {
+                        'key': "KEY_STORE_PASSWORD",
+                        'value': endpoint_keystore_password
+                    },
+                    {
+                        'key': "KEYCLOAK_CLIENT_ID",
+                        'value': args.keycloak_client_id
+                    },
+                    {
+                        'key': "CLIENT_SECRET",
+                        'value': args.keycloak_client_secret
+                    },
+                    {
+                        'key': "KEYCLOAK_AUTH_SERVER_URL",
+                        'value': args.keycloak_auth_server_url
+                    }
+                ]
+                for param in billing_app_properties:
+                    conn.sudo('sed -i "s|{0}|{1}|g" {2}'
+                              .format(param['key'], param['value'], billing_app_yml_path))
                 if args.aws_job_enabled == 'true':
                     args.tag_resource_id = 'resourceTags' + ':' + args.tag_resource_id
                 billing_properties = [
                     {
+                        'key': "MONGO_HOST",
+                        'value': args.mongo_host
+                    },
+                    {
+                        'key': "MONGO_PASSWORD",
+                        'value': args.mongo_password
+                    },
+                    {
+                        'key': "MONGO_PORT",
+                        'value': args.mongo_port
+                    },
+                    {
                         'key': "BILLING_BUCKET_NAME",
                         'value': args.billing_bucket
+                    },
+                    {
+                        'key': "REPORT_PATH",
+                        'value': args.report_path
+                    },
+                    {
+                        'key': "AWS_JOB_ENABLED",
+                        'value': args.aws_job_enabled
+                    },
+                    {
+                        'key': "ACCOUNT_ID",
+                        'value': args.billing_aws_account_id
+                    },
+                    {
+                        'key': "ACCESS_KEY_ID",
+                        'value': args.access_key_id
+                    },
+                    {
+                        'key': "SECRET_ACCESS_KEY",
+                        'value': args.secret_access_key
+                    },
+                    {
+                        'key': "CONF_BILLING_TAG",
+                        'value': args.billing_tag
+                    },
+                    {
+                        'key': "SERVICE_BASE_NAME",
+                        'value': args.service_base_name
                     }
                 ]
             elif args.cloud_provider == 'gcp':
