@@ -81,3 +81,9 @@ variable "additional_tag" {
 variable "tag_resource_id" {
   default = "user:tag"
 }
+
+variable "billing_enable" {}
+
+variable "mongo_password" {}
+
+variable "mongo_host" {}
