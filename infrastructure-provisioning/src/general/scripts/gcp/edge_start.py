@@ -50,7 +50,7 @@ if __name__ == "__main__":
                                                            edge_conf['project_name'], edge_conf['endpoint_name'])
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
-    edge_conf['static_address_name'] = '{0}-{1}-{2}-ip'.format(edge_conf['service_base_name'],
+    edge_conf['static_address_name'] = '{0}-{1}-{2}-static-ip'.format(edge_conf['service_base_name'],
                                                                edge_conf['project_name'],
                                                                edge_conf['endpoint_name'])
 
