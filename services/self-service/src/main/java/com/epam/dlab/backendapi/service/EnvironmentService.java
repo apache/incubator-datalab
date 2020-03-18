@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 
@@ -35,7 +36,17 @@ public interface EnvironmentService {
 
 	void stopAll();
 
+	void stopEnvironment(UserInfo userInfo, String user, String project);
+
 	void stopEnvironmentWithServiceAccount(String user);
 
 	void stopProjectEnvironment(String project);
+
+	void stopExploratory(UserInfo userInfo, String user, String project, String exploratoryName);
+
+	void stopComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName);
+
+	void terminateExploratory(UserInfo userInfo, String user, String project, String exploratoryName);
+
+	void terminateComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName);
 }
