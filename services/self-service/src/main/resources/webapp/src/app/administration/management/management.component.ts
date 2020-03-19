@@ -78,6 +78,7 @@ export class ManagementComponent implements OnInit {
       .environmentManagement(
         $event.environment.user,
         $event.action,
+        $event.environment.project,
         $event.environment.type === 'edge node' ? 'edge' : $event.environment.name,
         $event.resource ? $event.resource.computational_name : null
       ).subscribe(
