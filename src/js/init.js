@@ -15,7 +15,7 @@ var macSwiper,
     screenSliderTop,
     macNavigation = $('.controls-nav'),
     screenThumbsNavigation = $('.screen-slider-thumbs');
-$(document).ready(function() {
+$('#document').ready(function() {
     $('body').show();
     $('#msg').hide();
     window.scrollTo(window.scrollX, window.scrollY + 1);
@@ -76,8 +76,27 @@ $(document).ready(function () {
         });
     });
 
+    $('.download').on('click', function () {
+        $('#download-overlay').css({
+            'width': '100%',
+            'left': 0,
+            'opacity': 1
+        });
+        $('.overlay-wrap').css({
+            display: "flex"
+        });
+    });
+
     $('.close-butt').on('click', function () {
         $('#details-overlay').css({
+            'width': '0%',
+            'left': '-1px',
+            'opacity': 0
+        });
+    });
+
+    $('.close-butt-download').on('click', function () {
+        $('#download-overlay').css({
             'width': '0%',
             'left': '-1px',
             'opacity': 0

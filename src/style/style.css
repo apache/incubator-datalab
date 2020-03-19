@@ -1116,7 +1116,7 @@ footer {
         right: 40px;
         top: 20px;
         cursor: pointer; }
-        .overlay .overlay-wrap .sources .close-butt:hover, .overlay .overlay-wrap .sources .close-butt:focus {
+        .overlay .overlay-wrap .sources .close-butt:hover .close-butt-download:hover, .overlay .overlay-wrap .sources .close-butt-download:focus {
           color: #1CBC79; }
       .overlay .overlay-wrap .sources .dlab-logo {
         padding: 56px;

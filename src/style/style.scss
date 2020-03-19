@@ -966,7 +966,7 @@ footer {
             color: #485F76;
             height: 100vh;
 
-            .close-butt {
+            .close-butt, .close-butt-download {
                 position: absolute;
                 font-size: 46px;
                 right: 40px;
@@ -1722,6 +1722,66 @@ footer {
                 flex-basis: 100%;
                 justify-content: center;
                 margin-bottom: 25px;
+            }
+        }
+    }
+}
+
+.full-height{
+    height: 80vh;
+    z-index: -1;
+}
+
+.releases-list{
+    width: 80%;
+    margin: 0 auto;
+    &-item{
+        padding: 10px 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid lightgray;
+        &.header{
+            font-weight: 700;
+        }
+        span{
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+    }
+}
+
+#download-overlay.overlay {
+    background-color: #fff;
+
+    .overlay-wrap {
+        .close-butt-download {
+            position: absolute;
+            font-size: 46px;
+            right: calc(50% + 40px);
+            cursor: pointer;
+            z-index: 999;
+
+            &:hover,
+            &:focus {
+                color: $primary-green;
+            }
+        }
+
+        article {
+            width: 50%;
+
+            a {
+                font-size: 15px;
+                display: inline;
+                color: #0000EE;
+                font-weight: 500;
+                padding: 0;
+            }
+
+            &.content-desc p {
+                padding-top: 1.4rem;
+                padding-bottom: 0.5rem;
             }
         }
     }
