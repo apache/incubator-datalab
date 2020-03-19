@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties("dlab")
 @Data
 public class BillingConfigurationAzure {
+    private String sbn;
     private long initialDelay;
     private long period;
 

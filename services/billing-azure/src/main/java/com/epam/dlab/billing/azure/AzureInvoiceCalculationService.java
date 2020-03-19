@@ -177,7 +177,7 @@ public class AzureInvoiceCalculationService {
 
 	private boolean isBillableDlabResource(UsageAggregateRecord record) {
 		String dlabId = record.getProperties().getParsedInstanceData().getMicrosoftResources().getTags().get("Name");
-		return dlabId != null && !dlabId.isEmpty();
+		return dlabId != null && !dlabId.isEmpty() && dlabId.startsWith(billingConfigurationAzure.getSbn());
 	}
 
 	private AzureDailyResourceInvoice calculateInvoice(Map<String, Meter> rates, UsageAggregateRecord record, String dlabId) {
@@ -191,8 +191,8 @@ public class AzureInvoiceCalculationService {
 				if (rate != null) {
 					return AzureDailyResourceInvoice.builder()
 							.dlabId(dlabId)
-							.usageStartDate(record.getProperties().getUsageStartTime())
-							.usageEndDate(record.getProperties().getUsageEndTime())
+							.usageStartDate(getDay(record.getProperties().getUsageStartTime()))
+							.usageEndDate(getDay(record.getProperties().getUsageEndTime()))
 							.meterCategory(record.getProperties().getMeterCategory())
 							.cost(BillingCalculationUtils.round(rate * record.getProperties().getQuantity(), 3))
 							.day(getDay(record.getProperties().getUsageStartTime()))

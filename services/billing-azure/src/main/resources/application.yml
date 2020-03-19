@@ -34,7 +34,8 @@ keycloak:
   auth-server-url: http://52.11.45.11:8080/auth
 
 dlab:
-  billingEnabled: false
+  sbn: <CONF_SERVICE_BASE_NAME>
+  billingEnabled: true
   clientId: <CLIENT_ID>
   clientSecret: <CLIENT_SECRET>
   tenantId: <TENANT_ID>
