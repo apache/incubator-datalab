@@ -103,9 +103,10 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
         list_service_accounts = GCPMeta.get_list_service_accounts()
         sa_keys = ['edge-sa', 'ps-sa']
         role_keys = ['edge-role', 'ps-role']
+        sa_target = ['{}-{}'.format(base, k) for k in sa_keys]
         indexes = [GCPMeta.get_index_by_service_account_name('{}-{}'.format(base, k)) for k in sa_keys]
         role_targets = ['{}-{}-{}'.format(base, i, k) for k in role_keys for i in indexes]
-        for service_account in (set(targets) & set(list_service_accounts)):
+        for service_account in (set(sa_target) & set(list_service_accounts)):
             GCPActions.remove_service_account(service_account, service_base_name)
         list_roles_names = GCPMeta.get_list_roles()
         for role in (set(role_targets) & set(list_roles_names)):
