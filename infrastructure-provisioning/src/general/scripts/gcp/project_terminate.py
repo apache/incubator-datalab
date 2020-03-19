@@ -53,7 +53,7 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
 
     print("Terminating EDGE and notebook instances")
     base = '{}-{}-{}'.format(service_base_name, project_name, endpoint_name)
-    keys = ['edge', 'ps', 'static-ip', 'bucket', 'subnet', 'edge-sa', 'ps-sa', 'edge-role', 'ps-role']
+    keys = ['edge', 'ps', 'static-ip', 'bucket', 'subnet']
     targets = ['{}-{}'.format(base, k) for k in keys]
     try:
         instances = GCPMeta.get_list_instances(zone, base)
@@ -101,8 +101,10 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
     print("Removing Service accounts and roles")
     try:
         list_service_accounts = GCPMeta.get_list_service_accounts()
-        role_targets = ['{}-{}-{}'.format(base, GCPMeta.get_index_by_service_account_name(
-            '{}-{}'.format(base, k)), k) for k in keys]
+        sa_keys = ['edge-sa', 'ps-sa']
+        role_keys = ['edge-role', 'ps-role']
+        indexes = [GCPMeta.get_index_by_service_account_name('{}-{}'.format(base, k)) for k in sa_keys]
+        role_targets = ['{}-{}-{}'.format(base, i, k) for k in role_keys for i in indexes]
         for service_account in (set(targets) & set(list_service_accounts)):
             GCPActions.remove_service_account(service_account, service_base_name)
         list_roles_names = GCPMeta.get_list_roles()
