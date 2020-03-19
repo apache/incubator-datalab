@@ -754,14 +754,14 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone, lables):
+    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone, labels):
         primary_disk_name = "projects/{0}/zones/{1}/disks/{2}".format(self.project, zone, instance_name)
         secondary_disk_name = "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
         labels.update({"name": primary_image_name})
-        primary_params = {"name": primary_image_name, "sourceDisk": primary_disk_name, "labels": lables}
+        primary_params = {"name": primary_image_name, "sourceDisk": primary_disk_name, "labels": labels}
         primary_request = self.service.images().insert(project=self.project, body=primary_params)
         labels.update({"name": secondary_image_name})
-        secondary_params = {"name": secondary_image_name, "sourceDisk": secondary_disk_name, "labels": lables}
+        secondary_params = {"name": secondary_image_name, "sourceDisk": secondary_disk_name, "labels": labels}
         secondary_request = self.service.images().insert(project=self.project, body=secondary_params)
         id_list=[]
         try:
