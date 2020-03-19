@@ -148,7 +148,6 @@ export class ManagementGridComponent implements OnInit {
   }
 
   toggleResourceAction(environment: any, action: string, resource?): void {
-    console.log(environment.project);
     if (resource) {
       const resource_name = resource ? resource.computational_name : environment.name;
       this.dialog.open(ReconfirmationDialogComponent, {
