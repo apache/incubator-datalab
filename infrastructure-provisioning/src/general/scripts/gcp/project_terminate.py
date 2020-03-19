@@ -89,10 +89,11 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
 
     print("Removing project specific images")
     try:
-        images = GCPMeta().get_list_images(args.service_base_name)
+        project_image_name_beginning = '{}-{}'.format(service_base_name, project_name)
+        images = GCPMeta.get_list_images(project_image_name_beginning)
         if 'items' in images:
             for i in images['items']:
-                GCPActions().remove_image(i['name'])
+                GCPActions.remove_image(i['name'])
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
