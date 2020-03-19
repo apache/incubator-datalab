@@ -165,15 +165,19 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public void stopWithResources(UserInfo userInfo, String projectName) {
-		List<ProjectEndpointDTO> endpoints = get(projectName).getEndpoints();
-		checkProjectRelatedResourcesInProgress(projectName, endpoints, STOP_ACTION);
+	public void stopWithResources(UserInfo userInfo, List<String> endpoints, String projectName) {
+		List<ProjectEndpointDTO> endpointDTOs = get(projectName)
+				.getEndpoints()
+				.stream()
+				.filter(projectEndpointDTO -> endpoints.contains(projectEndpointDTO.getName()))
+				.collect(Collectors.toList());
+		checkProjectRelatedResourcesInProgress(projectName, endpointDTOs, STOP_ACTION);
 
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName).forEach(e ->
 				exploratoryService.stop(new UserInfo(e.getUser(), userInfo.getAccessToken()), projectName, e.getExploratoryName()));
 
-		endpoints.stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
-				UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED).contains(e.getStatus()))
+		endpointDTOs.stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED, UserInstanceStatus.FAILED).contains(e.getStatus()))
 				.forEach(e -> stop(userInfo, e.getName(), projectName));
 	}
 

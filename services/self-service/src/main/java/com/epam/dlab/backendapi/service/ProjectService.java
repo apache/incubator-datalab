@@ -36,7 +36,7 @@ public interface ProjectService {
 
 	void stop(UserInfo userInfo, List<String> endpoints, String name);
 
-	void stopWithResources(UserInfo userInfo, String projectName);
+	void stopWithResources(UserInfo userInfo, List<String> endpoints, String projectName);
 
 	void update(UserInfo userInfo, UpdateProjectDTO projectDTO);
 
