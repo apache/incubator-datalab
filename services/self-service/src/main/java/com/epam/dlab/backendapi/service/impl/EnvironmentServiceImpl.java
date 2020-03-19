@@ -112,6 +112,14 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@Override
+	public void stopEnvironment(UserInfo userInfo, String user, String project) {
+		log.debug("Stopping environment for user {}", user);
+		checkState(user, "stop");
+		exploratoryDAO.fetchRunningExploratoryFields(user)
+				.forEach(e -> stopExploratory(userInfo, user, project, e.getExploratoryName()));
+	}
+
+	@Override
 	public void stopEnvironmentWithServiceAccount(String user) {
 		log.debug("Stopping environment for user {} by scheduler", user);
 		checkState(user, "stop");
@@ -130,6 +138,28 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.filter(e -> UserInstanceStatus.RUNNING == e.getStatus())
 				.forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo("admin"),
 						endpoint.getName(), project));
+	}
+
+	@Override
+	public void stopExploratory(UserInfo userInfo, String user, String project, String exploratoryName) {
+		exploratoryService.stop(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName);
+	}
+
+	@Override
+	public void stopComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName) {
+		computationalService.stopSparkCluster(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName,
+				computationalName);
+	}
+
+	@Override
+	public void terminateExploratory(UserInfo userInfo, String user, String project, String exploratoryName) {
+		exploratoryService.terminate(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName);
+	}
+
+	@Override
+	public void terminateComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName) {
+		computationalService.terminateComputational(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName,
+				computationalName);
 	}
 
 	private UserDTO toUserDTO(String u, UserDTO.Status status) {
