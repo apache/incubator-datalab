@@ -17,7 +17,7 @@ server:
 server.ssl.key-store-type: JKS
 server.ssl.key-store: /home/OS_USER/keys/endpoint.keystore.jks
 server.ssl.key-store-password: KEY_STORE_PASSWORD
-server.ssl.key-alias: billing
+server.ssl.key-alias: endpoint
 
 logging:
   file: /var/opt/dlab/log/ssn/billing.log
