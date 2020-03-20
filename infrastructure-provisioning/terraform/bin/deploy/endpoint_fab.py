@@ -347,8 +347,8 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 conn.sudo('sed -i "s|CONF_PARAMETER|--spring.config.location=|g" {}/tmp/supervisor_svc.conf'
                           .format(args.dlab_path))
             elif args.cloud_provider == 'azure':
-            conn.sudo('sed -i "s|CONF_PARAMETER|--conf |g" {}/tmp/supervisor_svc.conf'
-                      .format(args.dlab_path))
+                conn.sudo('sed -i "s|CONF_PARAMETER|--conf |g" {}/tmp/supervisor_svc.conf'
+                        .format(args.dlab_path))
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
                       .format(args.os_user, args.dlab_path))
             conn.sudo('sed -i "s|WEB_CONF|{}|g" {}/tmp/supervisor_svc.conf'
