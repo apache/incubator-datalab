@@ -988,6 +988,12 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
          .add_bool('--billing_enable', 'Billing enable', group='endpoint', default=False)
          .add_str('--mongo_password', 'Mongo database password', group='endpoint')
          .add_str('--mongo_host', 'Mongo database host', group='endpoint', default='localhost')
+         .add_str('--billing_bucket', 'Billing bucket name', group='endpoint', default='')
+         .add_str('--report_path', 'The path to report folder', group='endpoint', default='')
+         .add_str('--aws_job_enabled', 'Billing format. Available options: true (aws), false(epam)', group='endpoint',
+                  default='false')
+         .add_str('--billing_aws_account_id', 'The ID of ASW linked account', group='endpoint', default='')
+         .add_str('--billing_tag', 'Billing tag', group='endpoint', default='dlab')
          )
         return params.build()
 

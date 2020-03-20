@@ -17,7 +17,7 @@ server:
 server.ssl.key-store-type: JKS
 server.ssl.key-store: /Users/ofuks/keys/dlabcert/billing.jks
 server.ssl.key-store-password: KEYSTORE_PASSWORD
-server.ssl.key-alias: billing
+server.ssl.key-alias: endpoint
 
 logging:
   file: /var/opt/dlab/log/ssn/billing.log

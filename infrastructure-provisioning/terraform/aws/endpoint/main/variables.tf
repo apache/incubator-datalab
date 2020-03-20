@@ -87,3 +87,13 @@ variable "billing_enable" {}
 variable "mongo_password" {}
 
 variable "mongo_host" {}
+
+variable "billing_bucket" {}
+
+variable "report_path" {}
+
+variable "aws_job_enabled" {}
+
+variable "billing_aws_account_id" {}
+
+variable "billing_tag" {}
