@@ -184,7 +184,7 @@ if __name__ == "__main__":
                             "machine_type": "n1-highcpu-8"
                         },
                         "main": {
-                            "init_node_count": 3,
+                            "init_node_count": 8,
                             "disk_size_gb": 64,
                             "min_node_count": 1,
                             "max_node_count": 5
