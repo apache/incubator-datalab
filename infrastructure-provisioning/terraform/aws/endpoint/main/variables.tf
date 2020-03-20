@@ -90,9 +90,13 @@ variable "mongo_host" {}
 
 variable "billing_bucket" {}
 
-variable "report_path" {}
+variable "report_path" {
+  default = ""
+}
 
-variable "aws_job_enabled" {}
+variable "aws_job_enabled" {
+  default = "false"
+}
 
 variable "billing_aws_account_id" {}
 
