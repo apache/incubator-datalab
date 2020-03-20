@@ -52,7 +52,7 @@ if __name__ == "__main__":
                                                                 image_conf['endpoint_name'],
                                                                 image_conf['application'],
                                                                 image_conf['image_name'])
-        image_conf['tags'] = {"Name": image_conf['service_base_name'],
+        image_conf['tags'] = {"Name": image_conf['instance_name'],
                               "SBN": image_conf['service_base_name'],
                               "User": image_conf['user_name'],
                               "project_tag": image_conf['project_tag'],
