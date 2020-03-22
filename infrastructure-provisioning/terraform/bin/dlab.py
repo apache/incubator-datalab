@@ -1248,7 +1248,6 @@ class AzureEndpointBuilder(AbstractDeployBuilder):
          .add_str('--additional_tag', 'Additional tag.', default='product:dlab', group='endpoint')
          .add_str('--tenant_id', 'Azure tenant ID', group='endpoint', default='')
          .add_str('--subscription_id', 'Azure subscription ID', group='endpoint', default='')
-         .add_str('--authentication_file', 'authentication_file', group='endpoint', default='')
          .add_str('--offer_number', 'Azure offer number', group='endpoint', default='')
          .add_str('--currency', 'Azure currency for billing', group='endpoint', default='')
          .add_str('--locale', 'Azure locale', group='endpoint', default='')

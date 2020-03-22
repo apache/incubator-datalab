@@ -889,7 +889,7 @@ def configure_billing_endpoint(endpoint_keystore_password):
                     },
                     {
                         'key': "AUTHENTICATION_FILE",
-                        'value': args.authentication_file
+                        'value': args.auth_file_path
                     },
                     {
                         'key': "OFFER_NUMBER",
@@ -1000,7 +1000,6 @@ def init_args():
     parser.add_argument('--billing_tags', type=str, default='')
     parser.add_argument('--tenant_id', type=str, default='')
     parser.add_argument('--subscription_id', type=str, default='')
-    parser.add_argument('--authentication_file', type=str, default='')
     parser.add_argument('--offer_number', type=str, default='')
     parser.add_argument('--currency', type=str, default='')
     parser.add_argument('--locale', type=str, default='')
