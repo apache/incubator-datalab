@@ -18,7 +18,7 @@
  */
 /* tslint:disable:no-empty */
 
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
@@ -61,6 +61,8 @@ import {NotebookModel} from '../exploratory/notebook.model';
 
 export class ResourcesGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+
+  @Input() projects: Array<any>;
 
   environments: Exploratory[];
 
@@ -147,6 +149,12 @@ export class ResourcesGridComponent implements OnInit {
         && item.status !== 'running' && item.status !== 'stopped')).length > 0;
     }
     return false;
+  }
+
+  public isEdgeNodeStopped(resource) {
+    const currProject = this.projects.filter(proj => proj.name === resource.project);
+    const currEdgenodeStatus =  currProject[0].endpoints.filter(node => node.name === resource.endpoint)[0].status;
+    return currEdgenodeStatus === 'STOPPED' || currEdgenodeStatus === 'STOPPING';
   }
 
   public filterActiveInstances(): FilterConfigurationModel {
