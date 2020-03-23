@@ -343,12 +343,9 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 args.subnet2_id = args.subnet_id
                 conn.sudo('sed -i "s|CONF_PARAMETER|--spring.config.location={0}billing_app.yml --conf |g" {1}/tmp/supervisor_svc.conf'
                           .format(dlab_conf_dir, args.dlab_path))
-            elif args.cloud_provider == 'gcp':
+            elif args.cloud_provider == 'gcp' or args.cloud_provider == 'azure':
                 conn.sudo('sed -i "s|CONF_PARAMETER|--spring.config.location=|g" {}/tmp/supervisor_svc.conf'
                           .format(args.dlab_path))
-            elif args.cloud_provider == 'azure':
-                conn.sudo('sed -i "s|CONF_PARAMETER|--conf |g" {}/tmp/supervisor_svc.conf'
-                        .format(args.dlab_path))
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
                       .format(args.os_user, args.dlab_path))
             conn.sudo('sed -i "s|WEB_CONF|{}|g" {}/tmp/supervisor_svc.conf'
