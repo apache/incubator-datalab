@@ -80,12 +80,12 @@ import {Endpoint} from '../../../administration/project/project.component';
                               </div>
                           </div>
                       </div>
-                      <div class="confirm-resource-terminating">
-                          <label>
-                              <input class="checkbox" type="checkbox"
-                                     (change)="terminateResource()"/>Do not terminate all related resources
-                          </label>
-                      </div>
+<!--                      <div class="confirm-resource-terminating">-->
+<!--                          <label>-->
+<!--                              <input class="checkbox" type="checkbox"-->
+<!--                                     (change)="terminateResource()"/>Do not terminate all related resources-->
+<!--                          </label>-->
+<!--                      </div>-->
                       <p class="confirm-message">
                           <span *ngIf="!willNotTerminate">All connected computational resources will be terminated as well.</span>
                       </p>
@@ -137,7 +137,7 @@ import {Endpoint} from '../../../administration/project/project.component';
     .resource-list-header{display: flex; font-weight: 600; font-size: 16px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
     .resource-list-row{display: flex; border-bottom: 1px solid #edf1f5;padding: 0 20px;}
     .confirm-resource-terminating{text-align: left; padding: 10px 20px;}
-    .confirm-message{color: #ef5c4b;font-size: 13px;min-height: 18px; text-align: center;}
+    .confirm-message{color: #ef5c4b;font-size: 13px;min-height: 18px; text-align: center; padding-top: 20px}
     .checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
     label{cursor: pointer}
 

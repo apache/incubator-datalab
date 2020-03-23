@@ -37,7 +37,8 @@ export class MultiLevelSelectDropdownComponent {
 
   public labels = {
     COMPUTATIONAL_SHAPE: 'Compute shapes',
-    NOTEBOOK_SHAPE: 'Notebook shape'
+    NOTEBOOK_SHAPE: 'Notebook shapes',
+    COMPUTATIONAL: 'Compute'
   };
 
   toggleSelectedOptions($event, model, value) {
