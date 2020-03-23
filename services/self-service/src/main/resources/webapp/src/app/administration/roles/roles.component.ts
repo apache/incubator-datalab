@@ -76,10 +76,10 @@ export class RolesComponent implements OnInit {
           this.roles = roles;
           this.rolesList = roles.map((role, index) => {
               return {role: role.description, type: role.type};
-          });
+          })
+          this.rolesList = this.rolesList.sort((a, b) => (a.type > b.type) ? 1 : ((b.type > a.type) ? -1 : 0));
+            this.updateGroupData(groups);
 
-          this.updateGroupData(groups);
-          this.getGroupsListCopy();
           this.stepperView = false;
         },
         error => this.toastr.error(error.message, 'Oops!'));
@@ -150,7 +150,6 @@ export class RolesComponent implements OnInit {
               users: item.users || []
             }
           });
-          this.openManageRolesDialog();
         }
         deletedUsers = [];
       });
@@ -172,6 +171,7 @@ export class RolesComponent implements OnInit {
       case 'update':
         this.rolesService.updateGroup($event.value).subscribe(res => {
           this.toastr.success(`Group data is updated successfully!`, 'Success!');
+          this.openManageRolesDialog();
         }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
 
         break;
@@ -211,6 +211,7 @@ export class RolesComponent implements OnInit {
     this.groupsData.forEach(item => {
       item.selected_roles = item.roles.map(role => ({role: role.description, type: role.type}));
     });
+    this.getGroupsListCopy();
   }
 
   private getGroupsListCopy() {
