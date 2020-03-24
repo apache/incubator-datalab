@@ -30,6 +30,13 @@ import {Endpoint} from '../../../administration/project/project.component';
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
           <div mat-dialog-content class="content message">
+            <div *ngIf="data.type === 'terminateNode'" class="table-header">
+              <div *ngIf="data.item.action.endpoint.length > 0">
+                Edge node<span *ngIf="data.item.action.endpoint.length>1">s</span>
+                        <span class="strong">{{ ' ' + data.item.action.endpoint.join(', ') }}</span> in project
+                <span class="strong">{{ data.item.action.project_name }}</span> will be terminated.
+              </div>
+            </div>
               <div *ngIf="data.type === 'list'" class="info">
                   <div *ngIf="data.template.notebook.length > 0">
                       Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
@@ -102,8 +109,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                           </mat-list-item>
                       </div>
                   </mat-list>
-                  <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
-
+                <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
                   <div class="text-center m-top-30 m-bott-10">
                       <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
                       <button *ngIf="!this.willNotTerminate" type="button" class="butt butt-success" mat-raised-button
@@ -114,6 +120,30 @@ import {Endpoint} from '../../../administration/project/project.component';
                       </button>
                   </div>
               </div>
+               <div class="confirm-dialog" *ngIf="data.type === 'terminateNode'">
+                   <mat-list *ngIf="data.item.resources.length > 0">
+                     <mat-list-item class="list-header sans">
+                       <div class="endpoint">Resources</div>
+                       <div class="status">Further status</div>
+                     </mat-list-item>
+                     <div class="scrolling-content">
+                       <mat-list-item *ngFor="let resource of data.item.resources" class="sans node">
+                         <div class="endpoint ellipsis">{{resource}}</div>
+                         <div class="status terminated">Terminated</div>
+                       </mat-list-item>
+                     </div>
+                   </mat-list>
+                   <div mat-dialog-content class="bottom-message" *ngIf="data.item.resources.length > 0">
+                     <span class="confirm-message">All connected computational resources will be terminated as well.</span>
+                   </div>
+                 <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
+                 <div class="text-center m-top-30 m-bott-10">
+                   <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
+                   <button type="button" class="butt butt-success" mat-raised-button
+                           (click)="dialogRef.close(true)">Yes
+                   </button>
+                 </div>
+               </div>
           </div>
       </div>
   `,
@@ -140,6 +170,8 @@ import {Endpoint} from '../../../administration/project/project.component';
     .confirm-message{color: #ef5c4b;font-size: 13px;min-height: 18px; text-align: center; padding-top: 20px}
     .checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
     label{cursor: pointer}
+    .bottom-message{padding-top: 15px;}
+    .table-header{padding-bottom: 10px;}
 
 
   `]
