@@ -109,9 +109,9 @@ if __name__ == "__main__":
                 notebook_config['service_base_name'],
                 notebook_config['endpoint_name'],
                 notebook_config['application'])
-        notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}'.format(
-            notebook_config['service_base_name'], notebook_config['project_name'], os.environ['application'],
-            os.environ['notebook_image_name']).replace('_', '-') if (x != 'None' and x != '')
+        notebook_config['notebook_image_name'] = (lambda x: '{0}-{1}-{2}-{3}-{4}'.format(
+            notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
+            os.environ['application'], os.environ['notebook_image_name']).replace('_', '-') if (x != 'None' and x != '')
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
