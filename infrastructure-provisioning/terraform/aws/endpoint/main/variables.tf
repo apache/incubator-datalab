@@ -81,3 +81,23 @@ variable "additional_tag" {
 variable "tag_resource_id" {
   default = "user:tag"
 }
+
+variable "billing_enable" {}
+
+variable "mongo_password" {}
+
+variable "mongo_host" {}
+
+variable "billing_bucket" {}
+
+variable "report_path" {
+  default = ""
+}
+
+variable "aws_job_enabled" {
+  default = "false"
+}
+
+variable "billing_aws_account_id" {}
+
+variable "billing_tag" {}
