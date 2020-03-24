@@ -232,6 +232,8 @@ if __name__ == "__main__":
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to configure parameter file.", str(err))
+        GCPActions().remove_bucket(odahu_conf['bucket_name'])
+        GCPActions().remove_static_address(odahu_conf['static_address_name'], odahu_conf['region'])
         sys.exit(1)
 
     try:
@@ -240,6 +242,8 @@ if __name__ == "__main__":
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to deploy Odahu cluster.", str(err))
+        GCPActions().remove_bucket(odahu_conf['bucket_name'])
+        GCPActions().remove_static_address(odahu_conf['static_address_name'], odahu_conf['region'])
         sys.exit(1)
 
     # generating output information
