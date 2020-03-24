@@ -93,7 +93,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
         const localEndpoint = endpoints.filter(endpoint => endpoint.name === 'local');
         if (localEndpoint.length) {
           this.PROVIDER = localEndpoint[0].cloudProvider.toLowerCase();
-          console.log(this.PROVIDER);
           if (this.PROVIDER) {
             this.rebuildBillingReport();
           }
