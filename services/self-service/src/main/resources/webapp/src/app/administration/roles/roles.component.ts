@@ -75,8 +75,9 @@ export class RolesComponent implements OnInit {
         (roles: any) => {
           this.roles = roles;
           this.rolesList = roles.map((role, index) => {
-              return {role: role.description, type: role.type};
-          })
+              return {role: role.description, type: role.type, cloud: role.cloud};
+          });
+          console.log(this.rolesList);
           this.rolesList = this.rolesList.sort((a, b) => (a.type > b.type) ? 1 : ((b.type > a.type) ? -1 : 0));
             this.updateGroupData(groups);
 

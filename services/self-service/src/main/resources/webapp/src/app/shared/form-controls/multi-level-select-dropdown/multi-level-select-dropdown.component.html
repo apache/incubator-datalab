@@ -49,6 +49,17 @@
             </a>
           </li>
 
+<!--          <li class="role-label" role="presentation" *ngIf="item.type === 'COMPUTATIONAL_SHAPE' && item.cloud !== items[i - 1].cloud || item.type === 'NOTEBOOK_SHAPE' && item.cloud !== items[i - 1].cloud || item.type === 'NOTEBOOK_SHAPE' && item.type !== items[i - 1].type" (click)="toggleItemsForLable(item.type, $event)">-->
+<!--            <a href="#" class="list-item" role="menuitem">-->
+<!--              <span class="arrow" [ngClass]="{'rotate-arrow': isOpenCategory[item.type], 'arrow-checked': selectedAllInCattegory(item.type) || selectedSomeInCattegory(item.type)}"></span>-->
+<!--              <span class="empty-checkbox" [ngClass]="{'checked': selectedAllInCattegory(item.type) || selectedSomeInCattegory(item.type)}" (click)="toggleselectedCategory($event, model, item.type);$event.stopPropagation()" >-->
+<!--                <span class="checked-checkbox" *ngIf="selectedAllInCattegory(item.type)"></span>-->
+<!--                <span class="line-checkbox" *ngIf="selectedSomeInCattegory(item.type)"></span>-->
+<!--              </span>-->
+<!--              {{item.cloud | titlecase}}-->
+<!--            </a>-->
+<!--          </li>-->
+
           <li class="role-item" role="presentation" *ngIf="model && isOpenCategory[item.type]" >
             <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
               <span class="empty-checkbox" [ngClass]="{'checked': checkInModel(item.role)}">

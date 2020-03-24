@@ -70,15 +70,6 @@ export class ProjectService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public deleteProject(data): Observable<{}> {
-    const url = `/${data}`;
-    return this.applicationServiceFacade
-      .buildDeleteProject(url)
-      .pipe(
-        map(response => response),
-        catchError(ErrorUtils.handleServiceError));
-  }
-
   public toggleProjectStatus(data, action): Observable<{}> {
     const url = `/${action}`;
     return this.applicationServiceFacade
