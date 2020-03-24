@@ -17,34 +17,14 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.resources.dto;
+package com.epam.dlab.backendapi.annotation;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Data;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.List;
-
-/**
- * Stores the health statuses for environment resources.
- */
-@Data
-@Builder
-public class HealthStatusPageDTO {
-	@JsonProperty
-	private String status;
-	@JsonProperty("list_resources")
-	private List<HealthStatusResource> listResources;
-	@JsonProperty
-	private boolean billingEnabled;
-	@JsonProperty
-	private boolean admin;
-	@JsonProperty
-	private boolean projectAdmin;
-	@JsonProperty
-	private int billingQuoteUsed;
-	@JsonProperty
-	private int billingUserQuoteUsed;
-	@JsonProperty
-	private boolean projectAssigned;
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface User {
 }

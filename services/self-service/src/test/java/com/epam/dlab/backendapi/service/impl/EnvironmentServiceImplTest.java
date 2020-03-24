@@ -47,10 +47,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anySet;
 import static org.mockito.Mockito.anyString;
@@ -124,28 +122,6 @@ public class EnvironmentServiceImplTest {
 		expectedException.expectMessage("Users not found");
 
 		environmentService.getUsers();
-	}
-
-	@Test
-	public void getAllUsers() {
-		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
-		final Set<String> users = environmentService.getUserNames();
-
-		assertEquals(1, users.size());
-		assertTrue(users.contains(USER));
-
-		verify(envDAO).fetchAllUsers();
-		verifyNoMoreInteractions(envDAO);
-	}
-
-	@Test
-	public void getAllUsersWithException() {
-		doThrow(new DlabException("Users not found")).when(envDAO).fetchAllUsers();
-
-		expectedException.expect(DlabException.class);
-		expectedException.expectMessage("Users not found");
-
-		environmentService.getUserNames();
 	}
 
 

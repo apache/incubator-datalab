@@ -61,7 +61,7 @@ public class EnvironmentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAllEnv(@Auth UserInfo userInfo) {
 		log.debug("Admin {} requested information about all user's environment", userInfo.getName());
-		return Response.ok(environmentService.getAllEnv()).build();
+		return Response.ok(environmentService.getAllEnv(userInfo)).build();
 	}
 
 	@POST

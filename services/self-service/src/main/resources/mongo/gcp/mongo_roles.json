@@ -275,6 +275,22 @@
     ]
   },
   {
+    "_id": "projectAdmin",
+    "description": "Allow to execute administration operation per project",
+    "type": "ADMINISTRATION",
+    "pages": [
+      "environment/*",
+      "/roleManagement",
+      "/api/settings",
+      "/user/settings",
+      "/api/project",
+      "/api/endpoint"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "admin",
     "description": "Allow to execute administration operation",
     "type": "ADMINISTRATION",
@@ -285,6 +301,7 @@
       "/api/settings",
       "/user/settings",
       "/api/project",
+      "/api/project/create",
       "/api/endpoint"
     ],
     "groups": [

@@ -50,10 +50,8 @@ public class UserGroupServiceImpl implements UserGroupService {
 	@Override
 	public void createGroup(String group, Set<String> roleIds, Set<String> users) {
 		checkAnyRoleFound(roleIds, userRoleDao.addGroupToRole(Collections.singleton(group), roleIds));
-		if (!users.isEmpty()) {
-			log.debug("Adding users {} to group {}", users, group);
-			userGroupDao.addUsers(group, users);
-		}
+		log.debug("Adding users {} to group {}", users, group);
+		userGroupDao.addUsers(group, users);
 	}
 
 	@Override
