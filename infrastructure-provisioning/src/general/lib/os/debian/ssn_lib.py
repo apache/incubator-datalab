@@ -161,9 +161,7 @@ def ensure_supervisor():
 def ensure_mongo():
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured'):
-            sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
-            sudo('ver=`lsb_release -cs`; echo "deb http://repo.mongodb.org/apt/ubuntu $ver/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; apt-get update')
-            manage_pkg('-y --allow-unauthenticated install', 'remote', 'mongodb-org')
+            manage_pkg('-y install', 'remote', 'mongodb')
             sudo('systemctl enable mongod.service')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured')
     except Exception as err:
