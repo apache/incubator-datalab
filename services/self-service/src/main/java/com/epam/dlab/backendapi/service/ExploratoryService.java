@@ -45,9 +45,8 @@ public interface ExploratoryService {
     void updateClusterConfig(UserInfo userInfo, String project, String exploratoryName, List<ClusterConfig> config);
 
     Optional<UserInstanceDTO> getUserInstance(String user, String project, String exploratoryName);
-	List<UserInstanceDTO> findAll();
 
-	void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config);
+    List<UserInstanceDTO> findAll();
 
     List<ClusterConfig> getClusterConfig(UserInfo user, String project, String exploratoryName);
 
