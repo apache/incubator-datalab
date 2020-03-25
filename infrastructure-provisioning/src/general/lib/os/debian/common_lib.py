@@ -97,8 +97,6 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
                         sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
                         sudo('systemctl enable haveged')
                         sudo('systemctl start haveged')
-                        if os.environ['conf_cloud_provider'] == 'aws':
-                            manage_pkg('-y install --install-recommends', 'remote', 'linux-aws-hwe')
                         check = True
                     except:
                         count += 1
