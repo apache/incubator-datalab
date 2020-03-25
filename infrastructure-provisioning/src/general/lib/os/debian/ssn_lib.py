@@ -162,7 +162,7 @@ def ensure_mongo():
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured'):
             manage_pkg('-y install', 'remote', 'mongodb')
-            sudo('systemctl enable mongod.service')
+            sudo('systemctl enable mongodb.service')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured')
     except Exception as err:
         traceback.print_exc()
