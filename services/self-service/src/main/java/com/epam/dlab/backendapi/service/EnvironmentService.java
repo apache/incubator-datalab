@@ -36,17 +36,17 @@ public interface EnvironmentService {
 
 	void stopAll();
 
-	void stopEnvironment(UserInfo userInfo, String user);
+	void stopEnvironment(UserInfo userInfo, String user, String project);
 
 	void stopEnvironmentWithServiceAccount(String user);
 
 	void stopProjectEnvironment(String project);
 
-	void stopExploratory(UserInfo userInfo, String user, String exploratoryName);
+	void stopExploratory(UserInfo userInfo, String user, String project, String exploratoryName);
 
-	void stopComputational(UserInfo userInfo, String user, String exploratoryName, String computationalName);
+	void stopComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName);
 
-	void terminateExploratory(UserInfo userInfo, String user, String exploratoryName);
+	void terminateExploratory(UserInfo userInfo, String user, String project, String exploratoryName);
 
-	void terminateComputational(UserInfo userInfo, String user, String exploratoryName, String computationalName);
+	void terminateComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName);
 }

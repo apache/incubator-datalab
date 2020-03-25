@@ -28,7 +28,7 @@ resource "aws_ami_from_instance" "ami" {
   source_instance_id = var.source_instance_id
   tags {
     Name             = local.ami_name
-    "${var.sbn}-Tag" = local.ami_name
+    "${var.sbn}-tag" = local.ami_name
     Product          = var.product
     Project_name     = var.project_name
     Project_tag      = var.project_tag

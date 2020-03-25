@@ -104,32 +104,11 @@ public class ProjectResource {
 	@RolesAllowed("/api/project")
 	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								@NotNull @Valid ProjectActionFormDTO stopProjectDTO) {
-		projectService.stop(userInfo, stopProjectDTO.getEndpoints(), stopProjectDTO.getProjectName());
+		projectService.stopWithResources(userInfo, stopProjectDTO.getEndpoints(), stopProjectDTO.getProjectName());
 		return Response
 				.accepted()
 				.build();
 	}
-
-	@Operation(summary = "Stop project on Manage environment popup", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "202", description = "Project is stopping"),
-			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
-					MediaType.APPLICATION_JSON,
-					schema = @Schema(implementation = ErrorDTO.class)))
-	})
-	@Path("managing/stop/{name}")
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@RolesAllowed("/api/project")
-	public Response stopProjectWithResources(@Parameter(hidden = true) @Auth UserInfo userInfo,
-											 @Parameter(description = "Project name")
-											 @PathParam("name") String name) {
-		projectService.stopWithResources(userInfo, name);
-		return Response
-				.accepted()
-				.build();
-	}
-
 
 	@Operation(summary = "Get project info", tags = "project")
 	@ApiResponses({

@@ -35,6 +35,7 @@ parser.add_argument('--username', type=str, default='')
 parser.add_argument('--edge_role_name', type=str, default='')
 parser.add_argument('--notebook_role_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
+parser.add_argument('--endpoint_name', type=str, default='')
 parser.add_argument('--user_predefined_s3_policies', type=str, default='')
 args = parser.parse_args()
 
@@ -64,18 +65,19 @@ if __name__ == "__main__":
                     for i in list:
                         if i.get('PolicyName') in list_predefined_policies:
                             list_policies_arn.append(i.get('Arn'))
-                response = iam.create_policy(PolicyName='{}-{}-strict_to_S3-Policy'.
-                                             format(args.service_base_name, args.username), PolicyDocument=policy)
+                response = iam.create_policy(PolicyName='{}-{}-{}-strict_to_S3-Policy'.
+                                             format(args.service_base_name, args.username, args.endpoint_name),
+                                             PolicyDocument=policy)
                 time.sleep(10)
                 list_policies_arn.append(response.get('Policy').get('Arn'))
             except botocore.exceptions.ClientError as cle:
                 if cle.response['Error']['Code'] == 'EntityAlreadyExists':
-                    print("Policy {}-{}-strict_to_S3-Policy already exists. Reusing it.".
-                          format(args.service_base_name, args.username))
+                    print("Policy {}-{}-{}-strict_to_S3-Policy already exists. Reusing it.".
+                          format(args.service_base_name, args.username, args.endpoint_name))
                     list = iam.list_policies().get('Policies')
                     for i in list:
-                        if '{}-{}-strict_to_S3-Policy'.format(
-                                args.service_base_name, args.username) == i.get('PolicyName') or (
+                        if '{}-{}-{}-strict_to_S3-Policy'.format(
+                                args.service_base_name, args.username, args.endpoint_name) == i.get('PolicyName') or (
                                 args.user_predefined_s3_policies != 'None' and i.get('PolicyName') in
                                 list_predefined_policies):
                             list_policies_arn.append(i.get('Arn'))

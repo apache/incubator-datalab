@@ -21,22 +21,23 @@
 #
 # ******************************************************************************
 
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-from dlab.fab import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
 import sys
 import json
+import os
 
 
 if __name__ == "__main__":
     try:
-        create_aws_config_files()
+        dlab.actions_lib.create_aws_config_files()
         image_conf = dict()
         image_conf['full_image_name'] = os.environ['notebook_image_name']
 
-        image_id = get_ami_id_by_name(image_conf['full_image_name'], 'available')
+        image_id = dlab.meta_lib.get_ami_id_by_name(image_conf['full_image_name'], 'available')
         if image_id != '':
-            deregister_image(image_conf['full_image_name'])
+            dlab.actions_lib.deregister_image(image_conf['full_image_name'])
 
             with open("/root/result.json", 'w') as result:
                 res = {"notebook_image_name": image_conf['full_image_name'],
@@ -44,5 +45,5 @@ if __name__ == "__main__":
                        "Action": "Delete existing notebook image"}
                 result.write(json.dumps(res))
     except Exception as err:
-        append_result("Failed to delete existing notebook image", str(err))
+        dlab.fab.append_result("Failed to delete existing notebook image", str(err))
         sys.exit(1)

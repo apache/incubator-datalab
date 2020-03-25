@@ -23,14 +23,20 @@
 
 
 import json
-from dlab.fab import *
-from dlab.meta_lib import *
-import sys, time, os
-from dlab.actions_lib import *
+import sys
+import time
+import os
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import logging
+from fabric.api import *
+import traceback
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
@@ -44,13 +50,12 @@ if __name__ == "__main__":
         logging.info('[COLLECT DATA]')
         print('[COLLECTING DATA]')
         params = '--resource_group_name {} --list_resources "{}"'.format(edge_conf['resource_group_name'],
-                                                                      os.environ['edge_list_resources'])
+                                                                         os.environ['edge_list_resources'])
         try:
             local("~/scripts/{}.py {}".format('common_collect_data', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to collect necessary information.", str(err))
+        dlab.fab.append_result("Failed to collect necessary information.", str(err))
         sys.exit(1)

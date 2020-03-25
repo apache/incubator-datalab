@@ -70,7 +70,7 @@ public class ExploratoryService extends DockerService implements DockerCommands 
 
 	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
 		return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
-				dto.getExploratoryName());
+				dto.getProject(), dto.getExploratoryName());
 	}
 
 	private String nameContainer(String user, DockerAction action, String name) {

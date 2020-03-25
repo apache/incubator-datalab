@@ -2,6 +2,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.KeysDTO;
+import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.exceptions.DlabException;
@@ -17,10 +18,13 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.util.Collections;
+
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 
 public class ProjectResourceTest extends TestBase {
     private ProjectService projectService = mock(ProjectService.class);
@@ -29,7 +33,6 @@ public class ProjectResourceTest extends TestBase {
     @Rule
     public final ResourceTestRule resources = getResourceTestRuleInstance(
             new ProjectResource(projectService, keyService));
-
 
     @Before
     public void setup() throws AuthenticationException {
@@ -51,15 +54,28 @@ public class ProjectResourceTest extends TestBase {
     }
 
     @Test
-    public void stopProjectWithResources() {
+    public void stopProject() {
         final Response response = resources.getJerseyTest()
-                .target("project/managing/stop/" + "projectName")
+                .target("project/stop")
                 .request()
                 .header("Authorization", "Bearer " + TOKEN)
-                .post(Entity.json(""));
+                .post(Entity.json(getProjectActionDTO()));
 
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
-        verify(projectService).stopWithResources(any(UserInfo.class), anyString());
+        verify(projectService).stopWithResources(any(UserInfo.class), anyList(), anyString());
+        verifyNoMoreInteractions(projectService);
+    }
+
+    @Test
+    public void startProject() {
+        final Response response = resources.getJerseyTest()
+                .target("project/start")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .post(Entity.json(getProjectActionDTO()));
+
+        assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
+        verify(projectService).start(any(UserInfo.class), anyList(), anyString());
         verifyNoMoreInteractions(projectService);
     }
 
@@ -97,5 +113,9 @@ public class ProjectResourceTest extends TestBase {
 
         verify(keyService).generateKeys(getUserInfo());
         verifyNoMoreInteractions(keyService);
+    }
+
+    private ProjectActionFormDTO getProjectActionDTO() {
+        return new ProjectActionFormDTO("DLAB", Collections.singletonList("https://localhost:8083/"));
     }
 }

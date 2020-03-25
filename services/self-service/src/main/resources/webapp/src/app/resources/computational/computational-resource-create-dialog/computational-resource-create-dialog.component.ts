@@ -44,6 +44,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   notebook_instance: any;
   resourcesList: any;
   clusterTypes = [];
+  userComputations = [];
+  projectComputations = [];
   selectedImage: any;
   spotInstance: boolean = true;
 
@@ -76,7 +78,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.notebook_instance = this.data.notebook;
     this.resourcesList = this.data.full_list;
     this.initFormModel();
-    this.getTemplates(this.notebook_instance.project, this.notebook_instance.endpoint);
+    this.getTemplates(this.notebook_instance.project, this.notebook_instance.endpoint, this.notebook_instance.cloud_provider);
   }
 
   public selectImage($event) {
@@ -229,16 +231,24 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private checkDuplication(control) {
-    if (this.containsComputationalResource(control.value))
-      return { duplication: true };
+    if (this.containsComputationalResource(control.value, this.userComputations)){
+      return { 'user-duplication': true };
+    }
+
+    if (this.containsComputationalResource(control.value, this.projectComputations)){
+      return { 'other-user-duplication': true };
+    }
   }
 
-  private getTemplates(project, endpoint) {
-    this.userResourceService.getComputationalTemplates(project, endpoint).subscribe(
+  private getTemplates(project, endpoint, provider) {
+    this.userResourceService.getComputationalTemplates(project, endpoint, provider).subscribe(
       clusterTypes => {
-        this.clusterTypes = clusterTypes;
+        this.clusterTypes = clusterTypes.templates;
+        this.userComputations = clusterTypes.user_computations;
+        this.projectComputations = clusterTypes.project_computations;
+
         this.clusterTypes.forEach((cluster, index) => this.clusterTypes[index].computation_resources_shapes = SortUtils.shapesSort(cluster.computation_resources_shapes));
-        this.selectedImage = clusterTypes[0];
+        this.selectedImage = clusterTypes.templates[0];
 
         if (this.selectedImage) {
           this._ref.detectChanges();
@@ -284,10 +294,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return filtered;
   }
 
-  private containsComputationalResource(conputational_resource_name: string): boolean {
+  private containsComputationalResource(conputational_resource_name: string, existNames: Array<string>): boolean {
     if (conputational_resource_name) {
-      return this.notebook_instance.resources.some(resource =>
-        CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource.computational_name));
+      return existNames.some(resource =>
+        CheckUtils.delimitersFiltering(conputational_resource_name) === CheckUtils.delimitersFiltering(resource));
     }
   }
 }

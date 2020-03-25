@@ -105,7 +105,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   uploadLibGroups(): void {
-    this.librariesInstallationService.getGroupsList(this.notebook.name, this.model.computational_name)
+    this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
       .subscribe(
         response => {
           this.libsUploadingStatus(response);
@@ -269,7 +269,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   private getInstalledLibsByResource() {
-    this.librariesInstallationService.getInstalledLibsByResource(this.notebook.name, this.model.computational_name)
+    this.librariesInstallationService.getInstalledLibsByResource(this.notebook.project, this.notebook.name, this.model.computational_name)
       .subscribe((data: any) => this.destination.libs = data);
   }
 
