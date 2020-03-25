@@ -55,23 +55,29 @@ import static java.util.stream.Collectors.toList;
 @Singleton
 @Slf4j
 public class EnvironmentServiceImpl implements EnvironmentService {
-
 	private static final String ERROR_MSG_FORMAT = "Can not %s environment because on of user resource is in status " +
 			"CREATING or STARTING";
+
+	private final EnvDAO envDAO;
+	private final UserSettingsDAO settingsDAO;
+	private final ExploratoryDAO exploratoryDAO;
+	private final ExploratoryService exploratoryService;
+	private final ComputationalService computationalService;
+	private final SecurityService securityService;
+	private final ProjectService projectService;
+
 	@Inject
-	private EnvDAO envDAO;
-	@Inject
-	private ExploratoryDAO exploratoryDAO;
-	@Inject
-	private ExploratoryService exploratoryService;
-	@Inject
-	private ComputationalService computationalService;
-	@Inject
-	private SecurityService securityService;
-	@Inject
-	private ProjectService projectService;
-	@Inject
-	private UserSettingsDAO settingsDAO;
+	public EnvironmentServiceImpl(EnvDAO envDAO, UserSettingsDAO settingsDAO, ExploratoryDAO exploratoryDAO,
+								  ExploratoryService exploratoryService, ComputationalService computationalService,
+								  SecurityService securityService, ProjectService projectService) {
+		this.envDAO = envDAO;
+		this.settingsDAO = settingsDAO;
+		this.exploratoryDAO = exploratoryDAO;
+		this.exploratoryService = exploratoryService;
+		this.computationalService = computationalService;
+		this.securityService = securityService;
+		this.projectService = projectService;
+	}
 
 	@Override
 	public List<UserDTO> getUsers() {
@@ -107,14 +113,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.stream()
 				.map(ProjectDTO::getName)
 				.forEach(this::stopProjectEnvironment);
-	}
-
-	@Override
-	public void stopEnvironment(UserInfo userInfo, String user, String project) {
-		log.debug("Stopping environment for user {}", user);
-		checkState(user, "stop");
-		exploratoryDAO.fetchRunningExploratoryFields(user)
-				.forEach(e -> stopExploratory(userInfo, user, project, e.getExploratoryName()));
 	}
 
 	@Override

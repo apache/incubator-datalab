@@ -32,8 +32,6 @@ public interface EnvironmentService {
 
 	void stopAll();
 
-	void stopEnvironment(UserInfo userInfo, String user, String project);
-
 	void stopEnvironmentWithServiceAccount(String user);
 
 	void stopProjectEnvironment(String project);
