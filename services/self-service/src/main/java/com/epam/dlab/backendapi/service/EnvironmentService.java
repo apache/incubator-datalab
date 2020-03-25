@@ -24,15 +24,11 @@ import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 
 import java.util.List;
-import java.util.Set;
 
 public interface EnvironmentService {
-
-	Set<String> getUserNames();
-
 	List<UserDTO> getUsers();
 
-	List<UserResourceInfo> getAllEnv();
+	List<UserResourceInfo> getAllEnv(UserInfo user);
 
 	void stopAll();
 

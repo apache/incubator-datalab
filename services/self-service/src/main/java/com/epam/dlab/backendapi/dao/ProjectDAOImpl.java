@@ -18,7 +18,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.elemMatch;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.not;
 
 public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
@@ -43,11 +47,6 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	@Override
 	public List<ProjectDTO> getProjects() {
 		return find(PROJECTS_COLLECTION, ProjectDTO.class);
-	}
-
-	@Override
-	public List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status) {
-		return find(PROJECTS_COLLECTION, eq(STATUS_FIELD, status.toString()), ProjectDTO.class);
 	}
 
 	@Override

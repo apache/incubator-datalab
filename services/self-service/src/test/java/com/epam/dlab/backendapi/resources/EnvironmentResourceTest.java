@@ -41,6 +41,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -101,7 +102,8 @@ public class EnvironmentResourceTest extends TestBase {
 
 	@Test
 	public void getAllEnv() {
-		when(environmentService.getAllEnv()).thenReturn(Collections.emptyList());
+		UserInfo userInfo = getUserInfo();
+		when(environmentService.getAllEnv(userInfo)).thenReturn(Collections.emptyList());
 		final Response response = resources.getJerseyTest()
 				.target("/environment/all")
 				.request()
@@ -111,14 +113,14 @@ public class EnvironmentResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).getAllEnv();
+		verify(environmentService).getAllEnv(eq(userInfo));
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void getAllEnvWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(environmentService.getAllEnv()).thenReturn(Collections.emptyList());
+		when(environmentService.getAllEnv(getUserInfo())).thenReturn(Collections.emptyList());
 		final Response response = resources.getJerseyTest()
 				.target("/environment/all")
 				.request()

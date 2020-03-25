@@ -21,12 +21,14 @@ package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.annotation.ProjectAdmin;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
 import com.epam.dlab.backendapi.dao.gcp.GcpBillingDao;
 import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
+import com.epam.dlab.backendapi.interceptor.ProjectAdminInterceptor;
 import com.epam.dlab.backendapi.resources.BillingResource;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
@@ -75,8 +77,11 @@ public class CloudProviderModule extends CloudModule {
                 new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
 
         final BudgetLimitInterceptor budgetLimitInterceptor = new BudgetLimitInterceptor();
+        final ProjectAdminInterceptor projectAdminInterceptor = new ProjectAdminInterceptor();
         requestInjection(budgetLimitInterceptor);
+        requestInjection(projectAdminInterceptor);
         bindInterceptor(any(), annotatedWith(BudgetLimited.class), budgetLimitInterceptor);
+        bindInterceptor(any(), annotatedWith(ProjectAdmin.class), projectAdminInterceptor);
     }
 
     @Override
