@@ -566,12 +566,6 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public buildDeleteProject(param): Observable<any> {
-    return this.buildRequest(HTTPMethod.DELETE,
-      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
-      null);
-  }
-
   public buildToggleProjectStatus(param, data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
