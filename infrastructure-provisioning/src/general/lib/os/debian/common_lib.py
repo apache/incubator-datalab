@@ -72,7 +72,7 @@ def manage_pkg(command, environment, requisites):
         sys.exit(1)
 
 def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
-                                'groff gcc vim less git wget sysv-rc-conf '
+                                'groff gcc vim less git wget '
                                 'libssl-dev unattended-upgrades nmap '
                                 'libffi-dev unzip libxml2-dev haveged'):
     try:

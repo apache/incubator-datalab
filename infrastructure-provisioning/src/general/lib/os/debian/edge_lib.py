@@ -51,8 +51,8 @@ def configure_http_proxy_server(config):
             for cidr in config['allowed_ip_cidr']:
                 replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
             sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
-            sudo('service squid reload')
-            sudo('sysv-rc-conf squid on')
+            sudo('systemctl reload squid')
+            sudo('systemctl enable squid')
             sudo('touch /tmp/http_proxy_ensured')
     except Exception as err:
         print("Failed to install and configure squid: " + str(err))
