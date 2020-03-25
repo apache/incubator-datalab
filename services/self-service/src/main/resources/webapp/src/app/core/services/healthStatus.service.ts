@@ -136,15 +136,6 @@ export class HealthStatusService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public manageEnvironment(act, data): Observable<Response | {}> {
-    const action = `/${act}`;
-    return this.applicationServiceFacade
-      .buildManageEnvironment(action, data)
-      .pipe(
-        map(response => response),
-        catchError(ErrorUtils.handleServiceError));
-  }
-
   public getSsnMonitorData(): Observable<{}> {
     return this.applicationServiceFacade
       .buildGetSsnMonitorData()
