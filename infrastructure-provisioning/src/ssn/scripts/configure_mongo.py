@@ -28,7 +28,7 @@ import time
 import argparse
 from dlab.fab import *
 
-path = "/etc/mongod.conf"
+path = "/etc/mongodb.conf"
 outfile = "/etc/mongo_params.yml"
 
 parser = argparse.ArgumentParser()
