@@ -24,7 +24,9 @@ import com.epam.dlab.cloud.CloudProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Singleton;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.BsonField;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -65,6 +67,7 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	private static final String EXPLORATORIES_FIELD = "exploratories";
 	private static final String COMPUTATIONALS_FIELD = "computationals";
 	private static final String GROUP_INFO = "groupInfo";
+	private static final String ADMIN = "admin";
 
 
 	@Override
@@ -144,15 +147,19 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	}
 
 	@Override
-	public List<UserGroupDto> aggregateRolesByGroup() {
+	public List<UserGroupDto> aggregateRolesByGroup(boolean isAdmin) {
 		final Document role = roleDocument();
 		final Bson groupBy = group(GROUPS, new BsonField(ROLES, new Document(ADD_TO_SET, role)));
 		final Bson lookup = lookup(USER_GROUPS, ID, ID, GROUP_INFO);
-		final List<Bson> pipeline = Arrays.asList(unwind(GROUPS), groupBy, lookup,
+		final List<Bson> pipeline = new ArrayList<>();
+		if (!isAdmin) {
+			pipeline.add(Aggregates.match(Filters.not(eq(ID, ADMIN))));
+		}
+		pipeline.addAll(Arrays.asList(unwind(GROUPS), groupBy, lookup,
 				project(new Document(GROUP, "$" + ID).append(GROUP_INFO, elementAt(GROUP_INFO, 0))
 						.append(ROLES, "$" + ROLES)),
 				project(new Document(GROUP, "$" + ID).append(USERS_FIELD, "$" + GROUP_INFO + "." + USERS_FIELD)
-						.append(ROLES, "$" + ROLES)));
+						.append(ROLES, "$" + ROLES))));
 
 		return stream(aggregate(MongoCollections.ROLES, pipeline))
 				.map(d -> convertFromDocument(d, UserGroupDto.class))

@@ -49,5 +49,5 @@ public interface UserRoleDao {
 
 	boolean removeGroup(String groupId);
 
-	List<UserGroupDto> aggregateRolesByGroup();
+	List<UserGroupDto> aggregateRolesByGroup(boolean isAdmin);
 }

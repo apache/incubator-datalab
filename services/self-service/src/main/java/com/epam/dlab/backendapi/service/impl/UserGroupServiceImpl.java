@@ -18,34 +18,42 @@
  */
 package com.epam.dlab.backendapi.service.impl;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
+import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.UserGroupService;
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Singleton
 @Slf4j
 public class UserGroupServiceImpl implements UserGroupService {
-
 	private static final String ROLE_NOT_FOUND_MSG = "Any of role : %s were not found";
+
 	@Inject
 	private UserGroupDao userGroupDao;
 	@Inject
 	private UserRoleDao userRoleDao;
 	@Inject
 	private ProjectDAO projectDAO;
+	@Inject
+	private ProjectService projectService;
 
 	@Override
 	public void createGroup(String group, Set<String> roleIds, Set<String> users) {
@@ -100,8 +108,22 @@ public class UserGroupServiceImpl implements UserGroupService {
 	}
 
 	@Override
-	public List<UserGroupDto> getAggregatedRolesByGroup() {
-		return userRoleDao.aggregateRolesByGroup();
+	public List<UserGroupDto> getAggregatedRolesByGroup(UserInfo user) {
+		if (UserRoles.isAdmin(user)) {
+			return userRoleDao.aggregateRolesByGroup(true);
+		} else if (UserRoles.isProjectAdmin(user)) {
+			Set<String> groups = projectService.getProjects(user)
+					.stream()
+					.map(ProjectDTO::getGroups)
+					.flatMap(Collection::stream)
+					.collect(Collectors.toSet());
+			return userRoleDao.aggregateRolesByGroup(false)
+					.stream()
+					.filter(userGroup -> groups.contains(userGroup.getGroup()))
+					.collect(Collectors.toList());
+		} else {
+			throw new DlabException(String.format("User %s doesn't have appropriate permission", user));
+		}
 	}
 
 	private void checkAnyRoleFound(Set<String> roleIds, boolean anyRoleFound) {
