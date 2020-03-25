@@ -77,9 +77,9 @@ export class RolesComponent implements OnInit {
           this.rolesList = roles.map((role, index) => {
               return {role: role.description, type: role.type, cloud: role.cloud};
           });
-          console.log(this.rolesList);
+          this.rolesList = this.rolesList.sort((a, b) => (a.cloud > b.cloud) ? 1 : ((b.cloud > a.cloud) ? -1 : 0));
           this.rolesList = this.rolesList.sort((a, b) => (a.type > b.type) ? 1 : ((b.type > a.type) ? -1 : 0));
-            this.updateGroupData(groups);
+          this.updateGroupData(groups);
 
           this.stepperView = false;
         },
@@ -210,7 +210,7 @@ export class RolesComponent implements OnInit {
       return v;
     }).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
-      item.selected_roles = item.roles.map(role => ({role: role.description, type: role.type}));
+      item.selected_roles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
     });
     this.getGroupsListCopy();
   }
