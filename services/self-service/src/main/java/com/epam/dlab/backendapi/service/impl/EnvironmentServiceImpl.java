@@ -20,6 +20,9 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.Project;
+import com.epam.dlab.backendapi.annotation.ProjectAdmin;
+import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
@@ -90,7 +93,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	public List<UserResourceInfo> getAllEnv(UserInfo user) {
 		log.debug("Getting all user's environment...");
 		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
-		return projectService.getProjects(user)
+		return projectService.getProjects()
 				.stream()
 				.map(projectDTO -> getProjectEnv(projectDTO, expList))
 				.flatMap(Collection::stream)
@@ -135,24 +138,30 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 						endpoint.getName(), project));
 	}
 
+	@ProjectAdmin
 	@Override
-	public void stopExploratory(UserInfo userInfo, String user, String project, String exploratoryName) {
+	public void stopExploratory(@User UserInfo userInfo, String user, @Project String project, String exploratoryName) {
 		exploratoryService.stop(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName);
 	}
 
+	@ProjectAdmin
 	@Override
-	public void stopComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName) {
+	public void stopComputational(@User UserInfo userInfo, String user, @Project String project, String exploratoryName,
+								  String computationalName) {
 		computationalService.stopSparkCluster(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName,
 				computationalName);
 	}
 
+	@ProjectAdmin
 	@Override
-	public void terminateExploratory(UserInfo userInfo, String user, String project, String exploratoryName) {
+	public void terminateExploratory(@User UserInfo userInfo, String user, @Project String project, String exploratoryName) {
 		exploratoryService.terminate(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName);
 	}
 
+	@ProjectAdmin
 	@Override
-	public void terminateComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName) {
+	public void terminateComputational(@User UserInfo userInfo, String user, @Project String project,
+									   String exploratoryName, String computationalName) {
 		computationalService.terminateComputational(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName,
 				computationalName);
 	}
@@ -180,8 +189,10 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
-		final Stream<UserResourceInfo> userResources = allInstances.stream()
-				.filter(instance -> instance.getProject().equals(projectDTO.getName())).map(this::toUserResourceInfo);
+		final Stream<UserResourceInfo> userResources = allInstances
+				.stream()
+				.filter(instance -> instance.getProject().equals(projectDTO.getName()))
+				.map(this::toUserResourceInfo);
 		if (projectDTO.getEndpoints() != null) {
 			final Stream<UserResourceInfo> edges = projectDTO.getEndpoints()
 					.stream()
@@ -189,8 +200,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 							.withResourceStatus(e.getStatus().toString())
 							.withProject(projectDTO.getName())
 							.withIp(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null));
-			return Stream.concat(edges, userResources)
-					.collect(toList());
+			return Stream.concat(edges, userResources).collect(toList());
 		} else {
 			return userResources.collect(toList());
 		}

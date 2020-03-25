@@ -303,6 +303,7 @@
     "_id": "projectAdmin",
     "description": "Allow to execute administration operation per project",
     "type": "ADMINISTRATION",
+    "cloud": "GCP",
     "pages": [
       "environment/*",
       "/roleManagement",
