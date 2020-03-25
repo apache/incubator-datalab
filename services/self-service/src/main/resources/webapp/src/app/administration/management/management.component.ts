@@ -48,7 +48,7 @@ import { ProjectService } from '../../core/services';
 export class ManagementComponent implements OnInit {
   public user: string = '';
   public healthStatus: GeneralEnvironmentStatus;
-  public anyEnvInProgress: boolean = false;
+  // public anyEnvInProgress: boolean = false;
   public dialogRef: any;
 
   constructor(
@@ -86,9 +86,9 @@ export class ManagementComponent implements OnInit {
         error => this.toastr.error('Environment management failed!', 'Oops!'));
   }
 
-  showBackupDialog() {
-    this.dialog.open(BackupDilogComponent, { panelClass: 'modal-sm' });
-  }
+  // showBackupDialog() {
+  //   this.dialog.open(BackupDilogComponent, { panelClass: 'modal-sm' });
+  // }
 
   showEndpointsDialog() {
     this.dialog.open(EndpointsComponent, { panelClass: 'modal-xl-s' })
@@ -105,16 +105,16 @@ export class ManagementComponent implements OnInit {
     });
   }
 
-  openSsnMonitorDialog() {
-    this.dialog.open(SsnMonitorComponent, { panelClass: 'modal-lg' });
-  }
-
-  isEnvironmentsInProgress(exploratory): boolean {
-    return exploratory.some(item => {
-      return item.exploratory.some(el => el.status === 'creating' || el.status === 'starting' ||
-        el.resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring'));
-    });
-  }
+  // openSsnMonitorDialog() {
+  //   this.dialog.open(SsnMonitorComponent, { panelClass: 'modal-lg' });
+  // }
+  //
+  // isEnvironmentsInProgress(exploratory): boolean {
+  //   return exploratory.some(item => {
+  //     return item.exploratory.some(el => el.status === 'creating' || el.status === 'starting' ||
+  //       el.resources.some(elem => elem.status === 'creating' || elem.status === 'starting' || elem.status === 'configuring'));
+  //   });
+  // }
 
   setBudgetLimits($event) {
     this.projectService.updateProjectsBudget($event.projects).subscribe((result: any) => {
@@ -137,37 +137,37 @@ export class ManagementComponent implements OnInit {
   //       .subscribe(() => this.handleSuccessAction(event.action), error => this.toastr.error(error.message, 'Oops!'));
   // }
 
-  handleSuccessAction(action) {
-    this.toastr.success(`Action ${action} is processing!`, 'Processing!');
-    this.projectService.getProjectsManagingList().subscribe(data => {
-      this.dialogRef.componentInstance.data.projectsList = data;
-      this.dialogRef.componentInstance.setProjectsControl();
-    });
-    this.buildGrid();
-  }
+  // handleSuccessAction(action) {
+  //   this.toastr.success(`Action ${action} is processing!`, 'Processing!');
+  //   this.projectService.getProjectsManagingList().subscribe(data => {
+  //     this.dialogRef.componentInstance.data.projectsList = data;
+  //     this.dialogRef.componentInstance.setProjectsControl();
+  //   });
+  //   this.buildGrid();
+  // }
+  //
+  // get creatingBackup(): boolean {
+  //   return this.backupService.inProgress;
+  // }
 
-  get creatingBackup(): boolean {
-    return this.backupService.inProgress;
-  }
-
-  private getExploratoryList() {
-    this.userResourceService.getUserProvisionedResources()
-      .subscribe((result) => this.anyEnvInProgress = this.isEnvironmentsInProgress(
-        ExploratoryModel.loadEnvironments(result)));
-  }
+  // private getExploratoryList() {
+  //   this.userResourceService.getUserProvisionedResources()
+  //     .subscribe((result) => this.anyEnvInProgress = this.isEnvironmentsInProgress(
+  //       ExploratoryModel.loadEnvironments(result)));
+  // }
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService
       .getEnvironmentStatuses()
       .subscribe((status: GeneralEnvironmentStatus) => {
         this.healthStatus = status;
-        this.getExploratoryList();
+        // this.getExploratoryList();
       });
   }
 
-  private getActiveUsersList() {
-    return this.healthStatusService.getActiveUsers();
-  }
+  // private getActiveUsersList() {
+  //   return this.healthStatusService.getActiveUsers();
+  // }
 
   private getTotalBudgetData() {
     return this.healthStatusService.getTotalBudgetData();
