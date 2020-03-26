@@ -349,6 +349,8 @@
       "environment/*",
       "/api/infrastructure/backup",
       "/roleManagement",
+      "/roleManagement/create",
+      "/roleManagement/delete",
       "/api/settings",
       "/user/settings",
       "/api/project",

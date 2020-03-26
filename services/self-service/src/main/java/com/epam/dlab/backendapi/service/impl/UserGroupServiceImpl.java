@@ -63,13 +63,21 @@ public class UserGroupServiceImpl implements UserGroupService {
 	}
 
 	@Override
-	public void updateGroup(String group, Set<String> roleIds, Set<String> users) {
-		log.debug("Updating users for group {}: {}", group, users);
-		userGroupDao.updateUsers(group, users);
-		log.debug("Removing group {} from existing roles", group);
-		userRoleDao.removeGroupWhenRoleNotIn(group, roleIds);
-		log.debug("Adding group {} to roles {}", group, roleIds);
-		userRoleDao.addGroupToRole(Collections.singleton(group), roleIds);
+	public void updateGroup(UserInfo user, String group, Set<String> roleIds, Set<String> users) {
+		if (UserRoles.isAdmin(user)) {
+			updateGroup(group, roleIds, users);
+		} else if (UserRoles.isProjectAdmin(user)) {
+			projectService.getProjects(user)
+					.stream()
+					.map(ProjectDTO::getGroups)
+					.flatMap(Collection::stream)
+					.filter(g -> g.equalsIgnoreCase(group))
+					.findAny()
+					.orElseThrow(() -> new DlabException(String.format("User %s doesn't have appropriate permission", user.getName())));
+			updateGroup(group, roleIds, users);
+		} else {
+			throw new DlabException(String.format("User %s doesn't have appropriate permission", user.getName()));
+		}
 	}
 
 	@Override
@@ -122,8 +130,17 @@ public class UserGroupServiceImpl implements UserGroupService {
 					.filter(userGroup -> groups.contains(userGroup.getGroup()))
 					.collect(Collectors.toList());
 		} else {
-			throw new DlabException(String.format("User %s doesn't have appropriate permission", user));
+			throw new DlabException(String.format("User %s doesn't have appropriate permission", user.getName()));
 		}
+	}
+
+	private void updateGroup(String group, Set<String> roleIds, Set<String> users) {
+		log.debug("Updating users for group {}: {}", group, users);
+		userGroupDao.updateUsers(group, users);
+		log.debug("Removing group {} from existing roles", group);
+		userRoleDao.removeGroupWhenRoleNotIn(group, roleIds);
+		log.debug("Adding group {} to roles {}", group, roleIds);
+		userRoleDao.addGroupToRole(Collections.singleton(group), roleIds);
 	}
 
 	private void checkAnyRoleFound(Set<String> roleIds, boolean anyRoleFound) {
@@ -131,6 +148,4 @@ public class UserGroupServiceImpl implements UserGroupService {
 			throw new ResourceNotFoundException(String.format(ROLE_NOT_FOUND_MSG, roleIds));
 		}
 	}
-
-
 }

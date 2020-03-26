@@ -126,7 +126,7 @@ public class UserGroupResourceTest extends TestBase {
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
-		verify(userGroupService).updateGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+		verify(userGroupService).updateGroup(getUserInfo(), GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
 		verifyNoMoreInteractions(userGroupService);
 	}
 

@@ -27,7 +27,8 @@ import java.util.Set;
 public interface UserGroupService {
 
 	void createGroup(String group, Set<String> roleIds, Set<String> users);
-	void updateGroup(String group, Set<String> roleIds, Set<String> users);
+
+	void updateGroup(UserInfo user, String group, Set<String> roleIds, Set<String> users);
 
 	void addUsersToGroup(String group, Set<String> users);
 
