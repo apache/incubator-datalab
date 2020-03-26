@@ -1019,7 +1019,7 @@ def init_args():
     parser.add_argument('--access_key_id', type=str, default='')
     parser.add_argument('--secret_access_key', type=str, default='')
     parser.add_argument('--billing_tag', type=str, default='dlab')
-    parser.add_argument('--billing_dlab_id', type=str, default='=resource_tags_user_user_tag')
+    parser.add_argument('--billing_dlab_id', type=str, default='resource_tags_user_user_tag')
     parser.add_argument('--billing_usage_date', type=str, default='line_item_usage_start_date')
     parser.add_argument('--billing_product', type=str, default='product_product_name')
     parser.add_argument('--billing_usage_type', type=str, default='line_item_usage_type')
