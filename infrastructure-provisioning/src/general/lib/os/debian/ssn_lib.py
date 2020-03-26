@@ -165,7 +165,7 @@ def ensure_mongo():
             sudo('ver=`lsb_release -cs`; echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu '
                  '$ver/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list; '
                  'apt-get update')
-            manage_pkg('-y ', 'remote', 'mongodb-org')
+            manage_pkg('-y install', 'remote', 'mongodb-org')
             sudo('systemctl enable mongod.service')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured')
     except Exception as err:
