@@ -785,6 +785,38 @@ def configure_billing_endpoint(endpoint_keystore_password):
                     {
                         'key': "SERVICE_BASE_NAME",
                         'value': args.service_base_name
+                    },
+                    {
+                        'key': "DLAB_ID",
+                        'value': args.billing_dlab_id
+                    },
+                    {
+                        'key': "USAGE_DATE",
+                        'value': args.billing_usage_date
+                    },
+                    {
+                        'key': "PRODUCT",
+                        'value': args.billing_product
+                    },
+                    {
+                        'key': "USAGE_TYPE",
+                        'value': args.billing_usage_type
+                    },
+                    {
+                        'key': "USAGE",
+                        'value': args.billing_usage
+                    },
+                    {
+                        'key': "COST",
+                        'value': args.billing_usage_cost
+                    },
+                    {
+                        'key': "RESOURCE_ID",
+                        'value': args.billing_resource_id
+                    },
+                    {
+                        'key': "TAGS",
+                        'value': args.billing_tags
                     }
                 ]
             elif args.cloud_provider == 'gcp':
@@ -988,14 +1020,14 @@ def init_args():
     parser.add_argument('--access_key_id', type=str, default='')
     parser.add_argument('--secret_access_key', type=str, default='')
     parser.add_argument('--billing_tag', type=str, default='dlab')
-    parser.add_argument('--billing_dlab_id', type=str, default='')
-    parser.add_argument('--billing_usage_date', type=str, default='')
-    parser.add_argument('--billing_product', type=str, default='')
-    parser.add_argument('--billing_usage_type', type=str, default='')
-    parser.add_argument('--billing_usage', type=str, default='')
-    parser.add_argument('--billing_usage_cost', type=str, default='')
-    parser.add_argument('--billing_resource_id', type=str, default='')
-    parser.add_argument('--billing_tags', type=str, default='')
+    parser.add_argument('--billing_dlab_id', type=str, default='resource_tags_user_user_tag')
+    parser.add_argument('--billing_usage_date', type=str, default='line_item_usage_start_date')
+    parser.add_argument('--billing_product', type=str, default='product_product_name')
+    parser.add_argument('--billing_usage_type', type=str, default='line_item_usage_type')
+    parser.add_argument('--billing_usage', type=str, default='line_item_usage_amount')
+    parser.add_argument('--billing_usage_cost', type=str, default='line_item_blended_cost')
+    parser.add_argument('--billing_resource_id', type=str, default='line_item_resource_id')
+    parser.add_argument('--billing_tags', type=str, default='line_item_operation,line_item_line_item_description')
     parser.add_argument('--tenant_id', type=str, default='')
     parser.add_argument('--subscription_id', type=str, default='')
     parser.add_argument('--offer_number', type=str, default='')

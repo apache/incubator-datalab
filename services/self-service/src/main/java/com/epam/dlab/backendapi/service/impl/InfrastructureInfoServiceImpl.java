@@ -44,6 +44,7 @@ import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -98,8 +99,16 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 
 						List<BillingData> collect = e.getValue()
 								.stream()
-								.map(exp -> billingServiceNew.getExploratoryRemoteBillingData(user, (String) exp.get("endpoint"),
-										expDAO.findExploratories(e.getKey(), (String) exp.get("endpoint"), user.getName())))
+								.map(exp -> {
+									List<BillingData> exploratoryRemoteBillingData = new ArrayList<>();
+									try {
+										exploratoryRemoteBillingData = billingServiceNew.getExploratoryRemoteBillingData(user, (String) exp.get("endpoint"),
+												expDAO.findExploratories(e.getKey(), (String) exp.get("endpoint"), user.getName()));
+									} catch (Exception ex) {
+										log.error("Cannot retrieve billing information", ex);
+									}
+									return exploratoryRemoteBillingData;
+								})
 								.flatMap(Collection::stream)
 								.collect(Collectors.toList());
 
