@@ -61,13 +61,11 @@ public class BillingUtils {
         final String userEdgeId = String.format(EDGE_FORMAT, sbn, project.toLowerCase(), endpoint);
         final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project.toLowerCase(), endpoint);
         final String endpointBucketId = String.format(PROJECT_ENDPOINT_BUCKET_FORMAT, sbn, project.toLowerCase(), endpoint);
-        final String projectEndpointBucketId = String.format(ENDPOINT_SHARED_BUCKET_FORMAT, sbn, endpoint);
 
         return Stream.of(
                 BillingReportLine.builder().resourceName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(BillingResourceType.EDGE).status(UserInstanceStatus.of(status)).build(),
                 BillingReportLine.builder().resourceName("EDGE volume").user(SHARED_RESOURCE).project(project).dlabId(edgeVolumeId).resourceType(BillingResourceType.VOLUME).build(),
-                BillingReportLine.builder().resourceName("Project endpoint shared bucket").user(SHARED_RESOURCE).project(project).dlabId(endpointBucketId).resourceType(BillingResourceType.BUCKET).build(),
-                BillingReportLine.builder().resourceName("Endpoint shared bucket").user(SHARED_RESOURCE).project(SHARED_RESOURCE).dlabId(projectEndpointBucketId).resourceType(BillingResourceType.BUCKET).build()
+                BillingReportLine.builder().resourceName("Project endpoint shared bucket").user(SHARED_RESOURCE).project(project).dlabId(endpointBucketId).resourceType(BillingResourceType.BUCKET).build()
         );
     }
 
@@ -76,6 +74,13 @@ public class BillingUtils {
         return Stream.of(
                 BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("SSN").dlabId(ssnId).resourceType(BillingResourceType.SSN).build(),
                 BillingReportLine.builder().user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceName("SSN Volume").dlabId(String.format(VOLUME_PRIMARY_FORMAT, ssnId)).resourceType(BillingResourceType.VOLUME).build()
+        );
+    }
+
+    public static Stream<BillingReportLine> sharedEndpointBillingDataStream(String endpoint, String sbn) {
+        final String projectEndpointBucketId = String.format(ENDPOINT_SHARED_BUCKET_FORMAT, sbn, endpoint.toLowerCase());
+        return Stream.of(
+                BillingReportLine.builder().resourceName("Endpoint shared bucket").user(SHARED_RESOURCE).project(SHARED_RESOURCE).dlabId(projectEndpointBucketId).resourceType(BillingResourceType.BUCKET).build()
         );
     }
 

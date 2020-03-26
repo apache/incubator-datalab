@@ -138,8 +138,11 @@ public class BillingServiceImplNew implements BillingServiceNew {
                 .entrySet()
                 .stream()
                 .flatMap(e -> projectEdges(serviceBaseName, e.getKey(), e.getValue()));
+        final Stream<BillingReportLine> billableSharedEndpoints = endpointService.getEndpoints()
+                .stream()
+                .flatMap(endpoint -> BillingUtils.sharedEndpointBillingDataStream(endpoint.getName(), serviceBaseName));
 
-        final Map<String, BillingReportLine> billableResources = Stream.of(billableUserInstances, billableEdges, ssnBillingDataStream)
+        final Map<String, BillingReportLine> billableResources = Stream.of(billableUserInstances, billableEdges, ssnBillingDataStream, billableSharedEndpoints)
                 .flatMap(s -> s)
                 .collect(Collectors.toMap(BillingReportLine::getDlabId, b -> b));
         log.debug("Billable resources are: {}", billableResources);
@@ -217,7 +220,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
             return s.get();
         } catch (InterruptedException | ExecutionException e) {
             log.error("Cannot retrieve billing information {}", e.getMessage(), e);
-            throw new DlabException("Cannot retrieve billing information");
+            return Collections.emptyList();
         }
     }
 
