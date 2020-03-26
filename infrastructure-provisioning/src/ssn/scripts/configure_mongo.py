@@ -28,7 +28,7 @@ import time
 import argparse
 from dlab.fab import *
 
-path = "/etc/mongodb.conf"
+path = "/etc/mongod.conf"
 outfile = "/etc/mongo_params.yml"
 
 parser = argparse.ArgumentParser()
@@ -59,13 +59,24 @@ def add_2_yml_config(path, section, param, value):
         return False
 
 
+def read_yml_conf(path, section, param):
+    try:
+        with open(path, 'r') as config_yml:
+            config = yaml.load(config_yml)
+        result = config[section][param]
+        return result
+    except:
+        print("File does not exist")
+        return ''
+
+
 if __name__ == "__main__":
     mongo_passwd = "PASSWORD"
-    mongo_ip = '127.0.0.1'
-    mongo_port = '27017'
+    mongo_ip = read_yml_conf(path,'net','bindIp')
+    mongo_port = read_yml_conf(path,'net','port')
     #mongo_parameters = json.loads(args.mongo_parameters)
     # Setting up admin's password and enabling security
-    client = MongoClient(mongo_ip + ':' + mongo_port)
+    client = MongoClient(mongo_ip + ':' + str(mongo_port))
     pass_upd = True
     try:
         command = ['service', 'mongod', 'start']

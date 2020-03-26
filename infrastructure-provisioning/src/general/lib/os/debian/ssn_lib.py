@@ -161,8 +161,12 @@ def ensure_supervisor():
 def ensure_mongo():
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured'):
-            manage_pkg('-y install', 'remote', 'mongodb')
-            sudo('systemctl enable mongodb.service')
+            sudo('wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -')
+            sudo('ver=`lsb_release -cs`; echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu '
+                 '$ver/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list; '
+                 'apt-get update')
+            manage_pkg('-y ', 'remote', 'mongodb-org')
+            sudo('systemctl enable mongod.service')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured')
     except Exception as err:
         traceback.print_exc()
