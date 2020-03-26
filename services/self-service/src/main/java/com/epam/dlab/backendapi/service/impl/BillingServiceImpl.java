@@ -29,7 +29,7 @@ import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
-import com.epam.dlab.backendapi.service.BillingServiceNew;
+import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -69,7 +69,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class BillingServiceImplNew implements BillingServiceNew {
+public class BillingServiceImpl implements BillingService {
     private static final String BILLING_PATH = "/api/billing";
     private static final String BILLING_REPORT_PATH = "/api/billing/report";
 
@@ -80,9 +80,9 @@ public class BillingServiceImplNew implements BillingServiceNew {
     private final RESTService provisioningService;
 
     @Inject
-    public BillingServiceImplNew(ProjectService projectService, EndpointService endpointService,
-                                 ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
-                                 @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService) {
+    public BillingServiceImpl(ProjectService projectService, EndpointService endpointService,
+                              ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
+                              @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService) {
         this.projectService = projectService;
         this.endpointService = endpointService;
         this.exploratoryService = exploratoryService;

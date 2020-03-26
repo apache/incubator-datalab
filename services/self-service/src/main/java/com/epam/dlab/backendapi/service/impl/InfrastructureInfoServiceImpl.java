@@ -28,7 +28,7 @@ import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
-import com.epam.dlab.backendapi.service.BillingServiceNew;
+import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -64,19 +64,19 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	private final BillingDAO billingDAO;
 	private final ProjectService projectService;
 	private final EndpointService endpointService;
-	private final BillingServiceNew billingServiceNew;
+	private final BillingService billingService;
 
 	@Inject
 	public InfrastructureInfoServiceImpl(ExploratoryDAO expDAO, EnvDAO envDAO, SelfServiceApplicationConfiguration configuration,
 										 BillingDAO billingDAO, ProjectService projectService, EndpointService endpointService,
-										 BillingServiceNew billingServiceNew) {
+										 BillingService billingService) {
 		this.expDAO = expDAO;
 		this.envDAO = envDAO;
 		this.configuration = configuration;
 		this.billingDAO = billingDAO;
 		this.projectService = projectService;
 		this.endpointService = endpointService;
-		this.billingServiceNew = billingServiceNew;
+		this.billingService = billingService;
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 								.map(exp -> {
 									List<BillingData> exploratoryRemoteBillingData = new ArrayList<>();
 									try {
-										exploratoryRemoteBillingData = billingServiceNew.getExploratoryRemoteBillingData(user, (String) exp.get("endpoint"),
+										exploratoryRemoteBillingData = billingService.getExploratoryRemoteBillingData(user, (String) exp.get("endpoint"),
 												expDAO.findExploratories(e.getKey(), (String) exp.get("endpoint"), user.getName()));
 									} catch (Exception ex) {
 										log.error("Cannot retrieve billing information", ex);

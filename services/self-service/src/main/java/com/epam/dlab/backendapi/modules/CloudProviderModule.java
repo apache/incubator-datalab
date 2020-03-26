@@ -22,10 +22,6 @@ package com.epam.dlab.backendapi.modules;
 import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.BillingDAO;
-import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
-import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
-import com.epam.dlab.backendapi.dao.gcp.GcpBillingDao;
 import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
 import com.epam.dlab.backendapi.resources.BillingResource;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
@@ -33,13 +29,9 @@ import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.GcpOauthResource;
 import com.epam.dlab.backendapi.service.BillingService;
-import com.epam.dlab.backendapi.service.BillingServiceNew;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.InfrastructureTemplateService;
-import com.epam.dlab.backendapi.service.aws.AwsBillingService;
-import com.epam.dlab.backendapi.service.azure.AzureBillingService;
-import com.epam.dlab.backendapi.service.gcp.GcpBillingService;
-import com.epam.dlab.backendapi.service.impl.BillingServiceImplNew;
+import com.epam.dlab.backendapi.service.impl.BillingServiceImpl;
 import com.epam.dlab.backendapi.service.impl.InfrastructureInfoServiceImpl;
 import com.epam.dlab.backendapi.service.impl.InfrastructureTemplateServiceImpl;
 import com.epam.dlab.cloud.CloudModule;
@@ -70,8 +62,7 @@ public class CloudProviderModule extends CloudModule {
 
     @Override
     protected void configure() {
-        bindBilling();
-        bind(BillingServiceNew.class).to(BillingServiceImplNew.class);
+        bind(BillingService.class).to(BillingServiceImpl.class);
         bind(InfrastructureInfoService.class).to(InfrastructureInfoServiceImpl.class);
         bind(InfrastructureTemplateService.class).to(InfrastructureTemplateServiceImpl.class);
         bind(SchedulerConfiguration.class).toInstance(
@@ -103,24 +94,5 @@ public class CloudProviderModule extends CloudModule {
         System.setProperty(QUARTZ_MONGO_URI_PROPERTY, mongoUri);
         System.setProperty(QUARTZ_DB_NAME, database);
         return StdSchedulerFactory.getDefaultScheduler();
-    }
-
-    private void bindBilling() {
-        switch (configuration.getCloudProvider()) {
-            case AWS:
-                bind(BillingService.class).to(AwsBillingService.class);
-                bind(BillingDAO.class).to(AwsBillingDAO.class);
-                break;
-            case AZURE:
-                bind(BillingService.class).to(AzureBillingService.class);
-                bind(BillingDAO.class).to(AzureBillingDAO.class);
-                break;
-            case GCP:
-                bind(BillingService.class).to(GcpBillingService.class);
-                bind(BillingDAO.class).to(GcpBillingDao.class);
-                break;
-            default:
-                throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());
-        }
     }
 }
