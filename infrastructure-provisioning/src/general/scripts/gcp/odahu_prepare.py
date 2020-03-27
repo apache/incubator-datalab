@@ -130,10 +130,8 @@ if __name__ == "__main__":
             keycloak_update_Uris = requests.put(client_url, json=updated_client_data,
                                             headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
                                                      "Content-Type": "application/json"}, verify=False)
-
         except Exception as err:
             append_result("Failed to configure keycloak.")
-            raise Exception
             sys.exit(1)
     except Exception as err:
         print('Error: {0}'.format(err))
