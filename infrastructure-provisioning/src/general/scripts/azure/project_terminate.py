@@ -115,7 +115,8 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
     print("Removing project specific images")
     try:
         for image in AzureMeta.list_images():
-            if service_base_name == image.tags["SBN"] and project_tag == image.tags["project_tag"]:
+            if service_base_name == image.tags["SBN"] and 'project_tag' in image.tags \
+                    and project_tag == image.tags["project_tag"]:
                 AzureActions.remove_image(resource_group_name, image.name)
                 print("Image {} has been removed".format(image.name))
     except Exception as err:
