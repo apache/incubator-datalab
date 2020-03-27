@@ -57,6 +57,7 @@ adapterOut:
     database: dlabdb
 #    bufferSize: 10000
     upsert: true
+    serviceBaseName: <CONF_SERVICE_BASE_NAME>
 
 # Filter for source and converted data.
 filter:
