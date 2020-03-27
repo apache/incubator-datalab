@@ -219,7 +219,7 @@ public class BillingServiceImpl implements BillingService {
         try {
             return s.get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Cannot retrieve billing information {}", e.getMessage(), e);
+            log.error("Cannot retrieve billing information {}", e.getMessage());
             return Collections.emptyList();
         }
     }
