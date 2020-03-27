@@ -137,7 +137,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 	}
 
 	private GroupOperation getGroupOperation() {
-		return group("product", "currency", "usageType", "dlabId")
+		return group("product", "currency", "dlabId")
 				.min("from").as("from")
 				.max("to").as("to")
 				.sum("cost").as("cost");
@@ -166,7 +166,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 		return GcpBillingData.builder()
 				.usageDateFrom(toLocalDate(fields, "usage_date_from"))
 				.usageDateTo(toLocalDate(fields, "usage_date_to"))
-				.cost(fields.get("cost").getNumericValue().setScale(3, BigDecimal.ROUND_HALF_UP))
+				.cost(fields.get("cost").getNumericValue().doubleValue())
 				.product(fields.get("product").getStringValue())
 				.usageType(fields.get("usageType").getStringValue())
 				.currency(fields.get("currency").getStringValue())
@@ -186,7 +186,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 				.usageDateTo(billingData.getUsageDateTo())
 				.product(billingData.getProduct())
 				.usageType(billingData.getUsageType())
-				.cost(billingData.getCost().setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
+				.cost(BigDecimal.valueOf(billingData.getCost()).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
 				.currency(billingData.getCurrency())
 				.tag(billingData.getTag())
 				.build();
