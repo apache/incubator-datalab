@@ -1300,8 +1300,8 @@ def ensure_local_jars(os_user, jars_dir):
         try:
             templates_dir = '/root/templates/'
             sudo('mkdir -p {}'.format(jars_dir))
-            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O {1}{0}'
-                 .format('gcs-connector-latest-hadoop2.jar', jars_dir))
+            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop2-{0}.jar -O {1}'
+                 'gcs-connector-hadoop2-{0}.jar'.format(os.environ['notebook_gcs_connector_version'], jars_dir))
             sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
                  .format('hadoop-yarn-server-web-proxy-2.7.4.jar', jars_dir))
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
