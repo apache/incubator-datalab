@@ -54,8 +54,7 @@ public class UserGroupResource {
 
 	@POST
 	@RolesAllowed("/roleManagement/create")
-	public Response createGroup(@Auth UserInfo userInfo,
-								@Valid GroupDTO dto) {
+	public Response createGroup(@Auth UserInfo userInfo, @Valid GroupDTO dto) {
 		log.debug("Creating new group {}", dto.getName());
 		userGroupService.createGroup(dto.getName(), dto.getRoleIds(), dto.getUsers());
 		return Response.ok().build();
@@ -79,8 +78,7 @@ public class UserGroupResource {
 	@DELETE
 	@Path("{id}")
 	@RolesAllowed("/roleManagement/delete")
-	public Response deleteGroup(@Auth UserInfo userInfo,
-								@PathParam("id") String group) {
+	public Response deleteGroup(@Auth UserInfo userInfo, @PathParam("id") String group) {
 		log.info("Admin {} is trying to delete group {} from application", userInfo.getName(), group);
 		userGroupService.removeGroup(group);
 		return Response.ok().build();
