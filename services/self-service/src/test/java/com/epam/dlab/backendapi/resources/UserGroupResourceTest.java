@@ -153,21 +153,6 @@ public class UserGroupResourceTest extends TestBase {
     }
 
 	@Test
-	public void addRolesToGroup() {
-
-		final Response response = resources.getJerseyTest()
-				.target("/group/role")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.put(Entity.json(new UpdateRoleGroupDto(singleton(ROLE_ID), GROUP)));
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-
-		verify(userGroupService).updateRolesForGroup(GROUP, singleton(ROLE_ID));
-		verifyNoMoreInteractions(userGroupService);
-	}
-
-	@Test
 	public void addRolesToGroupWithValidationException() {
 
 		final Response response = resources.getJerseyTest()
@@ -179,23 +164,6 @@ public class UserGroupResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
 		verifyZeroInteractions(userGroupService);
-	}
-
-	@Test
-	public void deleteGroupFromRole() {
-		final Response response = resources.getJerseyTest()
-				.target("/group/role")
-				.queryParam("group", GROUP)
-				.queryParam("roleId", ROLE_ID)
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.delete();
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-
-
-		verify(userGroupService).removeGroupFromRole(singleton(GROUP), singleton(ROLE_ID));
-		verifyNoMoreInteractions(userGroupService);
 	}
 
 	@Test
@@ -228,20 +196,6 @@ public class UserGroupResourceTest extends TestBase {
 	}
 
 	@Test
-	public void addUserToGroup() {
-		final Response response = resources.getJerseyTest()
-				.target("/group/user")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.put(Entity.json(new UpdateUserGroupDto(GROUP, singleton(USER))));
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-
-		verify(userGroupService).addUsersToGroup(GROUP, singleton(USER));
-		verifyNoMoreInteractions(userGroupService);
-	}
-
-	@Test
 	public void addUserToGroupWithValidationException() {
 		final Response response = resources.getJerseyTest()
 				.target("/group/user")
@@ -252,23 +206,6 @@ public class UserGroupResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
 		verifyZeroInteractions(userGroupService);
-	}
-
-	@Test
-	public void deleteUserFromGroup() {
-		final Response response = resources.getJerseyTest()
-				.target("/group/user")
-				.queryParam("user", USER)
-				.queryParam("group", GROUP)
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.delete();
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-
-
-		verify(userGroupService).removeUserFromGroup(GROUP, USER);
-		verifyNoMoreInteractions(userGroupService);
 	}
 
 	@Test

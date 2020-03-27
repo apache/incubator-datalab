@@ -30,14 +30,6 @@ public interface UserGroupService {
 
 	void updateGroup(UserInfo user, String group, Set<String> roleIds, Set<String> users);
 
-	void addUsersToGroup(String group, Set<String> users);
-
-	void updateRolesForGroup(String group, Set<String> roleIds);
-
-	void removeUserFromGroup(String group, String user);
-
-	void removeGroupFromRole(Set<String> groups, Set<String> roleIds);
-
 	void removeGroup(String groupId);
 
 	List<UserGroupDto> getAggregatedRolesByGroup(UserInfo user);

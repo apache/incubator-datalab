@@ -81,27 +81,6 @@ public class UserGroupServiceImpl implements UserGroupService {
 	}
 
 	@Override
-	public void addUsersToGroup(String group, Set<String> users) {
-		userGroupDao.addUsers(group, users);
-	}
-
-	@Override
-	public void updateRolesForGroup(String group, Set<String> roleIds) {
-		userRoleDao.removeGroupWhenRoleNotIn(group, roleIds);
-		checkAnyRoleFound(roleIds, userRoleDao.addGroupToRole(Collections.singleton(group), roleIds));
-	}
-
-	@Override
-	public void removeUserFromGroup(String group, String user) {
-		userGroupDao.removeUser(group, user);
-	}
-
-	@Override
-	public void removeGroupFromRole(Set<String> groups, Set<String> roleIds) {
-		checkAnyRoleFound(roleIds, userRoleDao.removeGroupFromRole(groups, roleIds));
-	}
-
-	@Override
 	public void removeGroup(String groupId) {
 		if (projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING)

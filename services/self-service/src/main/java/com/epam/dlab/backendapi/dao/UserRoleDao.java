@@ -39,8 +39,6 @@ public interface UserRoleDao {
 
 	boolean addGroupToRole(Set<String> groups, Set<String> roleIds);
 
-	boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds);
-
 	void removeGroupWhenRoleNotIn(String group, Set<String> roleIds);
 
 	void removeUnnecessaryRoles(CloudProvider cloudProviderToBeRemoved, List<CloudProvider> remainingProviders);

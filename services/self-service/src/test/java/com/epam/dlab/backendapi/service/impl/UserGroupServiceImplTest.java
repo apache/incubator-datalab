@@ -44,12 +44,9 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.anySet;
-import static org.mockito.Mockito.anySetOf;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -103,56 +100,6 @@ public class UserGroupServiceImplTest extends TestBase {
 
 		expectedException.expect(ResourceNotFoundException.class);
 		userGroupService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
-	}
-
-	@Test
-	public void addUserToGroup() {
-		userGroupService.addUsersToGroup(GROUP, Collections.singleton(USER));
-
-		verify(userGroupDao).addUsers(eq(GROUP), refEq(Collections.singleton(USER)));
-		verifyNoMoreInteractions(userRoleDao, userGroupDao);
-	}
-
-	@Test
-	public void addRolesToGroup() {
-		when(userRoleDao.addGroupToRole(anySetOf(String.class), anySetOf(String.class))).thenReturn(true);
-
-		userGroupService.updateRolesForGroup(GROUP, Collections.singleton(ROLE_ID));
-
-		verify(userRoleDao).addGroupToRole(refEq(Collections.singleton(GROUP)), refEq(Collections.singleton(ROLE_ID)));
-		verify(userRoleDao).removeGroupWhenRoleNotIn(GROUP, Collections.singleton(ROLE_ID));
-		verifyNoMoreInteractions(userRoleDao);
-	}
-
-	@Test
-	public void removeUserFromGroup() {
-
-		userGroupService.removeUserFromGroup(GROUP, USER);
-
-		verify(userGroupDao).removeUser(GROUP, USER);
-		verifyNoMoreInteractions(userGroupDao);
-	}
-
-	@Test
-	public void removeGroupFromRole() {
-
-		when(userRoleDao.removeGroupFromRole(anySetOf(String.class), anySetOf(String.class))).thenReturn(true);
-
-		userGroupService.removeGroupFromRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
-
-		verify(userRoleDao).removeGroupFromRole(refEq(Collections.singleton(GROUP)),
-				refEq(Collections.singleton(ROLE_ID)));
-		verifyNoMoreInteractions(userRoleDao);
-	}
-
-	@Test
-	public void removeGroupFromRoleWithException() {
-		when(userRoleDao.removeGroupFromRole(anySetOf(String.class), anySetOf(String.class))).thenReturn(false);
-
-		expectedException.expectMessage("Any of role : [" + ROLE_ID + "] were not found");
-		expectedException.expect(ResourceNotFoundException.class);
-
-		userGroupService.removeGroupFromRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
 	}
 
 	@Test

@@ -76,25 +76,6 @@ public class UserGroupResource {
 		return Response.ok(userGroupService.getAggregatedRolesByGroup(userInfo)).build();
 	}
 
-//	@PUT
-//	@Path("role")
-//	public Response updateRolesForGroup(@Auth UserInfo userInfo, @Valid UpdateRoleGroupDto updateRoleGroupDto) {
-//		log.info("Admin {} is trying to add new group {} to roles {}", userInfo.getName(),
-//				updateRoleGroupDto.getGroup(), updateRoleGroupDto.getRoleIds());
-//		userGroupService.updateRolesForGroup(updateRoleGroupDto.getGroup(), updateRoleGroupDto.getRoleIds());
-//		return Response.ok().build();
-//	}
-//
-//	@DELETE
-//	@Path("role")
-//	public Response deleteGroupFromRole(@Auth UserInfo userInfo,
-//										@QueryParam("group") @NotEmpty Set<String> groups,
-//										@QueryParam("roleId") @NotEmpty Set<String> roleIds) {
-//		log.info("Admin {} is trying to delete groups {} from roles {}", userInfo.getName(), groups, roleIds);
-//		userGroupService.removeGroupFromRole(groups, roleIds);
-//		return Response.ok().build();
-//	}
-
 	@DELETE
 	@Path("{id}")
 	@RolesAllowed("/roleManagement/delete")
@@ -104,24 +85,4 @@ public class UserGroupResource {
 		userGroupService.removeGroup(group);
 		return Response.ok().build();
 	}
-
-//	@PUT
-//	@Path("user")
-//	public Response addUserToGroup(@Auth UserInfo userInfo,
-//								   @Valid UpdateUserGroupDto updateUserGroupDto) {
-//		log.info("Admin {} is trying to add new users {} to group {}", userInfo.getName(),
-//				updateUserGroupDto.getUsers(), updateUserGroupDto.getGroup());
-//		userGroupService.addUsersToGroup(updateUserGroupDto.getGroup(), updateUserGroupDto.getUsers());
-//		return Response.ok().build();
-//	}
-//
-//	@DELETE
-//	@Path("user")
-//	public Response deleteUserFromGroup(@Auth UserInfo userInfo,
-//										@QueryParam("user") @NotEmpty String user,
-//										@QueryParam("group") @NotEmpty String group) {
-//		log.info("Admin {} is trying to delete user {} from group {}", userInfo.getName(), user, group);
-//		userGroupService.removeUserFromGroup(group, user);
-//		return Response.ok().build();
-//	}
 }
