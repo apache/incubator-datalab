@@ -37,15 +37,12 @@ import static com.mongodb.client.model.Filters.eq;
 import static java.util.Collections.singletonList;
 
 @Slf4j
-public abstract class BaseBillingDAO extends BaseDAO implements BillingDAO {
+public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 
-	public static final String ITEMS = "lines";
-	public static final String FULL_REPORT = "full_report";
 	private static final String PROJECT = "project";
 	private static final int ONE_HUNDRED = 100;
 	private static final String TOTAL_FIELD_NAME = "total";
 	private static final String COST_FIELD = "$cost";
-	public static final String SHARED_RESOURCE_NAME = "Shared resource";
 
 	@Inject
 	protected SettingsDAO settings;
