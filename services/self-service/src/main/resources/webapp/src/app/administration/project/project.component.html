@@ -21,7 +21,7 @@
 <div *ngIf="projectList" class="base-retreat">
   <div class="sub-nav">
     <div>
-      <button mat-raised-button class="butt butt-create" (click)="createProject()" [disabled]="!projectList.length">
+      <button mat-raised-button class="butt butt-create" (click)="createProject()" [disabled]="!projectList.length || !healthStatus?.admin && healthStatus?.projectAdmin">
         <i class="material-icons">add</i>Create new
       </button>
     </div>
