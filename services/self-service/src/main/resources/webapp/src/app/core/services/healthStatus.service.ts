@@ -119,7 +119,7 @@ export class HealthStatusService {
               this.appRoutingService.redirectToHomePage();
               return false;
             }
-            if (parameter === 'administration' && !data.admin) {
+            if (parameter === 'administration' && !data.admin && !data.projectAdmin) {
               this.appRoutingService.redirectToNoAccessPage();
               return false;
             }
