@@ -28,7 +28,7 @@
       <p class=" message">Cannot install libraries: Exploratory
         <strong>{{ notebook?.name }}</strong> is not running</p>
     </div>
-    <div class="loading-block" *ngIf="!libs_uploaded && uploading && notebook?.status === 'running'">
+    <div class="loading-block" *ngIf="!libs_uploaded && uploading && data.status === 'running'">
       <div class="uploading">
         <p>Please wait until DLab loads full list of available libraries for you...</p>
         <img src="assets/img/gif-spinner.gif" alt="loading">
@@ -48,12 +48,20 @@
               <label class="label">Select group</label>
               <div class="control">
                 <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+                <span class="error-message" *ngIf="!group && libSearch.value">Group field is required. Please choose appropriate group.</span>
               </div>
             </div>
           </div>
           <div class="search">
             <mat-form-field class="chip-list">
-              <input type="text" [placeholder]="group === 'java' ? 'Enter library name in <groupId>:<artifactId>:<versionId> format' : 'Enter library name'" matInput [formControl]="libSearch" [value]="query" [matAutocomplete]="auto">
+              <input
+                type="text"
+                [placeholder]="group === 'java' ? 'Enter library name in <groupId>:<artifactId>:<versionId> format' : 'Enter library name'"
+                matInput
+                [formControl]="libSearch"
+                [value]="query"
+                [matAutocomplete]="auto"
+              >
               <mat-icon matSuffix>search</mat-icon>
               <mat-autocomplete #auto="matAutocomplete" class="suggestions">
                 <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index">
@@ -84,7 +92,7 @@
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>
-            <div class="list-selected list-container" id="scrolling">
+            <div class="list-selected list-container" id='scrolling'>
               <mat-chip-list *ngIf="model.selectedLibs.length && libs_uploaded">
                 <mat-chip *ngFor="let item of model.selectedLibs">
                   {{ item.name }}
@@ -140,7 +148,7 @@
         <ng-container *ngIf="filtered" >
          <mat-list-item class="lib-col filter-row">
           <th class="lib-name lib-input">
-            <input placeholder="Filter by library name" [value]="filterModel.name" (input)="filterModel.name = $event.target.value" type="text" class="form-control filter-field "/>
+            <input placeholder="Filter by library name" [value]="filterModel.name" (input)="filterModel.name = $event.target['value']" type="text" class="form-control filter-field "/>
           </th>
           <th class="lib-group lib-col">
               <multi-select-dropdown
@@ -185,7 +193,7 @@
                  </button>
 
                  <button mat-icon-button class="btn apply" (click)="filterLibs()">
-                   <i class="material-icons"  [ngClass]="{'not-allowed': filterModel.length == 0}">done</i>
+                   <i class="material-icons"  [ngClass]="{'not-allowed': filterModel.length === 0}">done</i>
                  </button>
                </div>
              </th>

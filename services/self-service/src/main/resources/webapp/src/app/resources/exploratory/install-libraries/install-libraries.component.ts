@@ -89,14 +89,15 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.libSearch.disable();
+    this.open(this.data);
+    this.uploadLibGroups();
     this.libSearch.valueChanges.pipe(
       debounceTime(1000))
       .subscribe(newValue => {
         this.query = newValue || '';
         this.filterList();
       });
-    this.open(this.data);
+    this.getInstalledLibsByResource();
   }
 
   ngOnDestroy() {
@@ -105,6 +106,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   uploadLibGroups(): void {
+    this.libs_uploaded = false;
+    this.uploading = true;
     this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
       .subscribe(
         response => {
@@ -153,13 +156,11 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       this.group = $event.model.value;
     } else if ($event.model.type === 'destination') {
       this.resetDialog();
-
       this.destination = $event.model.value;
       this.destination && this.destination.type === 'СOMPUTATIONAL'
         ? this.model.computational_name = this.destination.name
         : this.model.computational_name = null;
 
-      this.libSearch.enable();
       this.uploadLibGroups();
       this.getInstalledLibsByResource();
     }
@@ -199,6 +200,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public open(notebook): void {
     this.notebook = notebook;
+    this.destination = this.getResourcesList()[0];
     this.model = new InstallLibrariesModel(notebook,
       response => {
         if (response.status === HTTP_STATUS_CODES.OK) {
@@ -213,7 +215,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
         this.selectorsReset();
       },
       this.librariesInstallationService);
-  }
+ }
 
   public showErrorMessage(item): void {
     const dialogRef: MatDialogRef<ErrorMessageDialogComponent> = this.dialog.open(
@@ -307,9 +309,11 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   private selectorsReset(): void {
-    this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(),
-      'Select resource', 'destination', 'title', 'array');
-    this.group_select && this.group_select.setDefaultOptions([], '', 'group_lib', null, 'array');
+    if( this.destination.name === this.getResourcesList()[0].name) {
+      return;
+    }
+    this.destination = this.getResourcesList()[0];
+    this.uploadLibGroups();
   }
 
   private resetDialog(): void {
@@ -321,10 +325,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.uploading = false;
     this.model.selectedLibs = [];
     this.filteredList = null;
-    this.destination = null;
+    // this.destination = null;
     this.groupsList = [];
 
-    this.libSearch.disable();
     clearTimeout(this.clear);
     clearTimeout(this.loadLibsTimer);
     this.selectorsReset();
