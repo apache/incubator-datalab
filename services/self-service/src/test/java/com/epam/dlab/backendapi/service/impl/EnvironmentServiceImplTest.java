@@ -34,7 +34,6 @@ import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.exceptions.ResourceConflictException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -47,14 +46,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anySet;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.anyVararg;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -126,73 +122,6 @@ public class EnvironmentServiceImplTest {
 		environmentService.getUsers();
 	}
 
-	@Test
-	public void getAllUsers() {
-		doReturn(Collections.singleton(USER)).when(envDAO).fetchAllUsers();
-		final Set<String> users = environmentService.getUserNames();
-
-		assertEquals(1, users.size());
-		assertTrue(users.contains(USER));
-
-		verify(envDAO).fetchAllUsers();
-		verifyNoMoreInteractions(envDAO);
-	}
-
-	@Test
-	public void getAllUsersWithException() {
-		doThrow(new DlabException("Users not found")).when(envDAO).fetchAllUsers();
-
-		expectedException.expect(DlabException.class);
-		expectedException.expectMessage("Users not found");
-
-		environmentService.getUserNames();
-	}
-
-
-	@Test
-	public void stopEnvironment() {
-		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
-		when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString())).thenReturn(UUID);
-
-		environmentService.stopEnvironment(userInfo, USER, PROJECT_NAME);
-
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
-		verify(exploratoryService).stop(refEq(userInfo), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1));
-		verify(exploratoryService).stop(refEq(userInfo), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_2));
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
-				UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(exploratoryDAO, exploratoryService);
-	}
-
-	@Test
-	@SuppressWarnings("unchecked")
-	public void stopEnvironmentWithWrongResourceState() {
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), any(List.class), anyVararg()))
-				.thenReturn(getUserInstances());
-		expectedException.expect(ResourceConflictException.class);
-
-		environmentService.stopEnvironment(getUserInfo(), USER, PROJECT_NAME);
-	}
-
-	@Test
-	public void stopEnvironmentWithoutEdge() {
-		final UserInfo userInfo = getUserInfo();
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(getUserInstances());
-		when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString())).thenReturn(UUID);
-
-		environmentService.stopEnvironment(userInfo, USER, PROJECT_NAME);
-
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
-		verify(exploratoryService).stop(refEq(userInfo), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1));
-		verify(exploratoryService).stop(refEq(userInfo), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_2));
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, Arrays.asList(UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
-				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(envDAO, exploratoryDAO, exploratoryService);
-	}
 
 	@Test
 	public void stopProjectEnvironment() {

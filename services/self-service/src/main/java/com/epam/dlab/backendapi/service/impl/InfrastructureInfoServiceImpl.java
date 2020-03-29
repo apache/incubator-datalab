@@ -26,9 +26,11 @@ import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
 import com.epam.dlab.backendapi.service.BillingService;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -127,17 +129,20 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	}
 
 	@Override
-	public HealthStatusPageDTO getHeathStatus(UserInfo userInfo, boolean fullReport, boolean isAdmin) {
+	public HealthStatusPageDTO getHeathStatus(UserInfo userInfo, boolean fullReport) {
 		final String user = userInfo.getName();
 		log.debug("Request the status of resources for user {}, report type {}", user, fullReport);
 		try {
-
-			return envDAO.getHealthStatusPageDTO(user, fullReport)
-					.withBillingEnabled(configuration.isBillingSchedulerEnabled())
-					.withAdmin(isAdmin)
-					.withProjectAssinged(projectService.isAnyProjectAssigned(userInfo))
-					.withBillingQuoteUsed(billingDAO.getBillingQuoteUsed())
-					.withBillingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user));
+			return HealthStatusPageDTO.builder()
+					.status(HealthStatusEnum.OK.toString())
+					.listResources(Collections.emptyList())
+					.billingEnabled(configuration.isBillingSchedulerEnabled())
+					.projectAdmin(UserRoles.isProjectAdmin(userInfo))
+					.admin(UserRoles.isAdmin(userInfo))
+					.projectAssigned(projectService.isAnyProjectAssigned(userInfo))
+					.billingQuoteUsed(billingDAO.getBillingQuoteUsed())
+					.billingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user))
+					.build();
 		} catch (Exception e) {
 			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);
 			throw new DlabException(e.getMessage(), e);

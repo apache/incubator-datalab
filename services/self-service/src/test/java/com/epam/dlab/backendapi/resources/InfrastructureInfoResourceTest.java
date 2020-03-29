@@ -39,6 +39,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -93,7 +94,7 @@ public class InfrastructureInfoResourceTest extends TestBase {
 	@Test
 	public void healthStatus() {
 		HealthStatusPageDTO hspDto = getHealthStatusPageDTO();
-		when(infrastructureInfoService.getHeathStatus(any(UserInfo.class), anyBoolean(), anyBoolean())).thenReturn(hspDto);
+		when(infrastructureInfoService.getHeathStatus(any(UserInfo.class), anyBoolean())).thenReturn(hspDto);
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.queryParam("full", "1")
@@ -105,7 +106,7 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		assertEquals(hspDto.getStatus(), response.readEntity(HealthStatusPageDTO.class).getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(true), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(true));
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
@@ -113,7 +114,7 @@ public class InfrastructureInfoResourceTest extends TestBase {
 	public void healthStatusWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
 		HealthStatusPageDTO hspDto = getHealthStatusPageDTO();
-		when(infrastructureInfoService.getHeathStatus(any(UserInfo.class), anyBoolean(), anyBoolean())).thenReturn(hspDto);
+		when(infrastructureInfoService.getHeathStatus(any(UserInfo.class), anyBoolean())).thenReturn(hspDto);
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.queryParam("full", "1")
@@ -125,14 +126,14 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		assertEquals(hspDto.getStatus(), response.readEntity(HealthStatusPageDTO.class).getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(true), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(true));
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
 	@Test
 	public void healthStatusWithDefaultQueryParam() {
 		HealthStatusPageDTO hspDto = getHealthStatusPageDTO();
-		when(infrastructureInfoService.getHeathStatus(any(UserInfo.class), anyBoolean(), anyBoolean())).thenReturn(hspDto);
+		when(infrastructureInfoService.getHeathStatus(any(UserInfo.class), anyBoolean())).thenReturn(hspDto);
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.request()
@@ -143,14 +144,14 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		assertEquals(hspDto.getStatus(), response.readEntity(HealthStatusPageDTO.class).getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(false), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(false));
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
 	@Test
 	public void healthStatusWithException() {
 		doThrow(new DlabException("Could not return status of resources for user"))
-				.when(infrastructureInfoService).getHeathStatus(any(UserInfo.class), anyBoolean(), anyBoolean());
+				.when(infrastructureInfoService).getHeathStatus(any(UserInfo.class), anyBoolean());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/status")
 				.request()
@@ -160,7 +161,7 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(false), anyBoolean());
+		verify(infrastructureInfoService).getHeathStatus(refEq(getUserInfo()), eq(false));
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
@@ -200,8 +201,8 @@ public class InfrastructureInfoResourceTest extends TestBase {
 	}
 
 	private HealthStatusPageDTO getHealthStatusPageDTO() {
-		HealthStatusPageDTO hspdto = new HealthStatusPageDTO();
-		hspdto.setStatus("someStatus");
-		return hspdto;
+		return HealthStatusPageDTO.builder()
+				.status("someStatus")
+				.build();
 	}
 }
