@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.service;
 
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreatePopUp;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -29,6 +30,7 @@ import com.epam.dlab.model.exploratory.Exploratory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ExploratoryService {
 
@@ -47,6 +49,8 @@ public interface ExploratoryService {
     Optional<UserInstanceDTO> getUserInstance(String user, String project, String exploratoryName);
 
     List<UserInstanceDTO> findAll();
+
+    List<UserInstanceDTO> findAll(Set<ProjectDTO> projects);
 
     List<ClusterConfig> getClusterConfig(UserInfo user, String project, String exploratoryName);
 

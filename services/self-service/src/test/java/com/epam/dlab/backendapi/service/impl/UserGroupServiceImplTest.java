@@ -170,16 +170,6 @@ public class UserGroupServiceImplTest extends TestBase {
 		userGroupService.removeGroup(GROUP);
 	}
 
-	@Test
-	public void updateGroup() {
-		userGroupService.updateGroup(getUserInfo(), GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
-
-		verify(userGroupDao).updateUsers(GROUP, Collections.singleton(USER));
-		verify(userRoleDao).removeGroupWhenRoleNotIn(GROUP, Collections.singleton(ROLE_ID));
-		verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
-		verifyNoMoreInteractions(userRoleDao, userGroupDao);
-	}
-
     private UserGroupDto getUserGroup() {
         return new UserGroupDto(GROUP, Collections.emptyList(), Collections.emptySet());
     }

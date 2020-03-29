@@ -21,15 +21,11 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
-import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.GroupDTO;
-import com.epam.dlab.backendapi.resources.dto.UpdateRoleGroupDto;
-import com.epam.dlab.backendapi.resources.dto.UpdateUserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.service.UserGroupService;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,11 +37,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
@@ -153,20 +147,6 @@ public class UserGroupResourceTest extends TestBase {
     }
 
 	@Test
-	public void addRolesToGroupWithValidationException() {
-
-		final Response response = resources.getJerseyTest()
-				.target("/group/role")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.put(Entity.json(new UpdateRoleGroupDto(singleton(ROLE_ID), StringUtils.EMPTY)));
-
-		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
-
-		verifyZeroInteractions(userGroupService);
-	}
-
-	@Test
 	public void deleteGroup() {
 		final Response response = resources.getJerseyTest()
 				.target("/group/" + GROUP)
@@ -181,47 +161,6 @@ public class UserGroupResourceTest extends TestBase {
 		verifyNoMoreInteractions(userGroupService);
 	}
 
-	@Test
-	public void deleteGroupFromRoleWithValidationException() {
-		final Response response = resources.getJerseyTest()
-				.target("/group/role")
-				.queryParam("group", GROUP)
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.delete();
-
-		assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
-
-		verifyZeroInteractions(userGroupService);
-	}
-
-	@Test
-	public void addUserToGroupWithValidationException() {
-		final Response response = resources.getJerseyTest()
-				.target("/group/user")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.put(Entity.json(new UpdateUserGroupDto(StringUtils.EMPTY, singleton(USER))));
-
-		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
-
-		verifyZeroInteractions(userGroupService);
-	}
-
-	@Test
-	public void deleteUserFromGroupWithValidationException() {
-		final Response response = resources.getJerseyTest()
-				.target("/group/user")
-				.queryParam("group", GROUP)
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.delete();
-
-		assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
-
-		verifyZeroInteractions(userGroupService);
-	}
-
 	private UserGroupDto getUserGroup() {
 		return new UserGroupDto(GROUP, Collections.emptyList(), Collections.emptySet());
     }
@@ -232,11 +171,5 @@ public class UserGroupResourceTest extends TestBase {
         dto.setRoleIds(roleIds);
         dto.setUsers(Collections.singleton(USER));
         return dto;
-    }
-
-    private List<ProjectDTO> getProjects() {
-        return Collections.singletonList(ProjectDTO.builder()
-                .groups(new HashSet<>(Collections.singletonList(GROUP)))
-                .build());
     }
 }

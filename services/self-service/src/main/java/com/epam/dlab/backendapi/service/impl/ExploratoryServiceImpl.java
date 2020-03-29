@@ -61,6 +61,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
@@ -196,6 +197,15 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	@Override
 	public List<UserInstanceDTO> findAll() {
 		return exploratoryDAO.getInstances();
+	}
+
+	@Override
+	public List<UserInstanceDTO> findAll(Set<ProjectDTO> projects) {
+		List<String> projectNames = projects
+				.stream()
+				.map(ProjectDTO::getName)
+				.collect(Collectors.toList());
+		return exploratoryDAO.fetchExploratoryFieldsForProjectWithComp(projectNames);
 	}
 
 	@Override
