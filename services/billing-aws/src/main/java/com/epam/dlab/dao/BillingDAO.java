@@ -25,7 +25,7 @@ import java.util.List;
 
 public interface BillingDAO {
 
-    List<BillingData> getBillingReport();
+    List<BillingData> getBillingReport(String dateStart, String dateEnd, String dlabId, List<String> products);
 
     List<BillingData> getBillingReport(List<String> dlabIds);
 }
