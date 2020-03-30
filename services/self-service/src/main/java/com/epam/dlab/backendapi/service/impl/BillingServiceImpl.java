@@ -44,7 +44,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 
 import javax.ws.rs.core.GenericType;
@@ -135,9 +134,8 @@ public class BillingServiceImpl implements BillingService {
 
         final Map<String, BillingReportLine> billableResources = getBillableResources(user, projects);
 
-        List<BillingReportLine> billingReport = getRemoteBillingData(user)
+        List<BillingReportLine> billingReport = getRemoteBillingData(user, filter)
                 .stream()
-                .filter(getBillingDataFilter(filter))
                 .filter(bd -> billableResources.containsKey(bd.getTag()))
                 .map(bd -> toBillingData(bd, billableResources.get(bd.getTag())))
                 .filter(getBillingReportFilter(filter))
@@ -208,11 +206,11 @@ public class BillingServiceImpl implements BillingService {
         }
     }
 
-    private List<BillingData> getRemoteBillingData(UserInfo userInfo) {
+    private List<BillingData> getRemoteBillingData(UserInfo userInfo, BillingFilter filter) {
         List<EndpointDTO> endpoints = endpointService.getEndpoints();
         ExecutorService executor = Executors.newFixedThreadPool(endpoints.size());
         List<Callable<List<BillingData>>> callableTasks = new ArrayList<>();
-        endpoints.forEach(e -> callableTasks.add(getTask(userInfo, getBillingUrl(e.getUrl(), BILLING_REPORT_PATH))));
+        endpoints.forEach(e -> callableTasks.add(getTask(userInfo, getBillingUrl(e.getUrl(), BILLING_REPORT_PATH), filter)));
 
         List<BillingData> billingData;
         try {
@@ -256,17 +254,16 @@ public class BillingServiceImpl implements BillingService {
                 .toString();
     }
 
-    private Callable<List<BillingData>> getTask(UserInfo userInfo, String url) {
-        return () -> provisioningService.get(url, userInfo.getAccessToken(), new GenericType<List<BillingData>>() {
-        });
-    }
-
-    private Predicate<BillingData> getBillingDataFilter(BillingFilter filter) {
-        return br ->
-                (StringUtils.isEmpty(filter.getDlabId()) || StringUtils.containsIgnoreCase(br.getTag(), filter.getDlabId())) &&
-                        (StringUtils.isEmpty(filter.getDateStart()) || LocalDate.parse(filter.getDateStart()).isEqual(br.getUsageDateFrom()) || LocalDate.parse(filter.getDateStart()).isBefore(br.getUsageDateFrom())) &&
-                        (StringUtils.isEmpty(filter.getDateEnd()) || LocalDate.parse(filter.getDateEnd()).isEqual(br.getUsageDateTo()) || LocalDate.parse(filter.getDateEnd()).isAfter(br.getUsageDateTo())) &&
-                        (CollectionUtils.isEmpty(filter.getProducts()) || filter.getProducts().contains(br.getProduct()));
+    private Callable<List<BillingData>> getTask(UserInfo userInfo, String url, BillingFilter filter) {
+        return () -> provisioningService.get(url, userInfo.getAccessToken(),
+                new GenericType<List<BillingData>>() {
+                },
+                Stream.of(new String[][]{
+                        {"date-start", filter.getDateStart()},
+                        {"date-end", filter.getDateEnd()},
+                        {"dlab-id", filter.getDlabId()},
+                        {"product", String.join(",", filter.getProducts())}
+                }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
     }
 
     private Predicate<BillingReportLine> getBillingReportFilter(BillingFilter filter) {
