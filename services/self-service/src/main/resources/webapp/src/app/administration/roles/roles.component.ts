@@ -27,8 +27,6 @@ import { CheckUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
-import {logger} from 'codelyzer/util/logger';
-
 
 @Component({
   selector: 'dlab-roles',
@@ -65,7 +63,6 @@ export class RolesComponent implements OnInit {
 
   ngOnInit() {
     this.openManageRolesDialog();
-    this.getEnvironmentHealthStatus();
   }
 
   openManageRolesDialog() {
@@ -80,7 +77,7 @@ export class RolesComponent implements OnInit {
           this.rolesList = this.rolesList.sort((a, b) => (a.cloud > b.cloud) ? 1 : ((b.cloud > a.cloud) ? -1 : 0));
           this.rolesList = this.rolesList.sort((a, b) => (a.type > b.type) ? 1 : ((b.type > a.type) ? -1 : 0));
           this.updateGroupData(groups);
-
+          this.getEnvironmentHealthStatus();
           this.stepperView = false;
         },
         error => this.toastr.error(error.message, 'Oops!'));
@@ -307,4 +304,4 @@ export class ConfirmDeleteUserAccountDialogComponent {
     public dialogRef: MatDialogRef<ConfirmDeleteUserAccountDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
-}
+};

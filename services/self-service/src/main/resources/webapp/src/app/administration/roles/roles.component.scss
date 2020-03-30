@@ -203,6 +203,7 @@
   }
 }
 
+
 .expanded-panel {
   display: flex;
   align-items: flex-end;
@@ -359,15 +360,21 @@ table {
     color: #607d8b;
     width: 10%;
     text-align: center;
+
     .actions-wrapper{
       height: 41px;
       display: flex;
       align-items: center;
       justify-content: flex-end;
     }
+
     span {
       transition: all .35s ease-in-out;
       cursor: pointer;
+
+      &.action-disabled{
+        cursor: not-allowed;
+      }
 
       .mat-icon {
         font-size: 18px;
