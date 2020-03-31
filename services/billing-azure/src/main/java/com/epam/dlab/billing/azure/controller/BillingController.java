@@ -44,7 +44,10 @@ public class BillingController {
     }
 
     @GetMapping("/report")
-    public ResponseEntity<List<BillingData>> getBilling() {
-        return new ResponseEntity<>(billingDAO.getBillingReport(), HttpStatus.OK);
+    public ResponseEntity<List<BillingData>> getBilling(@RequestParam("date-start") String dateStart,
+                                                        @RequestParam("date-end") String dateEnd,
+                                                        @RequestParam("dlab-id") String dlabId,
+                                                        @RequestParam("product") List<String> products) {
+        return new ResponseEntity<>(billingDAO.getBillingReport(dateStart, dateEnd, dlabId, products), HttpStatus.OK);
     }
 }
