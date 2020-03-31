@@ -228,7 +228,7 @@ if __name__ == "__main__":
                 "oauth_oidc_token_endpoint": "{}/protocol/openid-connect/token".format(
                     odahu_conf['oauth_oidc_issuer_url']),
                 "odahu_automation_version": "{}".format(odahu_conf['automation_version']),
-                "odahu_infra_version": "{}".format(odahu_conf['nfra_version']),
+                "odahu_infra_version": "{}".format(odahu_conf['infra_version']),
                 "odahu_ui_version": "{}".format(odahu_conf['ui_version']),
                 "odahuflow_connection_decrypt_token": "{}".format(odahu_conf['decrypt_token']),
                 "odahuflow_connections": [
@@ -251,23 +251,23 @@ if __name__ == "__main__":
                 "service_accounts": {
                     "airflow": {
                         "client_id": "sa-airflow",
-                        "client_secret": "{}".format(odahu_conf['sa-airflow_secret'])
+                        "client_secret": "{}".format(odahu_conf['airflow_secret'])
                     },
                     "operator": {
                         "client_id": "sa-operator",
-                        "client_secret": "{}".format(odahu_conf['sa-operator_secret'])
+                        "client_secret": "{}".format(odahu_conf['operator_secret'])
                     },
                     "resource_uploader": {
                         "client_id": "sa-resource-uploader",
-                        "client_secret": "{}".format(odahu_conf['sa-resource-uploader_secret'])
+                        "client_secret": "{}".format(odahu_conf['resource-uploader_secret'])
                     },
                     "test": {
                         "client_id": "sa-tester",
-                        "client_secret": "{}".format(odahu_conf['sa-tester_secret'])
+                        "client_secret": "{}".format(odahu_conf['tester_secret'])
                     },
                     "test_data_scientist": {
                         "client_id": "sa-tester-data-scientist",
-                        "client_secret": "{}".format(odahu_conf['sa-tester-data-scientist_secret'])
+                        "client_secret": "{}".format(odahu_conf['tester-data-scientist_secret'])
                     }
                 },
                 "service_cidr": "{}".format(odahu_conf['service_cidr']),
@@ -278,7 +278,7 @@ if __name__ == "__main__":
                 "tls_key": "{}".format(odahu_conf['tls_key']),
                 "vpc_name": "{}".format(odahu_conf['vpc_name']),
                 "vault": {
-                    "enabled": true
+                    "enabled": "true"
                 }
             }
             profile.write(json.dumps(prof))
