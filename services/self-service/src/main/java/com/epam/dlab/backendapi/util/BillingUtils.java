@@ -20,6 +20,7 @@
 package com.epam.dlab.backendapi.util;
 
 import com.epam.dlab.backendapi.domain.BillingReportLine;
+import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
@@ -59,7 +60,9 @@ public class BillingUtils {
     private static final String VOLUME_PRIMARY_COMPUTATIONAL_FORMAT = "%s-%s-volume-primary";
     private static final String VOLUME_SECONDARY_FORMAT = "%s-volume-secondary";
     private static final String VOLUME_SECONDARY_COMPUTATIONAL_FORMAT = "%s-%s-volume-secondary";
-    private static final String IMAGE_STANDARD_FORMAT = "%s-%s-%s-%s-notebook-image";
+    private static final String IMAGE_STANDARD_FORMAT1 = "%s-%s-%s-%s-notebook-image";
+    private static final String IMAGE_STANDARD_FORMAT2 = "%s-%s-%s-notebook-image";
+    private static final String IMAGE_CUSTOM_FORMAT = "%s-%s-%s-%s-%s";
     private static final String IMAGE_NAME_PREFIX = "docker.dlab-";
 
     private static final String VOLUME_PRIMARY = "Volume primary";
@@ -114,15 +117,24 @@ public class BillingUtils {
                         getSlaveVolumes(userInstance, cr, maxSparkInstanceCount)
                 ));
         final String exploratoryId = userInstance.getExploratoryId();
-        final String imageId = String.format(IMAGE_STANDARD_FORMAT, sbn, userInstance.getProject(), userInstance.getEndpoint(), userInstance.getImageName().replace(IMAGE_NAME_PREFIX, ""));
+        final String imageId1 = String.format(IMAGE_STANDARD_FORMAT1, sbn, userInstance.getProject(), userInstance.getEndpoint(), userInstance.getImageName().replace(IMAGE_NAME_PREFIX, ""));
+        final String imageId2 = String.format(IMAGE_STANDARD_FORMAT2, sbn, userInstance.getEndpoint(), userInstance.getImageName().replace(IMAGE_NAME_PREFIX, ""));
         final String primaryVolumeId = String.format(VOLUME_PRIMARY_FORMAT, exploratoryId);
         final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);
         final Stream<BillingReportLine> exploratoryStream = Stream.of(
                 withUserProject(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(EXPLORATORY).status(UserInstanceStatus.of(userInstance.getStatus())).shape(userInstance.getShape()).build(),
-                withUserProject(userInstance).resourceName(IMAGE_NAME).dlabId(imageId).resourceType(IMAGE).build(),
+                BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(imageId1).project(userInstance.getProject()).resourceType(IMAGE).build(),
+                BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(imageId2).project(userInstance.getProject()).resourceType(IMAGE).build(),
                 withUserProject(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(VOLUME).build(),
                 withUserProject(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(VOLUME).build());
         return Stream.concat(computationalStream, exploratoryStream);
+    }
+
+    public static Stream<BillingReportLine> customImageBillingDataStream(ImageInfoRecord image, String sbn) {
+        String imageId = String.format(IMAGE_CUSTOM_FORMAT, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName());
+        return Stream.of(
+                BillingReportLine.builder().resourceName(IMAGE_NAME).project(image.getProject()).dlabId(imageId).resourceType(IMAGE).build()
+        );
     }
 
     private static Stream<BillingReportLine> getSlaveVolumes(UserInstanceDTO userInstance, UserComputationalResource cr, Integer maxSparkInstanceCount) {

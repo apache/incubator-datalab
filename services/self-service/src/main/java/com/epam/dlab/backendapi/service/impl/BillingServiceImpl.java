@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
@@ -79,17 +80,19 @@ public class BillingServiceImpl implements BillingService {
     private final ExploratoryService exploratoryService;
     private final SelfServiceApplicationConfiguration configuration;
     private final RESTService provisioningService;
+    private final ImageExploratoryDao imageExploratoryDao;
     private final String sbn;
 
     @Inject
     public BillingServiceImpl(ProjectService projectService, EndpointService endpointService,
                               ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
-                              @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService) {
+                              @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService, ImageExploratoryDao imageExploratoryDao) {
         this.projectService = projectService;
         this.endpointService = endpointService;
         this.exploratoryService = exploratoryService;
         this.configuration = configuration;
         this.provisioningService = provisioningService;
+        this.imageExploratoryDao = imageExploratoryDao;
         sbn = configuration.getServiceBaseName();
     }
 
@@ -151,6 +154,11 @@ public class BillingServiceImpl implements BillingService {
                 .stream()
                 .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
                 .flatMap(ui -> BillingUtils.exploratoryBillingDataStream(ui, configuration.getMaxSparkInstanceCount(), sbn));
+        final Stream<BillingReportLine> billingReportLineStream = projects
+                .stream()
+                .map(p -> imageExploratoryDao.getImagesForProject(p.getName()))
+                .flatMap(Collection::stream)
+                .flatMap(i -> BillingUtils.customImageBillingDataStream(i, sbn));
 
         if (UserRoles.isAdmin(user)) {
             final Stream<BillingReportLine> billableEdges = projects
@@ -168,7 +176,7 @@ public class BillingServiceImpl implements BillingService {
                     .flatMap(s -> s);
         }
 
-        final Map<String, BillingReportLine> billableResources = Stream.of(billableUserInstances, billableAdminResources)
+        final Map<String, BillingReportLine> billableResources = Stream.of(billableUserInstances, billingReportLineStream, billableAdminResources)
                 .flatMap(s -> s)
                 .collect(Collectors.toMap(BillingReportLine::getDlabId, b -> b));
         log.debug("Billable resources are: {}", billableResources);
