@@ -1408,6 +1408,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
 
 def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
     try:
+        computational_name = os.environ['computational_name'].replace('_', '-').lower()
         private = meta_lib.get_instance_private_ip_address(cluster_name, notebook_name)
         env.hosts = "{}".format(private)
         env.user = "{}".format(os_user)
@@ -1456,7 +1457,7 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
+            dlab.fab.remove_rstudio_dataengines_kernel(computational_name, os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
