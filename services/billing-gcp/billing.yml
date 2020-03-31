@@ -19,7 +19,7 @@ server:
     contextPath: /api/billing
 
 server.ssl.key-store-type: JKS
-server.ssl.key-store: /home/OS_USER/keys/endpoint.keystore.jks
+server.ssl.key-store: /home/OS_USER/keys/ssn.keystore.jks
 server.ssl.key-store-password: KEY_STORE_PASSWORD
 server.ssl.key-alias: endpoint
 

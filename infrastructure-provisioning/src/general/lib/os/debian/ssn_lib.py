@@ -287,7 +287,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '--resource_id {} ' \
                          '--tags {} ' \
                          '--billing_dataset_name "{}" '\
-                         '--mongo_host local ' \
+                         '--mongo_host localhost ' \
                          '--mongo_port 27017 ' \
                          '--service_base_name {} ' \
                          '--os_user {} ' \
