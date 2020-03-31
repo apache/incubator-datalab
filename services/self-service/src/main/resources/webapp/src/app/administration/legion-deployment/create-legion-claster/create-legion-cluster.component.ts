@@ -22,7 +22,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
-import { Project } from '../../../administration/project/project.component';
+import { Project } from '../../project/project.component';
 import { ProjectService, LegionDeploymentService } from '../../../core/services';
 
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
@@ -41,8 +41,6 @@ export class CreateLegionClusterComponent implements OnInit {
 
   projects: Project[] = [];
   endpoints: Array<String> = [];
-  minInstanceNumber = 2;
-  maxInstanceNumber: number = 14;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -59,20 +57,21 @@ export class CreateLegionClusterComponent implements OnInit {
     this.initFormModel();
   }
 
-  public getProjects(): void {
-    this.projectService.getProjectsList().subscribe((projects: any) => this.projects = projects);
-  }
-
   public getUserProjects(): void {
     this.projectService.getUserProjectsList(true).subscribe((projects: any) => {
-      console.log(projects);
-      this.projects = projects.filter(project => project.endpoints.length > project.odahu.length);
+      this.projects = projects.filter(project => {
+        return project.endpoints.length > project.odahu.filter(od => od.status !== 'FAILED' && od.status !== 'TERMINATED').length; }
+        );
     });
   }
 
   public setEndpoints(project): void {
     this.endpoints = project.endpoints
-      .filter(e => e.status === 'RUNNING' && !this.data.some(odahu => odahu.endpoint === e.name && odahu.project === project.name))
+      .filter(e => e.status === 'RUNNING' && !this.data.some(odahu => odahu.status !== 'FAILED'
+        && odahu.status !== 'TERMINATED'
+        && odahu.endpoint === e.name
+        && odahu.project === project.name)
+      )
       .map(e => e.name);
   }
 
@@ -87,7 +86,7 @@ export class CreateLegionClusterComponent implements OnInit {
 
   private createOdahuCluster(value): void {
     this.dialogRef.close();
-    this.legionDeploymentService.createOdahuNewCluster(value).subscribe(val => {
+    this.legionDeploymentService.createOdahuNewCluster(value).subscribe(() => {
       this.toastr.success('Odahu cluster creation is processing!', 'Success!');
       }, error => this.toastr.error(error.message || 'Odahu cluster creation failed!', 'Oops!')
     );
