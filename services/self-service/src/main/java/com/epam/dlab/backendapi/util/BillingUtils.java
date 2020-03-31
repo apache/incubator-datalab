@@ -41,11 +41,11 @@ import static com.epam.dlab.dto.billing.BillingResourceType.COMPUTATIONAL;
 import static com.epam.dlab.dto.billing.BillingResourceType.EDGE;
 import static com.epam.dlab.dto.billing.BillingResourceType.ENDPOINT;
 import static com.epam.dlab.dto.billing.BillingResourceType.EXPLORATORY;
+import static com.epam.dlab.dto.billing.BillingResourceType.IMAGE;
 import static com.epam.dlab.dto.billing.BillingResourceType.SSN;
 import static com.epam.dlab.dto.billing.BillingResourceType.VOLUME;
 
 public class BillingUtils {
-
     private static final String[] REPORT_HEADERS = {"DLab ID", "User", "Project", "DLab Resource Type", "Shape", "Product", "Cost"};
     private static final String REPORT_FIRST_LINE = "Service base name: %s. Available reporting period from: %s to: %s";
     private static final String TOTAL_LINE = "Total: %s %s";
@@ -59,9 +59,13 @@ public class BillingUtils {
     private static final String VOLUME_PRIMARY_COMPUTATIONAL_FORMAT = "%s-%s-volume-primary";
     private static final String VOLUME_SECONDARY_FORMAT = "%s-volume-secondary";
     private static final String VOLUME_SECONDARY_COMPUTATIONAL_FORMAT = "%s-%s-volume-secondary";
+    private static final String IMAGE_STANDARD_FORMAT = "%s-%s-%s-%s-notebook-image";
+    private static final String IMAGE_NAME_PREFIX = "docker.dlab-";
+
     private static final String VOLUME_PRIMARY = "Volume primary";
     private static final String VOLUME_SECONDARY = "Volume secondary";
     private static final String SHARED_RESOURCE = "Shared resource";
+    private static final String IMAGE_NAME = "Image";
 
     private static final String DATAENGINE_NAME_FORMAT = "%d x %s";
     private static final String DATAENGINE_SERVICE_NAME_FORMAT = "Master: %s%sSlave:  %d x %s";
@@ -95,7 +99,7 @@ public class BillingUtils {
         );
     }
 
-    public static Stream<BillingReportLine> exploratoryBillingDataStream(UserInstanceDTO userInstance, Integer maxSparkInstanceCount) {
+    public static Stream<BillingReportLine> exploratoryBillingDataStream(UserInstanceDTO userInstance, Integer maxSparkInstanceCount, String sbn) {
         final Stream<BillingReportLine> computationalStream = userInstance.getResources()
                 .stream()
                 .filter(cr -> cr.getComputationalId() != null)
@@ -110,11 +114,12 @@ public class BillingUtils {
                         getSlaveVolumes(userInstance, cr, maxSparkInstanceCount)
                 ));
         final String exploratoryId = userInstance.getExploratoryId();
+        final String imageId = String.format(IMAGE_STANDARD_FORMAT, sbn, userInstance.getProject(), userInstance.getEndpoint(), userInstance.getImageName().replace(IMAGE_NAME_PREFIX, ""));
         final String primaryVolumeId = String.format(VOLUME_PRIMARY_FORMAT, exploratoryId);
         final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);
         final Stream<BillingReportLine> exploratoryStream = Stream.of(
-                withUserProject(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(EXPLORATORY)
-                        .status(UserInstanceStatus.of(userInstance.getStatus())).shape(userInstance.getShape()).build(),
+                withUserProject(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(EXPLORATORY).status(UserInstanceStatus.of(userInstance.getStatus())).shape(userInstance.getShape()).build(),
+                withUserProject(userInstance).resourceName(IMAGE_NAME).dlabId(imageId).resourceType(IMAGE).build(),
                 withUserProject(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(VOLUME).build(),
                 withUserProject(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(VOLUME).build());
         return Stream.concat(computationalStream, exploratoryStream);

@@ -26,5 +26,6 @@ public enum BillingResourceType {
     BUCKET,
     VOLUME,
     EXPLORATORY,
-    COMPUTATIONAL
+    COMPUTATIONAL,
+    IMAGE
 }

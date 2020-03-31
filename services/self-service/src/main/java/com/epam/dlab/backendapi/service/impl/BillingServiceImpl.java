@@ -150,7 +150,7 @@ public class BillingServiceImpl implements BillingService {
         final Stream<BillingReportLine> billableUserInstances = exploratoryService.findAll(projects)
                 .stream()
                 .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
-                .flatMap(ui -> BillingUtils.exploratoryBillingDataStream(ui, configuration.getMaxSparkInstanceCount()));
+                .flatMap(ui -> BillingUtils.exploratoryBillingDataStream(ui, configuration.getMaxSparkInstanceCount(), sbn));
 
         if (UserRoles.isAdmin(user)) {
             final Stream<BillingReportLine> billableEdges = projects
