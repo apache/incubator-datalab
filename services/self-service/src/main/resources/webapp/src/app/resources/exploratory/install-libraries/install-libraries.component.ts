@@ -190,7 +190,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
     this.query = '';
     this.libSearch.setValue('');
-
     this.filteredList = null;
   }
 
@@ -223,8 +222,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   public isInstallingInProgress(): void {
-    const isInstallingNow = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
-      if (isInstallingNow) {
+    this.installingInProgress = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
+      if (this.installingInProgress) {
         clearTimeout(this.loadLibsTimer);
         this.loadLibsTimer = window.setTimeout(() => this.getInstalledLibrariesList(), 10000);
       }
@@ -309,11 +308,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   private selectorsReset(): void {
-    if( this.destination.name === this.getResourcesList()[0].name) {
-      return;
-    }
     this.destination = this.getResourcesList()[0];
     this.uploadLibGroups();
+    this.getInstalledLibsByResource();
   }
 
   private resetDialog(): void {
@@ -325,7 +322,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.uploading = false;
     this.model.selectedLibs = [];
     this.filteredList = null;
-    // this.destination = null;
     this.groupsList = [];
 
     clearTimeout(this.clear);
