@@ -754,12 +754,14 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone, lables):
+    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone, labels):
         primary_disk_name = "projects/{0}/zones/{1}/disks/{2}".format(self.project, zone, instance_name)
         secondary_disk_name = "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
-        primary_params = {"name": primary_image_name, "sourceDisk": primary_disk_name, "labels": lables}
+        labels.update({"name": primary_image_name})
+        primary_params = {"name": primary_image_name, "sourceDisk": primary_disk_name, "labels": labels}
         primary_request = self.service.images().insert(project=self.project, body=primary_params)
-        secondary_params = {"name": secondary_image_name, "sourceDisk": secondary_disk_name, "labels": lables}
+        labels.update({"name": secondary_image_name})
+        secondary_params = {"name": secondary_image_name, "sourceDisk": secondary_disk_name, "labels": labels}
         secondary_request = self.service.images().insert(project=self.project, body=secondary_params)
         id_list=[]
         try:
@@ -1300,8 +1302,8 @@ def ensure_local_jars(os_user, jars_dir):
         try:
             templates_dir = '/root/templates/'
             sudo('mkdir -p {}'.format(jars_dir))
-            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O {1}{0}'
-                 .format('gcs-connector-latest-hadoop2.jar', jars_dir))
+            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop2-{0}.jar -O {1}'
+                 'gcs-connector-hadoop2-{0}.jar'.format(os.environ['notebook_gcs_connector_version'], jars_dir))
             sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
                  .format('hadoop-yarn-server-web-proxy-2.7.4.jar', jars_dir))
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
@@ -1406,6 +1408,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
 
 def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
     try:
+        computational_name = os.environ['computational_name'].replace('_', '-').lower()
         private = meta_lib.get_instance_private_ip_address(cluster_name, notebook_name)
         env.hosts = "{}".format(private)
         env.user = "{}".format(os_user)
@@ -1454,7 +1457,7 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
+            dlab.fab.remove_rstudio_dataengines_kernel(computational_name, os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:

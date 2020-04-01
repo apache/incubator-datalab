@@ -81,7 +81,6 @@ export class InstallLibrariesModel {
   }
 
   private installLibraries(retry?: Library, item?): Observable<{}> {
-    console.log(this.notebook.project);
     const lib_list: any = {
       project_name: this.notebook.project,
       exploratory_name: this.notebook.name,
