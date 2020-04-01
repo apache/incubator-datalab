@@ -4,10 +4,10 @@ spring:
   data:
     mongodb:
       username: admin
-      password: admin
+      password: MONGO_PASSWORD
       database: dlabdb
       port: 27017
-      host: localhost
+      host: MONGO_HOST
 
 server:
   port: 8088
@@ -15,8 +15,8 @@ server:
     contextPath: /api/billing
 
 server.ssl.key-store-type: JKS
-server.ssl.key-store: /Users/ofuks/keys/dlabcert/billing.jks
-server.ssl.key-store-password: KEYSTORE_PASSWORD
+server.ssl.key-store: /home/OS_USER/keys/endpoint.keystore.jks
+server.ssl.key-store-password: KEY_STORE_PASSWORD
 server.ssl.key-alias: endpoint
 
 logging:
@@ -27,8 +27,8 @@ logging:
 
 keycloak:
   bearer-only: true
-  realm: DLAB_bhliva
-  resource: sss
-  credentials.secret: cf5a484b-039b-4161-8707-ad65c0f25962
+  realm: dlab
+  resource: KEYCLOAK_CLIENT_ID
+  credentials.secret: CLIENT_SECRET
   ssl-required: none
-  auth-server-url: http://52.11.45.11:8080/auth
+  auth-server-url: KEYCLOAK_AUTH_SERVER_URL

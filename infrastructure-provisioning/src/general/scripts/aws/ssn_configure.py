@@ -535,7 +535,10 @@ if __name__ == "__main__":
                    os.environ['cost'],
                    os.environ['resource_id'],
                    os.environ['default_endpoint_name'],
-                   os.environ['tags'])
+                   os.environ['tags'],
+                   os.environ['keycloak_client_name'],
+                   os.environ['keycloak_client_secret'],
+                   os.environ['keycloak_auth_server_url'])
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:
