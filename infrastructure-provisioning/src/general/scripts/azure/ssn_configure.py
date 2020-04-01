@@ -420,7 +420,9 @@ if __name__ == "__main__":
                    billing_enabled, azure_auth_path, os.environ['azure_offer_number'],
                    os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
                    ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(cloud_params),
-                   subscription_id, os.environ['azure_validate_permission_scope'], ssn_conf['default_endpoint_name'])
+                   subscription_id, os.environ['azure_validate_permission_scope'], ssn_conf['default_endpoint_name'],
+                   os.environ['keycloak_client_name'], os.environ['keycloak_client_secret'],
+                   os.environ['keycloak_auth_server_url'])
         local("~/scripts/{}.py {}".format('configure_ui', params))
     except Exception as err:
         #print('Error: {0}'.format(err))
