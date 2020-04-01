@@ -63,7 +63,7 @@ resource "azurerm_network_security_rule" "inbound-3" {
   name                        = "inbound-3"
   direction                   = "Inbound"
   access                      = "Allow"
-  priority                    = 200
+  priority                    = 300
   source_address_prefix       = "*"
   source_port_range           = "*"
   destination_address_prefix  = "*"
