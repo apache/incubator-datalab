@@ -123,8 +123,8 @@ public class BillingUtils {
         final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);
         final Stream<BillingReportLine> exploratoryStream = Stream.of(
                 withUserProject(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(EXPLORATORY).status(UserInstanceStatus.of(userInstance.getStatus())).shape(userInstance.getShape()).build(),
-                BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(imageId1).project(userInstance.getProject()).resourceType(IMAGE).build(),
-                BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(imageId2).project(userInstance.getProject()).resourceType(IMAGE).build(),
+                BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(imageId1).project(SHARED_RESOURCE).resourceType(IMAGE).build(),
+                BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(imageId2).project(SHARED_RESOURCE).resourceType(IMAGE).build(),
                 withUserProject(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(VOLUME).build(),
                 withUserProject(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(VOLUME).build());
         return Stream.concat(computationalStream, exploratoryStream);
