@@ -179,7 +179,7 @@ def build_ui():
         elif args.cloud_provider == 'aws':
             sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
             sudo('cp {0}/sources/services/billing-aws/src/main/resources/application.yml '
-                 '{0}/webapp/billing/conf/'.format(args.dlab_path))
+                 '{0}/webapp/billing/conf/billing_app.yml'.format(args.dlab_path))
             sudo(
                 'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/webapp/billing/lib/'.format(
                     args.dlab_path))

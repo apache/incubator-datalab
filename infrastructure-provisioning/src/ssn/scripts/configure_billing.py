@@ -182,7 +182,7 @@ if __name__ == "__main__":
     try:
         yml_billing(args.dlab_dir + 'conf/billing.yml')
         if args.cloud_provider == 'aws':
-            yml_billing_app(args.dlab_dir + 'conf/application.yml')
+            yml_billing_app(args.dlab_dir + 'conf/billing_app.yml')
         yml_self_service(args.dlab_dir + 'conf/self-service.yml')
     except:
         print('Error configure billing')
