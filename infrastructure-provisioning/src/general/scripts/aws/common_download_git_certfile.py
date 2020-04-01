@@ -43,7 +43,7 @@ if __name__ == "__main__":
     env.host_string = env.user + "@" + env.hosts
 
     service_base_name = os.environ['conf_service_base_name'] = replace_multi_symbols(
-        os.environ['conf_service_base_name'].lower()[:12], '-', True)
+        os.environ['conf_service_base_name'][:20], '-', True)
     project_name = os.environ['project_name']
     endpoint_name = os.environ['endpoint_name']
     bucket_name = ('{0}-{1}-{2}-bucket'.format(service_base_name,

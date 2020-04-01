@@ -24,34 +24,35 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
 import os
 import uuid
+import traceback
 
 
 def terminate_nb(resource_group_name, notebook_name):
     print("Terminating data engine cluster")
     try:
-        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+        for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
             if "notebook_name" in vm.tags:
                 if notebook_name == vm.tags['notebook_name']:
-                    AzureActions().remove_instance(resource_group_name, vm.name)
+                    AzureActions.remove_instance(resource_group_name, vm.name)
                     print("Instance {} has been terminated".format(vm.name))
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate clusters", str(err))
         sys.exit(1)
 
     print("Terminating notebook")
     try:
-        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+        for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
             if "Name" in vm.tags:
                 if notebook_name == vm.tags["Name"]:
-                    AzureActions().remove_instance(resource_group_name, vm.name)
+                    AzureActions.remove_instance(resource_group_name, vm.name)
                     print("Instance {} has been terminated".format(vm.name))
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate instance", str(err))
         sys.exit(1)
 
 
@@ -63,15 +64,17 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     notebook_config = dict()
-    try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
-    except:
+    if 'exploratory_name' in os.environ:
+        notebook_config['exploratory_name'] = os.environ['exploratory_name']
+    else:
         notebook_config['exploratory_name'] = ''
-    try:
-        notebook_config['computational_name'] = os.environ['computational_name'].replace('_', '-')
-    except:
+    if 'computational_name' in os.environ:
+        notebook_config['computational_name'] = os.environ['computational_name']
+    else:
         notebook_config['computational_name'] = ''
     notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -83,7 +86,7 @@ if __name__ == "__main__":
             terminate_nb(notebook_config['resource_group_name'], notebook_config['notebook_name'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate notebook.", str(err))
+            dlab.fab.append_result("Failed to terminate notebook.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -94,6 +97,6 @@ if __name__ == "__main__":
                    "Action": "Terminate notebook server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

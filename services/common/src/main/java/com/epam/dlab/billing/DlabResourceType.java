@@ -19,10 +19,6 @@
 
 package com.epam.dlab.billing;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public enum DlabResourceType {
 	SSN,
 	SSN_BUCKET,
@@ -49,88 +45,6 @@ public enum DlabResourceType {
 			}
 		}
 		return null;
-	}
-
-	public static String getResourceTypeName(String id) {
-		DlabResourceType resourceTypeId = DlabResourceType.of(id);
-		if (resourceTypeId != null) {
-			switch (resourceTypeId) {
-				case COMPUTATIONAL:
-					return "Cluster";
-				case EXPLORATORY:
-					return "Notebook";
-				case EDGE:
-					return "Edge Node";
-				case VOLUME:
-					return "Volume";
-				case EDGE_BUCKET:
-				case SSN_BUCKET:
-				case COLLABORATION_BUCKET:
-					return "Bucket";
-				case EDGE_CONTAINER:
-				case SSN_CONTAINER:
-				case COLLABORATION_CONTAINER:
-					return "Container";
-				case SSN_STORAGE_ACCOUNT:
-				case EDGE_STORAGE_ACCOUNT:
-				case COLLABORATION_STORAGE_ACCOUNT:
-					return "Storage Account";
-				case SSN:
-					return "SSN";
-				case DATA_LAKE_STORE:
-					return "Data Lake Store Account";
-			}
-		}
-		return id;
-	}
-
-	public static List<String> getResourceTypeIds(List<String> names) {
-		if (names == null || names.isEmpty()) {
-			return Collections.emptyList();
-		}
-
-		List<String> list = new ArrayList<>();
-		names.forEach(e -> {
-			switch (e) {
-				case "Cluster":
-					list.add(DlabResourceType.COMPUTATIONAL.toString());
-					break;
-				case "Notebook":
-					list.add(DlabResourceType.EXPLORATORY.toString());
-					break;
-				case "Edge Node":
-					list.add(DlabResourceType.EDGE.toString());
-					break;
-				case "Bucket":
-					list.add(DlabResourceType.EDGE_BUCKET.toString());
-					list.add(DlabResourceType.SSN_BUCKET.toString());
-					list.add(DlabResourceType.COLLABORATION_BUCKET.toString());
-					break;
-				case "Container":
-					list.add(DlabResourceType.EDGE_CONTAINER.toString());
-					list.add(DlabResourceType.SSN_CONTAINER.toString());
-					list.add(DlabResourceType.COLLABORATION_CONTAINER.toString());
-					break;
-				case "SSN":
-					list.add(DlabResourceType.SSN.toString());
-					break;
-				case "Storage Account":
-					list.add(DlabResourceType.SSN_STORAGE_ACCOUNT.toString());
-					list.add(DlabResourceType.EDGE_STORAGE_ACCOUNT.toString());
-					list.add(DlabResourceType.COLLABORATION_STORAGE_ACCOUNT.toString());
-					break;
-				case "Data Lake Store Account":
-					list.add(DlabResourceType.DATA_LAKE_STORE.toString());
-					break;
-				case "Volume":
-					list.add(DlabResourceType.VOLUME.toString());
-					break;
-				default:
-					list.add(e);
-			}
-		});
-
-		return list;
 	}
 
 	@Override

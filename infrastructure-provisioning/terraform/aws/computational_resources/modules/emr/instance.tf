@@ -63,7 +63,7 @@ resource "aws_emr_cluster" "cluster" {
     Name                     = local.cluster_name
     Notebook                 = local.notebook_name
     Product                  = var.product
-    "${var.sbn}-Tag"         = local.cluster_name
+    "${var.sbn}-tag"         = local.cluster_name
     Project_name             = var.project_name
     Project_tag              = var.project_tag
     User_tag                 = var.user_tag

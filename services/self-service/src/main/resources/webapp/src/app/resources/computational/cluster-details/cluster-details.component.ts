@@ -91,14 +91,14 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   public getClusterConfiguration(): void {
     this.dataengineConfigurationService
-      .getClusterConfiguration(this.environment.name, this.resource.computational_name, this.PROVIDER)
+      .getClusterConfiguration(this.environment.project, this.environment.name, this.resource.computational_name, this.PROVIDER)
       .subscribe((result: any) => this.config = result,
         error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!'));
   }
 
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
-      .editClusterConfiguration(data.configuration_parameters, this.environment.name, this.resource.computational_name, this.PROVIDER)
+      .editClusterConfiguration(data.configuration_parameters, this.environment.project, this.environment.name, this.resource.computational_name, this.PROVIDER)
       .subscribe(result => {
         this.dialogRef.close();
       },

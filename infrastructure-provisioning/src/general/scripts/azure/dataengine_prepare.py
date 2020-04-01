@@ -24,9 +24,10 @@
 import json
 import time
 from fabric.api import *
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import traceback
 import sys
 import os
 import uuid
@@ -43,44 +44,48 @@ if __name__ == "__main__":
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         data_engine = dict()
-        data_engine['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
-        data_engine['project_name'] = os.environ['project_name'].lower().replace('_', '-')
-        data_engine['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
-        data_engine['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
-        data_engine['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        data_engine['user_name'] = os.environ['edge_user_name']
+        data_engine['project_name'] = os.environ['project_name']
+        data_engine['endpoint_name'] = os.environ['endpoint_name']
+        data_engine['project_tag'] = data_engine['project_name']
+        data_engine['endpoint_tag'] = data_engine['endpoint_name']
         print('Generating infrastructure names and tags')
-        try:
-            data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
-        except:
+        if 'exploratory_name' in os.environ:
+            data_engine['exploratory_name'] = os.environ['exploratory_name']
+        else:
             data_engine['exploratory_name'] = ''
-        try:
-            data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-')
-        except:
+        if 'computational_name' in os.environ:
+            data_engine['computational_name'] = os.environ['computational_name']
+        else:
             data_engine['computational_name'] = ''
         data_engine['service_base_name'] = os.environ['conf_service_base_name']
         data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
         data_engine['region'] = os.environ['azure_region']
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['vpc_name'] = os.environ['azure_vpc_name']
-        data_engine['private_subnet_name'] = '{}-{}-subnet'.format(data_engine['service_base_name'],
-                                                                   data_engine['project_name'])
-        data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
-                                                                    data_engine['vpc_name'],
-                                                                    data_engine['private_subnet_name']).address_prefix
-        data_engine['master_security_group_name'] = '{}-{}-dataengine-master-sg'.format(data_engine['service_base_name'],
-                                                                                        data_engine['project_name'])
-        data_engine['slave_security_group_name'] = '{}-{}-dataengine-slave-sg'.format(data_engine['service_base_name'],
-                                                                                      data_engine['project_name'])
-        data_engine['cluster_name'] = '{}-{}-de-{}-{}'.format(data_engine['service_base_name'],
+        data_engine['private_subnet_name'] = '{}-{}-{}-subnet'.format(data_engine['service_base_name'],
+                                                                      data_engine['project_name'],
+                                                                      data_engine['endpoint_name'])
+        data_engine['private_subnet_cidr'] = AzureMeta.get_subnet(data_engine['resource_group_name'],
+                                                                  data_engine['vpc_name'],
+                                                                  data_engine['private_subnet_name']).address_prefix
+        data_engine['master_security_group_name'] = '{}-{}-{}-de-master-sg'.format(
+            data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
+        data_engine['slave_security_group_name'] = '{}-{}-{}-de-slave-sg'.format(
+            data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
+        data_engine['cluster_name'] = '{}-{}-{}-de-{}'.format(data_engine['service_base_name'],
                                                               data_engine['project_name'],
-                                                              data_engine['exploratory_name'],
+                                                              data_engine['endpoint_name'],
                                                               data_engine['computational_name'])
         data_engine['master_node_name'] = '{}-m'.format(data_engine['cluster_name'])
         data_engine['slave_node_name'] = '{}-s'.format(data_engine['cluster_name'])
         data_engine['master_network_interface_name'] = '{}-nif'.format(data_engine['master_node_name'])
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
-        key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name']), 'rb').read())
+        key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'],
+                                                   os.environ['conf_key_name']), 'rb').read())
         data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
@@ -106,20 +111,19 @@ if __name__ == "__main__":
         data_engine['image_type'] = 'default'
 
         if os.environ['conf_shared_image_enabled'] == 'false':
-            data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(data_engine['service_base_name'],
-                                                                                         os.environ['endpoint_name'],
-                                                                                         os.environ['project_name'],
-                                                                                         os.environ['application'])
+            data_engine['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
+                data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'],
+                os.environ['application'])
         else:
             data_engine['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(data_engine['service_base_name'],
-                                                                                     os.environ['endpoint_name'],
+                                                                                     data_engine['endpoint_name'],
                                                                                      os.environ['application'])
 
         data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
                     else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
 
         print('Searching pre-configured images')
-        if AzureMeta().get_image(data_engine['resource_group_name'], data_engine['notebook_image_name']) and \
+        if AzureMeta.get_image(data_engine['resource_group_name'], data_engine['notebook_image_name']) and \
                         os.environ['application'] in os.environ['dataengine_image_notebooks'].split(','):
             data_engine['image_name'] = data_engine['notebook_image_name']
             data_engine['image_type'] = 'pre-configured'
@@ -128,26 +132,25 @@ if __name__ == "__main__":
             data_engine['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
             print('No pre-configured image found. Using default one: {}'.format(data_engine['image_name']))
     except Exception as err:
-        print("Failed to generate variables dictionary.")
-        append_result("Failed to generate variables dictionary. Exception:" + str(err))
+        dlab.fab.append_result("Failed to generate variables dictionary", str(err))
         sys.exit(1)
 
     try:
-        edge_status = AzureMeta().get_instance_status(data_engine['resource_group_name'], '{0}-{1}-{2}-edge'.format(os.environ['conf_service_base_name'],
-                                                                                data_engine['project_name'],
-                                                                                data_engine['endpoint_name']))
+        edge_status = AzureMeta.get_instance_status(data_engine['resource_group_name'],
+                                                    '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
+                                                                              data_engine['project_name'],
+                                                                              data_engine['endpoint_name']))
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
-                                                              os.environ['conf_service_base_name'] + '-ssn')
-            put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                ssn_hostname)
-            append_result("Edge node is unavailable")
+            ssn_hostname = AzureMeta.get_private_ip_address(data_engine['resource_group_name'],
+                                                            data_engine['service_base_name'] + '-ssn')
+            dlab.fab.put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
+                                         ssn_hostname)
+            dlab.fab.append_result("Edge node is unavailable")
             sys.exit(1)
     except Exception as err:
-        print("Failed to verify edge status.")
-        append_result("Failed to verify edge status.", str(err))
+        dlab.fab.append_result("Failed to verify edge status.", str(err))
         sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
@@ -182,12 +185,11 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
         try:
-            AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+            AzureActions.remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         except:
             print("The instance hasn't been created.")
-        append_result("Failed to create master instance.", str(err))
+        dlab.fab.append_result("Failed to create master instance.", str(err))
         sys.exit(1)
 
     try:
@@ -217,13 +219,12 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:
-                AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+                AzureActions.remove_instance(data_engine['resource_group_name'], slave_name)
             except:
                 print("The slave instance {} hasn't been created.".format(slave_name))
-        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-        append_result("Failed to create slave instances.", str(err))
+        AzureActions.remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        dlab.fab.append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

@@ -24,10 +24,10 @@ import java.time.LocalDateTime;
 
 public interface InactivityService {
 
-	void updateRunningResourcesLastActivity();
+    void updateRunningResourcesLastActivity();
 
-	void updateLastActivityForExploratory(UserInfo userInfo, String exploratoryName, LocalDateTime lastActivity);
+    void updateLastActivityForExploratory(UserInfo userInfo, String exploratoryName, LocalDateTime lastActivity);
 
-	void updateLastActivityForComputational(UserInfo userInfo, String exploratoryName,
-											String computationalName, LocalDateTime lastActivity);
+    void updateLastActivityForComputational(UserInfo userInfo, String project, String exploratoryName,
+                                            String computationalName, LocalDateTime lastActivity);
 }

@@ -3,7 +3,7 @@
    "response": {
       "result": {
          "Action": "Configure notebook server",
-         "Tag_name": "${CONF_SERVICE_BASE_NAME}-Tag",
+         "Tag_name": "${CONF_SERVICE_BASE_NAME}-tag",
          "notebook_name": "${NOTEBOOK_INSTANCE_NAME}"
       },
       "log": "/var/log/dlab/emr/emr_${EDGE_USER_NAME}_${REQUEST_ID}.log"

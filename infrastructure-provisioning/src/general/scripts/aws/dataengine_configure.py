@@ -24,9 +24,10 @@
 import json
 import time
 from fabric.api import *
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import traceback
 import sys
 import os
 import uuid
@@ -37,13 +38,13 @@ import multiprocessing
 
 def configure_slave(slave_number, data_engine):
     slave_name = data_engine['slave_node_name'] + '{}'.format(slave_number + 1)
-    slave_hostname = get_instance_private_ip_address(data_engine['tag_name'], slave_name)
+    slave_hostname = dlab.meta_lib.get_instance_private_ip_address(data_engine['tag_name'], slave_name)
     try:
         logging.info('[CREATING DLAB SSH USER ON SLAVE NODE]')
         print('[CREATING DLAB SSH USER ON SLAVE NODE]')
-        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
-            (slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", initial_user,
-             data_engine['dlab_ssh_user'], sudo_group)
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
+            master_node_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], data_engine['key_name']),
+            data_engine['initial_user'], data_engine['dlab_ssh_user'], data_engine['sudo_group'])
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -51,12 +52,8 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed to create ssh user on slave.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to create ssh user on slave.", str(err))
         sys.exit(1)
 
     try:
@@ -70,12 +67,8 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed to clean slave instance.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to clean slave instance.", str(err))
         sys.exit(1)
 
     try:
@@ -91,12 +84,8 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed to configure proxy on slave.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to configure proxy on slave.", str(err))
         sys.exit(1)
 
     try:
@@ -111,18 +100,15 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed to install prerequisites on slave.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to install prerequisites on slave.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
         print('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
-        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
+        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
+                 "--scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
             format(slave_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], data_engine['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
@@ -133,12 +119,8 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed to configure slave node.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to configure slave node.", str(err))
         sys.exit(1)
 
     try:
@@ -153,13 +135,16 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed install users key on slave node.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed install users key on slave node.", str(err))
         sys.exit(1)
+
+
+def clear_resources():
+    dlab.actions_lib.remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
+    for i in range(data_engine['instance_count'] - 1):
+        slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+        dlab.actions_lib.remove_ec2(data_engine['tag_name'], slave_name)
 
 
 if __name__ == "__main__":
@@ -173,81 +158,77 @@ if __name__ == "__main__":
     try:
         print('Generating infrastructure names and tags')
         data_engine = dict()
-        try:
+        if 'exploratory_name' in os.environ:
             data_engine['exploratory_name'] = os.environ['exploratory_name']
-        except:
+        else:
             data_engine['exploratory_name'] = ''
-        try:
+        if 'computational_name' in os.environ:
             data_engine['computational_name'] = os.environ['computational_name']
-        except:
+        else:
             data_engine['computational_name'] = ''
-        data_engine['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
-        data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
+        data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
+        data_engine['project_name'] = os.environ['project_name']
+        data_engine['endpoint_name'] = os.environ['endpoint_name']
+        data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
         data_engine['network_type'] = os.environ['conf_network_type']
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['project_name'] + \
-                                      '-de-' + data_engine['exploratory_name'] + '-' + \
-                                      data_engine['computational_name']
+        data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
+                                                              data_engine['project_name'],
+                                                              data_engine['endpoint_name'],
+                                                              data_engine['computational_name'])
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
-        data_engine['dataengine_master_security_group_name'] = data_engine['service_base_name'] + '-' + \
-                                                               os.environ['project_name'] + '-dataengine-master-sg'
-        data_engine['dataengine_slave_security_group_name'] = data_engine['service_base_name'] + '-' + \
-                                                              os.environ['project_name'] + '-dataengine-slave-sg'
-        data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
+        data_engine['dataengine_master_security_group_name'] = '{}-{}-{}-de-master-sg' \
+            .format(data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
+        data_engine['dataengine_slave_security_group_name'] = '{}-{}-{}-de-slave-sg' \
+            .format(data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
+        data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
         tag = {"Key": data_engine['tag_name'],
-               "Value": "{}-{}-subnet".format(data_engine['service_base_name'], os.environ['project_name'])}
-        data_engine['subnet_cidr'] = get_subnet_by_tag(tag)
-        data_engine['notebook_dataengine_role_profile_name'] = data_engine['service_base_name']. \
-                                                                   lower().replace('-', '_') + "-" + \
-                                                               os.environ['project_name'] + "-" + os.environ['endpoint_name'] + '-nb-de-Profile'
+               "Value": "{}-{}-{}-subnet".format(data_engine['service_base_name'], data_engine['project_name'],
+                                                 data_engine['endpoint_name'])}
+        data_engine['subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
+        data_engine['notebook_dataengine_role_profile_name'] = '{}-{}-{}-nb-de-profile' \
+            .format(data_engine['service_base_name'], data_engine['project_name'], data_engine['endpoint_name'])
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
-        master_node_hostname = get_instance_hostname(data_engine['tag_name'], data_engine['master_node_name'])
+        master_node_hostname = dlab.meta_lib.get_instance_hostname(data_engine['tag_name'],
+                                                                   data_engine['master_node_name'])
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
-        data_engine['user_keyname'] = os.environ['project_name']
+        data_engine['user_keyname'] = data_engine['project_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        data_engine['project_name'] = os.environ['project_name']
-        data_engine['endpoint_name'] = os.environ['endpoint_name']
         edge_instance_name = '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
                                                        data_engine['project_name'], data_engine['endpoint_name'])
-        edge_instance_hostname = get_instance_hostname(data_engine['tag_name'], edge_instance_name)
-        edge_instance_private_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Private')
-        if data_engine['network_type'] == 'private':
-            edge_instance_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Private')
-        else:
-            edge_instance_ip = get_instance_ip_address(data_engine['tag_name'], edge_instance_name).get('Public')
-
+        edge_instance_hostname = dlab.meta_lib.get_instance_hostname(data_engine['tag_name'], edge_instance_name)
+        edge_instance_private_ip = dlab.meta_lib.get_instance_ip_address(data_engine['tag_name'],
+                                                                         edge_instance_name).get('Private')
+        data_engine['edge_instance_hostname'] = dlab.meta_lib.get_instance_hostname(data_engine['tag_name'],
+                                                                                    edge_instance_name)
         if os.environ['conf_os_family'] == 'debian':
-            initial_user = 'ubuntu'
-            sudo_group = 'sudo'
+            data_engine['initial_user'] = 'ubuntu'
+            data_engine['sudo_group'] = 'sudo'
         if os.environ['conf_os_family'] == 'redhat':
-            initial_user = 'ec2-user'
-            sudo_group = 'wheel'
+            data_engine['initial_user'] = 'ec2-user'
+            data_engine['sudo_group'] = 'wheel'
     except Exception as err:
-        data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['project_name'] + \
-                                      '-de-' + data_engine['exploratory_name'] + '-' + \
-                                      data_engine['computational_name']
+        data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
+        data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
+                                                              data_engine['project_name'],
+                                                              data_engine['endpoint_name'],
+                                                              data_engine['computational_name'])
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(int(os.environ['dataengine_instance_count']) - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        print("Failed to generate variables dictionary.")
-        append_result("Failed to generate variables dictionary.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[CREATING DLAB SSH USER ON MASTER NODE]')
         print('[CREATING DLAB SSH USER ON MASTER NODE]')
-        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", initial_user,
-             data_engine['dlab_ssh_user'], sudo_group)
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
+            master_node_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], data_engine['key_name']),
+            data_engine['initial_user'], data_engine['dlab_ssh_user'], data_engine['sudo_group'])
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -255,12 +236,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed to create ssh user on master.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to create ssh user on master.", str(err))
         sys.exit(1)
 
     try:
@@ -274,12 +251,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed to clean master instance.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to clean master instance.", str(err))
         sys.exit(1)
 
     try:
@@ -295,12 +268,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed to configure proxy on master.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to configure proxy on master.", str(err))
         sys.exit(1)
 
     try:
@@ -315,12 +284,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed to install prerequisites on master.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to install prerequisites on master.", str(err))
         sys.exit(1)
 
     try:
@@ -335,18 +300,15 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
-        append_result("Failed install users key on master node.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed install users key on master node.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[CONFIGURE MASTER NODE]')
         print('[CONFIGURE MASTER NODE]')
-        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {} --master_ip {} --node_type {}".\
+        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} " \
+                 "--scala_version {} --r_mirror {} --master_ip {} --node_type {}".\
             format(master_node_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], data_engine['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
@@ -357,12 +319,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure master node", str(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
+        dlab.fab.append_result("Failed to configure master node", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -377,17 +335,15 @@ if __name__ == "__main__":
             if job.exitcode != 0:
                 raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
+        dlab.fab.append_result("Failed to configure slave nodes.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
         print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
-        notebook_instance_ip = get_instance_private_ip_address('Name', os.environ['notebook_instance_name'])
+        notebook_instance_ip = dlab.meta_lib.get_instance_private_ip_address('Name',
+                                                                             os.environ['notebook_instance_name'])
         additional_info = {
             "computational_name": data_engine['computational_name'],
             "master_node_hostname": master_node_hostname,
@@ -412,22 +368,20 @@ if __name__ == "__main__":
         try:
             local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
         except:
-            append_result("Failed edge reverse proxy template")
+            dlab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            remove_ec2(data_engine['tag_name'], slave_name)
+        dlab.fab.append_result("Failed to configure reverse proxy.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
-        ip_address = get_instance_ip_address(data_engine['tag_name'],
-                                             data_engine['master_node_name']).get('Private')
+        ip_address = dlab.meta_lib.get_instance_ip_address(data_engine['tag_name'],
+                                                           data_engine['master_node_name']).get('Private')
         spark_master_url = "http://" + ip_address + ":8080"
-        spark_master_access_url = "https://" + edge_instance_ip + "/{}/".format(data_engine['exploratory_name'] +
-                                                                               '_' + data_engine['computational_name'])
+        spark_master_access_url = "https://{}/{}_{}/".format(data_engine['edge_instance_hostname'],
+                                                             data_engine['exploratory_name'],
+                                                             data_engine['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(data_engine['service_base_name']))
@@ -438,7 +392,8 @@ if __name__ == "__main__":
         print("Instance count: {}".format(str(data_engine['instance_count'])))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": data_engine['cluster_name'],
-                   "instance_id": get_instance_by_name(data_engine['tag_name'], data_engine['master_node_name']),
+                   "instance_id": dlab.meta_lib.get_instance_by_name(data_engine['tag_name'],
+                                                                     data_engine['master_node_name']),
                    "key_name": data_engine['key_name'],
                    "Action": "Create new Data Engine",
                    "computational_url": [
@@ -449,6 +404,7 @@ if __name__ == "__main__":
                    ]}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        clear_resources()
+        sys.exit(1)

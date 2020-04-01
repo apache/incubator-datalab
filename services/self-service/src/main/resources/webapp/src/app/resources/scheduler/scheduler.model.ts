@@ -61,13 +61,13 @@ export class SchedulerModel {
     if (this.continueWith) this.continueWith();
   }
 
-  private scheduleInstance(notebook, params, resourse) {
-    return this.schedulerService.setExploratorySchedule(notebook, params, resourse);
+  private scheduleInstance(project, notebook, params, resourse) {
+    return this.schedulerService.setExploratorySchedule(project, notebook, params, resourse);
   }
 
   public setInactivityTime(params) {
-    const [notebook, data, resource] = params;
-    return this.scheduleInstance(notebook, data, resource);
+    const [project, notebook, data, resource] = params;
+    return this.scheduleInstance(project, notebook, data, resource);
   }
 
   public resetSchedule(notebook, resourse) {
@@ -75,8 +75,8 @@ export class SchedulerModel {
   }
 
   private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
-    this.confirmAction = (notebook, data, resourse?) =>
-      this.scheduleInstance(notebook, data, resourse).subscribe(
+    this.confirmAction = (project, notebook, data, resourse?) =>
+      this.scheduleInstance(project, notebook, data, resourse).subscribe(
         response => fnProcessResults(response),
         error => fnProcessErrors(error)
       );

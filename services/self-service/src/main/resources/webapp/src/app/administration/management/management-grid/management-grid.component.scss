@@ -50,13 +50,17 @@
     .settings {
       padding-right: 14px;
 
-      .actions {
-        margin-top: 2px;
+
+    }
+    .actions {
+      margin-top: 0px;
+      .label{
+        padding-right: 5px;
       }
     }
-
     .actions-col {
       width: 6%;
+
     }
 
     .dashboard_table_body {
@@ -86,19 +90,21 @@ table.management {
     height: auto;
     .label {
       display: inline-block;
-      padding-top: 10px;
+      padding-top: 14px;
       vertical-align: super !important;
       padding-left: 5px;
-      font-size: 11px;
+      font-size: 12px;
+    }
+    .actions {
+      text-align: right;
+      .label {
+        display: inline-block;
+        padding-top: 11px;
+      }
     }
   }
 
   .filter-row {
     background: inherit;
   }
-
-  .actions {
-    text-align: right;
-  }
-
 }

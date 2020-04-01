@@ -24,23 +24,24 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
 import os
+import traceback
 import uuid
 
 
 def stop_data_engine(resource_group_name, cluster_name):
     print("Stopping data engine cluster")
     try:
-        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+        for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
             if "Name" in vm.tags:
                 if cluster_name == vm.tags["Name"]:
-                    AzureActions().stop_instance(resource_group_name, vm.name)
+                    AzureActions.stop_instance(resource_group_name, vm.name)
                     print("Instance {} has been stopped".format(vm.name))
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to stop dataengine", str(err))
         sys.exit(1)
 
 
@@ -52,23 +53,26 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
-    try:
-        data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
-    except:
+    if 'exploratory_name' in os.environ:
+        data_engine['exploratory_name'] = os.environ['exploratory_name']
+    else:
         data_engine['exploratory_name'] = ''
-    try:
-        data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-')
-    except:
+    if 'computational_name' in os.environ:
+        data_engine['computational_name'] = os.environ['computational_name']
+    else:
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
-    data_engine['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
-    data_engine['project_name'] = os.environ['project_name'].lower().replace('_', '-')
+    data_engine['user_name'] = os.environ['edge_user_name']
+    data_engine['project_name'] = os.environ['project_name']
+    data_engine['endpoint_name'] = os.environ['endpoint_name']
     data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
-    data_engine['cluster_name'] = '{}-{}-de-{}-{}'.format(data_engine['service_base_name'],
+    data_engine['cluster_name'] = '{}-{}-{}-de-{}'.format(data_engine['service_base_name'],
                                                           data_engine['project_name'],
-                                                          data_engine['exploratory_name'],
+                                                          data_engine['endpoint_name'],
                                                           data_engine['computational_name'])
     try:
         logging.info('[STOPPING DATA ENGINE]')
@@ -77,7 +81,7 @@ if __name__ == "__main__":
             stop_data_engine(data_engine['resource_group_name'], data_engine['cluster_name'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to stop Data Engine.", str(err))
+            dlab.fab.append_result("Failed to stop Data Engine.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -88,6 +92,6 @@ if __name__ == "__main__":
                    "Action": "Stop Data Engine"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

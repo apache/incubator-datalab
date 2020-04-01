@@ -79,7 +79,13 @@ table {
     vertical-align: top;
     padding: 10px 24px;
 
-    span {
+    &.mat-header-cell{
+      padding-top: 19px;
+      padding-right: 13px;
+      color: rgba(0,0,0,.54);
+    }
+
+    span:not(.mat-header-cell span) {
       transition: all .5s ease-in-out;
       cursor: pointer;
 

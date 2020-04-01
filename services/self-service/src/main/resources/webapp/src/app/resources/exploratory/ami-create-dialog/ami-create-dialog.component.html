@@ -33,9 +33,7 @@
               image name already exists in project.</span>
             <span class="error"
               *ngIf="!createAMIForm.valid && createAMIForm.controls['name'].dirty && !createAMIForm.controls['name'].hasError('duplication')">
-              image name
-              <span *ngIf="provider === 'azure'"> cannot be longer than 10 characters and</span>
-              can only contain letters, numbers, hyphens and '_'</span>
+              Name cannot be longer than 10 characters and can only contain letters, numbers, hyphens and '_' but can not end with special characters</span>
           </div>
         </div>
         <div class="control-group">

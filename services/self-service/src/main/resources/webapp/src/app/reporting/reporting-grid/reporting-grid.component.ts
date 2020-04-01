@@ -38,12 +38,12 @@ export class ReportingGridComponent implements OnInit {
   reportData: Array<any> = [];
   fullReport: Array<any>;
   isFiltered: boolean = false;
+  active: object = {};
 
   @ViewChild('nameFilter', { static: false }) filter;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
-  @Input() PROVIDER: string;
   displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'charge'];
   displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
 
@@ -65,6 +65,25 @@ export class ReportingGridComponent implements OnInit {
     }
   }
 
+  sortBy(sortItem, direction) {
+  let report: Array<object>;
+  if (direction === 'down') {
+    report = this.reportData.sort((a, b) => (a[sortItem] > b[sortItem]) ? 1 : ((b[sortItem] > a[sortItem]) ? -1 : 0));
+  }
+  if (direction === 'up') {
+    report = this.reportData.sort((a, b) => (a[sortItem] < b[sortItem]) ? 1 : ((b[sortItem] < a[sortItem]) ? -1 : 0));
+  }
+  this.refreshData(this.fullReport, report);
+  this.removeSorting();
+  this.active[sortItem + direction] = true;
+  }
+
+  removeSorting() {
+    for (const item in this.active) {
+      this.active[item] = false;
+    }
+  }
+
   toggleFilterRow(): void {
     this.collapseFilterRow = !this.collapseFilterRow;
   }
@@ -76,11 +95,12 @@ export class ReportingGridComponent implements OnInit {
   filter_btnClick(): void {
     this.filterReport.emit(this.filteredReportData);
     this.isFiltered = true;
+    this.removeSorting();
   }
 
   resetFiltering(): void {
     this.filteredReportData.defaultConfigurations();
-
+    this.removeSorting();
     this.filter.nativeElement.value = '';
     this.filterReport.emit(this.filteredReportData);
     this.resetRangePicker.emit(true);

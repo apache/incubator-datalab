@@ -11,7 +11,7 @@ spring:
 dlab:
   sbn: <CONF_SERVICE_BASE_NAME>
   bigQueryDataset: <DATASET_NAME>
-  cron: 0 * * * * *
+  cron: 0 0 * * * *
 
 server:
   port: 8088

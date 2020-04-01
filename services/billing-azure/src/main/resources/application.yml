@@ -46,7 +46,7 @@ dlab:
   currency: <CURRENCY>
   locale: <LOCALE>
   regionInfo: <REGION_INFO>
-  initialDelay: 10
+  initialDelay: 1
   period: 60
   aggregationOutputMongoDataSource:
     host: localhost

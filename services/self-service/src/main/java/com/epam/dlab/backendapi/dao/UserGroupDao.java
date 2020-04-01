@@ -25,8 +25,6 @@ public interface UserGroupDao {
 
 	void updateUsers(String group, Set<String> users);
 
-	void removeUser(String group, String user);
-
 	void removeGroup(String groupId);
 
 	Set<String> getUserGroups(String user);

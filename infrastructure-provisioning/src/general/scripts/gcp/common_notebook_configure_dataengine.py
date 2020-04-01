@@ -24,11 +24,20 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import traceback
 import os
 import uuid
+from fabric.api import *
+
+
+def clear_resources():
+    for i in range(notebook_config['instance_count'] - 1):
+        slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
+        GCPActions.remove_instance(slave_name, notebook_config['zone'])
+    GCPActions.remove_instance(notebook_config['master_node_name'], notebook_config['zone'])
 
 
 if __name__ == "__main__":
@@ -40,53 +49,53 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         # generating variables dictionary
         print('Generating infrastructure names and tags')
         notebook_config = dict()
-        try:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name'].lower().replace('_', '-')
-        except:
+        if 'exploratory_name' in os.environ:
+            notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-').lower()
+        else:
             notebook_config['exploratory_name'] = ''
-        try:
-            notebook_config['computational_name'] = os.environ['computational_name'].lower().replace('_', '-')
-        except:
+        if 'computational_name' in os.environ:
+            notebook_config['computational_name'] = os.environ['computational_name'].replace('_', '-').lower()
+        else:
             notebook_config['computational_name'] = ''
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']
         notebook_config['region'] = os.environ['gcp_region']
         notebook_config['zone'] = os.environ['gcp_zone']
-        notebook_config['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
-        notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
-        notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + notebook_config['project_name'] + \
-                                          '-de-' + notebook_config['exploratory_name'] + '-' + \
-                                          notebook_config['computational_name']
+        notebook_config['user_name'] = os.environ['edge_user_name']
+        notebook_config['project_name'] = os.environ['project_name'].replace('_', '-').lower()
+        notebook_config['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-').lower()
+        notebook_config['cluster_name'] = "{}-{}-{}-de-{}".format(notebook_config['service_base_name'],
+                                                                  notebook_config['project_name'],
+                                                                  notebook_config['endpoint_name'],
+                                                                  notebook_config['computational_name'])
         notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-m'
         notebook_config['slave_node_name'] = notebook_config['cluster_name'] + '-s'
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-        notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
+        notebook_config['key_path'] = '{}/{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['instance_count'] = int(os.environ['dataengine_instance_count'])
         try:
-            notebook_config['spark_master_ip'] = GCPMeta().get_private_ip_address(notebook_config['master_node_name'])
-            notebook_config['notebook_ip'] = GCPMeta().get_private_ip_address(notebook_config['notebook_name'])
+            notebook_config['spark_master_ip'] = GCPMeta.get_private_ip_address(notebook_config['master_node_name'])
+            notebook_config['notebook_ip'] = GCPMeta.get_private_ip_address(notebook_config['notebook_name'])
         except Exception as err:
-            print('Error: {0}'.format(err))
+            dlab.fab.append_result("Failed to get instance IP address", str(err))
             sys.exit(1)
         notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(notebook_config['instance_count'] - 1):
-            slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, notebook_config['zone'])
-        GCPActions().remove_instance(notebook_config['master_node_name'], notebook_config['zone'])
-        append_result("Failed to generate infrastructure names", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to generate infrastructure names", str(err))
         sys.exit(1)
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        params = "--cluster_name {0} --spark_version {1} --hadoop_version {2} --os_user {3} --spark_master {4} --keyfile {5}" \
-                 " --notebook_ip {6} --spark_master_ip {7}".\
+        params = "--cluster_name {0} --spark_version {1} --hadoop_version {2} --os_user {3} --spark_master {4}" \
+                 " --keyfile {5} --notebook_ip {6} --spark_master_ip {7}".\
             format(notebook_config['cluster_name'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    notebook_config['spark_master_url'], notebook_config['key_path'],
@@ -97,12 +106,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(notebook_config['instance_count'] - 1):
-            slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, notebook_config['zone'])
-        GCPActions().remove_instance(notebook_config['master_node_name'], notebook_config['zone'])
-        append_result("Failed installing Dataengine kernels.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed installing Dataengine kernels.", str(err))
         sys.exit(1)
 
     try:
@@ -122,12 +127,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(notebook_config['instance_count'] - 1):
-            slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, notebook_config['zone'])
-        GCPActions().remove_instance(notebook_config['master_node_name'], notebook_config['zone'])
-        append_result("Failed to configure Spark.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to configure Spark.", str(err))
         sys.exit(1)
 
     try:
@@ -136,6 +137,7 @@ if __name__ == "__main__":
                    "Action": "Configure notebook server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        clear_resources()
+        sys.exit(1)

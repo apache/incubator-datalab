@@ -29,7 +29,7 @@ import java.util.List;
 public interface InfrastructureInfoService {
 	List<ProjectInfrastructureInfo> getUserResources(UserInfo user);
 
-	HealthStatusPageDTO getHeathStatus(UserInfo user, boolean fullReport, boolean isAdmin);
+	HealthStatusPageDTO getHeathStatus(UserInfo user, boolean fullReport);
 
 	InfrastructureMetaInfoDTO getInfrastructureMetaInfo();
 }

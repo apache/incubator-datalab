@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +50,7 @@ public class BillingServiceImplTest {
                 .usageDateTo(LocalDate.MAX)
                 .product("product")
                 .usageType("usageType")
-                .cost(new BigDecimal(1))
+                .cost(1d)
                 .currency("USD")
                 .tag("exploratoryId")
                 .build());

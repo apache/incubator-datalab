@@ -28,8 +28,8 @@ import { ErrorUtils } from '../util';
 export class DataengineConfigurationService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
-  public getClusterConfiguration(exploratory, cluster, provider): Observable<{}> {
-    const url = `/${exploratory}/${cluster}/config`;
+  public getClusterConfiguration(project, exploratory, cluster, provider): Observable<{}> {
+    const url = `/${project}/${exploratory}/${cluster}/config`;
     return this.applicationServiceFacade
       .buildGetClusterConfiguration(url, provider)
       .pipe(
@@ -37,8 +37,8 @@ export class DataengineConfigurationService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public editClusterConfiguration(data, exploratory, cluster, provider): Observable<{}> {
-    const url = `/dataengine/${exploratory}/${cluster}/config`;
+  public editClusterConfiguration(data, project, exploratory, cluster, provider): Observable<{}> {
+    const url = `/dataengine/${project}/${exploratory}/${cluster}/config`;
     return this.applicationServiceFacade
       .buildEditClusterConfiguration(url, data, provider)
       .pipe(
@@ -46,8 +46,8 @@ export class DataengineConfigurationService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getExploratorySparkConfiguration(exploratory): Observable<{}> {
-    const url = `/${exploratory}/cluster/config`;
+  public getExploratorySparkConfiguration(project, exploratory): Observable<{}> {
+    const url = `/${project}/${exploratory}/cluster/config`;
     return this.applicationServiceFacade
       .buildGetExploratorySparkConfiguration(url)
       .pipe(
@@ -55,8 +55,8 @@ export class DataengineConfigurationService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public editExploratorySparkConfiguration(data, exploratory): Observable<{}> {
-    const url = `/${exploratory}/reconfigure`;
+  public editExploratorySparkConfiguration(data, project, exploratory): Observable<{}> {
+    const url = `/${project}/${exploratory}/reconfigure`;
     return this.applicationServiceFacade
       .buildEditExploratorySparkConfiguration(url, data)
       .pipe(

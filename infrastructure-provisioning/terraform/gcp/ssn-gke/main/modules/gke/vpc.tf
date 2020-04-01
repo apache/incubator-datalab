@@ -20,8 +20,8 @@
 # ******************************************************************************
 
 locals {
-  ssn_vpc_name      = "${var.service_base_name}-ssn-vpc"
-  ssn_subnet_name   = "${var.service_base_name}-ssn-subnet"
+  ssn_vpc_name      = "${var.service_base_name}-vpc"
+  ssn_subnet_name   = "${var.service_base_name}-subnet"
 }
 
 resource "google_compute_network" "ssn_gke_vpc" {

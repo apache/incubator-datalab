@@ -18,6 +18,7 @@
  */
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 
 import java.util.List;
@@ -26,17 +27,10 @@ import java.util.Set;
 public interface UserGroupService {
 
 	void createGroup(String group, Set<String> roleIds, Set<String> users);
-	void updateGroup(String group, Set<String> roleIds, Set<String> users);
 
-	void addUsersToGroup(String group, Set<String> users);
-
-	void updateRolesForGroup(String group, Set<String> roleIds);
-
-	void removeUserFromGroup(String group, String user);
-
-	void removeGroupFromRole(Set<String> groups, Set<String> roleIds);
+	void updateGroup(UserInfo user, String group, Set<String> roleIds, Set<String> users);
 
 	void removeGroup(String groupId);
 
-	List<UserGroupDto> getAggregatedRolesByGroup();
+	List<UserGroupDto> getAggregatedRolesByGroup(UserInfo user);
 }
