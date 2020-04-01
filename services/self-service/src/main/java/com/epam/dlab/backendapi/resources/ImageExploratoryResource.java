@@ -30,8 +30,18 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
 
@@ -58,8 +68,8 @@ public class ImageExploratoryResource {
 								@Valid @NotNull ExploratoryImageCreateFormDTO formDTO,
 								@Context UriInfo uriInfo) {
 		log.debug("Creating an image {} for user {}", formDTO, ui.getName());
-		String uuid = imageExploratoryService.createImage(ui, formDTO.getNotebookName(), formDTO.getName(), formDTO
-				.getDescription());
+		String uuid = imageExploratoryService.createImage(ui, formDTO.getProjectName(), formDTO.getNotebookName(),
+				formDTO.getName(), formDTO.getDescription());
 		requestId.put(ui.getName(), uuid);
 
 		final URI imageUri = UriBuilder.fromUri(uriInfo.getRequestUri())

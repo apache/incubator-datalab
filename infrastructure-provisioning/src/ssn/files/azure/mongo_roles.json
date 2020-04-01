@@ -1,7 +1,7 @@
 [
   {
     "_id": "nbShapes_Standard_NC6_fetching",
-    "description": "Allow to use Standard_NC6 instance shape for notebook",
+    "description": "Use Standard_NC6 instance shape for notebook",
     "exploratory_shapes": [
       "Standard_NC6"
     ],

@@ -20,14 +20,12 @@
 package com.epam.dlab.backendapi.resources.callback;
 
 import com.epam.dlab.backendapi.dao.EnvDAO;
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.status.EnvStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
-import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
@@ -63,7 +61,7 @@ public class EnvironmentStatusCallback {
             if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
                 log.warn("Request for the status of resources for user {} fails: {}", dto.getUser(), dto.getErrorMessage());
             } else {
-                envDAO.updateEnvStatus(dto.getUser(), dto.getResourceList());
+                envDAO.updateEnvStatus(dto.getUser(), null, dto.getResourceList());
             }
         } catch (DlabException e) {
             log.warn("Could not update status of resources for user {}: {}", dto.getUser(), e.getLocalizedMessage(), e);

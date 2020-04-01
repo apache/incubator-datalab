@@ -21,14 +21,14 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
-import {BillingReportService, EndpointService, HealthStatusService} from '../core/services';
+import {BillingReportService, HealthStatusService} from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
 import { FileUtils } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
 import {ProgressBarService} from '../core/services/progress-bar.service';
-import {logger} from 'codelyzer/util/logger';
+
 
 @Component({
   selector: 'dlab-reporting',
@@ -39,15 +39,15 @@ import {logger} from 'codelyzer/util/logger';
                   (setRangeOption)="setRangeOption($event)">
     </dlab-toolbar>
     <mat-divider></mat-divider>
-    <dlab-reporting-grid [PROVIDER]="PROVIDER" (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
+    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
   </div>
 
   `,
   styles: [`
     footer {
       position: fixed;
-      left: 0px;
-      bottom: 0px;
+      left: 0;
+      bottom: 0;
       width: 100%;
       background: #a1b7d1;
       color: #ffffff;
@@ -69,48 +69,20 @@ export class ReportingComponent implements OnInit, OnDestroy {
   data: any;
   billingEnabled: boolean;
   admin: boolean;
-  public PROVIDER: string;
 
   constructor(
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
     public toastr: ToastrService,
     private progressBarService: ProgressBarService,
-    private endpointService: EndpointService,
   ) { }
 
   ngOnInit() {
-
     this.getEnvironmentHealthStatus();
   }
 
   ngOnDestroy() {
     this.clearStorage();
-  }
-
-  getBillingProvider() {
-    if (this.admin) {
-      this.endpointService.getEndpointsData().subscribe(list => {
-        const endpoints = JSON.parse(JSON.stringify(list));
-        const localEndpoint = endpoints.filter(endpoint => endpoint.name === 'local');
-        if (localEndpoint.length) {
-          this.PROVIDER = localEndpoint[0].cloudProvider.toLowerCase();
-          if (this.PROVIDER) {
-            this.rebuildBillingReport();
-          }
-        }
-      }, e => {
-        this.PROVIDER = 'azure';
-        if (this.PROVIDER) {
-          this.rebuildBillingReport();
-        }
-      }) ;
-    } else {
-      this.PROVIDER = 'azure';
-      if (this.PROVIDER) {
-        this.rebuildBillingReport();
-      }
-    }
   }
 
   getGeneralBillingData() {
@@ -119,7 +91,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         this.data = data;
         this.reportingGrid.refreshData(this.data, this.data.report_lines);
-        this.reportingGrid.setFullReport(this.data.full_report);
+        this.reportingGrid.setFullReport(this.data.is_full);
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
@@ -140,13 +112,11 @@ export class ReportingComponent implements OnInit, OnDestroy {
       }, () => this.progressBarService.stopProgressBar());
   }
 
-  rebuildBillingReport($event?): void {
-    if (this.PROVIDER) {
-      this.clearStorage();
-      this.resetRangePicker();
-      this.reportData.defaultConfigurations();
-      this.getGeneralBillingData();
-    }
+  rebuildBillingReport(): void {
+    this.clearStorage();
+    this.resetRangePicker();
+    this.reportData.defaultConfigurations();
+    this.getGeneralBillingData();
   }
 
   exportBillingReport(): void {
@@ -229,7 +199,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
       .subscribe((result: any) => {
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
-        this.getBillingProvider();
+        this.rebuildBillingReport();
       });
   }
 }

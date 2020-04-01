@@ -28,7 +28,7 @@ public interface BillingDAO {
 
     List<GcpBillingData> getBillingData() throws InterruptedException;
 
-    List<BillingData> getBillingReport();
+    List<BillingData> getBillingReport(String dateStart, String dateEnd, String dlabId, List<String> products);
 
     List<BillingData> getBillingReport(List<String> dlabIds);
 }

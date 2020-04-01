@@ -26,9 +26,11 @@ import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
-import com.epam.dlab.backendapi.service.BillingServiceNew;
+import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -44,7 +46,9 @@ import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,19 +67,19 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	private final BillingDAO billingDAO;
 	private final ProjectService projectService;
 	private final EndpointService endpointService;
-	private final BillingServiceNew billingServiceNew;
+	private final BillingService billingService;
 
 	@Inject
 	public InfrastructureInfoServiceImpl(ExploratoryDAO expDAO, EnvDAO envDAO, SelfServiceApplicationConfiguration configuration,
 										 BillingDAO billingDAO, ProjectService projectService, EndpointService endpointService,
-										 BillingServiceNew billingServiceNew) {
+										 BillingService billingService) {
 		this.expDAO = expDAO;
 		this.envDAO = envDAO;
 		this.configuration = configuration;
 		this.billingDAO = billingDAO;
 		this.projectService = projectService;
 		this.endpointService = endpointService;
-		this.billingServiceNew = billingServiceNew;
+		this.billingService = billingService;
 	}
 
 	@Override
@@ -98,8 +102,16 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 
 						List<BillingData> collect = e.getValue()
 								.stream()
-								.map(exp -> billingServiceNew.getExploratoryRemoteBillingData(user, (String) exp.get("endpoint"),
-										expDAO.findExploratories(e.getKey(), (String) exp.get("endpoint"), user.getName())))
+								.map(exp -> {
+									List<BillingData> exploratoryRemoteBillingData = new ArrayList<>();
+									try {
+										exploratoryRemoteBillingData = billingService.getExploratoryRemoteBillingData(user, (String) exp.get("endpoint"),
+												expDAO.findExploratories(e.getKey(), (String) exp.get("endpoint"), user.getName()));
+									} catch (Exception ex) {
+										log.error("Cannot retrieve billing information", ex);
+									}
+									return exploratoryRemoteBillingData;
+								})
 								.flatMap(Collection::stream)
 								.collect(Collectors.toList());
 
@@ -118,17 +130,20 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	}
 
 	@Override
-	public HealthStatusPageDTO getHeathStatus(UserInfo userInfo, boolean fullReport, boolean isAdmin) {
+	public HealthStatusPageDTO getHeathStatus(UserInfo userInfo, boolean fullReport) {
 		final String user = userInfo.getName();
 		log.debug("Request the status of resources for user {}, report type {}", user, fullReport);
 		try {
-
-			return envDAO.getHealthStatusPageDTO(user, fullReport)
-					.withBillingEnabled(configuration.isBillingSchedulerEnabled())
-					.withAdmin(isAdmin)
-					.withProjectAssinged(projectService.isAnyProjectAssigned(userInfo))
-					.withBillingQuoteUsed(billingDAO.getBillingQuoteUsed())
-					.withBillingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user));
+			return HealthStatusPageDTO.builder()
+					.status(HealthStatusEnum.OK.toString())
+					.listResources(Collections.emptyList())
+					.billingEnabled(configuration.isBillingSchedulerEnabled())
+					.projectAdmin(UserRoles.isProjectAdmin(userInfo))
+					.admin(UserRoles.isAdmin(userInfo))
+					.projectAssigned(projectService.isAnyProjectAssigned(userInfo))
+					.billingQuoteUsed(billingDAO.getBillingQuoteUsed())
+					.billingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user))
+					.build();
 		} catch (Exception e) {
 			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);
 			throw new DlabException(e.getMessage(), e);

@@ -120,6 +120,7 @@
     min-width: 140px;
     padding-right: 15px;
     text-align: right;
+
     .label {
       padding-top: 0;
     }
@@ -151,18 +152,69 @@
 
   .header-row {
     position: unset;
+
+    .th_charges {
+      padding-top: 0;
+
+      .label {
+        padding-top: 12px;
+      }
+    }
+
     .label {
       display: inline-block;
-      padding-top: 15px;
+      padding-top: 13px;
       vertical-align: super !important;
-      padding-left: 15px;
+
+      .text{
+     padding-left: 15px;
+      }
+    }
+
+    .sort{
+      position: absolute;
+      bottom: 20px;
+
+      &-arrow{
+        width: 6px;
+        height: 6px;
+        border: 3px solid transparent;
+        border-bottom: 3px solid rgba(0,0,0,.54);
+        border-left: 3px solid rgba(0,0,0,.54);
+        cursor: pointer;
+
+        &.active{
+          border-bottom: 3px solid #35afd5;
+          border-left: 3px solid #35afd5;
+        }
+      }
+
+      .down{
+        transform: rotate(-45deg);
+      }
+
+      .up{
+        transform: rotate(135deg);
+      }
     }
   }
+
+
 
   .filter-row {
     .actions {
       text-align: right;
     }
+  }
+
+  .table-footer{
+    position: sticky;
+    bottom: 0;
+    background: inherit;
+    border-top: 1px solid #E0E0E0;
+    transform: translateY(-1px);
+    border-bottom: none;
+    padding-left: 0 !important;
   }
 }
 
@@ -187,6 +239,7 @@
   border-top: 1px solid #E0E0E0;
   transform: translateY(-1px);
   border-bottom: none;
+
   &.total-cost{
     min-width: 140px;
     padding-left: 0 !important;
@@ -195,7 +248,6 @@
 
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {
-
     .env_name,
     .service,
     .th_type,

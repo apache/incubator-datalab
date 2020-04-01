@@ -27,11 +27,13 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 @ToString
 public class ExploratoryImageCreateFormDTO {
-
-	@NotBlank
-	@JsonProperty("exploratory_name")
-	private String notebookName;
-	@NotBlank
-	private final String name;
-	private final String description;
+    @NotBlank
+    private final String name;
+    @NotBlank
+    @JsonProperty("exploratory_name")
+    private String notebookName;
+    @NotBlank
+    @JsonProperty("project_name")
+    private String projectName;
+    private final String description;
 }

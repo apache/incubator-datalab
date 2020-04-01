@@ -24,10 +24,11 @@
 import json
 import time
 from fabric.api import *
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-from dlab.notebook_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import dlab.notebook_lib
+import traceback
 import sys
 import os
 import logging
@@ -35,7 +36,7 @@ import multiprocessing
 
 
 def configure_dataengine_service(instance, dataproc_conf):
-    dataproc_conf['instance_ip'] = meta_lib.GCPMeta().get_private_ip_address(instance)
+    dataproc_conf['instance_ip'] = GCPMeta.get_private_ip_address(instance)
     # configuring proxy on Data Engine service
     try:
         logging.info('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
@@ -50,9 +51,8 @@ def configure_dataengine_service(instance, dataproc_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure proxy.", str(err))
-        actions_lib.GCPActions().delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
+        dlab.fab.append_result("Failed to configure proxy.", str(err))
+        GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
 
     try:
@@ -62,16 +62,15 @@ def configure_dataengine_service(instance, dataproc_conf):
             env['connection_attempts'] = 100
             env.key_filename = "{}".format(dataproc_conf['key_path'])
             env.host_string = dataproc_conf['dlab_ssh_user'] + '@' + dataproc_conf['instance_ip']
-            install_os_pkg(['python-pip', 'python3-pip'])
-            configure_data_engine_service_pip(dataproc_conf['instance_ip'], dataproc_conf['dlab_ssh_user'],
-                                              dataproc_conf['key_path'])
+            dlab.notebook_lib.install_os_pkg(['python-pip', 'python3-pip'])
+            dlab.fab.configure_data_engine_service_pip(dataproc_conf['instance_ip'], dataproc_conf['dlab_ssh_user'],
+                                                       dataproc_conf['key_path'])
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure dataengine service.", str(err))
-        actions_lib.GCPActions().delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
+        dlab.fab.append_result("Failed to configure dataengine service.", str(err))
+        GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
 
     try:
@@ -79,7 +78,7 @@ def configure_dataengine_service(instance, dataproc_conf):
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         slaves = []
         for idx, instance in enumerate(dataproc_conf['cluster_core_instances']):
-            slave_ip = meta_lib.GCPMeta().get_private_ip_address(instance)
+            slave_ip = GCPMeta.get_private_ip_address(instance)
             slave = {
                 'name': 'datanode{}'.format(idx + 1),
                 'ip': slave_ip,
@@ -108,12 +107,11 @@ def configure_dataengine_service(instance, dataproc_conf):
         try:
             local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
         except:
-            append_result("Failed edge reverse proxy template")
+            dlab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure reverse proxy.", str(err))
-        actions_lib.GCPActions().delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
+        dlab.fab.append_result("Failed to configure reverse proxy.", str(err))
+        GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
 
 
@@ -124,55 +122,66 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.INFO,
                         filename=local_log_filepath)
-    print('Generating infrastructure names and tags')
-    dataproc_conf = dict()
     try:
-        dataproc_conf['exploratory_name'] = (os.environ['exploratory_name']).lower().replace('_', '-')
-    except:
-        dataproc_conf['exploratory_name'] = ''
-    try:
-        dataproc_conf['computational_name'] = (os.environ['computational_name']).lower().replace('_', '-')
-    except:
-        dataproc_conf['computational_name'] = ''
-    dataproc_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
-    dataproc_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
-    dataproc_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
-    dataproc_conf['key_name'] = os.environ['conf_key_name']
-    dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    dataproc_conf['region'] = os.environ['gcp_region']
-    dataproc_conf['zone'] = os.environ['gcp_zone']
-    dataproc_conf['subnet'] = '{0}-{1}-subnet'.format(dataproc_conf['service_base_name'],
-                                                      dataproc_conf['project_name'])
-    dataproc_conf['cluster_name'] = '{0}-{1}-des-{2}-{3}'.format(dataproc_conf['service_base_name'],
-                                                                 dataproc_conf['project_name'],
-                                                                 dataproc_conf['exploratory_name'],
-                                                                 dataproc_conf['computational_name'])
-    dataproc_conf['cluster_tag'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
-                                                       dataproc_conf['project_name'])
-    dataproc_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(dataproc_conf['service_base_name'],
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
+        print('Generating infrastructure names and tags')
+        dataproc_conf = dict()
+        if 'exploratory_name' in os.environ:
+            dataproc_conf['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-').lower()
+        else:
+            dataproc_conf['exploratory_name'] = ''
+        if 'computational_name' in os.environ:
+            dataproc_conf['computational_name'] = os.environ['computational_name'].replace('_', '-').lower()
+        else:
+            dataproc_conf['computational_name'] = ''
+        dataproc_conf['service_base_name'] = (os.environ['conf_service_base_name'])
+        dataproc_conf['edge_user_name'] = (os.environ['edge_user_name'])
+        dataproc_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
+        dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
+        dataproc_conf['key_name'] = os.environ['conf_key_name']
+        dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        dataproc_conf['region'] = os.environ['gcp_region']
+        dataproc_conf['zone'] = os.environ['gcp_zone']
+        dataproc_conf['subnet'] = '{0}-{1}-{2}-subnet'.format(dataproc_conf['service_base_name'],
+                                                              dataproc_conf['project_name'],
+                                                              dataproc_conf['endpoint_name'])
+        dataproc_conf['cluster_name'] = '{0}-{1}-{2}-des-{3}'.format(dataproc_conf['service_base_name'],
+                                                                     dataproc_conf['project_name'],
+                                                                     dataproc_conf['endpoint_name'],
+                                                                     dataproc_conf['computational_name'])
+        dataproc_conf['cluster_tag'] = '{0}-{1}-{2}-ps'.format(dataproc_conf['service_base_name'],
                                                                dataproc_conf['project_name'],
                                                                dataproc_conf['endpoint_name'])
-    dataproc_conf['release_label'] = os.environ['dataproc_version']
-    dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
-    dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
-                                                                         dataproc_conf['project_name'])
-    dataproc_conf['dataproc_unique_index'] = GCPMeta().get_index_by_service_account_name(dataproc_conf['dataproc_service_account_name'])
-    service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(dataproc_conf['service_base_name'],
-                                                                         dataproc_conf['dataproc_unique_index'],
-                                                                         os.environ['gcp_project_id'])
+        dataproc_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(dataproc_conf['service_base_name'],
+                                                                   dataproc_conf['project_name'],
+                                                                   dataproc_conf['endpoint_name'])
+        dataproc_conf['release_label'] = os.environ['dataproc_version']
+        dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
+        dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-{2}-ps-sa'.format(dataproc_conf['service_base_name'],
+                                                                                    dataproc_conf['project_name'],
+                                                                                    dataproc_conf['endpoint_name'])
+        dataproc_conf['dataproc_unique_index'] = GCPMeta.get_index_by_service_account_name(
+            dataproc_conf['dataproc_service_account_name'])
+        service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(dataproc_conf['service_base_name'],
+                                                                          dataproc_conf['dataproc_unique_index'],
+                                                                          os.environ['gcp_project_id'])
 
-    dataproc_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
-                                                                    dataproc_conf['project_name'],
-                                                                    dataproc_conf['endpoint_name'])
-    dataproc_conf['edge_instance_hostname'] = GCPMeta().get_instance_public_ip_by_name(
-        dataproc_conf['edge_instance_name'])
-    dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-    dataproc_conf['master_name'] = dataproc_conf['cluster_name'] + '-m'
-    dataproc_conf['master_ip'] = meta_lib.GCPMeta().get_private_ip_address(dataproc_conf['master_name'])
+        dataproc_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(dataproc_conf['service_base_name'],
+                                                                        dataproc_conf['project_name'],
+                                                                        dataproc_conf['endpoint_name'])
+        dataproc_conf['edge_instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(
+            dataproc_conf['edge_instance_name'])
+        dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        dataproc_conf['master_name'] = dataproc_conf['cluster_name'] + '-m'
+        dataproc_conf['master_ip'] = GCPMeta.get_private_ip_address(dataproc_conf['master_name'])
+    except Exception as err:
+        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
+        sys.exit(1)
 
     try:
-        res = meta_lib.GCPMeta().get_list_instances(os.environ['gcp_zone'], dataproc_conf['cluster_name'])
+        res = GCPMeta.get_list_instances(os.environ['gcp_zone'], dataproc_conf['cluster_name'])
         dataproc_conf['cluster_instances'] = [i.get('name') for i in res['items']]
     except Exception as err:
         traceback.print_exc()
@@ -194,7 +203,9 @@ if __name__ == "__main__":
         for job in jobs:
             if job.exitcode != 0:
                 raise Exception
-    except:
+    except Exception as err:
+        GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
+        dlab.fab.append_result("Failed to configure Dataengine-service", str(err))
         traceback.print_exc()
         raise Exception
 
@@ -230,6 +241,7 @@ if __name__ == "__main__":
                    }
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        GCPActions.delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)

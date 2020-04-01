@@ -615,10 +615,8 @@ mat-horizontal-stepper {
 .mat-table {
   .header-row {
     th.mat-header-cell {
-      font-size: 15px;
       font-family: 'Open Sans', sans-serif;
       font-weight: 600;
-      color: #607D8B;
     }
 
     .mat-cell {
@@ -658,3 +656,9 @@ mat-progress-bar {
     background-color: #baf0f7;
   }
 }
+.manage-roles{
+  .mat-horizontal-content-container{
+    overflow: visible !important;
+  }
+}
+

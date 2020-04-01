@@ -33,9 +33,11 @@ import com.google.cloud.bigquery.QueryParameterValue;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -46,8 +48,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -104,10 +108,20 @@ public class BigQueryBillingDAO implements BillingDAO {
 	}
 
 	@Override
-	public List<BillingData> getBillingReport() {
+	public List<BillingData> getBillingReport(String dateStart, String dateEnd, String dlabId, List<String> products) {
 		try {
-			GroupOperation groupOperation = getGroupOperation();
-			Aggregation aggregation = newAggregation(groupOperation);
+			List<AggregationOperation> aggregationOperations = new ArrayList<>();
+			aggregationOperations.add(Aggregation.match(Criteria.where("dlabId").regex(dlabId, "i")));
+			if (!products.isEmpty()) {
+				aggregationOperations.add(Aggregation.match(Criteria.where("product").in(products)));
+			}
+			getMatchCriteria(dateStart, Criteria.where("usage_date").gte(dateStart))
+					.ifPresent(aggregationOperations::add);
+			getMatchCriteria(dateEnd, Criteria.where("usage_date").lte(dateEnd))
+					.ifPresent(aggregationOperations::add);
+			aggregationOperations.add(getGroupOperation());
+
+			Aggregation aggregation = newAggregation(aggregationOperations);
 
 			return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults()
 					.stream()
@@ -137,10 +151,16 @@ public class BigQueryBillingDAO implements BillingDAO {
 	}
 
 	private GroupOperation getGroupOperation() {
-		return group("product", "currency", "usageType", "dlabId")
+		return group("product", "currency", "dlabId")
 				.min("from").as("from")
 				.max("to").as("to")
 				.sum("cost").as("cost");
+	}
+
+	private Optional<MatchOperation> getMatchCriteria(String dateStart, Criteria criteria) {
+		return Optional.ofNullable(dateStart)
+				.filter(StringUtils::isNotEmpty)
+				.map(date -> Aggregation.match(criteria));
 	}
 
 	private Stream<? extends GcpBillingData> bigQueryResultSetStream(Table table) {
@@ -166,7 +186,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 		return GcpBillingData.builder()
 				.usageDateFrom(toLocalDate(fields, "usage_date_from"))
 				.usageDateTo(toLocalDate(fields, "usage_date_to"))
-				.cost(fields.get("cost").getNumericValue().setScale(3, BigDecimal.ROUND_HALF_UP))
+				.cost(fields.get("cost").getNumericValue().doubleValue())
 				.product(fields.get("product").getStringValue())
 				.usageType(fields.get("usageType").getStringValue())
 				.currency(fields.get("currency").getStringValue())
@@ -186,7 +206,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 				.usageDateTo(billingData.getUsageDateTo())
 				.product(billingData.getProduct())
 				.usageType(billingData.getUsageType())
-				.cost(billingData.getCost().setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
+				.cost(BigDecimal.valueOf(billingData.getCost()).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
 				.currency(billingData.getCurrency())
 				.tag(billingData.getTag())
 				.build();

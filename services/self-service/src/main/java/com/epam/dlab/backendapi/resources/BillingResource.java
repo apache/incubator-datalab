@@ -22,7 +22,6 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
-import com.epam.dlab.backendapi.service.BillingServiceNew;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
@@ -41,43 +40,24 @@ import javax.ws.rs.core.Response;
 public class BillingResource {
 
     private final BillingService billingService;
-    private final BillingServiceNew billingServiceNew;
 
     @Inject
-    public BillingResource(BillingService billingService, BillingServiceNew billingServiceNew) {
+    public BillingResource(BillingService billingService) {
         this.billingService = billingService;
-        this.billingServiceNew = billingServiceNew;
     }
-
-//    @POST
-//    @Path("/report")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter formDTO) {
-//        return billingService.getBillingReport(userInfo, formDTO);
-//    }
-//
-//    @POST
-//    @Path("/report/download")
-//    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-//    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter formDTO) {
-//        return Response.ok(billingService.downloadReport(userInfo, formDTO))
-//                .header(HttpHeaders.CONTENT_DISPOSITION,
-//                        "attachment; filename=\"" + billingService.getReportFileName(userInfo, formDTO) + "\"")
-//                .build();
-//    }
 
     @POST
     @Path("/report")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
-        return Response.ok(billingServiceNew.getBillingReport(userInfo, filter)).build();
+        return Response.ok(billingService.getBillingReport(userInfo, filter)).build();
     }
 
     @POST
     @Path("/report/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
-        return Response.ok(billingServiceNew.downloadReport(userInfo, filter))
+        return Response.ok(billingService.downloadReport(userInfo, filter))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"billing-report.csv\"")
                 .build();
     }

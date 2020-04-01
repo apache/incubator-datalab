@@ -36,8 +36,8 @@ export class ManageEnvironmentsService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  environmentManagement(data, action: string, resource: string, computational?: string): Observable<{}> {
-    const params = computational ? `/${action}/${resource}/${computational}` : `/${action}/${resource}`;
+  environmentManagement(data, action: string, project: string, resource: string, computational?: string): Observable<{}> {
+    const params = computational ? `/${action}/${project}/${resource}/${computational}` : `/${action}/${project}/${resource}`;
     return this.applicationServiceFacade
       .buildEnvironmentManagement(params, data)
       .pipe(

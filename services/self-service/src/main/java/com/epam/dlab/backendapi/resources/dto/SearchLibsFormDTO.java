@@ -30,6 +30,10 @@ public class SearchLibsFormDTO {
     private String notebookName;
 
     @NotBlank
+    @JsonProperty("project_name")
+    private String projectName;
+
+    @NotBlank
     @JsonProperty
     private String group;
 

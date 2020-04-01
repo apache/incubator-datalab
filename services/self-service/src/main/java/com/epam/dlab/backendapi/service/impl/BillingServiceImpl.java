@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
@@ -29,7 +30,7 @@ import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
-import com.epam.dlab.backendapi.service.BillingServiceNew;
+import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -44,7 +45,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 
 import javax.ws.rs.core.GenericType;
@@ -56,9 +56,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -69,7 +71,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class BillingServiceImplNew implements BillingServiceNew {
+public class BillingServiceImpl implements BillingService {
     private static final String BILLING_PATH = "/api/billing";
     private static final String BILLING_REPORT_PATH = "/api/billing/report";
 
@@ -78,16 +80,20 @@ public class BillingServiceImplNew implements BillingServiceNew {
     private final ExploratoryService exploratoryService;
     private final SelfServiceApplicationConfiguration configuration;
     private final RESTService provisioningService;
+    private final ImageExploratoryDao imageExploratoryDao;
+    private final String sbn;
 
     @Inject
-    public BillingServiceImplNew(ProjectService projectService, EndpointService endpointService,
-                                 ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
-                                 @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService) {
+    public BillingServiceImpl(ProjectService projectService, EndpointService endpointService,
+                              ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
+                              @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService, ImageExploratoryDao imageExploratoryDao) {
         this.projectService = projectService;
         this.endpointService = endpointService;
         this.exploratoryService = exploratoryService;
         this.configuration = configuration;
         this.provisioningService = provisioningService;
+        this.imageExploratoryDao = imageExploratoryDao;
+        sbn = configuration.getServiceBaseName();
     }
 
     @Override
@@ -98,7 +104,7 @@ public class BillingServiceImplNew implements BillingServiceNew {
         double sum = billingReportLines.stream().mapToDouble(BillingReportLine::getCost).sum();
         String currency = billingReportLines.stream().map(BillingReportLine::getCurrency).distinct().count() == 1 ? billingReportLines.get(0).getCurrency() : null;
         return BillingReport.builder()
-                .sbn(configuration.getServiceBaseName())
+                .sbn(sbn)
                 .reportLines(billingReportLines)
                 .usageDateFrom(min)
                 .usageDateTo(max)
@@ -126,28 +132,15 @@ public class BillingServiceImplNew implements BillingServiceNew {
     @Override
     public List<BillingReportLine> getBillingReportLines(UserInfo user, BillingFilter filter) {
         setUserFilter(user, filter);
-        final String serviceBaseName = configuration.getServiceBaseName();
-        final Stream<BillingReportLine> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(serviceBaseName);
-        final Stream<BillingReportLine> billableUserInstances = exploratoryService.findAll()
-                .stream()
-                .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
-                .flatMap(ui -> BillingUtils.exploratoryBillingDataStream(ui, configuration.getMaxSparkInstanceCount()));
-        final Stream<BillingReportLine> billableEdges = projectService.getProjects()
-                .stream()
-                .collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
-                .entrySet()
-                .stream()
-                .flatMap(e -> projectEdges(serviceBaseName, e.getKey(), e.getValue()));
+        Set<ProjectDTO> projects = new HashSet<>(projectService.getProjects(user));
+        projects.addAll(projectService.getUserProjects(user, false));
 
-        final Map<String, BillingReportLine> billableResources = Stream.of(billableUserInstances, billableEdges, ssnBillingDataStream)
-                .flatMap(s -> s)
-                .collect(Collectors.toMap(BillingReportLine::getDlabId, b -> b));
-        log.debug("Billable resources are: {}", billableResources);
+        final Map<String, BillingReportLine> billableResources = getBillableResources(user, projects);
 
-        List<BillingReportLine> billingReport = getRemoteBillingData(user)
+        List<BillingReportLine> billingReport = getRemoteBillingData(user, filter)
                 .stream()
-                .filter(getBillingDataFilter(filter))
-                .map(bd -> toBillingData(bd, getOrDefault(billableResources, bd.getTag())))
+                .filter(bd -> billableResources.containsKey(bd.getTag()))
+                .map(bd -> toBillingData(bd, billableResources.get(bd.getTag())))
                 .filter(getBillingReportFilter(filter))
                 .collect(Collectors.toList());
         log.debug("Billing report: {}", billingReport);
@@ -155,15 +148,47 @@ public class BillingServiceImplNew implements BillingServiceNew {
         return billingReport;
     }
 
+    private Map<String, BillingReportLine> getBillableResources(UserInfo user, Set<ProjectDTO> projects) {
+        Stream<BillingReportLine> billableAdminResources = Stream.empty();
+        final Stream<BillingReportLine> billableUserInstances = exploratoryService.findAll(projects)
+                .stream()
+                .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
+                .flatMap(ui -> BillingUtils.exploratoryBillingDataStream(ui, configuration.getMaxSparkInstanceCount(), sbn));
+        final Stream<BillingReportLine> billingReportLineStream = projects
+                .stream()
+                .map(p -> imageExploratoryDao.getImagesForProject(p.getName()))
+                .flatMap(Collection::stream)
+                .flatMap(i -> BillingUtils.customImageBillingDataStream(i, sbn));
+
+        if (UserRoles.isAdmin(user)) {
+            final Stream<BillingReportLine> billableEdges = projects
+                    .stream()
+                    .collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
+                    .entrySet()
+                    .stream()
+                    .flatMap(e -> projectEdges(sbn, e.getKey(), e.getValue()));
+            final Stream<BillingReportLine> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(sbn);
+            final Stream<BillingReportLine> billableSharedEndpoints = endpointService.getEndpoints()
+                    .stream()
+                    .flatMap(endpoint -> BillingUtils.sharedEndpointBillingDataStream(endpoint.getName(), sbn));
+
+            billableAdminResources = Stream.of(billableEdges, ssnBillingDataStream, billableSharedEndpoints)
+                    .flatMap(s -> s);
+        }
+
+        final Map<String, BillingReportLine> billableResources = Stream.of(billableUserInstances, billingReportLineStream, billableAdminResources)
+                .flatMap(s -> s)
+                .collect(Collectors.toMap(BillingReportLine::getDlabId, b -> b));
+        log.debug("Billable resources are: {}", billableResources);
+
+        return billableResources;
+    }
+
     private Stream<BillingReportLine> projectEdges(String serviceBaseName, String projectName, List<ProjectEndpointDTO> endpoints) {
         return endpoints
                 .stream()
                 .flatMap(endpoint -> BillingUtils.edgeBillingDataStream(projectName, serviceBaseName, endpoint.getName(),
                         endpoint.getStatus().toString()));
-    }
-
-    private BillingReportLine getOrDefault(Map<String, BillingReportLine> billableResources, String tag) {
-        return billableResources.getOrDefault(tag, BillingReportLine.builder().dlabId(tag).build());
     }
 
     public List<BillingData> getExploratoryRemoteBillingData(UserInfo user, String endpoint, List<UserInstanceDTO> userInstanceDTOS) {
@@ -189,11 +214,11 @@ public class BillingServiceImplNew implements BillingServiceNew {
         }
     }
 
-    private List<BillingData> getRemoteBillingData(UserInfo userInfo) {
+    private List<BillingData> getRemoteBillingData(UserInfo userInfo, BillingFilter filter) {
         List<EndpointDTO> endpoints = endpointService.getEndpoints();
         ExecutorService executor = Executors.newFixedThreadPool(endpoints.size());
         List<Callable<List<BillingData>>> callableTasks = new ArrayList<>();
-        endpoints.forEach(e -> callableTasks.add(getTask(userInfo, getBillingUrl(e.getUrl(), BILLING_REPORT_PATH))));
+        endpoints.forEach(e -> callableTasks.add(getTask(userInfo, getBillingUrl(e.getUrl(), BILLING_REPORT_PATH), filter)));
 
         List<BillingData> billingData;
         try {
@@ -216,8 +241,8 @@ public class BillingServiceImplNew implements BillingServiceNew {
         try {
             return s.get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Cannot retrieve billing information {}", e.getMessage(), e);
-            throw new DlabException("Cannot retrieve billing information");
+            log.error("Cannot retrieve billing information {}", e.getMessage());
+            return Collections.emptyList();
         }
     }
 
@@ -237,17 +262,16 @@ public class BillingServiceImplNew implements BillingServiceNew {
                 .toString();
     }
 
-    private Callable<List<BillingData>> getTask(UserInfo userInfo, String url) {
-        return () -> provisioningService.get(url, userInfo.getAccessToken(), new GenericType<List<BillingData>>() {
-        });
-    }
-
-    private Predicate<BillingData> getBillingDataFilter(BillingFilter filter) {
-        return br ->
-                (StringUtils.isEmpty(filter.getDlabId()) || StringUtils.containsIgnoreCase(br.getTag(), filter.getDlabId())) &&
-                        (StringUtils.isEmpty(filter.getDateStart()) || LocalDate.parse(filter.getDateStart()).isEqual(br.getUsageDateFrom()) || LocalDate.parse(filter.getDateStart()).isBefore(br.getUsageDateFrom())) &&
-                        (StringUtils.isEmpty(filter.getDateEnd()) || LocalDate.parse(filter.getDateEnd()).isEqual(br.getUsageDateTo()) || LocalDate.parse(filter.getDateEnd()).isAfter(br.getUsageDateTo())) &&
-                        (CollectionUtils.isEmpty(filter.getProducts()) || filter.getProducts().contains(br.getProduct()));
+    private Callable<List<BillingData>> getTask(UserInfo userInfo, String url, BillingFilter filter) {
+        return () -> provisioningService.get(url, userInfo.getAccessToken(),
+                new GenericType<List<BillingData>>() {
+                },
+                Stream.of(new String[][]{
+                        {"date-start", filter.getDateStart()},
+                        {"date-end", filter.getDateEnd()},
+                        {"dlab-id", filter.getDlabId()},
+                        {"product", String.join(",", filter.getProducts())}
+                }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
     }
 
     private Predicate<BillingReportLine> getBillingReportFilter(BillingFilter filter) {

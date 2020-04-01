@@ -19,8 +19,8 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
 import io.dropwizard.lifecycle.Managed;
 
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
@@ -28,12 +28,11 @@ import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 
 /** Creates the indexes for mongo collections. */
 public class IndexCreator extends BaseDAO implements Managed {
+    private static final String PROJECT_FIELD = "project";
     @Override
 	public void start() {
         mongoService.getCollection(USER_INSTANCES)
-        		.createIndex(new BasicDBObject(USER, 1)
-        		.append(EXPLORATORY_NAME, 2),
-                new IndexOptions().unique(true));
+                .createIndex(Indexes.ascending(USER, EXPLORATORY_NAME, PROJECT_FIELD), new IndexOptions().unique(true));
         // TODO: Make refactoring and append indexes for other mongo collections
     }
 

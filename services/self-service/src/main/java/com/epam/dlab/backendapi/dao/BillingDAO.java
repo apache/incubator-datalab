@@ -18,10 +18,6 @@
  */
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.BillingFilter;
-import org.bson.Document;
-
 public interface BillingDAO {
 	Double getTotalCost();
 
@@ -40,6 +36,4 @@ public interface BillingDAO {
 	boolean isUserQuoteReached(String user);
 
 	boolean isProjectQuoteReached(String project);
-
-	Document getReport(UserInfo userInfo, BillingFilter filter);
 }

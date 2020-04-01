@@ -24,8 +24,10 @@ import com.epam.dlab.billing.azure.model.AzureDailyResourceInvoice;
 import com.epam.dlab.dto.billing.BillingData;
 import com.epam.dlab.exceptions.DlabException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,10 +53,20 @@ public class BillingDAOImpl implements BillingDAO {
     }
 
     @Override
-    public List<BillingData> getBillingReport() {
+    public List<BillingData> getBillingReport(String dateStart, String dateEnd, String dlabId, List<String> products) {
         try {
-            GroupOperation groupOperation = getGroupOperation();
-            Aggregation aggregation = newAggregation(groupOperation);
+            List<AggregationOperation> aggregationOperations = new ArrayList<>();
+            aggregationOperations.add(Aggregation.match(Criteria.where("dlabId").regex(dlabId, "i")));
+            if (!products.isEmpty()) {
+                aggregationOperations.add(Aggregation.match(Criteria.where("meterCategory").in(products)));
+            }
+            getMatchCriteria(dateStart, Criteria.where("day").gte(dateStart))
+                    .ifPresent(aggregationOperations::add);
+            getMatchCriteria(dateEnd, Criteria.where("day").lte(dateEnd))
+                    .ifPresent(aggregationOperations::add);
+            aggregationOperations.add(getGroupOperation());
+
+            Aggregation aggregation = newAggregation(aggregationOperations);
 
             return mongoTemplate.aggregate(aggregation, "billing", AzureDailyResourceInvoice.class).getMappedResults()
                     .stream()
@@ -87,6 +100,12 @@ public class BillingDAOImpl implements BillingDAO {
                 .min("usageStartDate").as("usageStartDate")
                 .max("usageEndDate").as("usageEndDate")
                 .sum("cost").as("cost");
+    }
+
+    private Optional<MatchOperation> getMatchCriteria(String dateStart, Criteria criteria) {
+        return Optional.ofNullable(dateStart)
+                .filter(StringUtils::isNotEmpty)
+                .map(date -> Aggregation.match(criteria));
     }
 
     private BillingData toBillingData(AzureDailyResourceInvoice billingData) {

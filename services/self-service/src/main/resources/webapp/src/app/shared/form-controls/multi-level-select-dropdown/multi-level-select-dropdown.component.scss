@@ -1,0 +1,321 @@
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.dropdown-list,
+.dropdown-multiselect {
+  width: 100%;
+  position: relative;
+}
+
+.dropdown-list button,
+.dropdown-multiselect button {
+  height: 38px;
+  width: 100%;
+  background: #fff;
+  padding-left: 15px;
+  font-size: 14px;
+  // height: 34px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 0;
+  border: none;
+  outline: none;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
+}
+
+.dropdown-list {
+  button {
+    line-height: 38px;
+
+    span {
+      color: #4a5c89;
+
+      em {
+        font-size: 13px;
+        color: #35afd5;
+        margin-right: 0px;
+        font-style: normal;
+      }
+    }
+  }
+}
+
+.dropdown-list button:active,
+.dropdown-list button:focus,
+.dropdown-multiselect button:active,
+.dropdown-multiselect button:focus {
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, .2), 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12);
+}
+
+.dropdown-multiselect {
+  button {
+    span {
+      color: #999;
+      font-weight: 300;
+      display: inline-block;
+      max-width: 80%;
+    }
+
+    .selected-items {
+      color: #4a5c89;
+      max-width: 477px;
+    }
+  }
+}
+
+.selected-items strong {
+  font-weight: 300;
+}
+
+.dropdown-list,
+.dropdown-multiselect {
+  .caret-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 100%;
+    text-align: center;
+    padding: 7px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border-left: 1px solid #ececec;
+    background: #fff;
+    color: #36afd5 !important;
+  }
+
+  .list-menu {
+    width: 100%;
+    max-height: 450px;
+    left: 0;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    li {
+      padding: 0;
+      margin: 0;
+    }
+    .role-item{
+      padding-left: 30px;
+    }
+    .role-cloud-item{
+      padding-left: 60px;
+    }
+
+  }
+
+  &.statuses {
+    .list-menu {
+      .list-item {
+        text-transform: capitalize;
+      }
+    }
+  }
+
+  &.resources {
+    .list-menu {
+      .list-item {
+        text-transform: capitalize;
+      }
+    }
+  }
+}
+
+.dropdown-list .list-menu a,
+.dropdown-multiselect .list-menu li a {
+  display: block;
+  padding: 10px;
+  padding-left: 15px;
+  position: relative;
+  font-weight: 300;
+  cursor: pointer;
+  color: #4a5c89;
+  text-decoration: none;
+}
+
+.dropdown-multiselect .list-menu li a {
+  padding-left: 45px;
+  transition: all .45s ease-in-out;
+}
+
+.dropdown-list .list-menu a:hover,
+.dropdown-multiselect .list-menu a:hover {
+  background: #f7f7f7;
+  color: #35afd5;
+}
+
+.dropdown-multiselect .list-menu .filter-actions {
+  display: flex;
+  cursor: pointer;
+  border-bottom: 1px solid #ececec;
+}
+
+.dropdown-multiselect .list-menu .filter-actions a {
+  width: 50%;
+  color: #35afd5;
+  display: block;
+  padding: 0;
+  line-height: 40px !important;
+  text-align: center;
+}
+
+.dropdown-list {
+
+  .list-menu,
+  .title {
+    span {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 300;
+    }
+  }
+}
+
+.dropdown-list .list-menu li span.caption {
+  display: block;
+  padding: 10px 15px;
+  cursor: default;
+}
+
+.dropdown-list .list-menu li i,
+.dropdown-list .list-menu li strong {
+  display: inline-block;
+  width: 30px;
+  text-align: center;
+  vertical-align: middle;
+  color: #35afd5;
+  line-height: 26px;
+}
+
+.dropdown-list .list-menu li i {
+  vertical-align: sub;
+  font-size: 18px;
+}
+
+.dropdown-list .list-menu a {
+  padding: 12px;
+  padding-left: 15px;
+  position: relative;
+  font-weight: 300;
+  cursor: pointer;
+
+  em {
+    font-size: 13px;
+    color: #35afd5;
+    margin-right: 0px;
+    font-style: normal;
+  }
+}
+
+.dropdown-list .list-menu a.empty {
+  height: 36px;
+}
+
+.dropdown-multiselect .list-menu .filter-actions i {
+  vertical-align: sub;
+  color: #35afd5;
+  font-size: 18px;
+  line-height: 26px;
+  transition: all .45s ease-in-out;
+}
+
+.dropdown-multiselect .list-menu .select_all:hover,
+.dropdown-multiselect .list-menu .select_all:hover i {
+  color: #4eaf3e !important;
+  background: #f9fafb;
+}
+
+.dropdown-multiselect .list-menu .deselect_all:hover,
+.dropdown-multiselect .list-menu .deselect_all:hover i {
+  color: #f1696e !important;
+  background: #f9fafb;
+}
+
+.dropdown-multiselect .list-menu a {
+  span {
+    position: absolute;
+    top: 10px;
+    left: 25px;
+    color: #35afd5;
+
+    &.checked-checkbox {
+      top: 0px;
+      left: 4px;
+      width: 5px;
+      height: 10px;
+      border-bottom: 2px solid white;
+      border-right: 2px solid white;
+      position: absolute;
+      transform: rotate(45deg);
+    }
+
+    &.line-checkbox {
+      top: 0px;
+      left: 2px;
+      width: 8px;
+      height: 7px;
+      border-bottom: 2px solid white;
+    }
+
+    &.arrow{
+      width: 16px;
+      height: 14px;
+      border: 8px solid transparent;
+      border-left: 8px solid lightgrey;
+      left: 10px;
+      top: 12px;
+      border-radius: 3px;
+
+      &.rotate-arrow{
+        transform: rotate(90deg);
+        transition: .1s ease-in-out;
+        top: 15px;
+        left: 6px;
+      }
+
+      &.arrow-checked{
+        border-left: 8px solid #35afd5;
+      }
+    }
+  }
+
+
+}
+
+.dropdown-multiselect.btn-group.open .dropdown-toggle {
+  box-shadow: none;
+}
+
+.empty-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  border: 2px solid lightgrey;
+  margin-top: 2px;
+  position: relative;
+  &.checked {
+    border-color: #35afd5;
+    background-color: #35afd5;
+  }
+}
+

@@ -24,7 +24,6 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -37,7 +36,7 @@ public class GcpBillingData {
     private final LocalDate usageDateTo;
     private final String product;
     private final String usageType;
-    private final BigDecimal cost;
+    private final Double cost;
     private final String currency;
     @Field("dlabId")
     private final String tag;

@@ -21,11 +21,16 @@
 #
 # ******************************************************************************
 
-from dlab.fab import *
-from dlab.actions_lib import *
-import sys, os
+import sys
+import os
+import logging
+import traceback
 from fabric.api import *
-from dlab.ssn_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import dlab.ssn_lib
+import json
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
@@ -35,17 +40,17 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     # generating variables dictionary
     if 'aws_access_key' in os.environ and 'aws_secret_access_key' in os.environ:
-        create_aws_config_files(generate_full_config=True)
+        dlab.actions_lib.create_aws_config_files(generate_full_config=True)
     else:
-        create_aws_config_files()
+        dlab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     ssn_conf = dict()
-    ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    ssn_conf['tag_name'] = ssn_conf['service_base_name'] + '-Tag'
+    ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+            os.environ['conf_service_base_name'][:20], '-', True)
+    ssn_conf['tag_name'] = ssn_conf['service_base_name'] + '-tag'
     ssn_conf['edge_sg'] = ssn_conf['service_base_name'] + "*" + '-edge'
     ssn_conf['nb_sg'] = ssn_conf['service_base_name'] + "*" + '-nb'
-    ssn_conf['de_sg'] = ssn_conf['service_base_name'] + "*" + '-dataengine*'
+    ssn_conf['de_sg'] = ssn_conf['service_base_name'] + "*" + '-de*'
     ssn_conf['de-service_sg'] = ssn_conf['service_base_name'] + "*" + '-des-*'
 
     try:
@@ -61,7 +66,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Error: {0}'.format(err))
-        append_result("Failed to terminate ssn.", str(err))
+        dlab.fab.append_result("Failed to terminate ssn.", str(err))
         sys.exit(1)
 
     try:
@@ -70,6 +75,6 @@ if __name__ == "__main__":
                    "Action": "Terminate ssn with all service_base_name environment"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)
