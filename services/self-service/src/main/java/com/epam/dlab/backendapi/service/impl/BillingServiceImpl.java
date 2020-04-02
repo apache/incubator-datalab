@@ -209,8 +209,8 @@ public class BillingServiceImpl implements BillingService {
                     new GenericType<List<BillingData>>() {
                     }, Collections.singletonMap("dlabIds", String.join(",", dlabIds)));
         } catch (Exception e) {
-            log.error("Cannot retrieve billing information for {} {}", dlabIds, e.getMessage(), e);
-            throw new DlabException("Cannot retrieve billing information ", e);
+            log.error("Cannot retrieve billing information for {} {}", dlabIds, e.getMessage());
+            return Collections.emptyList();
         }
     }
 
