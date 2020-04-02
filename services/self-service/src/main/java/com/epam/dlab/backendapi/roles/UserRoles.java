@@ -314,8 +314,12 @@ public class UserRoles {
 	}
 
 	private static Set<String> retainGroups(Set<String> groups1, Set<String> groups2) {
-		HashSet<String> result = new HashSet<>(groups1);
-		result.retainAll(groups2);
+		Set<String> result = groups2
+				.stream()
+				.map(String::toLowerCase)
+				.collect(Collectors.toSet());
+		result.retainAll(groups1);
+
 		return result;
 	}
 
