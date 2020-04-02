@@ -20,15 +20,13 @@
 
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-
-import {BillingReportService, HealthStatusService} from '../core/services';
+import {ApplicationSecurityService, BillingReportService, HealthStatusService} from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
 import { FileUtils } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
 import {ProgressBarService} from '../core/services/progress-bar.service';
-
 
 @Component({
   selector: 'dlab-reporting',
@@ -75,14 +73,22 @@ export class ReportingComponent implements OnInit, OnDestroy {
     private healthStatusService: HealthStatusService,
     public toastr: ToastrService,
     private progressBarService: ProgressBarService,
+    private applicationSecurityService: ApplicationSecurityService,
   ) { }
 
   ngOnInit() {
-    this.getEnvironmentHealthStatus();
+    this.rebuildBillingReport();
   }
 
   ngOnDestroy() {
     this.clearStorage();
+  }
+
+  initBilling() {
+    this.getEnvironmentHealthStatus();
+    if (this.admin) {
+      this.rebuildBillingReport();
+    }
   }
 
   getGeneralBillingData() {
@@ -113,10 +119,18 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   rebuildBillingReport(): void {
+    this.checkAutorize();
     this.clearStorage();
     this.resetRangePicker();
     this.reportData.defaultConfigurations();
     this.getGeneralBillingData();
+  }
+
+  private checkAutorize() {
+    this.applicationSecurityService.isLoggedIn().subscribe( () => {
+        this.getEnvironmentHealthStatus();
+      }
+    );
   }
 
   exportBillingReport(): void {
@@ -145,23 +159,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item.shape && types.indexOf(item.shape)) {
         shapes.push(item.shape);
       }
-        // if (item.shapes.indexOf('Master') > -1) {
-        //   for (let shape of item.shapes.split('\n')) {
-        //     shape = shape.replace('Master: ', '');
-        //     shape = shape.replace(/Slave:\s+\d+ x /, '');
-        //     shape = shape.replace(/\s+/g, '');
-        //
-        //     shapes.indexOf(shape) === -1 && shapes.push(shape);
-        //   }
-        // } else if (item.shapes.match(/\d x \S+/)) {
-        //   const parsedShape = item.shapes.match(/\d x \S+/)[0].split(' x ')[1];
-        //   if (shapes.indexOf(parsedShape) === -1) {
-        //     shapes.push(parsedShape);
-        //   }
-        // } else {
-        //   shapes.indexOf(item.shapes) === -1 && shapes.push(item.shapes);
-        // }
-      // }
 
       if (item.product && services.indexOf(item.product) === -1)
         services.push(item.product);
@@ -199,7 +196,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
       .subscribe((result: any) => {
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
-        this.rebuildBillingReport();
       });
   }
 }
