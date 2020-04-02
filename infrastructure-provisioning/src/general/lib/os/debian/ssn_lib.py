@@ -197,7 +197,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
             sudo('mv /tmp/proxy_location_webapp_template.conf ' + os.environ['ssn_dlab_path'] + 'tmp/')
             if cloud_provider == 'aws':
-                print('Good known reason we are here')
                 conf_parameter_name = '--spring.config.location={0}billing_app.yml --conf '.format(dlab_conf_dir)
                 with open('/root/templates/supervisor_svc.conf', 'r') as f:
                     text = f.read()
@@ -206,7 +205,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 with open('/root/templates/supervisor_svc.conf', 'w') as f:
                     f.write(text)
             elif cloud_provider == 'gcp' or cloud_provider == 'azure':
-                print('Unknown reason but we are here')
                 conf_parameter_name = '--spring.config.location='
                 with open('/root/templates/supervisor_svc.conf', 'r') as f:
                     text = f.read()
