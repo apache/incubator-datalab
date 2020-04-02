@@ -51,9 +51,10 @@ if __name__ == "__main__":
     odahu_conf['cidr'] = os.environ['odahu_cidr']
     odahu_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     odahu_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    odahu_conf['cluster_name'] = (os.environ['odahu_cluster_name']).lower().replace('_', '-')
-    odahu_conf['bucket_name'] = "{}-tfstate".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
-    odahu_conf['static_address_name'] = "{}-nat-gw".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
+    odahu_conf['cluster_name'] = "{}-{}".format((os.environ['conf_service_base_name']).lower().replace('_', '-'),
+                                                (os.environ['odahu_cluster_name']).lower().replace('_', '-'))
+    odahu_conf['bucket_name'] = "{}-tfstate".format(odahu_conf['cluster_name'])
+    odahu_conf['static_address_name'] = "{}-nat-gw".format(odahu_conf['cluster_name'])
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
@@ -125,7 +126,7 @@ if __name__ == "__main__":
                     "data_bucket": "{}-data-bucket".format(odahu_conf['cluster_name']),
 
                     "dns": {
-                        "domain": "{}".format(odahu_conf['root_domain']),
+                        "domain": "odahu.{}.{}".format(odahu_conf['cluster_name'], odahu_conf['root_domain']),
                         "gcp_project_id": "{}".format(odahu_conf['project_id']),
                         "provider": "gcp",
                         "zone_name": "{}".format(odahu_conf['dns_zone_name']),
