@@ -509,7 +509,7 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	public <T extends ExploratoryImageDTO> T newExploratoryImageCreate(UserInfo userInfo, UserInstanceDTO userInstance,
-																	   String imageName, EndpointDTO endpointDTO) {
+																	   String imageName, EndpointDTO endpointDTO, ProjectDTO projectDTO) {
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
 		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), ExploratoryImageDTO.class)
 				.withProject(userInstance.getProject())
@@ -519,7 +519,8 @@ public class RequestBuilder {
 				.withNotebookImage(userInstance.getImageName())
 				.withImageName(imageName)
 				.withEndpoint(userInstance.getEndpoint())
-				.withTags(userInstance.getTags());
+				.withTags(userInstance.getTags())
+				.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 	}
 
 	@SuppressWarnings("unchecked")

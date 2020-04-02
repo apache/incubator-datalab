@@ -24,8 +24,10 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.backendapi.service.EndpointService;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.UserInstanceDTO;
@@ -91,6 +93,8 @@ public class ImageExploratoryServiceImplTest {
 	private RequestBuilder requestBuilder;
 	@Mock
 	private EndpointService endpointService;
+	@Mock
+	private ProjectService projectService;
 
 	@InjectMocks
 	private ImageExploratoryServiceImpl imageExploratoryService;
@@ -107,6 +111,7 @@ public class ImageExploratoryServiceImplTest {
 
 	@Test
 	public void createImage() {
+		when(projectService.get(anyString())).thenReturn(getProjectDTO());
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString(), anyString())).thenReturn(userInstance);
 		when(imageExploratoryDao.exist(anyString(), anyString())).thenReturn(false);
 
@@ -117,7 +122,7 @@ public class ImageExploratoryServiceImplTest {
 		ExploratoryImageDTO eiDto = new ExploratoryImageDTO();
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		when(requestBuilder.newExploratoryImageCreate(any(UserInfo.class), any(UserInstanceDTO.class), anyString(),
-				any(EndpointDTO.class))).thenReturn(eiDto);
+				any(EndpointDTO.class), any(ProjectDTO.class))).thenReturn(eiDto);
 
 		String expectedUuid = "someUuid";
 		when(provisioningService.post(anyString(), anyString(), any(ExploratoryImageDTO.class), any()))
@@ -129,15 +134,16 @@ public class ImageExploratoryServiceImplTest {
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
 
+		verify(projectService).get(PROJECT);
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
 		verify(imageExploratoryDao).exist(imageName, PROJECT);
 		verify(imageExploratoryDao).save(any(Image.class));
 		verify(libDAO).getLibraries(USER, PROJECT, EXPLORATORY_NAME);
-		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName, endpointDTO());
+		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName, endpointDTO(), getProjectDTO());
 		verify(endpointService).get(anyString());
 		verify(provisioningService).post(endpointDTO().getUrl() + "exploratory/image", TOKEN, eiDto, String.class);
-		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao, libDAO, requestBuilder, endpointService, provisioningService);
+		verifyNoMoreInteractions(projectService, exploratoryDAO, imageExploratoryDao, libDAO, requestBuilder, endpointService, provisioningService);
 	}
 
 	@Test
@@ -170,6 +176,7 @@ public class ImageExploratoryServiceImplTest {
 
 	@Test
 	public void createImageWhenMethodNewExploratoryImageCreateThrowsException() {
+		when(projectService.get(anyString())).thenReturn(getProjectDTO());
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString(), anyString())).thenReturn(userInstance);
 		when(imageExploratoryDao.exist(anyString(), anyString())).thenReturn(false);
 
@@ -178,7 +185,7 @@ public class ImageExploratoryServiceImplTest {
 		when(exploratoryDAO.updateExploratoryStatus(any(ExploratoryStatusDTO.class)))
 				.thenReturn(mock(UpdateResult.class));
 		doThrow(new DlabException("Cannot create instance of resource class")).when(requestBuilder)
-				.newExploratoryImageCreate(any(UserInfo.class), any(UserInstanceDTO.class), anyString(), any(EndpointDTO.class));
+				.newExploratoryImageCreate(any(UserInfo.class), any(UserInstanceDTO.class), anyString(), any(EndpointDTO.class), any(ProjectDTO.class));
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 
 		String imageName = "someImageName", imageDescription = "someDescription";
@@ -188,14 +195,15 @@ public class ImageExploratoryServiceImplTest {
 			assertEquals("Cannot create instance of resource class", e.getMessage());
 		}
 
+		verify(projectService).get(PROJECT);
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
 		verify(exploratoryDAO).updateExploratoryStatus(any(ExploratoryStatusDTO.class));
 		verify(imageExploratoryDao).exist(imageName, PROJECT);
 		verify(imageExploratoryDao).save(any(Image.class));
 		verify(libDAO).getLibraries(USER, PROJECT, EXPLORATORY_NAME);
-		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName, endpointDTO());
+		verify(requestBuilder).newExploratoryImageCreate(userInfo, userInstance, imageName, endpointDTO(), getProjectDTO());
 		verify(endpointService).get(anyString());
-		verifyNoMoreInteractions(exploratoryDAO, imageExploratoryDao, libDAO, requestBuilder, endpointService);
+		verifyNoMoreInteractions(projectService, exploratoryDAO, imageExploratoryDao, libDAO, requestBuilder, endpointService);
 	}
 
 	@Test
@@ -336,5 +344,9 @@ public class ImageExploratoryServiceImplTest {
 
 	private EndpointDTO endpointDTO() {
 		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.AWS);
+	}
+
+	private ProjectDTO getProjectDTO() {
+		return ProjectDTO.builder().name(PROJECT).build();
 	}
 }
