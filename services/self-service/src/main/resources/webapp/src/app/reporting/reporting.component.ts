@@ -77,18 +77,12 @@ export class ReportingComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.rebuildBillingReport();
+    this.getEnvironmentHealthStatus();
+    this.buildBillingReport();
   }
 
   ngOnDestroy() {
     this.clearStorage();
-  }
-
-  initBilling() {
-    this.getEnvironmentHealthStatus();
-    if (this.admin) {
-      this.rebuildBillingReport();
-    }
   }
 
   getGeneralBillingData() {
@@ -120,6 +114,11 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   rebuildBillingReport(): void {
     this.checkAutorize();
+    this.buildBillingReport();
+
+  }
+
+  buildBillingReport() {
     this.clearStorage();
     this.resetRangePicker();
     this.reportData.defaultConfigurations();
@@ -137,7 +136,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.billingReportService.downloadReport(this.reportData)
       .subscribe(
         data => FileUtils.downloadFile(data),
-        error => this.toastr.error('Billing report export failed!', 'Oops!'));
+        () => this.toastr.error('Billing report export failed!', 'Oops!'));
   }
 
   getDefaultFilterConfiguration(data): void {

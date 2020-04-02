@@ -67,6 +67,9 @@
     &.header-row {
       th {
         font-size: 11px;
+        .label{
+          padding-left: 0;
+        }
       }
     }
   }
@@ -116,7 +119,7 @@
   }
 
   .th_charges {
-    width: 8%;
+    width: 10%;
     min-width: 140px;
     padding-right: 15px;
     text-align: right;

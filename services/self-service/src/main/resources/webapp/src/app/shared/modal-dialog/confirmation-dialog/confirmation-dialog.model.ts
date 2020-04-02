@@ -70,15 +70,19 @@ export class ConfirmationDialogModel {
 
 
   private stopExploratory(): Observable<{}> {
-    return this.manageAction
-      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', this.notebook.project, this.notebook.name)
-      : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
+    // return this.manageAction
+    //   ?
+      return this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', this.notebook.project, this.notebook.name);
+      // : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
   }
 
   private terminateExploratory(): Observable<{}> {
-    return this.manageAction
-      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'terminate', this.notebook.project,  this.notebook.name)
-      : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
+    // return this.manageAction
+    //   ?
+      return this.manageEnvironmentsService.environmentManagement(
+        this.notebook.user, 'terminate', this.notebook.project,  this.notebook.name
+      );
+      // : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
   }
 
   private stopEdgeNode(): Observable<{}> {

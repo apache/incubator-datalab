@@ -124,8 +124,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     if ( action === 'terminate') {
       const projectsResources = this.resources
         .filter(resource => resource.project === data.project_name )[0].exploratory
-        .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating');
-
+        .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed');
       let termResources = [];
       data.endpoint.forEach(v => {
         termResources = [...termResources, ...projectsResources.filter(resource => resource.endpoint === v)];
