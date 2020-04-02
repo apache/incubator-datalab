@@ -52,7 +52,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -116,9 +116,9 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 								.collect(Collectors.toList());
 
 						final Map<String, Map<String, String>> projectEdges =
-								endpoints.stream()
-										.collect(Collectors.toMap(ProjectEndpointDTO::getName,
-												endpointDTO -> getSharedInfo(endpointDTO.getEdgeInfo())));
+								endpoints
+										.stream()
+										.collect(Collectors.toMap(ProjectEndpointDTO::getName, this::getSharedInfo));
 						return new ProjectInfrastructureInfo(e.getKey(),
 								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), collect, endpointResult);
 					})
@@ -161,18 +161,22 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 				.build();
 	}
 
-	private Map<String, String> getSharedInfo(EdgeInfo edgeInfo) {
-		Map<String, String> shared = new HashMap<>();
-		if (Objects.isNull(edgeInfo)) {
-			return shared;
+	private Map<String, String> getSharedInfo(ProjectEndpointDTO endpointDTO) {
+		Optional<EdgeInfo> edgeInfo = Optional.ofNullable(endpointDTO.getEdgeInfo());
+		if (!edgeInfo.isPresent()) {
+			return Collections.emptyMap();
 		}
-		shared.put("edge_node_ip", edgeInfo.getPublicIp());
-		if (edgeInfo instanceof EdgeInfoAws) {
-			EdgeInfoAws edgeInfoAws = (EdgeInfoAws) edgeInfo;
+		EdgeInfo edge = edgeInfo.get();
+		Map<String, String> shared = new HashMap<>();
+
+		shared.put("status", endpointDTO.getStatus().toString());
+		shared.put("edge_node_ip", edge.getPublicIp());
+		if (edge instanceof EdgeInfoAws) {
+			EdgeInfoAws edgeInfoAws = (EdgeInfoAws) edge;
 			shared.put("user_own_bicket_name", edgeInfoAws.getUserOwnBucketName());
 			shared.put("shared_bucket_name", edgeInfoAws.getSharedBucketName());
-		} else if (edgeInfo instanceof EdgeInfoAzure) {
-			EdgeInfoAzure edgeInfoAzure = (EdgeInfoAzure) edgeInfo;
+		} else if (edge instanceof EdgeInfoAzure) {
+			EdgeInfoAzure edgeInfoAzure = (EdgeInfoAzure) edge;
 			shared.put("user_container_name", edgeInfoAzure.getUserContainerName());
 			shared.put("shared_container_name", edgeInfoAzure.getSharedContainerName());
 			shared.put("user_storage_account_name", edgeInfoAzure.getUserStorageAccountName());
@@ -180,8 +184,8 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 			shared.put("datalake_name", edgeInfoAzure.getDataLakeName());
 			shared.put("datalake_user_directory_name", edgeInfoAzure.getDataLakeDirectoryName());
 			shared.put("datalake_shared_directory_name", edgeInfoAzure.getDataLakeSharedDirectoryName());
-		} else if (edgeInfo instanceof EdgeInfoGcp) {
-			EdgeInfoGcp edgeInfoGcp = (EdgeInfoGcp) edgeInfo;
+		} else if (edge instanceof EdgeInfoGcp) {
+			EdgeInfoGcp edgeInfoGcp = (EdgeInfoGcp) edge;
 			shared.put("user_own_bucket_name", edgeInfoGcp.getUserOwnBucketName());
 			shared.put("shared_bucket_name", edgeInfoGcp.getSharedBucketName());
 		}
