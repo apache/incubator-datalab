@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Singleton;
@@ -35,9 +36,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_GROUPS;
 import static com.mongodb.client.model.Aggregates.group;
@@ -95,11 +99,20 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 
 	@Override
 	public void updateMissingRoles(CloudProvider cloudProvider) {
-		getUserRoleFromFile(cloudProvider).stream()
-				.filter(u -> findAll().stream()
+		getUserRoleFromFile(cloudProvider)
+				.stream()
+				.peek(u -> u.setGroups(Collections.emptySet()))
+				.filter(u -> findAll()
+						.stream()
 						.map(UserRoleDto::getId)
 						.noneMatch(id -> id.equals(u.getId())))
 				.forEach(this::insert);
+
+		addGroupToRole(aggregateRolesByGroup()
+						.stream()
+						.map(UserGroupDto::getGroup)
+						.collect(Collectors.toSet()),
+				getDefaultShapes(cloudProvider));
 	}
 
 	@Override
@@ -167,6 +180,21 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 			});
 		} catch (IOException e) {
 			throw new IllegalStateException("Can not marshall dlab roles due to: " + e.getMessage());
+		}
+	}
+
+	private Set<String> getDefaultShapes(CloudProvider cloudProvider) {
+		if (cloudProvider == CloudProvider.AWS) {
+			return Stream.of("nbShapes_t2.medium_fetching", "compShapes_c4.xlarge_fetching")
+					.collect(Collectors.toSet());
+		} else if (cloudProvider == CloudProvider.GCP) {
+			return Stream.of("compShapes_n1-standard-2_fetching", "nbShapes_n1-standard-2_fetching")
+					.collect(Collectors.toSet());
+		} else if (cloudProvider == CloudProvider.AZURE) {
+			return Stream.of("nbShapes_Standard_E4s_v3_fetching", "compShapes_Standard_E4s_v3_fetching")
+					.collect(Collectors.toSet());
+		} else {
+			throw new DlabException("Unsupported cloud provider " + cloudProvider);
 		}
 	}
 
