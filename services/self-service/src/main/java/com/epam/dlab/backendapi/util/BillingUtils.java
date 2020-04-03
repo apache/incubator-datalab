@@ -47,6 +47,7 @@ import static com.epam.dlab.dto.billing.BillingResourceType.SSN;
 import static com.epam.dlab.dto.billing.BillingResourceType.VOLUME;
 
 public class BillingUtils {
+    private static final String[] AVAILABLE_NOTEBOOKS = {"zeppelin", "tensor-rstudio", "rstudio", "tensor", "superset", "jupyterlab", "jupyter", "deeplearning"};
     private static final String[] REPORT_HEADERS = {"DLab ID", "User", "Project", "DLab Resource Type", "Shape", "Product", "Cost"};
     private static final String REPORT_FIRST_LINE = "Service base name: %s. Available reporting period from: %s to: %s";
     private static final String TOTAL_LINE = "Total: %s %s";
@@ -78,10 +79,12 @@ public class BillingUtils {
         final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project.toLowerCase(), endpoint);
         final String endpointBucketId = String.format(PROJECT_ENDPOINT_BUCKET_FORMAT, sbn, project.toLowerCase(), endpoint);
 
-        return Stream.of(
+        return Stream.concat(Stream.of(
                 BillingReportLine.builder().resourceName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(EDGE).status(UserInstanceStatus.of(status)).build(),
                 BillingReportLine.builder().resourceName("EDGE volume").user(SHARED_RESOURCE).project(project).dlabId(edgeVolumeId).resourceType(VOLUME).build(),
                 BillingReportLine.builder().resourceName("Project endpoint shared bucket").user(SHARED_RESOURCE).project(project).dlabId(endpointBucketId).resourceType(BUCKET).build()
+                ),
+                standardImageBillingDataStream(sbn, project, endpoint)
         );
     }
 
@@ -117,16 +120,13 @@ public class BillingUtils {
                         getSlaveVolumes(userInstance, cr, maxSparkInstanceCount)
                 ));
         final String exploratoryId = userInstance.getExploratoryId();
-        final String imageId1 = String.format(IMAGE_STANDARD_FORMAT1, sbn, userInstance.getProject(), userInstance.getEndpoint(), userInstance.getImageName().replace(IMAGE_NAME_PREFIX, ""));
-        final String imageId2 = String.format(IMAGE_STANDARD_FORMAT2, sbn, userInstance.getEndpoint(), userInstance.getImageName().replace(IMAGE_NAME_PREFIX, ""));
         final String primaryVolumeId = String.format(VOLUME_PRIMARY_FORMAT, exploratoryId);
         final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);
         final Stream<BillingReportLine> exploratoryStream = Stream.of(
                 withUserProject(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(EXPLORATORY).status(UserInstanceStatus.of(userInstance.getStatus())).shape(userInstance.getShape()).build(),
-                BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(imageId1).project(SHARED_RESOURCE).resourceType(IMAGE).build(),
-                BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(imageId2).project(SHARED_RESOURCE).resourceType(IMAGE).build(),
                 withUserProject(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(VOLUME).build(),
                 withUserProject(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(VOLUME).build());
+
         return Stream.concat(computationalStream, exploratoryStream);
     }
 
@@ -164,6 +164,18 @@ public class BillingUtils {
         return DataEngineType.fromDockerImageName(resource.getImageName()) == DataEngineType.SPARK_STANDALONE ?
                 String.format(DATAENGINE_NAME_FORMAT, resource.getDataengineInstanceCount(), resource.getDataengineShape()) :
                 String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), System.lineSeparator(), null, null);
+    }
+
+    public static Stream<BillingReportLine> standardImageBillingDataStream(String sbn, String project, String endpoint) {
+        List<BillingReportLine> list = new ArrayList<>();
+        for (String notebook : AVAILABLE_NOTEBOOKS) {
+            list.add(BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(String.format(IMAGE_STANDARD_FORMAT1, sbn, project, endpoint, notebook))
+                    .project(SHARED_RESOURCE).resourceType(IMAGE).build());
+            list.add(BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(String.format(IMAGE_STANDARD_FORMAT2, sbn, endpoint, notebook))
+                    .project(SHARED_RESOURCE).resourceType(IMAGE).build());
+        }
+
+        return list.stream();
     }
 
     public static String getFirstLine(String sbn, LocalDate from, LocalDate to) {
