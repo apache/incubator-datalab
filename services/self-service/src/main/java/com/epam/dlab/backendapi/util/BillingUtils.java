@@ -62,9 +62,7 @@ public class BillingUtils {
     private static final String VOLUME_SECONDARY_FORMAT = "%s-volume-secondary";
     private static final String VOLUME_SECONDARY_COMPUTATIONAL_FORMAT = "%s-%s-volume-secondary";
     private static final String IMAGE_STANDARD_FORMAT1 = "%s-%s-%s-%s-notebook-image";
-    private static final String IMAGE_STANDARD_FORMAT2 = "%s-%s-%s-notebook-image";
     private static final String IMAGE_CUSTOM_FORMAT = "%s-%s-%s-%s-%s";
-    private static final String IMAGE_NAME_PREFIX = "docker.dlab-";
 
     private static final String VOLUME_PRIMARY = "Volume primary";
     private static final String VOLUME_SECONDARY = "Volume secondary";
@@ -170,8 +168,6 @@ public class BillingUtils {
         List<BillingReportLine> list = new ArrayList<>();
         for (String notebook : AVAILABLE_NOTEBOOKS) {
             list.add(BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(String.format(IMAGE_STANDARD_FORMAT1, sbn, project, endpoint, notebook))
-                    .project(SHARED_RESOURCE).resourceType(IMAGE).build());
-            list.add(BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(String.format(IMAGE_STANDARD_FORMAT2, sbn, endpoint, notebook))
                     .project(SHARED_RESOURCE).resourceType(IMAGE).build());
         }
 

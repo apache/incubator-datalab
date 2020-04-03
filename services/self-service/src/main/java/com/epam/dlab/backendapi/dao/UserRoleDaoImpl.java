@@ -108,7 +108,7 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 						.noneMatch(id -> id.equals(u.getId())))
 				.forEach(this::insert);
 
-		addGroupToRole(aggregateRolesByGroup()
+		addGroupToRole(aggregateRolesByGroup(false)
 						.stream()
 						.map(UserGroupDto::getGroup)
 						.collect(Collectors.toSet()),

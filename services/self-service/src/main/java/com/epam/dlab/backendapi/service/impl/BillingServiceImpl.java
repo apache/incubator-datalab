@@ -140,7 +140,7 @@ public class BillingServiceImpl implements BillingService {
             projects.addAll(projectService.getUserProjects(user, false));
         }
 
-        final Map<String, BillingReportLine> billableResources = getBillableResources(user, projects);
+        final Map<String, BillingReportLine> billableResources = getBillableResources(projects);
 
         List<BillingReportLine> billingReport = getRemoteBillingData(user, filter)
                 .stream()
@@ -153,8 +153,17 @@ public class BillingServiceImpl implements BillingService {
         return billingReport;
     }
 
-    private Map<String, BillingReportLine> getBillableResources(UserInfo user, Set<ProjectDTO> projects) {
-        Stream<BillingReportLine> billableAdminResources = Stream.empty();
+    private Map<String, BillingReportLine> getBillableResources(Set<ProjectDTO> projects) {
+        final Stream<BillingReportLine> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(sbn);
+        final Stream<BillingReportLine> billableEdges = projects
+                .stream()
+                .collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
+                .entrySet()
+                .stream()
+                .flatMap(e -> projectEdges(sbn, e.getKey(), e.getValue()));
+        final Stream<BillingReportLine> billableSharedEndpoints = endpointService.getEndpoints()
+                .stream()
+                .flatMap(endpoint -> BillingUtils.sharedEndpointBillingDataStream(endpoint.getName(), sbn));
         final Stream<BillingReportLine> billableUserInstances = exploratoryService.findAll(projects)
                 .stream()
                 .filter(userInstance -> Objects.nonNull(userInstance.getExploratoryId()))
@@ -165,23 +174,7 @@ public class BillingServiceImpl implements BillingService {
                 .flatMap(Collection::stream)
                 .flatMap(i -> BillingUtils.customImageBillingDataStream(i, sbn));
 
-        if (UserRoles.isAdmin(user)) {
-            final Stream<BillingReportLine> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(sbn);
-            final Stream<BillingReportLine> billableEdges = projects
-                    .stream()
-                    .collect(Collectors.toMap(ProjectDTO::getName, ProjectDTO::getEndpoints))
-                    .entrySet()
-                    .stream()
-                    .flatMap(e -> projectEdges(sbn, e.getKey(), e.getValue()));
-            final Stream<BillingReportLine> billableSharedEndpoints = endpointService.getEndpoints()
-                    .stream()
-                    .flatMap(endpoint -> BillingUtils.sharedEndpointBillingDataStream(endpoint.getName(), sbn));
-
-            billableAdminResources = Stream.of(billableEdges, ssnBillingDataStream, billableSharedEndpoints)
-                    .flatMap(s -> s);
-        }
-
-        final Map<String, BillingReportLine> billableResources = Stream.of(billableUserInstances, customImages, billableAdminResources)
+        final Map<String, BillingReportLine> billableResources = Stream.of(ssnBillingDataStream, billableEdges, billableSharedEndpoints, billableUserInstances, customImages)
                 .flatMap(s -> s)
                 .collect(Collectors.toMap(BillingReportLine::getDlabId, b -> b));
         log.debug("Billable resources are: {}", billableResources);
