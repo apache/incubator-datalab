@@ -206,7 +206,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 				.usageDateTo(billingData.getUsageDateTo())
 				.product(billingData.getProduct())
 				.usageType(billingData.getUsageType())
-				.cost(BigDecimal.valueOf(billingData.getCost()).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
+				.cost(BigDecimal.valueOf(billingData.getCost()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
 				.currency(billingData.getCurrency())
 				.tag(billingData.getTag())
 				.build();

@@ -121,7 +121,7 @@ public class BillingDAOImpl implements BillingDAO {
                 .usageDateTo(Optional.ofNullable(billingData.getString("to")).map(LocalDate::parse).orElse(null))
                 .product(billingData.getString(FIELD_PRODUCT))
                 .usageType(billingData.getString(FIELD_RESOURCE_TYPE))
-                .cost(BigDecimal.valueOf(billingData.getDouble(FIELD_COST)).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
+                .cost(BigDecimal.valueOf(billingData.getDouble(FIELD_COST)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(billingData.getString(FIELD_CURRENCY_CODE))
                 .build();
     }

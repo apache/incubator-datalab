@@ -108,7 +108,7 @@ public class BillingServiceImpl implements BillingService {
                 .reportLines(billingReportLines)
                 .usageDateFrom(min)
                 .usageDateTo(max)
-                .totalCost(new BigDecimal(sum).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
+                .totalCost(new BigDecimal(sum).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(currency)
                 .isFull(isFullReport(user))
                 .build();

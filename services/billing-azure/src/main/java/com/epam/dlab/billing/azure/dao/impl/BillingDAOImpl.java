@@ -114,7 +114,7 @@ public class BillingDAOImpl implements BillingDAO {
                 .usageDateFrom(Optional.ofNullable(billingData.getUsageStartDate()).map(LocalDate::parse).orElse(null))
                 .usageDateTo(Optional.ofNullable(billingData.getUsageEndDate()).map(LocalDate::parse).orElse(null))
                 .product(billingData.getMeterCategory())
-                .cost(BigDecimal.valueOf(billingData.getCost()).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue())
+                .cost(BigDecimal.valueOf(billingData.getCost()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(billingData.getCurrencyCode())
                 .build();
     }
