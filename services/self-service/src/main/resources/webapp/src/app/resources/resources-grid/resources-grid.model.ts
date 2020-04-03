@@ -50,6 +50,7 @@ export class ExploratoryModel {
     public project: string,
     public endpoint: string,
     public tags: any,
+    public edgeNodeStatus: string
   ) { }
 
   public static loadEnvironments(data: Array<any>) {
@@ -88,6 +89,7 @@ export class ExploratoryModel {
             el.project,
             el.endpoint,
             el.tags,
+            value.shared[el.endpoint].status
           )})
         };
       });

@@ -168,10 +168,12 @@
                     </div>
                   </li>
                   <li *ngIf="element.status.toLowerCase() === 'stopped' || element.status.toLowerCase() === 'stopping'"
-                    matTooltip="{{isEdgeNodeStopped(element) ? 'Unable to run notebook if edge node is stopped.' : 'Unable to run notebook until it will be stopped.'}}" matTooltipPosition="above"
-                    [matTooltipDisabled]="!isResourcesInProgress(element) && element.status.toLowerCase() !== 'stopping' && !isEdgeNodeStopped(element)">
+                    matTooltip="{{element.edgeNodeStatus !== 'running' ? 'Unable to run notebook if edge node is not running.' : 'Unable to run notebook until it will be stopped.'}}" matTooltipPosition="above"
+                    [matTooltipDisabled]="!isResourcesInProgress(element) && element.status.toLowerCase() !== 'stopping' && element.edgeNodeStatus === 'running'"
+                    [ngClass]="{'not-allow': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' || element.edgeNodeStatus !== 'running' }"
+                  >
                     <div (click)="exploratoryAction(element, 'run')"
-                      [ngClass]="{'not-allowed': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' || isEdgeNodeStopped(element) }">
+                      [ngClass]="{'not-allowed': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' || element.edgeNodeStatus !== 'running' }">
                       <i class="material-icons">play_circle_outline</i>
                       <span>Run</span>
                     </div>
