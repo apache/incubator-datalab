@@ -40,7 +40,9 @@
         <ng-template  ngFor let-item [ngForOf]="items" let-i="index">
           <li class="role-label" role="presentation" *ngIf="i === 0 || model && item.type !== items[i - 1].type" (click)="toggleItemsForLable(item.type, $event)">
             <a href="#" class="list-item" role="menuitem">
-              <span class="arrow" [ngClass]="{'rotate-arrow': isOpenCategory[item.type], 'arrow-checked': selectedAllInCattegory(item.type) || selectedSomeInCattegory(item.type)}"></span>
+              <span class="arrow" [ngClass]="{'rotate-arrow': isOpenCategory[item.type], 'arrow-checked': selectedAllInCattegory(item.type) || selectedSomeInCattegory(item.type)}">
+                <i class="material-icons">keyboard_arrow_right</i>
+              </span>
               <span class="empty-checkbox" [ngClass]="{'checked': selectedAllInCattegory(item.type) || selectedSomeInCattegory(item.type)}" (click)="toggleselectedCategory($event, model, item.type);$event.stopPropagation()" >
                 <span class="checked-checkbox" *ngIf="selectedAllInCattegory(item.type)"></span>
                 <span class="line-checkbox" *ngIf="selectedSomeInCattegory(item.type)"></span>
@@ -64,12 +66,20 @@
               || model && isOpenCategory[item.type] && item.type === 'COMPUTATIONAL_SHAPE' && item.type !== items[i - 1].type"
           >
             <a href="#" class="list-item" role="menuitem">
-              <span class="arrow" [ngClass]="{'rotate-arrow': isCloudOpen[item.type + item.cloud], 'arrow-checked': selectedAllInCloud(item.type, item.cloud) || selectedSomeInCloud(item.type, item.cloud)}"></span>
-              <span class="empty-checkbox" [ngClass]="{'checked': selectedAllInCloud(item.type, item.cloud) || selectedSomeInCloud(item.type, item.cloud)}" (click)="toggleSelectedCloud($event, model, item.type, item.cloud);$event.stopPropagation()" >
+              <span class="arrow" [ngClass]="{'rotate-arrow': isCloudOpen[item.type + item.cloud], 'arrow-checked': selectedAllInCloud(item.type, item.cloud) || selectedSomeInCloud(item.type, item.cloud)}">
+                 <i class="material-icons">keyboard_arrow_right</i>
+              </span>
+              <span class="empty-checkbox"
+                    [ngClass]="{
+                    'checked': selectedAllInCloud(item.type, item.cloud)
+                    || selectedSomeInCloud(item.type, item.cloud)}"
+                    (click)="toggleSelectedCloud($event, model, item.type, item.cloud);
+                    $event.stopPropagation()"
+              >
                 <span class="checked-checkbox" *ngIf="selectedAllInCloud(item.type, item.cloud)"></span>
                 <span class="line-checkbox" *ngIf="selectedSomeInCloud(item.type, item.cloud)"></span>
               </span>
-              {{item.cloud || 'AWS'}}
+              {{item.cloud}}
             </a>
           </li>
           <li class="role-cloud-item" role="presentation" *ngIf="model && isCloudOpen[item.type + item.cloud] && isOpenCategory[item.type]" >

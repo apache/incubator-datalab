@@ -151,12 +151,6 @@ export class ResourcesGridComponent implements OnInit {
     return false;
   }
 
-  public isEdgeNodeStopped(resource) {
-    const currProject = this.projects.filter(proj => proj.name === resource.project);
-    const currEdgenodeStatus =  currProject[0].endpoints.filter(node => node.name === resource.endpoint)[0].status;
-    return currEdgenodeStatus === 'STOPPED' || currEdgenodeStatus === 'STOPPING';
-  }
-
   public filterActiveInstances(): FilterConfigurationModel {
     return (<FilterConfigurationModel | any>Object).assign({}, this.filterConfiguration, {
       statuses: SortUtils.activeStatuses(),
