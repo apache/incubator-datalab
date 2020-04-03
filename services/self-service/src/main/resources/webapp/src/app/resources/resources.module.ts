@@ -27,6 +27,7 @@ import { ResourcesGridModule } from './resources-grid';
 import { ExploratoryEnvironmentCreateModule } from './exploratory/create-environment';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
+import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
 
 @NgModule({
   imports: [
@@ -40,9 +41,10 @@ import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.componen
   declarations: [
     ResourcesComponent,
     ManageUngitComponent,
-    ConfirmDeleteAccountDialog
+    ConfirmDeleteAccountDialog,
+    BucketBrowserComponent
   ],
-  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog],
+  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog, BucketBrowserComponent],
   exports: [ResourcesComponent]
 })
 export class ResourcesModule { }
