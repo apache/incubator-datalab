@@ -122,12 +122,12 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   private toggleStatusRequest(data, action) {
     if ( action === 'terminate') {
-      const projectsResources = this.resources
-        .filter(resource => resource.project === data.project_name )[0].exploratory
-        .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed');
+      const projectsResources = this.resources.filter(resource => resource.project === data.project_name );
+      const activeProjectsResources = projectsResources.length ? projectsResources[0].exploratory
+        .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed') : [];
       let termResources = [];
       data.endpoint.forEach(v => {
-        termResources = [...termResources, ...projectsResources.filter(resource => resource.endpoint === v)];
+        termResources = [...termResources, ...activeProjectsResources.filter(resource => resource.endpoint === v)];
       });
 
       this.dialog.open(NotificationDialogComponent, { data: {
