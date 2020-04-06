@@ -20,7 +20,7 @@
 <div class="ani">
   <table mat-table [dataSource]="allFilteredEnvironmentData" class="data-grid management mat-elevation-z6">
     <ng-container matColumnDef="user">
-      <th mat-header-cell *matHeaderCellDef class="user">
+      <th mat-header-cell *matHeaderCellDef class="user label-header">
         <span class="label">User</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
@@ -32,7 +32,7 @@
     </ng-container>
 
     <ng-container matColumnDef="project">
-      <th mat-header-cell *matHeaderCellDef class="project">
+      <th mat-header-cell *matHeaderCellDef class="project label-header">
         <span class="label">Project</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
@@ -44,7 +44,7 @@
     </ng-container>
 
     <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef class="type">
+      <th mat-header-cell *matHeaderCellDef class="type label-header">
         <span class="label">Type</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
@@ -56,7 +56,7 @@
     </ng-container>
 
     <ng-container matColumnDef="shape">
-      <th mat-header-cell *matHeaderCellDef class="shape">
+      <th mat-header-cell *matHeaderCellDef class="shape label-header">
         <span class="label">Shape / Resource id</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
@@ -68,7 +68,7 @@
     </ng-container>
 
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef class="status">
+      <th mat-header-cell *matHeaderCellDef class="status label-header">
         <span class="label">Status</span>
 
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
@@ -77,13 +77,13 @@
             <span [hidden]="filtering && filterForm.statuses.length > 0 && !collapsedFilterRow">more_vert</span>
           </i>
         </button> </th>
-      <td mat-cell *matCellDef="let element" class="ani status" >
+      <td mat-cell *matCellDef="let element" class="ani status label-header" >
         <span ngClass="{{element.status || ''}}">{{ element.status }}</span>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="resources">
-      <th mat-header-cell *matHeaderCellDef class="resources">
+      <th mat-header-cell *matHeaderCellDef class="resources label-header">
         <span class="label">Computational resources</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
@@ -122,7 +122,7 @@
     </ng-container>
 
     <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef class="actions">
+      <th mat-header-cell *matHeaderCellDef class="actions label-header">
         <span class="label"> Actions </span>
       </th>
       <td mat-cell *matCellDef="let element" class="settings actions-col">
@@ -166,43 +166,43 @@
 
     <!-- FILTERING -->
     <ng-container matColumnDef="user-filter" sticky>
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'users'" [items]="filterConfiguration.users"
           [model]="filterForm.users"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="type-filter" sticky>
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <input placeholder="Filter by environment type" type="text" class="form-control filter-field"
           [value]="filterForm.type" (input)="filterForm.type = $event.target.value" />
       </th>
     </ng-container>
     <ng-container matColumnDef="project-filter" sticky>
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'projects'"
           [items]="filterConfiguration.projects" [model]="filterForm.projects"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="shape-filter" sticky>
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'shapes'"
           [items]="filterConfiguration.shapes" [model]="filterForm.shapes"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="status-filter" sticky>
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'"
           [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="resource-filter" sticky>
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'"
           [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="actions-filter" sticky>
-      <th mat-header-cell *matHeaderCellDef  class="actions-col">
+      <th mat-header-cell *matHeaderCellDef  class="actions-col filter-row-item">
         <div class="actions">
           <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
             <i class="material-icons">close</i>
