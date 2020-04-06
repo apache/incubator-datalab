@@ -21,7 +21,10 @@ package com.epam.dlab.backendapi.interceptor;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.Project;
+import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.backendapi.service.SecurityService;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceQuoteReachedException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +33,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
@@ -38,10 +40,12 @@ import java.util.stream.IntStream;
 public class BudgetLimitInterceptor implements MethodInterceptor {
 	@Inject
 	private BillingDAO billingDAO;
+	@Inject
+	private SecurityService securityService;
 
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
-		if (projectQuoteReached(mi) || billingDAO.isBillingQuoteReached()) {
+		if (projectQuoteReached(mi) || billingDAO.isBillingQuoteReached(securityService.getServiceAccountInfo("admin"))) {
 			final Method method = mi.getMethod();
 			log.warn("Execution of method {} failed because of reaching resource limit quote", method.getName());
 			throw new ResourceQuoteReachedException("Operation can not be finished. Resource quote is reached");
@@ -50,23 +54,20 @@ public class BudgetLimitInterceptor implements MethodInterceptor {
 		}
 	}
 
-	private Boolean userQuoteReached(MethodInvocation mi) {
-		return Arrays.stream(mi.getArguments())
-				.filter(arg -> arg.getClass().equals(UserInfo.class))
-				.findAny()
-				.map(u -> ((UserInfo) u).getName())
-				.map(billingDAO::isUserQuoteReached)
-				.orElse(Boolean.FALSE);
-	}
-
 	private Boolean projectQuoteReached(MethodInvocation mi) {
 
 		final Parameter[] parameters = mi.getMethod().getParameters();
-		return IntStream.range(0, parameters.length)
+		String project = IntStream.range(0, parameters.length)
 				.filter(i -> Objects.nonNull(parameters[i].getAnnotation(Project.class)))
 				.mapToObj(i -> (String) mi.getArguments()[i])
 				.findAny()
-				.map(billingDAO::isProjectQuoteReached)
-				.orElse(Boolean.FALSE);
+				.orElseThrow(() -> new DlabException("Project parameter wanted!"));
+		UserInfo userInfo = IntStream.range(0, parameters.length)
+				.filter(i -> Objects.nonNull(parameters[i].getAnnotation(User.class)))
+				.mapToObj(i -> (UserInfo) mi.getArguments()[i])
+				.findAny()
+				.orElseThrow(() -> new DlabException("UserInfo parameter wanted!"));
+
+		return billingDAO.isProjectQuoteReached(project, userInfo);
 	}
 }

@@ -120,7 +120,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 										.stream()
 										.collect(Collectors.toMap(ProjectEndpointDTO::getName, this::getSharedInfo));
 						return new ProjectInfrastructureInfo(e.getKey(),
-								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), collect, endpointResult);
+								billingDAO.getBillingProjectQuoteUsed(e.getKey(), user), projectEdges, e.getValue(), collect, endpointResult);
 					})
 					.collect(Collectors.toList());
 		} catch (Exception e) {
@@ -141,8 +141,8 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 					.projectAdmin(UserRoles.isProjectAdmin(userInfo))
 					.admin(UserRoles.isAdmin(userInfo))
 					.projectAssigned(projectService.isAnyProjectAssigned(userInfo))
-					.billingQuoteUsed(billingDAO.getBillingQuoteUsed())
-					.billingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user))
+					.billingQuoteUsed(billingDAO.getBillingQuoteUsed(userInfo))
+					.billingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user, userInfo))
 					.build();
 		} catch (Exception e) {
 			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);

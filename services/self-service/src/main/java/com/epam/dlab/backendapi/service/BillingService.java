@@ -33,7 +33,7 @@ public interface BillingService {
 
     String downloadReport(UserInfo userInfo, BillingFilter filter);
 
-    List<BillingReportLine> getBillingReportLines(UserInfo userInfo, BillingFilter filter);
+    List<BillingReportLine> getBillingReportLines(UserInfo userInfo, BillingFilter filter, boolean isFullReport);
 
     List<BillingData> getExploratoryRemoteBillingData(UserInfo user, String endpoint, List<UserInstanceDTO> userInstanceDTOS);
 }

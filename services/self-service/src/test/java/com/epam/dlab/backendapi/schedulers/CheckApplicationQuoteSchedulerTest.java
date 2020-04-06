@@ -19,8 +19,10 @@
 
 package com.epam.dlab.backendapi.schedulers;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.service.EnvironmentService;
+import com.epam.dlab.backendapi.service.SecurityService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -28,7 +30,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.quartz.JobExecutionContext;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CheckApplicationQuoteSchedulerTest {
@@ -39,28 +46,39 @@ public class CheckApplicationQuoteSchedulerTest {
 	private EnvironmentService environmentService;
 	@Mock
 	private JobExecutionContext jobExecutionContext;
+	@Mock
+	private SecurityService securityService;
 	@InjectMocks
 	private CheckApplicationQuoteScheduler checkApplicationQuoteScheduler;
 
 	@Test
 	public void testWhenQuoteNotReached() {
-		when(billingDAO.isBillingQuoteReached()).thenReturn(false);
+		when(billingDAO.isBillingQuoteReached(any(UserInfo.class))).thenReturn(false);
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
 
 		checkApplicationQuoteScheduler.execute(jobExecutionContext);
 
-		verify(billingDAO).isBillingQuoteReached();
+		verify(securityService).getServiceAccountInfo("admin");
+		verify(billingDAO).isBillingQuoteReached(getUserInfo());
 		verifyNoMoreInteractions(billingDAO);
 		verifyZeroInteractions(environmentService);
 	}
 
 	@Test
 	public void testWhenQuoteReached() {
-		when(billingDAO.isBillingQuoteReached()).thenReturn(true);
+		when(billingDAO.isBillingQuoteReached(any(UserInfo.class))).thenReturn(true);
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
 
 		checkApplicationQuoteScheduler.execute(jobExecutionContext);
 
-		verify(billingDAO).isBillingQuoteReached();
+		verify(securityService).getServiceAccountInfo("admin");
+		verify(billingDAO).isBillingQuoteReached(getUserInfo());
 		verify(environmentService).stopAll();
 		verifyNoMoreInteractions(billingDAO, environmentService);
 	}
+
+	private UserInfo getUserInfo() {
+		return new UserInfo("admin", null);
+	}
+
 }
