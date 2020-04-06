@@ -18,22 +18,24 @@
  */
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.auth.UserInfo;
+
 public interface BillingDAO {
-	Double getTotalCost();
+	Double getTotalCost(UserInfo userInfo);
 
-	Double getUserCost(String user);
+	Double getUserCost(String user, UserInfo userInfo);
 
-	Double getProjectCost(String project);
+	Double getProjectCost(String project, UserInfo userInfo);
 
-	int getBillingQuoteUsed();
+	int getBillingQuoteUsed(UserInfo userInfo);
 
-	int getBillingUserQuoteUsed(String user);
+	int getBillingUserQuoteUsed(String user, UserInfo userInfo);
 
-	int getBillingProjectQuoteUsed(String project);
+	int getBillingProjectQuoteUsed(String project, UserInfo userInfo);
 
-	boolean isBillingQuoteReached();
+	boolean isBillingQuoteReached(UserInfo userInfo);
 
-	boolean isUserQuoteReached(String user);
+	boolean isUserQuoteReached(String user, UserInfo userInfo);
 
-	boolean isProjectQuoteReached(String project);
+	boolean isProjectQuoteReached(String project, UserInfo userInfo);
 }

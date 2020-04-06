@@ -100,7 +100,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@BudgetLimited
 	@Override
-	public void create(UserInfo user, ProjectDTO projectDTO) {
+	public void create(@User UserInfo user, ProjectDTO projectDTO) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
 			projectDAO.create(projectDTO);
 			createProjectOnCloud(user, projectDTO);
@@ -131,7 +131,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@BudgetLimited
 	@Override
-	public void start(UserInfo userInfo, String endpoint, @Project String name) {
+	public void start(@User UserInfo userInfo, String endpoint, @Project String name) {
 		projectActionOnCloud(userInfo, name, START_PRJ_API, endpoint);
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STARTING);
 	}

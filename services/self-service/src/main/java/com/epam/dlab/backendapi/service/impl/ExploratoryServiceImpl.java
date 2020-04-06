@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.annotation.Project;
+import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
@@ -105,7 +106,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 
 	@BudgetLimited
 	@Override
-	public String start(UserInfo userInfo, String exploratoryName, @Project String project) {
+	public String start(@User UserInfo userInfo, String exploratoryName, @Project String project) {
 		return action(userInfo, project, exploratoryName, EXPLORATORY_START, STARTING);
 	}
 
@@ -121,7 +122,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 
 	@BudgetLimited
 	@Override
-	public String create(UserInfo userInfo, Exploratory exploratory, @Project String project) {
+	public String create(@User UserInfo userInfo, Exploratory exploratory, @Project String project) {
 		boolean isAdded = false;
 		try {
 			final ProjectDTO projectDTO = projectService.get(project);

@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.schedulers;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
 import com.epam.dlab.backendapi.service.EnvironmentService;
+import com.epam.dlab.backendapi.service.SecurityService;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
@@ -34,10 +35,12 @@ public class CheckApplicationQuoteScheduler implements Job {
 	private BillingDAO billingDAO;
 	@Inject
 	private EnvironmentService environmentService;
+	@Inject
+	private SecurityService securityService;
 
 	@Override
 	public void execute(JobExecutionContext context) {
-		if (billingDAO.isBillingQuoteReached()) {
+		if (billingDAO.isBillingQuoteReached(securityService.getServiceAccountInfo("admin"))) {
 			log.warn("Stopping all environments because of reaching budget quote");
 			environmentService.stopAll();
 		}

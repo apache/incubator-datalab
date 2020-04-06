@@ -60,6 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -98,7 +99,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     public BillingReport getBillingReport(UserInfo user, BillingFilter filter) {
-        List<BillingReportLine> billingReportLines = getBillingReportLines(user, filter);
+        List<BillingReportLine> billingReportLines = getBillingReportLines(user, filter, isFullReport(user));
         LocalDate min = billingReportLines.stream().min(Comparator.comparing(BillingReportLine::getUsageDateFrom)).map(BillingReportLine::getUsageDateFrom).orElse(null);
         LocalDate max = billingReportLines.stream().max(Comparator.comparing(BillingReportLine::getUsageDateTo)).map(BillingReportLine::getUsageDateTo).orElse(null);
         double sum = billingReportLines.stream().mapToDouble(BillingReportLine::getCost).sum();
@@ -130,10 +131,10 @@ public class BillingServiceImpl implements BillingService {
     }
 
     @Override
-    public List<BillingReportLine> getBillingReportLines(UserInfo user, BillingFilter filter) {
+    public List<BillingReportLine> getBillingReportLines(UserInfo user, BillingFilter filter, boolean isFullReport) {
         setUserFilter(user, filter);
         Set<ProjectDTO> projects;
-        if (isFullReport(user)) {
+        if (isFullReport) {
             projects = new HashSet<>(projectService.getProjects());
         } else {
             projects = new HashSet<>(projectService.getProjects(user));
@@ -239,7 +240,7 @@ public class BillingServiceImpl implements BillingService {
         try {
             return s.get();
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Cannot retrieve billing information {}", e.getMessage());
+            log.error("Cannot retrieve billing information {}", e.getMessage(), e);
             return Collections.emptyList();
         }
     }
@@ -261,14 +262,18 @@ public class BillingServiceImpl implements BillingService {
     }
 
     private Callable<List<BillingData>> getTask(UserInfo userInfo, String url, BillingFilter filter) {
+        final String dateStart = Optional.ofNullable(filter.getDateStart()).orElse("");
+        final String dateEnd = Optional.ofNullable(filter.getDateEnd()).orElse("");
+        final String dlabId = Optional.ofNullable(filter.getDlabId()).orElse("");
+        final List<String> products = Optional.ofNullable(filter.getProducts()).orElse(Collections.emptyList());
         return () -> provisioningService.get(url, userInfo.getAccessToken(),
                 new GenericType<List<BillingData>>() {
                 },
                 Stream.of(new String[][]{
-                        {"date-start", filter.getDateStart()},
-                        {"date-end", filter.getDateEnd()},
-                        {"dlab-id", filter.getDlabId()},
-                        {"product", String.join(",", filter.getProducts())}
+                        {"date-start", dateStart},
+                        {"date-end", dateEnd},
+                        {"dlab-id", dlabId},
+                        {"product", String.join(",", products)}
                 }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
     }
 

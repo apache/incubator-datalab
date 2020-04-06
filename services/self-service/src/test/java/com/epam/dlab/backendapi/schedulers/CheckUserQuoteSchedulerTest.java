@@ -19,9 +19,11 @@
 
 package com.epam.dlab.backendapi.schedulers;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.service.EnvironmentService;
+import com.epam.dlab.backendapi.service.SecurityService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -32,7 +34,12 @@ import org.quartz.JobExecutionContext;
 import java.util.Collections;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CheckUserQuoteSchedulerTest {
@@ -44,18 +51,22 @@ public class CheckUserQuoteSchedulerTest {
 	private EnvironmentService environmentService;
 	@Mock
 	private JobExecutionContext jobExecutionContext;
+	@Mock
+	private SecurityService securityService;
 	@InjectMocks
 	private CheckUserQuoteScheduler checkUserQuoteScheduler;
 
 	@Test
 	public void testWhenUserQuoteReached() {
-		when(billingDAO.isUserQuoteReached(anyString())).thenReturn(true);
+		when(billingDAO.isUserQuoteReached(anyString(), any(UserInfo.class))).thenReturn(true);
 		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO(USER, 1, UserDTO.Status.ACTIVE)));
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
 
 		checkUserQuoteScheduler.execute(jobExecutionContext);
 
 		verify(environmentService).getUsers();
-		verify(billingDAO).isUserQuoteReached(USER);
+		verify(securityService).getServiceAccountInfo("admin");
+		verify(billingDAO).isUserQuoteReached(USER, getUserInfo());
 		verify(environmentService).stopEnvironmentWithServiceAccount(USER);
 		verifyNoMoreInteractions(environmentService, billingDAO);
 		verifyZeroInteractions(jobExecutionContext);
@@ -63,15 +74,21 @@ public class CheckUserQuoteSchedulerTest {
 
 	@Test
 	public void testWhenUserQuoteNotReached() {
-		when(billingDAO.isUserQuoteReached(anyString())).thenReturn(false);
+		when(billingDAO.isUserQuoteReached(anyString(), any(UserInfo.class))).thenReturn(false);
 		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO(USER, 1, UserDTO.Status.ACTIVE)));
+		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
 
 		checkUserQuoteScheduler.execute(jobExecutionContext);
 
 		verify(environmentService).getUsers();
-		verify(billingDAO).isUserQuoteReached(USER);
+		verify(securityService).getServiceAccountInfo("admin");
+		verify(billingDAO).isUserQuoteReached(USER, getUserInfo());
 		verify(environmentService, never()).stopEnvironmentWithServiceAccount(anyString());
 		verifyNoMoreInteractions(environmentService, billingDAO);
 		verifyZeroInteractions(jobExecutionContext);
+	}
+
+	private UserInfo getUserInfo() {
+		return new UserInfo("admin", null);
 	}
 }
