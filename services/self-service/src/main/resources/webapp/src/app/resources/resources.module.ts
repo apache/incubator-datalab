@@ -28,6 +28,8 @@ import { ExploratoryEnvironmentCreateModule } from './exploratory/create-environ
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
 import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
+import {FolderTreeComponent} from './bucket-browser/folder-tree/folder-tree.component';
+import {MatTreeModule} from '@angular/material/tree';
 
 @NgModule({
   imports: [
@@ -36,15 +38,17 @@ import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component'
     ReactiveFormsModule,
     ResourcesGridModule,
     ExploratoryEnvironmentCreateModule,
-    MaterialModule
+    MaterialModule,
+    MatTreeModule
   ],
   declarations: [
     ResourcesComponent,
     ManageUngitComponent,
     ConfirmDeleteAccountDialog,
-    BucketBrowserComponent
+    BucketBrowserComponent,
+    FolderTreeComponent
   ],
-  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog, BucketBrowserComponent],
+  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog, BucketBrowserComponent, FolderTreeComponent],
   exports: [ResourcesComponent]
 })
 export class ResourcesModule { }

@@ -1,0 +1,123 @@
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.bucket-browser {
+
+  bottom: 0;
+  .dialog-content{
+    padding: 0 35px;
+  }
+  .content-box {
+    height: 500px;
+
+  }
+
+  .submit{
+    display: flex;
+    .butt{
+      position: relative;
+      overflow: hidden;
+      margin: 10px;
+      input[type="file"] {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        opacity: 0;
+      }
+    }
+  }
+
+  .text-center{
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+  }
+
+}
+
+.backet-wrapper{
+  min-height: 450px;
+  border: 2px solid rgba(0,0,0,.12);
+  border-radius: 5px;
+  display: flex;
+
+  .navigation{
+    flex: 1;
+    border-right: 2px solid rgba(0,0,0,.12);
+    max-height: 500px;
+    overflow: auto;
+    .folder-tree{
+
+      .folder{
+        line-height: 30px;
+      }
+    }
+
+  }
+
+  .directory{
+    flex: 2;
+    .folder-tree{
+      .name{
+        flex:2;
+      }
+      .size{
+        flex:1;
+      }
+      .progres{
+        flex:1;
+        border: 1px solid rgba(0,0,0,.12);
+        height: 15px;
+      }
+      .action {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        .add-file {
+          overflow: hidden;
+          min-width: 100px ;
+          height: 30px;
+          position: relative;
+          input{
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            opacity: 0;
+          }
+        }
+      }
+
+    }
+  }
+
+  .folder-tree {
+    padding: 20px 30px;
+  }
+
+  .folder-item{
+     display: flex;
+     align-items: center;
+
+   }
+}
