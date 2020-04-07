@@ -39,4 +39,5 @@ public class BillingData {
     private String usageType;
     private Double cost;
     private String currency;
+    private final String usageDate;
 }

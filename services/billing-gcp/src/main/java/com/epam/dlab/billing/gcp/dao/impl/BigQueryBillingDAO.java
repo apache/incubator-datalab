@@ -92,7 +92,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 	}
 
 	@Override
-	public List<GcpBillingData> getBillingData() {
+	public List<BillingData> getBillingData() {
 		final Map<String, Long> processedBillingTables = billingHistoryRepo.findAll()
 				.stream()
 				.collect(Collectors.toMap(BillingHistory::getTableName, BillingHistory::getLastModified));
@@ -163,7 +163,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 				.map(date -> Aggregation.match(criteria));
 	}
 
-	private Stream<? extends GcpBillingData> bigQueryResultSetStream(Table table) {
+	private Stream<? extends BillingData> bigQueryResultSetStream(Table table) {
 		try {
 			final String tableName = table.getTableId().getTable();
 			final String tableId = table.getTableId().getDataset() + "." + tableName;
@@ -172,7 +172,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 					.addNamedParameter(SBN_PARAM, QueryParameterValue.string(sbn + "%"))
 					.addNamedParameter(DATASET_PARAM, QueryParameterValue.string(tableId))
 					.build();
-			final Stream<GcpBillingData> gcpBillingDataStream =
+			final Stream<BillingData> gcpBillingDataStream =
 					StreamSupport.stream(service.query(queryConfig).getValues().spliterator(), false)
 							.map(this::toGcpBillingData);
 			billingHistoryRepo.save(new BillingHistory(tableName, table.getLastModifiedTime()));
@@ -182,8 +182,8 @@ public class BigQueryBillingDAO implements BillingDAO {
 		}
 	}
 
-	private GcpBillingData toGcpBillingData(FieldValueList fields) {
-		return GcpBillingData.builder()
+	private BillingData toGcpBillingData(FieldValueList fields) {
+		return BillingData.builder()
 				.usageDateFrom(toLocalDate(fields, "usage_date_from"))
 				.usageDateTo(toLocalDate(fields, "usage_date_to"))
 				.cost(fields.get("cost").getNumericValue().doubleValue())

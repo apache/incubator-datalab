@@ -19,6 +19,11 @@
 
 package com.epam.dlab.billing.gcp.service;
 
+import com.epam.dlab.dto.billing.BillingData;
+
+import java.util.List;
+import java.util.Map;
+
 public interface BillingService {
-    void updateBillingData();
+    Map<String, List<BillingData>> getBillingData();
 }

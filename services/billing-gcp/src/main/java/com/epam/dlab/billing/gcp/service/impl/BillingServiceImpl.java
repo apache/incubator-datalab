@@ -20,13 +20,13 @@
 package com.epam.dlab.billing.gcp.service.impl;
 
 import com.epam.dlab.billing.gcp.dao.BillingDAO;
-import com.epam.dlab.billing.gcp.model.GcpBillingData;
-import com.epam.dlab.billing.gcp.repository.BillingRepository;
 import com.epam.dlab.billing.gcp.service.BillingService;
+import com.epam.dlab.dto.billing.BillingData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,28 +37,27 @@ public class BillingServiceImpl implements BillingService {
 	private static final String USAGE_DATE_FORMAT = "yyyy-MM";
 
 	private final BillingDAO billingDAO;
-	private final BillingRepository billingRepository;
 
 	@Autowired
-	public BillingServiceImpl(BillingDAO billingDAO, BillingRepository billingRepository) {
+	public BillingServiceImpl(BillingDAO billingDAO) {
 		this.billingDAO = billingDAO;
-		this.billingRepository = billingRepository;
 	}
 
 	@Override
-	public void updateBillingData() {
+	public Map<String, List<BillingData>> getBillingData() {
 		try {
-			Map<String, List<GcpBillingData>> billingData = billingDAO.getBillingData()
+			return billingDAO.getBillingData()
 					.stream()
 					.collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0, USAGE_DATE_FORMAT.length())));
 
-			billingData.forEach((usageDate, billingDataList) -> {
-				log.info("Updating billing information for month {}", usageDate);
-				billingRepository.deleteByUsageDateRegex("^" + usageDate);
-				billingRepository.insert(billingDataList);
-			});
+//			billingData.forEach((usageDate, billingDataList) -> {
+//				log.info("Updating billing information for month {}", usageDate);
+//				billingRepository.deleteByUsageDateRegex("^" + usageDate);
+//				billingRepository.insert(billingDataList);
+//			});
 		} catch (Exception e) {
 			log.error("Can not update billing due to: {}", e.getMessage(), e);
+			return Collections.emptyMap();
 		}
 	}
 }

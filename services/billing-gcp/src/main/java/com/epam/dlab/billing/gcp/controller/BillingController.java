@@ -19,35 +19,35 @@
 
 package com.epam.dlab.billing.gcp.controller;
 
-import com.epam.dlab.billing.gcp.dao.BillingDAO;
+import com.epam.dlab.billing.gcp.service.BillingService;
 import com.epam.dlab.dto.billing.BillingData;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class BillingController {
 
-    private final BillingDAO billingDAO;
+    private final BillingService billingService;
 
-    public BillingController(BillingDAO billingDAO) {
-        this.billingDAO = billingDAO;
+    public BillingController(BillingService billingService) {
+        this.billingService = billingService;
     }
 
     @GetMapping
-    public ResponseEntity<List<BillingData>> getBilling(@RequestParam List<String> dlabIds) {
-        return new ResponseEntity<>(billingDAO.getBillingReport(dlabIds), HttpStatus.OK);
+    public ResponseEntity<Map<String, List<BillingData>>> getBilling() {
+        return new ResponseEntity<>(billingService.getBillingData(), HttpStatus.OK);
     }
 
-    @GetMapping("/report")
-    public ResponseEntity<List<BillingData>> getBilling(@RequestParam("date-start") String dateStart,
-                                                        @RequestParam("date-end") String dateEnd,
-                                                        @RequestParam("dlab-id") String dlabId,
-                                                        @RequestParam("product") List<String> products) {
-        return new ResponseEntity<>(billingDAO.getBillingReport(dateStart, dateEnd, dlabId, products), HttpStatus.OK);
-    }
+//    @GetMapping("/report")
+//    public ResponseEntity<List<BillingData>> getBilling(@RequestParam("date-start") String dateStart,
+//                                                        @RequestParam("date-end") String dateEnd,
+//                                                        @RequestParam("dlab-id") String dlabId,
+//                                                        @RequestParam("product") List<String> products) {
+//        return new ResponseEntity<>(billingDAO.getBillingReport(dateStart, dateEnd, dlabId, products), HttpStatus.OK);
+//    }
 }
