@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class BillingController {
@@ -39,7 +38,7 @@ public class BillingController {
     }
 
     @GetMapping
-    public ResponseEntity<Map<String, List<BillingData>>> getBilling() {
+    public ResponseEntity<List<BillingData>> getBilling() {
         return new ResponseEntity<>(billingService.getBillingData(), HttpStatus.OK);
     }
 

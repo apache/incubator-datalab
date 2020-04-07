@@ -28,8 +28,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -44,11 +42,11 @@ public class BillingServiceImpl implements BillingService {
 	}
 
 	@Override
-	public Map<String, List<BillingData>> getBillingData() {
+	public List<BillingData> getBillingData() {
 		try {
-			return billingDAO.getBillingData()
-					.stream()
-					.collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0, USAGE_DATE_FORMAT.length())));
+			return billingDAO.getBillingData();
+//					.stream()
+//					.collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0, USAGE_DATE_FORMAT.length())));
 
 //			billingData.forEach((usageDate, billingDataList) -> {
 //				log.info("Updating billing information for month {}", usageDate);
@@ -57,7 +55,7 @@ public class BillingServiceImpl implements BillingService {
 //			});
 		} catch (Exception e) {
 			log.error("Can not update billing due to: {}", e.getMessage(), e);
-			return Collections.emptyMap();
+			return Collections.emptyList();
 		}
 	}
 }
