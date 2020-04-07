@@ -23,7 +23,6 @@ import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
 import com.epam.dlab.backendapi.service.EnvironmentService;
-import com.epam.dlab.backendapi.service.SecurityService;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
@@ -37,15 +36,13 @@ public class CheckUserQuoteScheduler implements Job {
 	private BillingDAO billingDAO;
 	@Inject
 	private EnvironmentService environmentService;
-	@Inject
-	private SecurityService securityService;
 
 	@Override
 	public void execute(JobExecutionContext context) {
 		environmentService.getUsers()
 				.stream()
 				.map(UserDTO::getName)
-				.filter(u -> billingDAO.isUserQuoteReached(u, securityService.getServiceAccountInfo("admin")))
+				.filter(billingDAO::isUserQuoteReached)
 				.peek(u -> log.warn("Stopping {} user env because of reaching user billing quote", u))
 				.forEach(environmentService::stopEnvironmentWithServiceAccount);
 	}

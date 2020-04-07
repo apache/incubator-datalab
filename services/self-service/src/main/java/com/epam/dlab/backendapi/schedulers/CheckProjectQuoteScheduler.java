@@ -24,7 +24,6 @@ import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.backendapi.service.ProjectService;
-import com.epam.dlab.backendapi.service.SecurityService;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
@@ -40,15 +39,13 @@ public class CheckProjectQuoteScheduler implements Job {
 	private EnvironmentService environmentService;
 	@Inject
 	private ProjectService projectService;
-	@Inject
-	private SecurityService securityService;
 
 	@Override
 	public void execute(JobExecutionContext context) {
 		projectService.getProjects()
 				.stream()
 				.map(ProjectDTO::getName)
-				.filter(p -> billingDAO.isProjectQuoteReached(p, securityService.getServiceAccountInfo("admin")))
+				.filter(billingDAO::isProjectQuoteReached)
 				.peek(p -> log.debug("Stopping {} project env because of reaching user billing quote", p))
 				.forEach(environmentService::stopProjectEnvironment);
 	}
