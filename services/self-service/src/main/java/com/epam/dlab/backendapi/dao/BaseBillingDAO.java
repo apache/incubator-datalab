@@ -19,21 +19,30 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.domain.BillingReportLine;
-import com.epam.dlab.backendapi.resources.dto.BillingFilter;
-import com.epam.dlab.backendapi.service.BillingService;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.conversions.Bson;
 
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static com.epam.dlab.backendapi.dao.MongoCollections.BILLING;
+import static com.mongodb.client.model.Accumulators.sum;
+import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Aggregates.match;
+import static com.mongodb.client.model.Filters.eq;
+import static java.util.Collections.singletonList;
+
 @Slf4j
 public class BaseBillingDAO extends BaseDAO implements BillingDAO {
+
+	private static final String PROJECT = "project";
 	private static final int ONE_HUNDRED = 100;
+	private static final String TOTAL_FIELD_NAME = "total";
+	private static final String COST_FIELD = "$cost";
 
 	@Inject
 	protected SettingsDAO settings;
@@ -41,69 +50,60 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 	private UserSettingsDAO userSettingsDAO;
 	@Inject
 	private ProjectDAO projectDAO;
-	@Inject
-	private BillingService billingService;
 
 	@Override
-	public Double getTotalCost(UserInfo userInfo) {
-		return getSum(userInfo, new BillingFilter());
+	public Double getTotalCost() {
+		return aggregateBillingData(singletonList(group(null, sum(TOTAL_FIELD_NAME, COST_FIELD))));
 	}
 
 	@Override
-	public Double getUserCost(String user, UserInfo userInfo) {
-		BillingFilter filter = new BillingFilter();
-		filter.setUsers(Collections.singletonList(user));
-		return getSum(userInfo, filter);
+	public Double getUserCost(String user) {
+		final List<Bson> pipeline = Arrays.asList(match(eq(USER, user)),
+				group(null, sum(TOTAL_FIELD_NAME, COST_FIELD)));
+		return aggregateBillingData(pipeline);
 	}
 
 	@Override
-	public Double getProjectCost(String project, UserInfo userInfo) {
-		BillingFilter filter = new BillingFilter();
-		filter.setProjects(Collections.singletonList(project));
-		return getSum(userInfo, filter);
+	public Double getProjectCost(String project) {
+		final List<Bson> pipeline = Arrays.asList(match(eq(PROJECT, project)),
+				group(null, sum(TOTAL_FIELD_NAME, COST_FIELD)));
+		return aggregateBillingData(pipeline);
 	}
 
 	@Override
-	public int getBillingQuoteUsed(UserInfo userInfo) {
-		return toPercentage(() -> settings.getMaxBudget(), getTotalCost(userInfo));
+	public int getBillingQuoteUsed() {
+		return toPercentage(() -> settings.getMaxBudget(), getTotalCost());
 	}
 
 	@Override
-	public int getBillingUserQuoteUsed(String user, UserInfo userInfo) {
-		return toPercentage(() -> userSettingsDAO.getAllowedBudget(user), getUserCost(user, userInfo));
+	public int getBillingUserQuoteUsed(String user) {
+		return toPercentage(() -> userSettingsDAO.getAllowedBudget(user), getUserCost(user));
 	}
 
 	@Override
-	public boolean isBillingQuoteReached(UserInfo userInfo) {
-		return getBillingQuoteUsed(userInfo) >= ONE_HUNDRED;
+	public boolean isBillingQuoteReached() {
+		return getBillingQuoteUsed() >= ONE_HUNDRED;
 	}
 
 	@Override
-	public boolean isUserQuoteReached(String user, UserInfo userInfo) {
-		final Double userCost = getUserCost(user, userInfo);
+	public boolean isUserQuoteReached(String user) {
+		final Double userCost = getUserCost(user);
 		return userSettingsDAO.getAllowedBudget(user)
 				.filter(allowedBudget -> userCost.intValue() != 0 && allowedBudget <= userCost)
 				.isPresent();
 	}
 
 	@Override
-	public boolean isProjectQuoteReached(String project, UserInfo userInfo) {
-		final Double projectCost = getProjectCost(project, userInfo);
+	public boolean isProjectQuoteReached(String project) {
+		final Double projectCost = getProjectCost(project);
 		return projectDAO.getAllowedBudget(project)
 				.filter(allowedBudget -> projectCost.intValue() != 0 && allowedBudget <= projectCost)
 				.isPresent();
 	}
 
 	@Override
-	public int getBillingProjectQuoteUsed(String project, UserInfo userInfo) {
-		return toPercentage(() -> projectDAO.getAllowedBudget(project), getProjectCost(project, userInfo));
-	}
-
-	private double getSum(UserInfo userInfo, BillingFilter filter) {
-		return billingService.getBillingReportLines(userInfo, filter, true)
-				.stream()
-				.mapToDouble(BillingReportLine::getCost)
-				.sum();
+	public int getBillingProjectQuoteUsed(String project) {
+		return toPercentage(() -> projectDAO.getAllowedBudget(project), getProjectCost(project));
 	}
 
 	private Integer toPercentage(Supplier<Optional<Integer>> allowedBudget, Double totalCost) {
@@ -111,5 +111,11 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 				.map(userBudget -> (totalCost * ONE_HUNDRED) / userBudget)
 				.map(Double::intValue)
 				.orElse(BigDecimal.ZERO.intValue());
+	}
+
+	private Double aggregateBillingData(List<Bson> pipeline) {
+		return Optional.ofNullable(aggregate(BILLING, pipeline).first())
+				.map(d -> d.getDouble(TOTAL_FIELD_NAME))
+				.orElse(BigDecimal.ZERO.doubleValue());
 	}
 }
