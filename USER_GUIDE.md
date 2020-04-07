@@ -52,7 +52,6 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [Scheduler](#scheduler)
 
-[Key reupload](#key_reupload)
 
 ---------
 # Login <a name="login"></a>
@@ -114,7 +113,7 @@ As soon as Project is created, Data Scientist can create  notebook server on “
 
 To create new analytical environment from “List of Resources” page click on "Create new" button.
 
-The "Create analytical tool" popup shows up. Data Scientist can choose the preferred project, endpoint and analytical tool to be setup. Adding new analytical tools is supported by architecture, so you can expect new templates to show up in upcoming releases.
+The "Create analytical tool" popup shows up. Data Scientist can choose the preferred project, endpoint and analytical tool to be set up. Adding new analytical tools is supported by architecture, so you can expect new templates to show up in upcoming releases.
 Currently by means of DLab, Data Scientists can select between any of the following templates:
 
 -   Jupyter
@@ -146,7 +145,7 @@ These groups have T-Shirt based shapes (configurable), that can help Data Scient
 
 You can override the default configurations for local spark. The configuration object is referenced as a JSON file. To tune spark configuration check off "Spark configurations" check box and insert JSON format in text box.
 
-After you Select the template, fill in the Name and choose needed instance shape - you need to click on "Create" button for your instance to start creating. Corresponding record is shown up in your dashboard:
+After you Select the template, fill in the Name and choose needed instance shape - you need to click on "Create" button for your instance to start creating. Corresponding record shows up in your dashboard:
 
 ![Dashboard](doc/main_page2.png)
 
@@ -154,7 +153,7 @@ As soon as notebook server is created, its status changes to Running:
 
 ![Running notebook](doc/main_page3.png)
 
-When you click on the name of your Analytical tool in the dashboard – analytical tool popup is shown up:
+When you click on the name of your Analytical tool in the dashboard – analytical tool popup shows up:
 
 <p align="center"> 
     <img src="doc/notebook_info.png" alt="Notebook info" width="574">
@@ -191,13 +190,13 @@ You need to wait for a while after resource choosing till list of all available 
 
 ![Libraries list loading](doc/notebook_list_libs.png)
 
-**Note:** apt or yum packages depends on your DLab OS family.
+**Note:** Apt or yum packages depends on your DLab OS family.
 
 **Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
 
 ![Resource select_lib](doc/notebook_select_lib.png)
 
-After selecting library, you can see it n the miidle of the window and can delete it from this list before installation.
+After selecting library, you can see it in the midle of the window and can delete it from this list before installation.
 
 ![Resource selected_lib](doc/notebook_selected_libs.png)
 
@@ -223,17 +222,19 @@ On "Create AMI" popup you should fill:
     <img src="doc/create_ami.png" alt="Create AMI" width="480">
 </p>
 
-After clicking on "Assign" button the Notebook status changes to Creating AMI. Once an image is created the Notebook status changes back to Running.
+After clicking on "Create" button the Notebook status changes to "Creating image". Once an image is created the Notebook status changes back to "Running".
 
 To create new analytical environment from custom image click on "Create new" button on “List of Resources” page. 
 
-“Create analytical tool” popup is shown up. Choose a template of a Notebook for which the custom image is created:
+“Create analytical tool” popup shows up. Choose project, endpoint, template of a Notebook for which the custom image has been created:
 
 <p align="center"> 
     <img src="doc/create_notebook_from_ami.png" alt="Create notebook from AMI" width="560">
 </p>
 
 Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape".
+
+**NOTE:** This functionality is implemented for AWS and GCP.
 
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
@@ -254,7 +255,7 @@ Hit "OK" in confirmation popup.
     <img src="doc/notebook_stop_confirm.png" alt="Notebook stop confirm" width="400">
 </p>
 
-After you confirm you intent to Stop the notebook - the status changes to "Stopping" and soon becomes "Stopped". 
+After you confirm you intent to stop the notebook - the status changes to "Stopping" and soon becomes "Stopped". 
 
 --------------------------------
 ## Terminate Notebook server <a name="notebook_terminate"></a>
@@ -319,7 +320,7 @@ After clicking on Computational resource name in DLab dashboard you see Computat
     <img src="doc/emr_info.png" alt="Computational resource info" width="480">
 </p>
 
-Also you can go to computational resource master UI via link "Apache Spark Master', "EMR Master" or "Dataproc Master" .
+Also you can go to computational resource master UI via link "Spark job tracker url', "EMR job tracker url" or "Dataproc job tracker url".
 
 Since Computational resource is up and running - you are now able to leverage cluster computational power to run your analytical jobs on.
 
@@ -347,9 +348,9 @@ Insert following “magics” before blocks of your code to start executing your
 ---------------
 ## Stop  Apache Spark cluster <a name="spark_stop"></a>
 
-Once you have stopped working with a spark cluster and you need to release cloud resources for the sake of the costs, you might want to stop Apache Spark cluster. You are able to start apache Spark cluster again after a while and proceed with your analytics.
+Once you have stopped working with Apache Spark cluster (Data Engine) and you need to release cloud resources for the sake of the costs, you might want to stop Apache Spark cluster. You are able to start Apache Spark cluster again after a while and proceed with your analytics.
 
-To stop Apache Spark cluster click on <img src="doc/stop_icon.png" alt="stop" width="20"> button close to spark cluster alias.
+To stop Apache Spark cluster click on <img src="doc/stop_icon.png" alt="stop" width="20"> button close to Apache Spark cluster alias.
 
 Hit "YES" in confirmation popup.
 
@@ -357,7 +358,7 @@ Hit "YES" in confirmation popup.
     <img src="doc/spark_stop_confirm.png" alt="Spark stop confirm" width="400">
 </p>
 
-After you confirm your intent to Apache Spark cluster - the status changes to "Stopping" and soon becomes "Stopped".
+After you confirm your intent to stop Apache Spark cluster - the status changes to "Stopping" and soon becomes "Stopped".
 
 ------------------
 ## Terminate Computational resource <a name="computational_terminate"></a>
@@ -368,7 +369,7 @@ To release cluster computational resources click on <img src="doc/cross_icon.png
     <img src="doc/emr_terminate_confirm.png" alt="Computational resource terminate confirm" width="400">
 </p>
 
-In a while Computational resource cluster gets "Terminated". Corresponding cloud instances also is removed on cloud.
+In a while Computational resource gets "Terminated". Corresponding cloud instance also is removed on cloud.
 
 --------------------------------
 ## Collaboration space <a name="collaboration_space"></a>
@@ -377,7 +378,7 @@ In a while Computational resource cluster gets "Terminated". Corresponding cloud
 
 To work with Git (pull, push) via UI tool (ungit) you could add multiple credentials in DLab UI, which are set on all running instances with analytical tools.
 
-When you click on the button "Git credentials" – following popup is shown up:
+When you click on the button "Git credentials" – following popup shows up:
 
 <p align="center"> 
     <img src="doc/git_creds_window.png" alt="Git_creds_window" width="760">
@@ -426,7 +427,7 @@ On the top of window in the red field UI shows us changed or new files to commit
 
 On the right pane of window you also can see buttons to fetch last changes of repository, add upstreams and switch between branches.
 
-To see all modified files - click on the "circle" button on the center:
+To see all modified files - click on the "Circle" button on the center:
 
 ![Git_ui_ungit_changes](doc/ungit_changes.png)
 
@@ -434,7 +435,7 @@ After commit you see your local version and remote repository. To push you chang
 
 ![Git_ui_ungit_push](doc/ungit_push.png)
 
-Also clicking on "circle" button you can uncommit or revert changes.
+Also clicking on "Circle" button you can uncommit or revert changes.
 
 --------------------------------
 # Administration <a name="administration"></a>
@@ -443,7 +444,7 @@ Also clicking on "circle" button you can uncommit or revert changes.
 ## Manage roles <a name="manage_roles"></a>
 
 Administrator can choose what instance shape(s) and notebook(s) can be allowed for certain group(s) or user(s).
-To do it click on "Add group" button. "Add group" popup is shown up:
+To do it click on "Add group" button. "Add group" popup shows up:
 
 <p align="center"> 
     <img src="doc/manage_role.png" alt="Manage roles" width="780">
@@ -462,7 +463,7 @@ Administrator can remove group or user. For that you should only click on bin ic
 
 ## Environment Management Page <a name="environment_management"></a>
 
-DLab Environment Management page is an administration page allowing admins to show the list of all users environments and to stop/terminate all of them of separate specific resource.
+DLab Environment Management page is an administration page allowing admins to see the list of all users environments and to stop/terminate all of them.
 
 To access Environment management page either navigate to it via main menu:
 
@@ -470,7 +471,7 @@ To access Environment management page either navigate to it via main menu:
     <img src="doc/environment_management.png" alt="Environment management">
 </p>
 
-To stop or terminate the Notebook click on a gear icon in the Actions column for a needed Notebook and hit "Stop" or "Terminate" action:
+To stop or terminate the Notebook click on a gear icon in the "Actions" column for a needed Notebook and hit "Stop" or "Terminate" action:
 <p align="center"> 
     <img src="doc/manage_env_actions.png" alt="Manage environment actions" width="160">
 </p>
@@ -493,7 +494,7 @@ Confirm stopping/decommissioning of the Computational resource by hitting "Yes":
 
 ### Manage environment <a name="manage_environment"></a>
 
-Administrator can manage users environment clicking on "Manage DLab quotas" button. "Manage DLab quotas" popup is shown up. All active project are conveyed:
+Administrator can manage users environment clicking on "Manage DLab quotas" button. "Manage DLab quotas" popup shows up. Admin can see all active project:
 
 <p align="center"> 
     <img src="doc/manage_environment.png" alt="Manage environment" width="520">
@@ -505,8 +506,7 @@ Administrator can manage users environment clicking on "Manage DLab quotas" butt
 
 On this page you can see all billing information, including all costs assosiated with service base name of SSN.
 
-![Billing page]
-(doc/billing_page.png)
+![Billing page](doc/billing_page.png)
 
 In the header you can see 2 fields:
 -   Service base name of your environment
@@ -523,8 +523,6 @@ You can save billing report in csv format hitting "Export" button.
 You can also filter data by each column:
 
 ![Billing filter](doc/billing_filter.png)
-
-**Note:** Administrator can see billing report of all users, and only he can see/filter "User" column.
 
 In the footer of billing report, you can see Total cost for all environments.
 
@@ -549,9 +547,13 @@ There is also an option for quick and easy way to filter out all inactive instan
 
 # Scheduler <a name="scheduler"></a>
 
-Scheduler component allows to automatically schedule start/stop of Notebook/Computational resource and terminate only Computational resource. There are 2 types of schedulers available:
-- notebook scheduler;
-- Computational resource scheduler (currently spark cluster only for starting/stoping and termination for all clusters).
+Scheduler component allows to automatically schedule start/stop a Notebook/Computational resource and terminate only Computational resource. There are 2 types of schedulers available:
+- Scheduler by time
+- Scheduler by inactivity 
+
+Scheduler by time is for Notebook/Data Engine stopping/starting and for Data Engine/Data Engine Service termination.
+Scheduler by inactivity is for Notebook/Data Engine stopping.
+
 
 To create scheduler for a notebook click on an <img src="doc/gear_icon.png" alt="gear" width="20"> icon in the "Actions" column for a needed Notebook and hit "Scheduler":
 
