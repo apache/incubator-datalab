@@ -547,11 +547,10 @@ On the center of header you can choose period of report in datepicker:
 
 You can save billing report in csv format hitting "Export" button.
 
-You can also filter data by each column:
+You can also filter data by environment name, user, project, resource type, instance size, product. 
+On top of that you can sort data by user, project, service charges.
 
-![Billing filter](doc/billing_filter.png)
-
-In the footer of billing report, you can see Total cost for all environments.
+In the footer of billing report, you can see "Total" cost for all environments.
 
 --------------------------------
 
