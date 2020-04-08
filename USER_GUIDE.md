@@ -44,7 +44,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Multiple Cloud endpoints](#multiple_cloud_endpoints)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage DLab quotas](#manage_dlab_quotas)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Manage DLab quotas](#manage_dlab_quotas)
 
 [DLab billing report](#billing_page)
 
@@ -445,15 +445,27 @@ Also clicking on "Circle" button you can uncommit or revert changes.
 
 ## Manage roles <a name="manage_roles"></a>
 
-Administrator can choose what instance shape(s) and notebook(s) can be allowed for certain group(s) or user(s).
+Administrator can choose what instance shape(s), notebook(s) and computational resource are supposed for certain group(s) or user(s). Administrator can also assign administrator per project, who is able to manage roles within particular project.
 To do it click on "Add group" button. "Add group" popup shows up:
 
 <p align="center"> 
     <img src="doc/manage_role.png" alt="Manage roles" width="780">
 </p>
 
+Roles consist of:
+- Administration - allow to execute administrative operation for the whole DLab or administrative operation only per project;
+- Billing - allow to view billing only the own resources or all users;
+- Compute - list of Compute types which are sopposed for creation;
+- Compute shapes - list of Compute shapes which are sopposed for creation;
+- Notebook - list of Notebook templates which are sopposed for creation;
+- Notebook shapes - list of Notebook shapes which are sopposed for creation.
+
+<p align="center"> 
+    <img src="doc/roles.png" alt="Roles" width="780">
+</p>
+
 To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
-New group will be added and appears on "Manage roles" popup.
+After addidng the group it appears on "Manage roles" popup.
 
 Administrator can remove group or user. For that you should only click on bin icon for certain group or for icon <img src="doc/delete_btn.png" alt="delete" width="16"> for particular user. After that hit "Yes" in confirmation popup.
 
