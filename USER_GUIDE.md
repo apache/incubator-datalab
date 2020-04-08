@@ -30,6 +30,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Computational resource](#computational_terminate)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Scheduler](#scheduler)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Collaboration space](#collaboration_space)
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage Git credentials](#git_creds)
@@ -40,9 +42,9 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage roles](#manage_roles)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Project management_page](#project_management)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Project management](#project_management)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Environment management page](#environment_management)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Environment management](#environment_management)
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Multiple Cloud endpoints](#multiple_cloud_endpoints)
 
@@ -50,11 +52,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [DLab billing report](#billing_page)
 
-
-
 [Web UI filters](#filter)
-
-[Scheduler](#scheduler)
 
 
 ---------
@@ -375,6 +373,62 @@ To release cluster computational resources click on <img src="doc/cross_icon.png
 
 In a while Computational resource gets "Terminated". Corresponding cloud instance also is removed on cloud.
 
+------------------
+## Scheduler <a name="scheduler"></a>
+
+Scheduler component allows to automatically schedule start/stop a Notebook/Computational resource and terminate only Computational resource. There are 2 types of schedulers available:
+- Scheduler by time
+- Scheduler by inactivity 
+
+Scheduler by time is for Notebook/Data Engine stopping/starting and for Data Engine/Data Engine Service termination.
+Scheduler by inactivity is for Notebook/Data Engine stopping.
+
+
+To create scheduler for a notebook click on an <img src="doc/gear_icon.png" alt="gear" width="20"> icon in the "Actions" column for a needed Notebook and hit "Scheduler":
+
+<p align="center"> 
+    <img src="doc/notebook_menu_scheduler.png" alt="Notebook scheduler action" width="150">
+</p>
+After clicking you see popup with the following fields:
+
+- start/finish dates - date range when scheduler is active;
+- start/end time - time when notebook should be running;
+- timezone - your time  zone;
+- repeat on - days when scheduler should be active;
+- possibility to synchronize notebook scheduler with computational schedulers;
+- possibility not to stop notebook in case of running job on Spark Standalone.
+
+<p align="center"> 
+    <img src="doc/notebook_scheduler.png" alt="Notebook scheduler" width="400">
+</p>
+
+If you want to stop Notebook on exceeding idle time you should enable "Scheduler by inactivity", fill your inactivity minutes and click on "Save" button. Notebook stopping triggers after exceeding idle time.
+
+<p align="center"> 
+    <img src="doc/scheduler_by_inactivity.png" alt="Scheduler by Inactivity.png" width="400">
+</p>
+
+Also scheduler can be configured for a spark cluster. To configure scheduler for spark cluster <img src="doc/icon_scheduler_computational.png" alt="scheduler_computational" width="16"> should be clicked (near computational status):
+
+<p align="center"> 
+    <img src="doc/computational_scheduler_create.png" alt="Computational scheduler create" width="400">
+</p>
+
+There is a possibility to inherit scheduler start settings from notebook, if such scheduler is present:
+
+<p align="center"> 
+    <img src="doc/computational_scheduler.png" alt="Computational scheduler" width="400">
+</p>
+
+Notebook/spark cluster is  started/stopped automatically after scheduler setting.
+Please also note that if notebook is configured to be stopped, all running data engines assosiated with is stopped (for spark cluster) or terminated (for data engine serice) with notebook.
+
+After login user is notified  that corresponding resources are about to be stopped/terminated in some time.
+
+<p align="center"> 
+    <img src="doc/scheduler reminder.png" alt="Scheduler reminder" width="400">
+</p>
+
 --------------------------------
 ## Collaboration space <a name="collaboration_space"></a>
 
@@ -474,7 +528,7 @@ Administrator can remove group or user. For that you should only click on bin ic
     <img src="doc/delete_group.png" alt="Delete group" width="780">
 </p>
 
-## Project management page <a name="project_management"></a>
+## Project management <a name="project_management"></a>
 
 After project creation (this step is described in [create project](#setup_edge_node) administrator is able to manage the project by clicking on gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for the needed project.
 
@@ -499,7 +553,7 @@ To stop Edge node hit "Stop edge node". After that confirm "OK" in confirmation 
 
 To terminate Edge node hit "Terminate edge node". After that confirm "OK" in confirmation popup. All related instances change its status to "Terminating" and soon becomes "Terminated".
 
-## Environment management page <a name="environment_management"></a>
+## Environment management <a name="environment_management"></a>
 
 DLab Environment Management page is an administration page allowing admins to see the list of all users environments and to stop/terminate all of them.
 
@@ -606,58 +660,3 @@ To do this, simply click on icon <img src="doc/filter_icon.png" alt="filter" wid
 Once your list of filtered by any of the columns, icon <img src="doc/filter_icon.png" alt="filter" width="16"> changes to <img src="doc/sort_icon.png" alt="filter" width="16"> for a filtered columns only.
 
 There is also an option for quick and easy way to filter out all inactive instances (Failed and Terminated) by clicking on “Show active” button in the ribbon. To switch back to the list of all resources, click on “Show all”.
-
-# Scheduler <a name="scheduler"></a>
-
-Scheduler component allows to automatically schedule start/stop a Notebook/Computational resource and terminate only Computational resource. There are 2 types of schedulers available:
-- Scheduler by time
-- Scheduler by inactivity 
-
-Scheduler by time is for Notebook/Data Engine stopping/starting and for Data Engine/Data Engine Service termination.
-Scheduler by inactivity is for Notebook/Data Engine stopping.
-
-
-To create scheduler for a notebook click on an <img src="doc/gear_icon.png" alt="gear" width="20"> icon in the "Actions" column for a needed Notebook and hit "Scheduler":
-
-<p align="center"> 
-    <img src="doc/notebook_menu_scheduler.png" alt="Notebook scheduler action" width="150">
-</p>
-After clicking you see popup with the following fields:
-
-- start/finish dates - date range when scheduler is active;
-- start/end time - time when notebook should be running;
-- timezone - your time  zone;
-- repeat on - days when scheduler should be active;
-- possibility to synchronize notebook scheduler with computational schedulers;
-- possibility not to stop notebook in case of running job on Spark Standalone.
-
-<p align="center"> 
-    <img src="doc/notebook_scheduler.png" alt="Notebook scheduler" width="400">
-</p>
-
-If you want to stop Notebook on exceeding idle time you should enable "Scheduler by inactivity", fill your inactivity minutes and click on "Save" button. Notebook stopping triggers after exceeding idle time.
-
-<p align="center"> 
-    <img src="doc/scheduler_by_inactivity.png" alt="Scheduler by Inactivity.png" width="400">
-</p>
-
-Also scheduler can be configured for a spark cluster. To configure scheduler for spark cluster <img src="doc/icon_scheduler_computational.png" alt="scheduler_computational" width="16"> should be clicked (near computational status):
-
-<p align="center"> 
-    <img src="doc/computational_scheduler_create.png" alt="Computational scheduler create" width="400">
-</p>
-
-There is a possibility to inherit scheduler start settings from notebook, if such scheduler is present:
-
-<p align="center"> 
-    <img src="doc/computational_scheduler.png" alt="Computational scheduler" width="400">
-</p>
-
-Notebook/spark cluster is  started/stopped automatically after scheduler setting.
-Please also note that if notebook is configured to be stopped, all running data engines assosiated with is stopped (for spark cluster) or terminated (for data engine serice) with notebook.
-
-After login user is notified  that corresponding resources are about to be stopped/terminated in some time.
-
-<p align="center"> 
-    <img src="doc/scheduler reminder.png" alt="Scheduler reminder" width="400">
-</p>
