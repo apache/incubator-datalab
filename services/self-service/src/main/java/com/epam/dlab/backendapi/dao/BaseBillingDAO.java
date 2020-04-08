@@ -19,30 +19,56 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.backendapi.domain.BillingReportLine;
+import com.epam.dlab.backendapi.resources.dto.BillingFilter;
+import com.epam.dlab.dto.billing.BillingResourceType;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.epam.dlab.backendapi.dao.MongoCollections.BILLING;
+import static com.mongodb.client.model.Accumulators.max;
+import static com.mongodb.client.model.Accumulators.min;
 import static com.mongodb.client.model.Accumulators.sum;
 import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Aggregates.match;
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gte;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.lte;
+import static com.mongodb.client.model.Filters.regex;
 import static java.util.Collections.singletonList;
 
 @Slf4j
 public class BaseBillingDAO extends BaseDAO implements BillingDAO {
-
-	private static final String PROJECT = "project";
 	private static final int ONE_HUNDRED = 100;
-	private static final String TOTAL_FIELD_NAME = "total";
 	private static final String COST_FIELD = "$cost";
+	private static final String TOTAL_FIELD_NAME = "total";
+	private static final String PROJECT = "project";
+	private static final String APPLICATION = "application";
+	private static final String USAGE_DATE = "usageDate";
+	private static final String USER = "user";
+	private static final String RESOURCE_TYPE = "resource_type";
+	private static final String DLAB_ID = "dlabId";
+	private static final String FROM = "from";
+	private static final String TO = "to";
+	private static final String PRODUCT = "product";
+	private static final String CURRENCY = "currency";
+	private static final String COST = "cost";
 
 	@Inject
 	protected SettingsDAO settings;
@@ -102,8 +128,35 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 	}
 
 	@Override
+	public List<BillingReportLine> findBillingData(List<String> dlabIds) {
+		return find(BILLING, in(DLAB_ID, dlabIds), BillingReportLine.class);
+	}
+
+	@Override
 	public int getBillingProjectQuoteUsed(String project) {
 		return toPercentage(() -> projectDAO.getAllowedBudget(project), getProjectCost(project));
+	}
+
+	public List<BillingReportLine> aggregateBillingData(BillingFilter filter) {
+		List<Bson> pipeline = new ArrayList<>();
+		List<Bson> matchCriteria = matchCriteria(filter);
+		if (!matchCriteria.isEmpty()) {
+			pipeline.addAll(matchCriteria);
+		}
+		pipeline.add(groupCriteria());
+		return StreamSupport.stream(getCollection(BILLING).aggregate(pipeline).spliterator(), false)
+				.map(this::toBillingReport)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void deleteByUsageDate(String application, String usageDate) {
+		deleteMany(BILLING, and(eq(APPLICATION, application), regex(USAGE_DATE, "^" + usageDate)));
+	}
+
+	@Override
+	public void save(List<BillingReportLine> billingData) {
+		insertMany(BILLING, new ArrayList<>(billingData));
 	}
 
 	private Integer toPercentage(Supplier<Optional<Integer>> allowedBudget, Double totalCost) {
@@ -117,5 +170,55 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 		return Optional.ofNullable(aggregate(BILLING, pipeline).first())
 				.map(d -> d.getDouble(TOTAL_FIELD_NAME))
 				.orElse(BigDecimal.ZERO.doubleValue());
+	}
+
+	private Bson groupCriteria() {
+		return group(getGroupingFields(USER, DLAB_ID, RESOURCE_TYPE, PROJECT, PRODUCT, CURRENCY),
+				sum(COST, "$" + COST),
+				min(FROM, "$" + FROM),
+				max(TO, "$" + TO));
+	}
+
+	private List<Bson> matchCriteria(BillingFilter filter) {
+		List<Bson> searchCriteria = new ArrayList<>();
+
+		if (CollectionUtils.isNotEmpty(filter.getUsers())) {
+			searchCriteria.add(in(USER, filter.getUsers()));
+		}
+		if (CollectionUtils.isNotEmpty(filter.getResourceTypes())) {
+			searchCriteria.add(in(RESOURCE_TYPE, filter.getResourceTypes()));
+		}
+		if (StringUtils.isNotEmpty(filter.getDlabId())) {
+			searchCriteria.add(regex(DLAB_ID, filter.getDlabId(), "i"));
+		}
+		if (StringUtils.isNotEmpty(filter.getDateStart())) {
+			searchCriteria.add(gte(FROM, filter.getDateStart()));
+		}
+		if (StringUtils.isNotEmpty(filter.getDateEnd())) {
+			searchCriteria.add(lte(TO, filter.getDateEnd()));
+		}
+		if (CollectionUtils.isNotEmpty(filter.getProjects())) {
+			searchCriteria.add(in(PROJECT, filter.getProjects()));
+		}
+		if (CollectionUtils.isNotEmpty(filter.getProducts())) {
+			searchCriteria.add(in(PRODUCT, filter.getProducts()));
+		}
+
+		return searchCriteria;
+	}
+
+	private BillingReportLine toBillingReport(Document d) {
+		Document id = (Document) d.get("_id");
+		return BillingReportLine.builder()
+				.dlabId(id.getString(DLAB_ID))
+				.project(id.getString(PROJECT))
+				.user(id.getString(USER))
+				.product(id.getString(PRODUCT))
+				.resourceType(BillingResourceType.valueOf(id.getString(RESOURCE_TYPE)))
+				.usageDateFrom(d.getDate(FROM).toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+				.usageDateTo(d.getDate(TO).toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+				.cost(d.getDouble(COST))
+				.currency(id.getString(CURRENCY))
+				.build();
 	}
 }

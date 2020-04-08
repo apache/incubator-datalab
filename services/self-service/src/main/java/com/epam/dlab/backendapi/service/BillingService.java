@@ -23,8 +23,6 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
-import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.billing.BillingData;
 
 import java.util.List;
 
@@ -33,7 +31,7 @@ public interface BillingService {
 
     String downloadReport(UserInfo userInfo, BillingFilter filter);
 
-    List<BillingReportLine> getBillingReportLines(UserInfo userInfo, BillingFilter filter);
+    List<BillingReportLine> getExploratoryBillingData(String exploratoryId, List<String> resources);
 
-    List<BillingData> getExploratoryRemoteBillingData(UserInfo user, String endpoint, List<UserInstanceDTO> userInstanceDTOS);
+    void updateRemoteBillingData(UserInfo userInfo);
 }

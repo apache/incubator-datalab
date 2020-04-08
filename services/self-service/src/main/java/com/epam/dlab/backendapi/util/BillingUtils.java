@@ -22,7 +22,6 @@ package com.epam.dlab.backendapi.util;
 import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import jersey.repackaged.com.google.common.collect.Lists;
@@ -78,7 +77,7 @@ public class BillingUtils {
         final String endpointBucketId = String.format(PROJECT_ENDPOINT_BUCKET_FORMAT, sbn, project.toLowerCase(), endpoint);
 
         return Stream.concat(Stream.of(
-                BillingReportLine.builder().resourceName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(EDGE).status(UserInstanceStatus.of(status)).build(),
+                BillingReportLine.builder().resourceName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(EDGE).build(),
                 BillingReportLine.builder().resourceName("EDGE volume").user(SHARED_RESOURCE).project(project).dlabId(edgeVolumeId).resourceType(VOLUME).build(),
                 BillingReportLine.builder().resourceName("Project endpoint shared bucket").user(SHARED_RESOURCE).project(project).dlabId(endpointBucketId).resourceType(BUCKET).build()
                 ),
@@ -108,8 +107,7 @@ public class BillingUtils {
                 .stream()
                 .filter(cr -> cr.getComputationalId() != null)
                 .flatMap(cr -> Stream.concat(Stream.of(
-                        withUserProject(userInstance).dlabId(cr.getComputationalId()).resourceName(cr.getComputationalName()).resourceType(COMPUTATIONAL)
-                                .status(UserInstanceStatus.of(cr.getStatus())).shape(getComputationalShape(cr)).build(),
+                        withUserProject(userInstance).dlabId(cr.getComputationalId()).resourceName(cr.getComputationalName()).resourceType(COMPUTATIONAL).shape(getComputationalShape(cr)).build(),
                         withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "m"))
                                 .resourceType(VOLUME).build(),
                         withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_SECONDARY).dlabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "m"))
@@ -121,7 +119,7 @@ public class BillingUtils {
         final String primaryVolumeId = String.format(VOLUME_PRIMARY_FORMAT, exploratoryId);
         final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);
         final Stream<BillingReportLine> exploratoryStream = Stream.of(
-                withUserProject(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(EXPLORATORY).status(UserInstanceStatus.of(userInstance.getStatus())).shape(userInstance.getShape()).build(),
+                withUserProject(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(EXPLORATORY).shape(userInstance.getShape()).build(),
                 withUserProject(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(VOLUME).build(),
                 withUserProject(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(VOLUME).build());
 

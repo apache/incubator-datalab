@@ -31,6 +31,7 @@ import java.time.LocalDate;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BillingData {
     private final String tag;
+    private String application;
     @JsonProperty("from")
     private LocalDate usageDateFrom;
     @JsonProperty("to")

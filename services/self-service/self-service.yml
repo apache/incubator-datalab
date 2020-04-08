@@ -150,6 +150,9 @@ schedulers:
   checkEndpointStatusScheduler:
     enabled: true
     cron: "0 */15 * ? * *"
+  billingScheduler:
+    enabled: true
+    cron: "*/50 * * ? * * *"
 
 
 guacamole:

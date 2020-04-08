@@ -32,7 +32,6 @@ import java.util.List;
 @Service
 @Slf4j
 public class BillingServiceImpl implements BillingService {
-	private static final String USAGE_DATE_FORMAT = "yyyy-MM";
 
 	private final BillingDAO billingDAO;
 
@@ -45,14 +44,6 @@ public class BillingServiceImpl implements BillingService {
 	public List<BillingData> getBillingData() {
 		try {
 			return billingDAO.getBillingData();
-//					.stream()
-//					.collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0, USAGE_DATE_FORMAT.length())));
-
-//			billingData.forEach((usageDate, billingDataList) -> {
-//				log.info("Updating billing information for month {}", usageDate);
-//				billingRepository.deleteByUsageDateRegex("^" + usageDate);
-//				billingRepository.insert(billingDataList);
-//			});
 		} catch (Exception e) {
 			log.error("Can not update billing due to: {}", e.getMessage(), e);
 			return Collections.emptyList();

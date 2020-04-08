@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.domain;
 
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.billing.BillingResourceType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -29,8 +30,10 @@ import java.time.LocalDate;
 
 @Data
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BillingReportLine {
     private String dlabId;
+    private String application;
     @JsonProperty("resource_name")
     private String resourceName;
     private String project;
@@ -39,6 +42,7 @@ public class BillingReportLine {
     private LocalDate usageDateFrom;
     @JsonProperty("to")
     private LocalDate usageDateTo;
+    private String usageDate;
     private String product;
     private String usageType;
     private Double cost;

@@ -24,10 +24,5 @@ import com.epam.dlab.dto.billing.BillingData;
 import java.util.List;
 
 public interface BillingDAO {
-
     List<BillingData> getBillingData() throws InterruptedException;
-
-    List<BillingData> getBillingReport(String dateStart, String dateEnd, String dlabId, List<String> products);
-
-    List<BillingData> getBillingReport(List<String> dlabIds);
 }

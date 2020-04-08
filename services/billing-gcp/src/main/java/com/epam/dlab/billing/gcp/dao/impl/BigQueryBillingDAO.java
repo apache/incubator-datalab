@@ -22,10 +22,8 @@ package com.epam.dlab.billing.gcp.dao.impl;
 import com.epam.dlab.billing.gcp.conf.DlabConfiguration;
 import com.epam.dlab.billing.gcp.dao.BillingDAO;
 import com.epam.dlab.billing.gcp.model.BillingHistory;
-import com.epam.dlab.billing.gcp.model.GcpBillingData;
 import com.epam.dlab.billing.gcp.repository.BillingHistoryRepository;
 import com.epam.dlab.dto.billing.BillingData;
-import com.epam.dlab.exceptions.DlabException;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.QueryJobConfiguration;
@@ -33,31 +31,19 @@ import com.google.cloud.bigquery.QueryParameterValue;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation;
-import org.springframework.data.mongodb.core.aggregation.MatchOperation;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 
 @Component
 @Slf4j
@@ -107,62 +93,6 @@ public class BigQueryBillingDAO implements BillingDAO {
 				.collect(Collectors.toList());
 	}
 
-	@Override
-	public List<BillingData> getBillingReport(String dateStart, String dateEnd, String dlabId, List<String> products) {
-		try {
-			List<AggregationOperation> aggregationOperations = new ArrayList<>();
-			aggregationOperations.add(Aggregation.match(Criteria.where("dlabId").regex(dlabId, "i")));
-			if (!products.isEmpty()) {
-				aggregationOperations.add(Aggregation.match(Criteria.where("product").in(products)));
-			}
-			getMatchCriteria(dateStart, Criteria.where("usage_date").gte(dateStart))
-					.ifPresent(aggregationOperations::add);
-			getMatchCriteria(dateEnd, Criteria.where("usage_date").lte(dateEnd))
-					.ifPresent(aggregationOperations::add);
-			aggregationOperations.add(getGroupOperation());
-
-			Aggregation aggregation = newAggregation(aggregationOperations);
-
-			return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults()
-					.stream()
-					.map(this::toBillingData)
-					.collect(Collectors.toList());
-		} catch (Exception e) {
-			log.error("Cannot retrieve billing information ", e);
-			throw new DlabException("Cannot retrieve billing information", e);
-		}
-	}
-
-	@Override
-	public List<BillingData> getBillingReport(List<String> dlabIds) {
-		try {
-			GroupOperation groupOperation = getGroupOperation();
-			MatchOperation matchOperation = Aggregation.match(Criteria.where("dlabId").in(dlabIds));
-			Aggregation aggregation = newAggregation(matchOperation, groupOperation);
-
-			return mongoTemplate.aggregate(aggregation, "billing", GcpBillingData.class).getMappedResults()
-					.stream()
-					.map(this::toBillingData)
-					.collect(Collectors.toList());
-		} catch (Exception e) {
-			log.error("Cannot retrieve billing information ", e);
-			throw new DlabException("Cannot retrieve billing information", e);
-		}
-	}
-
-	private GroupOperation getGroupOperation() {
-		return group("product", "currency", "dlabId")
-				.min("from").as("from")
-				.max("to").as("to")
-				.sum("cost").as("cost");
-	}
-
-	private Optional<MatchOperation> getMatchCriteria(String dateStart, Criteria criteria) {
-		return Optional.ofNullable(dateStart)
-				.filter(StringUtils::isNotEmpty)
-				.map(date -> Aggregation.match(criteria));
-	}
-
 	private Stream<? extends BillingData> bigQueryResultSetStream(Table table) {
 		try {
 			final String tableName = table.getTableId().getTable();
@@ -198,17 +128,5 @@ public class BigQueryBillingDAO implements BillingDAO {
 	private LocalDate toLocalDate(FieldValueList fieldValues, String timestampFieldName) {
 		return LocalDate.from(Instant.ofEpochMilli(fieldValues.get(timestampFieldName).getTimestampValue() / 1000)
 				.atZone(ZoneId.systemDefault()));
-	}
-
-	private BillingData toBillingData(GcpBillingData billingData) {
-		return BillingData.builder()
-				.usageDateFrom(billingData.getUsageDateFrom())
-				.usageDateTo(billingData.getUsageDateTo())
-				.product(billingData.getProduct())
-				.usageType(billingData.getUsageType())
-				.cost(BigDecimal.valueOf(billingData.getCost()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
-				.currency(billingData.getCurrency())
-				.tag(billingData.getTag())
-				.build();
 	}
 }

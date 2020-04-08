@@ -22,8 +22,8 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
-import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
+import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
@@ -38,7 +38,6 @@ import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
-import com.epam.dlab.dto.billing.BillingData;
 import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -46,7 +45,6 @@ import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,7 +60,6 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-dlab/blob/%s" +
 			"/RELEASE_NOTES.md";
 	private final ExploratoryDAO expDAO;
-	private final EnvDAO envDAO;
 	private final SelfServiceApplicationConfiguration configuration;
 	private final BillingDAO billingDAO;
 	private final ProjectService projectService;
@@ -70,11 +67,10 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	private final BillingService billingService;
 
 	@Inject
-	public InfrastructureInfoServiceImpl(ExploratoryDAO expDAO, EnvDAO envDAO, SelfServiceApplicationConfiguration configuration,
+	public InfrastructureInfoServiceImpl(ExploratoryDAO expDAO, SelfServiceApplicationConfiguration configuration,
 										 BillingDAO billingDAO, ProjectService projectService, EndpointService endpointService,
 										 BillingService billingService) {
 		this.expDAO = expDAO;
-		this.envDAO = envDAO;
 		this.configuration = configuration;
 		this.billingDAO = billingDAO;
 		this.projectService = projectService;
@@ -88,8 +84,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 		try {
 			Iterable<Document> documents = expDAO.findExploratory(user.getName());
 			List<EndpointDTO> allEndpoints = endpointService.getEndpoints();
-			return StreamSupport.stream(documents.spliterator(),
-					false)
+			return StreamSupport.stream(documents.spliterator(), false)
 					.collect(Collectors.groupingBy(d -> d.getString("project")))
 					.entrySet()
 					.stream()
@@ -100,18 +95,15 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 										.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
 								.collect(Collectors.toList());
 
-						List<BillingData> collect = e.getValue()
+						List<BillingReportLine> billingData = e.getValue()
 								.stream()
-								.map(exp -> {
-									List<BillingData> exploratoryRemoteBillingData = new ArrayList<>();
-									try {
-										exploratoryRemoteBillingData = billingService.getExploratoryRemoteBillingData(user, (String) exp.get("endpoint"),
-												expDAO.findExploratories(e.getKey(), (String) exp.get("endpoint"), user.getName()));
-									} catch (Exception ex) {
-										log.error("Cannot retrieve billing information", ex);
-									}
-									return exploratoryRemoteBillingData;
-								})
+								.map(exp ->
+										billingService.getExploratoryBillingData(exp.getString("exploratory_id"),
+												Optional.ofNullable(exp.get("computational_resources")).map(cr -> (List<Document>) cr).get()
+														.stream()
+														.map(cr -> cr.getString("computational_id"))
+														.collect(Collectors.toList()))
+								)
 								.flatMap(Collection::stream)
 								.collect(Collectors.toList());
 
@@ -120,7 +112,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 										.stream()
 										.collect(Collectors.toMap(ProjectEndpointDTO::getName, this::getSharedInfo));
 						return new ProjectInfrastructureInfo(e.getKey(),
-								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), collect, endpointResult);
+								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), billingData, endpointResult);
 					})
 					.collect(Collectors.toList());
 		} catch (Exception e) {
