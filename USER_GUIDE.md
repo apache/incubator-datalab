@@ -42,6 +42,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Environment Management Page](#environment_management)
 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Multiple Cloud endpoints](#multiple_cloud_endpoints)
+
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage DLab quotas](#manage_dlab_quotas)
 
 [DLab billing report](#billing_page)
@@ -491,6 +493,22 @@ Confirm stopping/decommissioning of the Computational resource by hitting "Yes":
 </p>
 
 **NOTE:** Terminate action is available only for notebooks and computational resources, not for Edge Nodes.
+
+### Multiple Cloud Endpoints <a name="multiple_cloud_endpoints"></a>
+
+Administrator can connect to any of Cloud endpoints: AWS, GCP, Azure. For that administrator should click on "Endpoints" button. "Connect endpoint" popup shows up:
+
+<p align="center"> 
+    <img src="doc/connect_endpoint.png" alt="Connect endpoint" width="520">
+</p>
+
+Once all fields are filled in and you click on "Connect" button, you are able to see the list of all your added endpoints on "Endpoint list" tab:
+
+<p align="center"> 
+    <img src="doc/endpoint_list.png" alt="Endpoint list" width="520">
+</p>
+
+Administrator can deactivate whole analytical environment via bin icon. And all related instances change its satuses to "Terminating" and soon become "Terminated".
 
 ### Manage DLab quotas <a name="manage_dlab_quotas"></a>
 
