@@ -591,12 +591,18 @@ After clicking you see popup with the following fields:
 - start/finish dates - date range when scheduler is active;
 - start/end time - time when notebook should be running;
 - timezone - your time  zone;
-- repeat on - days when scheduler should be active
-- possibility to synchronize notebook scheduler with computational schedulers 
-- possibility not to stop notebook in case of running jon on Spark Standalone
+- repeat on - days when scheduler should be active;
+- possibility to synchronize notebook scheduler with computational schedulers;
+- possibility not to stop notebook in case of running job on Spark Standalone.
 
 <p align="center"> 
     <img src="doc/notebook_scheduler.png" alt="Notebook scheduler" width="400">
+</p>
+
+If you want to stop Notebook on exceeding idle time you should enable "Scheduler by inactivity", fill your inactivity minutes and click on "Save" button. Notebook stopping triggers after exceeding idle time.
+
+<p align="center"> 
+    <img src="doc/scheduler_by_inactivity.png" alt="Scheduler by Inactivity.png" width="400">
 </p>
 
 Also scheduler can be configured for a spark cluster. To configure scheduler for spark cluster <img src="doc/icon_scheduler_computational.png" alt="scheduler_computational" width="16"> should be clicked (near computational status):
