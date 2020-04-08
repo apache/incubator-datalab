@@ -23,6 +23,8 @@ import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.dto.billing.BillingResourceType;
 import com.google.inject.Inject;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Filters;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -141,7 +143,7 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 		List<Bson> pipeline = new ArrayList<>();
 		List<Bson> matchCriteria = matchCriteria(filter);
 		if (!matchCriteria.isEmpty()) {
-			pipeline.addAll(matchCriteria);
+			pipeline.add(Aggregates.match(Filters.and(matchCriteria)));
 		}
 		pipeline.add(groupCriteria());
 		return StreamSupport.stream(getCollection(BILLING).aggregate(pipeline).spliterator(), false)
@@ -192,10 +194,10 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 			searchCriteria.add(regex(DLAB_ID, filter.getDlabId(), "i"));
 		}
 		if (StringUtils.isNotEmpty(filter.getDateStart())) {
-			searchCriteria.add(gte(FROM, filter.getDateStart()));
+			searchCriteria.add(gte(USAGE_DATE, filter.getDateStart()));
 		}
 		if (StringUtils.isNotEmpty(filter.getDateEnd())) {
-			searchCriteria.add(lte(TO, filter.getDateEnd()));
+			searchCriteria.add(lte(USAGE_DATE, filter.getDateEnd()));
 		}
 		if (CollectionUtils.isNotEmpty(filter.getProjects())) {
 			searchCriteria.add(in(PROJECT, filter.getProjects()));
