@@ -38,13 +38,15 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [Administration](#administration)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Manage roles](#manage_roles)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage roles](#manage_roles)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Environment Management Page](#environment_management)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Project management_page](#project_management)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Multiple Cloud endpoints](#multiple_cloud_endpoints)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Environment management page](#environment_management)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Manage DLab quotas](#manage_dlab_quotas)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Multiple Cloud endpoints](#multiple_cloud_endpoints)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage DLab quotas](#manage_dlab_quotas)
 
 [DLab billing report](#billing_page)
 
@@ -442,7 +444,6 @@ Also clicking on "Circle" button you can uncommit or revert changes.
 --------------------------------
 # Administration <a name="administration"></a>
 
-
 ## Manage roles <a name="manage_roles"></a>
 
 Administrator can choose what instance shape(s), notebook(s) and computational resource are supposed for certain group(s) or user(s). Administrator can also assign administrator per project, who is able to manage roles within particular project.
@@ -461,7 +462,7 @@ Roles consist of:
 - Notebook shapes - list of Notebook shapes which are sopposed for creation.
 
 <p align="center"> 
-    <img src="doc/roles.png" alt="Roles" width="780">
+    <img src="doc/roles.png" alt="Roles" width="450">
 </p>
 
 To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
@@ -473,9 +474,32 @@ Administrator can remove group or user. For that you should only click on bin ic
     <img src="doc/delete_group.png" alt="Delete group" width="780">
 </p>
 
---------------------------------
+## Project management page <a name="project_management"></a>
 
-## Environment Management Page <a name="environment_management"></a>
+After project creation (this step is described in [create project](#setup_edge_node) administrator is able to manage the project by clicking on gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for the needed project.
+
+<p align="center"> 
+    <img src="doc/project_view.png" alt="Project view" width="780">
+</p>
+
+The following menu shows up:
+
+<p align="center"> 
+    <img src="doc/project_menu.png" alt="Project menu" width="150">
+</p>
+
+Administrator can edit already existing project:
+- Add or remove group;
+- Add new endpoint;
+- switch off/on 'Use shared image' option.
+
+To edit the project hit "Edit project" and choose option which you want to add, remove or change. For applying changes click on "Update" button.
+
+To stop Edge node hit "Stop edge node". After that confirm "OK" in confirmation popup. All related instances change its status from 'Running' to "Stopping" and soon becomes "Stopped". You are able to start Edge node again after a while and proceed with your work. Do not forget to start notebook again if you want to continue with your analytics. Because start Edge node does not start related instances.
+
+To terminate Edge node hit "Terminate edge node". After that confirm "OK" in confirmation popup. All related instances change its status to "Terminating" and soon becomes "Terminated".
+
+## Environment management page <a name="environment_management"></a>
 
 DLab Environment Management page is an administration page allowing admins to see the list of all users environments and to stop/terminate all of them.
 
