@@ -63,6 +63,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 @Slf4j
 public class BillingServiceImpl implements BillingService {
     private static final String BILLING_PATH = "/api/billing";
@@ -214,17 +215,23 @@ public class BillingServiceImpl implements BillingService {
 
     private void updateBillingData(UserInfo userInfo, EndpointDTO endpointDTO, List<BillingData> billingData) {
         final String endpointName = endpointDTO.getName();
+        final CloudProvider cloudProvider = endpointDTO.getCloudProvider();
         final Map<String, BillingReportLine> billableResources = getBillableResources(userInfo);
 
-        if (endpointDTO.getCloudProvider() == CloudProvider.GCP) {
-            final Map<String, List<BillingReportLine>> gcpBillingData = billingData
-                    .stream()
-                    .filter(bd -> billableResources.containsKey(bd.getTag()))
-                    .peek(bd -> bd.setApplication(endpointName))
-                    .map(bd -> toBillingData(bd, billableResources.get(bd.getTag())))
-                    .collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0, USAGE_DATE_FORMAT.length())));
+        final Stream<BillingReportLine> billingReportLineStream = billingData
+                .stream()
+                .filter(bd -> billableResources.containsKey(bd.getTag()))
+                .peek(bd -> bd.setApplication(endpointName))
+                .map(bd -> toBillingReport(bd, billableResources.get(bd.getTag())));
 
+        if (cloudProvider == CloudProvider.GCP) {
+            final Map<String, List<BillingReportLine>> gcpBillingData = billingReportLineStream
+                    .collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0, USAGE_DATE_FORMAT.length())));
             updateGcpBillingData(endpointName, gcpBillingData);
+        } else if (cloudProvider == CloudProvider.AZURE) {
+            List<BillingReportLine> billingReportLines = billingReportLineStream
+                    .collect(Collectors.toList());
+            updateAzureBillingData(billingReportLines);
         }
     }
 
@@ -233,6 +240,10 @@ public class BillingServiceImpl implements BillingService {
             billingDAO.deleteByUsageDate(endpointName, usageDate);
             billingDAO.save(billingReportLines);
         });
+    }
+
+    private void updateAzureBillingData(List<BillingReportLine> billingReportLines) {
+        billingDAO.save(billingReportLines);
     }
 
     private String getBillingUrl(String endpointUrl, String path) {
@@ -262,7 +273,7 @@ public class BillingServiceImpl implements BillingService {
         }
     }
 
-    private BillingReportLine toBillingData(BillingData billingData, BillingReportLine billingReportLine) {
+    private BillingReportLine toBillingReport(BillingData billingData, BillingReportLine billingReportLine) {
         return BillingReportLine.builder()
                 .application(billingData.getApplication())
                 .cost(BigDecimal.valueOf(billingData.getCost()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
