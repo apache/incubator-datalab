@@ -42,7 +42,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[Environment Management Page](#environment_management)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage environment](#manage_environment)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage DLab quotas](#manage_dlab_quotas)
 
 [DLab billing report](#billing_page)
 
@@ -492,13 +492,22 @@ Confirm stopping/decommissioning of the Computational resource by hitting "Yes":
 
 **NOTE:** Terminate action is available only for notebooks and computational resources, not for Edge Nodes.
 
-### Manage environment <a name="manage_environment"></a>
+### Manage DLab quotas <a name="manage_dlab_quotas"></a>
 
-Administrator can manage users environment clicking on "Manage DLab quotas" button. "Manage DLab quotas" popup shows up. Admin can see all active project:
+Administrator can set quotas per project and for the whole DLab. To do it click on "Manage DLab quotas" button. "Manage DLab quotas" popup shows up. Admin can see all active project:
 
 <p align="center"> 
     <img src="doc/manage_environment.png" alt="Manage environment" width="520">
 </p>
+
+After filling fields and clicking on "Apply" button, new quotas are used for project and DLab.
+If project and DLab quotas are exceeded the warning shows up during login.
+
+<p align="center" class="facebox-popup"> 
+    <img src="doc/exceeded quota.png" alt="Exceeded quota" width="400">
+</p>
+
+In such case user cannot create new instance and already "Running" instance changes its status to "Stopping", except for Data Engine Service (its status becomes "Terminating").
 
 --------------------------------
 
