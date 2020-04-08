@@ -123,7 +123,9 @@ parser.add_argument('--resource_id', type=str, default='line_item_resource_id', 
 parser.add_argument('--odahu_tls_crt', type=str, default='', help='TLS Certificate for Odahu cluster')
 parser.add_argument('--odahu_tls_key', type=str, default='', help='TLS Key for Odahu cluster')
 parser.add_argument('--odahu_docker_private_repo', type=str, default='', help='Odahu private repository url')
+parser.add_argument('--odahu_docker_password', type=str, default='', help='Odahu private repository base64 encoded password')
 parser.add_argument('--odahu_keysecret', type=str, default='', help='KeySecret for Odahuflow examples git')
+parser.add_argument('--odahu_oauth_local_jwks', type=str, default='', help='JWKS from keycloak')
 parser.add_argument('--odahu_airflow_secret', type=str, default='', help='Airflow keycloak service account secret')
 parser.add_argument('--odahu_operator_secret', type=str, default='', help='Operator keycloak service account secret')
 parser.add_argument('--odahu_resource_uploader_secret', type=str, default='', help='Resource uploader keycloak service'

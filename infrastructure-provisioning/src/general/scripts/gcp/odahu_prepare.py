@@ -43,13 +43,14 @@ if __name__ == "__main__":
     odahu_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     odahu_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
     odahu_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
-    odahu_conf['cluster_name'] = (os.environ['odahu_cluster_name']).lower().replace('_', '-')
+    odahu_conf['cluster_name'] = "{}-{}".format((os.environ['conf_service_base_name']).lower().replace('_', '-'),
+                                                (os.environ['odahu_cluster_name']).lower().replace('_', '-'))
     odahu_conf['tag_name'] = '{}-tag'.format(odahu_conf['service_base_name'])
     odahu_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     odahu_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     odahu_conf['region'] = os.environ['gcp_region']
-    odahu_conf['bucket_name'] = "{}-tfstate".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
-    odahu_conf['static_address_name'] = "{}-nat-gw".format((os.environ['odahu_cluster_name']).lower().replace('_', '-'))
+    odahu_conf['bucket_name'] = "{}-tfstate".format(odahu_conf['cluster_name'])
+    odahu_conf['static_address_name'] = "{}-nat-gw".format(odahu_conf['cluster_name'])
     odahu_conf['keycloak_auth_server_url'] = os.environ['keycloak_auth_server_url']
     odahu_conf['keycloak_realm_name'] = os.environ['keycloak_realm_name']
     odahu_conf['keycloak_client_name'] = os.environ['keycloak_client_name']

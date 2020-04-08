@@ -69,6 +69,7 @@ if __name__ == "__main__":
                                                                 odahu_conf['project_name'])
     odahu_conf['grafana_admin'] = os.environ['grafana_admin']
     odahu_conf['grafana_pass'] = os.environ['grafana_pass']
+    odahu_conf['docker_password'] = base64.b64decode(os.environ['odahu_docker_password'] + "==")
     odahu_conf['initial_node_count'] = os.environ['odahu_initial_node_count']
     odahu_conf['istio_helm_repo'] = os.environ['odahu_istio_helm_repo']
     odahu_conf['helm_repo'] = os.environ['odahu_helm_repo']
@@ -79,6 +80,7 @@ if __name__ == "__main__":
     odahu_conf['oauth_client_id'] = os.environ['keycloak_client_name']
     odahu_conf['oauth_client_secret'] = os.environ['keycloak_client_secret']
     odahu_conf['oauth_cookie_secret'] = os.environ['oauth_cookie_secret']
+    odahu_conf['oauth_local_jwks'] = os.environ['odahu_oauth_local_jwks']
     odahu_conf['infra_version'] = os.environ['odahu_infra_version']
     odahu_conf['odahuflow_version'] = os.environ['odahu_odahuflow_version']
     odahu_conf['mlflow_toolchain_version'] = os.environ['odahu_mlflow_toolchain_version']
@@ -133,9 +135,9 @@ if __name__ == "__main__":
                     "provider": "gcp",
                     "zone_name": "{}".format(odahu_conf['dns_zone_name']),
                 },
-                "docker_password": "",
+                "docker_password": "{}".format(odahu_conf['docker_password']),
                 "docker_repo": "{}".format(odahu_conf['docker_repo']),
-                "docker_username": "",
+                "docker_username": "_json_key",
                 "gcp_cidr": "{}".format(odahu_conf['cidr']),
                 "examples_version": "{}".format(odahu_conf['examples_version']),
                 "grafana_pass": "{}".format(odahu_conf['grafana_pass']),
@@ -147,7 +149,7 @@ if __name__ == "__main__":
                 "node_pools": {
                     "main": {
                         "disk_size_gb": 64,
-                        "init_node_count": 3,
+                        "init_node_count": 8,
                         "max_node_count": 5,
                         "min_node_count": 1
                     },
@@ -218,7 +220,7 @@ if __name__ == "__main__":
                 "oauth_client_id": "{}".format(odahu_conf['oauth_client_id']),
                 "oauth_client_secret": "{}".format(odahu_conf['oauth_client_secret']),
                 "oauth_cookie_secret": "{}".format(odahu_conf['oauth_cookie_secret']),
-                "oauth_local_jwks": "",
+                "oauth_local_jwks": "{}".format(odahu_conf['oauth_local_jwks']),
                 "oauth_mesh_enabled": odahu_conf['oauth_mesh_enabled'],
                 "oauth_oidc_audience": "legion",
                 "oauth_oidc_host": "{}".format(odahu_conf['oauth_oidc_host']),
