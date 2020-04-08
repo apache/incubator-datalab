@@ -17,28 +17,12 @@
  * under the License.
  */
 
-package com.epam.dlab.billing.azure.controller;
+package com.epam.dlab.billing.azure;
 
-import com.epam.dlab.billing.azure.CalculateBillingService;
 import com.epam.dlab.dto.billing.BillingData;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
-public class BillingController {
-
-    private final CalculateBillingService billingService;
-
-    public BillingController(CalculateBillingService billingService) {
-        this.billingService = billingService;
-    }
-
-    @GetMapping
-    public ResponseEntity<List<BillingData>> getBilling() {
-        return new ResponseEntity<>(billingService.getBillingData(), HttpStatus.OK);
-    }
+public interface CalculateBillingService {
+    List<BillingData> getBillingData();
 }
