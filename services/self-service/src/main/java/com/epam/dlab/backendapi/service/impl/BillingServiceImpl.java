@@ -147,26 +147,20 @@ public class BillingServiceImpl implements BillingService {
     }
 
     public void updateRemoteBillingData(UserInfo userInfo) {
-        try {
-            List<EndpointDTO> endpoints = endpointService.getEndpoints();
-            if (CollectionUtils.isEmpty(endpoints)) {
-                log.error("Cannot update billing info. There are no endpoints");
-                throw new DlabException("Cannot update billing info. There are no endpoints");
-            }
-
-            Map<EndpointDTO, List<BillingData>> billingDataMap = endpoints
-                    .stream()
-                    .collect(Collectors.toMap(e -> e, e -> provisioningService.get(getBillingUrl(e.getUrl(), BILLING_PATH), userInfo.getAccessToken(),
-                            new GenericType<List<BillingData>>() {
-                            })));
-
-            billingDataMap.forEach((endpointDTO, billingData) -> {
-                log.info("Updating billing information for endpoint {}", endpointDTO.getName());
-                updateBillingData(userInfo, endpointDTO, billingData);
-            });
-        } catch (DlabException e) {
-            log.error("Cannot retrieve billing information for {}", e.getMessage());
+        List<EndpointDTO> endpoints = endpointService.getEndpoints();
+        if (CollectionUtils.isEmpty(endpoints)) {
+            log.error("Cannot update billing info. There are no endpoints");
+            throw new DlabException("Cannot update billing info. There are no endpoints");
         }
+
+        Map<EndpointDTO, List<BillingData>> billingDataMap = endpoints
+                .stream()
+                .collect(Collectors.toMap(e -> e, e -> getBillingData(userInfo, e)));
+
+        billingDataMap.forEach((endpointDTO, billingData) -> {
+            log.info("Updating billing information for endpoint {}", endpointDTO.getName());
+            updateBillingData(userInfo, endpointDTO, billingData);
+        });
     }
 
     private Map<String, BillingReportLine> getBillableResources(UserInfo userInfo) {
@@ -244,6 +238,17 @@ public class BillingServiceImpl implements BillingService {
 
     private void updateAzureBillingData(List<BillingReportLine> billingReportLines) {
         billingDAO.save(billingReportLines);
+    }
+
+    private List<BillingData> getBillingData(UserInfo userInfo, EndpointDTO e) {
+        try {
+            return provisioningService.get(getBillingUrl(e.getUrl(), BILLING_PATH), userInfo.getAccessToken(),
+                    new GenericType<List<BillingData>>() {
+                    });
+        } catch (Exception ex) {
+            log.error("Cannot retrieve billing information for {}. {}", e.getName(), ex.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     private String getBillingUrl(String endpointUrl, String path) {
