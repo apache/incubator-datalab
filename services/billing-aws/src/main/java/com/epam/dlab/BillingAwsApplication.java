@@ -32,6 +32,6 @@ public class BillingAwsApplication {
 
     public static void main(String[] args) throws InitializationException {
         SpringApplication.run(BillingAwsApplication.class, args);
-        BillingScheduler.startScheduler(args);
+        BillingServiceImpl.startApplication(args);
     }
 }

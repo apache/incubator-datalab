@@ -33,6 +33,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -308,7 +309,7 @@ public class AdapterS3File extends AdapterBase {
 	}
 
 	@Override
-	public void writeRow(ReportLine row) throws AdapterException {
+	public Document writeRow(ReportLine row) throws AdapterException {
 		throw new AdapterException("Unimplemented method.");
 	}
 

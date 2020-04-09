@@ -17,15 +17,12 @@
  * under the License.
  */
 
-package com.epam.dlab.dao;
+package com.epam.dlab;
 
 import com.epam.dlab.dto.billing.BillingData;
 
 import java.util.List;
 
-public interface BillingDAO {
-
-    List<BillingData> getBillingReport(String dateStart, String dateEnd, String dlabId, List<String> products);
-
-    List<BillingData> getBillingReport(List<String> dlabIds);
+public interface BillingService {
+    List<BillingData> getBillingData();
 }

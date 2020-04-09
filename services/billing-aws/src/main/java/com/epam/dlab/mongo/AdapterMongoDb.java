@@ -219,7 +219,7 @@ public class AdapterMongoDb extends DBAdapterBase {
 	}
 
 	@Override
-	public void writeRow(ReportLine row) throws AdapterException {
+	public Document writeRow(ReportLine row) throws AdapterException {
 		Document document;
 		try {
 			document = resourceTypeDAO.transform(row);
@@ -227,20 +227,21 @@ public class AdapterMongoDb extends DBAdapterBase {
 			throw new AdapterException("Cannot transform report line. " + e.getLocalizedMessage(), e);
 		}
 
-		usageDateList.append(row.getUsageDate());
-		if (upsert) {
-			buffer.add(document);
-			if (buffer.size() >= bufferSize) {
-				connection.upsertRows(collection, buffer, usageDateList);
-			}
-		} else if (bufferSize > 0) {
-			buffer.add(document);
-			if (buffer.size() >= bufferSize) {
-				connection.insertRows(collection, buffer);
-			}
-		} else {
-			connection.insertOne(collection, document);
-		}
+//		usageDateList.append(row.getUsageDate());
+//		if (upsert) {
+//			buffer.add(document);
+//			if (buffer.size() >= bufferSize) {
+//				connection.upsertRows(collection, buffer, usageDateList);
+//			}
+//		} else if (bufferSize > 0) {
+//			buffer.add(document);
+//			if (buffer.size() >= bufferSize) {
+//				connection.insertRows(collection, buffer);
+//			}
+//		} else {
+//			connection.insertOne(collection, document);
+//		}
+		return document;
 	}
 
 	/**
