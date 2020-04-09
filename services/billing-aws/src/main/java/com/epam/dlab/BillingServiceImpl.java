@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,7 +82,7 @@ public class BillingServiceImpl implements BillingService {
 				.usageDate(billingData.getString(FIELD_USAGE_DATE))
 				.product(billingData.getString(FIELD_PRODUCT))
 				.usageType(billingData.getString(FIELD_RESOURCE_TYPE))
-				.cost(BigDecimal.valueOf(billingData.getDouble(FIELD_COST)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
+				.cost(billingData.getDouble(FIELD_COST))
 				.currency(billingData.getString(FIELD_CURRENCY_CODE))
 				.build();
 	}

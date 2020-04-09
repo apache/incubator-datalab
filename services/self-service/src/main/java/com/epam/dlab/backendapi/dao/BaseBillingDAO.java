@@ -221,7 +221,7 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 				.resourceType(BillingResourceType.valueOf(id.getString(RESOURCE_TYPE)))
 				.usageDateFrom(d.getDate(FROM).toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
 				.usageDateTo(d.getDate(TO).toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
-				.cost(d.getDouble(COST))
+				.cost(BigDecimal.valueOf(d.getDouble(COST)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
 				.currency(id.getString(CURRENCY))
 				.build();
 	}

@@ -43,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -239,7 +238,7 @@ public class CalculateBillingServiceImpl implements CalculateBillingService {
                 .usageDateTo(Optional.ofNullable(billingData.getUsageEndDate()).map(LocalDate::parse).orElse(null))
                 .usageDate(billingData.getDay())
                 .product(billingData.getMeterCategory())
-                .cost(BigDecimal.valueOf(billingData.getCost()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
+                .cost(billingData.getCost())
                 .currency(billingData.getCurrencyCode())
                 .build();
     }

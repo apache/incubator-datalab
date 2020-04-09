@@ -281,7 +281,7 @@ public class BillingServiceImpl implements BillingService {
     private BillingReportLine toBillingReport(BillingData billingData, BillingReportLine billingReportLine) {
         return BillingReportLine.builder()
                 .application(billingData.getApplication())
-                .cost(BigDecimal.valueOf(billingData.getCost()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
+                .cost(billingData.getCost())
                 .currency(billingData.getCurrency())
                 .product(billingData.getProduct())
                 .project(billingReportLine.getProject())
