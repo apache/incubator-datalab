@@ -158,7 +158,7 @@ public class BillingServiceImpl implements BillingService {
                 .collect(Collectors.toMap(e -> e, e -> getBillingData(userInfo, e)));
 
         billingDataMap.forEach((endpointDTO, billingData) -> {
-            log.info("Updating billing information for endpoint {}", endpointDTO.getName());
+            log.info("Updating billing information for endpoint {}. Billing data {}", endpointDTO.getName(), billingData);
             updateBillingData(userInfo, endpointDTO, billingData);
         });
     }
