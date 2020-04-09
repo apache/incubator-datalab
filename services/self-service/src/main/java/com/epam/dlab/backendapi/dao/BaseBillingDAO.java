@@ -158,7 +158,9 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 
 	@Override
 	public void save(List<BillingReportLine> billingData) {
-		insertMany(BILLING, new ArrayList<>(billingData));
+		if (CollectionUtils.isNotEmpty(billingData)) {
+			insertMany(BILLING, new ArrayList<>(billingData));
+		}
 	}
 
 	private Integer toPercentage(Supplier<Optional<Integer>> allowedBudget, Double totalCost) {
