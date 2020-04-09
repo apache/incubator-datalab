@@ -376,9 +376,9 @@ In a while Computational resource gets "Terminated". Corresponding cloud instanc
 ------------------
 ## Scheduler <a name="scheduler"></a>
 
-Scheduler component allows to automatically schedule start/stop a Notebook/Computational resource and terminate only Computational resource. There are 2 types of schedulers available:
-- Scheduler by time
-- Scheduler by inactivity 
+Scheduler component allows to automatically schedule start/stop a Notebook/Computational resource and terminate only Computational resource. There are 2 types of scheduler:
+- Scheduler by time;
+- Scheduler by inactivity.
 
 Scheduler by time is for Notebook/Data Engine stopping/starting and for Data Engine/Data Engine Service termination.
 Scheduler by inactivity is for Notebook/Data Engine stopping.
@@ -500,7 +500,7 @@ Also clicking on "Circle" button you can uncommit or revert changes.
 
 ## Manage roles <a name="manage_roles"></a>
 
-Administrator can choose what instance shape(s), notebook(s) and computational resource are supposed for certain group(s) or user(s). Administrator can also assign administrator per project, who is able to manage roles within particular project.
+Administrator can choose what instance shape(s), notebook(s) and computational resource are supposed to create for certain group(s) or user(s). Administrator can also assign administrator per project, who is able to manage roles within particular project.
 To do it click on "Add group" button. "Add group" popup shows up:
 
 <p align="center"> 
@@ -510,10 +510,10 @@ To do it click on "Add group" button. "Add group" popup shows up:
 Roles consist of:
 - Administration - allow to execute administrative operation for the whole DLab or administrative operation only per project;
 - Billing - allow to view billing only the own resources or all users;
-- Compute - list of Compute types which are sopposed for creation;
-- Compute shapes - list of Compute shapes which are sopposed for creation;
-- Notebook - list of Notebook templates which are sopposed for creation;
-- Notebook shapes - list of Notebook shapes which are sopposed for creation.
+- Compute - list of Compute types which are supposed for creation;
+- Compute shapes - list of Compute shapes which are supposed for creation;
+- Notebook - list of Notebook templates which are supposed for creation;
+- Notebook shapes - list of Notebook shapes which are supposed for creation.
 
 <p align="center"> 
     <img src="doc/roles.png" alt="Roles" width="450">
@@ -530,7 +530,7 @@ Administrator can remove group or user. For that you should only click on bin ic
 
 ## Project management <a name="project_management"></a>
 
-After project creation (this step is described in [create project](#setup_edge_node) administrator is able to manage the project by clicking on gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for the needed project.
+After project creation (this step is described in [create project](#setup_edge_node)) administrator is able to manage the project by clicking on gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for the needed project.
 
 <p align="center"> 
     <img src="doc/project_view.png" alt="Project view" width="780">
@@ -545,17 +545,17 @@ The following menu shows up:
 Administrator can edit already existing project:
 - Add or remove group;
 - Add new endpoint;
-- switch off/on 'Use shared image' option.
+- Switch off/on 'Use shared image' option.
 
 To edit the project hit "Edit project" and choose option which you want to add, remove or change. For applying changes click on "Update" button.
 
-To stop Edge node hit "Stop edge node". After that confirm "OK" in confirmation popup. All related instances change its status from 'Running' to "Stopping" and soon becomes "Stopped". You are able to start Edge node again after a while and proceed with your work. Do not forget to start notebook again if you want to continue with your analytics. Because start Edge node does not start related instances.
+To stop Edge node hit "Stop edge node". After that confirm "OK" in confirmation popup. All related instances change its status from 'Running' to "Stopping" and soon become "Stopped". You are able to start Edge node again after a while and proceed with your work. Do not forget to start notebook again if you want to continue with your analytics. Because start Edge node does not start related instances.
 
-To terminate Edge node hit "Terminate edge node". After that confirm "OK" in confirmation popup. All related instances change its status to "Terminating" and soon becomes "Terminated".
+To terminate Edge node hit "Terminate edge node". After that confirm "OK" in confirmation popup. All related instances change its status to "Terminating" and soon become "Terminated".
 
 ## Environment management <a name="environment_management"></a>
 
-DLab Environment Management page is an administration page allowing admins to see the list of all users environments and to stop/terminate all of them.
+DLab Environment Management page is an administration page allowing adminstrator to see the list of all users environments and to stop/terminate all of them.
 
 To access Environment management page either navigate to it via main menu:
 
@@ -602,7 +602,7 @@ Administrator can deactivate whole analytical environment via bin icon. And all 
 
 ### Manage DLab quotas <a name="manage_dlab_quotas"></a>
 
-Administrator can set quotas per project and for the whole DLab. To do it click on "Manage DLab quotas" button. "Manage DLab quotas" popup shows up. Admin can see all active project:
+Administrator can set quotas per project and for the whole DLab. To do it click on "Manage DLab quotas" button. "Manage DLab quotas" popup shows up. Administrator can see all active project:
 
 <p align="center"> 
     <img src="doc/manage_environment.png" alt="Manage environment" width="520">
@@ -615,7 +615,7 @@ If project and DLab quotas are exceeded the warning shows up during login.
     <img src="doc/exceeded quota.png" alt="Exceeded quota" width="400">
 </p>
 
-In such case user cannot create new instance and already "Running" instance changes its status to "Stopping", except for Data Engine Service (its status becomes "Terminating").
+In such case user cannot create new instance and already "Running" instance changes its status to "Stopping", except for Data Engine Service (its status changes "Terminating") and soon becomes "Stopped" or "Terminated" appropriately.
 
 --------------------------------
 
