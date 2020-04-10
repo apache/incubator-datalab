@@ -19,10 +19,34 @@ export class TodoItemFlatNode {
  */
 const TREE_DATA = {
   'dlab-local-shared-bucket': {
+    'file1': null,
+    'file2': null,
+    'file3': null,
     FirsrFolder: {
       folder: {
         folder: ['2008.cvs.bz2', 'airports.csv', 'carriers.csv'],
-        folder1: [],
+        folder1: ['2008.cvs.bz2', 'airports.csv', 'carriers.csv', 'file1',
+          'file2',
+          'file3',
+          'file4',
+          'file5',
+          'file6', '2008.cvs.bz2', '2008.cvs.bz2', 'airports.csv', 'carriers.csv', 'file1',
+          'file2',
+          'file3',
+          'file4',
+          'file5',
+          'file6',
+          '2008.cvs.bz2', 'airports.csv', 'carriers.csv', 'file1',
+          'file2',
+          'file3',
+          'file4',
+          'file5',
+          'file6', '2008.cvs.bz2', '2008.cvs.bz2', 'airports.csv', 'carriers.csv', 'file1',
+          'file2',
+          'file3',
+          'file4',
+          'file5',
+          'file6'],
         folder2: []
       },
       'folder1': [],

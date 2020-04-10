@@ -11,19 +11,27 @@
   display: flex;
   align-items: center;
   cursor: pointer;
-  &.active {
-    //border-bottom: 1px solid #00bcd4;
-    color: #00bcd4;
-    i{
-      color: #00bcd4;
-    }
 
 }
+
+.active-item {
+  //border-bottom: 1px solid #00bcd4;
+  color: #00bcd4;
+  i{
+    color: #00bcd4;
+  }
+
+
+}
+
+.mat-tree-node{
+  cursor: pointer;
+  transition: .3s;
   &:hover{
     color: #00bcd4;
     i{
       color: #00bcd4;
     }
   }
-
 }
+

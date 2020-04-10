@@ -41,6 +41,7 @@ export class BucketBrowserComponent implements OnInit {
   // @ViewChild('tabGroupGit', { static: false }) tabGroupGit;
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   private selectedFolder: any;
+  private isUploading: boolean;
 
   constructor(
     public toastr: ToastrService,
@@ -106,16 +107,25 @@ export class BucketBrowserComponent implements OnInit {
     this.uploadPaths.splice(this.uploadPaths.indexOf(file), 1);
   }
 
-  uploadItems(){
-    // this.folderTreeComponent.addNewItem(this.selectedFolder);
+  uploadItems() {
+    this.isUploading = true;
+    setTimeout(() => this.upLoading(), 5000);
+  }
+
+  downloadItems(){
+    this.isUploading = true;
+  }
+
+  upLoading() {
     this.uploadPaths.forEach(v => {
       this.folderTreeComponent.addNewItem(this.selectedFolder, v, true);
     });
     this.uploadPaths = [];
-    // this.folderTreeComponent.saveNode(this.selectedFolder);
-
+    this.isUploading = false;
   }
 }
+
+
 
 // @Component({
 //   selector: 'dialog-result-example-dialog',

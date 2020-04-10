@@ -82,6 +82,8 @@
   }
 
   .directory{
+    max-height: 500px;
+    overflow: auto;
     flex: 2;
     .folder-tree{
       .name{
@@ -103,11 +105,27 @@
       .size{
         flex:1;
       }
-      .progres{
+      .progress-wrapper{
         flex:1;
-        border: 1px solid rgba(0,0,0,.12);
-        height: 15px;
+        .progres{
+          border: 1px solid rgba(0,0,0,.12);
+          height: 15px;
+          position: relative;
+          .bar{
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            background-color:  #00bcd4;
+            &.full{
+              width: 100%;
+              transition: 5s ease-in-out;
+            }
+          }
+        }
       }
+
       .action {
         display: flex;
         justify-content: space-around;
@@ -155,6 +173,9 @@
            color: #00bcd4;
            transition: .3s ease-in-out;
          }
+         .mat-checkbox .mat-ripple-element {
+           background-color: #00bcd4 !important;
+         }
        }
      }
    }
@@ -165,6 +186,12 @@
     color: #000;
   }
 
-
+  .check-box {
+    background-color: red;
+  }
 
 }
+
+
+
+

@@ -19,14 +19,14 @@
   <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
     <button mat-icon-button matTreeNodeToggle
             [attr.aria-label]="'toggle ' + node.filename">
-      <mat-icon class="mat-icon-rtl-mirror">
+      <mat-icon class="mat-icon-rtl-mirror" [ngClass]="{'active-item': selectedFolder === node}">
         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
       </mat-icon>
     </button>
 <!--    <mat-checkbox [checked]="descendantsAllSelected(node)"-->
 <!--                  [indeterminate]="descendantsPartiallySelected(node)"-->
 <!--                  (change)="todoItemSelectionToggle(node)"></mat-checkbox>-->
-    <div (click)="showItem(node)" class="folder-item-line" [ngClass]="{'active': selectedFolder === node}"><i class="material-icons folder-icon">folder</i> <span class="folder">{{node.item}}</span></div>
+    <div (click)="showItem(node)" class="folder-item-line"  [ngClass]="{'active-item': selectedFolder === node}"><i class="material-icons folder-icon">folder</i> <span class="folder">{{node.item}}</span></div>
 <!--    <button mat-icon-button (click)="addNewItem(node)"><mat-icon>add</mat-icon></button>-->
   </mat-tree-node>
 </mat-tree>

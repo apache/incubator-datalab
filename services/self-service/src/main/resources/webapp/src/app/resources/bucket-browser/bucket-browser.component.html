@@ -40,20 +40,28 @@
               <div class="size">2.4kb</div>
             </div>
             <div class="folder-item-wrapper" *ngIf="!file.children">
-              <div class="name name-file"> <mat-checkbox ></mat-checkbox><span>{{file.item}}</span></div>
+              <div class="name name-file"> <mat-checkbox [(ngModel)]="file.isSelected"></mat-checkbox><span>{{file.item}}</span></div>
 <!--                [checked]="descendantsAllSelected(node)"-->
 <!--                [indeterminate]="descendantsPartiallySelected(node)"-->
 <!--                (change)="todoItemSelectionToggle(node)"-->
               <div class="size">2.4kb</div>
+              <div class="progress-wrapper">
+                <div class="progres" *ngIf="file.isSelected"><div class="bar"></div></div>
+              </div>
             </div>
-            <!--            <div class="progres"></div>-->
+
           </li>
         </ul>
         <ul class="folder-tree">
           <li *ngFor="let file of uploadPaths" class="folder-item">
             <div class="name">{{file}}</div>
             <div class="size">2.4kb</div>
-            <div class="progres"></div>
+            <div class="progress-wrapper">
+              <div class="progres">
+                <div class="bar" [ngClass]="{'full': isUploading}">
+                </div>
+              </div>
+            </div>
             <div (click)="deleteAddedFile(file)">X</div>
           </li>
         </ul>
@@ -61,7 +69,7 @@
     </div>
     <div class="text-center m-top-30 m-bott-30">
       <button type="button" class="butt" mat-raised-button (click)="this.dialogRef.close()">Close</button>
-      <button *ngIf="!this.uploadPaths.length" type="button" class="butt butt-success" mat-raised-button >Download</button>
+      <button *ngIf="!this.uploadPaths.length" type="button" class="butt butt-success" mat-raised-button (click)="downloadItems()">Download</button>
       <button *ngIf="this.uploadPaths.length !== 0" type="button" class="butt butt-success" mat-raised-button (click)="uploadItems()">Upload</button>
     </div>
   </div>
