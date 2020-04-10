@@ -60,8 +60,7 @@ export class ExploratoryModel {
           project: value.project,
           exploratory: value.exploratory.map(el => {
             const provider = el.cloud_provider.toLowerCase();
-            const billing = value.exploratoryBilling.filter(res => res.resource_name === el.exploratory_name)[0];
-
+            const billing = value.exploratoryBilling.filter(res => res.name === el.exploratory_name)[0];
             return new ExploratoryModel(
               provider,
               el.exploratory_name,
@@ -79,9 +78,9 @@ export class ExploratoryModel {
               value.shared[el.endpoint][DICTIONARY[provider].bucket_name],
               value.shared[el.endpoint][DICTIONARY[provider].shared_bucket_name],
               el.error_message,
-              billing ? billing.cost : '',
+              billing ? billing.total_cost : '',
               billing ? billing.currency : '',
-              el.billing,
+              billing,
               el.libs,
               value.shared[el.endpoint][DICTIONARY[provider].user_storage_account_name],
               value.shared[el.endpoint][DICTIONARY[provider].shared_storage_account_name],

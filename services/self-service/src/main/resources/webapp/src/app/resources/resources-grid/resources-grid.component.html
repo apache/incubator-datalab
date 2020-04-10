@@ -139,7 +139,7 @@
           <td *ngIf="healthStatus?.billingEnabled" class="cost-col">
             <span class="total_cost">{{ element.cost || 'N/A' }} {{ element.currency_code || '' }}</span>
             <span (click)="element.billing && printCostDetails(element)" class="currency_details"
-              [ngClass]="{ 'not-allowed' : !element.billing }">
+              [ngClass]="{ 'not-allowed' : !element.billing.report_lines.length }">
               <i class="material-icons">help_outline</i>
             </span>
           </td>
@@ -226,7 +226,7 @@
     <ng-container matColumnDef="name-filter" sticky>
       <th mat-header-cell *matHeaderCellDef class="name-col filter-row-item">
         <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
-          [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
+          [value]="filterForm.name" (input)="filterForm.name = $event.target['value']" />
       </th>
     </ng-container>
     <ng-container matColumnDef="status-filter">
