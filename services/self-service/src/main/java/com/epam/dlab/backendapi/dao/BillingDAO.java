@@ -42,7 +42,7 @@ public interface BillingDAO {
 
 	boolean isProjectQuoteReached(String project);
 
-	List<BillingReportLine> findBillingData(List<String> dlabIds);
+	List<BillingReportLine> findBillingData(String project, String endpoint, List<String> resourceNames);
 
 	List<BillingReportLine> aggregateBillingData(BillingFilter filter);
 

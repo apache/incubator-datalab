@@ -19,7 +19,7 @@
 
 package com.epam.dlab.backendapi.resources.dto;
 
-import com.epam.dlab.backendapi.domain.BillingReportLine;
+import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -41,7 +41,7 @@ public class ProjectInfrastructureInfo {
 	@JsonProperty
 	private Iterable<Document> exploratory;
 	@JsonProperty
-	private List<BillingReportLine> exploratoryBilling;
+	private List<BillingReport> exploratoryBilling;
 	@JsonProperty
 	private List<EndpointDTO> endpoints;
 }

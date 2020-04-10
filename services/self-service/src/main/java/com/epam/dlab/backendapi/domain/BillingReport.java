@@ -30,6 +30,7 @@ import java.util.List;
 @Builder
 public class BillingReport {
     private String sbn;
+    private String name;
     @JsonProperty("report_lines")
     private List<BillingReportLine> reportLines;
     @JsonProperty("from")

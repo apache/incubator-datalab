@@ -48,6 +48,8 @@ public interface ExploratoryService {
 
     Optional<UserInstanceDTO> getUserInstance(String user, String project, String exploratoryName);
 
+    Optional<UserInstanceDTO> getUserInstance(String user, String project, String exploratoryName, boolean includeCompResources);
+
     List<UserInstanceDTO> findAll();
 
     List<UserInstanceDTO> findAll(Set<ProjectDTO> projects);

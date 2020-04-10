@@ -23,7 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.domain.BillingReportLine;
+import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
@@ -45,7 +45,6 @@ import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -95,24 +94,24 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 										.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
 								.collect(Collectors.toList());
 
-						List<BillingReportLine> billingData = e.getValue()
+						List<BillingReport> billingData = e.getValue()
 								.stream()
 								.map(exp ->
-										billingService.getExploratoryBillingData(exp.getString("exploratory_id"),
+										billingService.getExploratoryBillingData(exp.getString("project"), exp.getString("endpoint"),
+												exp.getString("exploratory_name"),
 												Optional.ofNullable(exp.get("computational_resources")).map(cr -> (List<Document>) cr).get()
 														.stream()
-														.map(cr -> cr.getString("computational_id"))
+														.map(cr -> cr.getString("computational_name"))
 														.collect(Collectors.toList()))
 								)
-								.flatMap(Collection::stream)
 								.collect(Collectors.toList());
 
 						final Map<String, Map<String, String>> projectEdges =
 								endpoints
 										.stream()
 										.collect(Collectors.toMap(ProjectEndpointDTO::getName, this::getSharedInfo));
-						return new ProjectInfrastructureInfo(e.getKey(),
-								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), billingData, endpointResult);
+						return new ProjectInfrastructureInfo(e.getKey(), billingDAO.getBillingProjectQuoteUsed(e.getKey()),
+								projectEdges, e.getValue(), billingData, endpointResult);
 					})
 					.collect(Collectors.toList());
 		} catch (Exception e) {

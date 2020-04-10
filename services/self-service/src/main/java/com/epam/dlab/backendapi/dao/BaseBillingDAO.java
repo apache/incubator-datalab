@@ -71,6 +71,10 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 	private static final String PRODUCT = "product";
 	private static final String CURRENCY = "currency";
 	private static final String COST = "cost";
+	private static final String RESOURCE_NAME = "resource_name";
+	private static final String ENDPOINT = "endpoint";
+	private static final String SHAPE = "shape";
+	private static final String EXPLORATORY = "exploratoryName";
 
 	@Inject
 	protected SettingsDAO settings;
@@ -130,8 +134,8 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 	}
 
 	@Override
-	public List<BillingReportLine> findBillingData(List<String> dlabIds) {
-		return find(BILLING, in(DLAB_ID, dlabIds), BillingReportLine.class);
+	public List<BillingReportLine> findBillingData(String project, String endpoint, List<String> resourceNames) {
+		return find(BILLING, and(eq(PROJECT, project), eq(ENDPOINT, endpoint), in(RESOURCE_NAME, resourceNames)), BillingReportLine.class);
 	}
 
 	@Override
@@ -177,7 +181,7 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 	}
 
 	private Bson groupCriteria() {
-		return group(getGroupingFields(USER, DLAB_ID, RESOURCE_TYPE, PROJECT, PRODUCT, CURRENCY),
+		return group(getGroupingFields(USER, DLAB_ID, RESOURCE_TYPE, RESOURCE_NAME, PROJECT, PRODUCT, CURRENCY, SHAPE, EXPLORATORY),
 				sum(COST, "$" + COST),
 				min(FROM, "$" + FROM),
 				max(TO, "$" + TO));
@@ -216,9 +220,12 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 		return BillingReportLine.builder()
 				.dlabId(id.getString(DLAB_ID))
 				.project(id.getString(PROJECT))
+				.resourceName(id.getString(RESOURCE_NAME))
+				.exploratoryName(id.getString(EXPLORATORY))
+				.shape(id.getString(SHAPE))
 				.user(id.getString(USER))
 				.product(id.getString(PRODUCT))
-				.resourceType(BillingResourceType.valueOf(id.getString(RESOURCE_TYPE)))
+				.resourceType(Optional.ofNullable(id.getString(RESOURCE_TYPE)).map(BillingResourceType::valueOf).orElse(null))
 				.usageDateFrom(d.getDate(FROM).toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
 				.usageDateTo(d.getDate(TO).toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
 				.cost(BigDecimal.valueOf(d.getDouble(COST)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())

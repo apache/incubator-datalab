@@ -63,21 +63,19 @@ public class BillingUtils {
     private static final String IMAGE_STANDARD_FORMAT1 = "%s-%s-%s-%s-notebook-image";
     private static final String IMAGE_CUSTOM_FORMAT = "%s-%s-%s-%s-%s";
 
-    private static final String VOLUME_PRIMARY = "Volume primary";
-    private static final String VOLUME_SECONDARY = "Volume secondary";
     private static final String SHARED_RESOURCE = "Shared resource";
     private static final String IMAGE_NAME = "Image";
 
     private static final String DATAENGINE_NAME_FORMAT = "%d x %s";
     private static final String DATAENGINE_SERVICE_NAME_FORMAT = "Master: %s%sSlave:  %d x %s";
 
-    public static Stream<BillingReportLine> edgeBillingDataStream(String project, String sbn, String endpoint, String status) {
+    public static Stream<BillingReportLine> edgeBillingDataStream(String project, String sbn, String endpoint) {
         final String userEdgeId = String.format(EDGE_FORMAT, sbn, project.toLowerCase(), endpoint);
         final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project.toLowerCase(), endpoint);
         final String endpointBucketId = String.format(PROJECT_ENDPOINT_BUCKET_FORMAT, sbn, project.toLowerCase(), endpoint);
 
         return Stream.concat(Stream.of(
-                BillingReportLine.builder().resourceName("EDGE node").user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(EDGE).build(),
+                BillingReportLine.builder().resourceName(endpoint).user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(EDGE).build(),
                 BillingReportLine.builder().resourceName("EDGE volume").user(SHARED_RESOURCE).project(project).dlabId(edgeVolumeId).resourceType(VOLUME).build(),
                 BillingReportLine.builder().resourceName("Project endpoint shared bucket").user(SHARED_RESOURCE).project(project).dlabId(endpointBucketId).resourceType(BUCKET).build()
                 ),
@@ -102,26 +100,29 @@ public class BillingUtils {
         );
     }
 
-    public static Stream<BillingReportLine> exploratoryBillingDataStream(UserInstanceDTO userInstance, Integer maxSparkInstanceCount, String sbn) {
+    public static Stream<BillingReportLine> exploratoryBillingDataStream(UserInstanceDTO userInstance, Integer maxSparkInstanceCount) {
         final Stream<BillingReportLine> computationalStream = userInstance.getResources()
                 .stream()
                 .filter(cr -> cr.getComputationalId() != null)
                 .flatMap(cr -> Stream.concat(Stream.of(
-                        withUserProject(userInstance).dlabId(cr.getComputationalId()).resourceName(cr.getComputationalName()).resourceType(COMPUTATIONAL).shape(getComputationalShape(cr)).build(),
-                        withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "m"))
+                        withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).dlabId(cr.getComputationalId()).resourceType(COMPUTATIONAL).shape(getComputationalShape(cr))
+                                .exploratoryName(userInstance.getExploratoryName()).build(),
+                        withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).dlabId(String.format(VOLUME_PRIMARY_FORMAT, cr.getComputationalId())).resourceType(VOLUME).build(),
+                        withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).dlabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "m"))
                                 .resourceType(VOLUME).build(),
-                        withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_SECONDARY).dlabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "m"))
+                        withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).dlabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "m"))
                                 .resourceType(VOLUME).build()
                         ),
                         getSlaveVolumes(userInstance, cr, maxSparkInstanceCount)
                 ));
+        final String exploratoryName = userInstance.getExploratoryName();
         final String exploratoryId = userInstance.getExploratoryId();
         final String primaryVolumeId = String.format(VOLUME_PRIMARY_FORMAT, exploratoryId);
         final String secondaryVolumeId = String.format(VOLUME_SECONDARY_FORMAT, exploratoryId);
         final Stream<BillingReportLine> exploratoryStream = Stream.of(
-                withUserProject(userInstance).resourceName(userInstance.getExploratoryName()).dlabId(exploratoryId).resourceType(EXPLORATORY).shape(userInstance.getShape()).build(),
-                withUserProject(userInstance).resourceName(VOLUME_PRIMARY).dlabId(primaryVolumeId).resourceType(VOLUME).build(),
-                withUserProject(userInstance).resourceName(VOLUME_SECONDARY).dlabId(secondaryVolumeId).resourceType(VOLUME).build());
+                withUserProjectEndpoint(userInstance).resourceName(exploratoryName).dlabId(exploratoryId).resourceType(EXPLORATORY).shape(userInstance.getShape()).build(),
+                withUserProjectEndpoint(userInstance).resourceName(exploratoryName).dlabId(primaryVolumeId).resourceType(VOLUME).build(),
+                withUserProjectEndpoint(userInstance).resourceName(exploratoryName).dlabId(secondaryVolumeId).resourceType(VOLUME).build());
 
         return Stream.concat(computationalStream, exploratoryStream);
     }
@@ -136,27 +137,19 @@ public class BillingUtils {
     private static Stream<BillingReportLine> getSlaveVolumes(UserInstanceDTO userInstance, UserComputationalResource cr, Integer maxSparkInstanceCount) {
         List<BillingReportLine> list = new ArrayList<>();
         for (int i = 1; i <= maxSparkInstanceCount; i++) {
-            list.add(withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "s" + i))
+            list.add(withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).dlabId(String.format(VOLUME_PRIMARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "s" + i))
                     .resourceType(VOLUME).build());
-            list.add(withUserProject(userInstance).resourceName(cr.getComputationalName() + ":" + VOLUME_PRIMARY).dlabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "s" + i))
+            list.add(withUserProjectEndpoint(userInstance).resourceName(cr.getComputationalName()).dlabId(String.format(VOLUME_SECONDARY_COMPUTATIONAL_FORMAT, cr.getComputationalId(), "s" + i))
                     .resourceType(VOLUME).build());
         }
         return list.stream();
     }
 
-    private static BillingReportLine.BillingReportLineBuilder withUserProject(UserInstanceDTO userInstance) {
-        return BillingReportLine.builder().user(userInstance.getUser()).project(userInstance.getProject());
+    private static BillingReportLine.BillingReportLineBuilder withUserProjectEndpoint(UserInstanceDTO userInstance) {
+        return BillingReportLine.builder().user(userInstance.getUser()).project(userInstance.getProject()).endpoint(userInstance.getEndpoint());
     }
 
-    public static List<String> getComputationalIds(String computationalId) {
-        return Arrays.asList(computationalId, String.format(VOLUME_PRIMARY_FORMAT, computationalId));
-    }
-
-    public static List<String> getExploratoryIds(String exploratoryId) {
-        return Arrays.asList(exploratoryId, String.format(VOLUME_PRIMARY_FORMAT, exploratoryId), String.format(VOLUME_SECONDARY_FORMAT, exploratoryId));
-    }
-
-    private static String getComputationalShape(UserComputationalResource resource) {
+    public static String getComputationalShape(UserComputationalResource resource) {
         return DataEngineType.fromDockerImageName(resource.getImageName()) == DataEngineType.SPARK_STANDALONE ?
                 String.format(DATAENGINE_NAME_FORMAT, resource.getDataengineInstanceCount(), resource.getDataengineShape()) :
                 String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), System.lineSeparator(), null, null);

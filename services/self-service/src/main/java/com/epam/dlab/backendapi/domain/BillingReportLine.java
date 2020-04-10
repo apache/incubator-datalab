@@ -37,6 +37,7 @@ public class BillingReportLine {
     @JsonProperty("resource_name")
     private String resourceName;
     private String project;
+    private String endpoint;
     private String user;
     @JsonProperty("from")
     private LocalDate usageDateFrom;
@@ -51,4 +52,5 @@ public class BillingReportLine {
     private BillingResourceType resourceType;
     private UserInstanceStatus status;
     private String shape;
+    private String exploratoryName;
 }

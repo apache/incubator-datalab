@@ -21,7 +21,6 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.BillingReport;
-import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 
 import java.util.List;
@@ -31,7 +30,7 @@ public interface BillingService {
 
     String downloadReport(UserInfo userInfo, BillingFilter filter);
 
-    List<BillingReportLine> getExploratoryBillingData(String exploratoryId, List<String> resources);
+    BillingReport getExploratoryBillingData(String project, String endpoint, String exploratoryName, List<String> compNames);
 
     void updateRemoteBillingData(UserInfo userInfo);
 }
