@@ -60,7 +60,7 @@ export class ExploratoryModel {
           project: value.project,
           exploratory: value.exploratory.map(el => {
             const provider = el.cloud_provider.toLowerCase();
-            const billing = value.exploratoryBilling.filter(res => res.dlabId === el.exploratory_id)[0];
+            const billing = value.exploratoryBilling.filter(res => res.resource_name === el.exploratory_name)[0];
 
             return new ExploratoryModel(
               provider,
