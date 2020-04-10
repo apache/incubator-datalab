@@ -84,7 +84,7 @@ public class BillingServiceImpl implements BillingService {
     @Inject
     public BillingServiceImpl(ProjectService projectService, EndpointService endpointService,
                               ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
-                              @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService, ImageExploratoryDao imageExploratoryDao,
+                              @Named(ServiceConsts.BILLING_SERVICE_NAME) RESTService provisioningService, ImageExploratoryDao imageExploratoryDao,
                               BillingDAO billingDAO) {
         this.projectService = projectService;
         this.endpointService = endpointService;

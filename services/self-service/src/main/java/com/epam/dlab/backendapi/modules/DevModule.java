@@ -132,6 +132,9 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
 				.toInstance(configuration.getProvisioningFactory()
 						.build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
+		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.BILLING_SERVICE_NAME))
+				.toInstance(configuration.getBillingFactory()
+						.build(environment, ServiceConsts.BILLING_SERVICE_NAME));
 		bind(ImageExploratoryService.class).to(ImageExploratoryServiceImpl.class);
 		bind(ImageExploratoryDao.class).to(ImageExploratoryDaoImpl.class);
 		bind(BackupService.class).to(BackupServiceImpl.class);
