@@ -25,38 +25,44 @@
   <div class="dialog-content tabs">
     <div class="submit m-bott-10 m-top-10">
       <button mat-raised-button type="button" class="butt action"><input type="file" (change)="handleFileInput($event.target.files)">Add file</button>
-<!--      <button mat-raised-button type="button" class="butt action"><input type="file" (change)="filesPicked($event.target.files)" webkitdirectory directory multiple/>Upload folder</button>-->
-<!--      <button mat-raised-button type="button" class="butt action">Download files</button>-->
-      <button mat-raised-button type="button" class="butt action">Create folder</button>
+      <button mat-raised-button type="button" class="butt action" (click)="folderTreeComponent.addNewItem(selectedFolder, '', false)">Create folder</button>
     </div>
+    <p class="path"><span class="strong">Bucket path:</span><i> {{path}}</i></p>
     <div class="backet-wrapper" id="scrolling">
       <div class="navigation">
-        <dlab-folder-tree></dlab-folder-tree>
-<!--        <ul class="folder-tree">-->
-<!--          <li class="folder-item">-->
-<!--            <i class="material-icons">folder</i>-->
-<!--            <span class="folder">bucket</span>-->
-<!--          </li>-->
-<!--        </ul>-->
+        <dlab-folder-tree (showFolderContent)=onFolderClick($event)> </dlab-folder-tree>
       </div>
       <div class="directory">
-<!--        <dlab-folder-tree></dlab-folder-tree>-->
+        <ul class="folder-tree" *ngIf="!uploadPaths.length">
+          <li *ngFor="let file of folderItems" class="folder-item" >
+            <div class="folder-item-wrapper" *ngIf="file.children" (click)="showItem(file)">
+              <div class="name name-folder"><i class="material-icons folder-icon" >folder</i><span>{{file.item}}</span></div>
+              <div class="size">2.4kb</div>
+            </div>
+            <div class="folder-item-wrapper" *ngIf="!file.children">
+              <div class="name name-file"> <mat-checkbox ></mat-checkbox><span>{{file.item}}</span></div>
+<!--                [checked]="descendantsAllSelected(node)"-->
+<!--                [indeterminate]="descendantsPartiallySelected(node)"-->
+<!--                (change)="todoItemSelectionToggle(node)"-->
+              <div class="size">2.4kb</div>
+            </div>
+            <!--            <div class="progres"></div>-->
+          </li>
+        </ul>
         <ul class="folder-tree">
           <li *ngFor="let file of uploadPaths" class="folder-item">
             <div class="name">{{file}}</div>
             <div class="size">2.4kb</div>
             <div class="progres"></div>
-          </li>
-          <li class="folder-item">
-
+            <div (click)="deleteAddedFile(file)">X</div>
           </li>
         </ul>
       </div>
     </div>
     <div class="text-center m-top-30 m-bott-30">
       <button type="button" class="butt" mat-raised-button (click)="this.dialogRef.close()">Close</button>
-      <button type="button" class="butt butt-success" mat-raised-button>Download</button>
-      <button type="button" class="butt butt-success" mat-raised-button>Upload</button>
+      <button *ngIf="!this.uploadPaths.length" type="button" class="butt butt-success" mat-raised-button >Download</button>
+      <button *ngIf="this.uploadPaths.length !== 0" type="button" class="butt butt-success" mat-raised-button (click)="uploadItems()">Upload</button>
     </div>
   </div>
 </div>

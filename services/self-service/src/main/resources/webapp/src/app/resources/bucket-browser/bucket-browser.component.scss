@@ -18,7 +18,13 @@
  */
 
 .bucket-browser {
+  .path{
+    margin-bottom: 8px;
+    padding-left: 20px;
+    .url{
 
+    }
+  }
   bottom: 0;
   .dialog-content{
     padding: 0 35px;
@@ -51,7 +57,6 @@
     left: 0;
     right: 0;
   }
-
 }
 
 .backet-wrapper{
@@ -59,6 +64,8 @@
   border: 2px solid rgba(0,0,0,.12);
   border-radius: 5px;
   display: flex;
+
+
 
   .navigation{
     flex: 1;
@@ -79,6 +86,19 @@
     .folder-tree{
       .name{
         flex:2;
+        display: flex;
+        align-items: center;
+        &-folder{
+          span{
+            padding-left: 10px;
+          }
+        }
+        &-file{
+          padding-left: 4px;
+          span{
+            padding-left: 14px;
+          }
+        }
       }
       .size{
         flex:1;
@@ -118,6 +138,33 @@
   .folder-item{
      display: flex;
      align-items: center;
-
+     .folder-item-wrapper{
+       width: 100%;
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       cursor: pointer;
+       color: rgba(0,0,0,.87);
+       i{
+         color: rgb(232, 232, 232);
+       }
+       &:hover{
+         color: #00bcd4;
+         transition: .3s ease-in-out;
+         i{
+           color: #00bcd4;
+           transition: .3s ease-in-out;
+         }
+       }
+     }
    }
+}
+
+.folder-item-name{
+  span{
+    color: #000;
+  }
+
+
+
 }

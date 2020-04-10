@@ -22,9 +22,10 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
-import { AccountCredentials, MangeUngitModel } from './bucket-browser.model';
+// import { AccountCredentials, MangeUngitModel } from './bucket-browser.model';
 import { ManageUngitService } from '../../core/services';
 import {logger} from 'codelyzer/util/logger';
+import {FolderTreeComponent} from './folder-tree/folder-tree.component';
 
 @Component({
   selector: 'dlab-bucket-browser',
@@ -34,7 +35,12 @@ import {logger} from 'codelyzer/util/logger';
 export class BucketBrowserComponent implements OnInit {
   filenames: Array<any> = [];
   uploadPaths = [];
-  @ViewChild('tabGroupGit', { static: false }) tabGroupGit;
+  folderItems = [];
+  path = '';
+  selectedFolderItems = [];
+  // @ViewChild('tabGroupGit', { static: false }) tabGroupGit;
+  @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
+  private selectedFolder: any;
 
   constructor(
     public toastr: ToastrService,
@@ -50,14 +56,22 @@ export class BucketBrowserComponent implements OnInit {
 
   }
 
+  showItem(item) {
+    const flatItem = this.folderTreeComponent.nestedNodeMap.get(item);
+    // this.folderTreeComponent.treeControl.isExpanded(flatItem) = ;
+    this.folderTreeComponent.showItem(flatItem);
+    // console.log(item);
+    // this.onFolderClick(item);
+  }
+
   handleFileInput(files) {
     //   for (let i = 0; i < files.length; i++) {
     //     const file = files[i];
     //     const path = file.webkitRelativePath.split('/');
     //   }
     // }
-    console.log(files)
-    this.filenames = Object['values'](files).map(v => v.name)
+    console.log(files);
+    this.filenames = Object['values'](files).map(v => v.name);
     this.uploadPaths = [...this.uploadPaths, ...this.filenames];
   }
 
@@ -70,6 +84,13 @@ export class BucketBrowserComponent implements OnInit {
     console.log(this.uploadPaths);
   }
 
+  onFolderClick(event) {
+    this.selectedFolder = event.element1;
+    this.folderItems = event.element ? event.element.children : event.children;
+    this.path = event.path;
+
+  }
+
   private upload(tree, path) {
     tree.files.forEach(file => {
       this.uploadPaths.push(path + file.name);
@@ -79,6 +100,20 @@ export class BucketBrowserComponent implements OnInit {
       this.uploadPaths.push(newPath);
       this.upload(directory, newPath);
     });
+  }
+
+  deleteAddedFile(file) {
+    this.uploadPaths.splice(this.uploadPaths.indexOf(file), 1);
+  }
+
+  uploadItems(){
+    // this.folderTreeComponent.addNewItem(this.selectedFolder);
+    this.uploadPaths.forEach(v => {
+      this.folderTreeComponent.addNewItem(this.selectedFolder, v, true);
+    });
+    this.uploadPaths = [];
+    // this.folderTreeComponent.saveNode(this.selectedFolder);
+
   }
 }
 

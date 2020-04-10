@@ -1,13 +1,13 @@
-import { Component, OnInit, Injectable } from '@angular/core';
+import {Component, OnInit, AfterViewInit, Output, EventEmitter} from '@angular/core';
 import {SelectionModel} from '@angular/cdk/collections';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BucketBrowserService, TodoItemFlatNode, TodoItemNode} from '../../../core/services/bucket-browser.service';
+import {Logger} from 'codelyzer/util/logger';
 
 
 class ChecklistDatabase {
 }
-
 /**
  * @title Tree with checkboxes
  */
@@ -17,7 +17,12 @@ class ChecklistDatabase {
   templateUrl: './folder-tree.component.html',
   styleUrls: ['./folder-tree.component.scss']
 })
-export class FolderTreeComponent {
+export class FolderTreeComponent implements AfterViewInit{
+
+  @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
+
+  path = [];
+  selectedFolder: TodoItemFlatNode;
   /** Map from flat node to nested node. This helps us finding the nested node to be modified */
   flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
 
@@ -29,7 +34,9 @@ export class FolderTreeComponent {
 
   /** The new item's name */
   newItemName = '';
+  isOpened = {
 
+  };
   treeControl: FlatTreeControl<TodoItemFlatNode>;
 
   treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
@@ -42,13 +49,19 @@ export class FolderTreeComponent {
   constructor(private bucketBrowserService: BucketBrowserService) {
     this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel,
       this.isExpandable, this.getChildren);
+
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
     bucketBrowserService.dataChange.subscribe(data => {
       this.dataSource.data = data;
+      console.log(this.dataSource);
     });
   }
+
+  // ngAfterViewInit(): void {
+  //
+  // }
 
   getLevel = (node: TodoItemFlatNode) => node.level;
 
@@ -76,6 +89,46 @@ export class FolderTreeComponent {
     return flatNode;
   }
 
+
+  ngAfterViewInit() {
+    const subject = this.dataSource._flattenedData;
+    let firstSelected;
+    subject.subscribe((data) => {
+      firstSelected = data[0];
+      // this.selectedFolder = ;
+      this.treeControl.expand(data[0]);
+    });
+    this.selectedFolder = firstSelected;
+  }
+
+  showItem(el) {
+    this.treeControl.expand(el);
+    this.selectedFolder = el;
+    const path = this.getpath(el);
+    this.path = [];
+    const data = {
+      flatNode: el,
+      element: this.flatNodeMap.get(el),
+      element1: el,
+      path: path.join('/')
+    };
+    console.log(data);
+    this.showFolderContent.emit(data);
+  }
+
+  getpath(el) {
+    if (this.path.length === 0) {
+      this.path.unshift(el.item);
+    }
+    if (this.getParentNode(el) !== null) {
+      this.path.unshift(this.getParentNode(el).item);
+      this.getpath(this.getParentNode(el));
+    }
+    return this.path;
+  }
+
+
+
   /** Whether all the descendants of the node are selected. */
   descendantsAllSelected(node: TodoItemFlatNode): boolean {
     const descendants = this.treeControl.getDescendants(node);
@@ -95,17 +148,17 @@ export class FolderTreeComponent {
   /** Toggle the to-do item selection. Select/deselect all the descendants node */
   todoItemSelectionToggle(node: TodoItemFlatNode): void {
     this.checklistSelection.toggle(node);
-    const descendants = this.treeControl.getDescendants(node);
-    this.checklistSelection.isSelected(node)
-      ? this.checklistSelection.select(...descendants)
-      : this.checklistSelection.deselect(...descendants);
+  const descendants = this.treeControl.getDescendants(node);
+  this.checklistSelection.isSelected(node)
+? this.checklistSelection.select(...descendants)
+    : this.checklistSelection.deselect(...descendants);
 
-    // Force update for the parent
-    descendants.every(child =>
-      this.checklistSelection.isSelected(child)
-    );
-    this.checkAllParentsSelection(node);
-  }
+  // Force update for the parent
+  descendants.every(child =>
+  this.checklistSelection.isSelected(child)
+);
+  this.checkAllParentsSelection(node);
+}
 
   /** Toggle a leaf to-do item selection. Check all the parents to see if they changed */
   todoLeafItemSelectionToggle(node: TodoItemFlatNode): void {
@@ -157,15 +210,18 @@ export class FolderTreeComponent {
   }
 
   /** Select the category so we can insert the new item. */
-  addNewItem(node: TodoItemFlatNode) {
+  addNewItem(node: TodoItemFlatNode, name, isFile) {
+    console.log(node);
     const parentNode = this.flatNodeMap.get(node);
-    this.bucketBrowserService.insertItem(parentNode!, '');
+    this.bucketBrowserService.insertItem(parentNode!, name, isFile);
     this.treeControl.expand(node);
   }
 
   /** Save the node to database */
   saveNode(node: TodoItemFlatNode, itemValue: string) {
     const nestedNode = this.flatNodeMap.get(node);
+    console.log(nestedNode);
+    console.log(itemValue);
     this.bucketBrowserService.updateItem(nestedNode!, itemValue);
   }
 }
