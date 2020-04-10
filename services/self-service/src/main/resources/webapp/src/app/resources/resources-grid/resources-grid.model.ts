@@ -60,38 +60,40 @@ export class ExploratoryModel {
           project: value.project,
           exploratory: value.exploratory.map(el => {
             const provider = el.cloud_provider.toLowerCase();
-            const billing = value.exploratoryBilling.filter(res => res.tag === el.exploratory_id)[0];
+            const billing = value.exploratoryBilling.filter(res => res.dlabId === el.exploratory_id)[0];
+
             return new ExploratoryModel(
-            provider,
-            el.exploratory_name,
-            el.template_name,
-            el.image,
-            el.status,
-            el.shape,
-            el.computational_resources,
-            el.up_time,
-            el.exploratory_url,
-            value.shared[el.endpoint].edge_node_ip,
-            el.private_ip,
-            el.exploratory_user,
-            el.exploratory_pass,
-            value.shared[el.endpoint][DICTIONARY[provider].bucket_name],
-            value.shared[el.endpoint][DICTIONARY[provider].shared_bucket_name],
-            el.error_message,
-            billing ? billing.cost : '',
-            billing ? billing.currency : '',
-            el.billing,
-            el.libs,
-            value.shared[el.endpoint][DICTIONARY[provider].user_storage_account_name],
-            value.shared[el.endpoint][DICTIONARY[provider].shared_storage_account_name],
-            value.shared[el.endpoint][DICTIONARY[provider].datalake_name],
-            value.shared[el.endpoint][DICTIONARY[provider].datalake_user_directory_name],
-            value.shared[el.endpoint][DICTIONARY[provider].datalake_shared_directory_name],
-            el.project,
-            el.endpoint,
-            el.tags,
-            value.shared[el.endpoint].status
-          )})
+              provider,
+              el.exploratory_name,
+              el.template_name,
+              el.image,
+              el.status,
+              el.shape,
+              el.computational_resources,
+              el.up_time,
+              el.exploratory_url,
+              value.shared[el.endpoint].edge_node_ip,
+              el.private_ip,
+              el.exploratory_user,
+              el.exploratory_pass,
+              value.shared[el.endpoint][DICTIONARY[provider].bucket_name],
+              value.shared[el.endpoint][DICTIONARY[provider].shared_bucket_name],
+              el.error_message,
+              billing ? billing.cost : '',
+              billing ? billing.currency : '',
+              el.billing,
+              el.libs,
+              value.shared[el.endpoint][DICTIONARY[provider].user_storage_account_name],
+              value.shared[el.endpoint][DICTIONARY[provider].shared_storage_account_name],
+              value.shared[el.endpoint][DICTIONARY[provider].datalake_name],
+              value.shared[el.endpoint][DICTIONARY[provider].datalake_user_directory_name],
+              value.shared[el.endpoint][DICTIONARY[provider].datalake_shared_directory_name],
+              el.project,
+              el.endpoint,
+              el.tags,
+              value.shared[el.endpoint].status
+            );
+          })
         };
       });
     }
