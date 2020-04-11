@@ -215,7 +215,6 @@ public class BillingServiceImpl implements BillingService {
         final String endpointName = endpointDTO.getName();
         final CloudProvider cloudProvider = endpointDTO.getCloudProvider();
         final Map<String, BillingReportLine> billableResources = getBillableResources(userInfo);
-
         final Stream<BillingReportLine> billingReportLineStream = billingData
                 .stream()
                 .peek(bd -> bd.setApplication(endpointName))
@@ -225,8 +224,12 @@ public class BillingServiceImpl implements BillingService {
             final Map<String, List<BillingReportLine>> gcpBillingData = billingReportLineStream
                     .collect(Collectors.groupingBy(bd -> bd.getUsageDate().substring(0, USAGE_DATE_FORMAT.length())));
             updateGcpBillingData(endpointName, gcpBillingData);
+        } else if (cloudProvider == CloudProvider.AWS) {
+            final Map<String, List<BillingReportLine>> awsBillingData = billingReportLineStream
+                    .collect(Collectors.groupingBy(BillingReportLine::getUsageDate));
+            updateAwsBillingData(endpointName, awsBillingData);
         } else if (cloudProvider == CloudProvider.AZURE) {
-            List<BillingReportLine> billingReportLines = billingReportLineStream
+            final List<BillingReportLine> billingReportLines = billingReportLineStream
                     .collect(Collectors.toList());
             updateAzureBillingData(billingReportLines);
         }
@@ -237,6 +240,13 @@ public class BillingServiceImpl implements BillingService {
     }
 
     private void updateGcpBillingData(String endpointName, Map<String, List<BillingReportLine>> billingData) {
+        billingData.forEach((usageDate, billingReportLines) -> {
+            billingDAO.deleteByUsageDateRegex(endpointName, usageDate);
+            billingDAO.save(billingReportLines);
+        });
+    }
+
+    private void updateAwsBillingData(String endpointName, Map<String, List<BillingReportLine>> billingData) {
         billingData.forEach((usageDate, billingReportLines) -> {
             billingDAO.deleteByUsageDate(endpointName, usageDate);
             billingDAO.save(billingReportLines);

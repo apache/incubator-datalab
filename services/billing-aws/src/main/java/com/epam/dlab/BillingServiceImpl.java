@@ -77,8 +77,8 @@ public class BillingServiceImpl implements BillingService {
 	private BillingData toBillingData(Document billingData) {
 		return BillingData.builder()
 				.tag(billingData.getString(FIELD_DLAB_ID))
-				.usageDateFrom(Optional.ofNullable(billingData.getString("from")).map(LocalDate::parse).orElse(null))
-				.usageDateTo(Optional.ofNullable(billingData.getString("to")).map(LocalDate::parse).orElse(null))
+				.usageDateFrom(Optional.ofNullable(billingData.getString(FIELD_USAGE_DATE)).map(LocalDate::parse).orElse(null))
+				.usageDateTo(Optional.ofNullable(billingData.getString(FIELD_USAGE_DATE)).map(LocalDate::parse).orElse(null))
 				.usageDate(billingData.getString(FIELD_USAGE_DATE))
 				.product(billingData.getString(FIELD_PRODUCT))
 				.usageType(billingData.getString(FIELD_RESOURCE_TYPE))

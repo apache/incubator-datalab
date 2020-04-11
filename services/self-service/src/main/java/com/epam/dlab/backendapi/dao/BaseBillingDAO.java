@@ -157,6 +157,11 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 
 	@Override
 	public void deleteByUsageDate(String application, String usageDate) {
+		deleteMany(BILLING, and(eq(APPLICATION, application), eq(USAGE_DATE, usageDate)));
+	}
+
+	@Override
+	public void deleteByUsageDateRegex(String application, String usageDate) {
 		deleteMany(BILLING, and(eq(APPLICATION, application), regex(USAGE_DATE, "^" + usageDate)));
 	}
 

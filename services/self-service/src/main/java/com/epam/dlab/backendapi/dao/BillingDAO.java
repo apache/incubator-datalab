@@ -48,5 +48,7 @@ public interface BillingDAO {
 
 	void deleteByUsageDate(String application, String usageDate);
 
+	void deleteByUsageDateRegex(String application, String usageDate);
+
 	void save(List<BillingReportLine> billingData);
 }
