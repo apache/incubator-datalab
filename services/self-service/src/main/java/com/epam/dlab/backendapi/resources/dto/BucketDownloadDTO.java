@@ -17,17 +17,19 @@
  * under the License.
  */
 
-package com.epam.dlab.constants;
+package com.epam.dlab.backendapi.resources.dto;
 
-public final class ServiceConsts {
-	public static final String MONGO_NAME = "mongo";
-	public static final String PROVISIONING_SERVICE_NAME = "provisioningService";
-	public static final String BUCKET_SERVICE_NAME = "bucketService";
-	public static final String MAVEN_SEARCH_API = "mavenSearchService";
-	public static final String SECURITY_SERVICE_NAME = "securityService";
-	public static final String SELF_SERVICE_NAME = "selfService";
-	public static final String PROVISIONING_USER_AGENT = "provisioning-service";
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
-	private ServiceConsts() {
-	}
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BucketDownloadDTO {
+    @NotBlank(message = "field cannot be empty")
+    private final String bucket;
+    @NotBlank(message = "field cannot be empty")
+    private final String object;
+    @NotBlank(message = "field cannot be empty")
+    private final String endpoint;
 }

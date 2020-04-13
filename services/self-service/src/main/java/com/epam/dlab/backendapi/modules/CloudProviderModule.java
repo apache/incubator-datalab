@@ -28,6 +28,7 @@ import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
 import com.epam.dlab.backendapi.dao.gcp.GcpBillingDao;
 import com.epam.dlab.backendapi.interceptor.BudgetLimitInterceptor;
 import com.epam.dlab.backendapi.resources.BillingResource;
+import com.epam.dlab.backendapi.resources.BucketResource;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
@@ -85,6 +86,7 @@ public class CloudProviderModule extends CloudModule {
         environment.jersey().register(injector.getInstance(ComputationalResourceAws.class));
         environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
         environment.jersey().register(injector.getInstance(ComputationalResourceGcp.class));
+        environment.jersey().register(injector.getInstance(BucketResource.class));
         if (injector.getInstance(SelfServiceApplicationConfiguration.class).isGcpOuauth2AuthenticationEnabled()) {
             environment.jersey().register(injector.getInstance(GcpOauthResource.class));
         }

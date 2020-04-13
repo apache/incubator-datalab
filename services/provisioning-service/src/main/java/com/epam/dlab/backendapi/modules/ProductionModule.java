@@ -27,12 +27,15 @@ import com.epam.dlab.backendapi.core.commands.CommandExecutor;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
 import com.epam.dlab.backendapi.core.response.handlers.dao.FileSystemCallbackHandlerDao;
+import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.backendapi.service.CheckInactivityService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
 import com.epam.dlab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
+import com.epam.dlab.backendapi.service.impl.gcp.BucketServiceGcpImpl;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonParser;
@@ -64,14 +67,17 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
 						.build(environment, ServiceConsts.SECURITY_SERVICE_NAME, ServiceConsts
 								.PROVISIONING_USER_AGENT));
 
-		bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, ServiceConsts
-				.SELF_SERVICE_NAME));
-		bind(MetadataHolder.class).to(DockerWarmuper.class);
-		bind(ICommandExecutor.class).to(CommandExecutor.class).asEagerSingleton();
-		bind(ObjectMapper.class).toInstance(new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true));
-		bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
-		bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
-		bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
-		bind(ProjectService.class).to(ProjectServiceImpl.class);
-	}
+        bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, ServiceConsts
+                .SELF_SERVICE_NAME));
+        bind(MetadataHolder.class).to(DockerWarmuper.class);
+        bind(ICommandExecutor.class).to(CommandExecutor.class).asEagerSingleton();
+        bind(ObjectMapper.class).toInstance(new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true));
+        bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
+        bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
+        bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
+        bind(ProjectService.class).to(ProjectServiceImpl.class);
+        if (configuration.getCloudProvider() == CloudProvider.GCP) {
+            bind(BucketService.class).to(BucketServiceGcpImpl.class);
+        }
+    }
 }
