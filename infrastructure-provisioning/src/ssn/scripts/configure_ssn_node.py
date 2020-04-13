@@ -50,6 +50,13 @@ def set_hostname(subdomain, hosted_zone_name):
         print('Failed to set hostname: ', str(err))
         sys.exit(1)
 
+def set_resolve():
+    try:
+        sudo('ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to set resolve: ', str(err))
+        sys.exit(1)
 
 def cp_key(keyfile, host_string, os_user):
     try:
@@ -222,6 +229,9 @@ if __name__ == "__main__":
         custom_ssl_cert = True
     else:
         custom_ssl_cert = False
+
+    print('Setting resolve DNS configuration')
+    set_resolve()
 
     print("Creating service directories.")
     creating_service_directories(args.dlab_path, args.os_user)
