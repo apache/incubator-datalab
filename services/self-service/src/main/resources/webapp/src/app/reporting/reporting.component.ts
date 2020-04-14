@@ -20,8 +20,7 @@
 
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-
-import {BillingReportService, EndpointService, HealthStatusService} from '../core/services';
+import {ApplicationSecurityService, BillingReportService, HealthStatusService} from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
@@ -38,15 +37,15 @@ import {ProgressBarService} from '../core/services/progress-bar.service';
                   (setRangeOption)="setRangeOption($event)">
     </dlab-toolbar>
     <mat-divider></mat-divider>
-    <dlab-reporting-grid [PROVIDER]="PROVIDER" (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
+    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
   </div>
 
   `,
   styles: [`
     footer {
       position: fixed;
-      left: 0px;
-      bottom: 0px;
+      left: 0;
+      bottom: 0;
       width: 100%;
       background: #a1b7d1;
       color: #ffffff;
@@ -68,47 +67,22 @@ export class ReportingComponent implements OnInit, OnDestroy {
   data: any;
   billingEnabled: boolean;
   admin: boolean;
-  public PROVIDER: string;
 
   constructor(
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
     public toastr: ToastrService,
     private progressBarService: ProgressBarService,
-    private endpointService: EndpointService,
+    private applicationSecurityService: ApplicationSecurityService,
   ) { }
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
+    this.buildBillingReport();
   }
 
   ngOnDestroy() {
     this.clearStorage();
-  }
-
-  getBillingProvider() {
-    if (this.admin) {
-      this.endpointService.getEndpointsData().subscribe(list => {
-        const endpoints = JSON.parse(JSON.stringify(list));
-        const localEndpoint = endpoints.filter(endpoint => endpoint.name === 'local');
-        if (localEndpoint.length) {
-          this.PROVIDER = localEndpoint[0].cloudProvider.toLowerCase();
-          if (this.PROVIDER) {
-            this.rebuildBillingReport();
-          }
-        }
-      }, e => {
-        this.PROVIDER = 'azure';
-        if (this.PROVIDER) {
-          this.rebuildBillingReport();
-        }
-      }) ;
-    } else {
-      this.PROVIDER = 'azure';
-      if (this.PROVIDER) {
-        this.rebuildBillingReport();
-      }
-    }
   }
 
   getGeneralBillingData() {
@@ -116,8 +90,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
-        this.reportingGrid.refreshData(this.data, this.data.lines);
-        this.reportingGrid.setFullReport(this.data.full_report);
+        this.reportingGrid.refreshData(this.data, this.data.report_lines);
+        this.reportingGrid.setFullReport(this.data.is_full);
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
@@ -138,26 +112,37 @@ export class ReportingComponent implements OnInit, OnDestroy {
       }, () => this.progressBarService.stopProgressBar());
   }
 
-  rebuildBillingReport($event?): void {
-    if (this.PROVIDER) {
-      this.clearStorage();
-      this.resetRangePicker();
-      this.reportData.defaultConfigurations();
-      this.getGeneralBillingData();
-    }
+  rebuildBillingReport(): void {
+    this.checkAutorize();
+    this.buildBillingReport();
+
+  }
+
+  buildBillingReport() {
+    this.clearStorage();
+    this.resetRangePicker();
+    this.reportData.defaultConfigurations();
+    this.getGeneralBillingData();
+  }
+
+  private checkAutorize() {
+    this.applicationSecurityService.isLoggedIn().subscribe( () => {
+        this.getEnvironmentHealthStatus();
+      }
+    );
   }
 
   exportBillingReport(): void {
     this.billingReportService.downloadReport(this.reportData)
       .subscribe(
         data => FileUtils.downloadFile(data),
-        error => this.toastr.error('Billing report export failed!', 'Oops!'));
+        () => this.toastr.error('Billing report export failed!', 'Oops!'));
   }
 
   getDefaultFilterConfiguration(data): void {
     const users = [], types = [], shapes = [], services = [], statuses = [], projects = [];
 
-    data.lines.forEach((item: any) => {
+    data.report_lines.forEach((item: any) => {
       if (item.user && users.indexOf(item.user) === -1)
         users.push(item.user);
 
@@ -167,30 +152,15 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item.project && projects.indexOf(item.project) === -1)
         projects.push(item.project);
 
-      if (item[DICTIONARY[this.PROVIDER].billing.resourceType] && types.indexOf(item[DICTIONARY[this.PROVIDER].billing.resourceType]) === -1)
-        types.push(item[DICTIONARY[this.PROVIDER].billing.resourceType]);
+      if (item['resource_type'] && types.indexOf(item['resource_type']) === -1)
+        types.push(item['resource_type']);
 
-      if (item[DICTIONARY[this.PROVIDER].billing.instance_size]) {
-        if (item[DICTIONARY[this.PROVIDER].billing.instance_size].indexOf('Master') > -1) {
-          for (let shape of item[DICTIONARY[this.PROVIDER].billing.instance_size].split('\n')) {
-            shape = shape.replace('Master: ', '');
-            shape = shape.replace(/Slave:\s+\d+ x /, '');
-            shape = shape.replace(/\s+/g, '');
-
-            shapes.indexOf(shape) === -1 && shapes.push(shape);
-          }
-        } else if (item[DICTIONARY[this.PROVIDER].billing.instance_size].match(/\d x \S+/)) {
-          const parsedShape = item[DICTIONARY[this.PROVIDER].billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
-          if (shapes.indexOf(parsedShape) === -1) {
-            shapes.push(parsedShape);
-          }
-        } else {
-          shapes.indexOf(item[DICTIONARY[this.PROVIDER].billing.instance_size]) === -1 && shapes.push(item[DICTIONARY[this.PROVIDER].billing.instance_size]);
-        }
+      if (item.shape && types.indexOf(item.shape)) {
+        shapes.push(item.shape);
       }
 
-      if (item[DICTIONARY[this.PROVIDER].billing.service] && services.indexOf(item[DICTIONARY[this.PROVIDER].billing.service]) === -1)
-        services.push(item[DICTIONARY[this.PROVIDER].billing.service]);
+      if (item.product && services.indexOf(item.product) === -1)
+        services.push(item.product);
     });
 
     if (!this.reportingGrid.filterConfiguration || !localStorage.getItem('report_config')) {
@@ -225,7 +195,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
       .subscribe((result: any) => {
         this.billingEnabled = result.billingEnabled;
         this.admin = result.admin;
-        this.getBillingProvider();
       });
   }
 }

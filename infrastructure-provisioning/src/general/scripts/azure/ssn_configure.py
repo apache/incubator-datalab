@@ -419,20 +419,21 @@ if __name__ == "__main__":
             ssn_conf['datalake_application_id'] = os.environ['azure_application_id']
             for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    ssn_conf['datalake_store_name'] = datalake.name
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} " \
-                 "--resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} " \
-                 "--authentication_file {} --offer_number {} --currency {} --locale {} --region_info {}  " \
-                 "--ldap_login {} --tenant_id {} --application_id {} --datalake_store_name {} --cloud_params '{}' " \
-                 "--subscription_id {} --validate_permission_scope {} --default_endpoint_name {}".format(
-                  ssn_conf['instance_host'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
-                  ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
-                  os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
-                  ssn_conf['billing_enabled'], ssn_conf['azure_auth_path'], os.environ['azure_offer_number'],
-                  os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
-                  ssn_conf['ldap_login'], ssn_conf['tenant_id'], ssn_conf['datalake_application_id'],
-                  ssn_conf['datalake_store_name'], json.dumps(cloud_params), ssn_conf['subscription_id'],
-                  os.environ['azure_validate_permission_scope'], ssn_conf['default_endpoint_name'])
+                    datalake_store_name = datalake.name
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
+                 --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} \
+                 --offer_number {} --currency {} --locale {} --region_info {}  --ldap_login {} --tenant_id {} \
+                 --application_id {} --datalake_store_name {} --cloud_params '{}' --subscription_id {}  \
+                 --validate_permission_scope {} --default_endpoint_name {}". \
+            format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
+                   ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
+                   os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
+                   billing_enabled, azure_auth_path, os.environ['azure_offer_number'],
+                   os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
+                   ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(cloud_params),
+                   subscription_id, os.environ['azure_validate_permission_scope'], ssn_conf['default_endpoint_name'],
+                   os.environ['keycloak_client_name'], os.environ['keycloak_client_secret'],
+                   os.environ['keycloak_auth_server_url'])
         local("~/scripts/{}.py {}".format('configure_ui', params))
     except Exception as err:
         traceback.print_exc()

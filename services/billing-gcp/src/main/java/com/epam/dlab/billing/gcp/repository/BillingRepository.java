@@ -19,9 +19,9 @@
 
 package com.epam.dlab.billing.gcp.repository;
 
-import com.epam.dlab.billing.gcp.model.BillingData;
+import com.epam.dlab.billing.gcp.model.GcpBillingData;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface BillingRepository extends MongoRepository<BillingData, String> {
+public interface BillingRepository extends MongoRepository<GcpBillingData, String> {
 	void deleteByUsageDateRegex(String usageDateRegex);
 }

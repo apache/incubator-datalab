@@ -28,7 +28,7 @@
         <version>1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    
+
     <artifactId>billing-aws</artifactId>
 
     <properties>
@@ -36,6 +36,25 @@
         <com.amazonaws.version>1.11.48</com.amazonaws.version>
         <org.freemarker.version>2.3.22</org.freemarker.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.1.3.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak.bom</groupId>
+                <artifactId>keycloak-adapter-bom</artifactId>
+                <version>4.8.3.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -62,11 +81,6 @@
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>${org.freemarker.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.epam.dlab</groupId>
-            <artifactId>dlab-model</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>
@@ -119,80 +133,62 @@
             <artifactId>guava</artifactId>
             <version>24.1-jre</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-spring-security-adapter</artifactId>
+            <version>4.8.3.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${org.mockito.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>dlab-model</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
     </dependencies>
     <build>
         <plugins>
-             <plugin>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven-shade-plugin.version}</version>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>repackage</goal>
                         </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <minimizeJar>false</minimizeJar>
-                            <filters>
-                                <filter>
-                                    <artifact>org.hibernate:hibernate-validator</artifact>
-                                    <includes>**</includes>
-                                </filter>
-                                <filter>
-                                    <artifact>org.glassfish.web:javax.el</artifact>
-                                    <includes>**</includes>
-                                </filter>
-                                <filter>
-                                    <artifact>org.jboss.logging:jboss-logging</artifact>
-                                    <includes>**</includes>
-                                </filter>
-                                <filter>
-                                    <artifact>com.fasterxml:classmate</artifact>
-                                    <includes>**</includes>
-                                </filter>
-
-                                <filter>
-                                    <artifact>javax.validation:validation-api</artifact>
-                                    <includes>**</includes>
-                                </filter>
-                                <filter>
-                                    <artifact>commons-logging:commons-logging</artifact>
-                                    <includes>**</includes>
-                                </filter>
-                                <filter>
-                                    <artifact>com.fasterxml.jackson.core:jackson-databind</artifact>
-                                    <includes>**</includes>
-                                </filter>
-                            </filters>
-                            <transformers>
-                                <transformer
-                                    	implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                                <transformer
-                                    	implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.epam.dlab.BillingScheduler</mainClass>
-									<manifestEntries>
-										<Created-By>&lt;EPAM&gt; Systems</Created-By>
-										<Name>com/epam/dlab</Name>
-										<Implementation-Title>DLab Billing Tool</Implementation-Title>
-										<Implementation-Version>${dlab.version}</Implementation-Version>
-										<Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
-										<Build-Time>${maven.build.timestamp}</Build-Time>
-										<Build-OS>${os.name}</Build-OS>
-										<GIT-Branch>${scmBranch}</GIT-Branch>
-										<GIT-Commit>${buildNumber}</GIT-Commit>
-									</manifestEntries>
-                                </transformer>
-                            </transformers>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

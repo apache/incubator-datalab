@@ -19,8 +19,12 @@
 
 <div class="manage-roles base-retreat">
   <div class="sub-nav">
-    <div>
-      <button mat-raised-button class="butt add-group" (click)="stepperView = !stepperView">
+    <div matTooltip="Only admin can add group."
+         matTooltipPosition="above"
+         [matTooltipDisabled]="healthStatus?.admin"
+    >
+      <button mat-raised-button class="butt add-group" (click)="stepperView = !stepperView" [disabled]="!healthStatus?.admin"
+              >
         <i class="material-icons">people_outline</i>Add group
       </button>
     </div>
@@ -132,9 +136,21 @@
         <th mat-header-cell *matHeaderCellDef class="actions"></th>
         <td mat-cell *matCellDef="let element" class="actions">
           <div class="actions-wrapper">
-            <span (click)="manageAction('delete', 'group', element)" class="reset ani">
-              <mat-icon>delete_forever</mat-icon>
+            <span class="action-disabled"
+              matTooltip="Only admin can delete group."
+              matTooltipPosition="above"
+              [matTooltipDisabled]="healthStatus?.admin"
+            >
+              <span
+                (click)="manageAction('delete', 'group', element)"
+                class="reset ani"
+                [ngClass]="{ 'not-allowed' : !healthStatus?.admin}"
+
+              >
+              <mat-icon >delete_forever</mat-icon>
             </span>
+            </span>
+
             <span class="apply ani big-icon" matTooltip="Group cannot be updated without any selected role"
               matTooltipPosition="above" [matTooltipDisabled]="element.selected_roles.length > 0"
               [ngClass]="{ 'not-allowed' : !element.selected_roles.length || isGroupChanded(element)}"

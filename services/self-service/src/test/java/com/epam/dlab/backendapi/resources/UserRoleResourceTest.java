@@ -35,9 +35,12 @@ import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 
-import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.refEq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class UserRoleResourceTest extends TestBase {
 
@@ -59,7 +62,7 @@ public class UserRoleResourceTest extends TestBase {
 
 	@Test
 	public void getRoles() {
-		when(rolesService.getUserRoles()).thenReturn(Collections.singletonList(getUserRole()));
+		when(rolesService.getUserRoles(getUserInfo())).thenReturn(Collections.singletonList(getUserRole()));
 
 		final Response response = resources.getJerseyTest()
 				.target("/role")
@@ -74,7 +77,7 @@ public class UserRoleResourceTest extends TestBase {
 		assertEquals(ROLE_ID, actualRoles.get(0).getId());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(rolesService).getUserRoles();
+		verify(rolesService).getUserRoles(getUserInfo());
 		verifyNoMoreInteractions(rolesService);
 	}
 

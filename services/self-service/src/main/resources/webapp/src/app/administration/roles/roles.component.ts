@@ -21,14 +21,11 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { ValidatorFn, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-
-import { RolesGroupsService, HealthStatusService } from '../../core/services';
+import {RolesGroupsService, HealthStatusService, ApplicationSecurityService, AppRoutingService} from '../../core/services';
 import { CheckUtils } from '../../core/util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
-import {logger} from 'codelyzer/util/logger';
-
 
 @Component({
   selector: 'dlab-roles',
@@ -53,7 +50,7 @@ export class RolesComponent implements OnInit {
   stepperView: boolean = false;
   displayedColumns: string[] = ['name', 'roles', 'users', 'actions'];
   @Output() manageRolesGroupAction: EventEmitter<{}> = new EventEmitter();
-  private startedGroups;
+  private startedGroups: Array<any>;
 
   constructor(
     public toastr: ToastrService,
@@ -61,10 +58,11 @@ export class RolesComponent implements OnInit {
     private rolesService: RolesGroupsService,
     private healthStatusService: HealthStatusService,
     private progressBarService: ProgressBarService,
+    private applicationSecurityService: ApplicationSecurityService,
+    private appRoutingService: AppRoutingService,
   ) { }
 
   ngOnInit() {
-    this.openManageRolesDialog();
     this.getEnvironmentHealthStatus();
   }
 
@@ -74,13 +72,12 @@ export class RolesComponent implements OnInit {
       this.rolesService.getRolesData().subscribe(
         (roles: any) => {
           this.roles = roles;
-          this.rolesList = roles.map((role, index) => {
+          this.rolesList = roles.map((role) => {
               return {role: role.description, type: role.type, cloud: role.cloud};
           });
           this.rolesList = this.rolesList.sort((a, b) => (a.cloud > b.cloud) ? 1 : ((b.cloud > a.cloud) ? -1 : 0));
           this.rolesList = this.rolesList.sort((a, b) => (a.type > b.type) ? 1 : ((b.type > a.type) ? -1 : 0));
           this.updateGroupData(groups);
-
           this.stepperView = false;
         },
         error => this.toastr.error(error.message, 'Oops!'));
@@ -131,10 +128,7 @@ export class RolesComponent implements OnInit {
     } else if (action === 'update') {
       const currGroupSource = this.startedGroups.filter(cur => cur.group === item.group)[0];
       let deletedUsers = currGroupSource.users.filter(user => {
-        if (item.users.includes(user)) {
-           return false;
-        }
-        return true;
+        return !item.users.includes(user);
       });
       this.dialog.open(ConfirmationDialogComponent, { data:
           { notebook: deletedUsers, type: ConfirmationDialogType.deleteUser }, panelClass: 'modal-sm' })
@@ -155,36 +149,40 @@ export class RolesComponent implements OnInit {
         deletedUsers = [];
       });
     }
-    this.getEnvironmentHealthStatus();
     this.resetDialog();
   }
 
   public manageRolesGroups($event) {
     switch ($event.action) {
       case 'create':
-
-        this.rolesService.setupNewGroup($event.value).subscribe(res => {
+        this.rolesService.setupNewGroup($event.value).subscribe(() => {
           this.toastr.success('Group creation success!', 'Created!');
           this.getGroupsData();
         }, () => this.toastr.error('Group creation failed!', 'Oops!'));
         break;
 
       case 'update':
-        this.rolesService.updateGroup($event.value).subscribe(res => {
+        this.rolesService.updateGroup($event.value).subscribe(() => {
           this.toastr.success(`Group data is updated successfully!`, 'Success!');
-          this.openManageRolesDialog();
-        }, () => this.toastr.error('Failed group data updating!', 'Oops!'));
+          if (!$event.value.roleIds.includes('admin' || 'projectAdmin')) {
+            this.applicationSecurityService.isLoggedIn().subscribe(() => {
+              this.getEnvironmentHealthStatus();
+            });
+          } else {
+            this.openManageRolesDialog();
+          }
+        }, (re) => this.toastr.error('Failed group data updating!', 'Oops!'));
 
         break;
 
       case 'delete':
         if ($event.type === 'users') {
-          this.rolesService.removeUsersForGroup($event.value).subscribe(res => {
+          this.rolesService.removeUsersForGroup($event.value).subscribe(() => {
             this.toastr.success('Users was successfully deleted!', 'Success!');
             this.getGroupsData();
           }, () => this.toastr.error('Failed users deleting!', 'Oops!'));
         } else if ($event.type === 'group') {
-          this.rolesService.removeGroupById($event.value).subscribe(res => {
+          this.rolesService.removeGroupById($event.value).subscribe(() => {
             this.toastr.success('Group was successfully deleted!', 'Success!');
             this.getGroupsData();
           }, (error) => this.toastr.error(error.message, 'Oops!'));
@@ -269,7 +267,15 @@ export class RolesComponent implements OnInit {
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
-      .subscribe((result: any) => this.healthStatus = result);
+      .subscribe((result: any) => {
+        this.healthStatus = result;
+          if (!this.healthStatus.admin && !this.healthStatus.projectAdmin) {
+            this.appRoutingService.redirectToHomePage();
+          } else {
+            this.openManageRolesDialog();
+          }
+      }
+      );
   }
 
   public onUpdate($event): void {

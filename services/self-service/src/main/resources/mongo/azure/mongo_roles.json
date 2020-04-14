@@ -264,6 +264,23 @@
     ]
   },
   {
+    "_id": "projectAdmin",
+    "description": "Allow to execute administration operation per project",
+    "type": "ADMINISTRATION",
+    "cloud": "AZURE",
+    "pages": [
+      "environment/*",
+      "/roleManagement",
+      "/api/settings",
+      "/user/settings",
+      "/api/project",
+      "/api/endpoint"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "admin",
     "description": "Allow to execute administration operation",
     "type": "ADMINISTRATION",
@@ -272,6 +289,8 @@
       "environment/*",
       "/api/infrastructure/backup",
       "/roleManagement",
+      "/roleManagement/create",
+      "/roleManagement/delete",
       "/api/settings",
       "/user/settings",
       "/api/project",

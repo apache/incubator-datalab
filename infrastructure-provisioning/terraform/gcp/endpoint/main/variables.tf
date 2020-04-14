@@ -153,3 +153,11 @@ variable "ldap_user" {}
 variable "ldap_bind_creds" {}
 
 variable "ldap_users_group" {}
+
+variable "billing_enable" {}
+
+variable "billing_dataset_name" {}
+
+variable "mongo_password" {}
+
+variable "mongo_host" {}

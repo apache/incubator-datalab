@@ -278,23 +278,22 @@
     }
 
     &.arrow{
-      width: 16px;
-      height: 14px;
-      border: 8px solid transparent;
-      border-left: 8px solid lightgrey;
-      left: 10px;
-      top: 12px;
-      border-radius: 3px;
-
+      left: 2px;
+      top: 9px;
+      i{
+        color: lightgrey;
+      }
       &.rotate-arrow{
         transform: rotate(90deg);
         transition: .1s ease-in-out;
-        top: 15px;
-        left: 6px;
+        top: 6px;
+        left: 0;
       }
 
       &.arrow-checked{
-        border-left: 8px solid #35afd5;
+        i{
+          color: #36afd5
+        }
       }
     }
   }

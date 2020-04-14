@@ -19,17 +19,15 @@
 
 package com.epam.dlab.rest.client;
 
-import com.epam.dlab.exceptions.DlabException;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import java.net.ConnectException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
@@ -69,6 +67,20 @@ public class RESTService {
 		Invocation.Builder builder = getBuilder(path, accessToken, Collections.emptyMap());
 		log.debug("REST get secured {} {}", path, accessToken);
 		return builder.get(clazz);
+	}
+
+	public <T> T get(String path, GenericType<T> genericType) {
+		return get(path, null, genericType);
+	}
+
+	public <T> T get(String path, String accessToken, GenericType<T> genericType) {
+		return get(path, accessToken, genericType, Collections.emptyMap());
+	}
+
+	public <T> T get(String path, String accessToken, GenericType<T> genericType, Map<String, Object> queryParams) {
+		Invocation.Builder builder = getBuilder(path, accessToken, queryParams);
+		log.debug("REST get secured {} {}", path, accessToken);
+		return builder.get(genericType);
 	}
 
 	public <T> T post(String path, Object parameter, Class<T> clazz) {

@@ -61,6 +61,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
@@ -188,9 +189,33 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		try {
 			return Optional.of(exploratoryDAO.fetchExploratoryFields(user, project, exploratoryName));
 		} catch (DlabException e) {
-			log.warn("User instance with exploratory name {} for user {} not found.", exploratoryName, user);
+			log.warn("User instance with exploratory {}, project {} for user {} not found.", exploratoryName, project, user);
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public Optional<UserInstanceDTO> getUserInstance(String user, String project, String exploratoryName, boolean includeCompResources) {
+		try {
+			return Optional.of(exploratoryDAO.fetchExploratoryFields(user, project, exploratoryName, includeCompResources));
+		} catch (DlabException e) {
+			log.warn("User instance with exploratory {}, project {} for user {} not found.", exploratoryName, project, user);
+		}
+		return Optional.empty();
+	}
+
+	@Override
+	public List<UserInstanceDTO> findAll() {
+		return exploratoryDAO.getInstances();
+	}
+
+	@Override
+	public List<UserInstanceDTO> findAll(Set<ProjectDTO> projects) {
+		List<String> projectNames = projects
+				.stream()
+				.map(ProjectDTO::getName)
+				.collect(Collectors.toList());
+		return exploratoryDAO.fetchExploratoryFieldsForProjectWithComp(projectNames);
 	}
 
 	@Override

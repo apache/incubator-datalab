@@ -26,43 +26,40 @@
 
 billingEnabled: true
 
-host: localhost
+host: MONGO_HOST
 port: 27017
 username: admin
-password: <MONGODB_PASSWORD>
+password: MONGO_PASSWORD
 database: dlabdb
-
-scheduler:
-# Schedule is comma separated values of time in format hh[:mm[:ss]]. hh - in the 24-hour clock, at 8:15PM is 20:15.
-  schedule: 0:00, 3:00, 6:00, 9:00, 12:00, 15:00, 18:00, 21:00
 
 # Adapter for reading source data. Known types: file, s3file
 adapterIn:
   - type: s3file
-    bucket: <BILLING_BUCKET_NAME>
-    path: <REPORT_PATH>
-    awsJobEnabled: <AWS_JOB_ENABLED>
-    accountId: <ACCOUNT_ID>
-    accessKeyId: <ACCESS_KEY_ID>
-    secretAccessKey: <SECRET_ACCESS_KEY>
+    bucket: BILLING_BUCKET_NAME
+    path: REPORT_PATH
+    awsJobEnabled: AWS_JOB_ENABLED
+    accountId: ACCOUNT_ID
+    accessKeyId: ACCESS_KEY_ID
+    secretAccessKey: SECRET_ACCESS_KEY
 
 # Adapter for writing converted data. Known types: console, file, s3file, mongodb
 adapterOut:
   - type: mongodlab
-    host: localhost
+    host: MONGO_HOST
     port: 27017
     username: admin
-    password: <MONGODB_PASSWORD>
+    password: MONGO_PASSWORD
     database: dlabdb
 #    bufferSize: 10000
     upsert: true
+    serviceBaseName: SERVICE_BASE_NAME
 
 # Filter for source and converted data.
 filter:
   - type: aws
     currencyCode: USD
-    columnDlabTag: <CONF_BILLING_TAG>
-    serviceBaseName: <CONF_SERVICE_BASE_NAME>
+    columnDlabTag: CONF_BILLING_TAG
+    serviceBaseName: SERVICE_BASE_NAME
 
 
 # Parser of source data to common format.
@@ -71,9 +68,9 @@ parser:
     headerLineNo: 1
     skipLines: 1
     columnMapping: >-
-      dlab_id=<DLAB_ID>;usage_date=<USAGE_DATE>;product=<PRODUCT>;
-      usage_type=<USAGE_TYPE>;usage=<USAGE>;cost=<COST>;
-      resource_id=<RESOURCE_ID>;tags=<TAGS>
+      dlab_id=DLAB_ID;usage_date=USAGE_DATE;product=PRODUCT;
+      usage_type=USAGE_TYPE;usage=USAGE;cost=COST;
+      resource_id=RESOURCE_ID;tags=TAGS
     aggregate: day
 
 

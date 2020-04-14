@@ -53,7 +53,7 @@ resource "google_compute_firewall" "firewall-ingress" {
   network = data.google_compute_network.endpoint_vpc_data.name
   allow {
     protocol = "tcp"
-    ports    = ["22", "8084", "8085", "4822"]
+    ports    = ["22", "8084", "8085", "4822", "8088"]
   }
   target_tags   = ["${var.service_base_name}-${var.endpoint_id}-endpoint"]
   source_ranges = [var.firewall_ing_cidr_range]

@@ -18,13 +18,14 @@
  */
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 
 import java.util.List;
 
 public interface UserRoleService {
 
-	List<UserRoleDto> getUserRoles();
+	List<UserRoleDto> getUserRoles(UserInfo userInfo);
 
 	void createRole(UserRoleDto dto);
 

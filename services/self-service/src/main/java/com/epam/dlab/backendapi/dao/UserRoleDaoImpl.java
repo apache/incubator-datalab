@@ -69,6 +69,7 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	private static final String EXPLORATORIES_FIELD = "exploratories";
 	private static final String COMPUTATIONALS_FIELD = "computationals";
 	private static final String GROUP_INFO = "groupInfo";
+	private static final String ADMIN = "admin";
 
 
 	@Override
@@ -116,11 +117,6 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	public boolean addGroupToRole(Set<String> groups, Set<String> roleIds) {
 		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), addToSet(GROUPS_FIELD,
 				groups)));
-	}
-
-	@Override
-	public boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds) {
-		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), pullAll(GROUPS_FIELD, groups)));
 	}
 
 	@Override

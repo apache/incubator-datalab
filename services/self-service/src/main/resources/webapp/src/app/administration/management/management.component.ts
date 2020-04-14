@@ -96,10 +96,9 @@ export class ManagementComponent implements OnInit {
   }
 
   openManageEnvironmentDialog() {
-    this.projectService.getProjectsManagingList().subscribe(projectsList => {
+    this.projectService.getProjectsList().subscribe(projectsList => {
       this.getTotalBudgetData().subscribe(total => {
         this.dialogRef = this.dialog.open(ManageEnvironmentComponent, { data: { projectsList, total }, panelClass: 'modal-sm' });
-        // this.dialogRef.componentInstance.manageEnv.subscribe((data) => this.manageEnvironment(data));
         this.dialogRef.afterClosed().subscribe(result => result && this.setBudgetLimits(result));
       }, () => this.toastr.error('Failed users list loading!', 'Oops!'));
     });

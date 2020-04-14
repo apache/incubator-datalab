@@ -77,13 +77,6 @@ public class BillingToolConfiguration {
 	private boolean billingEnabled;
 
 	/**
-	 * Working data file name of modules.
-	 */
-	@Valid
-	@JsonProperty
-	private SchedulerConfiguration scheduler = null;
-
-	/**
 	 * Adapter for reading source data.
 	 */
 	@Valid
@@ -133,20 +126,6 @@ public class BillingToolConfiguration {
 	 */
 	public ImmutableList<AdapterBase> getAdapterIn() {
 		return adapterIn;
-	}
-
-	/**
-	 * Set the scheduler.
-	 */
-	public void setScheduler(SchedulerConfiguration scheduler) {
-		this.scheduler = scheduler;
-	}
-
-	/**
-	 * Return the scheduler.
-	 */
-	public SchedulerConfiguration getScheduler() {
-		return scheduler;
 	}
 
 	/**
@@ -272,14 +251,6 @@ public class BillingToolConfiguration {
 			f.setModuleData(moduleData);
 		}
 
-		if (scheduler != null) {
-			try {
-				scheduler.build();
-			} catch (Exception e) {
-				throw new InitializationException("Cannot configure billing scheduler. " + e.getLocalizedMessage(), e);
-			}
-		}
-
 		return parser.build(in, out, f);
 	}
 
@@ -295,7 +266,6 @@ public class BillingToolConfiguration {
 	public ToStringHelper toStringHelper(Object self) {
 		return MoreObjects.toStringHelper(self)
 				.add("moduleData", moduleData)
-				.add("scheduler", scheduler)
 				.add("adapterIn", adapterIn)
 				.add("adapterOut", adapterOut)
 				.add("filter", filter)

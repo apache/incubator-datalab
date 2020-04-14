@@ -17,14 +17,14 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';
 import { Exploratory } from './resources-grid/resources-grid.model';
-import { HealthStatusService, ProjectService } from '../core/services';
+import {ApplicationSecurityService, HealthStatusService} from '../core/services';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { Project } from './../administration/project/project.component';
 import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
@@ -46,12 +46,11 @@ export class ResourcesComponent implements OnInit {
     public toastr: ToastrService,
     private healthStatusService: HealthStatusService,
     private dialog: MatDialog,
-    private projectService: ProjectService
+    private applicationSecurityService: ApplicationSecurityService
   ) { }
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.getProjects();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
@@ -62,8 +61,7 @@ export class ResourcesComponent implements OnInit {
 
   public refreshGrid(): void {
     this.resourcesGrid.buildGrid();
-    this.getProjects();
-    this.getEnvironmentHealthStatus();
+    this.checkAutorize();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
@@ -95,8 +93,11 @@ export class ResourcesComponent implements OnInit {
     return this.resourcesGrid.activeProject;
   }
 
-  private getProjects() {
-    this.projectService.getUserProjectsList().subscribe((projects: any) => this.projects = projects);
+  private checkAutorize() {
+   this.applicationSecurityService.isLoggedIn().subscribe( () => {
+     this.getEnvironmentHealthStatus();
+     }
+   );
   }
 
 

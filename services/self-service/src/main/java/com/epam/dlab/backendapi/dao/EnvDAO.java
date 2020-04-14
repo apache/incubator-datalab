@@ -23,8 +23,6 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
-import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
-import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
@@ -166,18 +164,6 @@ public class EnvDAO extends BaseDAO {
 	}
 
 	/**
-	 * @param user       the name of user.
-	 * @param fullReport return full report if <b>true</b> otherwise common status only.
-	 * @throws DlabException in case of any exception
-	 */
-	public HealthStatusPageDTO getHealthStatusPageDTO(String user, boolean fullReport) {
-		return new HealthStatusPageDTO()
-				.withStatus(HealthStatusEnum.OK)
-				.withListResources(Collections.emptyList());
-	}
-
-
-	/**
 	 * Updates the status of exploratory and computational for user.
 	 *
 	 * @param user    the name of user.
@@ -208,11 +194,6 @@ public class EnvDAO extends BaseDAO {
 	public Set<String> fetchUsersNotIn(Set<String> users) {
 		return stream(find(USER_EDGE, not(in(ID, users)),
 				fields(include(ID)))).map(d -> d.getString(ID))
-				.collect(Collectors.toSet());
-	}
-
-	public Set<String> fetchAllUsers() {
-		return stream(find(USER_EDGE)).map(d -> d.getString(ID))
 				.collect(Collectors.toSet());
 	}
 

@@ -144,6 +144,25 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(and(eq(PROJECT, project)), true);
 	}
 
+	public List<UserInstanceDTO> fetchExploratoryFieldsForProjectWithComp(List<String> projects) {
+		return getUserInstances(and(in(PROJECT, projects)), true);
+	}
+
+	public List<UserInstanceDTO> findExploratories(String project, String endpoint, String user) {
+		return getUserInstances(and(eq(PROJECT, project), eq(ENDPOINT, endpoint), eq(USER, user)), true);
+	}
+
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, boolean computationalFieldsRequired,
+																	 UserInstanceStatus... statuses) {
+		final List<String> statusList = statusList(statuses);
+		return getUserInstances(
+				and(
+						eq(USER, user),
+						in(STATUS, statusList)
+				),
+				computationalFieldsRequired);
+	}
+
 	/**
 	 * Finds and returns the info of all user's notebooks whose status or status of affiliated computational resource
 	 * is present among predefined ones.

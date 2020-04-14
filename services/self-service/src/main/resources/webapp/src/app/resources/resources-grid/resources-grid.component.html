@@ -39,7 +39,7 @@
     </ng-container> -->
 
     <ng-container matColumnDef="name" sticky>
-      <th mat-header-cell *matHeaderCellDef class="name-col">
+      <th mat-header-cell *matHeaderCellDef class="name-col label-header">
         <span class="label">Environment name</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
@@ -50,7 +50,7 @@
       </th>
     </ng-container>
     <ng-container matColumnDef="statuses">
-      <th mat-header-cell *matHeaderCellDef class="status-col">
+      <th mat-header-cell *matHeaderCellDef class="status-col label-header">
         <span class="label"> Status </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
@@ -61,7 +61,7 @@
       </th>
     </ng-container>
     <ng-container matColumnDef="shapes">
-      <th mat-header-cell *matHeaderCellDef class="shape-col">
+      <th mat-header-cell *matHeaderCellDef class="shape-col label-header">
         <span class="label"> Size </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
@@ -72,12 +72,12 @@
       </th>
     </ng-container>
     <ng-container matColumnDef="tag">
-      <th mat-header-cell *matHeaderCellDef class="tag-col">
+      <th mat-header-cell *matHeaderCellDef class="tag-col label-header">
         <span class="label"> Tags </span>
       </th>
     </ng-container>
     <ng-container matColumnDef="resources">
-      <th mat-header-cell *matHeaderCellDef class="resources-col">
+      <th mat-header-cell *matHeaderCellDef class="resources-col label-header">
         <span class="label"> Computational resources </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
@@ -88,12 +88,12 @@
       </th>
     </ng-container>
     <ng-container matColumnDef="cost">
-      <th mat-header-cell *matHeaderCellDef class="cost-col">
+      <th mat-header-cell *matHeaderCellDef class="cost-col label-header">
         <span class="label"> Cost </span>
       </th>
     </ng-container>
     <ng-container matColumnDef="actions" stickyEnd>
-      <th mat-header-cell *matHeaderCellDef class="actions-col">
+      <th mat-header-cell *matHeaderCellDef class="actions-col label-header">
         <span class="label"> Actions </span>
       </th>
     </ng-container>
@@ -139,7 +139,7 @@
           <td *ngIf="healthStatus?.billingEnabled" class="cost-col">
             <span class="total_cost">{{ element.cost || 'N/A' }} {{ element.currency_code || '' }}</span>
             <span (click)="element.billing && printCostDetails(element)" class="currency_details"
-              [ngClass]="{ 'not-allowed' : !element.billing }">
+              [ngClass]="{ 'not-allowed' : !element.billing.report_lines.length }">
               <i class="material-icons">help_outline</i>
             </span>
           </td>
@@ -168,10 +168,12 @@
                     </div>
                   </li>
                   <li *ngIf="element.status.toLowerCase() === 'stopped' || element.status.toLowerCase() === 'stopping'"
-                    matTooltip="{{isEdgeNodeStopped(element) ? 'Unable to run notebook if edge node is stopped.' : 'Unable to run notebook until it will be stopped.'}}" matTooltipPosition="above"
-                    [matTooltipDisabled]="!isResourcesInProgress(element) && element.status.toLowerCase() !== 'stopping' && !isEdgeNodeStopped(element)">
+                    matTooltip="{{element.edgeNodeStatus !== 'running' ? 'Unable to run notebook if edge node is not running.' : 'Unable to run notebook until it will be stopped.'}}" matTooltipPosition="above"
+                    [matTooltipDisabled]="!isResourcesInProgress(element) && element.status.toLowerCase() !== 'stopping' && element.edgeNodeStatus === 'running'"
+                    [ngClass]="{'not-allow': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' || element.edgeNodeStatus !== 'running' }"
+                  >
                     <div (click)="exploratoryAction(element, 'run')"
-                      [ngClass]="{'not-allowed': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' || isEdgeNodeStopped(element) }">
+                      [ngClass]="{'not-allowed': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' || element.edgeNodeStatus !== 'running' }">
                       <i class="material-icons">play_circle_outline</i>
                       <span>Run</span>
                     </div>
@@ -222,37 +224,37 @@
 
     <!-- FILTER START -->
     <ng-container matColumnDef="name-filter" sticky>
-      <th mat-header-cell *matHeaderCellDef class="name-col">
+      <th mat-header-cell *matHeaderCellDef class="name-col filter-row-item">
         <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
-          [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
+          [value]="filterForm.name" (input)="filterForm.name = $event.target['value']" />
       </th>
     </ng-container>
     <ng-container matColumnDef="status-filter">
-      <th mat-header-cell *matHeaderCellDef class="status-col">
+      <th mat-header-cell *matHeaderCellDef class="status-col filter-row-item">
         <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'"
           [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="shape-filter">
-      <th mat-header-cell *matHeaderCellDef class="shape-col">
+      <th mat-header-cell *matHeaderCellDef class="shape-col filter-row-item">
         <multi-select-dropdown (selectionChange)="onUpdate($event)"
           [type]="'sizes'" [items]="filterConfiguration.shapes"
           [model]="filterForm.shapes"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="tag-filter">
-      <th mat-header-cell *matHeaderCellDef class="tag-col">
+      <th mat-header-cell *matHeaderCellDef class="tag-col filter-row-item">
 
       </th>
     </ng-container>
     <ng-container matColumnDef="resource-filter">
-      <th mat-header-cell *matHeaderCellDef class="resources-col">
+      <th mat-header-cell *matHeaderCellDef class="resources-col filter-row-item">
         <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'"
           [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="cost-filter">
-      <th mat-header-cell *matHeaderCellDef class="cost-col">
+      <th mat-header-cell *matHeaderCellDef class="cost-col filter-row-item">
 
       </th>
     </ng-container>
