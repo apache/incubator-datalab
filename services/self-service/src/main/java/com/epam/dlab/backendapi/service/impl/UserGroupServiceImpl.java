@@ -97,14 +97,14 @@ public class UserGroupServiceImpl implements UserGroupService {
 	@Override
 	public List<UserGroupDto> getAggregatedRolesByGroup(UserInfo user) {
 		if (UserRoles.isAdmin(user)) {
-			return userRoleDao.aggregateRolesByGroup(true);
+			return userRoleDao.aggregateRolesByGroup();
 		} else if (UserRoles.isProjectAdmin(user)) {
 			Set<String> groups = projectService.getProjects(user)
 					.stream()
 					.map(ProjectDTO::getGroups)
 					.flatMap(Collection::stream)
 					.collect(Collectors.toSet());
-			return userRoleDao.aggregateRolesByGroup(false)
+			return userRoleDao.aggregateRolesByGroup()
 					.stream()
 					.filter(userGroup -> groups.contains(userGroup.getGroup()))
 					.collect(Collectors.toList());

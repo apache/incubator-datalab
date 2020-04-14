@@ -25,9 +25,7 @@ import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Singleton;
-import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.BsonField;
-import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -108,7 +106,7 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 						.noneMatch(id -> id.equals(u.getId())))
 				.forEach(this::insert);
 
-		addGroupToRole(aggregateRolesByGroup(false)
+		addGroupToRole(aggregateRolesByGroup()
 						.stream()
 						.map(UserGroupDto::getGroup)
 						.collect(Collectors.toSet()),
@@ -155,19 +153,15 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	}
 
 	@Override
-	public List<UserGroupDto> aggregateRolesByGroup(boolean isAdmin) {
+	public List<UserGroupDto> aggregateRolesByGroup() {
 		final Document role = roleDocument();
 		final Bson groupBy = group(GROUPS, new BsonField(ROLES, new Document(ADD_TO_SET, role)));
 		final Bson lookup = lookup(USER_GROUPS, ID, ID, GROUP_INFO);
-		final List<Bson> pipeline = new ArrayList<>();
-		if (!isAdmin) {
-			pipeline.add(Aggregates.match(Filters.not(eq(ID, ADMIN))));
-		}
-		pipeline.addAll(Arrays.asList(unwind(GROUPS), groupBy, lookup,
+		final List<Bson> pipeline = Arrays.asList(unwind(GROUPS), groupBy, lookup,
 				project(new Document(GROUP, "$" + ID).append(GROUP_INFO, elementAt(GROUP_INFO, 0))
 						.append(ROLES, "$" + ROLES)),
 				project(new Document(GROUP, "$" + ID).append(USERS_FIELD, "$" + GROUP_INFO + "." + USERS_FIELD)
-						.append(ROLES, "$" + ROLES))));
+						.append(ROLES, "$" + ROLES)));
 
 		return stream(aggregate(MongoCollections.ROLES, pipeline))
 				.map(d -> convertFromDocument(d, UserGroupDto.class))
