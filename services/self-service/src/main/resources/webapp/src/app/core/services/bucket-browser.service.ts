@@ -99,9 +99,9 @@ const local = {
     //   'file2': {size: 123.32},
     //   'file3': {size: 5.34},
     // },
-    '2008.cvs.bz2': {size: 125.34},
-    'airports.csv': {size: 33.12},
-    'carriers.csv': {size: 46.13},
+    '2008.cvs.bz2': {size: 108.5},
+    'airports.csv': {size: 0.23},
+    'carriers.csv': {size: 0.04},
   }
 };
 const projecta = {
@@ -184,9 +184,9 @@ const projecta = {
       },
       '.DS_Store': {size: 0.01},
     },
-    '2008.cvs.bz2': {size: 125.34},
-    'airports.csv': {size: 33.12},
-    'carriers.csv': {size: 46.13},
+    '2008.cvs.bz2': {size: 108.5},
+    'airports.csv': {size: 0.23},
+    'carriers.csv': {size: 0.04},
   }
 };
 
