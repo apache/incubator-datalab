@@ -36,7 +36,7 @@
       <mat-step [completed]='false'>
         <ng-template matStepLabel>Groups</ng-template>
         <div class="inner-step mat-reset">
-          <input [validator]="groupValidarion()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup"
+          <input [validator]="groupValidation()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup"
             #setupGroupName="ngModel">
           <div class="error" *ngIf="setupGroupName.errors?.patterns && setupGroupName.dirty">Group name can only
             contain letters, numbers, hyphens and '_'</div>
@@ -72,7 +72,9 @@
               (selectionChange)="onUpdate($event)"
               name="roles"
               [items]="rolesList"
-              [model]="setupRoles">
+              [model]="setupRoles"
+              [isAdmin]="healthStatus?.admin"
+            >
             </multi-level-select-dropdown>
           </div>
         </div>
@@ -104,8 +106,9 @@
                 (selectionChange)="onUpdate($event)"
                 [type]="element.group"
                 [items]="rolesList"
-                [model]="element.selected_roles">
-
+                [model]="element.selected_roles"
+                [isAdmin]="healthStatus?.admin"
+              >
               </multi-level-select-dropdown>
           </div>
         </td>

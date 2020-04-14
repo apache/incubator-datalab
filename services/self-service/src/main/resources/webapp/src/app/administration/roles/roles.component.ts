@@ -217,7 +217,7 @@ export class RolesComponent implements OnInit {
     this.startedGroups = JSON.parse(JSON.stringify(this.groupsData));
   }
 
-  public groupValidarion(): ValidatorFn {
+  public groupValidation(): ValidatorFn {
     const duplicateList: any = this.groupsData.map(item => item.group.toLowerCase());
     return <ValidatorFn>((control: FormControl) => {
       if (control.value && duplicateList.includes(CheckUtils.delimitersFiltering(control.value.toLowerCase()))) {
