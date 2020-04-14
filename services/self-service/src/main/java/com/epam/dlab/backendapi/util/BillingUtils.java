@@ -136,7 +136,7 @@ public class BillingUtils {
     public static Stream<BillingReportLine> customImageBillingDataStream(ImageInfoRecord image, String sbn) {
         String imageId = String.format(IMAGE_CUSTOM_FORMAT, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName()).toLowerCase();
         return Stream.of(
-                BillingReportLine.builder().resourceName(IMAGE_NAME).project(image.getProject()).dlabId(imageId).resourceType(IMAGE).build()
+                BillingReportLine.builder().resourceName(IMAGE_NAME).project(image.getProject()).dlabId(imageId).user(SHARED_RESOURCE).resourceType(IMAGE).build()
         );
     }
 
@@ -165,7 +165,7 @@ public class BillingUtils {
         List<BillingReportLine> list = new ArrayList<>();
         for (String notebook : AVAILABLE_NOTEBOOKS) {
             list.add(BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(String.format(IMAGE_STANDARD_FORMAT2, sbn, endpoint, notebook).toLowerCase())
-                    .project(SHARED_RESOURCE).resourceType(IMAGE).build());
+                    .user(SHARED_RESOURCE).project(SHARED_RESOURCE).resourceType(IMAGE).build());
         }
 
         return list.stream();
