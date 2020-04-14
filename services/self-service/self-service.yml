@@ -152,7 +152,7 @@ schedulers:
     cron: "0 */15 * ? * *"
   billingScheduler:
     enabled: true
-    cron: "*/50 * * ? * * *"
+    cron: "0 */15 * ? * *"
 
 
 guacamole:
