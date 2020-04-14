@@ -20,12 +20,13 @@
 import { Component, ViewChild, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {MatDialogRef, MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
 
 import { DateUtils, CheckUtils } from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { DataengineConfigurationService } from '../../../core/services';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
+import {BucketBrowserComponent} from '../../bucket-browser/bucket-browser.component';
 
 @Component({
   selector: 'detail-dialog',
@@ -51,7 +52,8 @@ export class DetailDialogComponent implements OnInit {
     private dataengineConfigurationService: DataengineConfigurationService,
     private _fb: FormBuilder,
     public dialogRef: MatDialogRef<DetailDialogComponent>,
-    public toastr: ToastrService
+    public toastr: ToastrService,
+    private dialog: MatDialog,
   ) {
     this.notebook = data;
   }
@@ -119,5 +121,10 @@ export class DetailDialogComponent implements OnInit {
       return this.configuration.nativeElement['checked']
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
+  }
+
+  public bucketBrowser(type): void {
+  this.dialog.open(BucketBrowserComponent, { data: type, panelClass: 'modal-fullscreen' })
+    .afterClosed().subscribe();
   }
 }
