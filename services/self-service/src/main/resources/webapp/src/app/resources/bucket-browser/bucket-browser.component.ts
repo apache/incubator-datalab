@@ -38,7 +38,7 @@ export class BucketBrowserComponent implements OnInit {
   path = '';
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
-  private selectedFolder: any;
+  public selectedFolder: any;
   private isUploading: boolean;
   private selected: any[];
 

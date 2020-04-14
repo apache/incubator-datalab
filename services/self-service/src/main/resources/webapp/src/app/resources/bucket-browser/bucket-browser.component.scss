@@ -94,6 +94,8 @@
         flex:2;
         display: flex;
         align-items: center;
+        overflow: hidden;
+
 
         &-folder{
           span{
@@ -106,12 +108,19 @@
 
           span.item-name{
             padding-left: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
         }
       }
 
       .size{
         flex:1;
+        &.file-size{
+          text-align: right;
+          padding-right: 35px;
+        }
       }
 
       .progress-wrapper{
@@ -220,6 +229,7 @@
   border: 2px solid lightgrey;
   margin-top: 2px;
   position: relative;
+  min-width: 16px;
 
   &.checked {
     border-color: #35afd5;

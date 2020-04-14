@@ -21,6 +21,75 @@ export class TodoItemFlatNode {
 let TREE_DATA = {};
 const local = {
   'dlab-local-shared-bucket': {
+    jupyter: {
+      'py2': {
+        'airports': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+        'carriers': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+        'flight': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.06},
+          'part-00001-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.05},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+       },
+      'py3': {
+        'airports': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+        'carriers': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+        'flight': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.06},
+          'part-00001-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.05},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+      },
+      'r': {
+        'airports': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+        },
+        'carriers': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+        },
+        'flight': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.06},
+          'part-00001-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.05},
+        },
+      },
+      'scala': {
+        'airports': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+        },
+        'carriers': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+        },
+        'flight': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.06},
+          'part-00001-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.05},
+        },
+      },
+      '.DS_Store': {size: 0.01},
+    },
     // folder: {
     //   folder: {
     //     folder: ['2008.cvs.bz2', 'airports.csv', 'carriers.csv'],
@@ -46,6 +115,75 @@ const projecta = {
     //   'file2': {size: 123.32},
     //   'file3': {size: 5.34},
     // },
+    jupyter: {
+      'py2': {
+        'airports': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+        'carriers': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+        'flight': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.06},
+          'part-00001-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.05},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+      },
+      'py3': {
+        'airports': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+        'carriers': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+        'flight': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.06},
+          'part-00001-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.05},
+          'part-00001-0e9a698b-9sa2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.03},
+        },
+      },
+      'r': {
+        'airports': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+        },
+        'carriers': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+        },
+        'flight': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.06},
+          'part-00001-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.05},
+        },
+      },
+      'scala': {
+        'airports': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+        },
+        'carriers': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.02},
+        },
+        'flight': {
+          '_SUCCESS': {size: 0.01},
+          'part-00000-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.06},
+          'part-00001-0e9a698b-9ce2-4c86-a9eb-b624d0f292fc-c000.snappy.parquet': {size: 0.05},
+        },
+      },
+      '.DS_Store': {size: 0.01},
+    },
     '2008.cvs.bz2': {size: 125.34},
     'airports.csv': {size: 33.12},
     'carriers.csv': {size: 46.13},
