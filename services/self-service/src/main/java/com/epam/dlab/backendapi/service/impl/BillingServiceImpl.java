@@ -164,19 +164,16 @@ public class BillingServiceImpl implements BillingService {
 
         billingDataMap.forEach((endpointDTO, billingData) -> {
             log.info("Updating billing information for endpoint {}. Billing data {}", endpointDTO.getName(), billingData);
-            updateBillingData(userInfo, endpointDTO, billingData);
+            try {
+                updateBillingData(endpointDTO, billingData);
+            } catch (Exception e) {
+                log.error("Something went wrong while trying to update billing for {}. {}", endpointDTO.getName(), e.getMessage());
+            }
         });
     }
 
-    private Map<String, BillingReportLine> getBillableResources(UserInfo userInfo) {
-        Set<ProjectDTO> projects;
-        if (isFullReport(userInfo)) {
-            projects = new HashSet<>(projectService.getProjects());
-        } else {
-            projects = new HashSet<>(projectService.getProjects(userInfo));
-            projects.addAll(projectService.getUserProjects(userInfo, false));
-        }
-
+    private Map<String, BillingReportLine> getBillableResources() {
+        Set<ProjectDTO> projects = new HashSet<>(projectService.getProjects());
         final Stream<BillingReportLine> ssnBillingDataStream = BillingUtils.ssnBillingDataStream(sbn);
         final Stream<BillingReportLine> billableEdges = projects
                 .stream()
@@ -211,10 +208,10 @@ public class BillingServiceImpl implements BillingService {
                 .flatMap(endpoint -> BillingUtils.edgeBillingDataStream(projectName, serviceBaseName, endpoint.getName()));
     }
 
-    private void updateBillingData(UserInfo userInfo, EndpointDTO endpointDTO, List<BillingData> billingData) {
+    private void updateBillingData(EndpointDTO endpointDTO, List<BillingData> billingData) {
         final String endpointName = endpointDTO.getName();
         final CloudProvider cloudProvider = endpointDTO.getCloudProvider();
-        final Map<String, BillingReportLine> billableResources = getBillableResources(userInfo);
+        final Map<String, BillingReportLine> billableResources = getBillableResources();
         final Stream<BillingReportLine> billingReportLineStream = billingData
                 .stream()
                 .peek(bd -> bd.setApplication(endpointName))
@@ -333,6 +330,7 @@ public class BillingServiceImpl implements BillingService {
                 .resourceType(billingReportLine.getResourceType())
                 .resourceName(billingReportLine.getResourceName())
                 .shape(billingReportLine.getShape())
+                .exploratoryName(billingReportLine.getExploratoryName())
                 .build();
     }
 }

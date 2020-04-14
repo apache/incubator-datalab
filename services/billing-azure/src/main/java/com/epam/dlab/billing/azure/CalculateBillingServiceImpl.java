@@ -233,7 +233,7 @@ public class CalculateBillingServiceImpl implements CalculateBillingService {
 
     private BillingData toBillingData(AzureDailyResourceInvoice billingData) {
         return BillingData.builder()
-                .tag(billingData.getDlabId())
+                .tag(billingData.getDlabId().toLowerCase())
                 .usageDateFrom(Optional.ofNullable(billingData.getUsageStartDate()).map(LocalDate::parse).orElse(null))
                 .usageDateTo(Optional.ofNullable(billingData.getUsageEndDate()).map(LocalDate::parse).orElse(null))
                 .usageDate(billingData.getDay())

@@ -70,9 +70,9 @@ public class BillingUtils {
     private static final String DATAENGINE_SERVICE_NAME_FORMAT = "Master: %s%sSlave:  %d x %s";
 
     public static Stream<BillingReportLine> edgeBillingDataStream(String project, String sbn, String endpoint) {
-        final String userEdgeId = String.format(EDGE_FORMAT, sbn, project.toLowerCase(), endpoint);
-        final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project.toLowerCase(), endpoint);
-        final String endpointBucketId = String.format(PROJECT_ENDPOINT_BUCKET_FORMAT, sbn, project.toLowerCase(), endpoint);
+        final String userEdgeId = String.format(EDGE_FORMAT, sbn, project, endpoint).toLowerCase();
+        final String edgeVolumeId = String.format(EDGE_VOLUME_FORMAT, sbn, project, endpoint).toLowerCase();
+        final String endpointBucketId = String.format(PROJECT_ENDPOINT_BUCKET_FORMAT, sbn, project, endpoint).toLowerCase();
 
         return Stream.concat(Stream.of(
                 BillingReportLine.builder().resourceName(endpoint).user(SHARED_RESOURCE).project(project).dlabId(userEdgeId).resourceType(EDGE).build(),
@@ -92,8 +92,8 @@ public class BillingUtils {
     }
 
     public static Stream<BillingReportLine> sharedEndpointBillingDataStream(String endpoint, String sbn) {
-        final String projectEndpointBucketId = String.format(ENDPOINT_SHARED_BUCKET_FORMAT, sbn, endpoint.toLowerCase());
-        final String endpointId = String.format(ENDPOINT_FORMAT, sbn, endpoint.toLowerCase());
+        final String projectEndpointBucketId = String.format(ENDPOINT_SHARED_BUCKET_FORMAT, sbn, endpoint).toLowerCase();
+        final String endpointId = String.format(ENDPOINT_FORMAT, sbn, endpoint).toLowerCase();
         return Stream.of(
                 BillingReportLine.builder().resourceName("Endpoint shared bucket").user(SHARED_RESOURCE).project(SHARED_RESOURCE).dlabId(projectEndpointBucketId).resourceType(BUCKET).build(),
                 BillingReportLine.builder().resourceName("Endpoint").user(SHARED_RESOURCE).project(SHARED_RESOURCE).dlabId(endpointId).resourceType(ENDPOINT).build()
@@ -128,7 +128,7 @@ public class BillingUtils {
     }
 
     public static Stream<BillingReportLine> customImageBillingDataStream(ImageInfoRecord image, String sbn) {
-        String imageId = String.format(IMAGE_CUSTOM_FORMAT, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName());
+        String imageId = String.format(IMAGE_CUSTOM_FORMAT, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName()).toLowerCase();
         return Stream.of(
                 BillingReportLine.builder().resourceName(IMAGE_NAME).project(image.getProject()).dlabId(imageId).resourceType(IMAGE).build()
         );
@@ -158,7 +158,7 @@ public class BillingUtils {
     public static Stream<BillingReportLine> standardImageBillingDataStream(String sbn, String project, String endpoint) {
         List<BillingReportLine> list = new ArrayList<>();
         for (String notebook : AVAILABLE_NOTEBOOKS) {
-            list.add(BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(String.format(IMAGE_STANDARD_FORMAT1, sbn, project, endpoint, notebook))
+            list.add(BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(String.format(IMAGE_STANDARD_FORMAT1, sbn, project, endpoint, notebook).toLowerCase())
                     .project(SHARED_RESOURCE).resourceType(IMAGE).build());
         }
 

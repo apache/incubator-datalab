@@ -120,7 +120,7 @@ public class BigQueryBillingDAO implements BillingDAO {
 				.product(fields.get("product").getStringValue())
 				.usageType(fields.get("usageType").getStringValue())
 				.currency(fields.get("currency").getStringValue())
-				.tag(fields.get("value").getStringValue())
+				.tag(fields.get("value").getStringValue().toLowerCase())
 				.usageDate(toLocalDate(fields, "usage_date_from").format((DateTimeFormatter.ofPattern(DATE_FORMAT))))
 				.build();
 	}
