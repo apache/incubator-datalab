@@ -28,8 +28,10 @@
   cursor: pointer;
   transition: .3s;
   overflow: unset;
+
   &:hover{
     color: #00bcd4;
+
     i{
       color: #00bcd4;
     }

@@ -22,14 +22,17 @@
     margin: 0 4px 10px 4px;
     padding: 4px 4px 4px 20px;
     color: rgba(0,0,0,.87);
+
     .url{
       font-weight: 600;
     }
   }
+
   bottom: 0;
   .dialog-content{
     padding: 0 35px;
   }
+
   .content-box {
     height: 500px;
 
@@ -37,10 +40,12 @@
 
   .submit{
     display: flex;
+
     .butt{
       position: relative;
       overflow: hidden;
       margin: 10px;
+
       input[type="file"] {
         position: absolute;
         left: 0;
@@ -66,8 +71,6 @@
   border-radius: 5px;
   display: flex;
 
-
-
   .navigation{
     flex: 1;
     border-right: 2px solid rgba(0,0,0,.12);
@@ -79,39 +82,47 @@
         line-height: 30px;
       }
     }
-
   }
 
   .directory{
     max-height: 500px;
     overflow: auto;
     flex: 2;
+
     .folder-tree{
       .name{
         flex:2;
         display: flex;
         align-items: center;
+
         &-folder{
           span{
             padding-left: 10px;
           }
         }
+
         &-file{
           padding-left: 4px;
+
           span.item-name{
             padding-left: 14px;
           }
         }
       }
+
       .size{
         flex:1;
       }
+
       .progress-wrapper{
         flex:1;
+
         .progres{
+
           border: 1px solid rgba(0,0,0,.12);
           height: 15px;
           position: relative;
+
           .bar{
             position: absolute;
             top: 0;
@@ -119,6 +130,7 @@
             left: 0;
             width: 0;
             background-color:  #00bcd4;
+
             &.full{
               width: 100%;
               transition: 5s ease-in-out;
@@ -126,20 +138,24 @@
           }
         }
       }
+
       .material-icons.close{
         font-size: 15px;
         margin: 0 10px;
         cursor: pointer;
       }
+
       .action {
         display: flex;
         justify-content: space-around;
         width: 100%;
+
         .add-file {
           overflow: hidden;
           min-width: 100px ;
           height: 30px;
           position: relative;
+
           input{
             position: absolute;
             left: 0;
@@ -161,6 +177,7 @@
   .folder-item{
      display: flex;
      align-items: center;
+
      .folder-item-wrapper{
        width: 100%;
        display: flex;
@@ -168,19 +185,24 @@
        align-items: center;
        cursor: pointer;
        color: rgba(0,0,0,.87);
+
        i{
          color: rgb(232, 232, 232);
        }
+
        &:hover{
          color: #00bcd4;
          transition: .3s ease-in-out;
+
          i{
            color: #00bcd4;
            transition: .3s ease-in-out;
          }
+
          .empty-checkbox{
            border-color: #00bcd4
          }
+
          .progress-wrapper{
            .progres{
              border-color: #00bcd4 !important;
@@ -198,10 +220,12 @@
   border: 2px solid lightgrey;
   margin-top: 2px;
   position: relative;
+
   &.checked {
     border-color: #35afd5;
     background-color: #35afd5;
   }
+
   .checked-checkbox {
     top: 0px;
     left: 4px;
