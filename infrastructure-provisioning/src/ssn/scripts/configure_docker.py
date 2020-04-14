@@ -99,7 +99,10 @@ def login_in_gcr(gcr_creds, odahu_image, dlab_path):
             f.write(gcr_creds)
         local('scp -i {} /tmp/dlab-gcr-ro-sa {}:/tmp/dlab-gcr-ro-sa'.format(args.keyfile, env.host_string))
         sudo('cat /tmp/dlab-gcr-ro-sa | base64 --decode > /tmp/dlab-gcr-ro-sa.json')
-        sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
+        sudo('echo "#!/bin/bash" > /tmp/gcr.sh')
+        sudo('echo "cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io" > /tmp/gcr.sh')
+        sudo('chmod +x /tmp/gcr.sh')
+        sudo('/tmp/gcr.sh')
         sudo('sed -i "s|ODAHU_IMAGE|{}|" '
              '{}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile'.format(odahu_image,
                                                                                                    dlab_path))
