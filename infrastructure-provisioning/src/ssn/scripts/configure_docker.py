@@ -84,10 +84,10 @@ def add_china_repository(dlab_path):
 def login_in_gcr(gcr_creds, odahu_image, dlab_path):
     if os.environ['conf_cloud_provider'] != 'gcp':
         try:
-            local('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
-                  'cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
-            local('sudo apt-get -y install apt-transport-https ca-certificates gnupg')
-            local('sudo apt-get update && sudo apt-get -y install google-cloud-sdk')
+            sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
+                  'cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
+            sudo('sudo apt-get -y install apt-transport-https ca-certificates gnupg')
+            sudo('sudo apt-get update && sudo apt-get -y install google-cloud-sdk')
         except Exception as err:
             traceback.print_exc()
             print('Failed to install gcloud: ', str(err))
