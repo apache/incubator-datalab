@@ -87,6 +87,7 @@ def login_in_gcr(gcr_creds, odahu_image, dlab_path):
             sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
                   'cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
             sudo('apt-get -y install apt-transport-https ca-certificates gnupg')
+            sudo('curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -')
             sudo('apt-get update')
             sudo('apt-get -y install google-cloud-sdk')
         except Exception as err:
