@@ -30,6 +30,7 @@ export class MultiLevelSelectDropdownComponent {
   @Input() items: Array<any>;
   @Input() model: Array<any>;
   @Input() type: string;
+  @Input() isAdmin: boolean;
   @Output() selectionChange: EventEmitter<{}> = new EventEmitter();
 
   public isOpenCategory = {

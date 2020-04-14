@@ -38,7 +38,7 @@
       </li>
 
         <ng-template  ngFor let-item [ngForOf]="items" let-i="index">
-          <li class="role-label" role="presentation" *ngIf="i === 0 || model && item.type !== items[i - 1].type" (click)="toggleItemsForLable(item.type, $event)">
+          <li class="role-label" role="presentation" *ngIf="i === 0 || model && item.type !== items[i - 1].type" (click)="toggleItemsForLable(item.type, $event)" >
             <a href="#" class="list-item" role="menuitem">
               <span class="arrow" [ngClass]="{'rotate-arrow': isOpenCategory[item.type], 'arrow-checked': selectedAllInCattegory(item.type) || selectedSomeInCattegory(item.type)}">
                 <i class="material-icons">keyboard_arrow_right</i>
@@ -51,7 +51,11 @@
             </a>
           </li>
 
-          <li class="role-item" role="presentation" *ngIf="model && isOpenCategory[item.type] && item.type !== 'COMPUTATIONAL_SHAPE' && item.type !== 'NOTEBOOK_SHAPE'" >
+          <li class="role-item"
+              role="presentation"
+              *ngIf="model && isOpenCategory[item.type] && item.type !== 'COMPUTATIONAL_SHAPE' && item.type !== 'NOTEBOOK_SHAPE'"
+              [ngClass]="{'d-none': !isAdmin && item.role === 'Allow to execute administration operation'}"
+          >
             <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
               <span class="empty-checkbox" [ngClass]="{'checked': checkInModel(item.role)}">
                 <span class="checked-checkbox" *ngIf="checkInModel(item.role)"></span>
