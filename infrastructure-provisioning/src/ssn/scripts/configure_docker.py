@@ -82,20 +82,29 @@ def add_china_repository(dlab_path):
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
 def login_in_gcr(gcr_creds, odahu_image, dlab_path):
-    if os.environ['conf_cloud_provider'] == 'gcp':
+    if os.environ['conf_cloud_provider'] != 'gcp':
         try:
-            with open('/tmp/dlab-gcr-ro-sa', 'w') as f:
-                f.write(gcr_creds)
-            local('scp -i {} /tmp/dlab-gcr-ro-sa {}:/tmp/dlab-gcr-ro-sa'.format(args.keyfile, env.host_string))
-            sudo('cat /tmp/dlab-gcr-ro-sa | base64 --decode > /tmp/dlab-gcr-ro-sa.json')
-            sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
-            sudo('sed -i "s|ODAHU_IMAGE|{}|" '
-                 '{}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile'.format(odahu_image,
-                                                                                                       dlab_path))
+            local('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
+                  'cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
+            local('sudo apt-get -y install apt-transport-https ca-certificates gnupg')
+            local('sudo apt-get update && sudo apt-get -y install google-cloud-sdk')
         except Exception as err:
             traceback.print_exc()
-            print('Failed to prepare odahu image: ', str(err))
+            print('Failed to install gcloud: ', str(err))
             sys.exit(1)
+    try:
+        with open('/tmp/dlab-gcr-ro-sa', 'w') as f:
+            f.write(gcr_creds)
+        local('scp -i {} /tmp/dlab-gcr-ro-sa {}:/tmp/dlab-gcr-ro-sa'.format(args.keyfile, env.host_string))
+        sudo('cat /tmp/dlab-gcr-ro-sa | base64 --decode > /tmp/dlab-gcr-ro-sa.json')
+        sudo('cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io')
+        sudo('sed -i "s|ODAHU_IMAGE|{}|" '
+             '{}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile'.format(odahu_image,
+                                                                                                   dlab_path))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to prepare odahu image: ', str(err))
+        sys.exit(1)
 
 def build_docker_images(image_list, region, dlab_path):
     try:
