@@ -27,6 +27,7 @@
 .mat-tree-node{
   cursor: pointer;
   transition: .3s;
+  overflow: unset;
   &:hover{
     color: #00bcd4;
     i{

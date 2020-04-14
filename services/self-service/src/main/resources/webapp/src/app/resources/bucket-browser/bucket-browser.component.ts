@@ -21,11 +21,10 @@ import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-
-// import { AccountCredentials, MangeUngitModel } from './bucket-browser.model';
 import { ManageUngitService } from '../../core/services';
-import {logger} from 'codelyzer/util/logger';
+
 import {FolderTreeComponent} from './folder-tree/folder-tree.component';
+import {BucketBrowserService, TodoItemNode} from '../../core/services/bucket-browser.service';
 
 @Component({
   selector: 'dlab-bucket-browser',
@@ -34,35 +33,36 @@ import {FolderTreeComponent} from './folder-tree/folder-tree.component';
 })
 export class BucketBrowserComponent implements OnInit {
   filenames: Array<any> = [];
-  uploadPaths = [];
+  addedFiles = [];
   folderItems = [];
   path = '';
-  selectedFolderItems = [];
-  // @ViewChild('tabGroupGit', { static: false }) tabGroupGit;
+
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   private selectedFolder: any;
   private isUploading: boolean;
+  private selected: any[];
 
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: 'string',
     public toastr: ToastrService,
     public dialog: MatDialog,
     public dialogRef: MatDialogRef<BucketBrowserComponent>,
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
+    private bucketBrowserService: BucketBrowserService
   ) {
 
   }
 
   ngOnInit() {
-
+    this.bucketBrowserService.initBucket(this.data);
+    this.bucketBrowserService.initialize();
+    // console.log(this.data);
   }
 
   showItem(item) {
     const flatItem = this.folderTreeComponent.nestedNodeMap.get(item);
-    // this.folderTreeComponent.treeControl.isExpanded(flatItem) = ;
     this.folderTreeComponent.showItem(flatItem);
-    // console.log(item);
-    // this.onFolderClick(item);
   }
 
   handleFileInput(files) {
@@ -71,40 +71,46 @@ export class BucketBrowserComponent implements OnInit {
     //     const path = file.webkitRelativePath.split('/');
     //   }
     // }
-    console.log(files);
-    this.filenames = Object['values'](files).map(v => v.name);
-    this.uploadPaths = [...this.uploadPaths, ...this.filenames];
+    this.filenames = Object['values'](files).map(v => ({item: v.name, 'size': (v.size / 1048576).toFixed(2)} as unknown as TodoItemNode));
+    this.addedFiles = [...this.addedFiles, ...this.filenames];
+  }
+
+  toggleSelectedFile(file) {
+    file.isSelected = !file.isSelected;
+    this.selected = this.folderItems.filter(item => item.isSelected);
   }
 
   filesPicked(files) {
-    console.log(files);
-    // this.uploadPaths = [];
+    // console.log(files);
+
     Array.prototype.forEach.call(files, file => {
-      this.uploadPaths.push(file.webkitRelativePath);
+      this.addedFiles.push(file.webkitRelativePath);
     });
-    console.log(this.uploadPaths);
+    // console.log(this.addedFiles);
   }
 
   onFolderClick(event) {
     this.selectedFolder = event.element1;
     this.folderItems = event.element ? event.element.children : event.children;
+    // this.folderItems = this.folderItems.sort((a, b) => (a.children > b.children) ? 1 : -1)
+    // console.log(this.folderItems);
     this.path = event.path;
-
+    this.folderItems.forEach(item => item.isSelected = false);
   }
 
   private upload(tree, path) {
     tree.files.forEach(file => {
-      this.uploadPaths.push(path + file.name);
+      this.addedFiles.push(path + file.name);
     });
     tree.directories.forEach(directory => {
       const newPath = path + directory.name + '/';
-      this.uploadPaths.push(newPath);
+      this.addedFiles.push(newPath);
       this.upload(directory, newPath);
     });
   }
 
   deleteAddedFile(file) {
-    this.uploadPaths.splice(this.uploadPaths.indexOf(file), 1);
+    this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
   }
 
   uploadItems() {
@@ -112,44 +118,25 @@ export class BucketBrowserComponent implements OnInit {
     setTimeout(() => this.upLoading(), 5000);
   }
 
-  downloadItems(){
-    this.isUploading = true;
+  downloadItems() {
+    setTimeout(() => this.downloadItemsAction(), 1000);
   }
 
   upLoading() {
-    this.uploadPaths.forEach(v => {
+    this.addedFiles.forEach(v => {
       this.folderTreeComponent.addNewItem(this.selectedFolder, v, true);
     });
-    this.uploadPaths = [];
+    this.toastr.success(this.addedFiles.length === 1 ? 'File successfully uploaded' : 'Files successfully uploaded', 'Success!');
+    this.addedFiles = [];
     this.isUploading = false;
+  }
+
+  downloadItemsAction() {
+    this.folderItems.forEach(item => item.isSelected = false);
+    this.toastr.success(this.selected.length === 1 ? 'File downloading started' : 'Files downloading started', 'Success!');
+    this.selected = this.folderItems.filter(item => item.isSelected);
   }
 }
 
 
 
-// @Component({
-//   selector: 'dialog-result-example-dialog',
-//   template: `
-//   <div class="dialog-header">
-//     <h4 class="modal-title"><i class="material-icons">priority_high</i>Warning</h4>
-//     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
-//   </div>
-//   <div mat-dialog-content class="content">
-//     <p>Account <span class="strong">{{ data.hostname }}</span> will be decommissioned.</p>
-//     <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
-//   </div>
-//   <div class="text-center">
-//     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
-//     <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
-//   </div>
-//   `,
-//   styles: [`
-//     .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
-//   `]
-// })
-// export class ConfirmDeleteAccountDialog {
-//   constructor(
-//     public dialogRef: MatDialogRef<ConfirmDeleteAccountDialog>,
-//     @Inject(MAT_DIALOG_DATA) public data: any
-//   ) { }
-// }

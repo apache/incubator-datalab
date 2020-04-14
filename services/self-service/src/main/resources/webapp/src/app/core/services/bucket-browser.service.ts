@@ -5,6 +5,7 @@ export class TodoItemNode {
   children: TodoItemNode[];
   item: string;
   id: string;
+  size: number;
 }
 
 /** Flat to-do item node with expandable and level information */
@@ -17,50 +18,39 @@ export class TodoItemFlatNode {
 /**
  * The Json object for to-do list data.
  */
-const TREE_DATA = {
+let TREE_DATA = {};
+const local = {
   'dlab-local-shared-bucket': {
-    'file1': null,
-    'file2': null,
-    'file3': null,
-    FirsrFolder: {
-      folder: {
-        folder: ['2008.cvs.bz2', 'airports.csv', 'carriers.csv'],
-        folder1: ['2008.cvs.bz2', 'airports.csv', 'carriers.csv', 'file1',
-          'file2',
-          'file3',
-          'file4',
-          'file5',
-          'file6', '2008.cvs.bz2', '2008.cvs.bz2', 'airports.csv', 'carriers.csv', 'file1',
-          'file2',
-          'file3',
-          'file4',
-          'file5',
-          'file6',
-          '2008.cvs.bz2', 'airports.csv', 'carriers.csv', 'file1',
-          'file2',
-          'file3',
-          'file4',
-          'file5',
-          'file6', '2008.cvs.bz2', '2008.cvs.bz2', 'airports.csv', 'carriers.csv', 'file1',
-          'file2',
-          'file3',
-          'file4',
-          'file5',
-          'file6'],
-        folder2: []
-      },
-      'folder1': [],
-      'file2': null,
-      'file3': null,
-    },
-    SecondFolder: [
-      'file1',
-      'file2',
-      'file3'
-    ]
+    // folder: {
+    //   folder: {
+    //     folder: ['2008.cvs.bz2', 'airports.csv', 'carriers.csv'],
+    //     folder2: []
+    //   },
+    //   'folder1': [],
+    //   'file2': {size: 123.32},
+    //   'file3': {size: 5.34},
+    // },
+    '2008.cvs.bz2': {size: 125.34},
+    'airports.csv': {size: 33.12},
+    'carriers.csv': {size: 46.13},
   }
 };
-
+const projecta = {
+  'dlab-projecta-local-bucket': {
+    // folder: {
+    //   folder: {
+    //     folder: ['2008.cvs.bz2', 'airports.csv', 'carriers.csv'],
+    //     folder2: []
+    //   },
+    //   'folder1': [],
+    //   'file2': {size: 123.32},
+    //   'file3': {size: 5.34},
+    // },
+    '2008.cvs.bz2': {size: 125.34},
+    'airports.csv': {size: 33.12},
+    'carriers.csv': {size: 46.13},
+  }
+};
 
 @Injectable({
   providedIn: 'root'
@@ -75,11 +65,7 @@ export class BucketBrowserService {
   }
 
   initialize() {
-    // Build the tree nodes from Json object. The result is a list of `TodoItemNode` with nested
-    //     file node as children.
     const data = this.buildFileTree(TREE_DATA, 0);
-    console.log(data);
-    // Notify the change.
     this.dataChange.next(data);
   }
 
@@ -92,28 +78,33 @@ export class BucketBrowserService {
       const value = obj[key];
       const node = new TodoItemNode();
       node.item = key;
-      if (value != null) {
+      if (!value.size) {
         if (typeof value === 'object') {
           node.children = this.buildFileTree(value, level + 1);
         } else {
           node.item = value;
         }
+      } else {
+        node.size = value.size;
       }
 
       return accumulator.concat(node);
     }, []);
   }
 
-  /** Add an item to to-do list */
-  insertItem(parent: TodoItemNode, name: string, isFile) {
+  insertItem(parent: TodoItemNode, name, isFile) {
     if (parent.children) {
-      parent.children.push(isFile ? {item: name} as TodoItemNode : {item: name, children: []} as TodoItemNode);
-      this.dataChange.next(this.data);
+      if (isFile) {
+        parent.children.push(name as TodoItemNode);
+      } else {
+        parent.children.unshift({item: name, children: []} as TodoItemNode);
+        this.dataChange.next(this.data);
+      }
     }
   }
 
-  updateItem(node: TodoItemNode, name: string) {
-    node.item = name;
+  updateItem(node: TodoItemNode, file) {
+    node.item = file;
     this.dataChange.next(this.data);
   }
 
@@ -122,5 +113,9 @@ export class BucketBrowserService {
       parent.children.push({item: name, children: []} as TodoItemNode);
       this.dataChange.next(this.data);
     }
+  }
+
+  initBucket(bucketType) {
+    bucketType !== 'project' ? TREE_DATA = local : TREE_DATA = projecta;
   }
 }

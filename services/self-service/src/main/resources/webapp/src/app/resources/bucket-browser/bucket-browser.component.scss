@@ -19,10 +19,11 @@
 
 .bucket-browser {
   .path{
-    margin-bottom: 8px;
-    padding-left: 20px;
+    margin: 0 4px 10px 4px;
+    padding: 4px 4px 4px 20px;
+    color: rgba(0,0,0,.87);
     .url{
-
+      font-weight: 600;
     }
   }
   bottom: 0;
@@ -97,7 +98,7 @@
         }
         &-file{
           padding-left: 4px;
-          span{
+          span.item-name{
             padding-left: 14px;
           }
         }
@@ -125,7 +126,11 @@
           }
         }
       }
-
+      .material-icons.close{
+        font-size: 15px;
+        margin: 0 10px;
+        cursor: pointer;
+      }
       .action {
         display: flex;
         justify-content: space-around;
@@ -173,12 +178,40 @@
            color: #00bcd4;
            transition: .3s ease-in-out;
          }
-         .mat-checkbox .mat-ripple-element {
-           background-color: #00bcd4 !important;
+         .empty-checkbox{
+           border-color: #00bcd4
+         }
+         .progress-wrapper{
+           .progres{
+             border-color: #00bcd4 !important;
+           }
          }
        }
      }
    }
+}
+
+.empty-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  border: 2px solid lightgrey;
+  margin-top: 2px;
+  position: relative;
+  &.checked {
+    border-color: #35afd5;
+    background-color: #35afd5;
+  }
+  .checked-checkbox {
+    top: 0px;
+    left: 4px;
+    width: 5px;
+    height: 10px;
+    border-bottom: 2px solid white;
+    border-right: 2px solid white;
+    position: absolute;
+    transform: rotate(45deg);
+  }
 }
 
 .folder-item-name{
