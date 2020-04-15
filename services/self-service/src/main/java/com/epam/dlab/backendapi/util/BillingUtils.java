@@ -69,7 +69,7 @@ public class BillingUtils {
     private static final String IMAGE_NAME = "Image";
 
     private static final String DATAENGINE_NAME_FORMAT = "%d x %s";
-    private static final String DATAENGINE_SERVICE_NAME_FORMAT = "Master: %s%sSlave:  %d x %s";
+    private static final String DATAENGINE_SERVICE_NAME_FORMAT = "Master: %s%sSlave: %s";
 
     public static Stream<BillingReportLine> edgeBillingDataStream(String project, String sbn, String endpoint) {
         final String userEdgeId = String.format(EDGE_FORMAT, sbn, project, endpoint).toLowerCase();
@@ -137,7 +137,7 @@ public class BillingUtils {
     public static Stream<BillingReportLine> customImageBillingDataStream(ImageInfoRecord image, String sbn) {
         String imageId = String.format(IMAGE_CUSTOM_FORMAT, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName()).toLowerCase();
         return Stream.of(
-                BillingReportLine.builder().resourceName(IMAGE_NAME).project(image.getProject()).dlabId(imageId).user(SHARED_RESOURCE).resourceType(IMAGE).build()
+                BillingReportLine.builder().resourceName(image.getName()).project(image.getProject()).dlabId(imageId).user(image.getUser()).resourceType(IMAGE).build()
         );
     }
 
@@ -159,7 +159,7 @@ public class BillingUtils {
     public static String getComputationalShape(UserComputationalResource resource) {
         return DataEngineType.fromDockerImageName(resource.getImageName()) == DataEngineType.SPARK_STANDALONE ?
                 String.format(DATAENGINE_NAME_FORMAT, resource.getDataengineInstanceCount(), resource.getDataengineShape()) :
-                String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), System.lineSeparator(), null, null);
+                String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), System.lineSeparator(), resource.getSlaveNodeShape());
     }
 
     private static Stream<BillingReportLine> standardImageBillingDataStream(String sbn, String endpoint) {
