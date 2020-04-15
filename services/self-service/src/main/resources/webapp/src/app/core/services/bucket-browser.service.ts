@@ -20,7 +20,7 @@ export class TodoItemFlatNode {
  */
 let TREE_DATA = {};
 const local = {
-  'dlab-local-shared-bucket': {
+  'dlab01-local-shared-bucket': {
     jupyter: {
       'py2': {
         'airports': {
@@ -140,7 +140,7 @@ const local = {
   }
 };
 const projecta = {
-  'dlab-projecta-local-bucket': {
+  'dlab01-projecta-local-bucket': {
     'jupyter': {
       'py2': {
         'airports': {
