@@ -95,12 +95,10 @@ def login_in_gcr(os_user, gcr_creds, odahu_image, dlab_path):
             print('Failed to install gcloud: ', str(err))
             sys.exit(1)
     try:
-        #with open('/tmp/config', 'w') as f:
-        #    f.write(gcr_creds)
-        #local('scp -i {} /tmp/config {}:/tmp/config'.format(args.keyfile, env.host_string))
-        sudo('mkdir /home/{}/.docker'.format(os_user))
-        with open('/home/{}/.docker/config.json'.format(os_user), 'w') as f:
+        with open('/tmp/config', 'w') as f:
             f.write(base64.b64decode(gcr_creds) + "==")
+        sudo('mkdir /home/{}/.docker'.format(os_user))
+        local('scp -i {} /tmp/config {}:/home/{}/.docker/config.json'.format(args.keyfile, env.host_string, os_user))
         #sudo('cat /tmp/config')
         #sudo('cat /tmp/config | base64 --decode > /home/{}/.docker/config.json'.format(os_user))
         sudo('sed -i "s|ODAHU_IMAGE|{}|" {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile'.format(odahu_image, dlab_path))
