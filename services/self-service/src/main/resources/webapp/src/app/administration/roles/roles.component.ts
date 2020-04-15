@@ -75,6 +75,9 @@ export class RolesComponent implements OnInit {
           this.rolesList = roles.map((role) => {
               return {role: role.description, type: role.type, cloud: role.cloud};
           });
+          if (!this.healthStatus.admin) {
+            this.rolesList = this.rolesList.filter(role => role.role !== 'Allow to execute administration operation');
+          }
           this.rolesList = this.rolesList.sort((a, b) => (a.cloud > b.cloud) ? 1 : ((b.cloud > a.cloud) ? -1 : 0));
           this.rolesList = this.rolesList.sort((a, b) => (a.type > b.type) ? 1 : ((b.type > a.type) ? -1 : 0));
           this.updateGroupData(groups);
@@ -138,10 +141,14 @@ export class RolesComponent implements OnInit {
           item.selected_roles = [...currGroupSource.selected_roles];
           item.roles = [...currGroupSource.roles];
         } else {
+          const isSuperAdminGroup = this.startedGroups.filter(v => v.group === item.group)[0].roles.filter(role => role.description === 'Allow to execute administration operation').length;
+          const selectedRoles = isSuperAdminGroup ?
+            [...item.selected_roles.map(v => v.role), 'Allow to execute administration operation'] :
+            item.selected_roles.map(v => v.role);
           this.manageRolesGroups({
             action, type, value: {
               name: item.group,
-              roleIds: this.extractIds(this.roles, item.selected_roles.map(v => v.role)),
+              roleIds: this.extractIds(this.roles, selectedRoles),
               users: item.users || []
             }
           });
@@ -208,7 +215,13 @@ export class RolesComponent implements OnInit {
       return v;
     }).sort((a, b) => (a.group > b.group) ? 1 : ((b.group > a.group) ? -1 : 0));
     this.groupsData.forEach(item => {
-      item.selected_roles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      if (this.healthStatus.admin) {
+        item.selected_roles = item.roles.map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      } else {
+        item.selected_roles = item.roles.filter(role => role.description !== 'Allow to execute administration operation')
+          .map(role => ({role: role.description, type: role.type, cloud: role.cloud}));
+      }
+
     });
     this.getGroupsListCopy();
   }

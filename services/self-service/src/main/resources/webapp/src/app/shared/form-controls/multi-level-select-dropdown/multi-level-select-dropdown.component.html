@@ -54,7 +54,7 @@
           <li class="role-item"
               role="presentation"
               *ngIf="model && isOpenCategory[item.type] && item.type !== 'COMPUTATIONAL_SHAPE' && item.type !== 'NOTEBOOK_SHAPE'"
-              [ngClass]="{'d-none': !isAdmin && item.role === 'Allow to execute administration operation'}"
+              [hidden]="!isAdmin && item.role === 'Allow to execute administration operation'"
           >
             <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
               <span class="empty-checkbox" [ngClass]="{'checked': checkInModel(item.role)}">

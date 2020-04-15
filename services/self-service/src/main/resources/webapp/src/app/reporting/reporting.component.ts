@@ -156,7 +156,21 @@ export class ReportingComponent implements OnInit, OnDestroy {
         types.push(item['resource_type']);
 
       if (item.shape && types.indexOf(item.shape)) {
-        shapes.push(item.shape);
+       if (item.shape.indexOf('Master') > -1) {
+          for (let shape of item.shape.split('↵')) {
+            shape = shape.replace('Master: ', '');
+            shape = shape.replace(/Slave: /, '');
+            shape = shape.replace(/\s+/g, '');
+            shapes.indexOf(shape) === -1 && shapes.push(shape);
+          }
+        } else if (item.shape.match(/\d x \S+/)) {
+          const parsedShape = item.shape.match(/\d x \S+/)[0].split(' x ')[1];
+          if (shapes.indexOf(parsedShape) === -1) {
+            shapes.push(parsedShape);
+          }
+        } else {
+          shapes.indexOf(item.shape) === -1 && shapes.push(item.shape);
+        }
       }
 
       if (item.product && services.indexOf(item.product) === -1)
