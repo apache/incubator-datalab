@@ -51,7 +51,7 @@ public class UserRoleResource {
 	@GET
 	public Response getRoles(@Auth UserInfo userInfo) {
 		log.debug("Getting all roles for admin {}...", userInfo.getName());
-		return Response.ok(userRoleService.getUserRoles(userInfo)).build();
+		return Response.ok(userRoleService.getUserRoles()).build();
 	}
 
 	@POST

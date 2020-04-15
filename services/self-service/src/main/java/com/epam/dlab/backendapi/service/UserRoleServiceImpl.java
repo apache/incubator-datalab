@@ -18,11 +18,8 @@
  */
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
-import com.epam.dlab.backendapi.roles.UserRoles;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -30,29 +27,17 @@ import com.google.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Singleton
 public class UserRoleServiceImpl implements UserRoleService {
 	private static final String ROLE_NOT_FOUND_MSG = "Any of role : %s were not found";
-	private static final String ADMIN = "admin";
 
 	@Inject
 	private UserRoleDao userRoleDao;
 
 	@Override
-	public List<UserRoleDto> getUserRoles(UserInfo user) {
-		List<UserRoleDto> all = userRoleDao.findAll();
-		if (UserRoles.isAdmin(user)) {
-			return all;
-		} else if (UserRoles.isProjectAdmin(user)) {
-			return all
-					.stream()
-					.filter(role -> !role.getId().equalsIgnoreCase(ADMIN))
-					.collect(Collectors.toList());
-		} else {
-			throw new DlabException(String.format("User %s doesn't have appropriate permission", user));
-		}
+	public List<UserRoleDto> getUserRoles() {
+		return userRoleDao.findAll();
 	}
 
 	@Override

@@ -62,7 +62,7 @@ public class UserRoleResourceTest extends TestBase {
 
 	@Test
 	public void getRoles() {
-		when(rolesService.getUserRoles(getUserInfo())).thenReturn(Collections.singletonList(getUserRole()));
+		when(rolesService.getUserRoles()).thenReturn(Collections.singletonList(getUserRole()));
 
 		final Response response = resources.getJerseyTest()
 				.target("/role")
@@ -77,7 +77,7 @@ public class UserRoleResourceTest extends TestBase {
 		assertEquals(ROLE_ID, actualRoles.get(0).getId());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(rolesService).getUserRoles(getUserInfo());
+		verify(rolesService).getUserRoles();
 		verifyNoMoreInteractions(rolesService);
 	}
 
