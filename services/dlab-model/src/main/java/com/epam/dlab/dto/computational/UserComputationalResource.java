@@ -59,6 +59,8 @@ public class UserComputationalResource {
 	private LocalDateTime lastActivity;
 	@JsonProperty("master_node_shape")
 	private String masterNodeShape;
+	@JsonProperty("slave_node_shape")
+	private String slaveNodeShape;
 	@JsonProperty("dataengine_instance_shape")
 	private String dataengineShape;
 	@JsonProperty("dataengine_instance_count")
