@@ -398,7 +398,8 @@ if __name__ == "__main__":
             project_conf['tag_name']: project_conf['shared_bucket_name'],
             "endpoint_tag": project_conf['endpoint_tag'],
             os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
-            "sbn": project_conf['service_base_name']}
+            "sbn": project_conf['service_base_name'],
+            "name": project_conf['shared_bucket_name']}
         params = "--bucket_name {} --tags '{}'".format(project_conf['shared_bucket_name'],
                                                        json.dumps(project_conf['shared_bucket_tags']))
         try:
@@ -412,7 +413,8 @@ if __name__ == "__main__":
             "endpoint_tag": project_conf['endpoint_tag'],
             os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value'],
             "sbn": project_conf['service_base_name'],
-            "project_tag": project_conf['project_tag']}
+            "project_tag": project_conf['project_tag'],
+            "name": project_conf['bucket_name']}
         params = "--bucket_name {} --tags '{}'".format(project_conf['bucket_name'],
                                                        json.dumps(project_conf['bucket_tags']))
 
