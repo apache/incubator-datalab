@@ -137,7 +137,7 @@ public class BillingUtils {
     public static Stream<BillingReportLine> customImageBillingDataStream(ImageInfoRecord image, String sbn) {
         String imageId = String.format(IMAGE_CUSTOM_FORMAT, sbn, image.getProject(), image.getEndpoint(), image.getApplication(), image.getName()).toLowerCase();
         return Stream.of(
-                BillingReportLine.builder().resourceName(IMAGE_NAME).project(image.getProject()).dlabId(imageId).user(SHARED_RESOURCE).resourceType(IMAGE).build()
+                BillingReportLine.builder().resourceName(image.getName()).project(image.getProject()).dlabId(imageId).user(image.getUser()).resourceType(IMAGE).build()
         );
     }
 
