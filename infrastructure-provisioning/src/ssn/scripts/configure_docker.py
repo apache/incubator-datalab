@@ -81,7 +81,7 @@ def add_china_repository(dlab_path):
         sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
-def login_in_gcr(gcr_creds, odahu_image, dlab_path):
+def login_in_gcr(os_user, gcr_creds, odahu_image, dlab_path):
     if os.environ['conf_cloud_provider'] != 'gcp':
         try:
             sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
@@ -95,14 +95,11 @@ def login_in_gcr(gcr_creds, odahu_image, dlab_path):
             print('Failed to install gcloud: ', str(err))
             sys.exit(1)
     try:
-        with open('/tmp/dlab-gcr-ro-sa', 'w') as f:
+        with open('/tmp/config', 'w') as f:
             f.write(gcr_creds)
-        local('scp -i {} /tmp/dlab-gcr-ro-sa {}:/tmp/dlab-gcr-ro-sa'.format(args.keyfile, env.host_string))
-        sudo('cat /tmp/dlab-gcr-ro-sa | base64 --decode > /tmp/dlab-gcr-ro-sa.json')
-        sudo('echo "#!/bin/bash" > /tmp/gcr.sh')
-        sudo('echo "cat /tmp/dlab-gcr-ro-sa.json | docker login -u _json_key --password-stdin https://gcr.io" > /tmp/gcr.sh')
-        sudo('chmod +x /tmp/gcr.sh')
-        sudo('/tmp/gcr.sh')
+        local('scp -i {} /tmp/config {}:/tmp/config'.format(args.keyfile, env.host_string))
+        sudo('mkdir /home/{}/.docker'.format(os_user))
+        sudo('cat /tmp/config | base64 --decode > /home/{}/.docker/config.json'.format(os_user))
         sudo('sed -i "s|ODAHU_IMAGE|{}|" '
              '{}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile'.format(odahu_image,
                                                                                                    dlab_path))
@@ -209,7 +206,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Login in Google Container Registry")
-    login_in_gcr(args.gcr_creds, args.odahu_image, args.dlab_path)
+    login_in_gcr(args.os_user, args.gcr_creds, args.odahu_image, args.dlab_path)
 
     print("Building dlab images")
     count = 0
