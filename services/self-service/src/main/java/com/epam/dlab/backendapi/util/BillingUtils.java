@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.util;
 import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import jersey.repackaged.com.google.common.collect.Lists;
@@ -47,7 +48,7 @@ import static com.epam.dlab.dto.billing.BillingResourceType.VOLUME;
 
 public class BillingUtils {
     private static final String[] AVAILABLE_NOTEBOOKS = {"zeppelin", "tensor-rstudio", "rstudio", "tensor", "superset", "jupyterlab", "jupyter", "deeplearning"};
-    private static final String[] REPORT_HEADERS = {"DLab ID", "User", "Project", "DLab Resource Type", "Shape", "Product", "Cost"};
+    private static final String[] REPORT_HEADERS = {"DLab ID", "User", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
     private static final String REPORT_FIRST_LINE = "Service base name: %s. Available reporting period from: %s to: %s";
     private static final String TOTAL_LINE = "Total: %s %s";
     private static final String SSN_FORMAT = "%s-ssn";
@@ -197,7 +198,8 @@ public class BillingUtils {
         lines.add(getOrEmpty(line.getDlabId()));
         lines.add(getOrEmpty(line.getUser()));
         lines.add(getOrEmpty(line.getProject()));
-        lines.add(getOrEmpty(Optional.ofNullable(line.getResourceType()).map(Enum::name).orElse(null)));
+        lines.add(getOrEmpty(Optional.ofNullable(line.getResourceType()).map(r -> StringUtils.capitalize(r.toString().toLowerCase())).orElse(null)));
+        lines.add(getOrEmpty(Optional.ofNullable(line.getStatus()).map(UserInstanceStatus::toString).orElse(null)));
         lines.add(getOrEmpty(line.getShape()));
         lines.add(getOrEmpty(line.getProduct()));
         lines.add(getOrEmpty(Optional.ofNullable(line.getCost()).map(String::valueOf).orElse(null)));
