@@ -216,6 +216,9 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 		if (CollectionUtils.isNotEmpty(filter.getProducts())) {
 			searchCriteria.add(in(PRODUCT, filter.getProducts()));
 		}
+		if (CollectionUtils.isNotEmpty(filter.getShapes())) {
+			searchCriteria.add(in(SHAPE, filter.getShapes()));
+		}
 
 		return searchCriteria;
 	}

@@ -102,6 +102,7 @@ public class BillingServiceImpl implements BillingService {
         List<BillingReportLine> billingReportLines = billingDAO.aggregateBillingData(filter)
                 .stream()
                 .peek(this::appendStatuses)
+                .filter(bd -> CollectionUtils.isEmpty(filter.getStatuses()) || filter.getStatuses().contains(bd.getStatus()))
                 .collect(Collectors.toList());
         final LocalDate min = billingReportLines.stream().min(Comparator.comparing(BillingReportLine::getUsageDateFrom)).map(BillingReportLine::getUsageDateFrom).orElse(null);
         final LocalDate max = billingReportLines.stream().max(Comparator.comparing(BillingReportLine::getUsageDateTo)).map(BillingReportLine::getUsageDateTo).orElse(null);
