@@ -100,9 +100,7 @@ def login_in_gcr(os_user, gcr_creds, odahu_image, dlab_path):
         local('scp -i {} /tmp/config {}:/tmp/config'.format(args.keyfile, env.host_string))
         sudo('mkdir /home/{}/.docker'.format(os_user))
         sudo('cat /tmp/config | base64 --decode > /home/{}/.docker/config.json'.format(os_user))
-        sudo('sed -i "s|ODAHU_IMAGE|{}|" '
-             '{}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile'.format(odahu_image,
-                                                                                                   dlab_path))
+        sudo('sed -i "s|ODAHU_IMAGE|{}|" {}sources/infrastructure-provisioning/src/general/files/gcp/odahu_Dockerfile'.format(odahu_image, dlab_path))
     except Exception as err:
         traceback.print_exc()
         print('Failed to prepare odahu image: ', str(err))
