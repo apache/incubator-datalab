@@ -176,7 +176,7 @@ public class BillingUtils {
         List<BillingReportLine> list = new ArrayList<>();
         for (String notebook : AVAILABLE_NOTEBOOKS) {
             list.add(BillingReportLine.builder().resourceName(IMAGE_NAME).dlabId(String.format(IMAGE_STANDARD_FORMAT1, sbn, project, endpoint, notebook).toLowerCase())
-                    .project(SHARED_RESOURCE).resourceType(IMAGE).build());
+                    .project(project).user(SHARED_RESOURCE).resourceType(IMAGE).build());
         }
 
         return list.stream();
