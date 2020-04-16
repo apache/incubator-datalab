@@ -122,11 +122,12 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     public String downloadReport(UserInfo user, BillingFilter filter) {
+        boolean isFull = isFullReport(user);
         BillingReport report = getBillingReport(user, filter);
         StringBuilder builder = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
-        builder.append(BillingUtils.getHeader());
+        builder.append(BillingUtils.getHeader(isFull));
         try {
-            report.getReportLines().forEach(r -> builder.append(BillingUtils.printLine(r)));
+            report.getReportLines().forEach(r -> builder.append(BillingUtils.printLine(r, isFull)));
             builder.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency()));
             return builder.toString();
         } catch (Exception e) {
