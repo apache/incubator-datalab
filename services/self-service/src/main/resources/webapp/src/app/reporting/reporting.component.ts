@@ -157,7 +157,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
       if (item.shape && types.indexOf(item.shape)) {
        if (item.shape.indexOf('Master') > -1) {
-          for (let shape of item.shape.split('↵')) {
+          for (let shape of item.shape.split(/(?=S)/g)) {
             shape = shape.replace('Master: ', '');
             shape = shape.replace(/Slave: /, '');
             shape = shape.replace(/\s+/g, '');

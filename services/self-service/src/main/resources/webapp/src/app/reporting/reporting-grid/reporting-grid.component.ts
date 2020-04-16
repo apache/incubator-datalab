@@ -66,10 +66,18 @@ export class ReportingGridComponent implements OnInit {
   sortBy(sortItem, direction) {
   let report: Array<object>;
   if (direction === 'down') {
-    report = this.reportData.sort((a, b) => (a[sortItem] > b[sortItem]) ? 1 : ((b[sortItem] > a[sortItem]) ? -1 : 0));
+    report = this.reportData.sort((a, b) => {
+      if (a[sortItem] === null) a = '';
+      if (b[sortItem] === null) b = '';
+     return (a[sortItem] > b[sortItem]) ? 1 : ((b[sortItem] > a[sortItem]) ? -1 : 0);
+    });
   }
   if (direction === 'up') {
-    report = this.reportData.sort((a, b) => (a[sortItem] < b[sortItem]) ? 1 : ((b[sortItem] < a[sortItem]) ? -1 : 0));
+    report = this.reportData.sort((a, b) => {
+      if (a[sortItem] === null) a = '';
+      if (b[sortItem] === null) b = '';
+      return (a[sortItem] < b[sortItem]) ? 1 : ((b[sortItem] < a[sortItem]) ? -1 : 0)
+    });
   }
   this.refreshData(this.fullReport, report);
   this.removeSorting();
@@ -102,5 +110,9 @@ export class ReportingGridComponent implements OnInit {
     this.filter.nativeElement.value = '';
     this.filterReport.emit(this.filteredReportData);
     this.resetRangePicker.emit(true);
+  }
+
+  shapeSplit(shape){
+    return shape.split(/(?=S)/g)
   }
 }
