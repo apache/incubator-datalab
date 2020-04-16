@@ -424,7 +424,7 @@ if __name__ == "__main__":
                  --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} \
                  --offer_number {} --currency {} --locale {} --region_info {}  --ldap_login {} --tenant_id {} \
                  --application_id {} --datalake_store_name {} --cloud_params '{}' --subscription_id {}  \
-                 --validate_permission_scope {} --default_endpoint_name {} --keycloak_client_name {} \
+                 --validate_permission_scope {} --default_endpoint_name {} --keycloak_client_id {} \
                  --keycloak_client_secret {} --keycloak_auth_server_url {}". \
             format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
                    ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
