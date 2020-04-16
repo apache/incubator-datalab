@@ -69,7 +69,6 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	private static final String EXPLORATORIES_FIELD = "exploratories";
 	private static final String COMPUTATIONALS_FIELD = "computationals";
 	private static final String GROUP_INFO = "groupInfo";
-	private static final String ADMIN = "admin";
 
 
 	@Override

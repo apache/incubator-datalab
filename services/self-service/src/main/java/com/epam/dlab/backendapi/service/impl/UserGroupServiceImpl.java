@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
+import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.UserGroupService;
@@ -45,6 +46,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserGroupServiceImpl implements UserGroupService {
 	private static final String ROLE_NOT_FOUND_MSG = "Any of role : %s were not found";
+	private static final String ADMIN = "admin";
+	private static final String PROJECT_ADMIN = "projectAdmin";
 
 	@Inject
 	private UserGroupDao userGroupDao;
@@ -106,11 +109,19 @@ public class UserGroupServiceImpl implements UserGroupService {
 					.collect(Collectors.toSet());
 			return userRoleDao.aggregateRolesByGroup()
 					.stream()
-					.filter(userGroup -> groups.contains(userGroup.getGroup()))
+					.filter(userGroup -> groups.contains(userGroup.getGroup()) && !containsAdministrationPermissions(userGroup))
 					.collect(Collectors.toList());
 		} else {
 			throw new DlabException(String.format("User %s doesn't have appropriate permission", user.getName()));
 		}
+	}
+
+	private boolean containsAdministrationPermissions(UserGroupDto userGroup) {
+		List<String> ids = userGroup.getRoles()
+				.stream()
+				.map(UserRoleDto::getId)
+				.collect(Collectors.toList());
+		return ids.contains(ADMIN) || ids.contains(PROJECT_ADMIN);
 	}
 
 	private void updateGroup(String group, Set<String> roleIds, Set<String> users) {
