@@ -165,13 +165,14 @@ def ensure_matplot(os_user):
 @backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
 def add_sbt_key():
     sudo(
-        'apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 642AC823')
+        'curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add')
 
 def ensure_sbt(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/sbt_ensured'):
         try:
             manage_pkg('-y install', 'remote', 'apt-transport-https')
             sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
+
             add_sbt_key()
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'sbt')
@@ -358,7 +359,7 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
-        sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -')
+        sudo('curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -')
         manage_pkg('-y install', 'remote', 'nodejs')
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 

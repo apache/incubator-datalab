@@ -107,7 +107,7 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.edge_hostname
     put('/tmp/{}.conf'.format(conf_file_name), '/usr/local/openresty/nginx/conf/locations', use_sudo=True)
-    sudo('service nginx reload')
+    sudo('service openresty reload')
 
 
 
