@@ -29,6 +29,6 @@ keycloak:
   bearer-only: true
   realm: dlab
   resource: KEYCLOAK_CLIENT_ID
-  credentials.secret: CLIENT_SECRET
+  credentials.secret: KEYCLOAK_CLIENT_SECRET
   ssl-required: none
   auth-server-url: KEYCLOAK_AUTH_SERVER_URL
