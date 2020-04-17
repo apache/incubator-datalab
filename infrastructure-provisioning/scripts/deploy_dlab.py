@@ -119,6 +119,19 @@ parser.add_argument('--usage', type=str, default='line_item_usage_amount', help=
 parser.add_argument('--cost', type=str, default='line_item_blended_cost', help='Column name in report file that contains cost tag')
 parser.add_argument('--resource_id', type=str, default='line_item_resource_id', help='Column name in report file that contains '
                                                                           'dlab resource id tag')
+parser.add_argument('--odahu_tls_crt', type=str, default='', help='TLS Certificate for Odahu cluster')
+parser.add_argument('--odahu_tls_key', type=str, default='', help='TLS Key for Odahu cluster')
+parser.add_argument('--odahu_docker_private_repo', type=str, default='', help='Odahu private repository url')
+parser.add_argument('--odahu_docker_password', type=str, default='', help='Odahu private repository base64 encoded password')
+parser.add_argument('--odahu_keysecret', type=str, default='', help='KeySecret for Odahuflow examples git')
+parser.add_argument('--odahu_oauth_local_jwks', type=str, default='', help='JWKS from keycloak')
+parser.add_argument('--odahu_airflow_secret', type=str, default='', help='Airflow keycloak service account secret')
+parser.add_argument('--odahu_operator_secret', type=str, default='', help='Operator keycloak service account secret')
+parser.add_argument('--odahu_resource_uploader_secret', type=str, default='', help='Resource uploader keycloak service'
+                                                                                      ' account secret')
+parser.add_argument('--odahu_tester_secret', type=str, default='', help='Tester keycloak service account secret')
+parser.add_argument('--odahu_tester_data_scientist_secret', type=str, default='', help='Tester data scientist keycloak'
+                                                                                          ' service account secret')
 parser.add_argument('--ldap_hostname', type=str, default='localhost', help='Ldap instance hostname')
 parser.add_argument('--ldap_dn', type=str, default='dc=example,dc=com',
                     help='Ldap distinguished name')
@@ -138,6 +151,7 @@ parser.add_argument('--billing_dataset_name', type=str, default='', help='Name o
                                                                          ' for billing')
 parser.add_argument('--default_endpoint_name', type=str, default='local', help='Name of localhost provisioning service,'
                                                                                'that created by default')
+parser.add_argument('--ssn_gcr_creds', type=str, default='', help='Base64 encrypted json key for GCR authentication')
 parser.add_argument('--conf_stepcerts_enabled', type=str, default='false', help='Enable or disable step certificates')
 parser.add_argument('--conf_stepcerts_root_ca', type=str, default='', help='Step root CA')
 parser.add_argument('--conf_stepcerts_kid', type=str, default='', help='Step KID')

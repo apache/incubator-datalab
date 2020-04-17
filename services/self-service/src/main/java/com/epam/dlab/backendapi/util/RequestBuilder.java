@@ -24,6 +24,8 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.domain.OdahuCreateDTO;
+import com.epam.dlab.backendapi.domain.OdahuFieldsDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
@@ -70,6 +72,8 @@ import com.epam.dlab.dto.gcp.computational.ComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.computational.GcpComputationalTerminateDTO;
 import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
+import com.epam.dlab.dto.odahu.ActionOdahuDTO;
+import com.epam.dlab.dto.odahu.CreateOdahuDTO;
 import com.epam.dlab.dto.project.ProjectActionDTO;
 import com.epam.dlab.dto.project.ProjectCreateDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -624,6 +628,33 @@ public class RequestBuilder {
 	public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, EndpointDTO endpointDTO) {
 		return new ProjectActionDTO(project, endpointDTO.getName())
 				.withCloudSettings(cloudSettings(userInfo, endpointDTO.getCloudProvider()));
+	}
+
+	public CreateOdahuDTO newOdahuCreate(UserInfo user, OdahuCreateDTO odahuCreateDTO, ProjectDTO projectDTO, EndpointDTO endpointDTO) {
+		return CreateOdahuDTO.builder()
+				.name(odahuCreateDTO.getName())
+				.project(projectDTO.getName())
+				.endpoint(odahuCreateDTO.getEndpoint())
+				.key(projectDTO.getKey().replace("\n", ""))
+				.build()
+				.withEdgeUserName(getEdgeUserName(user, endpointDTO.getCloudProvider()))
+				.withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));
+	}
+
+	public ActionOdahuDTO newOdahuAction(UserInfo user, String name, ProjectDTO projectDTO, EndpointDTO endpointDTO,
+										 OdahuFieldsDTO odahuFields) {
+		return ActionOdahuDTO.builder()
+				.name(name)
+				.project(projectDTO.getName())
+				.key(projectDTO.getKey().replace("\n", ""))
+				.endpoint(endpointDTO.getName())
+				.grafanaAdmin(odahuFields.getGrafanaAdmin())
+				.grafanaPassword(odahuFields.getGrafanaPassword())
+				.oauthCookieSecret(odahuFields.getOauthCookieSecret())
+				.decryptToken(odahuFields.getDecryptToken())
+				.build()
+				.withEdgeUserName(getEdgeUserName(user, endpointDTO.getCloudProvider()))
+				.withCloudSettings(cloudSettings(user, endpointDTO.getCloudProvider()));
 	}
 
 	/**

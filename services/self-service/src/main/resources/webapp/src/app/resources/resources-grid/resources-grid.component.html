@@ -105,8 +105,9 @@
         [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'" sticky>
 
         <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
-          <td class="name-col" (click)="printDetailEnvironmentModal(element)">
-            <span matTooltip="{{ element.name }}" matTooltipPosition="above">{{ element.name }}</span>
+          <td class="name-col">
+            <span *ngIf="element.shape !== 'odahu cluster'" matTooltip="{{ element.name }}" matTooltipPosition="above" (click)="printDetailEnvironmentModal(element)">{{ element.name }}</span>
+            <span *ngIf="element.shape === 'odahu cluster'" matTooltip="{{ element.name }}" matTooltipPosition="above" (click)="printDetailLegionModal(element)">{{ element.name }}</span>
           </td>
           <td class="status-col status" ngClass="{{ element.status.toLowerCase() || ''}}">
             {{element.status | underscoreless }}
@@ -122,7 +123,7 @@
                 matTooltipPosition="above">
                 {{ element.tags.custom_tag }}
               </mat-chip>
-              <mat-chip matTooltip="User tag: {{ element.tags.user_tag }}" matTooltipPosition="above">
+              <mat-chip *ngIf="element.tags.user_tag" matTooltip="User tag: {{ element.tags.user_tag }}" matTooltipPosition="above">
                 {{ element.tags.user_tag }}
               </mat-chip>
               <mat-chip matTooltip="Project tag: {{ element.tags.project_tag }}" matTooltipPosition="above">
@@ -132,14 +133,14 @@
           </td>
 
           <td class="resources-col">
-            <computational-resources-list [resources]="element.resources" [environment]="element"
+            <computational-resources-list *ngIf="element.shape !== 'odahu cluster'" [resources]="element.resources" [environment]="element"
               (buildGrid)="buildGrid($event)">
             </computational-resources-list>
           </td>
           <td *ngIf="healthStatus?.billingEnabled" class="cost-col">
             <span class="total_cost">{{ element.cost || 'N/A' }} {{ element.currency_code || '' }}</span>
             <span (click)="element.billing && printCostDetails(element)" class="currency_details"
-              [ngClass]="{ 'not-allowed' : !element.billing }">
+              [ngClass]="{ 'not-allowed' : !element.billing || element.shape === 'odahu cluster' }">
               <i class="material-icons">help_outline</i>
             </span>
           </td>
@@ -148,11 +149,12 @@
             <span #settings (click)="actions.toggle($event, settings)" class="actions"
               [ngClass]="{ 'disabled': element.status.toLowerCase() === 'creating'
               || (element.image === 'docker.dlab-superset' && element.status !== 'running' && element.status !== 'stopped')
-              || (element.image === 'docker.dlab-jupyterlab' && element.status !== 'running' && element.status !== 'stopped') }">
+              || (element.image === 'docker.dlab-jupyterlab' && element.status !== 'running' && element.status !== 'stopped')
+              }">
             </span>
 
             <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
-              <ul class="list-unstyled">
+              <ul class="list-unstyled" *ngIf="element.shape !== 'odahu cluster'">
                 <div class="active-items" *ngIf="element.status.toLowerCase() !== 'failed'
                 && element.status !== 'terminating'
                 && element.status !== 'terminated'
@@ -211,6 +213,29 @@
                     class="navigate">
                     <i class="material-icons">laptop</i>
                     <span>Open terminal</span>
+                  </a>
+                </li>
+              </ul>
+              <ul class="list-unstyled" *ngIf="element.shape === 'odahu cluster'">
+                <li class="project-seting-item" *ngIf="element.status === 'stopped'" (click)="odahuAction(element, 'start')">
+                  <i class="material-icons">play_circle_outline</i>
+                  <a class="action">
+                    Start
+                  </a>
+                </li>
+                <li class="project-seting-item" *ngIf="element.status === 'running'" (click)="odahuAction(element, 'stop')">
+                  <i class="material-icons">pause_circle_outline</i>
+                  <a class="action" >
+                    Stop
+                  </a>
+                </li>
+                <li class="project-seting-item"
+                    [ngClass]="{'disabled': element.status === 'stopped' || element.status.toLowerCase() === 'stopping' || element.status.toLowerCase() === 'starting'}"
+                    *ngIf="element.status === element.status !== 'terminated' && element.status !== 'terminating'" (click)="odahuAction(element, 'terminate')"
+                >
+                  <i class="material-icons">phonelink_off</i>
+                  <a class="action">
+                    Terminate
                   </a>
                 </li>
               </ul>

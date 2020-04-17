@@ -26,17 +26,42 @@
 }
 
 .links_block {
+  max-height: 300px;
+  overflow-y: auto;
 
-  >p {
-    display: flex;
+  .odahu-links:not(:last-child){
+    margin-bottom: 20px;
+  }
 
-    .description {
-      white-space: nowrap;
-      padding-left: 7px;
-      font-weight: 600;
-      color: $blue-grey-color;
+  .grafana{
+    white-space: nowrap;
+    padding-left: 30px;
+    color: $blue-grey-color;
+
+    div{
+      display: flex;
+
+      span{
+        font-size: 13px;
+        font-weight: 500;
+
+        &.creds{
+          font-weight: 600;
+        }
+      }
     }
   }
+
+  >p, .odahu-link {
+     display: flex;
+
+    .description {
+       white-space: nowrap;
+       padding-left: 7px;
+       font-weight: 600;
+       color: $blue-grey-color;
+     }
+   }
 }
 
 .checkbox-group {
@@ -73,7 +98,6 @@
   }
 
   span {
-
     .danger_color {
       position: absolute;
       bottom: -16px;

@@ -758,6 +758,28 @@ class GCPMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_available_zones(self):
+        try:
+            request = self.service.regions().get(project=self.project, region=os.environ['gcp_region'])
+            gpu_zones = ['asia-east1-a', 'asia-east1-c', 'australia1-c', 'us-central1-c', 'us-central1-f', 'us-east1-b', 'us-east1-c', 'us-west1-a', 'us-west1-b', 'europe-west1-b', 'europe-west1-d', 'europe-west4-a']
+            zone_full = []
+            zone_list = []
+            response = request.execute()
+            for zone in response['zones']:
+                zone_full.append(str(zone.split('/')[-1]))
+            for zone in zone_full:
+                if zone in gpu_zones:
+                    zone_list.append(str(zone.split('/')[-1]))
+            return zone_list
+        except Exception as err:
+            logging.info(
+                "Error with getting available zones: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout) + "\n T")
+            append_result(str({"error": "Error with getting available zones",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:

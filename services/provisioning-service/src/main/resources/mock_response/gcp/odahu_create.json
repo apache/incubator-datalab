@@ -1,0 +1,23 @@
+{
+  "status": "ok",
+  "response": {
+    "result": {
+      "odahu_urls": [
+        {
+          "url": "http://10.10.16.2:8888/",
+          "description": "API Gateway"
+        },
+        {
+          "url": "http://10.10.16.2:8085/",
+          "description": "Documentation"
+        }
+      ],
+      "oauth_cookie_secret": "WlFRZzhhZTJxbTFNa0JpUw==",
+      "odahuflow_connection_decrypt_token": "qfY2k5bA2M",
+      "grafana_pass": "7h0uum1EGe",
+      "grafana_admin": "grafana_admin"
+    },
+    "log": "/var/log/dlab/odahu/odahu_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+  },
+  "request_id": "${REQUEST_ID}"
+}

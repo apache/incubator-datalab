@@ -243,6 +243,7 @@ if __name__ == "__main__":
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "project", "tag": "latest"},
+                             {"name": "odahu", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
@@ -253,13 +254,13 @@ if __name__ == "__main__":
                              {"name": "dataengine-service", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} " \
-                 "--cloud_provider {} --region {}".format(ssn_conf['instance_hostname'],
+                 "--cloud_provider {} --region {} --gcr_creds {} --odahu_image {}".format(ssn_conf['instance_hostname'],
                                                           "{}{}.pem".format(os.environ['conf_key_dir'],
                                                                             os.environ['conf_key_name']),
                                                           json.dumps(additional_config), os.environ['conf_os_family'],
                                                           ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
-                                                          os.environ['conf_cloud_provider'], os.environ['aws_region'])
-
+                                                          os.environ['conf_cloud_provider'], os.environ['aws_region'],
+                                                          os.environ['ssn_gcr_creds'], os.environ['odahu_deploy_image'])
         try:
             local("~/scripts/{}.py {}".format('configure_docker', params))
         except:
