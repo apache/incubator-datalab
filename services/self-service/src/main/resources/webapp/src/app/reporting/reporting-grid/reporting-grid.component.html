@@ -170,13 +170,13 @@
     </ng-container>
     <ng-container matColumnDef="user-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'user'"
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'users'"
           [items]="filterConfiguration.users" [model]="filteredReportData.users"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="project-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'project'"
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'projects'"
           [items]="filterConfiguration.projects" [model]="filteredReportData.projects"></multi-select-dropdown>
       </th>
     </ng-container>
@@ -189,7 +189,7 @@
     </ng-container>
     <ng-container matColumnDef="status-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'status'"
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'statuses'"
           [items]="filterConfiguration.statuses" [model]="filteredReportData.statuses"></multi-select-dropdown>
       </th>
     </ng-container>
