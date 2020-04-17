@@ -21,9 +21,13 @@
 #
 # ******************************************************************************
 
-from dlab.fab import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import logging
+import os
 import sys
+import json
 
 
 if __name__ == "__main__":
@@ -35,31 +39,34 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     edge_conf = dict()
-    edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
-    edge_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    edge_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+    edge_conf['service_base_name'] = (os.environ['conf_service_base_name'])
+    edge_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
+    edge_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
     edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
                                                            edge_conf['project_name'], edge_conf['endpoint_name'])
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
-    edge_conf['static_address_name'] = '{0}-{1}-ip'.format(edge_conf['service_base_name'], edge_conf['project_name'])
+    edge_conf['static_address_name'] = '{0}-{1}-{2}-static-ip'.format(edge_conf['service_base_name'],
+                                                               edge_conf['project_name'],
+                                                               edge_conf['endpoint_name'])
 
     logging.info('[START EDGE]')
     print('[START EDGE]')
     try:
-        GCPActions().start_instance(edge_conf['instance_name'], edge_conf['zone'])
+        GCPActions.start_instance(edge_conf['instance_name'], edge_conf['zone'])
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to start edge.", str(err))
+        dlab.fab.append_result("Failed to start edge.", str(err))
         sys.exit(1)
 
     try:
-        instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_conf['instance_name'])
+        instance_hostname = GCPMeta.get_instance_public_ip_by_name(edge_conf['instance_name'])
         public_ip_address = \
-            GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
-        ip_address = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
+            GCPMeta.get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
+        ip_address = GCPMeta.get_private_ip_address(edge_conf['instance_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(edge_conf['instance_name']))
@@ -74,7 +81,7 @@ if __name__ == "__main__":
                    "Action": "Start up notebook server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
         sys.exit(1)
 

@@ -88,7 +88,7 @@ export class SchedulerComponent implements OnInit {
 
   public open(notebook, type, resource?): void {
     this.notebook = notebook;
-
+    console.log(this.notebook)
     this.zones = _moment.tz.names()
       .map(item => [_moment.tz(item).format('Z'), item])
       .sort()
@@ -116,11 +116,11 @@ export class SchedulerComponent implements OnInit {
 
         if (this.destination.type === 'СOMPUTATIONAL') {
           this.allowInheritView = true;
-          this.getExploratorySchedule(this.notebook.name, this.destination.computational_name);
+          this.getExploratorySchedule(this.notebook.project, this.notebook.name, this.destination.computational_name);
           this.checkParentInherit();
         } else if (this.destination.type === 'EXPLORATORY') {
           this.allowInheritView = this.checkIsActiveSpark();
-          this.getExploratorySchedule(this.notebook.name);
+          this.getExploratorySchedule(this.notebook.project, this.notebook.name);
         }
       },
       this.schedulerService
@@ -139,7 +139,7 @@ export class SchedulerComponent implements OnInit {
     this.inherit = $event.checked;
 
     if (this.destination.type === 'СOMPUTATIONAL' && this.inherit) {
-      this.getExploratorySchedule(this.notebook.name);
+      this.getExploratorySchedule(this.notebook.project, this.notebook.name);
       this.schedulerForm.get('startDate').disable();
     } else {
       this.schedulerForm.get('startDate').enable();
@@ -248,18 +248,19 @@ export class SchedulerComponent implements OnInit {
     };
 
     if (this.destination.type === 'СOMPUTATIONAL') {
-      this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name);
+      this.model.confirmAction(this.notebook.project, this.notebook.name, parameters, this.destination.computational_name);
     } else {
       parameters['consider_inactivity'] = this.considerInactivity;
-      this.model.confirmAction(this.notebook.name, parameters);
+      this.model.confirmAction(this.notebook.project, this.notebook.name, parameters);
     }
   }
 
   private setScheduleByInactivity() {
+    console.log(this.notebook)
     const data = { sync_start_required: this.parentInherit, check_inactivity_required: this.enableIdleTime, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
     (this.destination.type === 'СOMPUTATIONAL')
-      ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
-      : this.setInactivity(this.notebook.name, { ...data, consider_inactivity: this.considerInactivity });
+      ? this.setInactivity(this.notebook.project, this.notebook.name, data, this.destination.computational_name)
+      : this.setInactivity(this.notebook.project, this.notebook.name, { ...data, consider_inactivity: this.considerInactivity });
   }
 
   private formInit(start?: string, end?: string, terminate?: string) {
@@ -272,8 +273,8 @@ export class SchedulerComponent implements OnInit {
     });
   }
 
-  private getExploratorySchedule(resource, resource2?) {
-    this.schedulerService.getExploratorySchedule(resource, resource2).subscribe(
+  private getExploratorySchedule(project, resource, resource2?) {
+    this.schedulerService.getExploratorySchedule(project, resource, resource2).subscribe(
       (params: ScheduleSchema) => {
         if (params) {
           params.start_days_repeat.filter(key => (this.selectedStartWeekDays[key.toLowerCase()] = true));
@@ -302,7 +303,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   private checkParentInherit() {
-    this.schedulerService.getExploratorySchedule(this.notebook.name)
+    this.schedulerService.getExploratorySchedule(this.notebook.project, this.notebook.name)
       .subscribe((res: any) => this.parentInherit = res.sync_start_required);
   }
 

@@ -306,10 +306,10 @@ def create_peer_routes(peering_id, service_base_name):
     client = boto3.client('ec2')
     try:
         route_tables = client.describe_route_tables(
-            Filters=[{'Name': 'tag:{}-Tag'.format(service_base_name), 'Values': ['{}'.format(
+            Filters=[{'Name': 'tag:{}-tag'.format(service_base_name), 'Values': ['{}'.format(
                 service_base_name)]}]).get('RouteTables')
         route_tables2 = client.describe_route_tables(Filters=[
-            {'Name': 'tag:{}-secondary-Tag'.format(service_base_name), 'Values': ['{}'.format(
+            {'Name': 'tag:{}-secondary-tag'.format(service_base_name), 'Values': ['{}'.format(
                 service_base_name)]}]).get('RouteTables')
         for table in route_tables:
             routes = table.get('Routes')
@@ -344,7 +344,7 @@ def create_peering_connection(vpc_id, vpc2_id, service_base_name):
     try:
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
-        tag = {"Key": service_base_name + '-Tag', "Value": service_base_name}
+        tag = {"Key": service_base_name + '-tag', "Value": service_base_name}
         tag_name = {"Key": 'Name', "Value": "{0}-peering-connection".format(service_base_name)}
         peering = ec2.create_vpc_peering_connection(PeerVpcId=vpc_id, VpcId=vpc2_id)
         client.accept_vpc_peering_connection(VpcPeeringConnectionId=peering.id)
@@ -510,7 +510,7 @@ def tag_emr_volume(cluster_id, node_name, billing_tag):
         cluster = client.list_instances(ClusterId=cluster_id)
         instances = cluster['Instances']
         for instance in instances:
-            instance_tag = {'Key': os.environ['conf_service_base_name'] + '-Tag',
+            instance_tag = {'Key': os.environ['conf_service_base_name'] + '-tag',
                             'Value': node_name}
             tag_intance_volume(instance['Ec2InstanceId'], node_name, instance_tag)
     except Exception as err:
@@ -888,37 +888,42 @@ def remove_roles_and_profiles(role_name, role_profile_name):
         traceback.print_exc(file=sys.stdout)
 
 
-def remove_all_iam_resources(instance_type, scientist=''):
+def remove_all_iam_resources(instance_type, project_name='', endpoint_name=''):
     try:
         client = boto3.client('iam')
-        service_base_name = os.environ['conf_service_base_name'].lower().replace('-', '_')
+        service_base_name = os.environ['conf_service_base_name']
         roles_list = []
+        if project_name:
+            start_prefix = '{}-{}-{}-'.format(service_base_name, project_name, endpoint_name)
+        else:
+            start_prefix = '{}-'.format(service_base_name)
         for item in client.list_roles(MaxItems=250).get("Roles"):
-            if item.get("RoleName").startswith(service_base_name + '-'):
+            if item.get("RoleName").startswith(start_prefix):
                 roles_list.append(item.get('RoleName'))
         if roles_list:
             roles_list.sort(reverse=True)
             for iam_role in roles_list:
-                if '-ssn-Role' in iam_role and instance_type == 'ssn' or instance_type == 'all':
+                if '-ssn-role' in iam_role and instance_type == 'ssn' or instance_type == 'all':
                     try:
-                        client.delete_role_policy(RoleName=iam_role, PolicyName='{0}-ssn-Policy'.format(
+                        client.delete_role_policy(RoleName=iam_role, PolicyName='{0}-ssn-policy'.format(
                             service_base_name))
                     except:
-                        print('There is no policy {}-ssn-Policy to delete'.format(service_base_name))
+                        print('There is no policy {}-ssn-policy to delete'.format(service_base_name))
                     role_profiles = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
                     if role_profiles:
                         for i in role_profiles:
                             role_profile_name = i.get('InstanceProfileName')
-                            if role_profile_name == '{0}-ssn-Profile'.format(service_base_name):
+                            if role_profile_name == '{0}-ssn-profile'.format(service_base_name):
                                 remove_roles_and_profiles(iam_role, role_profile_name)
                     else:
                         print("There is no instance profile for {}".format(iam_role))
                         client.delete_role(RoleName=iam_role)
                         print("The IAM role {} has been deleted successfully".format(iam_role))
-                if '-edge-Role' in iam_role:
-                    if instance_type == 'edge' and scientist in iam_role:
+                if '-edge-role' in iam_role:
+                    if instance_type == 'edge' and project_name in iam_role:
                         remove_detach_iam_policies(iam_role, 'delete')
-                        role_profile_name = '{0}-{1}-edge-Profile'.format(service_base_name, scientist)
+                        role_profile_name = '{0}-{1}-{2}-edge-profile'.format(service_base_name, project_name,
+                                                                              os.environ['endpoint_name'].lower())
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -938,10 +943,11 @@ def remove_all_iam_resources(instance_type, scientist=''):
                             print("There is no instance profile for {}".format(iam_role))
                             client.delete_role(RoleName=iam_role)
                             print("The IAM role {} has been deleted successfully".format(iam_role))
-                if '-nb-de-Role' in iam_role:
-                    if instance_type == 'notebook' and scientist in iam_role:
+                if '-nb-de-role' in iam_role:
+                    if instance_type == 'notebook' and project_name in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = '{0}-{1}-{2}-nb-de-Profile'.format(service_base_name, scientist, os.environ['endpoint_name'])
+                        role_profile_name = '{0}-{1}-{2}-nb-de-profile'.format(service_base_name, project_name,
+                                                                               os.environ['endpoint_name'].lower())
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -965,22 +971,22 @@ def remove_all_iam_resources(instance_type, scientist=''):
             print("There are no IAM roles to delete. Checking instance profiles...")
         profile_list = []
         for item in client.list_instance_profiles(MaxItems=250).get("InstanceProfiles"):
-            if item.get("InstanceProfileName").startswith('{}-'.format(service_base_name)):
+            if item.get("InstanceProfileName").startswith(start_prefix):
                 profile_list.append(item.get('InstanceProfileName'))
         if profile_list:
             for instance_profile in profile_list:
-                if '-ssn-Profile' in instance_profile and instance_type == 'ssn' or instance_type == 'all':
+                if '-ssn-profile' in instance_profile and instance_type == 'ssn' or instance_type == 'all':
                     client.delete_instance_profile(InstanceProfileName=instance_profile)
                     print("The instance profile {} has been deleted successfully".format(instance_profile))
-                if '-edge-Profile' in instance_profile:
-                    if instance_type == 'edge' and scientist in instance_profile:
+                if '-edge-profile' in instance_profile:
+                    if instance_type == 'edge' and project_name in instance_profile:
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
                         print("The instance profile {} has been deleted successfully".format(instance_profile))
                     if instance_type == 'all':
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
                         print("The instance profile {} has been deleted successfully".format(instance_profile))
-                if '-nb-de-Profile' in instance_profile:
-                    if instance_type == 'notebook' and scientist in instance_profile:
+                if '-nb-de-profile' in instance_profile:
+                    if instance_type == 'notebook' and project_name in instance_profile:
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
                         print("The instance profile {} has been deleted successfully".format(instance_profile))
                     if instance_type == 'all':
@@ -1037,7 +1043,7 @@ def remove_s3(bucket_type='all', scientist=''):
             if bucket_name in item.get('Name'):
                 for i in client.get_bucket_tagging(Bucket=item.get('Name')).get('TagSet'):
                     i.get('Key')
-                    if i.get('Key') == os.environ['conf_service_base_name'] + '-Tag':
+                    if i.get('Key') == os.environ['conf_service_base_name'].lower() + '-tag':
                         bucket_list.append(item.get('Name'))
         for s3bucket in bucket_list:
             if s3bucket:
@@ -1060,8 +1066,8 @@ def remove_subnets(tag_value):
     try:
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
-        tag_name = os.environ['conf_service_base_name'] + '-Tag'
-        tag2_name = os.environ['conf_service_base_name'] + '-secondary-Tag'
+        tag_name = os.environ['conf_service_base_name'].lower() + '-tag'
+        tag2_name = os.environ['conf_service_base_name'].lower() + '-secondary-tag'
         subnets = ec2.subnets.filter(
             Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [tag_value]}])
         subnets2 = ec2.subnets.filter(
@@ -1087,7 +1093,7 @@ def remove_subnets(tag_value):
 def remove_peering(tag_value):
     try:
         client = boto3.client('ec2')
-        tag_name = os.environ['conf_service_base_name'] + '-Tag'
+        tag_name = os.environ['conf_service_base_name'].lower() + '-tag'
         if os.environ['conf_duo_vpc_enable'] == 'true':
             peering_id = client.describe_vpc_peering_connections(Filters=[
                 {'Name': 'tag-key', 'Values': [tag_name]},

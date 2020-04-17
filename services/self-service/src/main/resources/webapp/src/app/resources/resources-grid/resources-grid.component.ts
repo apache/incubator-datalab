@@ -18,7 +18,7 @@
  */
 /* tslint:disable:no-empty */
 
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
@@ -62,6 +62,8 @@ import {NotebookModel} from '../exploratory/notebook.model';
 
 export class ResourcesGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+
+  @Input() projects: Array<any>;
 
   environments: Exploratory[];
 
@@ -142,13 +144,19 @@ export class ResourcesGridComponent implements OnInit {
 
 
   public isResourcesInProgress(notebook) {
-    const env = this.getResourceByName(notebook.name);
+    const env = this.getResourceByName(notebook.name, notebook.project);
 
     if (env && env.resources && env.resources.length) {
       return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
         && item.status !== 'running' && item.status !== 'stopped')).length > 0;
     }
     return false;
+  }
+
+  public isEdgeNodeStopped(resource) {
+    const currProject = this.projects.filter(proj => proj.name === resource.project);
+    const currEdgenodeStatus =  currProject[0].endpoints.filter(node => node.name === resource.endpoint)[0].status;
+    return currEdgenodeStatus === 'STOPPED' || currEdgenodeStatus === 'STOPPING';
   }
 
   public filterActiveInstances(): FilterConfigurationModel {
@@ -182,7 +190,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public exploratoryAction(data, action: string) {
-    const resource = this.getResourceByName(data.name);
+    const resource = this.getResourceByName(data.name, data.project);
 
     if (action === 'deploy') {
       this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: resource, full_list: this.environments }, panelClass: 'modal-xxl' })
@@ -215,8 +223,8 @@ export class ResourcesGridComponent implements OnInit {
 
 
   // PRIVATE
-  private getResourceByName(notebook_name: string) {
-    return this.getEnvironmentsListCopy()
+  private getResourceByName(notebook_name: string, project_name: string) {
+    return this.getEnvironmentsListCopy().filter(environments => environments.project === project_name)
       .map(env => env.exploratory.find(({ name }) => name === notebook_name))
       .filter(notebook_name => !!notebook_name)[0];
   }

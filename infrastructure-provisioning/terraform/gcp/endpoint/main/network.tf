@@ -22,8 +22,8 @@
 locals {
   vpc_id                = "${var.service_base_name}-${var.endpoint_id}-vpc"
   subnet_name           = "${var.service_base_name}-${var.endpoint_id}-subnet"
-  firewall_ingress_name = "${var.service_base_name}-${var.endpoint_id}-ing-rule"
-  firewall_egress_name  = "${var.service_base_name}-${var.endpoint_id}-eg-rule"
+  firewall_ingress_name = "${var.service_base_name}-${var.endpoint_id}-ingress-sg"
+  firewall_egress_name  = "${var.service_base_name}-${var.endpoint_id}-egress-sg"
 }
 
 resource "google_compute_network" "endpoint_vpc" {

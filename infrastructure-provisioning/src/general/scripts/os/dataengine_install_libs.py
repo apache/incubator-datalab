@@ -63,7 +63,7 @@ if __name__ == "__main__":
         try:
             data_engine['os_user'] = os.environ['conf_os_user']
             data_engine['service_base_name'] = os.environ['conf_service_base_name']
-            data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
+            data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
             data_engine['cluster_name'] = os.environ['computational_id']
             data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
             data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'

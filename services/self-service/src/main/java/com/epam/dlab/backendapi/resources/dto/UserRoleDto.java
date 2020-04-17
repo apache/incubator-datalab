@@ -18,6 +18,7 @@
  */
 package com.epam.dlab.backendapi.resources.dto;
 
+import com.epam.dlab.cloud.CloudProvider;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -31,10 +32,11 @@ import java.util.Set;
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRoleDto {
-
 	@JsonProperty("_id")
 	private String id;
 	private String description;
+	private Type type;
+	private CloudProvider cloud;
 	private Set<String> pages;
 	private Set<String> computationals;
 	private Set<String> exploratories;
@@ -42,4 +44,12 @@ public class UserRoleDto {
 	private Set<String> exploratoryShapes;
 	private Set<String> groups;
 
+	private enum Type {
+		NOTEBOOK,
+		COMPUTATIONAL,
+		NOTEBOOK_SHAPE,
+		COMPUTATIONAL_SHAPE,
+		BILLING,
+		ADMINISTRATION
+	}
 }

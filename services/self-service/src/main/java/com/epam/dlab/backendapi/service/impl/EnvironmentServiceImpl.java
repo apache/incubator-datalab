@@ -114,11 +114,11 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@Override
-	public void stopEnvironment(UserInfo userInfo, String user) {
+	public void stopEnvironment(UserInfo userInfo, String user, String project) {
 		log.debug("Stopping environment for user {}", user);
 		checkState(user, "stop");
 		exploratoryDAO.fetchRunningExploratoryFields(user)
-				.forEach(e -> stopExploratory(userInfo, user, e.getExploratoryName()));
+				.forEach(e -> stopExploratory(userInfo, user, project, e.getExploratoryName()));
 	}
 
 	@Override
@@ -143,24 +143,24 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@Override
-	public void stopExploratory(UserInfo userInfo, String user, String exploratoryName) {
-		exploratoryService.stop(new UserInfo(user, userInfo.getAccessToken()), exploratoryName);
+	public void stopExploratory(UserInfo userInfo, String user, String project, String exploratoryName) {
+		exploratoryService.stop(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName);
 	}
 
 	@Override
-	public void stopComputational(UserInfo userInfo, String user, String exploratoryName, String computationalName) {
-		computationalService.stopSparkCluster(new UserInfo(user, userInfo.getAccessToken()),
-				exploratoryName, computationalName);
+	public void stopComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName) {
+		computationalService.stopSparkCluster(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName,
+				computationalName);
 	}
 
 	@Override
-	public void terminateExploratory(UserInfo userInfo, String user, String exploratoryName) {
-		exploratoryService.terminate(new UserInfo(user, userInfo.getAccessToken()), exploratoryName);
+	public void terminateExploratory(UserInfo userInfo, String user, String project, String exploratoryName) {
+		exploratoryService.terminate(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName);
 	}
 
 	@Override
-	public void terminateComputational(UserInfo userInfo, String user, String exploratoryName, String computationalName) {
-		computationalService.terminateComputational(new UserInfo(user, userInfo.getAccessToken()), exploratoryName,
+	public void terminateComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName) {
+		computationalService.terminateComputational(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName,
 				computationalName);
 	}
 
@@ -183,7 +183,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	private void stopNotebookWithServiceAccount(UserInstanceDTO instance) {
 		final UserInfo userInfo = securityService.getServiceAccountInfo(instance.getUser());
-		exploratoryService.stop(userInfo, instance.getExploratoryName());
+		exploratoryService.stop(userInfo, instance.getProject(), instance.getExploratoryName());
 	}
 
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {

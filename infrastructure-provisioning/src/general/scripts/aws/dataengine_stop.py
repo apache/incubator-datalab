@@ -24,14 +24,15 @@
 import logging
 import json
 import os
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
 import sys
 
 
 def stop_data_engine(cluster_name):
     print("Stop Data Engine")
     try:
-        stop_ec2(os.environ['conf_tag_resource_id'], cluster_name)
+        dlab.actions_lib.stop_ec2(os.environ['conf_tag_resource_id'], cluster_name)
     except:
         sys.exit(1)
 
@@ -47,7 +48,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    create_aws_config_files()
+    dlab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     data_engine_config = dict()
     try:
@@ -58,14 +59,13 @@ if __name__ == "__main__":
         data_engine_config['computational_name'] = os.environ['computational_name']
     except:
         data_engine_config['computational_name'] = ''
-    data_engine_config['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    data_engine_config['service_base_name'] = (os.environ['conf_service_base_name'])
     data_engine_config['project_name'] = os.environ['project_name']
-    data_engine_config['cluster_name'] = \
-        data_engine_config['service_base_name'] + '-' \
-        + data_engine_config['project_name'] + '-de-' + \
-        data_engine_config['exploratory_name'] + '-' \
-        + data_engine_config['computational_name']
+    data_engine_config['endpoint_name'] = os.environ['endpoint_name']
+    data_engine_config['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine_config['service_base_name'],
+                                                                 data_engine_config['project_name'],
+                                                                 data_engine_config['endpoint_name'],
+                                                                 data_engine_config['computational_name'])
 
     logging.info('[STOP DATA ENGINE CLUSTER]')
     print('[STOP DATA ENGINE CLUSTER]')
@@ -74,7 +74,7 @@ if __name__ == "__main__":
                                         data_engine_config['cluster_name']))
     except Exception as err:
         print('Error: {0}'.format(err))
-        append_result("Failed to stop Data Engine.", str(err))
+        dlab.fab.append_result("Failed to stop Data Engine.", str(err))
         sys.exit(1)
 
     try:
@@ -83,6 +83,6 @@ if __name__ == "__main__":
                    "Action": "Stop Data Engine"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

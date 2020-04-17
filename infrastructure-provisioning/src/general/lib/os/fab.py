@@ -32,7 +32,7 @@ from dlab.actions_lib import *
 import dlab.actions_lib
 import re
 import traceback
-from dlab.common_lib import manage_pkg
+from dlab.common_lib import *
 
 
 def ensure_pip(requisites):
@@ -41,6 +41,7 @@ def ensure_pip(requisites):
             sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
             sudo('echo export PATH >> /etc/profile')
             sudo('pip install -UI pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
+            sudo('pip install --upgrade setuptools')
             sudo('pip install -U {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
     except:
@@ -119,6 +120,12 @@ def configuring_notebook(dataengine_service_version):
 def append_result(error, exception=''):
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    if exception:
+        error_message = "[Error-{}]: {}. Exception: {}".format(st, error, str(exception))
+        print(error_message)
+    else:
+        error_message = "[Error-{}]: {}.".format(st, error)
+        print(error_message)
     with open('/root/result.json', 'a+') as f:
         text = f.read()
     if len(text) == 0:
@@ -127,10 +134,7 @@ def append_result(error, exception=''):
             f.write(res)
     with open("/root/result.json") as f:
         data = json.load(f)
-    if exception:
-        data['error'] = data['error'] + " [Error-" + st + "]:" + error + " Exception: " + str(exception)
-    else:
-        data['error'] = data['error'] + " [Error-" + st + "]:" + error
+    data['error'] = data['error'] + error_message
     with open("/root/result.json", 'w') as f:
         json.dump(data, f)
     print(data)
@@ -502,7 +506,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
 def install_ungit(os_user, notebook_name, edge_ip):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
-            sudo('npm -g install ungit@{}'.format(os.environ['notebook_ungit_version']))
+            manage_npm_pkg('-g install ungit@{}'.format(os.environ['notebook_ungit_version']))
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
             http_proxy = run('echo $http_proxy')
@@ -551,7 +555,7 @@ def install_ungit(os_user, notebook_name, edge_ip):
     run('git config --global https.proxy $https_proxy')
 
 
-def install_inactivity_checker(os_user, ip_adress, rstudio=False):
+def install_inactivity_checker(os_user, ip_address, rstudio=False):
     if not exists('/home/{}/.ensure_dir/inactivity_ensured'.format(os_user)):
         try:
             if not exists('/opt/inactivity'):
@@ -562,7 +566,7 @@ def install_inactivity_checker(os_user, ip_adress, rstudio=False):
                 put('/root/templates/inactive_rs.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
             else:
                 put('/root/templates/inactive.sh', '/opt/inactivity/inactive.sh', use_sudo=True)
-            sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_adress))
+            sudo("sed -i 's|IP_ADRESS|{}|g' /opt/inactivity/inactive.sh".format(ip_address))
             sudo("chmod 755 /opt/inactivity/inactive.sh")
             sudo("chown root:root /etc/systemd/system/inactive.service")
             sudo("chown root:root /etc/systemd/system/inactive.timer")
@@ -867,4 +871,27 @@ def configure_superset(os_user, keycloak_auth_server_url, keycloak_realm_name, k
             sudo('touch /tmp/superset-notebook_installed')
     except Exception as err:
         print("Failed configure superset: " + str(err))
+        sys.exit(1)
+
+def manage_npm_pkg(command):
+    try:
+        npm_count = 0
+        installed = False
+        npm_registry = ['https://registry.npmjs.org/', 'https://registry.npmjs.com/']
+        while not installed:
+            if npm_count > 60:
+                print("NPM registry is not available, please try later")
+                sys.exit(1)
+            else:
+                try:
+                    if npm_count % 2 == 0:
+                        sudo('npm config set registry {}'.format(npm_registry[0]))
+                    else:
+                        sudo('npm config set registry {}'.format(npm_registry[1]))
+                    sudo('npm {}'.format(command))
+                    installed = True
+                except:
+                    npm_count += 1
+                    time.sleep(50)
+    except:
         sys.exit(1)

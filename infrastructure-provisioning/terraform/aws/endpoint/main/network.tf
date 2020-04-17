@@ -22,10 +22,10 @@
 locals {
   endpoint_subnet_name       = "${var.service_base_name}-${var.endpoint_id}-subnet"
   endpoint_sg_name           = "${var.service_base_name}-${var.endpoint_id}-sg"
-  endpoint_vpc_name          = "${var.service_base_name}-endpoint-vpc"
+  endpoint_vpc_name          = "${var.service_base_name}-${var.endpoint_id}-vpc"
   additional_tag             = split(":", var.additional_tag)
   endpoint_igw_name          = "${var.service_base_name}-${var.endpoint_id}-igw"
-  endpoint_ip_name           = "${var.service_base_name}-${var.endpoint_id}-eip"
+  endpoint_ip_name           = "${var.service_base_name}-${var.endpoint_id}-static-ip"
   projects_rt                = "${var.service_base_name}-${var.endpoint_id}-project-rt"
 }
 
@@ -40,7 +40,7 @@ resource "aws_vpc" "vpc_create" {
     Name                              = local.endpoint_vpc_name
     "${local.additional_tag[0]}"      = local.additional_tag[1]
     "${var.tag_resource_id}"          = "${var.service_base_name}:${local.endpoint_vpc_name}"
-    "${var.service_base_name}-Tag"    = local.endpoint_vpc_name
+    "${var.service_base_name}-tag"    = local.endpoint_vpc_name
   }
 }
 
@@ -55,7 +55,7 @@ resource "aws_internet_gateway" "gw" {
     Name                           = local.endpoint_igw_name
     "${local.additional_tag[0]}"   = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_igw_name}"
-    "${var.service_base_name}-Tag" = local.endpoint_igw_name
+    "${var.service_base_name}-tag" = local.endpoint_igw_name
   }
 }
 
@@ -67,7 +67,7 @@ resource "aws_subnet" "endpoint_subnet" {
     Name                           = local.endpoint_subnet_name
     "${local.additional_tag[0]}"   = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_subnet_name}"
-    "${var.service_base_name}-Tag" = local.endpoint_subnet_name
+    "${var.service_base_name}-tag" = local.endpoint_subnet_name
   }
   count = var.vpc_id == "" ? 1 : 0
 }
@@ -125,7 +125,7 @@ resource "aws_security_group" "endpoint_sec_group" {
     Name                           = local.endpoint_sg_name
     "${local.additional_tag[0]}"   = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_sg_name}"
-    "${var.service_base_name}-Tag" = local.endpoint_sg_name
+    "${var.service_base_name}-tag" = local.endpoint_sg_name
   }
 }
 
@@ -135,7 +135,7 @@ resource "aws_eip" "endpoint_eip" {
     Name                           = local.endpoint_ip_name
     "${local.additional_tag[0]}"   = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.endpoint_ip_name}"
-    "${var.service_base_name}-Tag" = local.endpoint_ip_name
+    "${var.service_base_name}-tag" = local.endpoint_ip_name
   }
 }
 
@@ -145,8 +145,8 @@ resource "aws_route_table" "projects_route_table" {
     Name                           = local.projects_rt
     "${local.additional_tag[0]}"   = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.projects_rt}"
-    "${var.service_base_name}-Tag" = local.projects_rt
-    "${var.service_base_name}-Tag" = var.service_base_name
+    "${var.service_base_name}-tag" = local.projects_rt
+    "${var.service_base_name}-tag" = var.service_base_name
   }
 }
 

@@ -25,57 +25,61 @@ import com.epam.dlab.model.scheduler.SchedulerJobData;
 import java.util.List;
 
 public interface SchedulerJobService {
-	/**
-	 * Pulls out scheduler job data for user <code>user<code/> and his exploratory <code>exploratoryName<code/>
-	 *
-	 * @param user            user's name
-	 * @param exploratoryName name of exploratory resource
-	 * @return dto object
-	 */
-	SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String exploratoryName);
+    /**
+     * Pulls out scheduler job data for user <code>user<code/> and his exploratory <code>exploratoryName<code/>
+     *
+     * @param user            user's name
+     * @param project         project name
+     * @param exploratoryName name of exploratory resource
+     * @return dto object
+     */
+    SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String project, String exploratoryName);
 
-	/**
-	 * Pulls out scheduler job data for computational resource <code>computationalName<code/> affiliated with
-	 * user <code>user<code/> and his exploratory <code>exploratoryName<code/>
-	 *
-	 * @param user              user's name
-	 * @param exploratoryName   name of exploratory resource
-	 * @param computationalName name of computational resource
-	 * @return dto object
-	 */
-	SchedulerJobDTO fetchSchedulerJobForComputationalResource(String user, String exploratoryName,
-															  String computationalName);
+    /**
+     * Pulls out scheduler job data for computational resource <code>computationalName<code/> affiliated with
+     * user <code>user<code/> and his exploratory <code>exploratoryName<code/>
+     *
+     * @param user              user's name
+     * @param project           project name
+     * @param exploratoryName   name of exploratory resource
+     * @param computationalName name of computational resource
+     * @return dto object
+     */
+    SchedulerJobDTO fetchSchedulerJobForComputationalResource(String user, String project, String exploratoryName,
+                                                              String computationalName);
 
-	/**
-	 * Updates scheduler job data for user <code>user<code/> and his exploratory <code>exploratoryName<code/>
-	 *
-	 * @param user            user's name
-	 * @param exploratoryName name of exploratory resource
-	 * @param dto             scheduler job data
-	 */
-	void updateExploratorySchedulerData(String user, String exploratoryName, SchedulerJobDTO dto);
+    /**
+     * Updates scheduler job data for user <code>user<code/> and his exploratory <code>exploratoryName<code/>
+     *
+     * @param user            user's name
+     * @param project         project name
+     * @param exploratoryName name of exploratory resource
+     * @param dto             scheduler job data
+     */
+    void updateExploratorySchedulerData(String user, String project, String exploratoryName, SchedulerJobDTO dto);
 
-	/**
-	 * Updates scheduler job data for computational resource <code>computationalName<code/> affiliated with
-	 * user <code>user<code/> and his exploratory <code>exploratoryName<code/>
-	 *
-	 * @param user              user's name
-	 * @param exploratoryName   name of exploratory resource
-	 * @param computationalName name of computational resource
-	 * @param dto               scheduler job data
-	 */
-	void updateComputationalSchedulerData(String user, String exploratoryName,
-										  String computationalName, SchedulerJobDTO dto);
+    /**
+     * Updates scheduler job data for computational resource <code>computationalName<code/> affiliated with
+     * user <code>user<code/> and his exploratory <code>exploratoryName<code/>
+     *
+     * @param user              user's name
+     * @param project           project name
+     * @param exploratoryName   name of exploratory resource
+     * @param computationalName name of computational resource
+     * @param dto               scheduler job data
+     */
+    void updateComputationalSchedulerData(String user, String project, String exploratoryName,
+                                          String computationalName, SchedulerJobDTO dto);
 
-	void stopComputationalByScheduler();
+    void stopComputationalByScheduler();
 
-	void stopExploratoryByScheduler();
+    void stopExploratoryByScheduler();
 
-	void startExploratoryByScheduler();
+    void startExploratoryByScheduler();
 
-	void startComputationalByScheduler();
+    void startComputationalByScheduler();
 
-	void terminateExploratoryByScheduler();
+    void terminateExploratoryByScheduler();
 
 	void terminateComputationalByScheduler();
 

@@ -113,7 +113,7 @@
 
   .th_charges {
     width: 8%;
-    min-width: 110px;
+    min-width: 130px;
     padding-right: 15px;
     text-align: right;
 
@@ -148,9 +148,15 @@
 
   .header-row {
     position: unset;
+    .th_charges {
+      padding-top: 0;
+      .label {
+        padding-top: 12px;
+      }
+    }
     .label {
       display: inline-block;
-      padding-top: 15px;
+      padding-top: 13px;
       vertical-align: super !important;
       padding-left: 15px;
     }
@@ -160,6 +166,16 @@
     .actions {
       text-align: right;
     }
+  }
+
+  .table-footer{
+    position: sticky;
+    bottom: 0;
+    background: inherit;
+    border-top: 1px solid #E0E0E0;
+    transform: translateY(-1px);
+    border-bottom: none;
+    padding-left: 0 !important;
   }
 }
 
@@ -177,14 +193,7 @@
   }
 }
 
-.table-footer{
-  position: sticky;
-  bottom: 0;
-  background: inherit;
-  border-top: 1px solid #E0E0E0;
-  transform: translateY(-1px);
-  border-bottom: none;
-}
+
 
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {

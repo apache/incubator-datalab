@@ -33,11 +33,11 @@ import org.hibernate.validator.constraints.URL;
 public class EndpointDTO {
 
 	private static final String URL_REGEXP_VALIDATION = "^(http(s)?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-	@NotEmpty
-	@NotBlank
+	@NotBlank(message = "field cannot be empty")
 	private final String name;
-	@URL(regexp = URL_REGEXP_VALIDATION, message = "endpoint field is in improper format!")
+	@URL(regexp = URL_REGEXP_VALIDATION, message = "field is in improper format!")
 	private final String url;
+	@NotBlank(message = "field cannot be empty")
 	private final String account;
 	@JsonProperty("endpoint_tag")
 	private final String tag;

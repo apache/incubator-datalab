@@ -21,12 +21,15 @@
 #
 # ******************************************************************************
 
-from dlab.fab import *
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-import sys, os, json
+import sys
+import os
+import json
 from fabric.api import *
-from dlab.ssn_lib import *
+import dlab.ssn_lib
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import logging
 import traceback
 
 if __name__ == "__main__":
@@ -36,49 +39,71 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
+    def clear_resources():
+        AzureActions.remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
+        for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
+            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
+                AzureActions.delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
+        if 'azure_security_group_name' not in os.environ:
+            AzureActions.remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
+        if 'azure_subnet_name' not in os.environ:
+            AzureActions.remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
+                                       ssn_conf['subnet_name'])
+        if 'azure_vpc_name' not in os.environ:
+            AzureActions.remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
+        if 'azure_resource_group_name' not in os.environ:
+            AzureActions.remove_resource_group(ssn_conf['resource_group_name'], ssn_conf['region'])
+
+
     try:
-        instance = 'ssn'
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
+        ssn_conf = dict()
+        ssn_conf['instance'] = 'ssn'
         
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
 
-        billing_enabled = True
-
-        ssn_conf = dict()
-        # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
+        ssn_conf['billing_enabled'] = True
+        # We need to cut service_base_name to 20 symbols do to the Azure Name length limitation
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+            os.environ['conf_service_base_name'][:20], '-', True)
         # Check azure predefined resources
-        ssn_conf['resource_group_name'] = os.environ.get('azure_resource_group_name', ssn_conf['service_base_name'])
+        ssn_conf['resource_group_name'] = os.environ.get('azure_resource_group_name',
+                                                         '{}-resource-group'.format(ssn_conf['service_base_name']))
         ssn_conf['vpc_name'] = os.environ.get('azure_vpc_name', '{}-vpc'.format(ssn_conf['service_base_name']))
-        ssn_conf['subnet_name'] = os.environ.get('azure_subnet_name', '{}-ssn-subnet'.format(ssn_conf['service_base_name']))
-        ssn_conf['security_group_name'] = os.environ.get('azure_security_group_name', '{}-sg'.format(ssn_conf['service_base_name']))
+        ssn_conf['subnet_name'] = os.environ.get('azure_subnet_name', '{}-subnet'.format(ssn_conf['service_base_name']))
+        ssn_conf['security_group_name'] = os.environ.get('azure_security_group_name', '{}-sg'.format(
+            ssn_conf['service_base_name']))
         # Default variables
         ssn_conf['region'] = os.environ['azure_region']
-        ssn_conf['ssn_container_name'] = '{}-ssn-container'.format(ssn_conf['service_base_name']).lower()
         ssn_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
         ssn_conf['datalake_store_name'] = '{}-ssn-datalake'.format(ssn_conf['service_base_name'])
         ssn_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
-        ssn_conf['ssh_key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
+        ssn_conf['ssh_key_path'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        ssn_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(ssn_conf['instance_name'],
+                                                                               ssn_conf['region'])
         if os.environ['conf_network_type'] == 'private':
-            ssn_conf['instnace_ip'] = AzureMeta().get_private_ip_address(ssn_conf['resource_group_name'],
-                                                                        ssn_conf['instance_name'])
+            ssn_conf['instnace_ip'] = AzureMeta.get_private_ip_address(ssn_conf['resource_group_name'],
+                                                                       ssn_conf['instance_name'])
+            ssn_conf['instance_host'] = ssn_conf['instnace_ip']
         else:
-            ssn_conf['instnace_ip'] = AzureMeta().get_instance_public_ip_address(ssn_conf['resource_group_name'],
-                                                                        ssn_conf['instance_name'])
-        ssn_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(ssn_conf['instance_name'], ssn_conf['region'])
+            ssn_conf['instnace_ip'] = AzureMeta.get_instance_public_ip_address(ssn_conf['resource_group_name'],
+                                                                               ssn_conf['instance_name'])
+            ssn_conf['instance_host'] = ssn_conf['instance_dns_name']
 
         if os.environ['conf_stepcerts_enabled'] == 'true':
-            step_cert_sans = ' --san {0} --san {1} '.format(AzureMeta().get_private_ip_address(
-                ssn_conf['resource_group_name'], ssn_conf['instance_name']), ssn_conf['instance_dns_name'])
+            ssn_conf['step_cert_sans'] = ' --san {0} '.format(AzureMeta.get_private_ip_address(
+                ssn_conf['resource_group_name'], ssn_conf['instance_name']))
             if os.environ['conf_network_type'] == 'public':
-                step_cert_sans += ' --san {0}'.format(
-                    AzureMeta().get_instance_public_ip_address(ssn_conf['resource_group_name'],
-                                                               ssn_conf['instance_name']))
+                ssn_conf['step_cert_sans'] += ' --san {0} --san {1} '.format(
+                    AzureMeta.get_instance_public_ip_address(ssn_conf['resource_group_name'],
+                                                             ssn_conf['instance_name']),
+                    ssn_conf['instance_dns_name'])
         else:
-            step_cert_sans = ''
+            ssn_conf['step_cert_sans'] = ''
 
         try:
             if os.environ['azure_offer_number'] == '':
@@ -90,62 +115,49 @@ if __name__ == "__main__":
             if os.environ['azure_region_info'] == '':
                 raise KeyError
         except KeyError:
-            billing_enabled = False
-        if not billing_enabled:
+            ssn_conf['billing_enabled'] = False
+        if not ssn_conf['billing_enabled']:
             os.environ['azure_offer_number'] = 'None'
             os.environ['azure_currency'] = 'None'
             os.environ['azure_locale'] = 'None'
             os.environ['azure_region_info'] = 'None'
         if os.environ['conf_os_family'] == 'debian':
-            initial_user = 'ubuntu'
-            sudo_group = 'sudo'
+            ssn_conf['initial_user'] = 'ubuntu'
+            ssn_conf['sudo_group'] = 'sudo'
         if os.environ['conf_os_family'] == 'redhat':
-            initial_user = 'ec2-user'
-            sudo_group = 'wheel'
+            ssn_conf['initial_user'] = 'ec2-user'
+            ssn_conf['sudo_group'] = 'wheel'
     except Exception as err:
-        print("Failed to generate variables dictionary." + str(err))
+        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
+        clear_resources()
         sys.exit(1)
-
-    def clear_resources():
-        if 'azure_resource_group_name' not in os.environ:
-            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
-        if 'azure_vpc_name' not in os.environ:
-            AzureActions().remove_vpc(ssn_conf['resource_group_name'], ssn_conf['vpc_name'])
-        if 'azure_subnet_name' not in os.environ:
-            AzureActions().remove_subnet(ssn_conf['resource_group_name'], ssn_conf['vpc_name'],
-                                            ssn_conf['subnet_name'])
-        if 'azure_security_group_name' not in os.environ:
-            AzureActions().remove_security_group(ssn_conf['resource_group_name'], ssn_conf['security_group_name'])
-        for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
-            if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                AzureActions().delete_datalake_store(ssn_conf['resource_group_name'], datalake.name)
-        AzureActions().remove_instance(ssn_conf['resource_group_name'], ssn_conf['instance_name'])
 
     try:
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], initial_user, ssn_conf['dlab_ssh_user'], sudo_group)
+            (ssn_conf['instance_host'], ssn_conf['ssh_key_path'], ssn_conf['initial_user'], ssn_conf['dlab_ssh_user'],
+             ssn_conf['sudo_group'])
         local("~/scripts/{}.py {}".format('create_ssh_user', params))
     except Exception as err:
-        #print('Error: {0}'.format(err))
         traceback.print_exc()
         clear_resources()
-        append_result("Failed creating ssh user 'dlab-user'.", str(err))
+        dlab.fab.append_result("Failed creating ssh user 'dlab-user'.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        params = "--hostname {} --keyfile {} --pip_packages 'backoff argparse fabric==1.14.0 pymongo pyyaml pycrypto azure==2.0.0' \
-            --user {} --region {}".format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'],
-                                          ssn_conf['dlab_ssh_user'], ssn_conf['region'])
+        params = "--hostname {} --keyfile {} --pip_packages 'backoff argparse fabric==1.14.0 pymongo pyyaml " \
+                 "pycrypto azure==2.0.0' --user {} --region {}".format(ssn_conf['instance_host'],
+                                                                       ssn_conf['ssh_key_path'],
+                                                                       ssn_conf['dlab_ssh_user'],
+                                                                       ssn_conf['region'])
         local("~/scripts/{}.py {}".format('install_prerequisites', params))
     except Exception as err:
-        #print('Error: {0}'.format(err))
         traceback.print_exc()
         clear_resources()
-        append_result("Failed installing software: pip, packages.", str(err))
+        dlab.fab.append_result("Failed installing software: pip, packages.", str(err))
         sys.exit(1)
 
     try:
@@ -157,15 +169,14 @@ if __name__ == "__main__":
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} " \
                  "--tag_resource_id {} --step_cert_sans '{}'". \
-            format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
+            format(ssn_conf['instance_host'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'],
-                   step_cert_sans)
+                   ssn_conf['step_cert_sans'])
         local("~/scripts/{}.py {}".format('configure_ssn_node', params))
     except Exception as err:
-        #print('Error: {0}'.format(err))
         traceback.print_exc()
         clear_resources()
-        append_result("Failed configuring ssn.", str(err))
+        dlab.fab.append_result("Failed configuring ssn.", str(err))
         sys.exit(1)
 
     try:
@@ -181,28 +192,28 @@ if __name__ == "__main__":
                              {"name": "tensor", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"}]
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
-            format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
-                   os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
-                   os.environ['conf_cloud_provider'], ssn_conf['region'])
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} " \
+                 "--cloud_provider {} --region {}".format(ssn_conf['instance_host'], ssn_conf['ssh_key_path'],
+                                                          json.dumps(additional_config), os.environ['conf_os_family'],
+                                                          ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
+                                                          os.environ['conf_cloud_provider'], ssn_conf['region'])
         local("~/scripts/{}.py {}".format('configure_docker', params))
     except Exception as err:
-        #print('Error: {0}'.format(err))
         traceback.print_exc()
         clear_resources()
-        append_result("Unable to configure docker.", str(err))
+        dlab.fab.append_result("Unable to configure docker.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
-        azure_auth_path = '/home/{}/keys/azure_auth.json'.format(ssn_conf['dlab_ssh_user'])
-        ldap_login = 'false'
+        ssn_conf['azure_auth_path'] = '/home/{}/keys/azure_auth.json'.format(ssn_conf['dlab_ssh_user'])
+        ssn_conf['ldap_login'] = 'false'
 
         cloud_params = [
             {
                 'key': 'KEYCLOAK_REDIRECT_URI',
-                'value': "https://{0}/".format(ssn_conf['instnace_ip'])
+                'value': "https://{0}/".format(ssn_conf['instance_host'])
             },
             {
                 'key': 'KEYCLOAK_REALM_NAME',
@@ -313,10 +324,6 @@ if __name__ == "__main__":
                 'value': ''
             },
             {
-                'key': 'SHARED_IMAGE_ENABLED',
-                'value': os.environ['conf_shared_image_enabled']
-            },
-            {
                 'key': 'CONF_IMAGE_ENABLED',
                 'value': os.environ['conf_image_enabled']
             },
@@ -391,11 +398,11 @@ if __name__ == "__main__":
                     'value': ''
                 })
             if os.environ['azure_oauth2_enabled'] == 'false':
-                ldap_login = 'true'
-            tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
-            subscription_id = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')
-            datalake_application_id = os.environ['azure_application_id']
-            datalake_store_name = None
+                ssn_conf['ldap_login'] = 'true'
+            ssn_conf['tenant_id'] = json.dumps(AzureMeta.sp_creds['tenantId']).replace('"', '')
+            ssn_conf['subscription_id'] = json.dumps(AzureMeta.sp_creds['subscriptionId']).replace('"', '')
+            ssn_conf['datalake_application_id'] = os.environ['azure_application_id']
+            ssn_conf['datalake_store_name'] = None
         else:
             cloud_params.append(
                 {
@@ -407,30 +414,30 @@ if __name__ == "__main__":
                     'key': 'AZURE_CLIENT_ID',
                     'value': os.environ['azure_application_id']
                 })
-            tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
-            subscription_id = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')
-            datalake_application_id = os.environ['azure_application_id']
-            for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
+            ssn_conf['tenant_id'] = json.dumps(AzureMeta.sp_creds['tenantId']).replace('"', '')
+            ssn_conf['subscription_id'] = json.dumps(AzureMeta.sp_creds['subscriptionId']).replace('"', '')
+            ssn_conf['datalake_application_id'] = os.environ['azure_application_id']
+            for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    datalake_store_name = datalake.name
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
-                 --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} \
-                 --offer_number {} --currency {} --locale {} --region_info {}  --ldap_login {} --tenant_id {} \
-                 --application_id {} --datalake_store_name {} --cloud_params '{}' --subscription_id {}  \
-                 --validate_permission_scope {} --default_endpoint_name {}". \
-            format(ssn_conf['instnace_ip'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
-                   ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
-                   os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
-                   billing_enabled, azure_auth_path, os.environ['azure_offer_number'],
-                   os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
-                   ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(cloud_params),
-                   subscription_id, os.environ['azure_validate_permission_scope'], ssn_conf['default_endpoint_name'])
+                    ssn_conf['datalake_store_name'] = datalake.name
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} " \
+                 "--resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} " \
+                 "--authentication_file {} --offer_number {} --currency {} --locale {} --region_info {}  " \
+                 "--ldap_login {} --tenant_id {} --application_id {} --datalake_store_name {} --cloud_params '{}' " \
+                 "--subscription_id {} --validate_permission_scope {} --default_endpoint_name {}".format(
+                  ssn_conf['instance_host'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
+                  ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
+                  os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
+                  ssn_conf['billing_enabled'], ssn_conf['azure_auth_path'], os.environ['azure_offer_number'],
+                  os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
+                  ssn_conf['ldap_login'], ssn_conf['tenant_id'], ssn_conf['datalake_application_id'],
+                  ssn_conf['datalake_store_name'], json.dumps(cloud_params), ssn_conf['subscription_id'],
+                  os.environ['azure_validate_permission_scope'], ssn_conf['default_endpoint_name'])
         local("~/scripts/{}.py {}".format('configure_ui', params))
     except Exception as err:
-        #print('Error: {0}'.format(err))
         traceback.print_exc()
         clear_resources()
-        append_result("Unable to configure UI.", str(err))
+        dlab.fab.append_result("Unable to configure UI.", str(err))
         sys.exit(1)
 
     try:
@@ -447,21 +454,22 @@ if __name__ == "__main__":
         print("Key name: {}".format(os.environ['conf_key_name']))
         print("VPC Name: {}".format(ssn_conf['vpc_name']))
         print("Subnet Name: {}".format(ssn_conf['subnet_name']))
-        print("Firewall Names: {}".format(ssn_conf['security_group_name']))
+        print("Security groups Names: {}".format(ssn_conf['security_group_name']))
         print("SSN instance size: {}".format(os.environ['azure_ssn_instance_size']))
+        ssn_conf['datalake_store_full_name'] = 'None'
         if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(ssn_conf['resource_group_name']):
+            for datalake in AzureMeta.list_datalakes(ssn_conf['resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    datalake_store_name = datalake.name
-            print("DataLake store name: {}".format(datalake_store_name))
+                    ssn_conf['datalake_store_full_name'] = datalake.name
+                    print("DataLake store name: {}".format(ssn_conf['datalake_store_full_name']))
             print("DataLake shared directory name: {}".format(ssn_conf['datalake_shared_directory_name']))
         print("Region: {}".format(ssn_conf['region']))
-        jenkins_url = "http://{}/jenkins".format(ssn_conf['instnace_ip'])
-        jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instnace_ip'])
+        jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_host'])
+        jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_host'])
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
-        print("DLab UI HTTP URL: http://{}".format(ssn_conf['instnace_ip']))
-        print("DLab UI HTTPS URL: https://{}".format(ssn_conf['instnace_ip']))
+        print("DLab UI HTTP URL: http://{}".format(ssn_conf['instance_host']))
+        print("DLab UI HTTPS URL: https://{}".format(ssn_conf['instance_host']))
 
         try:
             with open('jenkins_creds.txt') as f:
@@ -474,7 +482,7 @@ if __name__ == "__main__":
             if os.environ['azure_datalake_enable'] == 'false':
                 res = {"service_base_name": ssn_conf['service_base_name'],
                        "instance_name": ssn_conf['instance_name'],
-                       "instance_hostname": ssn_conf['instnace_ip'],
+                       "instance_hostname": ssn_conf['instance_host'],
                        "master_keyname": os.environ['conf_key_name'],
                        "vpc_id": ssn_conf['vpc_name'],
                        "subnet_id": ssn_conf['subnet_name'],
@@ -485,13 +493,13 @@ if __name__ == "__main__":
             else:
                 res = {"service_base_name": ssn_conf['service_base_name'],
                        "instance_name": ssn_conf['instance_name'],
-                       "instance_hostname": ssn_conf['instnace_ip'],
+                       "instance_hostname": ssn_conf['instance_host'],
                        "master_keyname": os.environ['conf_key_name'],
                        "vpc_id": ssn_conf['vpc_name'],
                        "subnet_id": ssn_conf['subnet_name'],
                        "security_id": ssn_conf['security_group_name'],
                        "instance_shape": os.environ['azure_ssn_instance_size'],
-                       "datalake_name": datalake_store_name,
+                       "datalake_name": ssn_conf['datalake_store_full_name'],
                        "datalake_shared_directory_name": ssn_conf['datalake_shared_directory_name'],
                        "region": ssn_conf['region'],
                        "action": "Create SSN instance"}
@@ -501,5 +509,6 @@ if __name__ == "__main__":
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}".\
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['dlab_ssh_user'], ssn_conf['instnace_ip'])
         local("~/scripts/{}.py {}".format('upload_response_file', params))
-    except:
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results.", str(err))
         sys.exit(1)

@@ -27,32 +27,47 @@ import sys
 import os
 import time
 
+
 def manage_pkg(command, environment, requisites):
     try:
-        allow = False
-        counter = 0
-        while not allow:
-            if counter > 60:
+        attempt = 0
+        installed = False
+        while not installed:
+            print('Pkg installation attempt: {}'.format(attempt))
+            if attempt > 60:
                 print("Notebook is broken please recreate it.")
                 sys.exit(1)
             else:
-                print('Package manager is:')
-                if environment == 'remote':
-                    if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
-                        counter += 1
-                        time.sleep(10)
-                    else:
-                        allow = True
-                        sudo('apt-get {0} {1}'.format(command, requisites))
-                elif environment == 'local':
-                    if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
-                        counter += 1
-                        time.sleep(10)
-                    else:
-                        allow = True
-                        local('sudo apt-get {0} {1}'.format(command, requisites), capture=True)
-                else:
-                    print('Wrong environment')
+                try:
+                    allow = False
+                    counter = 0
+                    while not allow:
+                        if counter > 60:
+                            print("Notebook is broken please recreate it.")
+                            sys.exit(1)
+                        else:
+                            print('Package manager is:')
+                            if environment == 'remote':
+                                if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
+                                    counter += 1
+                                    time.sleep(10)
+                                else:
+                                    allow = True
+                                    sudo('apt-get {0} {1}'.format(command, requisites))
+                            elif environment == 'local':
+                                if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
+                                    counter += 1
+                                    time.sleep(10)
+                                else:
+                                    allow = True
+                                    local('sudo apt-get {0} {1}'.format(command, requisites), capture=True)
+                            else:
+                                print('Wrong environment')
+                    installed = True
+                except:
+                    print("Will try to install with nex attempt.")
+                    sudo('dpkg --configure -a')
+                    attempt += 1
     except:
         sys.exit(1)
 

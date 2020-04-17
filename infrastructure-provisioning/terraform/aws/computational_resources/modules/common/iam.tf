@@ -46,7 +46,7 @@ EOF
   tags = {
     Name             = local.role_name
     Environment_tag  = var.sbn
-    "${var.sbn}-Tag" = local.role_name
+    "${var.sbn}-tag" = local.role_name
     Product          = var.product
     Project_name     = var.project_name
     Project_tag      = var.project_tag

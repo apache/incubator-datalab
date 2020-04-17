@@ -35,7 +35,7 @@ resource "aws_instance" "master" {
     Name                     = "${local.cluster_name}-m"
     Type                     = "master"
     dataengine_notebook_name = local.notebook_name
-    "${var.sbn}-Tag"         = "${local.cluster_name}-m"
+    "${var.sbn}-tag"         = "${local.cluster_name}-m"
     Product                  = var.product
     Project_name             = var.project_name
     Project_tag              = var.project_tag
@@ -59,7 +59,7 @@ resource "aws_instance" "slave" {
     Name                     = "${local.cluster_name}-s${count.index + 1}"
     Type                     = "slave"
     dataengine_notebook_name = local.notebook_name
-    "${var.sbn}-Tag"         = "${local.cluster_name}-s${count.index + 1}"
+    "${var.sbn}-tag"         = "${local.cluster_name}-s${count.index + 1}"
     Product                  = var.product
     Project_name             = var.project_name
     Project_tag              = var.project_tag
