@@ -21,9 +21,13 @@
 #
 # ******************************************************************************
 
-from dlab.fab import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
 import sys
+import os
+import logging
+import json
 
 
 if __name__ == "__main__":
@@ -35,23 +39,22 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    create_aws_config_files()
+    dlab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     edge_conf = dict()
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
+    edge_conf['service_base_name'] = (os.environ['conf_service_base_name'])
     edge_conf['project_name'] = os.environ['project_name']
     edge_conf['endpoint_name'] = os.environ['endpoint_name']
     edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
                                                            edge_conf['project_name'], edge_conf['endpoint_name'])
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
+    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-tag'
 
     logging.info('[STOP EDGE]')
     print('[STOP EDGE]')
     try:
-        stop_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        dlab.actions_lib.stop_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
     except Exception as err:
-        append_result("Failed to stop edge.", str(err))
+        dlab.fab.append_result("Failed to stop edge.", str(err))
         sys.exit(1)
 
     try:
@@ -60,7 +63,6 @@ if __name__ == "__main__":
                    "Action": "Stop edge server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
-
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

@@ -41,7 +41,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
 
-import static com.epam.dlab.dto.UserInstanceStatus.*;
+import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
+import static com.epam.dlab.dto.UserInstanceStatus.STOPPED;
+import static com.epam.dlab.dto.UserInstanceStatus.STOPPING;
+import static com.epam.dlab.dto.UserInstanceStatus.TERMINATED;
+import static com.epam.dlab.dto.UserInstanceStatus.TERMINATING;
 
 
 @Path("/infrastructure_provision/exploratory_environment")
@@ -78,7 +82,7 @@ public class ExploratoryCallback {
 				dto.getExploratoryName(), dto.getUser(), dto.getStatus());
 		requestId.checkAndRemove(dto.getRequestId());
 
-		UserInstanceDTO instance = exploratoryService.getUserInstance(dto.getUser(), dto.getExploratoryName())
+		UserInstanceDTO instance = exploratoryService.getUserInstance(dto.getUser(), dto.getProject(), dto.getExploratoryName())
 				.orElseThrow(() -> new DlabException(String.format(USER_INSTANCE_NOT_EXIST_MSG,
 						dto.getExploratoryName(), dto.getUser())));
 
@@ -89,15 +93,15 @@ public class ExploratoryCallback {
 		try {
 			exploratoryDAO.updateExploratoryFields(dto.withLastActivity(new Date()));
 			if (currentStatus == TERMINATING) {
-				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(),
+				updateComputationalStatuses(dto.getUser(), dto.getProject(), dto.getExploratoryName(),
 						UserInstanceStatus.of(dto.getStatus()));
 			} else if (currentStatus == STOPPING) {
-				updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(),
+				updateComputationalStatuses(dto.getUser(), dto.getProject(), dto.getExploratoryName(),
 						UserInstanceStatus.of(dto.getStatus()), TERMINATED, FAILED, TERMINATED, STOPPED);
 			}
 		} catch (DlabException e) {
-			log.error("Could not update status for exploratory environment {} for user {} to {}",
-					dto.getExploratoryName(), dto.getUser(), dto.getStatus(), e);
+			log.error("Could not update status for exploratory environment {} in project {} for user {} to {}",
+					dto.getExploratoryName(), dto.getProject(), dto.getUser(), dto.getStatus(), e);
 			throw new DlabException("Could not update status for exploratory environment " + dto.getExploratoryName() +
 					" for user " + dto.getUser() + " to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
 		}
@@ -109,23 +113,25 @@ public class ExploratoryCallback {
 	 * Updates the computational status of exploratory environment.
 	 *
 	 * @param user            user name
+	 * @param project         project name
 	 * @param exploratoryName name of exploratory environment.
 	 * @param status          status for exploratory environment.
 	 */
-	private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus status) {
+	private void updateComputationalStatuses(String user, String project, String exploratoryName, UserInstanceStatus status) {
 		log.debug("updating status for all computational resources of {} for user {}: {}", exploratoryName, user,
 				status);
 		computationalDAO.updateComputationalStatusesForExploratory(new ExploratoryStatusDTO()
 				.withUser(user)
 				.withExploratoryName(exploratoryName)
+				.withProject(project)
 				.withStatus(status));
 	}
 
-	private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus
+	private void updateComputationalStatuses(String user, String project, String exploratoryName, UserInstanceStatus
 			dataEngineStatus, UserInstanceStatus dataEngineServiceStatus, UserInstanceStatus... excludedStatuses) {
 		log.debug("updating status for all computational resources of {} for user {}: DataEngine {}, " +
 				"dataengine-service {}", exploratoryName, user, dataEngineStatus, dataEngineServiceStatus);
-		computationalDAO.updateComputationalStatusesForExploratory(user, exploratoryName, dataEngineStatus,
-				dataEngineServiceStatus, excludedStatuses);
+		computationalDAO.updateComputationalStatusesForExploratory(user, project, exploratoryName,
+				dataEngineStatus, dataEngineServiceStatus, excludedStatuses);
 	}
 }

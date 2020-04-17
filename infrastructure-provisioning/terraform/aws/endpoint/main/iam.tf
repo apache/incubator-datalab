@@ -36,7 +36,7 @@ resource "aws_iam_role" "endpoint_role" {
     Name = local.endpoint_role_name
     "${local.additional_tag[0]}" = local.additional_tag[1]
     "${var.tag_resource_id}" = "${var.service_base_name}:${local.endpoint_role_name}"
-    "${var.service_base_name}-Tag" = local.endpoint_role_name
+    "${var.service_base_name}-tag" = local.endpoint_role_name
   }
 }
 

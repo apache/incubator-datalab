@@ -35,6 +35,8 @@ public class ExploratoryImageDTO extends ExploratoryActionDTO<ExploratoryImageDT
 	private Map<String, String> tags;
 	@JsonProperty("endpoint_name")
 	private String endpoint;
+	@JsonProperty("conf_shared_image_enabled")
+	private String sharedImageEnabled;
 
 	public ExploratoryImageDTO withImageName(String imageName) {
 		this.imageName = imageName;
@@ -48,6 +50,11 @@ public class ExploratoryImageDTO extends ExploratoryActionDTO<ExploratoryImageDT
 
 	public ExploratoryImageDTO withEndpoint(String endpoint) {
 		this.endpoint = endpoint;
+		return this;
+	}
+
+	public ExploratoryImageDTO withSharedImageEnabled(String sharedImageEnabled) {
+		this.sharedImageEnabled = sharedImageEnabled;
 		return this;
 	}
 

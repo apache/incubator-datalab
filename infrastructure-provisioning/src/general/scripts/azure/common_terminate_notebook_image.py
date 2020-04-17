@@ -21,23 +21,26 @@
 #
 # ******************************************************************************
 
-from dlab.actions_lib import *
-from dlab.meta_lib import *
-from dlab.fab import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
 import sys
 import json
+import os
 
 
 if __name__ == "__main__":
     try:
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         image_conf = dict()
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
         image_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         image_conf['full_image_name'] = os.environ['notebook_image_name']
 
-        image = AzureMeta().get_image(image_conf['resource_group_name'], image_conf['full_image_name'])
+        image = AzureMeta.get_image(image_conf['resource_group_name'], image_conf['full_image_name'])
         if image != '':
-            AzureActions().remove_image(image_conf['resource_group_name'], image_conf['full_image_name'])
+            AzureActions.remove_image(image_conf['resource_group_name'], image_conf['full_image_name'])
 
             with open("/root/result.json", 'w') as result:
                 res = {"notebook_image_name": image_conf['full_image_name'],
@@ -45,6 +48,5 @@ if __name__ == "__main__":
                        "Action": "Delete existing notebook image"}
                 result.write(json.dumps(res))
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to delete existing notebook image", str(err))
+        dlab.fab.append_result("Failed to delete existing notebook image", str(err))
         sys.exit(1)

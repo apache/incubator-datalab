@@ -475,8 +475,8 @@ class AbstractDeployBuilder:
 
     def validate_params(self):
         params = self.parse_args()[self.terraform_args_group_name]
-        if len(params.get('service_base_name')) > 12:
-            sys.stderr.write('service_base_name length should be less then 12')
+        if len(params.get('service_base_name')) > 20:
+            sys.stderr.write('service_base_name length should be less then 20')
             sys.exit(1)
         if not re.match("^[a-z0-9\-]+$", params.get('service_base_name')):
             sys.stderr.write('service_base_name should contain only lowercase '

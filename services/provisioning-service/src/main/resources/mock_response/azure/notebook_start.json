@@ -4,7 +4,7 @@
       "result": {
          "Action": "Start up notebook server",
          "ip": "172.31.48.131",
-         "Tag_name": "${CONF_SERVICE_BASE_NAME}-Tag",
+         "Tag_name": "${CONF_SERVICE_BASE_NAME}-tag",
          "hostname": "ip-172-31-48-131.us-west-2.compute.internal",
          "notebook_name": "${NOTEBOOK_INSTANCE_NAME}"
       },

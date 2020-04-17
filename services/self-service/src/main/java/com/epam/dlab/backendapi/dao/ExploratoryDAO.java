@@ -61,7 +61,6 @@ import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.set;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
  * DAO for user exploratory.
@@ -91,22 +90,18 @@ public class ExploratoryDAO extends BaseDAO {
 		log.info("{} is initialized", getClass().getSimpleName());
 	}
 
-	static Bson exploratoryCondition(String user, String exploratoryName) {
-		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
+	static Bson exploratoryCondition(String user, String exploratoryName, String project) {
+		return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName), eq(PROJECT, project));
 	}
 
-	private Bson exploratoryStatusCondition(String user, UserInstanceStatus... exploratoryStatuses) {
-		return and(eq(USER, user), in(STATUS, statusList(exploratoryStatuses)));
-	}
-
-	private static Bson runningExploratoryCondition(String user, String exploratoryName) {
-		return and(eq(USER, user),
+	private static Bson runningExploratoryCondition(String user, String exploratoryName, String project) {
+		return and(eq(USER, user), eq(PROJECT, project),
 				and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, UserInstanceStatus.RUNNING.toString())));
 	}
 
-	static Bson runningExploratoryAndComputationalCondition(String user, String exploratoryName, String
-			computationalName) {
-		return and(eq(USER, user),
+	static Bson runningExploratoryAndComputationalCondition(String user, String project, String exploratoryName,
+															String computationalName) {
+		return and(eq(USER, user), eq(PROJECT, project),
 				and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, UserInstanceStatus.RUNNING.toString()),
 						eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computationalName),
 						eq(COMPUTATIONAL_RESOURCES + "." + STATUS, UserInstanceStatus.RUNNING.toString())));
@@ -125,20 +120,6 @@ public class ExploratoryDAO extends BaseDAO {
 	}
 
 	/**
-	 * Finds and returns the unique id for exploratory.
-	 *
-	 * @param user            user name.
-	 * @param exploratoryName the name of exploratory.
-	 */
-	public String fetchExploratoryId(String user, String exploratoryName) {
-		return findOne(USER_INSTANCES,
-				exploratoryCondition(user, exploratoryName),
-				fields(include(EXPLORATORY_ID), excludeId()))
-				.orElse(new Document())
-				.getOrDefault(EXPLORATORY_ID, EMPTY).toString();
-	}
-
-	/**
 	 * Finds and returns the info of all user's running notebooks.
 	 *
 	 * @param user user name.
@@ -151,26 +132,16 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(and(eq(PROJECT, project), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
 	}
 
+	public List<UserInstanceDTO> fetchRunningExploratoryFieldsForProject(String project, List<String> endpoints) {
+		return getUserInstances(and(eq(PROJECT, project), eq(STATUS, UserInstanceStatus.RUNNING.toString()), in(ENDPOINT, endpoints)), false);
+	}
+
 	public List<UserInstanceDTO> fetchExploratoryFieldsForProject(String project) {
 		return getUserInstances(and(eq(PROJECT, project)), false);
 	}
 
-	/**
-	 * Finds and returns the info of all user's notebooks whose status is present among predefined ones.
-	 *
-	 * @param user                        user name.
-	 * @param computationalFieldsRequired true/false.
-	 * @param statuses                    array of statuses.
-	 */
-	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, boolean computationalFieldsRequired,
-																	 UserInstanceStatus... statuses) {
-		final List<String> statusList = statusList(statuses);
-		return getUserInstances(
-				and(
-						eq(USER, user),
-						in(STATUS, statusList)
-				),
-				computationalFieldsRequired);
+	public List<UserInstanceDTO> fetchExploratoryFieldsForProjectWithComp(String project) {
+		return getUserInstances(and(eq(PROJECT, project)), true);
 	}
 
 	/**
@@ -220,22 +191,6 @@ public class ExploratoryDAO extends BaseDAO {
 						in(ENDPOINT, endpoints),
 						or(in(STATUS, exploratoryStatusList),
 								in(COMPUTATIONAL_RESOURCES + "." + STATUS, computationalStatusList))
-				),
-				false);
-	}
-
-	/**
-	 * Finds and returns the info of all user's notebooks whose status is absent among predefined ones.
-	 *
-	 * @param user     user name.
-	 * @param statuses array of statuses.
-	 */
-	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusNotIn(String user, UserInstanceStatus... statuses) {
-		final List<String> statusList = statusList(statuses);
-		return getUserInstances(
-				and(
-						eq(USER, user),
-						not(in(STATUS, statusList))
 				),
 				false);
 	}
@@ -295,35 +250,25 @@ public class ExploratoryDAO extends BaseDAO {
 	 * Finds and returns the info of exploratory (without info about computational resources).
 	 *
 	 * @param user            user name.
+	 * @param project         project name
 	 * @param exploratoryName the name of exploratory.
 	 */
-	public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName) {
-		return getExploratory(user, exploratoryName, false).orElseThrow(() ->
+	public UserInstanceDTO fetchExploratoryFields(String user, String project, String exploratoryName) {
+		return getExploratory(user, project, exploratoryName, false).orElseThrow(() ->
 				new ResourceNotFoundException(String.format(EXPLORATORY_NOT_FOUND_MSG, user, exploratoryName)));
 
 	}
 
-	public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName,
-												  boolean includeComputationalResources) {
-		return getExploratory(user, exploratoryName, includeComputationalResources).orElseThrow(() ->
+	public UserInstanceDTO fetchExploratoryFields(String user, String project, String exploratoryName, boolean includeCompResources) {
+		return getExploratory(user, project, exploratoryName, includeCompResources).orElseThrow(() ->
 				new ResourceNotFoundException(String.format(EXPLORATORY_NOT_FOUND_MSG, user, exploratoryName)));
 
 	}
 
-	/**
-	 * Checks if exploratory exists.
-	 *
-	 * @param user            user name.
-	 * @param exploratoryName the name of exploratory.
-	 */
-	public boolean isExploratoryExist(String user, String exploratoryName) {
-		return getExploratory(user, exploratoryName, false).isPresent();
-	}
-
-	private Optional<UserInstanceDTO> getExploratory(String user, String exploratoryName,
+	private Optional<UserInstanceDTO> getExploratory(String user, String project, String exploratoryName,
 													 boolean includeCompResources) {
 		return findOne(USER_INSTANCES,
-				exploratoryCondition(user, exploratoryName),
+				exploratoryCondition(user, exploratoryName, project),
 				includeCompResources ? null : fields(exclude(COMPUTATIONAL_RESOURCES)),
 				UserInstanceDTO.class);
 	}
@@ -332,12 +277,13 @@ public class ExploratoryDAO extends BaseDAO {
 	 * Finds and returns the info of running exploratory with running cluster.
 	 *
 	 * @param user              user name.
+	 * @param project           name of project
 	 * @param exploratoryName   name of exploratory.
 	 * @param computationalName name of cluster
 	 */
-	public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName, String computationalName) {
+	public UserInstanceDTO fetchExploratoryFields(String user, String project, String exploratoryName, String computationalName) {
 		return findOne(USER_INSTANCES,
-				runningExploratoryAndComputationalCondition(user, exploratoryName, computationalName),
+				runningExploratoryAndComputationalCondition(user, project, exploratoryName, computationalName),
 				UserInstanceDTO.class)
 				.orElseThrow(() -> new DlabException(String.format("Running notebook %s with running cluster %s not " +
 								"found for user %s",
@@ -348,10 +294,11 @@ public class ExploratoryDAO extends BaseDAO {
 	 * Finds and returns the info of running exploratory.
 	 *
 	 * @param user            user name.
+	 * @param project         project
 	 * @param exploratoryName name of exploratory.
 	 */
-	public UserInstanceDTO fetchRunningExploratoryFields(String user, String exploratoryName) {
-		return findOne(USER_INSTANCES, runningExploratoryCondition(user, exploratoryName),
+	public UserInstanceDTO fetchRunningExploratoryFields(String user, String project, String exploratoryName) {
+		return findOne(USER_INSTANCES, runningExploratoryCondition(user, exploratoryName, project),
 				fields(exclude(COMPUTATIONAL_RESOURCES)), UserInstanceDTO.class)
 				.orElseThrow(() -> new DlabException(
 						String.format("Running exploratory instance for user %s with name %s not found.",
@@ -375,34 +322,22 @@ public class ExploratoryDAO extends BaseDAO {
 	 */
 	public UpdateResult updateExploratoryStatus(StatusEnvBaseDTO<?> dto) {
 		return updateOne(USER_INSTANCES,
-				exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
+				exploratoryCondition(dto.getUser(), dto.getExploratoryName(), dto.getProject()),
 				set(STATUS, dto.getStatus()));
-	}
-
-	/**
-	 * Updates the status for all user's corresponding exploratories in Mongo database.
-	 *
-	 * @param newExploratoryStatus   new status for exploratories.
-	 * @param user                   user name.
-	 * @param oldExploratoryStatuses old statuses of exploratories.
-	 */
-	public void updateStatusForExploratories(UserInstanceStatus newExploratoryStatus, String user,
-											 UserInstanceStatus... oldExploratoryStatuses) {
-		updateMany(USER_INSTANCES, exploratoryStatusCondition(user, oldExploratoryStatuses),
-				set(STATUS, newExploratoryStatus.toString()));
 	}
 
 	/**
 	 * Updates status for single exploratory in Mongo database.
 	 *
 	 * @param user            user.
+	 * @param project         project name
 	 * @param exploratoryName name of exploratory.
 	 * @param newStatus       new status of exploratory.
 	 * @return The result of an update operation.
 	 */
-	public UpdateResult updateStatusForExploratory(String user, String exploratoryName, UserInstanceStatus newStatus) {
+	public UpdateResult updateStatusForExploratory(String user, String project, String exploratoryName, UserInstanceStatus newStatus) {
 		return updateOne(USER_INSTANCES,
-				exploratoryCondition(user, exploratoryName),
+				exploratoryCondition(user, exploratoryName, project),
 				set(STATUS, newStatus.toString()));
 	}
 
@@ -410,40 +345,29 @@ public class ExploratoryDAO extends BaseDAO {
 	 * Updates the scheduler's data for exploratory in Mongo database.
 	 *
 	 * @param user            user.
+	 * @param project         name of project
 	 * @param exploratoryName name of exploratory.
 	 * @param dto             object of scheduler data.
 	 * @return The result of an update operation.
 	 */
-	public UpdateResult updateSchedulerDataForUserAndExploratory(String user, String exploratoryName,
+	public UpdateResult updateSchedulerDataForUserAndExploratory(String user, String project, String exploratoryName,
 																 SchedulerJobDTO dto) {
 		return updateOne(USER_INSTANCES,
-				exploratoryCondition(user, exploratoryName),
+				exploratoryCondition(user, exploratoryName, project),
 				set(SCHEDULER_DATA, Objects.isNull(dto) ? null : convertToBson(dto)));
-	}
-
-	/**
-	 * Updates the requirement for reuploading key for all user's corresponding exploratories in Mongo database.
-	 *
-	 * @param user                user name.
-	 * @param reuploadKeyRequired true/false.
-	 * @param exploratoryStatuses statuses of exploratory.
-	 */
-	public void updateReuploadKeyForExploratories(String user, boolean reuploadKeyRequired,
-												  UserInstanceStatus... exploratoryStatuses) {
-		updateMany(USER_INSTANCES, exploratoryStatusCondition(user, exploratoryStatuses),
-				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
 	}
 
 	/**
 	 * Updates the requirement for reuploading key for single exploratory in Mongo database.
 	 *
 	 * @param user                user name.
+	 * @param project             project name
 	 * @param exploratoryName     exploratory's name
 	 * @param reuploadKeyRequired true/false.
 	 */
-	public void updateReuploadKeyForExploratory(String user, String exploratoryName, boolean reuploadKeyRequired) {
+	public void updateReuploadKeyForExploratory(String user, String project, String exploratoryName, boolean reuploadKeyRequired) {
 		updateOne(USER_INSTANCES,
-				exploratoryCondition(user, exploratoryName),
+				exploratoryCondition(user, exploratoryName, project),
 				set(REUPLOAD_KEY_REQUIRED, reuploadKeyRequired));
 	}
 
@@ -481,7 +405,7 @@ public class ExploratoryDAO extends BaseDAO {
 							}
 					).collect(Collectors.toList()));
 		} else if (dto.getPrivateIp() != null) {
-			UserInstanceDTO inst = fetchExploratoryFields(dto.getUser(), dto.getExploratoryName());
+			UserInstanceDTO inst = fetchExploratoryFields(dto.getUser(), dto.getProject(), dto.getExploratoryName());
 			if (!inst.getPrivateIp().equals(dto.getPrivateIp()) && inst.getResourceUrl() != null) {
 				values.append(EXPLORATORY_URL, inst.getResourceUrl().stream()
 						.map(url -> replaceIp(dto.getPrivateIp(), inst, url))
@@ -502,13 +426,13 @@ public class ExploratoryDAO extends BaseDAO {
 			values.append(CLUSTER_CONFIG, dto.getConfig().stream().map(this::convertToBson).collect(toList()));
 		}
 		return updateOne(USER_INSTANCES,
-				exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
+				exploratoryCondition(dto.getUser(), dto.getExploratoryName(), dto.getProject()),
 				new Document(SET, values));
 	}
 
-	public void updateExploratoryIp(String user, String ip, String exploratoryName) {
+	public void updateExploratoryIp(String user, String project, String ip, String exploratoryName) {
 
-		UserInstanceDTO inst = fetchExploratoryFields(user, exploratoryName);
+		UserInstanceDTO inst = fetchExploratoryFields(user, project, exploratoryName);
 		if (!inst.getPrivateIp().equals(ip)) {
 			Document values = new Document();
 			values.append(EXPLORATORY_PRIVATE_IP, ip);
@@ -519,15 +443,15 @@ public class ExploratoryDAO extends BaseDAO {
 			}
 
 			updateOne(USER_INSTANCES,
-					exploratoryCondition(user, exploratoryName),
+					exploratoryCondition(user, exploratoryName, project),
 					new Document(SET, values));
 		}
 
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ClusterConfig> getClusterConfig(String user, String exploratoryName) {
-		return findOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName), notNull(CLUSTER_CONFIG)),
+	public List<ClusterConfig> getClusterConfig(String user, String project, String exploratoryName) {
+		return findOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName, project), notNull(CLUSTER_CONFIG)),
 				fields(include(CLUSTER_CONFIG), excludeId()))
 				.map(d -> convertFromDocument((List<Document>) d.get(CLUSTER_CONFIG),
 						new TypeReference<List<ClusterConfig>>() {

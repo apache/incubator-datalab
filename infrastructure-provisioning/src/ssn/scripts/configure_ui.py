@@ -149,7 +149,7 @@ def build_ui():
                      '\'use_ldap\': false'))
 
             sudo('echo "N" | npm install')
-            sudo('npm run build.prod')
+            manage_npm_pkg('run build.prod')
             sudo('sudo chown -R {} {}/*'.format(args.os_user, args.dlab_path))
 
         # Building Back-end

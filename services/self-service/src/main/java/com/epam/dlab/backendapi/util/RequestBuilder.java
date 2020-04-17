@@ -303,6 +303,7 @@ public class RequestBuilder {
 		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), ExploratoryActionDTO.class)
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withProject(userInstance.getProject())
+				.withEndpoint(endpointDTO.getName())
 				.withNotebookImage(userInstance.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withExploratoryName(userInstance.getExploratoryName());
@@ -335,6 +336,7 @@ public class RequestBuilder {
 		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), LibListComputationalDTO.class)
 				.withComputationalId(computationalResource.getComputationalId())
 				.withProject(userInstance.getProject())
+				.withEndpoint(endpointDTO.getName())
 				.withComputationalImage(computationalResource.getImageName())
 				.withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance))
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()));
@@ -493,7 +495,8 @@ public class RequestBuilder {
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratory.getExploratoryId())
 				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
-				.withProject(exploratory.getProject());
+				.withProject(exploratory.getProject())
+				.withEndpoint(endpointDTO.getName());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -504,12 +507,13 @@ public class RequestBuilder {
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratory.getExploratoryId())
 				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
-				.withProject(exploratory.getProject());
+				.withProject(exploratory.getProject())
+				.withEndpoint(endpointDTO.getName());
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends ExploratoryImageDTO> T newExploratoryImageCreate(UserInfo userInfo, UserInstanceDTO userInstance,
-																	   String imageName, EndpointDTO endpointDTO) {
+																	   String imageName, EndpointDTO endpointDTO, ProjectDTO projectDTO) {
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
 		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), ExploratoryImageDTO.class)
 				.withProject(userInstance.getProject())
@@ -519,7 +523,8 @@ public class RequestBuilder {
 				.withNotebookImage(userInstance.getImageName())
 				.withImageName(imageName)
 				.withEndpoint(userInstance.getEndpoint())
-				.withTags(userInstance.getTags());
+				.withTags(userInstance.getTags())
+				.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -534,7 +539,8 @@ public class RequestBuilder {
 				.withNotebookImageName(exploratory.getImageName())
 				.withImage(cr.getImageName())
 				.withComputationalId(cr.getComputationalId())
-				.withProject(exploratory.getProject());
+				.withProject(exploratory.getProject())
+				.withEndpoint(endpointDTO.getName());
 	}
 
 
@@ -604,7 +610,8 @@ public class RequestBuilder {
 				.withNotebookImage(userInstance.getImageName())
 				.withExploratoryName(userInstance.getExploratoryName())
 				.withReuploadKeyRequired(userInstance.isReuploadKeyRequired())
-				.withProject(userInstance.getProject());
+				.withProject(userInstance.getProject())
+				.withEndpoint(endpointDTO.getName());
 		return dto;
 	}
 

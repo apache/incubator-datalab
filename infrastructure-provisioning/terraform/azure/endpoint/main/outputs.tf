@@ -34,3 +34,11 @@ output "vpc_id" {
 output "ssn_k8s_sg_id" {
   value = azurerm_network_security_group.enpoint-sg.name
 }
+
+output "endpoint_id" {
+  value = var.endpoint_id
+}
+
+output "resource_group_name" {
+  value = data.azurerm_resource_group.data-endpoint-resource-group.name
+}

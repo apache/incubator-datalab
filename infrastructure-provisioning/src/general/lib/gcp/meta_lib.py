@@ -172,7 +172,8 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
 
     def get_instance(self, instance_name):
-        request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
+        meta = GCPMeta()
+        request = meta.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
                                                instance=instance_name)
         try:
             return request.execute()
@@ -183,8 +184,8 @@ class GCPMeta:
                 raise err
         except Exception as err:
             logging.info(
-                "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to get Firewall",
+                "Unable to get instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get instance",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -210,7 +211,7 @@ class GCPMeta:
 
     def get_instance_public_ip_by_name(self, instance_name):
         try:
-            result = GCPMeta().get_instance(instance_name)
+            result = self.get_instance(instance_name)
             if result:
                 for i in result.get('networkInterfaces'):
                     for j in i.get('accessConfigs'):
@@ -255,10 +256,6 @@ class GCPMeta:
                     if service_account['displayName'] == service_account_name:
                         service_account_email = service_account['email']
                         response = service_account_email[:service_account_email.find('@')][-5:]
-                if response == '':
-                    print("No service account with" + service_account_name + "display name.")
-                else:
-                    print("Service account " + service_account_name + " has " + response + " index.")
                 return response
             else:
                 print("No service accounts list received.")
@@ -274,7 +271,7 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
 
     def get_service_account(self, service_account_name, service_base_name):
-        unique_index = GCPMeta().get_index_by_service_account_name(service_account_name)
+        unique_index = self.get_index_by_service_account_name(service_account_name)
         if unique_index == '':
             service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_base_name, self.project)
         else:
@@ -347,7 +344,7 @@ class GCPMeta:
 
     def get_private_ip_address(self, instance_name):
         try:
-            result = GCPMeta().get_instance(instance_name)
+            result = self.get_instance(instance_name)
             for i in result['networkInterfaces']:
                 return i['networkIP']
         except Exception as err:
@@ -704,7 +701,7 @@ class GCPMeta:
 
     def dataproc_waiter(self, labels):
         if os.path.exists(
-                '/response/.emr_creating_' + os.environ['exploratory_name']) or GCPMeta().get_not_configured_dataproc(
+                '/response/.emr_creating_' + os.environ['exploratory_name']) or self.get_not_configured_dataproc(
                 os.environ['notebook_instance_name']):
             with hide('stderr', 'running', 'warnings'):
                 local("echo 'Some Dataproc cluster is still being created/terminated, waiting..'")
@@ -742,10 +739,10 @@ class GCPMeta:
         try:
             private_list_ip = []
             if conf_type == 'edge_node' or conf_type == 'exploratory':
-                private_list_ip.append(GCPMeta().get_private_ip_address(
+                private_list_ip.append(self.get_private_ip_address(
                 instance_id))
             elif conf_type == 'computational_resource':
-                instance_list = GCPMeta().get_list_instances_by_label(
+                instance_list = self.get_list_instances_by_label(
                     os.environ['gcp_zone'], instance_id)
                 for instance in instance_list.get('items'):
                     private_list_ip.append(instance.get('networkInterfaces')[0].get('networkIP'))

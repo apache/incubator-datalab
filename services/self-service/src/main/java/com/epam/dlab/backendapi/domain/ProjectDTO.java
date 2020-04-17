@@ -22,7 +22,7 @@ public class ProjectDTO {
 	@NotNull
 	private final Set<String> groups;
 	@NotNull
-	@Pattern(regexp = "^ssh-.*\\n", message = "Wrong key format. Key should be in openSSH format")
+	@Pattern(regexp = "^ssh-.*\\n", message = "format is incorrect. Please use the openSSH format")
 	private final String key;
 	@NotNull
 	private final String tag;

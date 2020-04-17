@@ -32,7 +32,7 @@ resource "aws_instance" "notebook" {
   iam_instance_profile = var.iam_profile_name
   tags = {
     Name             = local.node_name
-    "${var.sbn}-Tag" = local.node_name
+    "${var.sbn}-tag" = local.node_name
     Project_name     = var.project_name
     Project_tag      = var.project_tag
     Endpoint_Tag     = var.endpoint_tag

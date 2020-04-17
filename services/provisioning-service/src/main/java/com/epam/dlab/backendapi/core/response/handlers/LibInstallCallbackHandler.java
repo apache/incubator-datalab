@@ -111,7 +111,8 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
 	protected LibInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
 		return super.getBaseStatusDTO(status)
 				.withExploratoryName(dto.getExploratoryName())
-				.withUptime(Date.from(Instant.now()))
-				.withComputationalName(dto.getComputationalName());
+				.withComputationalName(dto.getComputationalName())
+				.withProject(dto.getProject())
+				.withUptime(Date.from(Instant.now()));
 	}
 }

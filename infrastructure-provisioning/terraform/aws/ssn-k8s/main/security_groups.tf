@@ -59,7 +59,7 @@ resource "aws_security_group" "ssn_k8s_sg" {
     Name                                          = local.ssn_sg_name
     "${local.additional_tag[0]}"                  = local.additional_tag[1]
     "${var.tag_resource_id}"                      = "${var.service_base_name}:${local.ssn_sg_name}"
-    "${var.service_base_name}-Tag"                = local.ssn_sg_name
+    "${var.service_base_name}-tag"                = local.ssn_sg_name
     "kubernetes.io/cluster/${local.cluster_name}" = "owned"
   }
 }

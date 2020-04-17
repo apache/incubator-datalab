@@ -93,7 +93,9 @@
       </th>
     </ng-container>
     <ng-container matColumnDef="actions" stickyEnd>
-      <th mat-header-cell *matHeaderCellDef class="actions-col"></th>
+      <th mat-header-cell *matHeaderCellDef class="actions-col">
+        <span class="label"> Actions </span>
+      </th>
     </ng-container>
 
     <!-- ----------------------------------------------------- -->
@@ -168,10 +170,10 @@
                     </div>
                   </li>
                   <li *ngIf="element.status.toLowerCase() === 'stopped' || element.status.toLowerCase() === 'stopping'"
-                    matTooltip="Unable to run notebook until it will be stopped" matTooltipPosition="above"
-                    [matTooltipDisabled]="!isResourcesInProgress(element) && element.status.toLowerCase() !== 'stopping'">
+                    matTooltip="{{isEdgeNodeStopped(element) ? 'Unable to run notebook if edge node is stopped.' : 'Unable to run notebook until it will be stopped.'}}" matTooltipPosition="above"
+                    [matTooltipDisabled]="!isResourcesInProgress(element) && element.status.toLowerCase() !== 'stopping' && !isEdgeNodeStopped(element)">
                     <div (click)="exploratoryAction(element, 'run')"
-                      [ngClass]="{'not-allowed': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' }">
+                      [ngClass]="{'not-allowed': isResourcesInProgress(element) || element.status.toLowerCase() === 'stopping' || isEdgeNodeStopped(element) }">
                       <i class="material-icons">play_circle_outline</i>
                       <span>Run</span>
                     </div>

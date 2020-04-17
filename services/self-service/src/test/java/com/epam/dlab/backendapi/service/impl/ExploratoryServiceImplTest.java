@@ -66,7 +66,6 @@ import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyListOf;
 import static org.mockito.Mockito.anyMapOf;
 import static org.mockito.Mockito.anyString;
@@ -85,26 +84,27 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ExploratoryServiceImplTest {
 
-	private final String USER = "test";
-	private final String TOKEN = "token";
-	private final String EXPLORATORY_NAME = "expName";
-	private final String UUID = "1234-56789765-4321";
-	private static final String ENDPOINT_NAME = "endpointName";
+    private final String USER = "test";
+    private final String TOKEN = "token";
+    private final String PROJECT = "project";
+    private final String EXPLORATORY_NAME = "expName";
+    private final String UUID = "1234-56789765-4321";
+    private static final String ENDPOINT_NAME = "endpointName";
 
 
-	private UserInfo userInfo;
-	private UserInstanceDTO userInstance;
-	private StatusEnvBaseDTO statusEnvBaseDTO;
+    private UserInfo userInfo;
+    private UserInstanceDTO userInstance;
+    private StatusEnvBaseDTO statusEnvBaseDTO;
 
-	@Mock
-	private ProjectService projectService;
-	@Mock
-	private ExploratoryDAO exploratoryDAO;
-	@Mock
-	private ComputationalDAO computationalDAO;
-	@Mock
-	private GitCredsDAO gitCredsDAO;
-	@Mock
+    @Mock
+    private ProjectService projectService;
+    @Mock
+    private ExploratoryDAO exploratoryDAO;
+    @Mock
+    private ComputationalDAO computationalDAO;
+    @Mock
+    private GitCredsDAO gitCredsDAO;
+    @Mock
 	private RESTService provisioningService;
 	@Mock
 	private RequestBuilder requestBuilder;
@@ -129,162 +129,162 @@ public class ExploratoryServiceImplTest {
 
 	@Test
 	public void start() {
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(userInstance);
 
-		ExploratoryGitCredsDTO egcDtoMock = mock(ExploratoryGitCredsDTO.class);
-		when(gitCredsDAO.findGitCreds(anyString())).thenReturn(egcDtoMock);
+        ExploratoryGitCredsDTO egcDtoMock = mock(ExploratoryGitCredsDTO.class);
+        when(gitCredsDAO.findGitCreds(anyString())).thenReturn(egcDtoMock);
 
-		ExploratoryActionDTO egcuDto = new ExploratoryGitCredsUpdateDTO();
-		egcuDto.withExploratoryName(EXPLORATORY_NAME);
-		when(requestBuilder.newExploratoryStart(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
-				any(ExploratoryGitCredsDTO.class))).thenReturn(egcuDto);
+        ExploratoryActionDTO egcuDto = new ExploratoryGitCredsUpdateDTO();
+        egcuDto.withExploratoryName(EXPLORATORY_NAME);
+        when(requestBuilder.newExploratoryStart(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
+                any(ExploratoryGitCredsDTO.class))).thenReturn(egcuDto);
 
-		String exploratoryStart = "exploratory/start";
-		when(provisioningService.post(anyString(), anyString(), any(ExploratoryActionDTO.class), any()))
-				.thenReturn(UUID);
-		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
+        String exploratoryStart = "exploratory/start";
+        when(provisioningService.post(anyString(), anyString(), any(ExploratoryActionDTO.class), any()))
+                .thenReturn(UUID);
+        when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
-		String uuid = exploratoryService.start(userInfo, EXPLORATORY_NAME, "project");
-		assertNotNull(uuid);
-		assertEquals(UUID, uuid);
+        String uuid = exploratoryService.start(userInfo, EXPLORATORY_NAME, "project");
+        assertNotNull(uuid);
+        assertEquals(UUID, uuid);
 
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("starting");
+        statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("starting");
 
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
-		verify(provisioningService).post(endpointDTO().getUrl() + exploratoryStart, TOKEN, egcuDto, String.class);
-		verify(requestId).put(USER, UUID);
-		verifyNoMoreInteractions(exploratoryDAO, provisioningService, requestId);
-	}
+        verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+        verify(provisioningService).post(endpointDTO().getUrl() + exploratoryStart, TOKEN, egcuDto, String.class);
+        verify(requestId).put(USER, UUID);
+        verifyNoMoreInteractions(exploratoryDAO, provisioningService, requestId);
+    }
 
 	@Test
 	public void startWhenMethodFetchExploratoryFieldsThrowsException() {
-		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
-		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
-				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
-		try {
-			exploratoryService.start(userInfo, EXPLORATORY_NAME, "project");
-		} catch (DlabException e) {
-			assertEquals("Could not start exploratory environment expName: Exploratory for user with " +
-					"name not found", e.getMessage());
-		}
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("starting");
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+        when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+        doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
+                .when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString(), anyString());
+        try {
+            exploratoryService.start(userInfo, EXPLORATORY_NAME, PROJECT);
+        } catch (DlabException e) {
+            assertEquals("Could not start exploratory environment expName: Exploratory for user with " +
+                    "name not found", e.getMessage());
+        }
+        statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("starting");
+        verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
 
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verifyNoMoreInteractions(exploratoryDAO);
-	}
+        statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
+        verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+        verifyNoMoreInteractions(exploratoryDAO);
+    }
 
 	@Test
 	public void stop() {
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
-		when(computationalDAO.updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class))).thenReturn(1);
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+        when(computationalDAO.updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class))).thenReturn(1);
+        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(userInstance);
 
-		ExploratoryActionDTO eaDto = new ExploratoryActionDTO();
-		eaDto.withExploratoryName(EXPLORATORY_NAME);
-		when(requestBuilder.newExploratoryStop(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class)))
-				.thenReturn(eaDto);
+        ExploratoryActionDTO eaDto = new ExploratoryActionDTO();
+        eaDto.withExploratoryName(EXPLORATORY_NAME);
+        when(requestBuilder.newExploratoryStop(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class)))
+                .thenReturn(eaDto);
 
-		String exploratoryStop = "exploratory/stop";
-		when(provisioningService.post(anyString(), anyString(), any(ExploratoryActionDTO.class), any())).thenReturn
-				(UUID);
-		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
+        String exploratoryStop = "exploratory/stop";
+        when(provisioningService.post(anyString(), anyString(), any(ExploratoryActionDTO.class), any())).thenReturn
+                (UUID);
+        when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
-		String uuid = exploratoryService.stop(userInfo, EXPLORATORY_NAME);
-		assertNotNull(uuid);
-		assertEquals(UUID, uuid);
+        String uuid = exploratoryService.stop(userInfo, PROJECT, EXPLORATORY_NAME);
+        assertNotNull(uuid);
+        assertEquals(UUID, uuid);
 
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
+        statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
 
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
-		verify(provisioningService).post(endpointDTO().getUrl() + exploratoryStop, TOKEN, eaDto, String.class);
-		verify(computationalDAO).updateComputationalStatusesForExploratory(userInfo.getName(), EXPLORATORY_NAME,
-				UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING, UserInstanceStatus.FAILED,
-				UserInstanceStatus.TERMINATED, UserInstanceStatus.STOPPED);
-		verify(requestId).put(USER, UUID);
-		verifyNoMoreInteractions(exploratoryDAO, provisioningService, requestId);
-	}
+        verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+        verify(provisioningService).post(endpointDTO().getUrl() + exploratoryStop, TOKEN, eaDto, String.class);
+        verify(computationalDAO).updateComputationalStatusesForExploratory(userInfo.getName(), PROJECT,
+                EXPLORATORY_NAME, UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING,
+                UserInstanceStatus.FAILED, UserInstanceStatus.TERMINATED, UserInstanceStatus.STOPPED);
+        verify(requestId).put(USER, UUID);
+        verifyNoMoreInteractions(exploratoryDAO, provisioningService, requestId);
+    }
 
 	@Test
 	public void stopWhenMethodFetchExploratoryFieldsThrowsException() {
-		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
-		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
-				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
-		try {
-			exploratoryService.stop(userInfo, EXPLORATORY_NAME);
-		} catch (DlabException e) {
-			assertEquals("Could not stop exploratory environment expName: Exploratory for user with " +
-					"name not found", e.getMessage());
-		}
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+        when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+        doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
+                .when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString(), anyString());
+        try {
+            exploratoryService.stop(userInfo, PROJECT, EXPLORATORY_NAME);
+        } catch (DlabException e) {
+            assertEquals("Could not stop exploratory environment expName: Exploratory for user with " +
+                    "name not found", e.getMessage());
+        }
+        statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
+        verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
 
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verifyNoMoreInteractions(exploratoryDAO);
-	}
+        statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
+        verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+        verifyNoMoreInteractions(exploratoryDAO);
+    }
 
 	@Test
 	public void terminate() {
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
-		when(computationalDAO.updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class))).thenReturn(1);
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+        when(computationalDAO.updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class))).thenReturn(1);
+        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(userInstance);
 
-		ExploratoryActionDTO eaDto = new ExploratoryActionDTO();
-		eaDto.withExploratoryName(EXPLORATORY_NAME);
-		when(requestBuilder.newExploratoryStop(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class)))
-				.thenReturn(eaDto);
+        ExploratoryActionDTO eaDto = new ExploratoryActionDTO();
+        eaDto.withExploratoryName(EXPLORATORY_NAME);
+        when(requestBuilder.newExploratoryStop(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class)))
+                .thenReturn(eaDto);
 
-		String exploratoryTerminate = "exploratory/terminate";
-		when(provisioningService.post(anyString(), anyString(), any(ExploratoryActionDTO.class), any())).thenReturn
-				(UUID);
-		when(requestId.put(anyString(), anyString())).thenReturn(UUID);
+        String exploratoryTerminate = "exploratory/terminate";
+        when(provisioningService.post(anyString(), anyString(), any(ExploratoryActionDTO.class), any())).thenReturn
+                (UUID);
+        when(requestId.put(anyString(), anyString())).thenReturn(UUID);
 
-		String uuid = exploratoryService.terminate(userInfo, EXPLORATORY_NAME);
-		assertNotNull(uuid);
-		assertEquals(UUID, uuid);
+        String uuid = exploratoryService.terminate(userInfo, PROJECT, EXPLORATORY_NAME);
+        assertNotNull(uuid);
+        assertEquals(UUID, uuid);
 
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
+        statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
 
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
-		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME, UserInstanceStatus
-						.TERMINATING, UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
-				UserInstanceStatus.FAILED);
-		verify(requestBuilder).newExploratoryStop(userInfo, userInstance, endpointDTO());
-		verify(provisioningService).post(endpointDTO().getUrl() + exploratoryTerminate, TOKEN, eaDto, String.class);
-		verify(requestId).put(USER, UUID);
-		verifyNoMoreInteractions(exploratoryDAO, computationalDAO, requestBuilder, provisioningService, requestId);
-	}
+        verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+        verify(computationalDAO).updateComputationalStatusesForExploratory(USER, PROJECT, EXPLORATORY_NAME,
+                UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED,
+                UserInstanceStatus.FAILED);
+        verify(requestBuilder).newExploratoryStop(userInfo, userInstance, endpointDTO());
+        verify(provisioningService).post(endpointDTO().getUrl() + exploratoryTerminate, TOKEN, eaDto, String.class);
+        verify(requestId).put(USER, UUID);
+        verifyNoMoreInteractions(exploratoryDAO, computationalDAO, requestBuilder, provisioningService, requestId);
+    }
 
 	@Test
 	public void terminateWhenMethodFetchExploratoryFieldsThrowsException() {
-		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
-		doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
-				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
-		try {
-			exploratoryService.terminate(userInfo, EXPLORATORY_NAME);
-		} catch (DlabException e) {
-			assertEquals("Could not terminate exploratory environment expName: Exploratory for user " +
-					"with name not found", e.getMessage());
-		}
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
+        when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+        doThrow(new ResourceNotFoundException("Exploratory for user with name not found"))
+                .when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString(), anyString());
+        try {
+            exploratoryService.terminate(userInfo, PROJECT, EXPLORATORY_NAME);
+        } catch (DlabException e) {
+            assertEquals("Could not terminate exploratory environment expName: Exploratory for user " +
+                    "with name not found", e.getMessage());
+        }
+        statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
+        verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
 
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verifyNoMoreInteractions(exploratoryDAO);
-	}
+        statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("failed");
+        verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+        verifyNoMoreInteractions(exploratoryDAO);
+    }
 
 	@Test
 	public void create() {
@@ -389,202 +389,116 @@ public class ExploratoryServiceImplTest {
 	}
 
 	@Test
-	public void updateExploratoryStatusesWithRunningStatus() {
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
-				.thenReturn(singletonList(userInstance));
-		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
-				.thenReturn(mock(UpdateResult.class));
-
-		exploratoryService.updateExploratoryStatuses(USER, UserInstanceStatus.RUNNING);
-
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("running");
-
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusNotIn(USER,
-				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verifyNoMoreInteractions(exploratoryDAO);
-	}
-
-	@Test
-	public void updateExploratoryStatusesWithStoppingStatus() {
-		userInstance.setStatus("stopping");
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
-				.thenReturn(singletonList(userInstance));
-		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
-				.thenReturn(mock(UpdateResult.class));
-		doNothing().when(computationalDAO).updateComputationalStatusesForExploratory(anyString(), anyString(),
-				any(UserInstanceStatus.class), any(UserInstanceStatus.class));
-
-		exploratoryService.updateExploratoryStatuses(USER, UserInstanceStatus.STOPPING);
-
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("stopping");
-
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusNotIn(USER,
-				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME,
-				UserInstanceStatus.STOPPING, UserInstanceStatus.TERMINATING, UserInstanceStatus.FAILED,
-				UserInstanceStatus.TERMINATED, UserInstanceStatus.STOPPED);
-		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
-	}
-
-	@Test
-	public void updateExploratoryStatusesWithTerminatingStatus() {
-		userInstance.setStatus("terminating");
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusNotIn(anyString(), anyVararg()))
-				.thenReturn(singletonList(userInstance));
-		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class)))
-				.thenReturn(mock(UpdateResult.class));
-		when(computationalDAO.updateComputationalStatusesForExploratory(any(StatusEnvBaseDTO.class)))
-				.thenReturn(10);
-
-		exploratoryService.updateExploratoryStatuses(USER, UserInstanceStatus.TERMINATING);
-
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
-
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusNotIn(USER,
-				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME, UserInstanceStatus
-				.TERMINATING, UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATED, UserInstanceStatus
-				.FAILED);
-		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
-	}
-
-	@Test
 	public void updateProjectExploratoryStatuses() {
-		when(exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(anyString(), anyString(), anyVararg()))
-				.thenReturn(singletonList(userInstance));
-		when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
-		doNothing().when(computationalDAO).updateComputationalStatusesForExploratory(anyString(), anyString(),
-				any(UserInstanceStatus.class), any(UserInstanceStatus.class), anyVararg());
+        when(exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(anyString(), anyString(), anyVararg()))
+                .thenReturn(singletonList(userInstance));
+        when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
+        doNothing().when(computationalDAO).updateComputationalStatusesForExploratory(anyString(), anyString(),
+                anyString(), any(UserInstanceStatus.class), any(UserInstanceStatus.class), anyVararg());
 
-		exploratoryService.updateProjectExploratoryStatuses("project", "endpoint",
-				UserInstanceStatus.TERMINATED);
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminated");
+        exploratoryService.updateProjectExploratoryStatuses("project", "endpoint",
+                UserInstanceStatus.TERMINATED);
+        statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminated");
 
-		verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusNotIn("project", "endpoint",
-				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
-		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
-		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, EXPLORATORY_NAME,
-				UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATED,
-				UserInstanceStatus.FAILED);
+        verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusNotIn("project", "endpoint",
+                UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
+        verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
+        verify(computationalDAO).updateComputationalStatusesForExploratory(USER, PROJECT,
+                EXPLORATORY_NAME, UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATED,
+                UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
 
-		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
-	}
-
-	@Test
-	public void updateUserExploratoriesReuploadKeyFlag() {
-		doNothing().when(exploratoryDAO).updateReuploadKeyForExploratories(anyString(), anyBoolean(),
-				any(UserInstanceStatus.class));
-
-		exploratoryService.updateExploratoriesReuploadKeyFlag(USER, true, UserInstanceStatus.RUNNING);
-
-		verify(exploratoryDAO).updateReuploadKeyForExploratories(USER, true, UserInstanceStatus.RUNNING);
-		verifyNoMoreInteractions(exploratoryDAO);
-	}
-
-	@Test
-	public void getInstancesWithStatuses() {
-		when(exploratoryDAO.fetchUserExploratoriesWhereStatusIn(anyString(), anyBoolean(), anyVararg()))
-				.thenReturn(singletonList(userInstance));
-		exploratoryService.getInstancesWithStatuses(USER, UserInstanceStatus.RUNNING, UserInstanceStatus.RUNNING);
-
-		verify(exploratoryDAO).fetchUserExploratoriesWhereStatusIn(USER, true, UserInstanceStatus.RUNNING);
-		verifyNoMoreInteractions(exploratoryDAO);
-	}
+        verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
+    }
 
 	@Test
 	public void getUserInstance() {
-		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString())).thenReturn(userInstance);
+        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(userInstance);
 
-		Optional<UserInstanceDTO> expectedInstance = Optional.of(userInstance);
-		Optional<UserInstanceDTO> actualInstance = exploratoryService.getUserInstance(USER, EXPLORATORY_NAME);
-		assertEquals(expectedInstance, actualInstance);
+        Optional<UserInstanceDTO> expectedInstance = Optional.of(userInstance);
+        Optional<UserInstanceDTO> actualInstance = exploratoryService.getUserInstance(USER, PROJECT, EXPLORATORY_NAME);
+        assertEquals(expectedInstance, actualInstance);
 
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
-		verifyNoMoreInteractions(exploratoryDAO);
-	}
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+        verifyNoMoreInteractions(exploratoryDAO);
+    }
 
 	@Test
 	public void getUserInstanceWithException() {
-		doThrow(new ResourceNotFoundException("Exploratory for user not found"))
-				.when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString());
+        doThrow(new ResourceNotFoundException("Exploratory for user not found"))
+                .when(exploratoryDAO).fetchExploratoryFields(anyString(), anyString(), anyString());
 
-		Optional<UserInstanceDTO> expectedInstance = Optional.empty();
-		Optional<UserInstanceDTO> actualInstance = exploratoryService.getUserInstance(USER, EXPLORATORY_NAME);
-		assertEquals(expectedInstance, actualInstance);
+        Optional<UserInstanceDTO> expectedInstance = Optional.empty();
+        Optional<UserInstanceDTO> actualInstance = exploratoryService.getUserInstance(USER, PROJECT, EXPLORATORY_NAME);
+        assertEquals(expectedInstance, actualInstance);
 
-		verify(exploratoryDAO).fetchExploratoryFields(USER, EXPLORATORY_NAME);
-		verifyNoMoreInteractions(exploratoryDAO);
-	}
+        verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+        verifyNoMoreInteractions(exploratoryDAO);
+    }
 
 	@Test
 	public void testUpdateExploratoryClusterConfig() {
-		when(endpointService.get(anyString())).thenReturn(endpointDTO());
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenReturn(getUserInstanceDto());
-		when(requestBuilder.newClusterConfigUpdate(any(UserInfo.class), any(UserInstanceDTO.class),
-				anyListOf(ClusterConfig.class), any(EndpointDTO.class))).thenReturn(new ExploratoryReconfigureSparkClusterActionDTO());
-		when(provisioningService.post(anyString(), anyString(), any(ExploratoryReconfigureSparkClusterActionDTO.class)
-				, any())).thenReturn(UUID);
+        when(endpointService.get(anyString())).thenReturn(endpointDTO());
+        when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
+        when(requestBuilder.newClusterConfigUpdate(any(UserInfo.class), any(UserInstanceDTO.class),
+                anyListOf(ClusterConfig.class), any(EndpointDTO.class))).thenReturn(new ExploratoryReconfigureSparkClusterActionDTO());
+        when(provisioningService.post(anyString(), anyString(), any(ExploratoryReconfigureSparkClusterActionDTO.class)
+                , any())).thenReturn(UUID);
 
-		exploratoryService.updateClusterConfig(getUserInfo(), EXPLORATORY_NAME, singletonList(new ClusterConfig()));
+        exploratoryService.updateClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME, singletonList(new ClusterConfig()));
 
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
-		verify(requestBuilder).newClusterConfigUpdate(refEq(getUserInfo()), refEq(getUserInstanceDto()),
-				refEq(singletonList(new ClusterConfig())), refEq(endpointDTO()));
-		verify(requestId).put(USER, UUID);
-		verify(provisioningService).post(eq(endpointDTO().getUrl() + "exploratory/reconfigure_spark"), eq(TOKEN),
-				refEq(new ExploratoryReconfigureSparkClusterActionDTO(), "self"), eq(String.class));
-		verify(exploratoryDAO).updateExploratoryFields(refEq(new ExploratoryStatusDTO()
-				.withUser(USER)
-				.withConfig(singletonList(new ClusterConfig()))
-				.withStatus(UserInstanceStatus.RECONFIGURING.toString())
-				.withExploratoryName(EXPLORATORY_NAME), "self"));
-		verifyNoMoreInteractions(requestBuilder, requestId, exploratoryDAO, provisioningService);
-	}
+        verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+        verify(requestBuilder).newClusterConfigUpdate(refEq(getUserInfo()), refEq(getUserInstanceDto()),
+                refEq(singletonList(new ClusterConfig())), refEq(endpointDTO()));
+        verify(requestId).put(USER, UUID);
+        verify(provisioningService).post(eq(endpointDTO().getUrl() + "exploratory/reconfigure_spark"), eq(TOKEN),
+                refEq(new ExploratoryReconfigureSparkClusterActionDTO(), "self"), eq(String.class));
+        verify(exploratoryDAO).updateExploratoryFields(refEq(new ExploratoryStatusDTO()
+                .withUser(USER)
+                .withProject(PROJECT)
+                .withConfig(singletonList(new ClusterConfig()))
+                .withStatus(UserInstanceStatus.RECONFIGURING.toString())
+                .withExploratoryName(EXPLORATORY_NAME), "self"));
+        verifyNoMoreInteractions(requestBuilder, requestId, exploratoryDAO, provisioningService);
+    }
 
 	@Test
 	public void testUpdateExploratoryClusterConfigWhenNotRunning() {
 
-		when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString())).thenThrow(new ResourceNotFoundException("EXCEPTION"));
+        when(exploratoryDAO.fetchRunningExploratoryFields(anyString(), anyString(), anyString())).thenThrow(new ResourceNotFoundException("EXCEPTION"));
 
-		try {
+        try {
 
-			exploratoryService.updateClusterConfig(getUserInfo(), EXPLORATORY_NAME,
-					singletonList(new ClusterConfig()));
-		} catch (ResourceNotFoundException e) {
-			assertEquals("EXCEPTION", e.getMessage());
-		}
+            exploratoryService.updateClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
+                    singletonList(new ClusterConfig()));
+        } catch (ResourceNotFoundException e) {
+            assertEquals("EXCEPTION", e.getMessage());
+        }
 
-		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, EXPLORATORY_NAME);
-		verifyNoMoreInteractions(exploratoryDAO);
-		verifyZeroInteractions(requestBuilder, requestId, provisioningService);
-
-	}
+        verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+        verifyNoMoreInteractions(exploratoryDAO);
+        verifyZeroInteractions(requestBuilder, requestId, provisioningService);
+    }
 
 	@Test
 	public void testGetClusterConfig() {
+        when(exploratoryDAO.getClusterConfig(anyString(), anyString(), anyString())).thenReturn(Collections.singletonList(getClusterConfig()));
+        final List<ClusterConfig> clusterConfig = exploratoryService.getClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME);
 
-		when(exploratoryDAO.getClusterConfig(anyString(), anyString())).thenReturn(Collections.singletonList(getClusterConfig()));
-		final List<ClusterConfig> clusterConfig = exploratoryService.getClusterConfig(getUserInfo(), EXPLORATORY_NAME);
+        assertEquals(1, clusterConfig.size());
+        assertEquals("classification", clusterConfig.get(0).getClassification());
 
-		assertEquals(1, clusterConfig.size());
-		assertEquals("classification", clusterConfig.get(0).getClassification());
-
-		verify(exploratoryDAO).getClusterConfig(getUserInfo().getName(), EXPLORATORY_NAME);
-		verifyNoMoreInteractions(exploratoryDAO);
-	}
+        verify(exploratoryDAO).getClusterConfig(getUserInfo().getName(), PROJECT, EXPLORATORY_NAME);
+        verifyNoMoreInteractions(exploratoryDAO);
+    }
 
 	@Test
 	public void testGetClusterConfigWithException() {
+        when(exploratoryDAO.getClusterConfig(anyString(), anyString(), anyString())).thenThrow(new RuntimeException("Exception"));
 
-		when(exploratoryDAO.getClusterConfig(anyString(), anyString())).thenThrow(new RuntimeException("Exception"));
-
-		expectedException.expect(RuntimeException.class);
-		expectedException.expectMessage("Exception");
-		exploratoryService.getClusterConfig(getUserInfo(), EXPLORATORY_NAME);
-	}
+        expectedException.expect(RuntimeException.class);
+        expectedException.expectMessage("Exception");
+        exploratoryService.getClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME);
+    }
 
 	private ClusterConfig getClusterConfig() {
 		final ClusterConfig config = new ClusterConfig();
@@ -597,21 +511,25 @@ public class ExploratoryServiceImplTest {
 	}
 
 	private UserInstanceDTO getUserInstanceDto() {
-		UserComputationalResource compResource = new UserComputationalResource();
-		compResource.setImageName("YYYY.dataengine");
-		compResource.setComputationalName("compName");
-		compResource.setStatus("stopped");
-		compResource.setComputationalId("compId");
-		return new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME).withStatus("running")
-				.withResources(singletonList(compResource))
-				.withTags(Collections.emptyMap())
-				.withProject("project")
-				.withEndpoint("test")
-				.withCloudProvider(CloudProvider.AWS.toString());
-	}
+        UserComputationalResource compResource = new UserComputationalResource();
+        compResource.setImageName("YYYY.dataengine");
+        compResource.setComputationalName("compName");
+        compResource.setStatus("stopped");
+        compResource.setComputationalId("compId");
+        return new UserInstanceDTO()
+                .withUser(USER)
+                .withExploratoryName(EXPLORATORY_NAME)
+                .withStatus("running")
+                .withResources(singletonList(compResource))
+                .withTags(Collections.emptyMap())
+                .withProject(PROJECT)
+                .withEndpoint("test")
+                .withCloudProvider(CloudProvider.AWS.toString());
+    }
 
 	private StatusEnvBaseDTO getStatusEnvBaseDTOWithStatus(String status) {
 		return new ExploratoryStatusDTO()
+                .withProject(PROJECT)
 				.withUser(USER)
 				.withExploratoryName(EXPLORATORY_NAME)
 				.withStatus(status);

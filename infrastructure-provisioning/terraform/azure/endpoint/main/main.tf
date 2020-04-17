@@ -20,10 +20,12 @@
 # ******************************************************************************
 
 locals {
-  json_data = jsondecode(file(var.auth_file_path))
+  resource_group_name = "${var.service_base_name}-${var.endpoint_id}-resource-group"
+  json_data           = jsondecode(file(var.auth_file_path))
 }
 
 provider "azurerm" {
+  features {}
   subscription_id = local.json_data.subscriptionId
   client_id       = local.json_data.clientId
   client_secret   = local.json_data.clientSecret
@@ -31,8 +33,8 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "endpoint-resource-group" {
-  count  = var.resource_group_name == "" ? 1 : 0
-  name     = var.service_base_name
+  count    = var.resource_group_name == "" ? 1 : 0
+  name     = local.resource_group_name
   location = var.region
 
   tags = {

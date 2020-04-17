@@ -47,6 +47,7 @@ export class ApplicationServiceFacade {
   private static readonly IMAGE = 'image';
   private static readonly SCHEDULER = 'scheduler';
   private static readonly TEMPLATES = 'templates';
+  private static readonly COMPUTATION_TEMPLATES = 'computation_templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
@@ -179,6 +180,12 @@ export class ApplicationServiceFacade {
   public buildGetTemplatesRequest(params): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.TEMPLATES) + params,
+      null);
+  }
+
+  public buildGetComputationTemplatesRequest(params, provider): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATION_TEMPLATES) + params,
       null);
   }
 
@@ -560,12 +567,6 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public buildDeleteProject(param): Observable<any> {
-    return this.buildRequest(HTTPMethod.DELETE,
-      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
-      null);
-  }
-
   public buildToggleProjectStatus(param, data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
@@ -650,6 +651,8 @@ export class ApplicationServiceFacade {
       '/api/infrastructure_provision/exploratory_environment');
     this.requestRegistry.Add(ApplicationServiceFacade.TEMPLATES,
       '/api/infrastructure_templates');
+    this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATION_TEMPLATES,
+    '/infrastructure_provision/computational_resources');
     this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
       '/api/infrastructure_provision/exploratory_environment/image');
     this.requestRegistry.Add(ApplicationServiceFacade.SCHEDULER,

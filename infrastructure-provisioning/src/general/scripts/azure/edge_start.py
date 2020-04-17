@@ -21,9 +21,13 @@
 #
 # ******************************************************************************
 
-from dlab.fab import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import os
+import logging
 import sys
+import json
 
 
 if __name__ == "__main__":
@@ -35,29 +39,31 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     print('Generating infrastructure names and tags')
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
-    edge_conf['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
+    edge_conf['project_name'] = os.environ['project_name']
+    edge_conf['endpoint_name'] = os.environ['endpoint_name']
     edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
                                                            edge_conf['project_name'], edge_conf['endpoint_name'])
-    edge_conf['instance_dns_name'] = 'host-' + edge_conf['instance_name'] + '.' + os.environ['azure_region'] + '.cloudapp.azure.com'
+    edge_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(edge_conf['instance_name'],
+                                                                            os.environ['azure_region'])
 
     logging.info('[START EDGE]')
     print('[START EDGE]')
     try:
-        AzureActions().start_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
+        AzureActions.start_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to start edge.", str(err))
+        dlab.fab.append_result("Failed to start edge.", str(err))
         sys.exit(1)
 
     try:
-        public_ip_address = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                                       edge_conf['instance_name'])
-        private_ip_address = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                         edge_conf['instance_name'])
+        public_ip_address = AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                                     edge_conf['instance_name'])
+        private_ip_address = AzureMeta.get_private_ip_address(edge_conf['resource_group_name'],
+                                                              edge_conf['instance_name'])
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(edge_conf['instance_name']))
@@ -72,7 +78,7 @@ if __name__ == "__main__":
                    "Action": "Start up notebook server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)
 

@@ -38,7 +38,7 @@ resource "aws_eip" "edge_ip" {
     Name                           = local.edge_ip_name
     "${local.additional_tag[0]}"   = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.edge_ip_name}"
-    "${var.service_base_name}-Tag" = local.edge_ip_name
+    "${var.service_base_name}-tag" = local.edge_ip_name
   }
 }
 
@@ -211,7 +211,7 @@ resource "aws_security_group" "edge_sg" {
     Name                           = local.edge_sg_name
     "${local.additional_tag[0]}"   = local.additional_tag[1]
     "${var.tag_resource_id}"       = "${var.service_base_name}:${local.edge_sg_name}"
-    "${var.service_base_name}-Tag" = local.edge_sg_name
+    "${var.service_base_name}-tag" = local.edge_sg_name
   }
 }
 
@@ -225,7 +225,7 @@ resource "aws_subnet" "private_subnet" {
 
   tags = {
     Name                         = local.nb_subnet_name
-    "${local.sbn}-Tag"           = local.nb_subnet_name
+    "${local.sbn}-tag"           = local.nb_subnet_name
     "${local.additional_tag[0]}" = local.additional_tag[1]
     Project_name                 = var.project_name
     Project_tag                  = var.project_tag
@@ -263,7 +263,7 @@ resource "aws_security_group" "nb-sg" {
 
   tags = {
     Name                         = local.sg_name
-    "${local.sbn}-Tag"           = local.sg_name
+    "${local.sbn}-tag"           = local.sg_name
     "${local.additional_tag[0]}" = local.additional_tag[1]
     Project_name                 = var.project_name
     Project_tag                  = var.project_tag

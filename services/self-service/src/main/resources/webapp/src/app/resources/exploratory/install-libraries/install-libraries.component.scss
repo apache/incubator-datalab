@@ -444,6 +444,14 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   }
 }
 
+.error-message{
+  position: absolute;
+  left: 20%;
+  top: 40px;
+  font-size: 11px;
+  color: red;
+}
+
 @media screen and (min-width: 1281px) {
   .libs-info {
     height: 60%;
@@ -452,6 +460,19 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
       .scrollingList {
         max-height: 300px;
         height: 80%;
+      }
+    }
+  }
+}
+
+@media screen and (max-height: 800px) {
+  .libs-info {
+    height: 50%;
+
+    .mat-list {
+      .scrollingList {
+        max-height: 140px;
+        height: 60%;
       }
     }
   }
