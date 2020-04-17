@@ -509,7 +509,10 @@ if __name__ == "__main__":
                  "--cost {} " \
                  "--resource_id {} " \
                  "--default_endpoint_name {} " \
-                 "--tags {}". \
+                 "--tags {}" \
+                 "--keycloak_client_id {}" \
+                 "--keycloak_client_secret {}" \
+                 "--keycloak_auth_server_url {}". \
             format(ssn_conf['instance_hostname'],
                    "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
                    os.environ['ssn_dlab_path'],
