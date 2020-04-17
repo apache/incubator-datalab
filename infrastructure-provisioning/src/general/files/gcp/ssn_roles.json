@@ -7,7 +7,5 @@
     "iam.roleAdmin",
     "compute.instanceAdmin",
     "bigquery.dataViewer",
-    "bigquery.jobUser",
-    "container.admin",
-    "dns.admin"
+    "bigquery.jobUser"
 ]

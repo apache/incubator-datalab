@@ -275,8 +275,7 @@
       "/api/settings",
       "/user/settings",
       "/api/project",
-      "/api/endpoint",
-      "/api/odahu"
+      "/api/endpoint"
     ],
     "groups": [
       "$anyuser"

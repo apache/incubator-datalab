@@ -23,7 +23,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 
-import {LegionDeploymentService, UserResourceService} from '../../core/services';
+import { UserResourceService } from '../../core/services';
 
 import { ExploratoryModel, Exploratory } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
@@ -40,7 +40,6 @@ import { SchedulerComponent } from '../scheduler';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
-import {OdahuActionDialogComponent} from '../../shared/modal-dialog/odahu-action-dialog';
 import {ComputationModel} from '../computational/computational-resource.model';
 import {NotebookModel} from '../exploratory/notebook.model';
 
@@ -96,7 +95,6 @@ export class ResourcesGridComponent implements OnInit {
     private userResourceService: UserResourceService,
     private dialog: MatDialog,
     private progressBarService: ProgressBarService,
-    private legionDeploymentService: LegionDeploymentService,
   ) { }
 
   ngOnInit(): void {
@@ -146,7 +144,7 @@ export class ResourcesGridComponent implements OnInit {
   public isResourcesInProgress(notebook) {
     const env = this.getResourceByName(notebook.name, notebook.project);
 
-    if (env && env.resources && env.resources.length) {
+    if (env && env.resources.length) {
       return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
         && item.status !== 'running' && item.status !== 'stopped')).length > 0;
     }
@@ -175,12 +173,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public printDetailEnvironmentModal(data): void {
-    this.dialog.open(DetailDialogComponent, { data: {notebook: data}, panelClass: 'modal-lg' })
-      .afterClosed().subscribe(() => this.buildGrid());
-  }
-
-  public printDetailLegionModal(data): void {
-    this.dialog.open(DetailDialogComponent, { data: {legion: data}, panelClass: 'modal-lg' })
+    this.dialog.open(DetailDialogComponent, { data: data, panelClass: 'modal-lg' })
       .afterClosed().subscribe(() => this.buildGrid());
   }
 
@@ -226,7 +219,7 @@ export class ResourcesGridComponent implements OnInit {
   private getResourceByName(notebook_name: string, project_name: string) {
     return this.getEnvironmentsListCopy().filter(environments => environments.project === project_name)
       .map(env => env.exploratory.find(({ name }) => name === notebook_name))
-      .filter(notebook_name => !!notebook_name)[0];
+      .filter(name => !!name)[0];
   }
 
   private getEnvironmentsListCopy() {
@@ -241,11 +234,11 @@ export class ResourcesGridComponent implements OnInit {
       if (shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
       if (statuses.indexOf(item.status) === -1) statuses.push(item.status);
       statuses.sort(SortUtils.statusSort);
-      if (item.resources) {
+
       item.resources.map((resource: any) => {
         if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
         resources.sort(SortUtils.statusSort);
-      }); }
+      });
     }));
 
     this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '', '');
@@ -256,10 +249,7 @@ export class ResourcesGridComponent implements OnInit {
     let filteredData = this.getEnvironmentsListCopy();
 
     const containsStatus = (list, selectedItems) => {
-      if (list && list.length) {
-        return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
-      }
-      return list;
+      return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
     };
 
     if (filteredData.length) this.filtering = true;
@@ -274,6 +264,7 @@ export class ResourcesGridComponent implements OnInit {
             const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
             const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
             const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+
             const modifiedResources = containsStatus(item.resources, config.resources);
             let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
 
@@ -360,16 +351,5 @@ export class ResourcesGridComponent implements OnInit {
     this.userResourceService.updateUserPreferences(filterConfiguration)
       .subscribe((result) => { },
         (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
-  }
-
-  private odahuAction(element: any, action: string) {
-    this.dialog.open(OdahuActionDialogComponent, {data: {type: action, item: element}, panelClass: 'modal-sm'})
-      .afterClosed().subscribe(result => {
-        result && this.legionDeploymentService.odahuAction(element,  action).subscribe(v =>
-          this.buildGrid(),
-          error => this.toastr.error(`Odahu cluster ${action} failed!`, 'Oops!')
-        ) ;
-      }, error => this.toastr.error(error.message || `Odahu cluster ${action} failed!`, 'Oops!')
-    );
   }
 }

@@ -1,8 +1,0 @@
-{
-  "template_name": "OdahuFlow cluster",
-  "description": "OdahuFlow cluster",
-  "environment_type": "computational",
-  "templates":
-  [
-  ]
-}

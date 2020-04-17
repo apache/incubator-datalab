@@ -121,12 +121,12 @@
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="actions"> 
+    <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef class="actions">
         <span class="label"> Actions </span>
       </th>
-      <td mat-cell *matCellDef="let element" class=" settings actions-col">
-        <span #settings class="actions" (click)="actions.toggle($event, settings)" *ngIf="element.type !== 'edge node' && element.type !== 'odahu'"
+      <td mat-cell *matCellDef="let element" class="settings actions-col">
+        <span #settings class="actions" (click)="actions.toggle($event, settings)" *ngIf="element.type !== 'edge node'"
           [ngClass]="{
             'disabled' : isActiveResources(element),
             'disabled' : element.status !== 'running' && element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'failed' }"></span>

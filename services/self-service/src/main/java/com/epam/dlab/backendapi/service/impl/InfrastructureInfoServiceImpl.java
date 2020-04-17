@@ -25,7 +25,6 @@ import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
-import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
@@ -41,12 +40,14 @@ import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 public class InfrastructureInfoServiceImpl implements InfrastructureInfoService {
@@ -68,14 +69,29 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 
 
 	@Override
-	public List<ProjectInfrastructureInfo> getUserResources(UserInfo user) {
+	public List<ProjectInfrastructureInfo> getUserResources(String user) {
 		log.debug("Loading list of provisioned resources for user {}", user);
 		try {
+			Iterable<Document> documents = expDAO.findExploratory(user);
 			List<EndpointDTO> allEndpoints = endpointService.getEndpoints();
-			return projectService.getUserProjects(user, false).stream()
-					.map(p -> new ProjectInfrastructureInfo(p.getName(), billingDAO.getBillingProjectQuoteUsed(p.getName()),
-							getSharedInfo(p.getName()), expDAO.findExploratory(user.getName(), p.getName()), p.getOdahu(),
-							getEndpoints(allEndpoints, p)))
+			return StreamSupport.stream(documents.spliterator(),
+					false)
+					.collect(Collectors.groupingBy(d -> d.getString("project")))
+					.entrySet()
+					.stream()
+					.map(e -> {
+						List<ProjectEndpointDTO> endpoints = projectService.get(e.getKey()).getEndpoints();
+						List<EndpointDTO> endpointResult = allEndpoints.stream()
+								.filter(endpoint -> endpoints.stream()
+										.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
+								.collect(Collectors.toList());
+						final Map<String, Map<String, String>> projectEdges =
+								endpoints.stream()
+										.collect(Collectors.toMap(ProjectEndpointDTO::getName,
+												endpointDTO -> getSharedInfo(endpointDTO.getEdgeInfo())));
+						return new ProjectInfrastructureInfo(e.getKey(),
+								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), endpointResult);
+					})
 					.collect(Collectors.toList());
 		} catch (Exception e) {
 			log.error("Could not load list of provisioned resources for user: {}", user, e);
@@ -110,18 +126,6 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 				.version(Manifests.read("DLab-Version"))
 				.releaseNotes(String.format(RELEASE_NOTES_FORMAT, branch))
 				.build();
-	}
-
-	private List<EndpointDTO> getEndpoints(List<EndpointDTO> allEndpoints, ProjectDTO projectDTO) {
-		return allEndpoints.stream().filter(endpoint -> projectDTO.getEndpoints().stream()
-				.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
-				.collect(Collectors.toList());
-	}
-
-	private Map<String, Map<String, String>> getSharedInfo(String name) {
-		return projectService.get(name).getEndpoints().stream()
-				.collect(Collectors.toMap(ProjectEndpointDTO::getName,
-						endpointDTO -> getSharedInfo(endpointDTO.getEdgeInfo())));
 	}
 
 	private Map<String, String> getSharedInfo(EdgeInfo edgeInfo) {

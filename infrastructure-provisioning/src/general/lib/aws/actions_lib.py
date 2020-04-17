@@ -1034,9 +1034,6 @@ def remove_s3(bucket_type='all', scientist=''):
         elif bucket_type == 'edge':
             bucket_name = (os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) + '-' +
                            os.environ['endpoint_name'] + '-bucket').lower().replace('_', '-')
-        elif bucket_type == 'odahu':
-            bucket_name = "{}-{}-tfstate".format((os.environ['conf_service_base_name']).lower().replace('_', '-'),
-                                                 (os.environ['odahu_cluster_name']).lower().replace('_', '-'))
         else:
             bucket_name = (os.environ['conf_service_base_name']).lower().replace('_', '-')
         for item in client.list_buckets().get('Buckets'):

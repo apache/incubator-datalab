@@ -28,7 +28,6 @@ import sys
 from dlab.ssn_lib import *
 import os
 import time
-import base64
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -40,8 +39,6 @@ parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--region', type=str, default='')
-parser.add_argument('--gcr_creds', type=str, default='')
-parser.add_argument('--odahu_image', type=str, default='')
 args = parser.parse_args()
 
 
@@ -81,31 +78,6 @@ def add_china_repository(dlab_path):
         sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
-def login_in_gcr(os_user, gcr_creds, odahu_image, dlab_path, os_family):
-    if os.environ['conf_cloud_provider'] != 'gcp':
-        try:
-            sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
-                  'cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
-            sudo('apt-get -y install apt-transport-https ca-certificates gnupg')
-            sudo('curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -')
-            sudo('apt-get update')
-            sudo('apt-get -y install google-cloud-sdk')
-        except Exception as err:
-            traceback.print_exc()
-            print('Failed to install gcloud: ', str(err))
-            sys.exit(1)
-    try:
-        with open('/tmp/config', 'w') as f:
-            f.write(base64.b64decode(gcr_creds))
-        local('scp -i {} /tmp/config {}:/tmp/config'.format(args.keyfile, env.host_string, os_user))
-        sudo('mkdir /home/{}/.docker'.format(os_user))
-        sudo('cp /tmp/config /home/{}/.docker/config.json'.format(os_user))
-        sudo('sed -i "s|ODAHU_IMAGE|{}|" {}sources/infrastructure-provisioning/src/general/files/{}/odahu_Dockerfile'
-             .format(odahu_image, dlab_path, os_family))
-    except Exception as err:
-        traceback.print_exc()
-        print('Failed to prepare odahu image: ', str(err))
-        sys.exit(1)
 
 def build_docker_images(image_list, region, dlab_path):
     try:
@@ -203,9 +175,6 @@ if __name__ == "__main__":
     print("Installing docker daemon")
     if not ensure_docker_daemon(args.dlab_path, args.os_user, args.region):
         sys.exit(1)
-
-    print("Login in Google Container Registry")
-    login_in_gcr(args.os_user, args.gcr_creds, args.odahu_image, args.dlab_path, args.os_family)
 
     print("Building dlab images")
     count = 0

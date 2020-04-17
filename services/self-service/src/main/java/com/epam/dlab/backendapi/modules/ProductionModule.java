@@ -99,7 +99,5 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(SecurityService.class).to(SecurityServiceImpl.class);
 		bind(KeycloakService.class).to(KeycloakServiceImpl.class);
 		bind(Client.class).toInstance(httpClient);
-		bind(OdahuDAO.class).to(OdahuDAOImpl.class);
-		bind(OdahuService.class).to(OdahuServiceImpl.class);
 	}
 }

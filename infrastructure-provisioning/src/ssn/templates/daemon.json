@@ -1,5 +1,0 @@
-{
-  "insecure-registries":["<NEXUS_URL>"],
-  "registry-mirrors": ["http://<NEXUS_URL>"],
-  "disable-legacy-registry": true
-}

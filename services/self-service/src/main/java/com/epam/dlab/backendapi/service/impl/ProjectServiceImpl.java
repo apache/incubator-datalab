@@ -14,8 +14,8 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
-import com.epam.dlab.backendapi.service.OdahuService;
 import com.epam.dlab.backendapi.service.ProjectService;
+import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -55,14 +55,14 @@ public class ProjectServiceImpl implements ProjectService {
 	private final RequestBuilder requestBuilder;
 	private final EndpointService endpointService;
 	private final ExploratoryDAO exploratoryDAO;
-	private final OdahuService odahuService;
+	private final SecurityService securityService;
 
 	@Inject
 	public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
 							  UserGroupDao userGroupDao,
 							  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
 							  RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService,
-							  ExploratoryDAO exploratoryDAO, OdahuService odahuService) {
+							  ExploratoryDAO exploratoryDAO, SecurityService securityService) {
 		this.projectDAO = projectDAO;
 		this.exploratoryService = exploratoryService;
 		this.userGroupDao = userGroupDao;
@@ -71,7 +71,7 @@ public class ProjectServiceImpl implements ProjectService {
 		this.requestBuilder = requestBuilder;
 		this.endpointService = endpointService;
 		this.exploratoryDAO = exploratoryDAO;
-		this.odahuService = odahuService;
+		this.securityService = securityService;
 	}
 
 	@Override
@@ -124,18 +124,10 @@ public class ProjectServiceImpl implements ProjectService {
 		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
 		exploratoryService.updateProjectExploratoryStatuses(name, endpoint, UserInstanceStatus.TERMINATING);
-		odahuService.get(name, endpoint)
-				.filter(o -> UserInstanceStatus.RUNNING == o.getStatus())
-				.ifPresent(odahu -> odahuService.terminate(odahu.getName(), name, endpoint, userInfo));
 	}
 
 	@Override
 	public void terminateEndpoint(UserInfo userInfo, List<String> endpoints, String name) {
-		List<ProjectEndpointDTO> projectEndpoint = get(name).getEndpoints().stream()
-				.filter(e -> endpoints.contains(e.getName()))
-				.collect(Collectors.toList());
-		checkProjectRelatedResourcesInProgress(name, projectEndpoint, TERMINATE_ACTION);
-
 		endpoints.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
 	}
 
@@ -270,13 +262,12 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private void checkProjectRelatedResourcesInProgress(String projectName, List<ProjectEndpointDTO> endpoints, String action) {
-		boolean edgeAndOdahuProgress = endpoints.stream().anyMatch(e ->
-				Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
-						UserInstanceStatus.TERMINATING).contains(e.getStatus())
-						|| odahuService.inProgress(projectName, e.getName()));
+        boolean edgeProgress = endpoints.stream().anyMatch(e ->
+                Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
+                        UserInstanceStatus.TERMINATING).contains(e.getStatus()));
 
 		List<String> endpointsName = endpoints.stream().map(ProjectEndpointDTO::getName).collect(Collectors.toList());
-		if (edgeAndOdahuProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointsName)) {
+		if (edgeProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointsName)) {
 			throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
 					"resource is in processing stage", action)));
 		}

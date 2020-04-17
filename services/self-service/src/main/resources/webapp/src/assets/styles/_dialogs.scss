@@ -340,12 +340,6 @@ mat-dialog-container {
   font-weight: 500;
   max-height: 200px;
   overflow: auto;
-
-.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  pointer-events: none;
-
 }
 
 @media screen and (max-width: 1280px) {

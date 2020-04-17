@@ -113,8 +113,8 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param user name
 	 * @return list of user resources
 	 */
-	public Iterable<Document> findExploratory(String user, String project) {
-		return find(USER_INSTANCES, and(eq(USER, user), eq(PROJECT, project)),
+	public Iterable<Document> findExploratory(String user) {
+		return find(USER_INSTANCES, eq(USER, user),
 				fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS, ExploratoryLibDAO.COMPUTATIONAL_LIBS, SCHEDULER_DATA,
 						EXPLORATORY_USER, EXPLORATORY_PASS)));
 	}

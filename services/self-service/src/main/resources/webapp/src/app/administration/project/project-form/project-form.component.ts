@@ -29,7 +29,7 @@ import { CheckUtils, FileUtils, PATTERNS } from '../../../core/util';
 import { Project } from '../project.component';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
-export interface GenerateKey { privateKey: string, publicKey: string }
+export interface GenerateKey { privateKey: string, publicKey: string };
 
 @Component({
   selector: 'project-form',
@@ -139,7 +139,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public selectOptions(list, key, select?) {
-    const filter = key === 'endpoints' ? list.map(el => el.name) : list;
+    let filter = key === 'endpoints' ? list.map(el => el.name) : list;
     this.projectForm.controls[key].setValue(select ? filter : []);
   }
 

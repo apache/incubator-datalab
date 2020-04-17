@@ -23,7 +23,6 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
-import com.epam.dlab.backendapi.domain.OdahuDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
@@ -99,8 +98,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		List<UserInstanceDTO> expList = exploratoryDAO.getInstances();
 		return projectService.getProjects()
 				.stream()
-				.map(projectDTO -> getProjectEnv(projectDTO, expList))
-				.flatMap(Collection::stream)
+				.map(projectDTO -> getProjectEnv(projectDTO, expList)).flatMap(Collection::stream)
 				.collect(toList());
 	}
 
@@ -188,12 +186,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
 		final Stream<UserResourceInfo> userResources = allInstances.stream()
-				.filter(instance -> instance.getProject().equals(projectDTO.getName()))
-				.map(this::toUserResourceInfo);
-
-		Stream<UserResourceInfo> odahuResources = projectDTO.getOdahu().stream()
-				.map(this::toUserResourceInfo);
-
+				.filter(instance -> instance.getProject().equals(projectDTO.getName())).map(this::toUserResourceInfo);
 		if (projectDTO.getEndpoints() != null) {
 			final Stream<UserResourceInfo> edges = projectDTO.getEndpoints()
 					.stream()
@@ -201,7 +194,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 							.withResourceStatus(e.getStatus().toString())
 							.withProject(projectDTO.getName())
 							.withIp(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null));
-			return Stream.concat(edges, Stream.concat(odahuResources, userResources))
+			return Stream.concat(edges, userResources)
 					.collect(toList());
 		} else {
 			return userResources.collect(toList());
@@ -217,14 +210,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.withUser(userInstance.getUser())
 				.withProject(userInstance.getProject())
 				.withCloudProvider(userInstance.getCloudProvider());
-	}
-
-	private UserResourceInfo toUserResourceInfo(OdahuDTO odahuDTO) {
-		return new UserResourceInfo()
-				.withResourceType(ResourceEnum.ODAHU)
-				.withResourceName(odahuDTO.getName())
-				.withResourceStatus(odahuDTO.getStatus().toString())
-				.withProject(odahuDTO.getProject());
 	}
 
 	private void checkProjectResourceConditions(String project, String action) {

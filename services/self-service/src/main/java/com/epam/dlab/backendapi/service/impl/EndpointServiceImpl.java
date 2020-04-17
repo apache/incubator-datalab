@@ -8,7 +8,6 @@ import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.EndpointResourcesDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
-import com.epam.dlab.backendapi.service.OdahuService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
@@ -38,19 +37,17 @@ public class EndpointServiceImpl implements EndpointService {
 	private final ProjectService projectService;
 	private final ExploratoryDAO exploratoryDAO;
 	private final RESTService provisioningService;
-	private final OdahuService odahuService;
 	private final UserRoleDao userRoleDao;
 
 	@Inject
 	public EndpointServiceImpl(EndpointDAO endpointDAO, ProjectService projectService, ExploratoryDAO exploratoryDAO,
 							   @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-							   OdahuService odahuService, UserRoleDao userRoleDao) {
+							   UserRoleDao userRoleDao) {
 
 		this.endpointDAO = endpointDAO;
 		this.projectService = projectService;
 		this.exploratoryDAO = exploratoryDAO;
 		this.provisioningService = provisioningService;
-		this.odahuService = odahuService;
 		this.userRoleDao = userRoleDao;
 	}
 
@@ -152,8 +149,7 @@ public class EndpointServiceImpl implements EndpointService {
 
 	private void checkProjectEndpointResourcesStatuses(List<ProjectDTO> projects, String endpoint) {
 		boolean isTerminationEnabled = projects.stream().anyMatch(p ->
-				odahuService.inProgress(p.getName(), endpoint) ||
-						!projectService.checkExploratoriesAndComputationalProgress(p.getName(), Collections.singletonList(endpoint)) ||
+				!projectService.checkExploratoriesAndComputationalProgress(p.getName(), Collections.singletonList(endpoint)) ||
 						p.getEndpoints().stream().anyMatch(e -> e.getName().equals(endpoint) &&
 								Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
 										UserInstanceStatus.TERMINATING).contains(e.getStatus())));

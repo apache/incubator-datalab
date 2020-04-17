@@ -37,16 +37,7 @@ import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.refEq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class InfrastructureInfoResourceTest extends TestBase {
 
@@ -168,7 +159,7 @@ public class InfrastructureInfoResourceTest extends TestBase {
 	@Test
 	public void getUserResourcesWithException() {
 		doThrow(new DlabException("Could not load list of provisioned resources for user"))
-				.when(infrastructureInfoService).getUserResources(any(UserInfo.class));
+				.when(infrastructureInfoService).getUserResources(anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure/info")
 				.request()
@@ -178,7 +169,7 @@ public class InfrastructureInfoResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(infrastructureInfoService).getUserResources(any(UserInfo.class));
+		verify(infrastructureInfoService).getUserResources(USER.toLowerCase());
 		verifyNoMoreInteractions(infrastructureInfoService);
 	}
 
