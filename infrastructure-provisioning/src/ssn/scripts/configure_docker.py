@@ -81,7 +81,7 @@ def add_china_repository(dlab_path):
         sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
         sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
-def login_in_gcr(os_user, gcr_creds, odahu_image, dlab_path, os_family):
+def login_in_gcr(os_user, gcr_creds, odahu_image, dlab_path, cloud_provider):
     if os.environ['conf_cloud_provider'] != 'gcp':
         try:
             sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt '
@@ -101,7 +101,7 @@ def login_in_gcr(os_user, gcr_creds, odahu_image, dlab_path, os_family):
         sudo('mkdir /home/{}/.docker'.format(os_user))
         sudo('cp /tmp/config /home/{}/.docker/config.json'.format(os_user))
         sudo('sed -i "s|ODAHU_IMAGE|{}|" {}sources/infrastructure-provisioning/src/general/files/{}/odahu_Dockerfile'
-             .format(odahu_image, dlab_path, os_family))
+             .format(odahu_image, dlab_path, cloud_provider))
     except Exception as err:
         traceback.print_exc()
         print('Failed to prepare odahu image: ', str(err))
@@ -205,7 +205,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("Login in Google Container Registry")
-    login_in_gcr(args.os_user, args.gcr_creds, args.odahu_image, args.dlab_path, args.os_family)
+    login_in_gcr(args.os_user, args.gcr_creds, args.odahu_image, args.dlab_path, args.cloud_provider)
 
     print("Building dlab images")
     count = 0

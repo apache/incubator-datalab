@@ -49,6 +49,7 @@ if __name__ == "__main__":
     odahu_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     odahu_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
     odahu_conf['region'] = os.environ['gcp_region']
+    odahu_conf['ssn_subnet_id'] = os.environ['ssn_subnet_id']
     odahu_conf['bucket_name'] = "{}-tfstate".format(odahu_conf['cluster_name'])
     odahu_conf['static_address_name'] = "{}-nat-gw".format(odahu_conf['cluster_name'])
     odahu_conf['keycloak_auth_server_url'] = os.environ['keycloak_auth_server_url']
@@ -99,9 +100,11 @@ if __name__ == "__main__":
         tag_name = {"Key": "Name", "Value": odahu_conf['static_address_name']}
         create_tag(allocation_id, tag)
         create_tag(allocation_id, tag_name)
+        print("Creating NAT")
+        create_nat_gatway(allocation_id, odahu_conf['ssn_subnet_id'], odahu_conf['project_tag'])
     except Exception as err:
         print('Error: {0}'.format(err))
-        append_result("Unable to reserve static ip.", str(err))
+        append_result("Unable to Unable to create NAT Gateway.", str(err))
         remove_s3(bucket_type='odahu')
         sys.exit(1)
 

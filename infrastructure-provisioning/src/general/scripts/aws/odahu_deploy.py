@@ -45,17 +45,6 @@ if __name__ == "__main__":
     odahu_conf['region'] = (os.environ['aws_region'])
     odahu_conf['zone'] = (os.environ['aws_zone'])
     odahu_conf['edge_user_name'] = os.environ['edge_user_name']
-    if os.environ['aws_region'] == 'us-east':
-        odahu_conf['az_list'] = ["us-east-1", "us-east-2"]
-    elif os.environ['aws_region'] == 'ap-south':
-        odahu_conf['az_list'] = ["ap-south-1"]
-    elif os.environ['aws_region'] == 'us-west':
-        odahu_conf['az_list'] = ["us-west-1", "us-west-2"]
-    elif os.environ['aws_region'] == 'eu-west':
-        odahu_conf['az_list'] = ["eu-west-1", "eu-west-2", "eu-west-3"]
-    elif os.environ['aws_region'] == 'ca-central':
-        odahu_conf['az_list'] = ["ca-central-1"]
-    odahu_conf['az_list'] = GCPMeta().get_available_zones()
     odahu_conf['dns_zone_name'] = os.environ['odahu_dns_zone_name']
     odahu_conf['docker_repo'] = os.environ['odahu_docker_repo']
     odahu_conf['cidr'] = os.environ['odahu_cidr']
@@ -64,7 +53,6 @@ if __name__ == "__main__":
     odahu_conf['cluster_name'] = "{}-{}".format((os.environ['conf_service_base_name']).lower().replace('_', '-'),
                                                 (os.environ['odahu_cluster_name']).lower().replace('_', '-'))
     odahu_conf['bucket_name'] = "{}-tfstate".format(odahu_conf['cluster_name'])
-    odahu_conf['static_address_name'] = "{}-nat-gw".format(odahu_conf['cluster_name'])
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
@@ -73,8 +61,9 @@ if __name__ == "__main__":
     except KeyError:
         odahu_conf['vpc_name'] = odahu_conf['service_base_name'] + '-ssn-vpc'
     odahu_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
-    odahu_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(odahu_conf['service_base_name'],
-                                                                odahu_conf['project_name'])
+    tag = {"Key": '{}-Tag'.format(odahu_conf['service_base_name']),
+           "Value": "{}-{}-subnet".format(odahu_conf['service_base_name'], odahu_conf['project_name'])}
+    odahu_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
     odahu_conf['grafana_admin'] = os.environ['odahu_grafana_admin']
     odahu_conf['grafana_pass'] = id_generator()
     odahu_conf['docker_password'] = base64.b64decode(os.environ['odahu_docker_password'] + "==")
@@ -94,8 +83,6 @@ if __name__ == "__main__":
     odahu_conf['mlflow_toolchain_version'] = os.environ['odahu_mlflow_toolchain_version']
     odahu_conf['jupyterlab_version'] = os.environ['odahu_jupyterlab_version']
     odahu_conf['packager_version'] = os.environ['odahu_packager_version']
-    odahu_conf['private_subnet_cidrs'] = os.environ['odahu_private_subnet_cidrs'].split(',')
-    odahu_conf['public_subnet_cidrs'] = os.environ['odahu_public_subnet_cidrs'].split(',')
     odahu_conf['infra_cidr'] = os.environ['odahu_pods_cidr']
     odahu_conf['root_domain'] = os.environ['odahu_root_domain']
     odahu_conf['service_cidr'] = os.environ['odahu_service_cidr']
@@ -127,7 +114,7 @@ if __name__ == "__main__":
                     "authz_dry_run": "false",
                     "cloud": {
                         "aws": {
-                            "az_list": odahu_conf['az_list'],
+                            "az_list": ["{}".format(odahu_conf['zone'])],
                             "zone": "{}".format(odahu_conf['zone']),
                         },
                         "region": "{}".format(odahu_conf['region']),
@@ -235,8 +222,6 @@ if __name__ == "__main__":
                     "odahuflow_version": "{}".format(odahu_conf['odahuflow_version']),
                     "opa_policies": {},
                     "packager_version": "{}".format(odahu_conf['packager_version']),
-                    "private_subnet_cidrs": odahu_conf['private_subnet_cidrs'],
-                    "public_subnet_cidrs": odahu_conf['public_subnet_cidrs'],
                     "service_accounts": {
                         "airflow": {
                             "client_id": "sa-airflow",
