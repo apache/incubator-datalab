@@ -76,7 +76,7 @@ export class ReportingGridComponent implements OnInit {
     report = this.reportData.sort((a, b) => {
       if (a[sortItem] === null) a = '';
       if (b[sortItem] === null) b = '';
-      return (a[sortItem] < b[sortItem]) ? 1 : ((b[sortItem] < a[sortItem]) ? -1 : 0)
+      return (a[sortItem] < b[sortItem]) ? 1 : ((b[sortItem] < a[sortItem]) ? -1 : 0);
     });
   }
   this.refreshData(this.fullReport, report);
@@ -112,7 +112,7 @@ export class ReportingGridComponent implements OnInit {
     this.resetRangePicker.emit(true);
   }
 
-  shapeSplit(shape){
-    return shape.split(/(?=S)/g)
+  shapeSplit(shape) {
+    return shape.split(/(?=Slave)/g);
   }
 }
