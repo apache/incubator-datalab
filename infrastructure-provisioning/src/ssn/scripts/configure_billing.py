@@ -141,7 +141,7 @@ def yml_billing_app(path):
             config_orig = config_yml_r.read()
 
         config_orig = config_orig.replace('MONGO_HOST', args.mongo_host)
-        config_orig = config_orig.replace('MONGO_PASSWORDD', args.mongo_password)
+        config_orig = config_orig.replace('MONGO_PASSWORD', args.mongo_password)
         config_orig = config_orig.replace('MONGO_PORT', args.mongo_port)
         config_orig = config_orig.replace('OS_USER', args.os_user)
         config_orig = config_orig.replace('KEY_STORE_PASSWORD', args.keystore_password)
