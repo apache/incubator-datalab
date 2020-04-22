@@ -57,8 +57,6 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   ngOnInit() {
     this.open(this.data.environment, this.data.resource);
-
-    console.log(this.PROVIDER);
   }
 
   public open(environment, resource): void {
@@ -98,7 +96,9 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
-      .editClusterConfiguration(data.configuration_parameters, this.environment.project, this.environment.name, this.resource.computational_name, this.PROVIDER)
+      .editClusterConfiguration(
+        data.configuration_parameters, this.environment.project, this.environment.name, this.resource.computational_name, this.PROVIDER
+      )
       .subscribe(result => {
         this.dialogRef.close();
       },

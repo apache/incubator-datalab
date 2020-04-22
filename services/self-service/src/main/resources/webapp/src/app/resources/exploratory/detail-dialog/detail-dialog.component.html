@@ -47,11 +47,13 @@
             <p>Open following URL(s) in your browser to access this box:</p>
             <div class="links_block">
               <p *ngFor="let item of notebook.url">
+               <ng-container *ngIf="!(item.description === 'Ungit' && notebook.template_name.indexOf('Apache Zeppelin') !== -1)">
                 <span class="description">{{item.description}}: &nbsp;</span>
                 <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
                   target="_blank">
                   &nbsp;{{item.url}}
                 </a>
+               </ng-container>
               </p>
             </div>
             <p class="flex" *ngIf="notebook.username">Node User: &nbsp;<span
