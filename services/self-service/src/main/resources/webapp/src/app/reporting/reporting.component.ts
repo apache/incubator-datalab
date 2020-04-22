@@ -156,7 +156,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
         types.push(item['resource_type']);
 
       if (item.shape && types.indexOf(item.shape)) {
-        console.log(item);
        if (item.shape.indexOf('Master') > -1) {
           for (let shape of item.shape.split(/(?=Slave)/g)) {
             shape = shape.replace('Master: ', '');

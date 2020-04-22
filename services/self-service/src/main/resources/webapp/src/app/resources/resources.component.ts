@@ -82,7 +82,6 @@ export class ResourcesComponent implements OnInit {
   }
 
   public getActiveProject() {
-    console.log('activeProject: ', this.resourcesGrid.activeProject);
 
     return this.resourcesGrid.activeProject;
   }
