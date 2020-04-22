@@ -69,7 +69,7 @@ export class ManageEnvironmentComponent implements OnInit {
   }
 
   public setBudgetLimits(value) {
-    if (this.getCurrentTotalValue() >= this.getCurrentUsersTotal()) {
+    if (this.getCurrentTotalValue() >= this.getCurrentUsersTotal() || !this.getCurrentTotalValue()) {
       this.dialogRef.close(value);
     } else {
       this.manageUsersForm.controls['total'].setErrors({ overrun: true });

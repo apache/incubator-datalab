@@ -24,7 +24,6 @@ import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import org.bson.Document;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -50,17 +49,16 @@ public class BillingResource {
     @POST
     @Path("/report")
     @Produces(MediaType.APPLICATION_JSON)
-    public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter formDTO) {
-        return billingService.getBillingReport(userInfo, formDTO);
+    public Response getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
+        return Response.ok(billingService.getBillingReport(userInfo, filter)).build();
     }
 
     @POST
     @Path("/report/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter formDTO) {
-        return Response.ok(billingService.downloadReport(userInfo, formDTO))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + billingService.getReportFileName(userInfo, formDTO) + "\"")
+    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilter filter) {
+        return Response.ok(billingService.downloadReport(userInfo, filter))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"billing-report.csv\"")
                 .build();
     }
 }

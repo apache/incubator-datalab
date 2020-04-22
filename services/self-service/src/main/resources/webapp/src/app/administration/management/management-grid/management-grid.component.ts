@@ -162,11 +162,11 @@ export class ManagementGridComponent implements OnInit {
 
       if (action === 'stop') {
         this.dialog.open(ConfirmationDialogComponent, {
-          data: { notebook: environment, type: type, manageAction: this.isAdmin }, panelClass: 'modal-md'
+          data: { notebook: environment, type: type, manageAction: true }, panelClass: 'modal-md'
         }).afterClosed().subscribe(() => this.buildGrid());
       } else if (action === 'terminate') {
         this.dialog.open(ConfirmationDialogComponent, {
-          data: { notebook: environment, type: ConfirmationDialogType.TerminateExploratory, manageAction: this.isAdmin }, panelClass: 'modal-md'
+          data: { notebook: environment, type: ConfirmationDialogType.TerminateExploratory, manageAction: true }, panelClass: 'modal-md'
         }).afterClosed().subscribe(() => this.buildGrid());
       } else if (action === 'run') {
         this.healthStatusService.runEdgeNode().subscribe(() => {

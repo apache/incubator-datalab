@@ -62,3 +62,21 @@ variable "ami" {
 variable "endpoint_volume_size" {}
 
 variable "key_path" {}
+
+variable "authentication_file" {
+  default = ""
+}
+
+variable "offer_number" {}
+
+variable "currency" {}
+
+variable "locale" {}
+
+variable "region_info" {}
+
+variable "mongo_password" {}
+
+variable "mongo_host" {}
+
+variable "billing_enable" {}

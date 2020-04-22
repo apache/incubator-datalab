@@ -20,9 +20,14 @@
 package com.epam.dlab.billing.azure.config;
 
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
+@ConfigurationProperties("dlab")
 @Data
 public class BillingConfigurationAzure {
+    private String sbn;
     private long initialDelay;
     private long period;
 
@@ -43,6 +48,5 @@ public class BillingConfigurationAzure {
     private String sharedStorageAccountTagName;
     private String datalakeTagName;
 
-    private LoggingConfigurationFactory logging;
     private AggregationOutputMongoDataSource aggregationOutputMongoDataSource;
 }

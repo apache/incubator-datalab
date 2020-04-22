@@ -985,6 +985,15 @@ class AWSEndpointBuilder(AbstractDeployBuilder):
                   group='endpoint')
          .add_str('--ldap_users_group', 'ldap users group', required=True,
                   group='endpoint')
+         .add_bool('--billing_enable', 'Billing enable', group='endpoint', default=False)
+         .add_str('--mongo_password', 'Mongo database password', group='endpoint')
+         .add_str('--mongo_host', 'Mongo database host', group='endpoint', default='localhost')
+         .add_str('--billing_bucket', 'Billing bucket name', group='endpoint', default='')
+         .add_str('--report_path', 'The path to report folder', group='endpoint', default='')
+         .add_str('--aws_job_enabled', 'Billing format. Available options: true (aws), false(epam)', group='endpoint',
+                  default='false')
+         .add_str('--billing_aws_account_id', 'The ID of ASW linked account', group='endpoint', default='')
+         .add_str('--billing_tag', 'Billing tag', group='endpoint', default='dlab')
          )
         return params.build()
 
@@ -1167,6 +1176,10 @@ class GCPEndpointBuilder(AbstractDeployBuilder):
          .add_str('--endpoint_policies', 'Endpoint policies list', group='endpoint')
          .add_str('--endpoint_roles', 'Endpoint roles list', group='endpoint')
          .add_str('--bucket_region', 'Bucket region', group='endpoint')
+         .add_bool('--billing_enable', 'Billing enable', group='endpoint', default=False)
+         .add_str('--billing_dataset_name', 'Billing dataset name', group='endpoint')
+         .add_str('--mongo_password', 'Mongo database password', group='endpoint')
+         .add_str('--mongo_host', 'Mongo database host', group='endpoint', default='localhost')
          )
         return params.build()
 
@@ -1233,6 +1246,15 @@ class AzureEndpointBuilder(AbstractDeployBuilder):
          .add_str('--endpoint_shape', 'Instance shape of Endpoint.', default='Standard_DS2_v2', group='endpoint')
          .add_str('--endpoint_volume_size', 'Endpoint disk size', default='30', group='endpoint')
          .add_str('--additional_tag', 'Additional tag.', default='product:dlab', group='endpoint')
+         .add_str('--tenant_id', 'Azure tenant ID', group='endpoint', default='')
+         .add_str('--subscription_id', 'Azure subscription ID', group='endpoint', default='')
+         .add_str('--offer_number', 'Azure offer number', group='endpoint', default='')
+         .add_str('--currency', 'Azure currency for billing', group='endpoint', default='')
+         .add_str('--locale', 'Azure locale', group='endpoint', default='')
+         .add_str('--region_info', 'Azure region info', group='endpoint', default='')
+         .add_str('--mongo_password', 'Mongo database password', group='endpoint')
+         .add_str('--mongo_host', 'Mongo database host', group='endpoint', default='localhost')
+         .add_bool('--billing_enable', 'Billing enable', group='endpoint', default=False)
          )
         return params.build()
 

@@ -509,7 +509,10 @@ if __name__ == "__main__":
                  "--cost {} " \
                  "--resource_id {} " \
                  "--default_endpoint_name {} " \
-                 "--tags {}". \
+                 "--tags {} " \
+                 "--keycloak_client_id {} " \
+                 "--keycloak_client_secret {} " \
+                 "--keycloak_auth_server_url {}". \
             format(ssn_conf['instance_hostname'],
                    "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
                    os.environ['ssn_dlab_path'],
@@ -535,7 +538,10 @@ if __name__ == "__main__":
                    os.environ['cost'],
                    os.environ['resource_id'],
                    os.environ['default_endpoint_name'],
-                   os.environ['tags'])
+                   os.environ['tags'],
+                   os.environ['keycloak_client_name'],
+                   os.environ['keycloak_client_secret'],
+                   os.environ['keycloak_auth_server_url'])
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:

@@ -19,11 +19,10 @@
 
 package com.epam.dlab.billing.gcp.dao;
 
-import com.epam.dlab.billing.gcp.model.GcpBillingData;
+import com.epam.dlab.dto.billing.BillingData;
 
 import java.util.List;
 
 public interface BillingDAO {
-
-    List<GcpBillingData> getBillingData() throws InterruptedException;
+    List<BillingData> getBillingData() throws InterruptedException;
 }
