@@ -42,7 +42,7 @@ export class BucketBrowserComponent implements OnInit {
   public endpoint = '';
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
-  private selectedFolder: any;
+  public selectedFolder: any;
   private isUploading: boolean;
   private selected: any[];
   private uploadForm: FormGroup;
