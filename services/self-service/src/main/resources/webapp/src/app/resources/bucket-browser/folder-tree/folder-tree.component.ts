@@ -10,7 +10,7 @@ import {BucketBrowserService, TodoItemFlatNode, TodoItemNode} from '../../../cor
   templateUrl: './folder-tree.component.html',
   styleUrls: ['./folder-tree.component.scss']
 })
-export class FolderTreeComponent implements OnInit{
+export class FolderTreeComponent implements OnInit {
 
   @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
 
@@ -35,6 +35,13 @@ export class FolderTreeComponent implements OnInit{
 
     bucketBrowserService.dataChange.subscribe(data => {
       this.dataSource.data = data;
+      if (!this.selectedFolder) {
+        const subject = this.dataSource._flattenedData;
+        subject.subscribe((subjectData) => {
+          this.treeControl.expand(subjectData[0]);
+          this.showItem(subjectData[0]);
+        });
+      }
     });
   }
 
@@ -59,40 +66,43 @@ export class FolderTreeComponent implements OnInit{
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
-  };
+  }
 
 
   ngOnInit() {
-    const subject = this.dataSource._flattenedData;
-    subject.subscribe((data) => {
-      this.treeControl.expand(data[0]);
-      this.showItem(data[0]);
-    });
+    // const subject = this.dataSource._flattenedData;
+    // subject.subscribe((data) => {
+    //   this.treeControl.expand(data[0]);
+    //   this.showItem(data[0]);
+    // });
   }
 
   showItem(el) {
-    this.treeControl.expand(el);
-    this.selectedFolder = el;
-    const path = this.getpath(el);
-    this.path = [];
-    const data = {
-      flatNode: el,
-      element: this.flatNodeMap.get(el),
-      element1: el,
-      path: path.join('/')
-    };
-    this.showFolderContent.emit(data);
+    if (el) {
+      this.treeControl.expand(el);
+      this.selectedFolder = el;
+      const path = this.getPath(el);
+      this.path = [];
+      const data = {
+        flatNode: el,
+        element: this.flatNodeMap.get(el),
+        path: path.join('/')
+      };
+      this.showFolderContent.emit(data);
+    }
   }
 
-  getpath(el) {
-    if (this.path.length === 0) {
-      this.path.unshift(el.item);
+  getPath(el) {
+    if (el) {
+      if (this.path.length === 0) {
+        this.path.unshift(el.item);
+      }
+      if (this.getParentNode(el) !== null) {
+        this.path.unshift(this.getParentNode(el).item);
+        this.getPath(this.getParentNode(el));
+      }
+      return this.path;
     }
-    if (this.getParentNode(el) !== null) {
-      this.path.unshift(this.getParentNode(el).item);
-      this.getpath(this.getParentNode(el));
-    }
-    return this.path;
   }
 
   descendantsAllSelected(node: TodoItemFlatNode): boolean {
@@ -168,7 +178,7 @@ export class FolderTreeComponent implements OnInit{
     return null;
   }
 
-  addNewItem(node: TodoItemFlatNode, file, isFile) {
+  addNewItem(node: TodoItemFlatNode, file, isFile, path) {
     const parentNode = this.flatNodeMap.get(node);
     this.bucketBrowserService.insertItem(parentNode!, file, isFile);
     this.treeControl.expand(node);

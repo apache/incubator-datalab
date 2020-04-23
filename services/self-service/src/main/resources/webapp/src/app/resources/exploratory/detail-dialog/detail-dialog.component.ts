@@ -123,8 +123,8 @@ export class DetailDialogComponent implements OnInit {
         : null;
   }
 
-  public bucketBrowser(type): void {
-  this.dialog.open(BucketBrowserComponent, { data: type, panelClass: 'modal-fullscreen' })
+  public bucketBrowser(type, endpoint): void {
+  this.dialog.open(BucketBrowserComponent, { data: {type: type, endpoint: endpoint}, panelClass: 'modal-fullscreen' })
     .afterClosed().subscribe();
   }
 }

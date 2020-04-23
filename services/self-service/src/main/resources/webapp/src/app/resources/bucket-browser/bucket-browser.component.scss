@@ -54,14 +54,14 @@
 
   .text-center{
     position: absolute;
-    bottom: 50px;
+    bottom: 3vh;
     left: 0;
     right: 0;
   }
 }
 
 .backet-wrapper{
-  min-height: 450px;
+  height: 50vh;
   border: 2px solid rgba(0,0,0,.12);
   border-radius: 5px;
   display: flex;
@@ -224,6 +224,19 @@
   }
 
 }
+
+@media only screen and (max-height: 840px) {
+  .backet-wrapper {
+    height: 45vh;
+  }
+}
+
+@media only screen and (max-height: 690px) {
+  .backet-wrapper {
+    height: 40vh;
+  }
+}
+
 
 
 

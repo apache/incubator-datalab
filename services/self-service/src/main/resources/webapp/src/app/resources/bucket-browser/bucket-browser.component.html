@@ -24,7 +24,7 @@
   </header>
   <div class="dialog-content tabs">
     <div class="submit m-bott-10 m-top-10">
-      <button mat-raised-button type="button" class="butt action"><input type="file" multiple (change)="handleFileInput($event.target.files)">Add file</button>
+      <button mat-raised-button type="button" class="butt action"><input type="file" (change)="handleFileInput($event)">Add file</button>
       <button mat-raised-button type="button" class="butt action" (click)="folderTreeComponent.addNewItem(selectedFolder, '', false)">Create folder</button>
     </div>
     <p class="path"><span>Bucket path:</span><span class="url"> {{path}}</span></p>
@@ -51,10 +51,11 @@
                   </span>
                 <span class="item-name">{{file.item}}</span>
               </div>
-              <div class="size">{{file.size}}MB</div>
-              <div class="progress-wrapper">
-<!--                <div class="progres" *ngIf="file.isSelected"><div class="bar"></div></div>-->
-              </div>
+              <div class="size">{{file.size.size}}</div>
+              <div class="size">{{file.size.creationDate }}</div>
+<!--              <div class="progress-wrapper">-->
+<!--&lt;!&ndash;                <div class="progres" *ngIf="file.isSelected"><div class="bar"></div></div>&ndash;&gt;-->
+<!--              </div>-->
             </div>
 
           </li>
@@ -81,8 +82,9 @@
     </div>
     <div class="text-center m-top-30 m-bott-30">
       <button type="button" class="butt" mat-raised-button (click)="this.dialogRef.close()">Close</button>
-      <button *ngIf="!this.addedFiles.length" type="button" class="butt butt-success" mat-raised-button (click)="downloadItems()" [disabled]="!selected?.length">Download</button>
-      <button *ngIf="this.addedFiles.length !== 0" type="button" class="butt butt-success" mat-raised-button (click)="uploadItems()">Upload</button>
+      <button *ngIf="!this.addedFiles.length" type="button" class="butt butt-success" mat-raised-button (click)="fileAction('download')" [disabled]="!selected?.length">Download</button>
+      <button *ngIf="!this.addedFiles.length" type="button" class="butt butt-success" mat-raised-button (click)="fileAction('delete')" [disabled]="!selected?.length">Delete</button>
+      <button *ngIf="this.addedFiles.length !== 0" type="button" class="butt butt-success" mat-raised-button (click)="uploadNewFile()">Upload</button>
     </div>
   </div>
 </div>
