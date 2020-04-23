@@ -98,7 +98,7 @@ public class BucketServiceGcpImpl implements BucketService {
     private BucketDTO toBucketDTO(BlobInfo blobInfo) {
         final String size = FileUtils.byteCountToDisplaySize(blobInfo.getSize());
         Date date = new Date(blobInfo.getUpdateTime());
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
         return BucketDTO.builder()
                 .bucket(blobInfo.getBucket())
                 .object(blobInfo.getName())
