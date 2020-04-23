@@ -121,13 +121,16 @@ Database serves as a storage with description of user infrastructure, user’s s
 
 The following diagrams demonstrate high-level physical architecture of DLab in AWS and Azure.
 
-![Physical architecture](doc/physical_architecture.png)
+![Physical architecture](doc/dlab_aws.png)
 
-![Physical architecture](doc/azure_dlab_arch.png)
+![Physical architecture](doc/dlab_gcp.png)
+
+![Physical architecture](doc/dlab_azure.png)
 
 ## Main components
 
 -   Self-service node (SSN)
+-   Endpoint node
 -   Edge node
 -   Notebook node (Jupyter, Rstudio, etc.)
 -   Data engine cluster
@@ -142,16 +145,19 @@ Creation of self-service node – is the first step for deploying DLab. SSN is a
 -   MongoDB – is a database, which contains part of DLab’s configuration, user’s exploratory environments description 
     as well as user’s preferences.
 -   Docker – used for building DLab Docker containers, which will be used for provisioning other components.
--   Jenkins – is an alternative to Web UI. It is accessible by the following link: http[s]://SSN\_Public\_IP\_or\_Public\_DNS/jenkins
 
 Elastic(Static) IP address is assigned to an SSN Node, so you are free to stop|start it and and SSN node's IP address 
 won’t change.
 
+## Endpoint
+
+This is a node which serves as a provisioning endpoint for Dlab resources. Endpoint machine is deployed separately from Dlab
+installation and can be even deployed on a different cloud.
+
 ## Edge node
 
-Setting up Edge node is the first step that user is asked to do once logged into DLab. This node is used as proxy 
-server and SSH gateway for the user. Through Edge node users can access Notebook via HTTP and SSH. Edge Node has a 
-Squid HTTP web proxy pre-installed.
+This node is used as proxy server and SSH gateway for the user. Through Edge node users can access Notebook via HTTP and SSH. 
+Edge Node has a Squid HTTP web proxy pre-installed.
 
 ## Notebook node
 
@@ -440,6 +446,15 @@ Prerequisites:
 - Microsoft Graph
 - Windows Azure Service Management API</details>
 
+
+**Preparation steps for deployment:**
+
+- Create a VM instance with the following settings:
+    - The instance should have access to Internet in order to install required prerequisites
+    - Image - Ubuntu 16.04
+- Generate SSH key pair and rename private key with .pem extension
+- Put JSON auth file to users home directory</details>
+
 <details><summary>In Google cloud (GCP) <i>(click to expand)</i></summary>
 
 Prerequisites:
@@ -467,6 +482,8 @@ To build SSN node, following steps should be executed:
 ```
 sudo su
 apt-get update
+apt-get install git
+git clone https://github.com/apache/incubator-dlab.git -b v2.1.1
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 apt-get update
@@ -475,6 +492,7 @@ apt-get install -y docker-ce=17.06.2~ce-0~ubuntu
 usermod -a -G docker *username*
 apt-get install -y python-pip
 pip install fabric==1.14.0
+cd incubator-dlab
 ```
 - Go to *dlab* directory
 - Run *infrastructure-provisioning/scripts/deploy_dlab.py* deployment script:
@@ -522,13 +540,14 @@ List of parameters for SSN node deployment:
 -   aws\_billing\_bucket
 -   aws\_report\_path
 
-After SSN node deployment following AWS resources will be created:
+**SSN deployment creates following AWS resources:**
 
 -   SSN EC2 instance
 -   Elastic IP for SSN instance
 -   IAM role and EC2 Instance Profile for SSN
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
+   S3 bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-\<endpoint\_name\>-shared-bucket</details>
 
 <details><summary>In Azure cloud <i>(click to expand)</i></summary>
@@ -614,6 +633,7 @@ After SSN node deployment following Azure resources will be created:
 -   Network interface for SSN node
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   Virtual network and Subnet (if they have not been specified) for SSN and EDGE nodes
+-   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   Storage account and blob container for collaboration between Dlab users
 -   If support of Data Lake is enabled: Data Lake and shared directory will be created</details>
 
