@@ -471,7 +471,7 @@ Clicking on "Apply changes" button, your credentials are sent to all running ins
     <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="760">
 </p>
 
-On this tab you can also edit your credentials (click on pen icon <img src="doc/pen_icon.png" alt="pen" width="20">) or delete (click on bin icon <img src="doc/bin_icon.png" alt="bin" width="20">).
+On this tab you can also edit your credentials (click on pen icon <img src="doc/pen_icon.png" alt="pen" width="15">) or delete (click on bin icon <img src="doc/bin_icon.png" alt="bin" width="15">).
 
 ### Git UI tool (ungit) <a name="git_ui"></a>
 
@@ -538,7 +538,7 @@ Roles consist of:
 To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
 After addidng the group it appears on "Manage roles" popup.
 
-Administrator can remove group or user. For that you should only click on bin icon <img src="doc/bin_icon.png" alt="bin" width="20">for certain group or for icon <img src="doc/delete_btn.png" alt="delete" width="16"> for particular user. After that hit "Yes" in confirmation popup.
+Administrator can remove group or user. For that you should only click on bin icon <img src="doc/bin_icon.png" alt="bin" width="15">for certain group or for icon <img src="doc/delete_btn.png" alt="delete" width="13"> for particular user. After that hit "Yes" in confirmation popup.
 
 <p align="center"> 
     <img src="doc/delete_group.png" alt="Delete group" width="780">
@@ -614,7 +614,7 @@ Once all fields are filled in and you click on "Connect" button, you are able to
     <img src="doc/endpoint_list.png" alt="Endpoint list" width="520">
 </p>
 
-Administrator can deactivate whole analytical environment via bin icon <img src="doc/bin_icon.png" alt="bin" width="20">. And all related instances change its satuses to "Terminating" and soon become "Terminated".
+Administrator can deactivate whole analytical environment via bin icon <img src="doc/bin_icon.png" alt="bin" width="15">. And all related instances change its satuses to "Terminating" and soon become "Terminated".
 
 ### Manage DLab quotas <a name="manage_dlab_quotas"></a>
 
