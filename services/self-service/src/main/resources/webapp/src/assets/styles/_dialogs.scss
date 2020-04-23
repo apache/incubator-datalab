@@ -59,6 +59,7 @@ mat-dialog-container {
     padding: 0;
     border-radius: 0;
     overflow-x: hidden;
+    position: relative;
 
     #dialog-box {
       color: $modal-text-color;
