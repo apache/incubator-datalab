@@ -64,7 +64,9 @@ DLab Web Application authenticates users against:
 
 -   OpenLdap;
 -   Cloud Identity and Access Management service user validation;
--   KeyCloak integration for seamless SSO experience;
+-   KeyCloak integration for seamless SSO experience *;
+
+    * NOTE: in case has been installed and configured to use SSO, please click on "Login with SSO" and use your corporate credentials
 
 | Login error messages               | Reason                                                                           |
 |------------------------------------|----------------------------------------------------------------------------------|
@@ -89,7 +91,7 @@ After login user sees warning in case of exceeding quota or close to this limit.
 ----------------------------------
 # Create project <a name="setup_edge_node"></a>
 
-When you log into DLab Web Application, the first thing you need to do is to create a new project.
+When you log into DLab Web interface, the first thing you need to do is to create a new project.
 
 To do this click on “Upload” button on “Projects” page, select your personal public key (or click on "Generate" button), endpoint, group, 'Use shared image' select enable or disable and hit “Create” button. Do not forget to save your private key.
 
@@ -97,11 +99,11 @@ To do this click on “Upload” button on “Projects” page, select your pers
     <img src="doc/upload_or_generate_user_key.png" alt="Upload or generate user key" width="100%">
 </p>
 
-Please note that you need to have a key pair combination (public and private key) to work with DLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Projects” page. DLab build-in wiki page guides Windows, MasOS and Linux on how to generate SSH key pairs quickly.
+Please note, that you need to have a key pair combination (public and private key) to work with DLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Projects” page. DLab build-in wiki page guides Windows, MasOS and Linux on how to generate SSH key pairs quickly.
 
-Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process project has status "Creating".
+Creation of Project starts after hitting "Create" button. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process project is in status "Creating".
 
-'Use shared image' enabled means, that image of particular notebook is created during the first notebook creation for the whole DLab. This image is used for the next creation within DLab. 'Use share image' disabled means, that image of particular notebook is created during the first notebook creation for the current project. This image is used for the next creation within particular project.
+'Use shared image' enabled means, that an image of particular notebook type is created while first notebook of same type is created in DLab. This image will be availble for all DLab users. This image is used for provisioning of further notebooks of same type within DLab. 'Use share image' disabled means, that image of particular notebook type is created while first notebook of same type is created in DLab. This AMI is available for all users withing same project.
 
 As soon as Project is created, Data Scientist can create  notebook server on “List of Resources” page. The message “To start working, please create new environment” is appeared on “List of Resources” page:
 
@@ -115,7 +117,7 @@ As soon as Project is created, Data Scientist can create  notebook server on “
 
 To create new analytical environment from “List of Resources” page click on "Create new" button.
 
-The "Create analytical tool" popup shows up. Data Scientist can choose the preferred project, endpoint and analytical tool to be set up. Adding new analytical tools is supported by architecture, so you can expect new templates to show up in upcoming releases.
+The "Create analytical tool" popup shows up. Data Scientist can choose the preferred project, endpoint and analytical tool. Adding new analytical toolset is supported by architecture, so you can expect new templates to show up in upcoming releases.
 Currently by means of DLab, Data Scientists can select between any of the following templates:
 
 -   Jupyter
@@ -133,7 +135,7 @@ Currently by means of DLab, Data Scientists can select between any of the follow
 
 After specifying desired template, you should fill in the “Name” and “Instance shape”.
 
-Name field – is just for visual differentiation between analytical tools on “List of resources” dashboard.
+Keep in mind that "Name" field – is just for visual differentiation between analytical tools on “List of resources” dashboard.
 
 Instance shape dropdown, contains configurable list of shapes, which should be chosen depending on the type of analytical work to be performed. Following groups of instance shapes are showing up with default setup configuration:
 
@@ -145,13 +147,13 @@ These groups have T-Shirt based shapes (configurable), that can help Data Scient
 
 \* Please refer to official documentation from Amazon that helps you to understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) is the most preferable in your particular DLAB setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment.
 
-You can override the default configurations for local spark. The configuration object is referenced as a JSON file. To tune spark configuration check off "Spark configurations" check box and insert JSON format in text box.
+You can override the default configurations of local spark. The configuration object is referenced as a JSON file. To tune spark configuration check off "Spark configurations" check box and insert JSON format in the text box.
 
-After you Select the template, fill in the Name and choose needed instance shape - you need to click on "Create" button for your instance to start creating. Corresponding record shows up in your dashboard:
+After you Select the template, fill in the Name and specify desired instance shape - you need to click on "Create" button for your analytical toolset to be created. Corresponding record shows up in your dashboard:
 
 ![Dashboard](doc/main_page2.png)
 
-As soon as notebook server is created, its status changes to Running:
+As soon as notebook server is created, status changes to Running:
 
 ![Running notebook](doc/main_page3.png)
 
@@ -169,7 +171,7 @@ In the body of the dialog:
 -   Analytical tool URL
 -   Git UI tool (ungit)
 -   Shared bucket for all users
--   Bucket that has been provisioned for your needs
+-   Project bucket for project members
 
 To access analytical tool Web UI you use direct URL's (your access is established via reverse proxy, so you don't need to have Edge node tunnel up and running).
 
@@ -236,12 +238,12 @@ To create new analytical environment from custom image click on "Create new" but
 
 Before clicking "Create" button you should choose the image from "Select AMI" and fill in the "Name" and "Instance shape".
 
-**NOTE:** This functionality is implemented for AWS and GCP.
+**NOTE:** This functionality is implemented for AWS and Azure.
 
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
 
-Once you have stopped working with an analytical tool and you need to release cloud resources for the sake of the costs, you might want to stop the notebook. You are able to start the notebook again after a while and proceed with your analytics.
+Once you have stopped working with an analytical tool and you need to release Cloud resources for the sake of the costs, you might want to stop the notebook. You are able to start the notebook later and proceed with your analytical work.
 
 To stop the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for a needed Notebook and hit "Stop":
 
@@ -251,28 +253,30 @@ To stop the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear
 
 Hit "OK" in confirmation popup.
 
-**NOTE:** Connected Data Engine Server is terminated and related Data Engine is stopped during Notebook stopping.
+**NOTE:** Connected Data Engine Service becomes Terminated while connected (if any) Data Engine (Standalone Spark cluster) becomes Stopped.
 
 <p align="center"> 
     <img src="doc/notebook_stop_confirm.png" alt="Notebook stop confirm" width="400">
 </p>
 
-After you confirm you intent to stop the notebook - the status changes to "Stopping" and soon becomes "Stopped". 
+After you confirm your intent to stop the notebook - the status changes to "Stopping" and later becomes "Stopped". 
 
 --------------------------------
 ## Terminate Notebook server <a name="notebook_terminate"></a>
 
-Once you have finished working with an analytical tool and you need to release cloud resources for the sake of the costs, you might want to terminate the notebook. You are not able to start the notebook which has been terminated. Instead, you have to create new Notebook server if you need to proceed your analytical activities.
+Once you have finished working with an analytical tool and you need don't neeed cloud resources anymore, for the sake of the costs, we recommend to terminate the notebook. You are not able to start the notebook which has been terminated. Instead, you have to create new Notebook if you need to proceed with your analytical activities.
+
+**NOTE:** Make sure you back-up your data (if exists on Notebook) and playbooks before termination.
 
 To terminate the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for a needed Notebook and hit "Terminate":
 
 **NOTE:** If any Computational resources have been linked to your notebook server – they are automatically terminated if you terminate the notebook.
 
-Confirm termination of the notebook and afterward notebook status changes to "Terminating":
+Confirm termination of the notebook and afterwards notebook status changes to "Terminating":
 
 ![Notebook terminating](doc/notebook_terminating.png)
 
-Once corresponding instances are terminated on cloud, status finally changes to "Terminated":
+Once corresponding instances become terminated in Cloud console, status finally changes to "Terminated":
 
 ![Notebook terminated](doc/notebook_terminated.png)
 
@@ -298,7 +302,7 @@ This picture shows menu for creating Computational resource for AWS:
     <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="760">
 </p>
 
-You can override the default configurations for applications by supplying a configuration object for applications when you create a cluster (this functionality is only available for Amazon EMR cluster ). The configuration object is referenced as a JSON file.
+You can override the default configurations for applications by supplying a configuration object for applications when you create a cluster (this functionality is only available for Amazon EMR cluster). The configuration object is referenced as a JSON file.
 To tune computational resource configuration check off "Cluster configurations" check box and insert JSON format in text box:
 
 <p align="center"> 
@@ -322,13 +326,13 @@ After clicking on Computational resource name in DLab dashboard you see Computat
     <img src="doc/emr_info.png" alt="Computational resource info" width="480">
 </p>
 
-Also you can go to computational resource master UI via link "Spark job tracker url', "EMR job tracker url" or "Dataproc job tracker url".
+Also you can go to computational resource master UI via link "Spark job tracker URL', "EMR job tracker URL" or "Dataproc job tracker URL".
 
 Since Computational resource is up and running - you are now able to leverage cluster computational power to run your analytical jobs on.
 
 To do that open any of the analytical tools and select proper kernel/interpreter:
 
-**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2/3, Spark, Scala, R into Jupyter.
+**Jupyter** – go to Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2/3, Spark, Scala, R in Jupyter.
 
 ![Jupiter](doc/jupiter.png)
 
@@ -376,24 +380,25 @@ In a while Computational resource gets "Terminated". Corresponding cloud instanc
 ------------------
 ## Scheduler <a name="scheduler"></a>
 
-Scheduler component allows to automatically schedule start/stop a Notebook/Computational resource and terminate only Computational resource. There are 2 types of scheduler:
+Scheduler component allows to automatically schedule Start and Stop triggers for a Notebook/Computational, while 
+for Data Engine or Data Engine Service it can only trigger Stop or Terminate action correspondigly. There are 2 types of a scheduler:
 - Scheduler by time;
 - Scheduler by inactivity.
 
-Scheduler by time is for Notebook/Data Engine stopping/starting and for Data Engine/Data Engine Service termination.
+Scheduler by time is for Notebook/Data Engine Start/Stop and for Data Engine/Data Engine Service termination.
 Scheduler by inactivity is for Notebook/Data Engine stopping.
 
-
-To create scheduler for a notebook click on an <img src="doc/gear_icon.png" alt="gear" width="20"> icon in the "Actions" column for a needed Notebook and hit "Scheduler":
+To create scheduler for a Notebook click on an <img src="doc/gear_icon.png" alt="gear" width="20"> icon in the "Actions" column for a needed Notebook and hit "Scheduler":
 
 <p align="center"> 
     <img src="doc/notebook_menu_scheduler.png" alt="Notebook scheduler action" width="150">
 </p>
-After clicking you see popup with the following fields:
+
+Popup with following fields shows up:
 
 - start/finish dates - date range when scheduler is active;
 - start/end time - time when notebook should be running;
-- timezone - your time  zone;
+- timezone - your time zone;
 - repeat on - days when scheduler should be active;
 - possibility to synchronize notebook scheduler with computational schedulers;
 - possibility not to stop notebook in case of running job on Spark Standalone.
@@ -402,13 +407,13 @@ After clicking you see popup with the following fields:
     <img src="doc/notebook_scheduler.png" alt="Notebook scheduler" width="400">
 </p>
 
-If you want to stop Notebook on exceeding idle time you should enable "Scheduler by inactivity", fill your inactivity minutes and click on "Save" button. Notebook stopping triggers after exceeding idle time.
+If you want to stop Notebook on exceeding idle time you should enable "Scheduler by inactivity", fill your inactivity period (in minutes) and click on "Save" button. Notebook is stopped upon exceeding idle time value.
 
 <p align="center"> 
     <img src="doc/scheduler_by_inactivity.png" alt="Scheduler by Inactivity.png" width="400">
 </p>
 
-Also scheduler can be configured for a spark cluster. To configure scheduler for spark cluster <img src="doc/icon_scheduler_computational.png" alt="scheduler_computational" width="16"> should be clicked (near computational status):
+Also scheduler can be configured for a spark cluster. To configure scheduler for Standalone Apache Spark cluster click on this icon <img src="doc/icon_scheduler_computational.png" alt="scheduler_computational" width="16">:
 
 <p align="center"> 
     <img src="doc/computational_scheduler_create.png" alt="Computational scheduler create" width="400">
@@ -420,7 +425,7 @@ There is a possibility to inherit scheduler start settings from notebook, if suc
     <img src="doc/computational_scheduler.png" alt="Computational scheduler" width="400">
 </p>
 
-Notebook/spark cluster is  started/stopped automatically after scheduler setting.
+Notebook/Standalone Apache Spark cluster is started/stopped automatically after scheduler setting.
 Please also note that if notebook is configured to be stopped, all running data engines assosiated with is stopped (for spark cluster) or terminated (for data engine serice) with notebook.
 
 After login user is notified  that corresponding resources are about to be stopped/terminated in some time.
@@ -443,7 +448,7 @@ When you click on the button "Git credentials" – following popup shows up:
 </p>
 
 In this window you need to add:
--   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, or your internal GitLab server.
+-   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, bitbucket.com, or your internal Git server.
 -   Your Username and Email - used to display author of commit in git.
 -   Your Login and Password - for authorization into git server.
 
@@ -465,7 +470,7 @@ On every analytical tool instance you can see Git UI tool (ungit):
     <img src="doc/notebook_info.png" alt="Git_ui_link" width="520">
 </p>
 
-Before start working with git repositories, you need to change working directory on the top of window to:
+Before start working with Git repositories, you need to change working directory on the top of window to:
 
 **/home/dlab-user/** or **/opt/zeppelin/notebook** for Zeppelin analytical tool and press Enter.
 
