@@ -97,13 +97,13 @@ public class BucketServiceGcpImpl implements BucketService {
 
     private BucketDTO toBucketDTO(BlobInfo blobInfo) {
         final String size = FileUtils.byteCountToDisplaySize(blobInfo.getSize());
-        Date date = new Date(blobInfo.getCreateTime());
+        Date date = new Date(blobInfo.getUpdateTime());
         SimpleDateFormat formatter = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
         return BucketDTO.builder()
                 .bucket(blobInfo.getBucket())
                 .object(blobInfo.getName())
                 .size(size)
-                .creationDate(formatter.format(date))
+                .lastModifiedDate(formatter.format(date))
                 .build();
     }
 }
