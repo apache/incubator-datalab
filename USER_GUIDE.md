@@ -145,7 +145,11 @@ Instance shape dropdown, contains configurable list of shapes, which should be c
 
 These groups have T-Shirt based shapes (configurable), that can help Data Scientist to either save money\* and leverage not very powerful shapes (for working with relatively small datasets), or that could boost the performance of analytics by selecting more powerful instance shape.
 
-\* Please refer to official documentation from Amazon that helps you to understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) is the most preferable in your particular DLAB setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment.
+\* Please refer to official documentation from Amazon that helps you to understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) are the most preferable in your particular DLAB setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment.
+
+\* Please refer to official documentation from GCP that helps you to understand what [instance shapes](https://cloud.google.com/compute/docs/machine-types) are the most preferable in your particular DLAB setup. Also, you can use [GCP calculator](https://cloud.google.com/products/calculator) to roughly estimate the cost of your environment.
+
+\* Please refer to official documentation from Microsoft Azure that helps you to understand what [virtual machine shapes](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series/) are the most preferable in your particular DLAB setup. Also, you can use [Microsoft Azure calculator](https://azure.microsoft.com/en-us/pricing/calculator/?&ef_id=EAIaIQobChMItPmK5uj-6AIVj-iaCh0BFgVYEAAYASAAEgJ4KfD_BwE:G:s&OCID=AID2000606_SEM_UOMYUjFz&MarinID=UOMYUjFz_364338000380_microsoft%20azure%20calculator_e_c__76882726955_kwd-300666827690&lnkd=Google_Azure_Brand&dclid=CLC65Ojo_ugCFUWEsgodm18GNA) to roughly estimate the cost of your environment.
 
 You can override the default configurations of local spark. The configuration object is referenced as a JSON file. To tune spark configuration check off "Spark configurations" check box and insert JSON format in the text box.
 
@@ -290,7 +294,7 @@ On “Create Computational Resource” popup you have to choose Computational re
 -   Total number of instances (min 2 and max 14, configurable);
 -   Master and Slave instance shapes (list is configurable and supports all available cloud instance shapes, supported in your cloud region);
 
-Also, if you want to save some costs for your Computational resource you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/), which are often available at a discount price (this functionality is only available for AWS cloud):
+Also, if you want to save some costs for your Computational resource you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/)(this functionality is for AWS cloud) or [preemptible instances](https://cloud.google.com/compute/docs/instances/preemptible) (this functionality is for GCP), which are often available at a discount price:
 
 -   Select Spot Instance checkbox;
 -   Specify preferable bid for your spot instance in % (between 20 and 90, configurable).
@@ -308,6 +312,12 @@ To tune computational resource configuration check off "Cluster configurations" 
 <p align="center"> 
     <img src="doc/emr_create_configuration.png" alt="Create Custom Computational resource on AWS" width="760">
 </p>
+
+This picture shows menu for creating Computational resource for GCP:
+<p align="center"> 
+    <img src="doc/dataproc_create.png" alt="Create Computational resource on GCP" width="760">
+</p>
+
 
 This picture shows menu for creating Computational resource for Azure:
 <p align="center"> 
