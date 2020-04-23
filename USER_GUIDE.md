@@ -318,6 +318,7 @@ This picture shows menu for creating Computational resource for GCP:
     <img src="doc/dataproc_create.png" alt="Create Computational resource on GCP" width="760">
 </p>
 
+To create Data Engine Service (Dataproc) with preemptible instances check off 'preemptible node count'. You can add from 1 to 11 preemptible instances.
 
 This picture shows menu for creating Computational resource for Azure:
 <p align="center"> 
@@ -470,7 +471,7 @@ Clicking on "Apply changes" button, your credentials are sent to all running ins
     <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="760">
 </p>
 
-On this tab you can also edit your credentials (click on pen icon) or delete (click on bin icon).
+On this tab you can also edit your credentials (click on pen icon <img src="doc/pen_icon.png" alt="pen" width="20">) or delete (click on bin icon <img src="doc/bin_icon.png" alt="bin" width="20">).
 
 ### Git UI tool (ungit) <a name="git_ui"></a>
 
@@ -537,7 +538,7 @@ Roles consist of:
 To add group enter group name, choose certain action which should be allowed for group and also you can add discrete user(s) (not mandatory) and then click "Create" button.
 After addidng the group it appears on "Manage roles" popup.
 
-Administrator can remove group or user. For that you should only click on bin icon for certain group or for icon <img src="doc/delete_btn.png" alt="delete" width="16"> for particular user. After that hit "Yes" in confirmation popup.
+Administrator can remove group or user. For that you should only click on bin icon <img src="doc/bin_icon.png" alt="bin" width="20">for certain group or for icon <img src="doc/delete_btn.png" alt="delete" width="16"> for particular user. After that hit "Yes" in confirmation popup.
 
 <p align="center"> 
     <img src="doc/delete_group.png" alt="Delete group" width="780">
@@ -578,7 +579,7 @@ To access Environment management page either navigate to it via main menu:
     <img src="doc/environment_management.png" alt="Environment management">
 </p>
 
-To stop or terminate the Notebook click on a gear icon in the "Actions" column for a needed Notebook and hit "Stop" or "Terminate" action:
+To stop or terminate the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear" width="20"> in the "Actions" column for a needed Notebook and hit "Stop" or "Terminate" action:
 <p align="center"> 
     <img src="doc/manage_env_actions.png" alt="Manage environment actions" width="160">
 </p>
@@ -613,7 +614,7 @@ Once all fields are filled in and you click on "Connect" button, you are able to
     <img src="doc/endpoint_list.png" alt="Endpoint list" width="520">
 </p>
 
-Administrator can deactivate whole analytical environment via bin icon. And all related instances change its satuses to "Terminating" and soon become "Terminated".
+Administrator can deactivate whole analytical environment via bin icon <img src="doc/bin_icon.png" alt="bin" width="20">. And all related instances change its satuses to "Terminating" and soon become "Terminated".
 
 ### Manage DLab quotas <a name="manage_dlab_quotas"></a>
 
