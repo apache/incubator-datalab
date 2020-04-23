@@ -21,8 +21,6 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.BucketService;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -91,11 +89,5 @@ public class BucketResource {
                                  @PathParam("object") String object) {
         bucketService.deleteObject(bucket, object);
         return Response.ok().build();
-    }
-
-    public static void main(String[] args) {
-        Storage storage = StorageOptions.getDefaultInstance().getService();
-        String bucketName = "ofuks-1304-prj1-local-bucket";
-        storage.delete(bucketName, "1.txt");
     }
 }

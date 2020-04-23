@@ -37,6 +37,7 @@ import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
 import com.epam.dlab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
+import com.epam.dlab.backendapi.service.impl.aws.BucketServiceAwsImpl;
 import com.epam.dlab.backendapi.service.impl.gcp.BucketServiceGcpImpl;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
@@ -82,9 +83,11 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
         bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
         bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
         bind(ProjectService.class).to(ProjectServiceImpl.class);
-        if (configuration.getCloudProvider() == CloudProvider.GCP) {
-            bind(BucketService.class).to(BucketServiceGcpImpl.class);
-        }
+		if (configuration.getCloudProvider() == CloudProvider.GCP) {
+			bind(BucketService.class).to(BucketServiceGcpImpl.class);
+		} else if (configuration.getCloudProvider() == CloudProvider.AWS) {
+			bind(BucketService.class).to(BucketServiceAwsImpl.class);
+		}
     }
 
 	/**
