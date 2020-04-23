@@ -26,7 +26,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Deploy Computational resource](#computational_deploy)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Stop Apache Spark cluster](#spark_stop)
+&nbsp; &nbsp; &nbsp; &nbsp; [Stop Standalone Apache Spark cluster](#spark_stop)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Computational resource](#computational_terminate)
 
@@ -257,7 +257,7 @@ To stop the Notebook click on a gear icon <img src="doc/gear_icon.png" alt="gear
 
 Hit "OK" in confirmation popup.
 
-**NOTE:** Connected Data Engine Service becomes Terminated while connected (if any) Data Engine (Standalone Spark cluster) becomes Stopped.
+**NOTE:** Connected Data Engine Service becomes Terminated while connected (if any) Data Engine (Standalone Apache Spark cluster) becomes Stopped.
 
 <p align="center"> 
     <img src="doc/notebook_stop_confirm.png" alt="Notebook stop confirm" width="400">
@@ -363,11 +363,11 @@ Insert following “magics” before blocks of your code to start executing your
 ![RStudio](doc/rstudio.png)
 
 ---------------
-## Stop  Apache Spark cluster <a name="spark_stop"></a>
+## Stop Standalone Apache Spark cluster <a name="spark_stop"></a>
 
-Once you have stopped working with Apache Spark cluster (Data Engine) and you need to release cloud resources for the sake of the costs, you might want to stop Apache Spark cluster. You are able to start Apache Spark cluster again after a while and proceed with your analytics.
+Once you have stopped working with Standalone Apache Spark cluster (Data Engine) and you need to release cloud resources for the sake of the costs, you might want to stop Standalone Apache Spark cluster. You are able to start Standalone Apache Spark cluster again after a while and proceed with your analytics.
 
-To stop Apache Spark cluster click on <img src="doc/stop_icon.png" alt="stop" width="20"> button close to Apache Spark cluster alias.
+To stop Standalone Apache Spark cluster click on <img src="doc/stop_icon.png" alt="stop" width="20"> button close to Standalone Apache Spark cluster alias.
 
 Hit "YES" in confirmation popup.
 
@@ -375,12 +375,12 @@ Hit "YES" in confirmation popup.
     <img src="doc/spark_stop_confirm.png" alt="Spark stop confirm" width="400">
 </p>
 
-After you confirm your intent to stop Apache Spark cluster - the status changes to "Stopping" and soon becomes "Stopped".
+After you confirm your intent to stop Standalone Apache Spark cluster - the status changes to "Stopping" and soon becomes "Stopped".
 
 ------------------
 ## Terminate Computational resource <a name="computational_terminate"></a>
 
-To release cluster computational resources click on <img src="doc/cross_icon.png" alt="cross" width="16"> button close to Computational resource alias. Confirm decommissioning of Computational resource by hitting "Yes":
+To release computational resources click on <img src="doc/cross_icon.png" alt="cross" width="16"> button close to Computational resource alias. Confirm decommissioning of Computational resource by hitting "Yes":
 
 <p align="center"> 
     <img src="doc/emr_terminate_confirm.png" alt="Computational resource terminate confirm" width="400">
@@ -412,7 +412,7 @@ Popup with following fields shows up:
 - timezone - your time zone;
 - repeat on - days when scheduler should be active;
 - possibility to synchronize notebook scheduler with computational schedulers;
-- possibility not to stop notebook in case of running job on Spark Standalone.
+- possibility not to stop notebook in case of running job on Standalone Apache Spark cluster.
 
 <p align="center"> 
     <img src="doc/notebook_scheduler.png" alt="Notebook scheduler" width="400">
@@ -424,7 +424,7 @@ If you want to stop Notebook on exceeding idle time you should enable "Scheduler
     <img src="doc/scheduler_by_inactivity.png" alt="Scheduler by Inactivity.png" width="400">
 </p>
 
-Also scheduler can be configured for a spark cluster. To configure scheduler for Standalone Apache Spark cluster click on this icon <img src="doc/icon_scheduler_computational.png" alt="scheduler_computational" width="16">:
+Also scheduler can be configured for a Standalone Apache Spark cluster. To configure scheduler for Standalone Apache Spark cluster click on this icon <img src="doc/icon_scheduler_computational.png" alt="scheduler_computational" width="16">:
 
 <p align="center"> 
     <img src="doc/computational_scheduler_create.png" alt="Computational scheduler create" width="400">
@@ -437,7 +437,7 @@ There is a possibility to inherit scheduler start settings from notebook, if suc
 </p>
 
 Notebook/Standalone Apache Spark cluster is started/stopped automatically after scheduler setting.
-Please also note that if notebook is configured to be stopped, all running data engines assosiated with is stopped (for spark cluster) or terminated (for data engine serice) with notebook.
+Please also note that if notebook is configured to be stopped, all running data engines assosiated with is stopped (for Standalone Apache Spark cluster) or terminated (for data engine serice) with notebook.
 
 After login user is notified  that corresponding resources are about to be stopped/terminated in some time.
 
