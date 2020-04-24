@@ -46,6 +46,7 @@ import {NotebookModel} from '../exploratory/notebook.model';
 
 
 
+
 @Component({
   selector: 'resources-grid',
   templateUrl: 'resources-grid.component.html',
