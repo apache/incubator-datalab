@@ -1,3 +1,24 @@
+# *****************************************************************************
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# ******************************************************************************
+
 # Default values for step-certificates.
 
 # replicaCount is the number of replicas of step-certificates.
@@ -62,7 +83,7 @@ ca:
     storageClass: ${storage_class_name}
     # accessModes defines the Persistent Volume Access Mode.
     accessModes:
-    - ReadWriteOnce
+      - ReadWriteOnce
     # size is the Persistent Volume size.
     size: 10Gi
   # runAsRoot runs the ca as root instead of the step user. This is required in
@@ -91,7 +112,7 @@ resources: {}
   #   memory: 128Mi
   # requests:
   #   cpu: 100m
-  #   memory: 128Mi
+#   memory: 128Mi
 
 # nodeSelector contains the node labels for pod assignment.
 nodeSelector: {}
