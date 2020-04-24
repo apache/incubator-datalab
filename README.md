@@ -119,11 +119,17 @@ Database serves as a storage with description of user infrastructure, user’s s
 -----------------------------
 # Physical architecture <a name="Physical_architecture"></a>
 
-The following diagrams demonstrate high-level physical architecture of DLab in AWS and Azure.
+The following diagrams demonstrate high-level physical architecture of DLab in AWS, GCP and Azure.
+
+Diagram of Dlab physical architecture on AWS:
 
 ![Physical architecture](doc/dlab_aws.png)
 
+Diagram of Dlab physical architecture on GCP:
+
 ![Physical architecture](doc/dlab_gcp.png)
+
+Diagram of Dlab physical architecture on Azure:
 
 ![Physical architecture](doc/dlab_azure.png)
 
@@ -156,8 +162,8 @@ installation and can be even deployed on a different cloud.
 
 ## Edge node
 
-This node is used as proxy server and SSH gateway for the user. Through Edge node users can access Notebook via HTTP and SSH. 
-Edge Node has a Squid HTTP web proxy pre-installed.
+This node is used as a reverse-proxy server for the user. Through Edge node users can access Notebook via HTTPS. 
+Edge Node has a Nginx reverse-proxy pre-installed.
 
 ## Notebook node
 
@@ -483,7 +489,7 @@ To build SSN node, following steps should be executed:
 sudo su
 apt-get update
 apt-get install git
-git clone https://github.com/apache/incubator-dlab.git -b v2.1.1
+git clone https://github.com/apache/incubator-dlab.git
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 apt-get update
