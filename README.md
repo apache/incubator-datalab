@@ -489,7 +489,7 @@ To build SSN node, following steps should be executed:
 sudo su
 apt-get update
 apt-get install git
-git clone https://github.com/apache/incubator-dlab.git -b v2.3-RC1
+git clone https://github.com/apache/incubator-dlab.git -b v2.3.0
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 apt-get update
