@@ -33,7 +33,7 @@ import { Observable } from 'rxjs';
     if (token)
       headersConfig['Authorization'] = `Bearer ${token}`;
 
-    if (!request.headers.has('Content-Type') && !request.headers.has('Upload'))
+    if (!request.headers.has('Content-Type') && !request.headers.has('Upload') && request.url.indexOf('upload') === -1)
       headersConfig['Content-Type'] = 'application/json; charset=UTF-8';
 
     const header = request.clone({ setHeaders: headersConfig });

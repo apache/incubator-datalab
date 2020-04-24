@@ -52,6 +52,7 @@ export class ApplicationServiceFacade {
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINESERVICE = 'computational_resources_dataengineservice';
+  private static readonly BUCKET = 'bucket';
   private static readonly USER_PREFERENCES = 'user_preferences';
   private static readonly BUDGET = 'budget';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
@@ -252,6 +253,31 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.USER_PREFERENCES),
       null);
   }
+
+  public buildGetBucketData(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/ofuks-1304-prj1-local-bucket/endpoint/local',
+     null);
+  }
+
+  public buildUploadFileToBucket(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/upload',
+      data);
+  }
+
+  public buildDownloadFileFromBucket(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
+      data, { observe: 'response', responseType: 'text' } );
+  }
+
+  public buildDeleteFileFromBucket(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
+      data );
+  }
+
 
   public buildUpdateUserPreferences(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
@@ -650,6 +676,9 @@ export class ApplicationServiceFacade {
 
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
       '/api/infrastructure_templates/computational_templates');
+
+    // Bucket browser
+    this.requestRegistry.Add(ApplicationServiceFacade.BUCKET, '/api/bucket');
 
     // Filtering Configuration
     this.requestRegistry.Add(ApplicationServiceFacade.USER_PREFERENCES, '/api/user/settings');
