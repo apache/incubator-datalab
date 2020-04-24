@@ -121,15 +121,15 @@ Database serves as a storage with description of user infrastructure, user’s s
 
 The following diagrams demonstrate high-level physical architecture of DLab in AWS, GCP and Azure.
 
-Diagram of Dlab physical architecture on AWS:
+### Dlab high level Architecture on AWS: 
 
 ![Physical architecture](doc/dlab_aws.png)
 
-Diagram of Dlab physical architecture on GCP:
+### Dlab high level Architecture on GCP:
 
 ![Physical architecture](doc/dlab_gcp.png)
 
-Diagram of Dlab physical architecture on Azure:
+### Dlab high level Architecture on Azure:
 
 ![Physical architecture](doc/dlab_azure.png)
 
@@ -489,7 +489,7 @@ To build SSN node, following steps should be executed:
 sudo su
 apt-get update
 apt-get install git
-git clone https://github.com/apache/incubator-dlab.git
+git clone https://github.com/apache/incubator-dlab.git -b v2.3-RC1
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 apt-get update
