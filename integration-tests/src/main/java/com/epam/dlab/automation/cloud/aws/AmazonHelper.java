@@ -64,7 +64,7 @@ public class AmazonHelper {
 
 		List<String> valuesT1 = new ArrayList<>();
 		valuesT1.add(instanceName + "*");
-		Filter filter = new Filter("tag:" + NamingHelper.getServiceBaseName() + "-Tag", valuesT1);
+		Filter filter = new Filter("tag:" + NamingHelper.getServiceBaseName() + "-tag", valuesT1);
 
 		DescribeInstancesRequest describeInstanceRequest = new DescribeInstancesRequest().withFilters(filter);
 		DescribeInstancesResult describeInstanceResult = ec2.describeInstances(describeInstanceRequest);

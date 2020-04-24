@@ -10,6 +10,8 @@ Service Account Admin
 Service Account User
 Project IAM Admin
 Storage Admin 
+BigQuery Data Viewer
+BigQuery Job User
 ```
 - Google Cloud Storage JSON API should be enabled
 - Keycloak server with specific client for Dlab UI (could be dpeloyed with Kecylaok deployment script)

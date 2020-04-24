@@ -36,6 +36,12 @@ public class AzureCloudSettings extends CloudSettings {
     private String azureRegion;
     @JsonProperty("azure_iam_user")
     private String azureIamUser;
+    @JsonProperty("conf_service_base_name")
+    protected String sbn;
+    @JsonProperty("conf_os_family")
+    protected String os;
+    @JsonProperty("conf_cloud_provider")
+    protected String cloud;
     @JsonProperty("azure_vpc_name")
     private String azureVpcName;
     @JsonProperty("azure_subnet_name")
@@ -44,6 +50,16 @@ public class AzureCloudSettings extends CloudSettings {
     private String azureResourceGroupName;
     @JsonProperty("azure_security_group_name")
     private String azureSecurityGroupName;
+    @JsonProperty("ldap_hostname")
+    protected String ldapHost;
+    @JsonProperty("ldap_dn")
+    protected String ldapDn;
+    @JsonProperty("ldap_ou")
+    protected String ldapOu;
+    @JsonProperty("ldap_service_username")
+    protected String ldapUser;
+    @JsonProperty("ldap_service_password")
+    protected String ldapPassword;
     @JsonProperty("conf_key_dir")
     protected String confKeyDir;
     @JsonProperty("conf_image_enabled")

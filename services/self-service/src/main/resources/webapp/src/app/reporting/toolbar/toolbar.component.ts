@@ -20,6 +20,10 @@
 import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation, ViewChild } from '@angular/core';
 import { NgDateRangePickerOptions } from 'ng-daterangepicker';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
+import {skip} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
+import {HealthStatusService} from '../../core/services';
+import {GeneralEnvironmentStatus} from '../../administration/management/management.model';
 
 @Component({
   selector: 'dlab-toolbar',
@@ -33,6 +37,8 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   reportData: any;
   availablePeriodFrom: string;
   availablePeriodTo: string;
+  subscriptions: Subscription = new Subscription();
+  healthStatus: GeneralEnvironmentStatus;
 
   rangeOptions = { 'YTD': 'Year To Date', 'QTD': 'Quarter To Date', 'MTD': 'Month To Date', 'reset': 'All Period Report' };
   options: NgDateRangePickerOptions;
@@ -42,7 +48,7 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   @Output() exportReport: EventEmitter<{}> = new EventEmitter();
   @Output() setRangeOption: EventEmitter<{}> = new EventEmitter();
 
-  constructor() {
+  constructor(private healthStatusService: HealthStatusService) {
     this.options = {
       theme: 'default',
       range: 'tm',
@@ -58,8 +64,10 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
     if (localStorage.getItem('report_period')) {
       const availableRange = JSON.parse(localStorage.getItem('report_period'));
       this.availablePeriodFrom = availableRange.start_date;
-      this.availablePeriodTo = availableRange.end_date;
-    }
+      this.availablePeriodTo = availableRange.end_date;    }
+    this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
+      this.healthStatus = result;
+    }));
   }
 
   ngAfterViewInit() {

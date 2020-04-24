@@ -37,7 +37,14 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -58,6 +65,10 @@ public class ExploratoryResource implements ExploratoryAPI {
 		this.exploratoryService = exploratoryService;
 	}
 
+	@GET
+	public Response getExploratoryPopUp(@Auth UserInfo userInfo) {
+		return Response.ok(exploratoryService.getUserInstances(userInfo)).build();
+	}
 	/**
 	 * Creates the exploratory environment for user.
 	 *
@@ -105,11 +116,12 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 * @return Invocation response as JSON string.
 	 */
 	@DELETE
-	@Path("/{name}/stop")
+	@Path("/{project}/{name}/stop")
 	public String stop(@Auth UserInfo userInfo,
+					   @PathParam("project") String project,
 					   @PathParam("name") String name) {
 		log.debug("Stopping exploratory environment {} for user {}", name, userInfo.getName());
-		return exploratoryService.stop(userInfo, name);
+		return exploratoryService.stop(userInfo, project, name);
 	}
 
 	/**
@@ -120,29 +132,32 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 * @return Invocation response as JSON string.
 	 */
 	@DELETE
-	@Path("/{name}/terminate")
+	@Path("/{project}/{name}/terminate")
 	public String terminate(@Auth UserInfo userInfo,
+							@PathParam("project") String project,
 							@PathParam("name") String name) {
 		log.debug("Terminating exploratory environment {} for user {}", name, userInfo.getName());
-		return exploratoryService.terminate(userInfo, name);
+		return exploratoryService.terminate(userInfo, project, name);
 	}
 
 	@PUT
-	@Path("/{name}/reconfigure")
+	@Path("/{project}/{name}/reconfigure")
 	public Response reconfigureSpark(@Auth UserInfo userInfo,
+									 @PathParam("project") String project,
 									 @PathParam("name") String name,
 									 List<ClusterConfig> config) {
 		log.debug("Updating exploratory {} spark cluster for user {}", name, userInfo.getName());
-		exploratoryService.updateClusterConfig(userInfo, name, config);
+		exploratoryService.updateClusterConfig(userInfo, project, name, config);
 		return Response.ok().build();
 	}
 
 	@GET
-	@Path("/{name}/cluster/config")
+	@Path("/{project}/{name}/cluster/config")
 	public Response getClusterConfig(@Auth UserInfo userInfo,
+									 @PathParam("project") String project,
 									 @PathParam("name") String name) {
 		log.debug("Getting exploratory {} spark cluster configuration for user {}", name, userInfo.getName());
-		return Response.ok(exploratoryService.getClusterConfig(userInfo, name)).build();
+		return Response.ok(exploratoryService.getClusterConfig(userInfo, project, name)).build();
 	}
 
 	private Exploratory getExploratory(ExploratoryCreateFormDTO formDTO) {

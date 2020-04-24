@@ -30,6 +30,7 @@ public abstract class StatusEnvBaseDTO<T extends StatusEnvBaseDTO<?>> extends St
     private String instanceId;
     @JsonProperty("exploratory_name")
     private String exploratoryName;
+    private String project;
     @JsonProperty("exploratory_id")
     private String exploratoryId;
     @JsonProperty("exploratory_template_name")
@@ -58,6 +59,19 @@ public abstract class StatusEnvBaseDTO<T extends StatusEnvBaseDTO<?>> extends St
 
     public T withExploratoryName(String exploratoryName) {
         setExploratoryName(exploratoryName);
+        return self;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
+    }
+
+    public T withProject(String project) {
+        setProject(project);
         return self;
     }
 

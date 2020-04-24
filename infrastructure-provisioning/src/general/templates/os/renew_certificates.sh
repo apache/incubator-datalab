@@ -40,4 +40,4 @@ keytool -importcert -trustcacerts -alias RESOURCE_TYPE -file /etc/ssl/certs/dlab
 keytool -importcert -trustcacerts -alias step-ca -file /etc/ssl/certs/root_ca.crt -noprompt -storepass changeit -keystore JAVA_HOME/lib/security/cacerts
 
 # Restarting service
-supervisorctl restart provserv
+supervisorctl restart all

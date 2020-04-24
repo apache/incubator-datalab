@@ -45,13 +45,6 @@ def run():
         append_result("Failed preparing Project.", str(err))
         sys.exit(1)
 
-#    try:
-#        local("~/scripts/{}.py".format('edge_prepare'))
-#    except Exception as err:
-#        traceback.print_exc()
-#        append_result("Failed preparing Edge node.", str(err))
-#        sys.exit(1)
-
     try:
         local("~/scripts/{}.py".format('edge_configure'))
     except Exception as err:

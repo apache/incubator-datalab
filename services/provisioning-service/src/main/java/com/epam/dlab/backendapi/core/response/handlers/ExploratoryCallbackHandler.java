@@ -50,14 +50,16 @@ public class ExploratoryCallbackHandler extends ResourceCallbackHandler<Explorat
 
 	@JsonProperty
 	private final String exploratoryName;
+	private final String project;
 
 	@JsonCreator
 	public ExploratoryCallbackHandler(@JacksonInject RESTService selfService,
 									  @JsonProperty("action") DockerAction action,
 									  @JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
-									  @JsonProperty("exploratoryName") String exploratoryName) {
+									  String project, @JsonProperty("exploratoryName") String exploratoryName) {
 		super(selfService, user, uuid, action);
 		this.exploratoryName = exploratoryName;
+		this.project = project;
 	}
 
 	@Override
@@ -99,6 +101,8 @@ public class ExploratoryCallbackHandler extends ResourceCallbackHandler<Explorat
 
 	@Override
 	protected ExploratoryStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
-		return super.getBaseStatusDTO(status).withExploratoryName(exploratoryName);
+		return super.getBaseStatusDTO(status)
+				.withExploratoryName(exploratoryName)
+				.withProject(project);
 	}
 }

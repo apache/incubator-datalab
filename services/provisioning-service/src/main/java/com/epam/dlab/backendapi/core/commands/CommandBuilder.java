@@ -76,23 +76,32 @@ public class CommandBuilder {
 		} else if (cloudProvider == CloudProvider.GCP) {
 			return gcpCloudSettings(settings, cloudConfiguration, ldapConfig, stepCerts, keycloak);
 		} else if (cloudProvider == CloudProvider.AZURE) {
-			return azureCloudSettings(settings, cloudConfiguration, stepCerts, keycloak);
+			return azureCloudSettings(settings, cloudConfiguration, ldapConfig, stepCerts, keycloak);
 		} else {
 			throw new UnsupportedOperationException("Unsupported cloud provider " + cloudProvider.getName());
 		}
 	}
 
 	private AzureCloudSettings azureCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration,
+												  CloudConfiguration.LdapConfig ldapConfig,
 												  CloudConfiguration.StepCerts stepCerts,
 												  CloudConfiguration.Keycloak keycloak) {
 		return AzureCloudSettings.builder()
 				.azureRegion(cloudConfiguration.getRegion())
 				.azureResourceGroupName(cloudConfiguration.getAzureResourceGroupName())
 				.azureSecurityGroupName(cloudConfiguration.getSecurityGroupIds())
+				.ldapDn(ldapConfig.getDn())
+				.ldapHost(ldapConfig.getHost())
+				.ldapOu(ldapConfig.getOu())
+				.ldapUser(ldapConfig.getUser())
+				.ldapPassword(ldapConfig.getPassword())
 				.azureSubnetName(cloudConfiguration.getSubnetId())
 				.azureVpcName(cloudConfiguration.getVpcId())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
 				.azureIamUser(settings.getIamUser())
+				.sbn(cloudConfiguration.getServiceBaseName())
+				.os(cloudConfiguration.getOs())
+				.cloud(conf.getCloudProvider().getName())
 				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
 				.stepCertsEnabled(String.valueOf(stepCerts.isEnabled()))
 				.stepCertsRootCA(stepCerts.getRootCA())

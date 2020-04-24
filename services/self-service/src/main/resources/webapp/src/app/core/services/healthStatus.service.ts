@@ -119,7 +119,7 @@ export class HealthStatusService {
               this.appRoutingService.redirectToHomePage();
               return false;
             }
-            if (parameter === 'administration' && !data.admin) {
+            if (parameter === 'administration' && !data.admin && !data.projectAdmin) {
               this.appRoutingService.redirectToNoAccessPage();
               return false;
             }
@@ -131,15 +131,6 @@ export class HealthStatusService {
   public getActiveUsers(): Observable<Array<string>> {
     return this.applicationServiceFacade
       .buildGetActiveUsers()
-      .pipe(
-        map(response => response),
-        catchError(ErrorUtils.handleServiceError));
-  }
-
-  public manageEnvironment(act, data): Observable<Response | {}> {
-    const action = `/${act}`;
-    return this.applicationServiceFacade
-      .buildManageEnvironment(action, data)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

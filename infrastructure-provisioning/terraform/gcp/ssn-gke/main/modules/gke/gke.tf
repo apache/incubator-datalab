@@ -21,7 +21,7 @@
 
 locals {
   additional_tag     = split(":", var.additional_tag)
-  gke_name           = "${var.service_base_name}-cluster"
+  gke_name           = "${var.service_base_name}-k8s-cluster"
   gke_node_pool_name = "${var.service_base_name}-node-pool"
 }
 

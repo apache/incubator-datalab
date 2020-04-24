@@ -27,7 +27,7 @@ keyDirectory: ${KEYS_DIR}
 responseDirectory: /opt/dlab/tmp
 handlerDirectory: /opt/dlab/handlers
 dockerLogDirectory: ${LOG_ROOT_DIR}
-warmupPollTimeout: 50s
+warmupPollTimeout: 2m
 resourceStatusPollTimeout: 300m
 keyLoaderPollTimeout: 30m
 requestEnvStatusTimeout: 50s
@@ -123,6 +123,7 @@ cloudProperties:
   azureClientId: AZURE_CLIENT_ID
   gcpProjectId: GCP_PROJECT_ID
   imageEnabled: CONF_IMAGE_ENABLED
+  azureAuthFile: AZURE_AUTH_FILE_PATH
   ldap:
     host: LDAP_HOST
     dn: LDAP_DN

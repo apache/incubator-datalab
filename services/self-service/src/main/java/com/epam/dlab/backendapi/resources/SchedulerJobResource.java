@@ -28,7 +28,14 @@ import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -56,12 +63,13 @@ public class SchedulerJobResource {
 	 * @return response
 	 */
 	@POST
-	@Path("/{exploratoryName}")
+	@Path("/{projectName}/{exploratoryName}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateExploratoryScheduler(@Auth UserInfo userInfo,
+											   @PathParam("projectName") String projectName,
 											   @PathParam("exploratoryName") String exploratoryName,
 											   @SchedulerJobDTOValid SchedulerJobDTO dto) {
-		schedulerJobService.updateExploratorySchedulerData(userInfo.getName(), exploratoryName, dto);
+		schedulerJobService.updateExploratorySchedulerData(userInfo.getName(), projectName, exploratoryName, dto);
 		return Response.ok().build();
 	}
 
@@ -92,16 +100,17 @@ public class SchedulerJobResource {
 	 * @return response
 	 */
 	@POST
-	@Path("/{exploratoryName}/{computationalName}")
+	@Path("/{projectName}/{exploratoryName}/{computationalName}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateComputationalScheduler(@Auth UserInfo userInfo,
+												 @PathParam("projectName") String projectName,
 												 @PathParam("exploratoryName") String exploratoryName,
 												 @PathParam("computationalName") String computationalName,
 												 @SchedulerJobDTOValid SchedulerJobDTO dto) {
-		schedulerJobService.updateComputationalSchedulerData(userInfo.getName(), exploratoryName,
+		schedulerJobService.updateComputationalSchedulerData(userInfo.getName(), projectName, exploratoryName,
 				computationalName, dto);
 		return Response.ok().build();
-	}
+    }
 
 	/**
 	 * Updates computational resource <code>computationalName<code/> affiliated with exploratory
@@ -132,13 +141,14 @@ public class SchedulerJobResource {
 	 * @return scheduler job data
 	 */
 	@GET
-	@Path("/{exploratoryName}")
+	@Path("/{projectName}/{exploratoryName}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response fetchSchedulerJobForUserAndExploratory(@Auth UserInfo userInfo,
+														   @PathParam("projectName") String projectName,
 														   @PathParam("exploratoryName") String exploratoryName) {
 		log.debug("Loading scheduler job for user {} and exploratory {}...", userInfo.getName(), exploratoryName);
 		final SchedulerJobDTO schedulerJob =
-				schedulerJobService.fetchSchedulerJobForUserAndExploratory(userInfo.getName(), exploratoryName);
+				schedulerJobService.fetchSchedulerJobForUserAndExploratory(userInfo.getName(), projectName, exploratoryName);
 		return Response.ok(schedulerJob).build();
 	}
 
@@ -152,15 +162,16 @@ public class SchedulerJobResource {
 	 * @return scheduler job data
 	 */
 	@GET
-	@Path("/{exploratoryName}/{computationalName}")
+	@Path("/{projectName}/{exploratoryName}/{computationalName}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response fetchSchedulerJobForComputationalResource(@Auth UserInfo userInfo,
 															  @PathParam("exploratoryName") String exploratoryName,
+															  @PathParam("projectName") String projectName,
 															  @PathParam("computationalName") String computationalName) {
 		log.debug("Loading scheduler job for user {}, exploratory {} and computational resource {}...",
 				userInfo.getName(), exploratoryName, computationalName);
 		final SchedulerJobDTO schedulerJob = schedulerJobService
-				.fetchSchedulerJobForComputationalResource(userInfo.getName(), exploratoryName, computationalName);
+				.fetchSchedulerJobForComputationalResource(userInfo.getName(), projectName, exploratoryName, computationalName);
 		return Response.ok(schedulerJob).build();
 	}
 

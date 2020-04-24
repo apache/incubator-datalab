@@ -2,6 +2,7 @@
     background: url("../img/login-background.png") no-repeat center center fixed;
     background-size: cover;
     padding-top: 300px;
+    height: 100vh;
 }
 
 .alert-error {

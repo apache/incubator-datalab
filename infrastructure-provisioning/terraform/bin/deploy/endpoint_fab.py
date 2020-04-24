@@ -126,7 +126,18 @@ def ensure_step_certs():
                                                   'http://metadata/computeMetadata/v1/instance/network-interfaces/0/'
                                                   'ip').stdout.replace('\n', '')
                 except:
-                    public_ip_address = None 
+                    public_ip_address = None
+            elif args.cloud_provider == 'azure':
+                local_ip_address = conn.sudo('curl -s -H Metadata:true "http://169.254.169.254/metadata/'
+                                             'instance?api-version=2017-08-01&format=json" | jq -r ".network.'
+                                             'interface[].ipv4.ipAddress[].privateIpAddress"').stdout.replace('\n', '')
+                try:
+                    public_ip_address = conn.sudo('curl -s -H Metadata:true "http://169.254.169.254/metadata/'
+                                                  'instance?api-version=2017-08-01&format=json" | jq -r ".network.'
+                                                  'interface[].ipv4.ipAddress[].publicIpAddress"').stdout.replace('\n',
+                                                                                                                  '')
+                except:
+                    public_ip_address = None
             else:
                 local_ip_address = None
                 public_ip_address = None
@@ -220,7 +231,7 @@ def ensure_docker_endpoint():
                                   .stdout.rstrip("\n\r"))
                 conn.sudo("sed -i 's|DNS_IP_RESOLVE|\"dns\": [\"{0}\"],|g' {1}/tmp/daemon.json"
                           .format(dns_ip_resolve, args.dlab_path))
-            elif args.cloud_provider == "gcp":
+            elif args.cloud_provider == "gcp" or args.cloud_provider == "azure":
                 dns_ip_resolve = ""
                 conn.sudo('sed -i "s|DNS_IP_RESOLVE||g" {1}/tmp/daemon.json'
                           .format(dns_ip_resolve, args.dlab_path))
@@ -237,11 +248,48 @@ def ensure_docker_endpoint():
         traceback.print_exc()
         sys.exit(1)
 
+def ensure_mongo_endpoint():
+    try:
+        print('[INSTALLING MONGO DATABASE]')
+        if not exists(conn, '/home/{}/.ensure_dir/mongo_ensured'.format(args.os_user)):
+            conn.sudo("bash -c 'wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -'")
+            conn.sudo("bash -c 'echo \"deb [ arch=amd64,arm64 ] "
+                      "https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/4.2 multiverse\" | sudo "
+                      "tee /etc/apt/sources.list.d/mongodb-org-4.2.list'")
+            conn.sudo('apt-get update')
+            conn.sudo('apt-get -y --allow-unauthenticated install mongodb-org')
+            conn.sudo('systemctl enable mongod.service')
+            conn.sudo('sudo apt-get -y install python-pip')
+            conn.sudo('pip install -U pymongo pyyaml --no-cache-dir ')
+            conn.sudo('touch /home/{}/.ensure_dir/mongo_ensured'
+                      .format(args.os_user))
+        print('[CONFIGURING MONGO DATABASE]')
+        if not exists(conn, '/lib/systemd/system/mongod.service'):
+            conn.put('./mongo_files/mongod.service_template', '/tmp/mongod.service_template')
+            conn.sudo('sed -i "s/MONGO_USR/mongodb/g" /tmp/mongod.service_template'.format(args.os_user))
+            conn.sudo('cp -i /tmp/mongod.service_template /lib/systemd/system/mongod.service')
+            conn.sudo('systemctl daemon-reload')
+            conn.sudo('systemctl enable mongod.service')
+        if not exists(conn, '/tmp/configure_mongo.py'):
+            conn.put('./mongo_files/configure_mongo.py', '/tmp/configure_mongo.py')
+            conn.sudo('sed -i "s|PASSWORD|{}|g" /tmp/configure_mongo.py'.format(args.mongo_password))
+        if not exists(conn, '/tmp/mongo_roles.json'):
+            conn.put('./mongo_files/gcp/mongo_roles.json', '/tmp/mongo_roles.json')
+        conn.sudo('python /tmp/configure_mongo.py')
+    except Exception as err:
+        logging.error('Failed to install Mongo: ', str(err))
+        traceback.print_exc()
+        sys.exit(1)
+
 
 def create_key_dir_endpoint():
     try:
         if not exists(conn, '/home/{}/keys'.format(args.os_user)):
             conn.run('mkdir /home/{}/keys'.format(args.os_user))
+            if args.auth_file_path:
+                conn.put(args.auth_file_path, '/tmp/azure_auth.json')
+                conn.sudo('mv /tmp/azure_auth.json /home/{}/keys/'.format(args.os_user))
+                args.auth_file_path = '/home/{}/keys/azure_auth.json'.format(args.os_user)
     except Exception as err:
         logging.error('Failed create keys directory as ~/keys: ', str(err))
         traceback.print_exc()
@@ -278,8 +326,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
             if not exists(conn, '{}/tmp'.format(args.dlab_path)):
                 conn.run('mkdir -p {}/tmp'.format(args.dlab_path))
-            conn.put('./supervisor_svc.conf',
-                     '{}/tmp/supervisor_svc.conf'.format(args.dlab_path))
+            conn.put('./supervisor_svc.conf', '{}/tmp/supervisor_svc.conf'.format(args.dlab_path))
             dlab_conf_dir = '{}/conf/'.format(args.dlab_path)
             if not exists(conn, dlab_conf_dir):
                 conn.run('mkdir -p {}'.format(dlab_conf_dir))
@@ -294,6 +341,11 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                                            'subnet-id'.format(interface)).stdout
                 args.vpc2_id = args.vpc_id
                 args.subnet2_id = args.subnet_id
+                conn.sudo('sed -i "s|CONF_PARAMETER|--spring.config.location={0}billing_app.yml --conf |g" {1}/tmp/supervisor_svc.conf'
+                          .format(dlab_conf_dir, args.dlab_path))
+            elif args.cloud_provider == 'gcp' or args.cloud_provider == 'azure':
+                conn.sudo('sed -i "s|CONF_PARAMETER|--spring.config.location=|g" {}/tmp/supervisor_svc.conf'
+                          .format(args.dlab_path))
             conn.sudo('sed -i "s|OS_USR|{}|g" {}/tmp/supervisor_svc.conf'
                       .format(args.os_user, args.dlab_path))
             conn.sudo('sed -i "s|WEB_CONF|{}|g" {}/tmp/supervisor_svc.conf'
@@ -304,7 +356,10 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                       .format(args.dlab_path, supervisor_conf))
             conn.put('./provisioning.yml', '{}provisioning.yml'
                      .format(dlab_conf_dir))
-
+            if args.resource_group_name == '':
+                args.resource_group_name = '{}-{}-resource-group'.format(args.service_base_name, args.endpoint_id)
+            if args.cloud_provider == 'azure':
+                args.region = args.region.lower().replace(' ', '')
             cloud_properties = [
                 {
                     'key': "OS_USER",
@@ -404,7 +459,7 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 },
                 {
                     'key': "AZURE_RESOURCE_GROUP_NAME",
-                    'value': args.azure_resource_group_name
+                    'value': args.resource_group_name
                 },
                 {
                     'key': "AZURE_SSN_STORAGE_ACCOUNT_TAG",
@@ -489,6 +544,10 @@ def configure_supervisor_endpoint(endpoint_keystore_password):
                 {
                     'key': "KEYCLOAK_PASSWORD",
                     'value': args.keycloak_user_password
+                },
+                {
+                    'key': "AZURE_AUTH_FILE_PATH",
+                    'value': args.auth_file_path
                 }
             ]
             for param in cloud_properties:
@@ -516,8 +575,15 @@ def ensure_jar_endpoint():
                      '2.2.jar --no-check-certificate'
                      .format(web_path, args.repository_user,
                              args.repository_pass, args.repository_address))
-            conn.run('mv {0}/*.jar {0}/provisioning-service.jar'
+            conn.run('mv {0}/provisioning-service-2.2.jar {0}/provisioning-service.jar'
                      .format(web_path))
+            conn.run('wget -P {}  --user={} --password={} '
+                     'https://{}/repository/packages/billing-{}-'
+                     '2.2.jar --no-check-certificate'
+                     .format(web_path, args.repository_user,
+                             args.repository_pass, args.repository_address, args.cloud_provider))
+            conn.run('mv {0}/billing-{1}-2.2.jar {0}/billing.jar'
+                     .format(web_path, args.cloud_provider))
             conn.sudo('touch {}'.format(ensure_file))
     except Exception as err:
         logging.error('Failed to download jar-provisioner: ', str(err))
@@ -550,82 +616,26 @@ def pull_docker_images():
         ensure_file = ('/home/{}/.ensure_dir/docker_images_pulled'
                        .format(args.os_user))
         if not exists(conn, ensure_file):
+            list_images = {
+                'aws': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'tensor-rstudio',
+                        'deeplearning', 'jupyterlab', 'dataengine-service', 'dataengine'],
+                'gcp': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'tensor-rstudio',
+                        'deeplearning', 'superset', 'jupyterlab', 'dataengine-service', 'dataengine'],
+                'azure': ['base', 'edge', 'project', 'jupyter', 'rstudio', 'zeppelin', 'tensor', 'deeplearning',
+                          'dataengine']
+            }
             conn.sudo('docker login -u {} -p {} {}:{}'
                       .format(args.repository_user,
                               args.repository_pass,
                               args.repository_address,
                               args.repository_port))
-            conn.sudo('docker pull {}:{}/docker.dlab-base-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-edge-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-project-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-jupyter-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-rstudio-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-zeppelin-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-tensor-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-tensor-rstudio-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-deeplearning-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-dataengine-service-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker pull {}:{}/docker.dlab-dataengine-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-base-{} docker.dlab-base'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-edge-{} docker.dlab-edge'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-project-{} docker.dlab-project'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-jupyter-{} docker.dlab-jupyter'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-rstudio-{} docker.dlab-rstudio'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-zeppelin-{} '
-                      'docker.dlab-zeppelin'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-tensor-{} docker.dlab-tensor'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-tensor-rstudio-{} '
-                      'docker.dlab-tensor-rstudio'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-deeplearning-{} '
-                      'docker.dlab-deeplearning'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-dataengine-service-{} '
-                      'docker.dlab-dataengine-service'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker tag {}:{}/docker.dlab-dataengine-{} '
-                      'docker.dlab-dataengine'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-base-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-edge-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-project-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-jupyter-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-rstudio-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-zeppelin-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-tensor-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-tensor-rstudio-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-deeplearning-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-service-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
-            conn.sudo('docker rmi {}:{}/docker.dlab-dataengine-{}'
-                      .format(args.repository_address, args.repository_port, args.cloud_provider))
+            for image in list_images[args.cloud_provider]:
+                conn.sudo('docker pull {0}:{1}/docker.dlab-{3}-{2}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider, image))
+                conn.sudo('docker tag {0}:{1}/docker.dlab-{3}-{2} docker.dlab-{3}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider, image))
+                conn.sudo('docker rmi {0}:{1}/docker.dlab-{3}-{2}'
+                          .format(args.repository_address, args.repository_port, args.cloud_provider, image))
             conn.sudo('chown -R {0}:docker /home/{0}/.docker/'
                       .format(args.os_user))
             conn.sudo('touch {}'.format(ensure_file))
@@ -681,6 +691,259 @@ def configure_guacamole():
         print('Failed to configure guacamole: ', str(err))
         return False
 
+def configure_billing_endpoint(endpoint_keystore_password):
+    try:
+        if args.billing_enable:
+            conn.put('./billing_{}.yml'.format(args.cloud_provider), '{}/conf/billing.yml'
+                     .format(args.dlab_path))
+            billing_yml_path = "{}/conf/billing.yml".format(args.dlab_path)
+            if args.cloud_provider == 'aws':
+
+                conn.put('./billing_app_{}.yml'.format(args.cloud_provider), '{}/conf/billing_app.yml'
+                         .format(args.dlab_path))
+                billing_app_yml_path = "{}/conf/billing_app.yml".format(args.dlab_path)
+                billing_app_properties = [
+                    {
+                        'key': "MONGO_HOST",
+                        'value': args.mongo_host
+                    },
+                    {
+                        'key': "MONGO_PASSWORD",
+                        'value': args.mongo_password
+                    },
+                    {
+                        'key': "MONGO_PORT",
+                        'value': args.mongo_port
+                    },
+                    {
+                        'key': "OS_USER",
+                        'value': args.os_user
+                    },
+                    {
+                        'key': "KEY_STORE_PASSWORD",
+                        'value': endpoint_keystore_password
+                    },
+                    {
+                        'key': "KEYCLOAK_CLIENT_ID",
+                        'value': args.keycloak_client_id
+                    },
+                    {
+                        'key': "CLIENT_SECRET",
+                        'value': args.keycloak_client_secret
+                    },
+                    {
+                        'key': "KEYCLOAK_AUTH_SERVER_URL",
+                        'value': args.keycloak_auth_server_url
+                    }
+                ]
+                for param in billing_app_properties:
+                    conn.sudo('sed -i "s|{0}|{1}|g" {2}'
+                              .format(param['key'], param['value'], billing_app_yml_path))
+                if args.aws_job_enabled == 'true':
+                    args.tag_resource_id = 'resourceTags' + ':' + args.tag_resource_id
+                billing_properties = [
+                    {
+                        'key': "MONGO_HOST",
+                        'value': args.mongo_host
+                    },
+                    {
+                        'key': "MONGO_PASSWORD",
+                        'value': args.mongo_password
+                    },
+                    {
+                        'key': "MONGO_PORT",
+                        'value': args.mongo_port
+                    },
+                    {
+                        'key': "BILLING_BUCKET_NAME",
+                        'value': args.billing_bucket
+                    },
+                    {
+                        'key': "REPORT_PATH",
+                        'value': args.report_path
+                    },
+                    {
+                        'key': "AWS_JOB_ENABLED",
+                        'value': args.aws_job_enabled
+                    },
+                    {
+                        'key': "ACCOUNT_ID",
+                        'value': args.billing_aws_account_id
+                    },
+                    {
+                        'key': "ACCESS_KEY_ID",
+                        'value': args.access_key_id
+                    },
+                    {
+                        'key': "SECRET_ACCESS_KEY",
+                        'value': args.secret_access_key
+                    },
+                    {
+                        'key': "CONF_BILLING_TAG",
+                        'value': args.billing_tag
+                    },
+                    {
+                        'key': "SERVICE_BASE_NAME",
+                        'value': args.service_base_name
+                    },
+                    {
+                        'key': "DLAB_ID",
+                        'value': args.billing_dlab_id
+                    },
+                    {
+                        'key': "USAGE_DATE",
+                        'value': args.billing_usage_date
+                    },
+                    {
+                        'key': "PRODUCT",
+                        'value': args.billing_product
+                    },
+                    {
+                        'key': "USAGE_TYPE",
+                        'value': args.billing_usage_type
+                    },
+                    {
+                        'key': "USAGE",
+                        'value': args.billing_usage
+                    },
+                    {
+                        'key': "COST",
+                        'value': args.billing_usage_cost
+                    },
+                    {
+                        'key': "RESOURCE_ID",
+                        'value': args.billing_resource_id
+                    },
+                    {
+                        'key': "TAGS",
+                        'value': args.billing_tags
+                    }
+                ]
+            elif args.cloud_provider == 'gcp':
+                billing_properties = [
+                    {
+                        'key': "SERVICE_BASE_NAME",
+                        'value': args.service_base_name
+                    },
+                    {
+                        'key': "OS_USER",
+                        'value': args.os_user
+                    },
+                    {
+                        'key': "MONGO_PASSWORD",
+                        'value': args.mongo_password
+                    },
+                    {
+                        'key': "MONGO_PORT",
+                        'value': args.mongo_port
+                    },
+                    {
+                        'key': "MONGO_HOST",
+                        'value': args.mongo_host
+                    },
+                    {
+                        'key': "KEY_STORE_PASSWORD",
+                        'value': endpoint_keystore_password
+                    },
+                    {
+                        'key': "DATASET_NAME",
+                        'value': args.billing_dataset_name
+                    },
+                    {
+                        'key': "KEYCLOAK_CLIENT_ID",
+                        'value': args.keycloak_client_id
+                    },
+                    {
+                        'key': "CLIENT_SECRET",
+                        'value': args.keycloak_client_secret
+                    },
+                    {
+                        'key': "KEYCLOAK_AUTH_SERVER_URL",
+                        'value': args.keycloak_auth_server_url
+                    }
+                ]
+            elif args.cloud_provider == 'azure':
+                billing_properties = [
+                    {
+                        'key': "SERVICE_BASE_NAME",
+                        'value': args.service_base_name
+                    },
+                    {
+                        'key': "OS_USER",
+                        'value': args.os_user
+                    },
+                    {
+                        'key': "MONGO_PASSWORD",
+                        'value': args.mongo_password
+                    },
+                    {
+                        'key': "MONGO_PORT",
+                        'value': args.mongo_port
+                    },
+                    {
+                        'key': "MONGO_HOST",
+                        'value': args.mongo_host
+                    },
+                    {
+                        'key': "KEY_STORE_PASSWORD",
+                        'value': endpoint_keystore_password
+                    },
+                    {
+                        'key': "KEYCLOAK_CLIENT_ID",
+                        'value': args.keycloak_client_id
+                    },
+                    {
+                        'key': "KEYCLOAK_CLIENT_SECRET",
+                        'value': args.keycloak_client_secret
+                    },
+                    {
+                        'key': "KEYCLOAK_AUTH_SERVER_URL",
+                        'value': args.keycloak_auth_server_url
+                    },
+                    {
+                        'key': "CLIENT_ID",
+                        'value': args.azure_client_id
+                    },
+                    {
+                        'key': "CLIENT_SECRET",
+                        'value': args.azure_client_secret
+                    },
+                    {
+                        'key': "TENANT_ID",
+                        'value': args.tenant_id
+                    },
+                    {
+                        'key': "SUBSCRIPTION_ID",
+                        'value': args.subscription_id
+                    },
+                    {
+                        'key': "AUTHENTICATION_FILE",
+                        'value': args.auth_file_path
+                    },
+                    {
+                        'key': "OFFER_NUMBER",
+                        'value': args.offer_number
+                    },
+                    {
+                        'key': "CURRENCY",
+                        'value': args.currency
+                    },
+                    {
+                        'key': "LOCALE",
+                        'value': args.locale
+                    },
+                    {
+                        'key': "REGION_INFO",
+                        'value': args.region_info
+                    }
+                ]
+            for param in billing_properties:
+                conn.sudo('sed -i "s|{0}|{1}|g" {2}'
+                          .format(param['key'], param['value'], billing_yml_path))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to configure billing: ', str(err))
+        return False
 
 def init_args():
     global args
@@ -688,16 +951,17 @@ def init_args():
     parser.add_argument('--dlab_path', type=str, default='/opt/dlab')
     parser.add_argument('--key_name', type=str, default='', help='Name of admin key without .pem extension')
     parser.add_argument('--endpoint_eip_address', type=str)
+    parser.add_argument('--endpoint_id', type=str, default='')
     parser.add_argument('--pkey', type=str, default='')
     parser.add_argument('--hostname', type=str, default='')
     parser.add_argument('--os_user', type=str, default='dlab-user')
     parser.add_argument('--cloud_provider', type=str, default='')
-    parser.add_argument('--mongo_host', type=str, default='MONGO_HOST')
+    parser.add_argument('--mongo_host', type=str, default='localhost')
     parser.add_argument('--mongo_port', type=str, default='27017')
     parser.add_argument('--ss_host', type=str, default='')
     parser.add_argument('--ss_port', type=str, default='8443')
     parser.add_argument('--ssn_ui_host', type=str, default='')
-    # parser.add_argument('--mongo_password', type=str, default='')
+    parser.add_argument('--mongo_password', type=str, default='')
     parser.add_argument('--repository_address', type=str, default='')
     parser.add_argument('--repository_port', type=str, default='')
     parser.add_argument('--repository_user', type=str, default='')
@@ -726,11 +990,13 @@ def init_args():
     parser.add_argument('--conf_key_dir', type=str, default='/root/keys/', help='Should end by symbol /')
     parser.add_argument('--vpc_id', type=str, default='')
     parser.add_argument('--peering_id', type=str, default='')
-    parser.add_argument('--azure_resource_group_name', type=str, default='')
+    parser.add_argument('--resource_group_name', type=str, default='')
     parser.add_argument('--azure_ssn_storage_account_tag', type=str, default='')
     parser.add_argument('--azure_shared_storage_account_tag', type=str, default='')
     parser.add_argument('--azure_datalake_tag', type=str, default='')
+    parser.add_argument('--azure_datalake_enabled', type=str, default='')
     parser.add_argument('--azure_client_id', type=str, default='')
+    parser.add_argument('--azure_client_secret', type=str, default='')
     parser.add_argument('--gcp_project_id', type=str, default='')
     parser.add_argument('--ldap_host', type=str, default='')
     parser.add_argument('--ldap_dn', type=str, default='')
@@ -743,6 +1009,32 @@ def init_args():
     parser.add_argument('--step_ca_url', type=str, default='')
     parser.add_argument('--shared_image_enabled', type=str, default='true')
     parser.add_argument('--image_enabled', type=str, default='true')
+    parser.add_argument('--auth_file_path', type=str, default='')
+
+    #Billing parameter
+    parser.add_argument('--billing_enable', type=bool, default=False)
+    parser.add_argument('--aws_job_enabled', type=str, default='false')
+    parser.add_argument('--billing_bucket', type=str, default='')
+    parser.add_argument('--report_path', type=str, default='')
+    parser.add_argument('--billing_aws_account_id', type=str, default='')
+    parser.add_argument('--access_key_id', type=str, default='')
+    parser.add_argument('--secret_access_key', type=str, default='')
+    parser.add_argument('--billing_tag', type=str, default='dlab')
+    parser.add_argument('--billing_dlab_id', type=str, default='resource_tags_user_user_tag')
+    parser.add_argument('--billing_usage_date', type=str, default='line_item_usage_start_date')
+    parser.add_argument('--billing_product', type=str, default='product_product_name')
+    parser.add_argument('--billing_usage_type', type=str, default='line_item_usage_type')
+    parser.add_argument('--billing_usage', type=str, default='line_item_usage_amount')
+    parser.add_argument('--billing_usage_cost', type=str, default='line_item_blended_cost')
+    parser.add_argument('--billing_resource_id', type=str, default='line_item_resource_id')
+    parser.add_argument('--billing_tags', type=str, default='line_item_operation,line_item_line_item_description')
+    parser.add_argument('--tenant_id', type=str, default='')
+    parser.add_argument('--subscription_id', type=str, default='')
+    parser.add_argument('--offer_number', type=str, default='')
+    parser.add_argument('--currency', type=str, default='')
+    parser.add_argument('--locale', type=str, default='')
+    parser.add_argument('--region_info', type=str, default='')
+    parser.add_argument('--billing_dataset_name', type=str, default='')
 
     # TEMPORARY
     parser.add_argument('--ssn_k8s_nlb_dns_name', type=str, default='')
@@ -755,6 +1047,7 @@ def init_args():
 
 def update_system():
     conn.sudo('apt-get update')
+    conn.sudo('apt-get install -y jq')
 
 
 def init_dlab_connection(ip=None, user=None,
@@ -827,6 +1120,9 @@ def start_deploy():
     logging.info("Installing Docker")
     ensure_docker_endpoint()
 
+    logging.info("Installing Mongo Database")
+    ensure_mongo_endpoint()
+
     logging.info("Configuring Supervisor")
     configure_supervisor_endpoint(endpoint_keystore_password)
 
@@ -847,6 +1143,9 @@ def start_deploy():
 
     logging.info("Configuring guacamole")
     configure_guacamole()
+
+    logging.info("Configuring billing")
+    configure_billing_endpoint(endpoint_keystore_password)
 
     logging.info("Starting supervisor")
     start_supervisor_endpoint()

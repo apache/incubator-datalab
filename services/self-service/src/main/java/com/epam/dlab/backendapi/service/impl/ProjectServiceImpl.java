@@ -3,10 +3,17 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
 import com.epam.dlab.backendapi.annotation.Project;
+import com.epam.dlab.backendapi.annotation.ProjectAdmin;
+import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
-import com.epam.dlab.backendapi.domain.*;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -21,7 +28,10 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -71,20 +81,16 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public List<ProjectManagingDTO> getProjectsForManaging() {
-		return projectDAO.getProjects().stream().map(p -> new ProjectManagingDTO(
-				p.getName(), p.getBudget(), isCanBeStopped(p), isCanBeTerminated(p)))
+	public List<ProjectDTO> getProjects(UserInfo user) {
+		return projectDAO.getProjects()
+				.stream()
+				.filter(project -> UserRoles.isProjectAdmin(user, project.getGroups()) || UserRoles.isAdmin(user))
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<ProjectDTO> getUserProjects(UserInfo userInfo, boolean active) {
 		return projectDAO.getUserProjects(userInfo, active);
-	}
-
-	@Override
-	public List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status) {
-		return projectDAO.getProjectsWithStatus(status);
 	}
 
 	@Override
@@ -116,19 +122,11 @@ public class ProjectServiceImpl implements ProjectService {
 		exploratoryService.updateProjectExploratoryStatuses(name, endpoint, UserInstanceStatus.TERMINATING);
 	}
 
+	@ProjectAdmin
 	@Override
-	public void terminateEndpoint(UserInfo userInfo, List<String> endpoints, String name) {
+	public void terminateEndpoint(@User UserInfo userInfo, List<String> endpoints, @Project String name) {
+		System.out.println("sd");
 		endpoints.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
-	}
-
-	@Override
-	public void terminateProject(UserInfo userInfo, String name) {
-		List<ProjectEndpointDTO> endpoints = get(name).getEndpoints();
-		checkProjectRelatedResourcesInProgress(name, endpoints, TERMINATE_ACTION);
-
-		endpoints.stream()
-				.map(ProjectEndpointDTO::getName)
-				.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
 	}
 
 	@BudgetLimited
@@ -138,8 +136,9 @@ public class ProjectServiceImpl implements ProjectService {
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STARTING);
 	}
 
+	@ProjectAdmin
 	@Override
-	public void start(UserInfo userInfo, List<String> endpoints, String name) {
+	public void start(@User UserInfo userInfo, List<String> endpoints, @Project String name) {
 		endpoints.forEach(endpoint -> start(userInfo, endpoint, name));
 	}
 
@@ -149,26 +148,31 @@ public class ProjectServiceImpl implements ProjectService {
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STOPPING);
 	}
 
+	@ProjectAdmin
 	@Override
-	public void stop(UserInfo userInfo, List<String> endpoints, String name) {
-		endpoints.forEach(endpoint -> stop(userInfo, endpoint, name));
-	}
+	public void stopWithResources(@User UserInfo userInfo, List<String> endpoints, @Project String projectName) {
+		List<ProjectEndpointDTO> endpointDTOs = get(projectName)
+				.getEndpoints()
+				.stream()
+				.filter(projectEndpointDTO -> endpoints.contains(projectEndpointDTO.getName()))
+				.collect(Collectors.toList());
+		checkProjectRelatedResourcesInProgress(projectName, endpointDTOs, STOP_ACTION);
 
-	@Override
-	public void stopWithResources(UserInfo userInfo, String projectName) {
-		List<ProjectEndpointDTO> endpoints = get(projectName).getEndpoints();
-		checkProjectRelatedResourcesInProgress(projectName, endpoints, STOP_ACTION);
+		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName,
+				endpointDTOs
+						.stream()
+						.map(ProjectEndpointDTO::getName)
+						.collect(Collectors.toList()))
+				.forEach(e -> exploratoryService.stop(new UserInfo(e.getUser(), userInfo.getAccessToken()), projectName, e.getExploratoryName()));
 
-		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName).forEach(e ->
-				exploratoryService.stop(new UserInfo(e.getUser(), userInfo.getAccessToken()), e.getExploratoryName()));
-
-		endpoints.stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
-				UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED).contains(e.getStatus()))
+		endpointDTOs.stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
+				UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED, UserInstanceStatus.FAILED).contains(e.getStatus()))
 				.forEach(e -> stop(userInfo, e.getName(), projectName));
 	}
 
+	@ProjectAdmin
 	@Override
-	public void update(UserInfo userInfo, UpdateProjectDTO projectDTO) {
+	public void update(@User UserInfo userInfo, UpdateProjectDTO projectDTO, @Project String projectName) {
 		final ProjectDTO project = projectDAO.get(projectDTO.getName()).orElseThrow(projectNotFound());
 		final Set<String> endpoints = project.getEndpoints()
 				.stream()
@@ -183,11 +187,6 @@ public class ProjectServiceImpl implements ProjectService {
 		projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
 				project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
 		endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, project, e.getName()));
-	}
-
-	@Override
-	public void updateBudget(String project, Integer budget) {
-		projectDAO.updateBudget(project, budget);
 	}
 
 	@Override
@@ -253,20 +252,6 @@ public class ProjectServiceImpl implements ProjectService {
 			throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
 					"resource is in processing stage", action)));
 		}
-	}
-
-	private boolean isCanBeStopped(ProjectDTO projectDTO) {
-        List<ProjectEndpointDTO> endpoints = projectDTO.getEndpoints();
-        return !endpoints.stream().allMatch(e -> exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(
-                projectDTO.getName(), e.getName(), UserInstanceStatus.STOPPED, UserInstanceStatus.TERMINATED,
-                UserInstanceStatus.TERMINATING).isEmpty()) ||
-				endpoints.stream().anyMatch(e -> Arrays.asList(UserInstanceStatus.RUNNING, UserInstanceStatus.STARTING)
-						.contains(e.getStatus()));
-	}
-
-	private boolean isCanBeTerminated(ProjectDTO projectDTO) {
-        return !projectDTO.getEndpoints().stream().allMatch(e -> Objects.equals(UserInstanceStatus.TERMINATED,
-                e.getStatus()));
 	}
 
 	private Supplier<ResourceNotFoundException> projectNotFound() {

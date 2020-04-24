@@ -109,3 +109,23 @@
      }
    }
  }
+ @media screen and (max-width: 1520px) {
+   .resources,
+   managment {
+     .source {
+       .resource-wrap {
+         .resource-name {
+           width: 45%;
+         }
+
+         .resource-status {
+           width: 40%;
+         }
+
+         .resource-actions {
+           width: 15%;
+         }
+       }
+     }
+   }
+ }

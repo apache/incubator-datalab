@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Slf4j
 public class EndpointServiceImpl implements EndpointService {
 	private static final String HEALTH_CHECK = "healthcheck";
@@ -137,7 +138,7 @@ public class EndpointServiceImpl implements EndpointService {
 			cloudProvider = response.readEntity(CloudProvider.class);
 		} catch (Exception e) {
 			log.error("Cannot connect to url '{}'. {}", url, e.getMessage());
-			throw new DlabException(String.format("Cannot connect to url '%s'", url), e);
+			throw new DlabException(String.format("Cannot connect to url '%s'. %s", url, e.getMessage()));
 		}
 		if (response.getStatus() != 200) {
 			log.warn("Endpoint url {} is not valid", url);

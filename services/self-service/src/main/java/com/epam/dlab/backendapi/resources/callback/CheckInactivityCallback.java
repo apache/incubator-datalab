@@ -58,9 +58,8 @@ public class CheckInactivityCallback {
 	@Path("computational")
 	public Response updateComputationalLastActivity(CheckInactivityStatusDTO dto) {
 		requestId.checkAndRemove(dto.getRequestId());
-		inactivityService.updateLastActivityForComputational(new UserInfo(dto.getUser(), null),
-				dto.getExploratoryName(),
-				dto.getComputationalName(), toLocalDateTime(dto.getLastActivityUnixTime()));
+		inactivityService.updateLastActivityForComputational(new UserInfo(dto.getUser(), null), null,
+				dto.getExploratoryName(), dto.getComputationalName(), toLocalDateTime(dto.getLastActivityUnixTime()));
 		return Response.ok().build();
 	}
 

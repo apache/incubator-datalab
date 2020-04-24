@@ -37,10 +37,10 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getComputationalTemplates(project, endpoint): Observable<any> {
-    const url = `/${project}/${endpoint}/computational_templates`;
+  public getComputationalTemplates(project, endpoint, provider): Observable<any> {
+    const url = `/${project}/${endpoint}/templates`;
     return this.applicationServiceFacade
-      .buildGetTemplatesRequest(url)
+      .buildGetComputationTemplatesRequest(url, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
@@ -72,8 +72,16 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+  public getProjectByExploratoryEnvironment(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetExploratoryEnvironmentRequest()
+      .pipe(
+        map(response => response.body.project_exploratories),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public suspendExploratoryEnvironment(notebook: any, action): Observable<{}> {
-    const url = '/' + notebook.name + '/' + action;
+    const url = '/' + notebook.project + '/' + notebook.name + '/' + action;
 
     return this.applicationServiceFacade
       .buildSuspendExploratoryEnvironmentRequest(JSON.stringify(url))
@@ -100,8 +108,8 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public suspendComputationalResource(notebookName: string, computationalResourceName: string, provider: string): Observable<{}> {
-    const body = JSON.stringify('/' + notebookName + '/' + computationalResourceName + '/terminate');
+  public suspendComputationalResource(projectName: string, notebookName: string, computationalResourceName: string, provider: string): Observable<{}> {
+    const body = JSON.stringify('/' + projectName + '/' + notebookName + '/' + computationalResourceName + '/terminate');
     return this.applicationServiceFacade
       .buildDeleteComputationalResourcesRequest(body, provider)
       .pipe(

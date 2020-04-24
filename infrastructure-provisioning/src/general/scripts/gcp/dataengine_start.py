@@ -24,22 +24,24 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import traceback
 import os
 import uuid
+from fabric.api import *
 
 
 def start_data_engine(zone, cluster_name):
     print("Starting data engine cluster")
     try:
-        instances = GCPMeta().get_list_instances(zone, cluster_name)
+        instances = GCPMeta.get_list_instances(zone, cluster_name)
         if 'items' in instances:
             for i in instances['items']:
-                GCPActions().start_instance(i['name'], zone)
+                GCPActions.start_instance(i['name'], zone)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to start dataengine", str(err))
         sys.exit(1)
 
 
@@ -51,23 +53,27 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     data_engine = dict()
-    try:
-        data_engine['exploratory_name'] = os.environ['exploratory_name'].lower().replace('_', '-')
-    except:
+    if 'exploratory_name' in os.environ:
+        data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-').lower()
+    else:
         data_engine['exploratory_name'] = ''
-    try:
-        data_engine['computational_name'] = os.environ['computational_name'].lower().replace('_', '-')
-    except:
+    if 'computational_name' in os.environ:
+        data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-').lower()
+    else:
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
     data_engine['zone'] = os.environ['gcp_zone']
-    data_engine['user_name'] = os.environ['edge_user_name'].lower().replace('_', '-')
-    data_engine['project_name'] = os.environ['project_name'].lower().replace('_', '-')
-    data_engine['cluster_name'] = \
-        data_engine['service_base_name'] + '-' + data_engine['project_name'] + '-de-' + \
-        data_engine['exploratory_name'] + '-' + data_engine['computational_name']
+    data_engine['user_name'] = os.environ['edge_user_name']
+    data_engine['project_name'] = os.environ['project_name'].replace('_', '-').lower()
+    data_engine['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-').lower()
+    data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
+                                                          data_engine['project_name'],
+                                                          data_engine['endpoint_name'],
+                                                          data_engine['computational_name'])
     try:
         logging.info('[STARTING DATA ENGINE]')
         print('[STARTING DATA ENGINE]')
@@ -75,7 +81,7 @@ if __name__ == "__main__":
             start_data_engine(data_engine['zone'], data_engine['cluster_name'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to start Data Engine.", str(err))
+            dlab.fab.append_result("Failed to start Data Engine.", str(err))
             raise Exception
     except:
         sys.exit(1)
@@ -84,9 +90,9 @@ if __name__ == "__main__":
         logging.info('[UPDATE LAST ACTIVITY TIME]')
         print('[UPDATE LAST ACTIVITY TIME]')
         data_engine['computational_id'] = data_engine['cluster_name'] + '-m'
-        data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
-        data_engine['notebook_ip'] = GCPMeta().get_private_ip_address(os.environ['notebook_instance_name'])
-        data_engine['computational_ip'] = GCPMeta().get_private_ip_address(data_engine['computational_id'])
+        data_engine['tag_name'] = data_engine['service_base_name'] + '-tag'
+        data_engine['notebook_ip'] = GCPMeta.get_private_ip_address(os.environ['notebook_instance_name'])
+        data_engine['computational_ip'] = GCPMeta.get_private_ip_address(data_engine['computational_id'])
         data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {0} --notebook_ip {1} --keyfile "{2}" --cluster_ip {3}' \
             .format(os.environ['conf_os_user'], data_engine['notebook_ip'], data_engine['keyfile'],
@@ -95,11 +101,10 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('update_inactivity_on_start', params))
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to update last activity time.", str(err))
+            dlab.fab.append_result("Failed to update last activity time.", str(err))
             raise Exception
     except:
         sys.exit(1)
-
 
     try:
         with open("/root/result.json", 'w') as result:
@@ -107,6 +112,6 @@ if __name__ == "__main__":
                    "Action": "Start Data Engine"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

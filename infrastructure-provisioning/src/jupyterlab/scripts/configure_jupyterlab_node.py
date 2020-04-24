@@ -39,7 +39,7 @@ parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
-parser.add_argument('--ip_adress', type=str, default='')
+parser.add_argument('--ip_address', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
 args = parser.parse_args()
 
@@ -95,13 +95,6 @@ if __name__ == "__main__":
     print("Mount additional volume")
     prepare_disk(args.os_user)
 
-    # INSTALL LANGUAGES
-    print("Install Java")
-    ensure_jre_jdk(args.os_user)
-    if os.environ['notebook_r_enabled'] == 'true':
-        print("Installing R")
-        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
-
     # INSTALL DOCKER
     print ("Install Docker")
     configure_docker(args.os_user)
@@ -120,4 +113,4 @@ if __name__ == "__main__":
 
     # INSTALL INACTIVITY CHECKER
     print("Install inactivity checker")
-    install_inactivity_checker(args.os_user, args.ip_adress)
+    install_inactivity_checker(args.os_user, args.ip_address)

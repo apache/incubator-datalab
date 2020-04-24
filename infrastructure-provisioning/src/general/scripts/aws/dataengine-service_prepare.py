@@ -24,9 +24,10 @@
 import json
 import time
 from fabric.api import *
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import traceback
 import argparse
 import sys
 import os
@@ -46,117 +47,111 @@ if __name__ == "__main__":
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
-        os.environ['exploratory_name']
-    except:
-        os.environ['exploratory_name'] = ''
-    if os.path.exists('/response/.emr_creating_{}'.format(os.environ['exploratory_name'])):
-        time.sleep(30)
-    create_aws_config_files()
-    emr_conf = dict()
-    emr_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-        os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    emr_conf['project_name'] = os.environ['project_name']
-    emr_conf['endpoint_name'] = os.environ['endpoint_name']
-    edge_status = get_instance_status(emr_conf['service_base_name'] + '-Tag', '{0}-{1}-{2}-edge'
-                                      .format(emr_conf['service_base_name'],
-                                              emr_conf['project_name'],
-                                              emr_conf['endpoint_name']))
-    if edge_status != 'running':
-        logging.info('ERROR: Edge node is unavailable! Aborting...')
-        print('ERROR: Edge node is unavailable! Aborting...')
-        ssn_hostname = get_instance_hostname(
-            emr_conf['service_base_name'] + '-Tag',
-            emr_conf['service_base_name'] + '-ssn')
-        put_resource_status('edge', 'Unavailable',
-                            os.environ['ssn_dlab_path'],
-                            os.environ['conf_os_user'], ssn_hostname)
-        append_result("Edge node is unavailable")
+        emr_conf = dict()
+        if 'exploratory_name' in os.environ:
+            emr_conf['exploratory_name'] = os.environ['exploratory_name']
+        else:
+            emr_conf['exploratory_name'] = ''
+        if os.path.exists('/response/.emr_creating_{}'.format(emr_conf['exploratory_name'])):
+            time.sleep(30)
+        dlab.actions_lib.create_aws_config_files()
+        emr_conf['service_base_name'] = os.environ['conf_service_base_name']
+        emr_conf['project_name'] = os.environ['project_name']
+        emr_conf['endpoint_name'] = os.environ['endpoint_name']
+        edge_status = dlab.meta_lib.get_instance_status(
+            '{}-tag'.format(emr_conf['service_base_name']),
+            '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'], emr_conf['project_name'],
+                                      emr_conf['endpoint_name']))
+        if edge_status != 'running':
+            logging.info('ERROR: Edge node is unavailable! Aborting...')
+            print('ERROR: Edge node is unavailable! Aborting...')
+            ssn_hostname = dlab.meta_lib.get_instance_hostname(
+                emr_conf['service_base_name'] + '-tag',
+                emr_conf['service_base_name'] + '-ssn')
+            dlab.fab.put_resource_status('edge', 'Unavailable',
+                                         os.environ['ssn_dlab_path'],
+                                         os.environ['conf_os_user'], ssn_hostname)
+            dlab.fab.append_result("Edge node is unavailable")
+            sys.exit(1)
+        print('Generating infrastructure names and tags')
+        if 'computational_name' in os.environ:
+            emr_conf['computational_name'] = os.environ['computational_name']
+        else:
+            emr_conf['computational_name'] = ''
+        emr_conf['apps'] = 'Hadoop Hive Hue Spark'
+        emr_conf['tag_name'] = '{0}-tag'.format(emr_conf['service_base_name'])
+        emr_conf['key_name'] = os.environ['conf_key_name']
+        emr_conf['endpoint_tag'] = emr_conf['endpoint_name']
+        emr_conf['project_tag'] = emr_conf['project_name']
+        emr_conf['region'] = os.environ['aws_region']
+        emr_conf['release_label'] = os.environ['emr_version']
+        emr_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'],
+                                                                   emr_conf['project_name'], emr_conf['endpoint_name'])
+        emr_conf['edge_security_group_name'] = '{0}-sg'.format(emr_conf['edge_instance_name'])
+        emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
+        emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
+        emr_conf['instance_count'] = os.environ['emr_instance_count']
+        emr_conf['notebook_ip'] = dlab.meta_lib.get_instance_ip_address(
+            emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
+        emr_conf['role_service_name'] = os.environ['emr_service_role']
+        emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
+        emr_conf['tags'] = 'Name={0}-{1}-{5}-des-{3},' \
+                           '{0}-tag={0}-{1}-{5}-des-{3},' \
+                           'Notebook={4},' \
+                           'State=not-configured,' \
+                           'ComputationalName={3},' \
+                           'Endpoint_tag={5}'\
+            .format(emr_conf['service_base_name'],
+                    emr_conf['project_name'],
+                    emr_conf['exploratory_name'],
+                    emr_conf['computational_name'],
+                    os.environ['notebook_instance_name'],
+                    emr_conf['endpoint_name'])
+        emr_conf['cluster_name'] = '{0}-{1}-{2}-des-{3}-{4}'\
+            .format(emr_conf['service_base_name'],
+                    emr_conf['project_name'],
+                    emr_conf['endpoint_name'],
+                    emr_conf['computational_name'],
+                    args.uuid)
+        emr_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
+                                                               emr_conf['endpoint_name']).lower().replace('_', '-')
+        emr_conf['configurations'] = '[]'
+        if 'emr_configurations' in os.environ:
+            emr_conf['configurations'] = os.environ['emr_configurations']
+
+        tag = {"Key": "{}-tag".format(emr_conf['service_base_name']),
+               "Value": "{}-{}-{}-subnet".format(emr_conf['service_base_name'], emr_conf['project_name'],
+                                                 emr_conf['endpoint_name'])}
+        emr_conf['subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
+        emr_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        emr_conf['all_ip_cidr'] = '0.0.0.0/0'
+        emr_conf['additional_emr_sg_name'] = '{}-{}-{}-de-se-additional-sg'\
+            .format(emr_conf['service_base_name'], emr_conf['project_name'], emr_conf['endpoint_name'])
+        emr_conf['vpc_id'] = os.environ['aws_vpc_id']
+        emr_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
+        emr_conf['provision_instance_ip'] = None
+        try:
+            emr_conf['provision_instance_ip'] = dlab.meta_lib.get_instance_ip_address(
+                emr_conf['tag_name'], '{0}-{1}-endpoint'.format(emr_conf['service_base_name'],
+                                                                emr_conf['endpoint_name'])).get('Private') + "/32"
+        except:
+            emr_conf['provision_instance_ip'] = dlab.meta_lib.get_instance_ip_address(
+                emr_conf['tag_name'], '{0}-ssn'.format(emr_conf['service_base_name'])).get('Private') + "/32"
+        if os.environ['emr_slave_instance_spot'] == 'True':
+            ondemand_price = float(dlab.meta_lib.get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region']))
+            emr_conf['slave_bid_price'] = (ondemand_price * int(os.environ['emr_slave_instance_spot_pct_price'])) / 100
+        else:
+            emr_conf['slave_bid_price'] = 0
+        if 'emr_timeout' in os.environ:
+            emr_conf['emr_timeout'] = os.environ['emr_timeout']
+        else:
+            emr_conf['emr_timeout'] = "1200"
+    except Exception as err:
+        dlab.fab.append_result("Failed to generate variables dictionary", str(err))
         sys.exit(1)
-    print('Generating infrastructure names and tags')
-    try:
-        emr_conf['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        emr_conf['exploratory_name'] = ''
-    try:
-        emr_conf['computational_name'] = os.environ['computational_name']
-    except:
-        emr_conf['computational_name'] = ''
-    emr_conf['apps'] = 'Hadoop Hive Hue Spark'
 
-    emr_conf['tag_name'] = '{0}-Tag'.format(emr_conf['service_base_name'])
-    emr_conf['key_name'] = os.environ['conf_key_name']
-    emr_conf['endpoint_tag'] = os.environ['endpoint_name']
-    emr_conf['endpoint_name'] = os.environ['endpoint_name']
-    emr_conf['project_tag'] = os.environ['project_name']
-    emr_conf['region'] = os.environ['aws_region']
-    emr_conf['release_label'] = os.environ['emr_version']
-    emr_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'],
-                                                               os.environ['project_name'], emr_conf['endpoint_tag'])
-    emr_conf['edge_security_group_name'] = '{0}-sg'.format(emr_conf['edge_instance_name'])
-    emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
-    emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
-    emr_conf['instance_count'] = os.environ['emr_instance_count']
-    emr_conf['notebook_ip'] = get_instance_ip_address(
-        emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
-    emr_conf['role_service_name'] = os.environ['emr_service_role']
-    emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
-    emr_conf['tags'] = 'Name={0}-{1}-des-{2}-{3},' \
-                       '{0}-Tag={0}-{1}-des-{2}-{3},' \
-                       'Notebook={4},' \
-                       'State=not-configured,' \
-                       'ComputationalName={3}' \
-        .format(emr_conf['service_base_name'],
-                os.environ['project_name'],
-                emr_conf['exploratory_name'],
-                emr_conf['computational_name'],
-                os.environ['notebook_instance_name'])
-    emr_conf['cluster_name'] = '{0}-{1}-des-{2}-{3}-{4}'\
-        .format(emr_conf['service_base_name'],
-                os.environ['project_name'],
-                emr_conf['exploratory_name'],
-                emr_conf['computational_name'],
-                args.uuid)
-    emr_conf['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
-                                                           emr_conf['endpoint_name'])).lower().replace('_', '-')
-    emr_conf['configurations'] = '[]'
-    if 'emr_configurations' in os.environ:
-        emr_conf['configurations'] = os.environ['emr_configurations']
-
-    tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']),
-           "Value": "{}-{}-subnet".format(emr_conf['service_base_name'],
-                                          os.environ['project_name'])}
-    emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
-    emr_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    emr_conf['all_ip_cidr'] = '0.0.0.0/0'
-    emr_conf['additional_emr_sg_name'] = '{}-{}-de-se-additional-sg'\
-        .format(emr_conf['service_base_name'], os.environ['project_name'])
-    emr_conf['vpc_id'] = os.environ['aws_vpc_id']
-    emr_conf['vpc2_id'] = os.environ['aws_notebook_vpc_id']
-    emr_conf['provision_instance_ip'] = None
-    try:
-        emr_conf['provision_instance_ip'] = get_instance_ip_address(
-            emr_conf['tag_name'], '{0}-{1}-endpoint'.format(emr_conf['service_base_name'],
-                                                            os.environ['endpoint_name'])).get('Private') + "/32"
-    except:
-        emr_conf['provision_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'], '{0}-ssn'.format(
-            emr_conf['service_base_name'])).get('Private') + "/32"
-    if os.environ['emr_slave_instance_spot'] == 'True':
-        ondemand_price = float(get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region']))
-        emr_conf['slave_bid_price'] = (ondemand_price * int(os.environ['emr_slave_instance_spot_pct_price'])) / 100
-    else:
-        emr_conf['slave_bid_price'] = 0
-
-    try:
-        emr_conf['emr_timeout'] = os.environ['emr_timeout']
-    except:
-        emr_conf['emr_timeout'] = "1200"
-
-    print("Will create exploratory environment with edge node "
-          "as access point as following: {}".
-          format(json.dumps(emr_conf,
-                            sort_keys=True,
-                            indent=4,
-                            separators=(',', ': '))))
+    print("Will create exploratory environment with edge node as access point as following: {}".format(
+        json.dumps(emr_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(emr_conf))
 
     with open('/root/result.json', 'w') as f:
@@ -164,11 +159,11 @@ if __name__ == "__main__":
         json.dump(data, f)
 
     try:
-        emr_waiter(emr_conf['tag_name'], os.environ['notebook_instance_name'])
-        local('touch /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
+        dlab.meta_lib.emr_waiter(emr_conf['tag_name'], os.environ['notebook_instance_name'])
+        local('touch /response/.emr_creating_{}'.format(emr_conf['exploratory_name']))
     except Exception as err:
         traceback.print_exc()
-        append_result("EMR waiter fail.", str(err))
+        dlab.fab.append_result("EMR waiter fail.", str(err))
         sys.exit(1)
 
     with open('/root/result.json', 'w') as f:
@@ -178,8 +173,8 @@ if __name__ == "__main__":
     logging.info('[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]')
     print("[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]")
     try:
-        edge_group_id = check_security_group(emr_conf['edge_security_group_name'])
-        cluster_sg_ingress = format_sg([
+        edge_group_id = dlab.meta_lib.check_security_group(emr_conf['edge_security_group_name'])
+        cluster_sg_ingress = dlab.meta_lib.format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
@@ -199,7 +194,7 @@ if __name__ == "__main__":
                 "PrefixListIds": []
             }
         ])
-        cluster_sg_egress = format_sg([
+        cluster_sg_egress = dlab.meta_lib.format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
@@ -243,18 +238,18 @@ if __name__ == "__main__":
                    emr_conf['cluster_name'], True)
         try:
             if 'conf_additional_tags' in os.environ:
-                os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + ';project_tag:{0};endpoint_tag:{1};'.format(
-                    emr_conf['project_tag'], emr_conf['endpoint_tag'])
+                os.environ['conf_additional_tags'] = '{2};project_tag:{0};endpoint_tag:{1};'.format(
+                    emr_conf['project_tag'], emr_conf['endpoint_tag'], os.environ['conf_additional_tags'])
             else:
-                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(emr_conf['project_tag'], emr_conf['endpoint_tag'])
+                os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(emr_conf['project_tag'],
+                                                                                               emr_conf['endpoint_tag'])
             print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to create sg.", str(err))
+        dlab.fab.append_result("Failed to create sg.", str(err))
         sys.exit(1)
 
     local("echo Waiting for changes to propagate; sleep 10")
@@ -302,7 +297,7 @@ if __name__ == "__main__":
                     emr_conf['region'],
                     emr_conf['tags'],
                     os.environ['conf_key_dir'],
-                    os.environ['project_name'],
+                    emr_conf['project_name'],
                     os.environ['emr_slave_instance_spot'],
                     str(emr_conf['slave_bid_price']),
                     emr_conf['service_base_name'],
@@ -313,14 +308,12 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
             raise Exception
-
         cluster_name = emr_conf['cluster_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], emr_conf['key_name'])
-        local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
+        local('rm /response/.emr_creating_{}'.format(emr_conf['exploratory_name']))
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to create EMR Cluster.", str(err))
-        local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
-        emr_id = get_emr_id_by_name(emr_conf['cluster_name'])
-        terminate_emr(emr_id)
+        dlab.fab.append_result("Failed to create EMR Cluster.", str(err))
+        local('rm /response/.emr_creating_{}'.format(emr_conf['exploratory_name']))
+        emr_id = dlab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])
+        dlab.actions_lib.terminate_emr(emr_id)
         sys.exit(1)

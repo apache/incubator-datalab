@@ -89,7 +89,7 @@ public class InfrastructureTemplateServiceBaseTest {
 		emDto2.setExploratoryEnvironmentShapes(shapes2);
 		List<ExploratoryMetadataDTO> expectedEmdDtoList = Arrays.asList(emDto1, emDto2);
 		when(userGroupDao.getUserGroups(anyString())).thenReturn(Collections.emptySet());
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedEmdDtoList.toArray());
+		when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(expectedEmdDtoList.toArray());
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
 		UserInfo userInfo = new UserInfo("test", "token");
@@ -108,7 +108,7 @@ public class InfrastructureTemplateServiceBaseTest {
 	public void getExploratoryTemplatesWithException() {
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		doThrow(new DlabException("Could not load list of exploratory templates for user"))
-				.when(provisioningService).get(anyString(), anyString(), any());
+				.when(provisioningService).get(anyString(), anyString(), any(Class.class));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
@@ -131,7 +131,7 @@ public class InfrastructureTemplateServiceBaseTest {
 		);
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
 				null, null, null, null, true)));
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
+		when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
 				.map(e -> infrastructureTemplateServiceBaseChild.getCloudFullComputationalTemplate(e))
@@ -154,7 +154,7 @@ public class InfrastructureTemplateServiceBaseTest {
 	public void getComputationalTemplatesWhenMethodThrowsException() {
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		doThrow(new DlabException("Could not load list of computational templates for user"))
-				.when(provisioningService).get(anyString(), anyString(), any());
+				.when(provisioningService).get(anyString(), anyString(), any(Class.class));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
@@ -173,7 +173,7 @@ public class InfrastructureTemplateServiceBaseTest {
 		final ComputationalMetadataDTO computationalMetadataDTO = new ComputationalMetadataDTO("dataengine-service");
 		computationalMetadataDTO.setComputationResourceShapes(Collections.emptyMap());
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(computationalMetadataDTO);
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
+		when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
 				null, null, null, null, true)));
 		when(configuration.getMinEmrInstanceCount()).thenReturn(1);

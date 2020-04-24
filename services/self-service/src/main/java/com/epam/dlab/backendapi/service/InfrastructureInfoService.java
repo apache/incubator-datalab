@@ -27,9 +27,9 @@ import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
 import java.util.List;
 
 public interface InfrastructureInfoService {
-	List<ProjectInfrastructureInfo> getUserResources(String user);
+	List<ProjectInfrastructureInfo> getUserResources(UserInfo user);
 
-	HealthStatusPageDTO getHeathStatus(UserInfo user, boolean fullReport, boolean isAdmin);
+	HealthStatusPageDTO getHeathStatus(UserInfo user, boolean fullReport);
 
 	InfrastructureMetaInfoDTO getInfrastructureMetaInfo();
 }

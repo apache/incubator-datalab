@@ -140,10 +140,6 @@ variable "product" {
   default = "dlab"
 }
 
-variable "bucket_region" {
-  default = "US" # Allowed US, EU, ASIA
-}
-
 variable "additional_tag" {
   default = "product:dlab"
 }
@@ -157,3 +153,11 @@ variable "ldap_user" {}
 variable "ldap_bind_creds" {}
 
 variable "ldap_users_group" {}
+
+variable "billing_enable" {}
+
+variable "billing_dataset_name" {}
+
+variable "mongo_password" {}
+
+variable "mongo_host" {}

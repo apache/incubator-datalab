@@ -18,7 +18,7 @@
  */
 /* tslint:disable:no-empty */
 
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
@@ -41,6 +41,8 @@ import { SchedulerComponent } from '../scheduler';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ComputationModel} from '../computational/computational-resource.model';
+import {NotebookModel} from '../exploratory/notebook.model';
+
 
 
 
@@ -60,6 +62,8 @@ import {ComputationModel} from '../computational/computational-resource.model';
 
 export class ResourcesGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+
+  @Input() projects: Array<any>;
 
   environments: Exploratory[];
 
@@ -129,19 +133,17 @@ export class ResourcesGridComponent implements OnInit {
     this.buildGrid();
   }
 
-  public containsNotebook(notebook_name: string, project_name: string): boolean {
-    if (notebook_name && this.environments && this.environments.length ) {
-      const currentProj = this.environments.filter(project => project.project === project_name);
-      if (currentProj.length) {
-        return currentProj[0].exploratory
-          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item.name));
+  public containsNotebook(notebook_name: string, envoirmentNames: Array<string>): boolean {
+    if (notebook_name && envoirmentNames.length ) {
+        return envoirmentNames
+          .some(item => CheckUtils.delimitersFiltering(notebook_name) === CheckUtils.delimitersFiltering(item));
       }
       return false;
-    }
-  }
+   }
+
 
   public isResourcesInProgress(notebook) {
-    const env = this.getResourceByName(notebook.name);
+    const env = this.getResourceByName(notebook.name, notebook.project);
 
     if (env && env.resources.length) {
       return env.resources.filter(item => (item.status !== 'failed' && item.status !== 'terminated'
@@ -176,7 +178,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public exploratoryAction(data, action: string) {
-    const resource = this.getResourceByName(data.name);
+    const resource = this.getResourceByName(data.name, data.project);
 
     if (action === 'deploy') {
       this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: resource, full_list: this.environments }, panelClass: 'modal-xxl' })
@@ -209,8 +211,8 @@ export class ResourcesGridComponent implements OnInit {
 
 
   // PRIVATE
-  private getResourceByName(notebook_name: string) {
-    return this.getEnvironmentsListCopy()
+  private getResourceByName(notebook_name: string, project_name: string) {
+    return this.getEnvironmentsListCopy().filter(environments => environments.project === project_name)
       .map(env => env.exploratory.find(({ name }) => name === notebook_name))
       .filter(name => !!name)[0];
   }
@@ -277,10 +279,24 @@ export class ResourcesGridComponent implements OnInit {
       this.updateUserPreferences(config);
     }
 
-    const failedResource = ComputationModel.computationRes(this.getEnvironmentsListCopy()).flat(3).filter(resourse => resourse.status === 'failed');
-
+    let failedNotebooks = NotebookModel.notebook(this.getEnvironmentsListCopy());
+    failedNotebooks = SortUtils.flatDeep(failedNotebooks, 1).filter(notebook => notebook.status === 'failed');
     if (this.filteredEnvironments.length && this.activeFiltering) {
-      const creatingResource = ComputationModel.computationRes(this.filteredEnvironments).flat(3).filter(resourse => resourse.status === 'creating');
+      let creatingNotebook = NotebookModel.notebook(this.filteredEnvironments);
+      creatingNotebook = SortUtils.flatDeep(creatingNotebook, 1).filter(resourse => resourse.status === 'creating');
+      const fail = failedNotebooks
+        .filter(v => creatingNotebook
+          .some(create => create.project === v.project && create.exploratory === v.exploratory && create.resource === v.resource));
+      if (fail.length) {
+        this.toastr.error('Creating notebook failed!', 'Oops!');
+      }
+    }
+
+    let failedResource = ComputationModel.computationRes(this.getEnvironmentsListCopy());
+    failedResource = SortUtils.flatDeep(failedResource, 2).filter(resourse => resourse.status === 'failed');
+    if (this.filteredEnvironments.length && this.activeFiltering) {
+      let creatingResource = ComputationModel.computationRes(this.filteredEnvironments);
+      creatingResource = SortUtils.flatDeep(creatingResource, 2).filter(resourse => resourse.status === 'creating');
       const fail = failedResource
         .filter(v => creatingResource
           .some(create => create.project === v.project && create.exploratory === v.exploratory && create.resource === v.resource));

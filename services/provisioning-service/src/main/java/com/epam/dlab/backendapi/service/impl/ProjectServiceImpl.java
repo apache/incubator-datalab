@@ -2,7 +2,11 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.commands.*;
+import com.epam.dlab.backendapi.core.commands.CommandBuilder;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.core.commands.DockerCommands;
+import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
+import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ProjectCallbackHandler;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -17,6 +21,8 @@ import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Objects;
 
 @Slf4j
 public class ProjectServiceImpl implements ProjectService {
@@ -77,6 +83,11 @@ public class ProjectServiceImpl implements ProjectService {
 				.withConfKeyName(configuration.getAdminKey())
 				.withImage(image)
 				.withAction(action);
+		if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+				Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+				!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+			runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+		}
 
 		try {
 			commandExecutor.executeAsync(userInfo.getName(), uuid, commandBuilder.buildCommand(runDockerCommand, dto));

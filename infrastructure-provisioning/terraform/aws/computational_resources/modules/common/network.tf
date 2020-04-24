@@ -30,7 +30,7 @@ resource "aws_subnet" "subnet" {
 
   tags = {
     Name             = local.subnet_name
-    "${var.sbn}-Tag" = local.subnet_name
+    "${var.sbn}-tag" = local.subnet_name
     Product          = var.product
     Project_name     = var.project_name
     Project_tag      = var.project_tag
@@ -68,7 +68,7 @@ resource "aws_security_group" "nb-sg" {
 
   tags = {
     Name             = local.sg_name
-    "${var.sbn}-Tag" = local.sg_name
+    "${var.sbn}-tag" = local.sg_name
     Product          = var.product
     Project_name     = var.project_name
     Project_tag      = var.project_tag

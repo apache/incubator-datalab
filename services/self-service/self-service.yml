@@ -140,16 +140,19 @@ schedulers:
     cron: "*/20 * * ? * * *"
   checkQuoteScheduler:
     enabled: true
-    cron: "0 0 * ? * * *"
+    cron: "0 2/15 * ? * *"
   checkUserQuoteScheduler:
     enabled: false
     cron: "0 0 * ? * * *"
   checkProjectQuoteScheduler:
     enabled: true
-    cron: "0 * * ? * * *"
+    cron: "0 4/15 * ? * *"
   checkEndpointStatusScheduler:
     enabled: true
-    cron: "0 */15 * ? * *"
+    cron: "0 6/15 * ? * *"
+  billingScheduler:
+    enabled: true
+    cron: "0 0/15 * ? * *"
 
 
 guacamole:

@@ -106,8 +106,7 @@
                     && createExploratoryForm?.controls['name'].dirty
                     && createExploratoryForm?.controls['name'].hasError('duplication')" type="text"
               class="form-control" placeholder="Enter Name" formControlName="name">
-            <span class="error" *ngIf="createExploratoryForm?.controls['name'].hasError('duplication')">This name
-              already exists.</span>
+            <span class="error" *ngIf="createExploratoryForm?.controls['name'].hasError('duplication')">This name already exists in current project.</span>
             <span class="error" *ngIf="!createExploratoryForm?.controls.name.valid
                                         && createExploratoryForm?.controls['name'].dirty
                                         && !createExploratoryForm?.controls['name'].hasError('duplication')">Name

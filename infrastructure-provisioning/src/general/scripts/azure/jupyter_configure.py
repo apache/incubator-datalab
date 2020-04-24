@@ -24,10 +24,12 @@
 import logging
 import json
 import sys
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import traceback
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
 import os
+from fabric.api import *
 
 
 if __name__ == "__main__":
@@ -38,53 +40,57 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         notebook_config = dict()
         try:
-            notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
+            notebook_config['exploratory_name'] = os.environ['exploratory_name']
         except:
             notebook_config['exploratory_name'] = ''
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']
         notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
-        notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        notebook_config['project_name'] = os.environ['project_name'].lower().replace('_', '-')
-        notebook_config['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
-        notebook_config['project_tag'] = os.environ['project_name'].lower().replace('_', '-')
-        notebook_config['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
-        notebook_config['user_keyname'] = os.environ['project_name']
+        notebook_config['user_name'] = os.environ['edge_user_name']
+        notebook_config['project_name'] = os.environ['project_name']
+        notebook_config['endpoint_name'] = os.environ['endpoint_name']
+        notebook_config['project_tag'] = notebook_config['project_name']
+        notebook_config['endpoint_tag'] = notebook_config['endpoint_name']
+        notebook_config['user_keyname'] = notebook_config['project_name']
         notebook_config['instance_name'] = '{}-{}-{}-nb-{}'.format(notebook_config['service_base_name'],
-                                                                notebook_config['project_name'], os.environ['endpoint_name'],
-                                                                notebook_config['exploratory_name'])
+                                                                   notebook_config['project_name'],
+                                                                   notebook_config['endpoint_name'],
+                                                                   notebook_config['exploratory_name'])
         notebook_config['image_enabled'] = os.environ['conf_image_enabled']
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
         if notebook_config['shared_image_enabled'] == 'false':
             notebook_config['expected_image_name'] = '{0}-{1}-{2}-{3}-notebook-image'.format(
-            notebook_config['service_base_name'],
-            notebook_config['endpoint_name'],
-            notebook_config['project_name'],
-            os.environ['application'])
-            notebook_config['image_tags'] = {"Name": notebook_config['instance_name'],
-                                       "SBN": notebook_config['service_base_name'],
-                                       "User": notebook_config['user_name'],
-                                       "project_tag": notebook_config['project_tag'],
-                                       "endpoint_tag": notebook_config['endpoint_tag'],
-                                       "Exploratory": notebook_config['exploratory_name'],
-                                       os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+                notebook_config['service_base_name'],
+                notebook_config['project_name'],
+                notebook_config['endpoint_name'],
+                os.environ['application'])
+            notebook_config['image_tags'] = {"Name": notebook_config['expected_image_name'],
+                                             "SBN": notebook_config['service_base_name'],
+                                             "User": notebook_config['user_name'],
+                                             "project_tag": notebook_config['project_tag'],
+                                             "endpoint_tag": notebook_config['endpoint_tag'],
+                                             "Exploratory": notebook_config['exploratory_name'],
+                                             os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         else:
             notebook_config['expected_image_name'] = '{0}-{1}-{2}-notebook-image'.format(
                 notebook_config['service_base_name'],
                 notebook_config['endpoint_name'],
                 os.environ['application'])
-            notebook_config['image_tags'] = {"Name": notebook_config['instance_name'],
-                                       "SBN": notebook_config['service_base_name'],
-                                       "User": notebook_config['user_name'],
-                                       "endpoint_tag": notebook_config['endpoint_tag'],
-                                       "Exploratory": notebook_config['exploratory_name'],
-                                       os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
+            notebook_config['image_tags'] = {"Name": notebook_config['expected_image_name'],
+                                             "SBN": notebook_config['service_base_name'],
+                                             "User": notebook_config['user_name'],
+                                             "endpoint_tag": notebook_config['endpoint_tag'],
+                                             "Exploratory": notebook_config['exploratory_name'],
+                                             os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         notebook_config['notebook_image_name'] = str(os.environ.get('notebook_image_name'))
         notebook_config['security_group_name'] = '{}-{}-{}-nb-sg'.format(notebook_config['service_base_name'],
-                                                                      notebook_config['project_name'], os.environ['endpoint_name'])
+                                                                         notebook_config['project_name'],
+                                                                         notebook_config['endpoint_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
@@ -93,45 +99,45 @@ if __name__ == "__main__":
                                    "endpoint_tag": notebook_config['endpoint_tag'],
                                    "Exploratory": notebook_config['exploratory_name'],
                                    os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
-        notebook_config['ip_address'] = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                        notebook_config['instance_name'])
+        notebook_config['ip_address'] = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
+                                                                         notebook_config['instance_name'])
 
         # generating variables regarding EDGE proxy on Notebook instance
-        instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                               notebook_config['instance_name'])
+        instance_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
+                                                             notebook_config['instance_name'])
         edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],
                                                        notebook_config['project_name'],
                                                        notebook_config['endpoint_name'])
-        edge_instance_private_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                            edge_instance_name)
+        edge_instance_private_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
+                                                                          edge_instance_name)
+        notebook_config['edge_instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(edge_instance_name,
+                                                                                           os.environ['azure_region'])
         if os.environ['conf_network_type'] == 'private':
-            edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                        edge_instance_name)
+            edge_instance_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
+                                                                      edge_instance_name)
         else:
-            edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['resource_group_name'],
-                                                                                edge_instance_name)
+            edge_instance_hostname = notebook_config['edge_instance_dns_name']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        edge_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                    edge_instance_name)
+        edge_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
+                                                         edge_instance_name)
 
         if os.environ['conf_os_family'] == 'debian':
-            initial_user = 'ubuntu'
-            sudo_group = 'sudo'
+            notebook_config['initial_user'] = 'ubuntu'
+            notebook_config['sudo_group'] = 'sudo'
         if os.environ['conf_os_family'] == 'redhat':
-            initial_user = 'ec2-user'
-            sudo_group = 'wheel'
+            notebook_config['initial_user'] = 'ec2-user'
+            notebook_config['sudo_group'] = 'wheel'
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to generate variables dictionary.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to generate variables dictionary", str(err))
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
-        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", initial_user,
-             notebook_config['dlab_ssh_user'], sudo_group)
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
+            instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
+            notebook_config['initial_user'], notebook_config['dlab_ssh_user'], notebook_config['sudo_group'])
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -139,9 +145,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed creating ssh user 'dlab-user'.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed creating ssh user 'dlab-user'.", str(err))
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # configuring proxy on Notebook instance
@@ -158,9 +163,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure proxy.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to configure proxy.", str(err))
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # updating repositories & installing python packages
@@ -176,9 +180,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing apps: apt & pip.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed installing apps: apt & pip.", str(err))
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # installing and configuring jupiter and all dependencies
@@ -189,7 +192,7 @@ if __name__ == "__main__":
                  "--region {2} --spark_version {3} " \
                  "--hadoop_version {4} --os_user {5} " \
                  "--scala_version {6} --r_mirror {7} " \
-                 "--ip_adress {8} --exploratory_name {9} --edge_ip {10}".\
+                 "--ip_address {8} --exploratory_name {9} --edge_ip {10}".\
             format(instance_hostname, keyfile_name,
                    os.environ['azure_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
@@ -197,15 +200,14 @@ if __name__ == "__main__":
                    notebook_config['ip_address'], notebook_config['exploratory_name'], edge_hostname)
         try:
             local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
-            remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
-                               os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
+            dlab.actions_lib.remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
+                                                os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure jupyter.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to configure jupyter.", str(err))
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -218,12 +220,11 @@ if __name__ == "__main__":
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
-            append_result("Failed installing users key")
+            dlab.fab.append_result("Failed installing users key")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing users key.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed installing users key.", str(err))
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -235,12 +236,11 @@ if __name__ == "__main__":
             # local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except:
-            append_result("Failed setup git credentials")
+            dlab.fab.append_result("Failed setup git credentials")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to setup git credentials.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to setup git credentials.", str(err))
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -256,44 +256,45 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to post configuring instance.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to post configuring instance.", str(err))
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     if notebook_config['image_enabled'] == 'true':
         try:
             print('[CREATING IMAGE]')
-            image = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name'])
+            image = AzureMeta.get_image(notebook_config['resource_group_name'],
+                                        notebook_config['expected_image_name'])
             if image == '':
                 print("Looks like it's first time we configure notebook server. Creating image.")
-                prepare_vm_for_image(True, notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
-                AzureActions().create_image_from_instance(notebook_config['resource_group_name'],
-                                                          notebook_config['instance_name'],
-                                                          os.environ['azure_region'],
-                                                          notebook_config['expected_image_name'],
-                                                          json.dumps(notebook_config['image_tags']))
+                dlab.actions_lib.prepare_vm_for_image(True, notebook_config['dlab_ssh_user'], instance_hostname,
+                                                      keyfile_name)
+                AzureActions.create_image_from_instance(notebook_config['resource_group_name'],
+                                                        notebook_config['instance_name'],
+                                                        os.environ['azure_region'],
+                                                        notebook_config['expected_image_name'],
+                                                        json.dumps(notebook_config['image_tags']))
                 print("Image was successfully created.")
                 local("~/scripts/{}.py".format('common_prepare_notebook'))
                 instance_running = False
                 while not instance_running:
-                    if AzureMeta().get_instance_status(notebook_config['resource_group_name'],
-                                                       notebook_config['instance_name']) == 'running':
+                    if AzureMeta.get_instance_status(notebook_config['resource_group_name'],
+                                                     notebook_config['instance_name']) == 'running':
                         instance_running = True
-                instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                       notebook_config['instance_name'])
-                remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
-                set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name,
-                              'http://{}:3128'.format(edge_instance_private_hostname))
+                instance_hostname = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
+                                                                     notebook_config['instance_name'])
+                dlab.actions_lib.remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
+                                                    keyfile_name)
+                dlab.fab.set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name,
+                                       'http://{}:3128'.format(edge_instance_private_hostname))
                 additional_config = {"proxy_host": edge_instance_private_hostname, "proxy_port": "3128"}
                 params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
                     .format(instance_hostname, notebook_config['instance_name'], keyfile_name,
                             json.dumps(additional_config), notebook_config['dlab_ssh_user'])
                 local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except Exception as err:
-            print('Error: {0}'.format(err))
-            append_result("Failed creating image from notebook.", str(err))
-            AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+            dlab.fab.append_result("Failed creating image.", str(err))
+            AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
             sys.exit(1)
 
     try:
@@ -318,18 +319,17 @@ if __name__ == "__main__":
         try:
             local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
         except:
-            append_result("Failed edge reverse proxy template")
+            dlab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to set edge reverse proxy template.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to set edge reverse proxy template.", str(err))
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # generating output information
     try:
-        ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                        notebook_config['instance_name'])
+        ip_address = AzureMeta.get_private_ip_address(notebook_config['resource_group_name'],
+                                                      notebook_config['instance_name'])
         jupyter_ip_url = "http://" + ip_address + ":8888/{}/".format(notebook_config['exploratory_name'])
         ungit_ip_url = "http://" + ip_address + ":8085/{}-ungit/".format(notebook_config['exploratory_name'])
         jupyter_notebook_access_url = "https://" + edge_instance_hostname + "/{}/".format(
@@ -368,6 +368,6 @@ if __name__ == "__main__":
                    ]}
             result.write(json.dumps(res))
     except Exception as err:
-        append_result("Failed to generate output information", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        dlab.fab.append_result("Failed to generate output information", str(err))
+        AzureActions.remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)

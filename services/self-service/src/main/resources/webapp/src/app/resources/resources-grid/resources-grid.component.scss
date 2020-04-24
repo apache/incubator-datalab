@@ -95,11 +95,17 @@ table {
     padding-right: 5px;
     padding-left: 24px;
     background-color: inherit;
+    .label{
+      padding-top: 14px;
+    }
   }
 
   .status-col,
   .shape-col {
     width: 14%;
+    .label{
+      padding-top: 14px;
+    }
   }
 
   .tag-col {
@@ -120,6 +126,9 @@ table {
 
   .resources-col {
     width: 28%;
+    .label{
+      padding-top: 14px;
+    }
   }
 
   .cost-col {
@@ -132,6 +141,9 @@ table {
     padding-right: 24px;
     text-align: right;
     background-color: inherit;
+    .label{
+      padding-right: 5px;
+    }
   }
 }
 
@@ -227,6 +239,7 @@ tr.detail-row {
 .filter-row .actions {
   text-align: right;
   display: flex;
+  justify-content: flex-end;
 }
 
 .filter-row .actions button {
@@ -377,4 +390,12 @@ tr.detail-row {
 .info {
   padding: 40px;
   text-align: center;
+}
+
+.content-row{
+  background-clip: padding-box;
+}
+
+.not-allow{
+  cursor: not-allowed !important;
 }

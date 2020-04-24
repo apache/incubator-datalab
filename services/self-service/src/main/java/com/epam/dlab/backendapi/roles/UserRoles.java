@@ -28,7 +28,15 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides user roles access to features.
@@ -45,6 +53,7 @@ public class UserRoles {
 	 * Node name of user.
 	 */
 	private static final String USERS = "users";
+	private static final String PROJECT_ADMIN_ROLE_NAME = "projectAdmin";
 	private static final String ADMIN_ROLE_NAME = "admin";
 	/**
 	 * Single instance of the user roles.
@@ -95,10 +104,22 @@ public class UserRoles {
 		return checkAccess(userInfo, type, name, true, roles);
 	}
 
+	public static boolean isProjectAdmin(UserInfo userInfo) {
+		final List<UserRole> roles = UserRoles.getRoles();
+		return roles == null || roles.stream().anyMatch(r -> PROJECT_ADMIN_ROLE_NAME.equalsIgnoreCase(r.getId()) &&
+				(userRoles.hasAccessByGroup(userInfo, userInfo.getRoles(), r.getGroups()) || userRoles.hasAccessByUserName(userInfo, r)));
+	}
+
+	public static boolean isProjectAdmin(UserInfo userInfo, Set<String> groups) {
+		final List<UserRole> roles = UserRoles.getRoles();
+		return roles == null || roles.stream().anyMatch(r -> PROJECT_ADMIN_ROLE_NAME.equalsIgnoreCase(r.getId()) &&
+				(userRoles.hasAccessByGroup(userInfo, userInfo.getRoles(), retainGroups(r.getGroups(), groups)) || userRoles.hasAccessByUserName(userInfo, r)));
+	}
+
 	public static boolean isAdmin(UserInfo userInfo) {
 		final List<UserRole> roles = UserRoles.getRoles();
 		return roles == null || roles.stream().anyMatch(r -> ADMIN_ROLE_NAME.equalsIgnoreCase(r.getId()) &&
-				(userRoles.hasAccessByGroup(userInfo, r, userInfo.getRoles()) || userRoles.hasAccessByUserName(userInfo, r)));
+				(userRoles.hasAccessByGroup(userInfo, userInfo.getRoles(), r.getGroups()) || userRoles.hasAccessByUserName(userInfo, r)));
 	}
 
 	/**
@@ -181,12 +202,16 @@ public class UserRoles {
 	 *
 	 * @param type type of role.
 	 * @param name the name of role.
+	 * @return list of UserRole
 	 */
-	private UserRole get(RoleType type, String name) {
-		UserRole item = new UserRole(type, name, null, null);
+	private Set<String> getGroups(RoleType type, String name) {
 		synchronized (roles) {
-			int i = Collections.binarySearch(roles, item);
-			return (i < 0 ? null : roles.get(i));
+			return roles
+					.stream()
+					.filter(r -> type == r.getType() && name.equalsIgnoreCase(r.getName()))
+					.map(UserRole::getGroups)
+					.flatMap(Collection::stream)
+					.collect(Collectors.toSet());
 		}
 	}
 
@@ -233,17 +258,18 @@ public class UserRoles {
 		}
 		LOGGER.trace("Check access for user {} with groups {} to {}/{}", userInfo.getName(), userInfo.getRoles(),
 				type, name);
-		UserRole role = get(type, name);
-		if (role == null) {
+		Set<String> groups = getGroups(type, name);
+		if (groups == null || groups.isEmpty()) {
 			return checkDefault(useDefault);
 		}
-		if (hasAccessByGroup(userInfo, role, roles)) return true;
+		if (hasAccessByGroup(userInfo, roles, groups)) {
+			return true;
+		}
 		LOGGER.trace("Access denied for user {} to {}/{}", userInfo.getName(), type, name);
 		return false;
 	}
 
-	private boolean hasAccessByGroup(UserInfo userInfo, UserRole role, Collection<String> userRoles) {
-		Set<String> groups = role.getGroups();
+	private boolean hasAccessByGroup(UserInfo userInfo, Collection<String> userRoles, Collection<String> groups) {
 		if (groups != null) {
 			if (groups.contains(ANY_USER)) {
 				return true;
@@ -255,7 +281,7 @@ public class UserRoles {
 				}
 			}
 
-			final Optional<String> group = role.getGroups()
+			final Optional<String> group = groups
 					.stream()
 					.filter(g -> userGroups.getOrDefault(g, Collections.emptySet()).contains(userInfo.getName().toLowerCase()))
 					.findAny();
@@ -287,12 +313,20 @@ public class UserRoles {
 		}
 	}
 
+	private static Set<String> retainGroups(Set<String> groups1, Set<String> groups2) {
+		Set<String> result = groups2
+				.stream()
+				.map(String::toLowerCase)
+				.collect(Collectors.toSet());
+		result.retainAll(groups1);
+
+		return result;
+	}
+
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(roles)
 				.addValue(roles)
 				.toString();
 	}
-
-
 }

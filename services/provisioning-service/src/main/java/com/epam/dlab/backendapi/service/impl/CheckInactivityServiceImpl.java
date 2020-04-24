@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.CheckInactivityCallbackHandler;
 import com.epam.dlab.backendapi.service.CheckInactivityService;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.ComputationalCheckInactivityDTO;
@@ -31,6 +32,8 @@ import com.epam.dlab.dto.exploratory.ExploratoryCheckInactivityAction;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Objects;
 
 @Slf4j
 @Singleton
@@ -41,7 +44,7 @@ public class CheckInactivityServiceImpl extends DockerService implements CheckIn
 	public String checkComputationalInactivity(String userName, ComputationalCheckInactivityDTO dto) {
 		String uuid = DockerCommands.generateUUID();
 		startComputationalCallbackListener(userName, dto, uuid);
-		final RunDockerCommand dockerCommand = new RunDockerCommand()
+		final RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
 				.withRemove()
 				.withName(nameContainer(uuid, DockerAction.CHECK_INACTIVITY.toString()))
@@ -55,7 +58,13 @@ public class CheckInactivityServiceImpl extends DockerService implements CheckIn
 				.withConfKeyName(configuration.getAdminKey())
 				.withImage(dto.getNotebookImage())
 				.withAction(DockerAction.CHECK_INACTIVITY);
-		runDockerCmd(userName, uuid, dockerCommand, dto);
+		if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+				Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+				!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+			runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+		}
+
+		runDockerCmd(userName, uuid, runDockerCommand, dto);
 		return uuid;
 	}
 
@@ -63,7 +72,7 @@ public class CheckInactivityServiceImpl extends DockerService implements CheckIn
 	public String checkExploratoryInactivity(String userName, ExploratoryCheckInactivityAction dto) {
 		String uuid = DockerCommands.generateUUID();
 		startExploratoryCallbackListener(userName, dto, uuid);
-		final RunDockerCommand dockerCommand = new RunDockerCommand()
+		final RunDockerCommand runDockerCommand = new RunDockerCommand()
 				.withInteractive()
 				.withRemove()
 				.withName(nameContainer(uuid, DockerAction.CHECK_INACTIVITY.toString()))
@@ -75,7 +84,13 @@ public class CheckInactivityServiceImpl extends DockerService implements CheckIn
 				.withConfKeyName(configuration.getAdminKey())
 				.withImage(dto.getNotebookImage())
 				.withAction(DockerAction.CHECK_INACTIVITY);
-		runDockerCmd(userName, uuid, dockerCommand, dto);
+		if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+				Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+				!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+			runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+		}
+
+		runDockerCmd(userName, uuid, runDockerCommand, dto);
 		return uuid;
 	}
 

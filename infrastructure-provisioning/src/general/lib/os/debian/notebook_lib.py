@@ -89,9 +89,9 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 r_repository = 'https://cloud.r-project.org'
             add_marruter_key()
             sudo('apt update')
-            sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
-            sudo('apt-get install -y cmake')
-            sudo('apt-get install -y r-base r-base-dev')
+            manage_pkg('-y install', 'remote', 'libcurl4-openssl-dev libssl-dev libreadline-dev')
+            manage_pkg('-y install', 'remote', 'cmake')
+            manage_pkg('-y install', 'remote', 'r-base r-base-dev')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
             for i in r_libs:
@@ -112,8 +112,8 @@ def ensure_r(os_user, r_libs, region, r_mirror):
 def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
     if not exists('/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
         try:
-            sudo('apt-get install -y r-base')
-            sudo('apt-get install -y gdebi-core')
+            manage_pkg('-y install', 'remote', 'r-base')
+            manage_pkg('-y install', 'remote', 'gdebi-core')
             sudo('wget https://download2.rstudio.org/server/trusty/amd64/rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
@@ -151,8 +151,8 @@ def ensure_matplot(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/matplot_ensured'):
         try:
             sudo("sudo sed -i~orig -e 's/# deb-src/deb-src/' /etc/apt/sources.list")
-            sudo('sudo apt-get update')
-            sudo('apt-get build-dep -y python-matplotlib')
+            manage_pkg('update', 'remote', '')
+            manage_pkg('-y build-dep', 'remote', 'python-matplotlib')
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
@@ -170,11 +170,11 @@ def add_sbt_key():
 def ensure_sbt(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/sbt_ensured'):
         try:
-            sudo('apt-get install -y apt-transport-https')
+            manage_pkg('-y install', 'remote', 'apt-transport-https')
             sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
             add_sbt_key()
-            sudo('apt-get update')
-            sudo('apt-get install -y sbt')
+            manage_pkg('update', 'remote', '')
+            manage_pkg('-y install', 'remote', 'sbt')
             sudo('touch /home/' + os_user + '/.ensure_dir/sbt_ensured')
         except:
             sys.exit(1)
@@ -193,8 +193,8 @@ def ensure_scala(scala_link, scala_version, os_user):
 def ensure_jre_jdk(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/jre_jdk_ensured'):
         try:
-            sudo('apt-get install -y default-jre')
-            sudo('apt-get install -y default-jdk')
+            manage_pkg('-y install', 'remote', 'default-jre')
+            manage_pkg('-y install', 'remote', 'default-jdk')
             sudo('touch /home/' + os_user + '/.ensure_dir/jre_jdk_ensured')
         except:
             sys.exit(1)
@@ -203,7 +203,7 @@ def ensure_jre_jdk(os_user):
 def ensure_additional_python_libs(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/additional_python_libs_ensured'):
         try:
-            sudo('apt-get install -y libjpeg8-dev zlib1g-dev')
+            manage_pkg('-y install', 'remote', 'libjpeg8-dev zlib1g-dev')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
                 sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
                 sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
@@ -231,10 +231,10 @@ def ensure_python2_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python2_libraries_ensured'):
         try:
             try:
-                sudo('apt-get install -y libssl-dev python-virtualenv')
+                manage_pkg('-y install', 'remote', 'libssl-dev python-virtualenv')
             except:
                 sudo('pip2 install virtualenv --no-cache-dir')
-                sudo('apt-get install -y libssl-dev')
+                manage_pkg('-y install', 'remote', 'libssl-dev')
             try:
                 sudo('pip2 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
@@ -252,8 +252,8 @@ def ensure_python2_libraries(os_user):
 def ensure_python3_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python3_libraries_ensured'):
         try:
-            sudo('apt-get install python3-setuptools')
-            sudo('apt install -y python3-pip')
+            manage_pkg('-y install', 'remote', 'python3-setuptools')
+            manage_pkg('-y install', 'remote', 'python3-pip')
             try:
                 sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
@@ -279,10 +279,10 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('update-initramfs -u')
             with settings(warn_only=True):
                 reboot(wait=150)
-            sudo('apt-get -y install dkms')
+            manage_pkg('-y install', 'remote', 'dkms')
             kernel_version = run('uname -r | tr -d "[..0-9-]"')
             if kernel_version == 'azure':
-                sudo('apt-get -y install linux-modules-`uname -r`')
+                manage_pkg('-y install', 'remote', 'linux-modules-`uname -r`')
             else:
                 #legacy support for old kernels
                 sudo('if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;')
@@ -324,19 +324,19 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
 
 def install_maven(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/maven_ensured'):
-        sudo('apt-get -y install maven')
+        manage_pkg('-y install', 'remote', 'maven')
         sudo('touch /home/' + os_user + '/.ensure_dir/maven_ensured')
 
 def install_gcloud(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/gcloud_ensured'):
         sudo('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list')
         sudo('curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -')
-        sudo('apt-get install google-cloud-sdk')
+        manage_pkg('-y install', 'remote', 'google-cloud-sdk')
         sudo('touch /home/' + os_user + '/.ensure_dir/gcloud_ensured')
 
 def install_livy_dependencies(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
-        sudo('apt-get -y install libkrb5-dev')
+        manage_pkg('-y install', 'remote', 'libkrb5-dev')
         sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
@@ -344,13 +344,13 @@ def install_livy_dependencies(os_user):
 
 def install_maven_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/maven_ensured'):
-        local('sudo apt-get -y install maven')
+        manage_pkg('-y install', 'local', 'maven')
         local('touch /home/' + os_user + '/.ensure_dir/maven_ensured')
 
 
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
-        local('sudo apt-get -y install libkrb5-dev')
+        manage_pkg('-y install', 'local', 'libkrb5-dev')
         local('sudo pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
@@ -359,7 +359,7 @@ def install_livy_dependencies_emr(os_user):
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
         sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -')
-        sudo('apt-get install -y nodejs')
+        manage_pkg('-y install', 'remote', 'nodejs')
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 
@@ -368,7 +368,7 @@ def install_os_pkg(requisites):
     error_parser = "Could not|No matching|Error:|failed|Requires:"
     try:
         print("Updating repositories and installing requested tools: {}".format(requisites))
-        sudo('apt-get update')
+        manage_pkg('update', 'remote', '')
         for os_pkg in requisites:
             sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
@@ -400,7 +400,7 @@ def get_available_os_pkgs():
     try:
         os_pkgs = dict()
         ansi_escape = re.compile(r'\x1b[^m]*m')
-        sudo('apt-get update')
+        manage_pkg('update', 'remote', '')
         apt_raw = sudo("apt list")
         apt_list = ansi_escape.sub('', apt_raw).split("\r\n")
         for pkg in apt_list:
@@ -414,14 +414,12 @@ def get_available_os_pkgs():
 def install_caffe2(os_user, caffe2_version, cmake_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
-        sudo('apt-get update')
-        sudo('apt-get install -y --no-install-recommends build-essential cmake git libgoogle-glog-dev libprotobuf-dev'
-             ' protobuf-compiler python-dev python-pip')
+        manage_pkg('update', 'remote', '')
+        manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev libprotobuf-dev protobuf-compiler python-dev python-pip')
         sudo('pip2 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('pip3 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
-        sudo('apt-get install -y --no-install-recommends libgflags-dev')
-        sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
-             'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
+        manage_pkg('-y install --no-install-recommends', 'remote', 'libgflags-dev')
+        manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '

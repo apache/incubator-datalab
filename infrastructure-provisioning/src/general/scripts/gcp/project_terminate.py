@@ -22,120 +22,142 @@
 # ******************************************************************************
 
 import json
-from dlab.fab import *
-from dlab.meta_lib import *
-import sys, time, os
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import sys
+import time
+import os
+import logging
+import traceback
 import requests
 
 
-def terminate_edge_node(project_name, service_base_name, region, zone):
+def terminate_edge_node(endpoint_name, project_name, service_base_name, region, zone):
     print("Terminating Dataengine-service clusters")
     try:
         labels = [
             {'sbn': service_base_name},
             {'project_tag': project_name}
         ]
-        clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
+        clusters_list = GCPMeta.get_dataproc_list(labels)
         if clusters_list:
             for cluster_name in clusters_list:
-                actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, region)
+                GCPActions.delete_dataproc_cluster(cluster_name, region)
                 print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
         else:
             print("There are no Dataproc clusters to terminate.")
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate dataengine-service", str(err))
         sys.exit(1)
 
     print("Terminating EDGE and notebook instances")
-    base = '{}-{}'.format(service_base_name, project_name)
-    keys = ['edge', 'ps', 'ip', 'bucket', 'subnet']
+    base = '{}-{}-{}'.format(service_base_name, project_name, endpoint_name)
+    keys = ['edge', 'ps', 'static-ip', 'bucket', 'subnet']
     targets = ['{}-{}'.format(base, k) for k in keys]
     try:
-        instances = GCPMeta().get_list_instances(zone, base)
+        instances = GCPMeta.get_list_instances(zone, base)
         if 'items' in instances:
             for i in instances['items']:
                 if 'project_tag' in i['labels'] and project_name == i['labels']['project_tag']:
-                    GCPActions().remove_instance(i['name'], zone)
+                    GCPActions.remove_instance(i['name'], zone)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate instances", str(err))
         sys.exit(1)
 
     print("Removing static addresses")
     try:
-        static_addresses = GCPMeta().get_list_static_addresses(region, base)
+        static_addresses = GCPMeta.get_list_static_addresses(region, base)
         if 'items' in static_addresses:
             for i in static_addresses['items']:
                 if bool(set(targets) & set([i['name']])):
-                    GCPActions().remove_static_address(i['name'], region)
+                    GCPActions.remove_static_address(i['name'], region)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove static addresses", str(err))
         sys.exit(1)
 
     print("Removing storage bucket")
     try:
-        buckets = GCPMeta().get_list_buckets(base)
+        buckets = GCPMeta.get_list_buckets(base)
         if 'items' in buckets:
             for i in buckets['items']:
                 if bool(set(targets) & set([i['name']])):
-                    GCPActions().remove_bucket(i['name'])
+                    GCPActions.remove_bucket(i['name'])
+    except Exception as err:
+        dlab.fab.append_result("Failed to remove storage buckets", str(err))
+        sys.exit(1)
+
+    print("Removing project specific images")
+    try:
+        project_image_name_beginning = '{}-{}'.format(service_base_name, project_name)
+        images = GCPMeta.get_list_images(project_image_name_beginning)
+        if 'items' in images:
+            for i in images['items']:
+                GCPActions.remove_image(i['name'])
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
 
     print("Removing firewalls")
     try:
-        firewalls = GCPMeta().get_list_firewalls(base)
+        firewalls = GCPMeta.get_list_firewalls(base)
         if 'items' in firewalls:
             for i in firewalls['items']:
                 if bool(set(targets) & set(i['targetTags'])):
-                    GCPActions().remove_firewall(i['name'])
+                    GCPActions.remove_firewall(i['name'])
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove security groups", str(err))
         sys.exit(1)
 
     print("Removing Service accounts and roles")
     try:
-        list_service_accounts = GCPMeta().get_list_service_accounts()
-        for service_account in (set(targets) & set(list_service_accounts)):
-            if service_account.startswith(service_base_name):
-                GCPActions().remove_service_account(service_account)
-        list_roles_names = GCPMeta().get_list_roles()
-        for role in (set(targets) & set(list_roles_names)):
-            if role.startswith(service_base_name):
-                GCPActions().remove_role(role)
+        list_service_accounts = GCPMeta.get_list_service_accounts()
+        sa_keys = ['edge-sa', 'ps-sa']
+        role_keys = ['edge-role', 'ps-role']
+        sa_target = ['{}-{}'.format(base, k) for k in sa_keys]
+        indexes = [GCPMeta.get_index_by_service_account_name('{}-{}'.format(base, k)) for k in sa_keys]
+        role_targets = ['{}-{}-{}'.format(base, i, k) for k in role_keys for i in indexes]
+        for service_account in (set(sa_target) & set(list_service_accounts)):
+            GCPActions.remove_service_account(service_account, service_base_name)
+        list_roles_names = GCPMeta.get_list_roles()
+        for role in (set(role_targets) & set(list_roles_names)):
+            GCPActions.remove_role(role)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove service accounts and roles", str(err))
         sys.exit(1)
 
     print("Removing subnets")
     try:
-        list_subnets = GCPMeta().get_list_subnetworks(region, '', base)
+        list_subnets = GCPMeta.get_list_subnetworks(region, '', base)
         if 'items' in list_subnets:
             vpc_selflink = list_subnets['items'][0]['network']
             vpc_name = vpc_selflink.split('/')[-1]
-            subnets = GCPMeta().get_list_subnetworks(region, vpc_name, base)
+            subnets = GCPMeta.get_list_subnetworks(region, vpc_name, base)
             for i in subnets['items']:
                 if bool(set(targets) & set([i['name']])):
-                    GCPActions().remove_subnet(i['name'], region)
+                    GCPActions.remove_subnet(i['name'], region)
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to remove subnets", str(err))
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/project/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     project_conf = dict()
-    project_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
-    project_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    project_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
+    project_conf['service_base_name'] = (os.environ['conf_service_base_name'])
+    project_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
+    project_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
+    project_conf['project_tag'] = project_conf['project_name']
     project_conf['region'] = os.environ['gcp_region']
     project_conf['zone'] = os.environ['gcp_zone']
 
@@ -143,11 +165,12 @@ if __name__ == "__main__":
         logging.info('[TERMINATE EDGE]')
         print('[TERMINATE EDGE]')
         try:
-            terminate_edge_node(project_conf['project_name'], project_conf['service_base_name'],
+            terminate_edge_node(project_conf['endpoint_name'], project_conf['project_name'],
+                                project_conf['service_base_name'],
                                 project_conf['region'], project_conf['zone'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate edge.", str(err))
+            dlab.fab.append_result("Failed to terminate edge.", str(err))
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
@@ -155,8 +178,10 @@ if __name__ == "__main__":
     try:
         print('[KEYCLOAK PROJECT CLIENT DELETE]')
         logging.info('[KEYCLOAK PROJECT CLIENT DELETE]')
-        keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(os.environ['keycloak_auth_server_url'])
-        keycloak_client_url = '{0}/admin/realms/{1}/clients'.format(os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'])
+        keycloak_auth_server_url = '{}/realms/master/protocol/openid-connect/token'.format(
+            os.environ['keycloak_auth_server_url'])
+        keycloak_client_url = '{0}/admin/realms/{1}/clients'.format(os.environ['keycloak_auth_server_url'],
+                                                                    os.environ['keycloak_realm_name'])
 
         keycloak_auth_data = {
             "username": os.environ['keycloak_user'],
@@ -166,7 +191,8 @@ if __name__ == "__main__":
         }
 
         client_params = {
-            "clientId": project_conf['service_base_name'] + '-' + os.environ['project_name'] + '-' + os.environ['endpoint_name'],
+            "clientId": "{}-{}-{}".format(project_conf['service_base_name'], project_conf['project_name'],
+                                          project_conf['endpoint_name'])
         }
 
         keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data).json()
@@ -189,11 +215,11 @@ if __name__ == "__main__":
 
     try:
         with open("/root/result.json", 'w') as result:
-            res = {"service_base_name": edge_conf['service_base_name'],
-                   "project_name": edge_conf['project_name'],
+            res = {"service_base_name": project_conf['service_base_name'],
+                   "project_name": project_conf['project_name'],
                    "Action": "Terminate project"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

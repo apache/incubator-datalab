@@ -22,12 +22,16 @@
 # ******************************************************************************
 
 import json
-from dlab.fab import *
-from dlab.meta_lib import *
-import sys, time, os
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import sys
+import time
+import os
 import traceback
 import boto3
+import logging
+from fabric.api import *
 
 
 if __name__ == "__main__":
@@ -38,119 +42,137 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    create_aws_config_files()
-    print('Generating infrastructure names and tags')
-    project_conf = dict()
-    project_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    project_conf['endpoint_name'] = os.environ['endpoint_name']
-    project_conf['endpoint_tag'] = os.environ['endpoint_name']
-    project_conf['project_name'] = os.environ['project_name']
-    project_conf['project_tag'] = os.environ['project_name']
-    project_conf['key_name'] = os.environ['conf_key_name']
-    project_conf['public_subnet_id'] = os.environ['aws_subnet_id']
-    project_conf['vpc_id'] = os.environ['aws_vpc_id']
-    project_conf['region'] = os.environ['aws_region']
-    project_conf['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
-    project_conf['instance_size'] = os.environ['aws_edge_instance_size']
-    project_conf['sg_ids'] = os.environ['aws_security_groups_ids']
-    project_conf['edge_instance_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
-                                                                os.environ['project_name'], os.environ['endpoint_name'])
-    project_conf['tag_name'] = '{}-Tag'.format(project_conf['service_base_name'])
-    project_conf['bucket_name_tag'] = '{0}-{1}-{2}-bucket'.format(project_conf['service_base_name'],
-                                                                  project_conf['project_name'],
-                                                                  project_conf['endpoint_name'])
-    project_conf['bucket_name'] = project_conf['bucket_name_tag'].lower().replace('_', '-')
-    project_conf['shared_bucket_name_tag'] = '{0}-{1}-shared-bucket'.format(
-        project_conf['service_base_name'], project_conf['endpoint_tag'])
-    project_conf['shared_bucket_name'] = project_conf['shared_bucket_name_tag'].lower().replace('_', '-')
-    project_conf['edge_role_name'] = '{}-{}-edge-Role'.format(
-        project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    project_conf['edge_role_profile_name'] = '{}-{}-edge-Profile'.format(
-        project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    project_conf['edge_policy_name'] = '{}-{}-edge-Policy'.format(
-        project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'])
-    project_conf['edge_security_group_name'] = '{}-sg'.format(project_conf['edge_instance_name'])
-    project_conf['notebook_instance_name'] = '{}-{}-nb'.format(project_conf['service_base_name'],
-                                                            os.environ['project_name'])
-    project_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
-        .format(project_conf['service_base_name'], os.environ['project_name'])
-    project_conf['notebook_dataengine_role_name'] = '{}-{}-{}-nb-de-Role' \
-        .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'],os.environ['endpoint_name'])
-    project_conf['notebook_dataengine_policy_name'] = '{}-{}-{}-nb-de-Policy' \
-        .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'],os.environ['endpoint_name'])
-    project_conf['notebook_dataengine_role_profile_name'] = '{}-{}-{}-nb-de-Profile' \
-        .format(project_conf['service_base_name'].lower().replace('-', '_'), os.environ['project_name'],os.environ['endpoint_name'])
-    project_conf['notebook_security_group_name'] = '{}-{}-{}-nb-sg'.format(project_conf['service_base_name'],
-                                                                     os.environ['project_name'],os.environ['endpoint_name'])
-    project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
-    project_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(project_conf['service_base_name'],
-                                                               os.environ['project_name'])
-    project_conf['dataengine_master_security_group_name'] = '{}-{}-dataengine-master-sg' \
-        .format(project_conf['service_base_name'], os.environ['project_name'])
-    project_conf['dataengine_slave_security_group_name'] = '{}-{}-dataengine-slave-sg' \
-        .format(project_conf['service_base_name'], os.environ['project_name'])
-    project_conf['allowed_ip_cidr'] = list()
-    for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
-        project_conf['allowed_ip_cidr'].append({"CidrIp": cidr.replace(' ','')})
-    project_conf['network_type'] = os.environ['conf_network_type']
-    project_conf['all_ip_cidr'] = '0.0.0.0/0'
-    project_conf['zone'] = os.environ['aws_region'] + os.environ['aws_zone']
-    project_conf['elastic_ip_name'] = '{0}-{1}-edge-EIP'.format(project_conf['service_base_name'],
-                                                             os.environ['project_name'])
-    project_conf['provision_instance_ip'] = None
-    project_conf['local_endpoint'] = False
     try:
-        project_conf['provision_instance_ip'] = get_instance_ip_address(
-            project_conf['tag_name'], '{0}-{1}-endpoint'.format(project_conf['service_base_name'],
-                                                                os.environ['endpoint_name'])).get('Private') + "/32"
-    except:
-        project_conf['provision_instance_ip'] = get_instance_ip_address(project_conf['tag_name'], '{0}-ssn'.format(
-            project_conf['service_base_name'])).get('Private') + "/32"
-        project_conf['local_endpoint'] = True
-    if 'aws_user_predefined_s3_policies' not in os.environ:
-        os.environ['aws_user_predefined_s3_policies'] = 'None'
-
-    try:
-        if os.environ['conf_user_subnets_range'] == '':
-            raise KeyError
-    except KeyError:
-        os.environ['conf_user_subnets_range'] = ''
-
-    # FUSE in case of absence of user's key
-    try:
-        project_conf['user_key'] = os.environ['key']
+        dlab.actions_lib.create_aws_config_files()
+        print('Generating infrastructure names and tags')
+        project_conf = dict()
+        project_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+            os.environ['conf_service_base_name'][:20], '-', True)
+        project_conf['endpoint_name'] = os.environ['endpoint_name']
+        project_conf['endpoint_tag'] = project_conf['endpoint_name']
+        project_conf['project_name'] = os.environ['project_name']
+        project_conf['project_tag'] = project_conf['project_name']
+        project_conf['key_name'] = os.environ['conf_key_name']
+        project_conf['public_subnet_id'] = os.environ['aws_subnet_id']
+        project_conf['vpc_id'] = os.environ['aws_vpc_id']
+        project_conf['region'] = os.environ['aws_region']
+        project_conf['ami_id'] = dlab.meta_lib.get_ami_id(os.environ['aws_{}_image_name'.format(
+            os.environ['conf_os_family'])])
+        project_conf['instance_size'] = os.environ['aws_edge_instance_size']
+        project_conf['sg_ids'] = os.environ['aws_security_groups_ids']
+        project_conf['edge_instance_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
+                                                                    project_conf['project_name'],
+                                                                    project_conf['endpoint_name'])
+        project_conf['tag_name'] = '{}-tag'.format(project_conf['service_base_name'])
+        project_conf['bucket_name_tag'] = '{0}-{1}-{2}-bucket'.format(project_conf['service_base_name'],
+                                                                      project_conf['project_name'],
+                                                                      project_conf['endpoint_name'])
+        project_conf['bucket_name'] = project_conf['bucket_name_tag'].lower().replace('_', '-')
+        project_conf['shared_bucket_name_tag'] = '{0}-{1}-shared-bucket'.format(
+            project_conf['service_base_name'], project_conf['endpoint_tag'])
+        project_conf['shared_bucket_name'] = project_conf['shared_bucket_name_tag'].lower().replace('_', '-')
+        project_conf['edge_role_name'] = '{}-{}-{}-edge-role'.format(project_conf['service_base_name'],
+                                                                     project_conf['project_name'],
+                                                                     project_conf['endpoint_name'])
+        project_conf['edge_role_profile_name'] = '{}-{}-{}-edge-profile'.format(
+            project_conf['service_base_name'], project_conf['project_name'], project_conf['endpoint_name'])
+        project_conf['edge_policy_name'] = '{}-{}-{}-edge-policy'.format(
+            project_conf['service_base_name'], project_conf['project_name'], project_conf['endpoint_name'])
+        project_conf['edge_security_group_name'] = '{}-{}-{}-edge-sg'.format(project_conf['service_base_name'],
+                                                                             project_conf['project_name'],
+                                                                             project_conf['endpoint_name'])
+        project_conf['notebook_instance_name'] = '{}-{}-{}-nb'.format(project_conf['service_base_name'],
+                                                                      project_conf['project_name'],
+                                                                      project_conf['endpoint_name'])
+        project_conf['dataengine_instances_name'] = '{}-{}-{}-de'.format(project_conf['service_base_name'],
+                                                                         project_conf['project_name'],
+                                                                         project_conf['endpoint_name'])
+        project_conf['notebook_dataengine_role_name'] = '{}-{}-{}-nb-de-role'.format(project_conf['service_base_name'],
+                                                                                     project_conf['project_name'],
+                                                                                     project_conf['endpoint_name'])
+        project_conf['notebook_dataengine_policy_name'] = '{}-{}-{}-nb-de-policy'.format(
+            project_conf['service_base_name'], project_conf['project_name'], project_conf['endpoint_name'])
+        project_conf['notebook_dataengine_role_profile_name'] = '{}-{}-{}-nb-de-profile'.format(
+            project_conf['service_base_name'], project_conf['project_name'], project_conf['endpoint_name'])
+        project_conf['notebook_security_group_name'] = '{}-{}-{}-nb-sg'.format(project_conf['service_base_name'],
+                                                                               project_conf['project_name'],
+                                                                               project_conf['endpoint_name'])
+        project_conf['private_subnet_prefix'] = os.environ['conf_private_subnet_prefix']
+        project_conf['private_subnet_name'] = '{0}-{1}-{2}-subnet'.format(project_conf['service_base_name'],
+                                                                          project_conf['project_name'],
+                                                                          project_conf['endpoint_name'])
+        project_conf['dataengine_master_security_group_name'] = '{}-{}-{}-de-master-sg'.format(
+            project_conf['service_base_name'], project_conf['project_name'], project_conf['endpoint_name'])
+        project_conf['dataengine_slave_security_group_name'] = '{}-{}-{}-de-slave-sg'.format(
+            project_conf['service_base_name'], project_conf['project_name'], project_conf['endpoint_name'])
+        project_conf['allowed_ip_cidr'] = list()
+        for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
+            project_conf['allowed_ip_cidr'].append({"CidrIp": cidr.replace(' ', '')})
+        project_conf['network_type'] = os.environ['conf_network_type']
+        project_conf['all_ip_cidr'] = '0.0.0.0/0'
+        project_conf['zone'] = os.environ['aws_region'] + os.environ['aws_zone']
+        project_conf['elastic_ip_name'] = '{0}-{1}-{2}-edge-static-ip'.format(project_conf['service_base_name'],
+                                                                              project_conf['project_name'],
+                                                                              project_conf['endpoint_name'])
+        project_conf['provision_instance_ip'] = None
+        project_conf['local_endpoint'] = False
         try:
-            local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
-                                                    project_conf['project_name']))
+            project_conf['provision_instance_ip'] = '{}/32'.format(dlab.meta_lib.get_instance_ip_address(
+                project_conf['tag_name'], '{0}-{1}-endpoint'.format(project_conf['service_base_name'],
+                                                                    project_conf['endpoint_name'])).get('Private'))
         except:
-            print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
-    except KeyError:
-        print("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
+            project_conf['provision_instance_ip'] = '{}/32'.format(dlab.meta_lib.get_instance_ip_address(
+                project_conf['tag_name'], '{0}-ssn'.format(project_conf['service_base_name'])).get('Private'))
+            project_conf['local_endpoint'] = True
+        if 'aws_user_predefined_s3_policies' not in os.environ:
+            os.environ['aws_user_predefined_s3_policies'] = 'None'
+
+        try:
+            if os.environ['conf_user_subnets_range'] == '':
+                raise KeyError
+        except KeyError:
+            os.environ['conf_user_subnets_range'] = ''
+
+        # FUSE in case of absence of user's key
+        try:
+            project_conf['user_key'] = os.environ['key']
+            try:
+                local('echo "{0}" >> {1}{2}.pub'.format(project_conf['user_key'], os.environ['conf_key_dir'],
+                                                        project_conf['project_name']))
+            except:
+                print("ADMINSs PUBLIC KEY DOES NOT INSTALLED")
+        except KeyError:
+            print("ADMINSs PUBLIC KEY DOES NOT UPLOADED")
+            sys.exit(1)
+
+        print("Will create exploratory environment with edge node as access point as following: {}".
+              format(json.dumps(project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
+        logging.info(json.dumps(project_conf))
+
+        if 'conf_additional_tags' in os.environ:
+            project_conf['bucket_additional_tags'] = ';' + os.environ['conf_additional_tags']
+            os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + \
+                                                 ';project_tag:{0};endpoint_tag:{1};'.format(
+                                                     project_conf['project_tag'], project_conf['endpoint_tag'])
+        else:
+            project_conf['bucket_additional_tags'] = ''
+            os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'],
+                                                                                           project_conf['endpoint_tag'])
+        print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
+    except Exception as err:
+        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
-
-    print("Will create exploratory environment with edge node as access point as following: {}".
-          format(json.dumps(project_conf, sort_keys=True, indent=4, separators=(',', ': '))))
-    logging.info(json.dumps(project_conf))
-
-    if 'conf_additional_tags' in os.environ:
-        os.environ['conf_additional_tags'] = os.environ['conf_additional_tags'] + \
-                                             ';project_tag:{0};endpoint_tag:{1};'.format(
-                                                 project_conf['project_tag'], project_conf['endpoint_tag'])
-    else:
-        os.environ['conf_additional_tags'] = 'project_tag:{0};endpoint_tag:{1}'.format(project_conf['project_tag'],
-                                                                                       project_conf['endpoint_tag'])
-    print('Additional tags will be added: {}'.format(os.environ['conf_additional_tags']))
 
     if not project_conf['local_endpoint']:
         # attach project_tag and endpoint_tag to endpoint
         try:
-            endpoint_id = get_instance_by_name(project_conf['tag_name'], '{0}-{1}-endpoint'.format(
-                project_conf['service_base_name'], os.environ['endpoint_name']))
+            endpoint_id = dlab.meta_lib.get_instance_by_name(project_conf['tag_name'], '{0}-{1}-endpoint'.format(
+                project_conf['service_base_name'], project_conf['endpoint_name']))
             print("Endpoint id: " + endpoint_id)
             ec2 = boto3.client('ec2')
-            ec2.create_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag', 'Value': project_conf['project_tag']},
-                                                           {'Key': 'endpoint_tag', 'Value': project_conf['endpoint_tag']}])
+            ec2.create_tags(Resources=[endpoint_id], Tags=[
+                {'Key': 'project_tag', 'Value': project_conf['project_tag']},
+                {'Key': 'endpoint_tag', 'Value': project_conf['endpoint_tag']}])
         except Exception as err:
             print("Failed to attach Project tag to Endpoint", str(err))
             traceback.print_exc()
@@ -158,41 +180,43 @@ if __name__ == "__main__":
 
     try:
         project_conf['vpc2_id'] = os.environ['aws_vpc2_id']
-        project_conf['tag_name'] = '{}-secondary-Tag'.format(project_conf['service_base_name'])
+        project_conf['tag_name'] = '{}-secondary-tag'.format(project_conf['service_base_name'])
     except KeyError:
         project_conf['vpc2_id'] = project_conf['vpc_id']
+
+
 
     try:
         logging.info('[CREATE SUBNET]')
         print('[CREATE SUBNET]')
         params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --prefix {} " \
                  "--user_subnets_range '{}' --subnet_name {} --zone {}".format(
-            project_conf['vpc2_id'], project_conf['tag_name'], project_conf['service_base_name'],
-            project_conf['private_subnet_prefix'], os.environ['conf_user_subnets_range'],
-            project_conf['private_subnet_name'],
-            project_conf['zone'])
+                  project_conf['vpc2_id'], project_conf['tag_name'], project_conf['service_base_name'],
+                  project_conf['private_subnet_prefix'], os.environ['conf_user_subnets_range'],
+                  project_conf['private_subnet_name'],
+                  project_conf['zone'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to create subnet.", str(err))
+        dlab.fab.append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
     tag = {"Key": project_conf['tag_name'],
-           "Value": "{0}-{1}-subnet".format(project_conf['service_base_name'], project_conf['project_name'])}
-    project_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
-    subnet_id = get_subnet_by_cidr(project_conf['private_subnet_cidr'])
-    print('subnet id: {}'.format(subnet_id))
-
+           "Value": "{0}-{1}-{2}-subnet".format(project_conf['service_base_name'], project_conf['project_name'],
+                                                project_conf['endpoint_name'])}
+    project_conf['private_subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
+    subnet_id = dlab.meta_lib.get_subnet_by_cidr(project_conf['private_subnet_cidr'], project_conf['vpc2_id'])
+    print('Subnet id: {}'.format(subnet_id))
     print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
 
     try:
         logging.info('[CREATE EDGE ROLES]')
         print('[CREATE EDGE ROLES]')
-        user_tag = "{0}:{0}-{1}-edge-Role".format(project_conf['service_base_name'], project_conf['project_name'])
+        user_tag = "{0}:{0}-{1}-{2}-edge-role".format(project_conf['service_base_name'], project_conf['project_name'],
+                                                      project_conf['endpoint_name'])
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
                  "--infra_tag_value {} --user_tag_value {}" \
                  .format(project_conf['edge_role_name'], project_conf['edge_role_profile_name'],
@@ -204,14 +228,14 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to creating roles.", str(err))
+        dlab.fab.append_result("Failed to creating roles.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
         print('[CREATE BACKEND (NOTEBOOK) ROLES]')
-        user_tag = "{0}:{0}-{1}-{2}-nb-de-Role".format(project_conf['service_base_name'], project_conf['project_name'],os.environ['endpoint_name'])
+        user_tag = "{0}:{0}-{1}-{2}-nb-de-role".format(project_conf['service_base_name'], project_conf['project_name'],
+                                                       project_conf['endpoint_name'])
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {} --infra_tag_name {} " \
                  "--infra_tag_value {} --user_tag_value {}" \
                  .format(project_conf['notebook_dataengine_role_name'],
@@ -224,15 +248,14 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to creating roles.", str(err))
-        remove_all_iam_resources('edge', os.environ['project_name'])
+        dlab.fab.append_result("Failed to creating roles.", str(err))
+        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
         sys.exit(1)
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
         print('[CREATE SECURITY GROUPS FOR EDGE]')
-        edge_sg_ingress = format_sg([
+        edge_sg_ingress = dlab.meta_lib.format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
@@ -269,7 +292,7 @@ if __name__ == "__main__":
                 "PrefixListIds": []
             }
         ])
-        edge_sg_egress = format_sg([
+        edge_sg_egress = dlab.meta_lib.format_sg([
             {
                 "PrefixListIds": [],
                 "FromPort": 22,
@@ -388,26 +411,26 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed creating security group for edge node.", str(err))
+            dlab.fab.append_result("Failed creating security group for edge node.", str(err))
             raise Exception
 
         with hide('stderr', 'running', 'warnings'):
             print('Waiting for changes to propagate')
             time.sleep(10)
     except:
-        remove_all_iam_resources('notebook', os.environ['project_name'])
-        remove_all_iam_resources('edge', os.environ['project_name'])
+        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
         sys.exit(1)
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
         print('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-        project_group_id = check_security_group(project_conf['edge_security_group_name'])
+        project_group_id = dlab.meta_lib.check_security_group(project_conf['edge_security_group_name'])
         sg_list = project_conf['sg_ids'].replace(" ", "").split(',')
         rules_list = []
         for i in sg_list:
             rules_list.append({"GroupId": i})
-        private_sg_ingress = format_sg([
+        private_sg_ingress = dlab.meta_lib.format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [],
@@ -428,7 +451,7 @@ if __name__ == "__main__":
             }
         ])
 
-        private_sg_egress = format_sg([
+        private_sg_egress = dlab.meta_lib.format_sg([
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": project_conf['private_subnet_cidr']}],
@@ -473,12 +496,11 @@ if __name__ == "__main__":
             print('Waiting for changes to propagate')
             time.sleep(10)
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed creating security group for private subnet.", str(err))
-        remove_all_iam_resources('notebook', os.environ['project_name'])
-        remove_all_iam_resources('edge', os.environ['project_name'])
-        remove_sgroups(project_conf['notebook_instance_name'])
-        remove_sgroups(project_conf['edge_instance_name'])
+        dlab.fab.append_result("Failed creating security group for private subnet.", str(err))
+        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
@@ -496,12 +518,11 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to create sg.", str(err))
-        remove_all_iam_resources('notebook', os.environ['project_name'])
-        remove_all_iam_resources('edge', os.environ['project_name'])
-        remove_sgroups(project_conf['notebook_instance_name'])
-        remove_sgroups(project_conf['edge_instance_name'])
+        dlab.fab.append_result("Failed to create sg.", str(err))
+        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
@@ -519,42 +540,48 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to create security group.", str(err))
-        remove_all_iam_resources('notebook', os.environ['project_name'])
-        remove_all_iam_resources('edge', os.environ['project_name'])
-        remove_sgroups(project_conf['dataengine_instances_name'])
-        remove_sgroups(project_conf['notebook_instance_name'])
-        remove_sgroups(project_conf['edge_instance_name'])
+        dlab.fab.append_result("Failed to create security group.", str(err))
+        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}". \
-            format(project_conf['shared_bucket_name'], project_conf['tag_name'], project_conf['shared_bucket_name'], project_conf['region'], project_conf['shared_bucket_name_tag'])
+        project_conf['shared_bucket_tags'] = 'endpoint_tag:{0};{1}:{2};{3}:{4}{5}'.format(
+            project_conf['endpoint_tag'], os.environ['conf_billing_tag_key'], os.environ['conf_billing_tag_value'],
+            project_conf['tag_name'], project_conf['shared_bucket_name'],
+            project_conf['bucket_additional_tags']).replace(';', ',')
+        params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {}". \
+            format(project_conf['shared_bucket_name'], project_conf['shared_bucket_tags'], project_conf['region'],
+                   project_conf['shared_bucket_name_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
             traceback.print_exc()
             raise Exception
-
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {} --bucket_name_tag {}" \
-                 .format(project_conf['bucket_name'], project_conf['tag_name'], project_conf['bucket_name'],
-                         project_conf['region'], project_conf['bucket_name_tag'])
+        project_conf['bucket_tags'] = 'endpoint_tag:{0};{1}:{2};project_tag:{3};{4}:{5}{6}'.format(
+            project_conf['endpoint_tag'], os.environ['conf_billing_tag_key'], os.environ['conf_billing_tag_value'],
+            project_conf['project_tag'], project_conf['tag_name'], project_conf['bucket_name'],
+            project_conf['bucket_additional_tags']).replace(';', ',')
+        params = "--bucket_name {} --bucket_tags {} --region {} --bucket_name_tag {}" \
+                 .format(project_conf['bucket_name'], project_conf['bucket_tags'], project_conf['region'],
+                         project_conf['bucket_name_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to create buckets.", str(err))
-        remove_all_iam_resources('notebook', os.environ['project_name'])
-        remove_all_iam_resources('edge', os.environ['project_name'])
-        remove_sgroups(project_conf['dataengine_instances_name'])
-        remove_sgroups(project_conf['notebook_instance_name'])
-        remove_sgroups(project_conf['edge_instance_name'])
+        dlab.fab.append_result("Failed to create buckets.", str(err))
+        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
         sys.exit(1)
 
     try:
@@ -562,26 +589,24 @@ if __name__ == "__main__":
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         params = '--bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} ' \
                  '--notebook_role_name {} --service_base_name {} --region {} ' \
-                 '--user_predefined_s3_policies "{}"'.format(project_conf['bucket_name'],
-                                                             project_conf['shared_bucket_name'],
-                                                             os.environ['project_name'], project_conf['edge_role_name'],
-                                                             project_conf['notebook_dataengine_role_name'],
-                                                             project_conf['service_base_name'], project_conf['region'],
-                                                             os.environ['aws_user_predefined_s3_policies'])
+                 '--user_predefined_s3_policies "{}" --endpoint_name {}'.format(
+                  project_conf['bucket_name'], project_conf['shared_bucket_name'], project_conf['project_name'],
+                  project_conf['edge_role_name'], project_conf['notebook_dataengine_role_name'],
+                  project_conf['service_base_name'], project_conf['region'],
+                  os.environ['aws_user_predefined_s3_policies'], project_conf['endpoint_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_policy', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to create bucket policy.", str(err))
-        remove_all_iam_resources('notebook', os.environ['project_name'])
-        remove_all_iam_resources('edge', os.environ['project_name'])
-        remove_sgroups(project_conf['dataengine_instances_name'])
-        remove_sgroups(project_conf['notebook_instance_name'])
-        remove_sgroups(project_conf['edge_instance_name'])
-        remove_s3('edge', os.environ['project_name'])
+        dlab.fab.append_result("Failed to create bucket policy.", str(err))
+        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+        dlab.actions_lib.remove_s3('edge', project_conf['project_name'])
         sys.exit(1)
 
     try:
@@ -595,27 +620,27 @@ if __name__ == "__main__":
                     project_conf['edge_instance_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
-            edge_instance = get_instance_by_name(project_conf['tag_name'], project_conf['edge_instance_name'])
+            edge_instance = dlab.meta_lib.get_instance_by_name(project_conf['tag_name'],
+                                                               project_conf['edge_instance_name'])
         except:
             traceback.print_exc()
             raise Exception
-
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to create instance.", str(err))
-        remove_all_iam_resources('notebook', os.environ['project_name'])
-        remove_all_iam_resources('edge', os.environ['project_name'])
-        remove_sgroups(project_conf['dataengine_instances_name'])
-        remove_sgroups(project_conf['notebook_instance_name'])
-        remove_sgroups(project_conf['edge_instance_name'])
-        remove_s3('edge', os.environ['project_name'])
+        dlab.fab.append_result("Failed to create instance.", str(err))
+        dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+        dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+        dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+        dlab.actions_lib.remove_s3('edge', project_conf['project_name'])
         sys.exit(1)
 
     if project_conf['network_type'] == 'public':
         try:
             logging.info('[ASSOCIATING ELASTIC IP]')
             print('[ASSOCIATING ELASTIC IP]')
-            project_conf['edge_id'] = get_instance_by_name(project_conf['tag_name'], project_conf['edge_instance_name'])
+            project_conf['edge_id'] = dlab.meta_lib.get_instance_by_name(project_conf['tag_name'],
+                                                                         project_conf['edge_instance_name'])
             try:
                 project_conf['elastic_ip'] = os.environ['edge_elastic_ip']
             except:
@@ -629,19 +654,19 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
         except Exception as err:
-            print('Error: {0}'.format(err))
-            append_result("Failed to associate elastic ip.", str(err))
+            dlab.fab.append_result("Failed to associate elastic ip.", str(err))
             try:
-                project_conf['edge_public_ip'] = get_instance_ip_address(project_conf['tag_name'],
-                                                                      project_conf['edge_instance_name']).get('Public')
-                project_conf['allocation_id'] = get_allocation_id_by_elastic_ip(project_conf['edge_public_ip'])
+                project_conf['edge_public_ip'] = dlab.meta_lib.get_instance_ip_address(
+                    project_conf['tag_name'], project_conf['edge_instance_name']).get('Public')
+                project_conf['allocation_id'] = dlab.meta_lib.get_allocation_id_by_elastic_ip(
+                    project_conf['edge_public_ip'])
             except:
                 print("No Elastic IPs to release!")
-            remove_ec2(project_conf['tag_name'], project_conf['edge_instance_name'])
-            remove_all_iam_resources('notebook', os.environ['project_name'])
-            remove_all_iam_resources('edge', os.environ['project_name'])
-            remove_sgroups(project_conf['dataengine_instances_name'])
-            remove_sgroups(project_conf['notebook_instance_name'])
-            remove_sgroups(project_conf['edge_instance_name'])
-            remove_s3('edge', os.environ['project_name'])
+            dlab.actions_lib.remove_ec2(project_conf['tag_name'], project_conf['edge_instance_name'])
+            dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+            dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+            dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+            dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+            dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+            dlab.actions_lib.remove_s3('edge', project_conf['project_name'])
             sys.exit(1)

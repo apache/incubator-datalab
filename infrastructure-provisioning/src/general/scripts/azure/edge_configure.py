@@ -22,10 +22,16 @@
 # ******************************************************************************
 
 import json
-from dlab.fab import *
-from dlab.meta_lib import *
-import sys, time, os
-from dlab.actions_lib import *
+import sys
+import time
+import os
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import logging
+import traceback
+import uuid
+from fabric.api import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
@@ -34,112 +40,121 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
+
+    def clear_resources():
+        AzureActions.remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
+        AzureActions.remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
+                                   edge_conf['private_subnet_name'])
+        AzureActions.remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions.remove_security_group(edge_conf['resource_group_name'],
+                                           edge_conf['notebook_security_group_name'])
+        AzureActions.remove_security_group(edge_conf['resource_group_name'],
+                                           edge_conf['master_security_group_name'])
+        AzureActions.remove_security_group(edge_conf['resource_group_name'],
+                                           edge_conf['slave_security_group_name'])
+        for storage_account in AzureMeta.list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions.remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
+            for datalake in AzureMeta.list_datalakes(edge_conf['resource_group_name']):
+                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
+                    AzureActions.remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
+
     try:
         print('Generating infrastructure names and tags')
+        AzureMeta = dlab.meta_lib.AzureMeta()
+        AzureActions = dlab.actions_lib.AzureActions()
         edge_conf = dict()
-
-        edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+        edge_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+            os.environ['conf_service_base_name'][:20], '-', True)
         edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         edge_conf['key_name'] = os.environ['conf_key_name']
         edge_conf['vpc_name'] = os.environ['azure_vpc_name']
         edge_conf['region'] = os.environ['azure_region']
         edge_conf['subnet_name'] = os.environ['azure_subnet_name']
-        edge_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
-        edge_conf['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
-        edge_conf['user_keyname'] = os.environ['project_name']
-        edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + edge_conf['project_name'] + '-subnet'
+        edge_conf['project_name'] = (os.environ['project_name'])
+        edge_conf['endpoint_name'] = (os.environ['endpoint_name'])
+        edge_conf['user_keyname'] = edge_conf['project_name']
+        edge_conf['private_subnet_name'] = '{}-{}-{}-subnet'.format(edge_conf['service_base_name'],
+                                                                    edge_conf['project_name'],
+                                                                    edge_conf['endpoint_name'])
         edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
                                                                edge_conf['project_name'], edge_conf['endpoint_name'])
-        edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + \
-                                              '-edge-nif'
-        edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + \
-                                             '-edge-ip'
-        edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-disk0'
-        edge_conf['instance_dns_name'] = 'host-' + edge_conf['instance_name'] + '.' + edge_conf['region'] + \
-                                         '.cloudapp.azure.com'
-        edge_conf['user_storage_account_name'] = '{0}-{1}-{2}-storage'.format(edge_conf['service_base_name'],
-                                                                              edge_conf['project_name'],
-                                                                              edge_conf['endpoint_name'])
-        edge_conf['user_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['project_name'] +
-                                            '-container').lower()
-        edge_conf['shared_storage_account_name'] = '{0}-{1}-shared-storage'.format(edge_conf['service_base_name'],
-                                                                                   edge_conf['endpoint_name'])
-        edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower()
-        edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'
-        edge_conf['datalake_shared_directory_name'] = edge_conf['service_base_name'] + '-shared-folder'
-        edge_conf['datalake_user_directory_name'] = '{0}-{1}-folder'.format(edge_conf['service_base_name'],
-                                                                            edge_conf['project_name'])
-        edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
-        edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['project_name'] + "-" + os.environ['endpoint_name'] +\
-                                                    '-nb-sg'
-        edge_conf['master_security_group_name'] = edge_conf['service_base_name'] + '-' \
-                                                    + edge_conf['project_name'] + '-dataengine-master-sg'
-        edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
-                                                   + edge_conf['project_name'] + '-dataengine-slave-sg'
+        edge_conf['instance_dns_name'] = 'host-{}.{}.cloudapp.azure.com'.format(edge_conf['instance_name'],
+                                                                                edge_conf['region'])
+        edge_conf['user_storage_account_name'] = '{0}-{1}-{2}-bucket'.format(edge_conf['service_base_name'],
+                                                                             edge_conf['project_name'],
+                                                                             edge_conf['endpoint_name']).lower()
+        edge_conf['user_container_name'] = '{0}-{1}-{2}-bucket'.format(edge_conf['service_base_name'],
+                                                                       edge_conf['project_name'],
+                                                                       edge_conf['endpoint_name']).lower()
+        edge_conf['shared_storage_account_name'] = '{0}-{1}-shared-bucket'.format(edge_conf['service_base_name'],
+                                                                                  edge_conf['endpoint_name']).lower()
+        edge_conf['shared_container_name'] = '{0}-{1}-shared-bucket'.format(edge_conf['service_base_name'],
+                                                                            edge_conf['endpoint_name']).lower()
+        edge_conf['datalake_store_name'] = '{}-ssn-datalake'.format(edge_conf['service_base_name'])
+        edge_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(edge_conf['service_base_name'])
+        edge_conf['datalake_user_directory_name'] = '{0}-{1}-{2}-folder'.format(edge_conf['service_base_name'],
+                                                                                edge_conf['project_name'],
+                                                                                edge_conf['endpoint_name'])
+        edge_conf['edge_security_group_name'] = '{}-sg'.format(edge_conf['instance_name'])
+        edge_conf['notebook_security_group_name'] = '{}-{}-{}-nb-sg'.format(edge_conf['service_base_name'],
+                                                                            edge_conf['project_name'],
+                                                                            edge_conf['endpoint_name'])
+        edge_conf['master_security_group_name'] = '{}-{}-{}-de-master-sg'.format(edge_conf['service_base_name'],
+                                                                                 edge_conf['project_name'],
+                                                                                 edge_conf['endpoint_name'])
+        edge_conf['slave_security_group_name'] = '{}-{}-{}-de-slave-sg'.format(edge_conf['service_base_name'],
+                                                                               edge_conf['project_name'],
+                                                                               edge_conf['endpoint_name'])
         edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-        keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
-        edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'],
-                                                                  edge_conf['vpc_name'],
-                                                                  edge_conf['private_subnet_name']).address_prefix
+        edge_conf['keyfile_name'] = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
+        edge_conf['private_subnet_cidr'] = AzureMeta.get_subnet(edge_conf['resource_group_name'],
+                                                                edge_conf['vpc_name'],
+                                                                edge_conf['private_subnet_name']).address_prefix
         if os.environ['conf_network_type'] == 'private':
-            edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                              edge_conf['instance_name'])
-            edge_conf['edge_public_ip'] =  edge_conf['edge_private_ip']
+            edge_conf['edge_private_ip'] = AzureMeta.get_private_ip_address(edge_conf['resource_group_name'],
+                                                                            edge_conf['instance_name'])
+            edge_conf['edge_public_ip'] = edge_conf['edge_private_ip']
+            edge_conf['instance_hostname'] = edge_conf['edge_private_ip']
         else:
-            edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                                                     edge_conf['instance_name'])
-            edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
-                                                                              edge_conf['instance_name'])
-        instance_hostname = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                               edge_conf['instance_name'])
-        edge_conf['vpc_cidrs'] = AzureMeta().get_vpc(edge_conf['resource_group_name'],
-                                                     edge_conf['vpc_name']).address_space.address_prefixes
+            edge_conf['edge_public_ip'] = AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                                                   edge_conf['instance_name'])
+            edge_conf['edge_private_ip'] = AzureMeta.get_private_ip_address(edge_conf['resource_group_name'],
+                                                                            edge_conf['instance_name'])
+            edge_conf['instance_hostname'] = edge_conf['instance_dns_name']
+        edge_conf['vpc_cidrs'] = AzureMeta.get_vpc(edge_conf['resource_group_name'],
+                                                   edge_conf['vpc_name']).address_space.address_prefixes
 
         if os.environ['conf_stepcerts_enabled'] == 'true':
-            step_cert_sans = ' --san {0} --san {1} '.format(AzureMeta().get_private_ip_address(
-                edge_conf['resource_group_name'], edge_conf['instance_name']), edge_conf['instance_dns_name'])
+            edge_conf['step_cert_sans'] = ' --san {0} '.format(AzureMeta.get_private_ip_address(
+                edge_conf['resource_group_name'], edge_conf['instance_name']))
             if os.environ['conf_network_type'] == 'public':
-                step_cert_sans += ' --san {0}'.format(
-                    AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
-                                                               edge_conf['instance_name']))
+                edge_conf['step_cert_sans'] += ' --san {0} --san {1} '.format(
+                    AzureMeta.get_instance_public_ip_address(edge_conf['resource_group_name'],
+                                                             edge_conf['instance_name']),
+                    edge_conf['instance_dns_name'])
         else:
-            step_cert_sans = ''
+            edge_conf['step_cert_sans'] = ''
 
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to generate infrastructure names", str(err))
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
-        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
-                                     edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['master_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                                 edge_conf['slave_security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
-                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
+        dlab.fab.append_result("Failed to generate infrastructure names", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
         if os.environ['conf_os_family'] == 'debian':
-            initial_user = 'ubuntu'
-            sudo_group = 'sudo'
+            edge_conf['initial_user'] = 'ubuntu'
+            edge_conf['sudo_group'] = 'sudo'
         if os.environ['conf_os_family'] == 'redhat':
-            initial_user = 'ec2-user'
-            sudo_group = 'wheel'
+            edge_conf['initial_user'] = 'ec2-user'
+            edge_conf['sudo_group'] = 'wheel'
 
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
-        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", initial_user,
-             edge_conf['dlab_ssh_user'], sudo_group)
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
+            edge_conf['instance_hostname'], os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
+            edge_conf['initial_user'], edge_conf['dlab_ssh_user'], edge_conf['sudo_group'])
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -147,57 +162,24 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed creating ssh user 'dlab'.", str(err))
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
-        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
-                                     edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['master_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                                 edge_conf['slave_security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
-                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
+        dlab.fab.append_result("Failed creating ssh user 'dlab'.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
         print('[INSTALLING PREREQUISITES]')
         logging.info('[INSTALLING PREREQUISITES]')
-        params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], os.environ['azure_region'])
+        params = "--hostname {} --keyfile {} --user {} --region {}".format(
+            edge_conf['instance_hostname'], edge_conf['keyfile_name'], edge_conf['dlab_ssh_user'],
+            os.environ['azure_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing apps: apt & pip.", str(err))
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
-        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
-                                     edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['master_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                                 edge_conf['slave_security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
-                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
+        dlab.fab.append_result("Failed installing apps: apt & pip.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -205,40 +187,24 @@ if __name__ == "__main__":
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf",
-                             "project_name": os.environ['project_name'],
+                             "project_name": edge_conf['project_name'],
                              "ldap_host": os.environ['ldap_hostname'],
                              "ldap_dn": os.environ['ldap_dn'],
                              "ldap_user": os.environ['ldap_service_username'],
                              "ldap_password": os.environ['ldap_service_password'],
                              "vpc_cidrs": edge_conf['vpc_cidrs'],
                              "allowed_ip_cidr": ['0.0.0.0/0']}
-        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}" \
-                 .format(instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            edge_conf['instance_hostname'], edge_conf['keyfile_name'], json.dumps(additional_config),
+            edge_conf['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('configure_http_proxy', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing http proxy.", str(err))
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
-        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
-                                     edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['master_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                                 edge_conf['slave_security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
-                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
+        dlab.fab.append_result("Failed installing http proxy.", str(err))
+        clear_resources()
         sys.exit(1)
 
 
@@ -248,43 +214,27 @@ if __name__ == "__main__":
         additional_config = {"user_keyname": edge_conf['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
+            edge_conf['instance_hostname'], edge_conf['keyfile_name'], json.dumps(additional_config),
+            edge_conf['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing users key. Excpeption: " + str(err))
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
-        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
-                                     edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['master_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                                 edge_conf['slave_security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
-                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
+        dlab.fab.append_result("Failed installing users key. Excpeption: " + str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
         print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
-        keycloak_client_secret = str(uuid.uuid4())
+        edge_conf['keycloak_client_secret'] = str(uuid.uuid4())
         params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
-                 "--step_cert_sans '{}'" \
-            .format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'],
-                    edge_conf['service_base_name'] + '-' + os.environ['project_name'] + '-' + os.environ['endpoint_name'], keycloak_client_secret,
-                    step_cert_sans)
+                 "--step_cert_sans '{}'".format(
+                  edge_conf['instance_hostname'], edge_conf['keyfile_name'], edge_conf['dlab_ssh_user'],
+                  edge_conf['service_base_name'] + '-' + edge_conf['project_name'] + '-' + edge_conf['endpoint_name'],
+                  edge_conf['keycloak_client_secret'], edge_conf['step_cert_sans'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
@@ -293,44 +243,28 @@ if __name__ == "__main__":
             raise Exception
         keycloak_params = "--service_base_name {} --keycloak_auth_server_url {} --keycloak_realm_name {} " \
                           "--keycloak_user {} --keycloak_user_password {} --keycloak_client_secret {} " \
-                          "--edge_public_ip {} --project_name {} --endpoint_name {} " \
-            .format(edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
-                    os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
-                    os.environ['keycloak_user_password'],
-                    keycloak_client_secret, edge_conf['edge_public_ip'], os.environ['project_name'], os.environ['endpoint_name'])
+                          "--edge_public_ip {} --project_name {} --endpoint_name {} ".format(
+                           edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
+                           os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
+                           os.environ['keycloak_user_password'],
+                           edge_conf['keycloak_client_secret'], edge_conf['instance_hostname'], edge_conf['project_name'],
+                           edge_conf['endpoint_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing Nginx reverse proxy. Excpeption: " + str(err))
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
-        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
-                                     edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['notebook_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                             edge_conf['master_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                                 edge_conf['slave_security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
-                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
+        dlab.fab.append_result("Failed installing Nginx reverse proxy. Excpeption: " + str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
-        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+        for storage_account in AzureMeta.list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                shared_storage_account_name = storage_account.name
+                edge_conf['shared_storage_account_name'] = storage_account.name
             if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                user_storage_account_name = storage_account.name
+                edge_conf['user_storage_account_name'] = storage_account.name
 
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
@@ -339,13 +273,13 @@ if __name__ == "__main__":
         print("Public IP: {}".format(edge_conf['edge_public_ip']))
         print("Private IP: {}".format(edge_conf['edge_private_ip']))
         print("Key name: {}".format(edge_conf['key_name']))
-        print("User storage account name: {}".format(user_storage_account_name))
+        print("User storage account name: {}".format(edge_conf['user_storage_account_name']))
         print("User container name: {}".format(edge_conf['user_container_name']))
         if os.environ['azure_datalake_enable'] == 'true':
-            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
+            for datalake in AzureMeta.list_datalakes(edge_conf['resource_group_name']):
                 if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
-                    datalake_id = datalake.name
-            print("Data Lake name: {}".format(datalake_id))
+                    edge_conf['datalake_id'] = datalake.name
+            print("Data Lake name: {}".format(edge_conf['datalake_id']))
             print("Data Lake tag name: {}".format(edge_conf['datalake_store_name']))
             print("Data Lake Store user directory name: {}".format(edge_conf['datalake_user_directory_name']))
         print("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
@@ -357,9 +291,9 @@ if __name__ == "__main__":
                        "public_ip": edge_conf['edge_public_ip'],
                        "ip": edge_conf['edge_private_ip'],
                        "key_name": edge_conf['key_name'],
-                       "user_storage_account_name": user_storage_account_name,
+                       "user_storage_account_name": edge_conf['user_storage_account_name'],
                        "user_container_name": edge_conf['user_container_name'],
-                       "shared_storage_account_name": shared_storage_account_name,
+                       "shared_storage_account_name": edge_conf['shared_storage_account_name'],
                        "shared_container_name": edge_conf['shared_container_name'],
                        "user_storage_account_tag_name": edge_conf['user_storage_account_name'],
                        "tunnel_port": "22",
@@ -369,7 +303,7 @@ if __name__ == "__main__":
                        "notebook_subnet": edge_conf['private_subnet_cidr'],
                        "instance_id": edge_conf['instance_name'],
                        "full_edge_conf": edge_conf,
-                       "project_name": os.environ['project_name'],
+                       "project_name": edge_conf['project_name'],
                        "@class": "com.epam.dlab.dto.azure.edge.EdgeInfoAzure",
                        "Action": "Create new EDGE server"}
             else:
@@ -377,12 +311,12 @@ if __name__ == "__main__":
                        "public_ip": edge_conf['edge_public_ip'],
                        "ip": edge_conf['edge_private_ip'],
                        "key_name": edge_conf['key_name'],
-                       "user_storage_account_name": user_storage_account_name,
+                       "user_storage_account_name": edge_conf['user_storage_account_name'],
                        "user_container_name": edge_conf['user_container_name'],
-                       "shared_storage_account_name": shared_storage_account_name,
+                       "shared_storage_account_name": edge_conf['shared_storage_account_name'],
                        "shared_container_name": edge_conf['shared_container_name'],
                        "user_storage_account_tag_name": edge_conf['user_storage_account_name'],
-                       "datalake_name": datalake_id,
+                       "datalake_name": edge_conf['datalake_id'],
                        "datalake_tag_name": edge_conf['datalake_store_name'],
                        "datalake_shared_directory_name": edge_conf['datalake_shared_directory_name'],
                        "datalake_user_directory_name": edge_conf['datalake_user_directory_name'],
@@ -393,11 +327,12 @@ if __name__ == "__main__":
                        "notebook_subnet": edge_conf['private_subnet_cidr'],
                        "instance_id": edge_conf['instance_name'],
                        "full_edge_conf": edge_conf,
-                       "project_name": os.environ['project_name'],
+                       "project_name": edge_conf['project_name'],
                        "@class": "com.epam.dlab.dto.azure.edge.EdgeInfoAzure",
                        "Action": "Create new EDGE server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results.", str(err))
+        clear_resources()
+        sys.exit(1)

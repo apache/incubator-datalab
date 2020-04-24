@@ -50,7 +50,7 @@ resource "aws_iam_role" "edge_role" {
     Name = "${local.edge_role_name}"
     "${local.additional_tag[0]}" = local.additional_tag[1]
     "${var.tag_resource_id}" = "${var.service_base_name}:${local.edge_role_name}"
-    "${var.service_base_name}-Tag" = local.edge_role_name
+    "${var.service_base_name}-tag" = local.edge_role_name
   }
 }
 
@@ -80,7 +80,7 @@ resource "aws_iam_role" "nb_de_role" {
   tags = {
     Name                           = local.nb_role_name
     Environment_tag                = var.service_base_name
-    "${var.service_base_name}-Tag" = local.nb_role_name
+    "${var.service_base_name}-tag" = local.nb_role_name
     "${local.additional_tag[0]}"   = local.additional_tag[1]
     Project_name                   = var.project_name
     Project_tag                    = var.project_tag

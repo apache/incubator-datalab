@@ -22,18 +22,22 @@
 # ******************************************************************************
 
 import json
-from dlab.fab import *
-from dlab.meta_lib import *
-import sys, time, os
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import sys
+import time
+import os
+import traceback
+import logging
 import boto3
 import requests
 
 
-def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg):
+def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg, endpoint_name):
     print('Terminating EMR cluster')
     try:
-        clusters_list = get_emr_list(tag_name)
+        clusters_list = dlab.meta_lib.get_emr_list(tag_name)
         if clusters_list:
             for cluster_id in clusters_list:
                 client = boto3.client('emr')
@@ -41,89 +45,112 @@ def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
                 if '{}'.format(tag_value[:-1]) in emr_name:
-                    terminate_emr(cluster_id)
+                    dlab.actions_lib.terminate_emr(cluster_id)
                     print("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
             print("There are no EMR clusters to terminate.")
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate EMR cluster.", str(err))
         sys.exit(1)
 
     print("Terminating EDGE and notebook instances")
     try:
-        remove_ec2(tag_name, tag_value)
-    except:
+        dlab.actions_lib.remove_ec2(tag_name, tag_value)
+    except Exception as err:
+        dlab.fab.append_result("Failed to terminate instances.", str(err))
         sys.exit(1)
 
     print("Removing s3 bucket")
     try:
-        remove_s3('edge', project_name)
-    except:
+        dlab.actions_lib.remove_s3('edge', project_name)
+    except Exception as err:
+        dlab.fab.append_result("Failed to remove buckets.", str(err))
         sys.exit(1)
 
     print("Removing IAM roles and profiles")
     try:
-        remove_all_iam_resources('notebook', project_name)
-        remove_all_iam_resources('edge', project_name)
-    except:
+        dlab.actions_lib.remove_all_iam_resources('notebook', project_name, endpoint_name)
+        dlab.actions_lib.remove_all_iam_resources('edge', project_name, endpoint_name)
+    except Exception as err:
+        dlab.fab.append_result("Failed to remove IAM roles and profiles.", str(err))
+        sys.exit(1)
+
+    print("Deregistering project specific notebook's AMI")
+    try:
+        dlab.actions_lib.deregister_image(project_name)
+    except Exception as err:
+        dlab.fab.append_result("Failed to deregister images.", str(err))
         sys.exit(1)
 
     print("Removing security groups")
     try:
-        remove_sgroups(emr_sg)
-        remove_sgroups(de_sg)
-        remove_sgroups(nb_sg)
-        remove_sgroups(edge_sg)
-    except:
+        dlab.actions_lib.remove_sgroups(emr_sg)
+        dlab.actions_lib.remove_sgroups(de_sg)
+        dlab.actions_lib.remove_sgroups(nb_sg)
+        dlab.actions_lib.remove_sgroups(edge_sg)
+    except Exception as err:
+        dlab.fab.append_result("Failed to remove Security Groups.", str(err))
         sys.exit(1)
 
     print("Removing private subnet")
     try:
-        remove_subnets(tag_value)
-    except:
+        dlab.actions_lib.remove_subnets(tag_value)
+    except Exception as err:
+        dlab.fab.append_result("Failed to remove subnets.", str(err))
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['project_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/project/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    create_aws_config_files()
+    dlab.actions_lib.create_aws_config_files()
     print('Generating infrastructure names and tags')
     project_conf = dict()
-    project_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    project_conf['endpoint_name'] = '{}-{}-endpoint'.format(project_conf['service_base_name'], os.environ['endpoint_name'])
+    project_conf['service_base_name'] = (os.environ['conf_service_base_name'])
     project_conf['project_name'] = os.environ['project_name']
-    project_conf['tag_name'] = project_conf['service_base_name'] + '-Tag'
-    project_conf['tag_value'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-*'
-    project_conf['edge_sg'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-edge'
-    project_conf['nb_sg'] = project_conf['service_base_name'] + "-" + os.environ['project_name'] + '-nb'
+    project_conf['endpoint_name'] = os.environ['endpoint_name']
+    project_conf['endpoint_instance_name'] = '{}-{}-endpoint'.format(project_conf['service_base_name'],
+                                                                     project_conf['endpoint_name'])
+    project_conf['tag_name'] = project_conf['service_base_name'] + '-tag'
+    project_conf['tag_value'] = '{}-{}-{}-*'.format(project_conf['service_base_name'], project_conf['project_name'],
+                                                    project_conf['endpoint_name'])
+    project_conf['edge_sg'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'], project_conf['project_name'],
+                                                     project_conf['endpoint_name'])
+    project_conf['nb_sg'] = '{}-{}-{}-nb'.format(project_conf['service_base_name'], project_conf['project_name'],
+                                                 project_conf['endpoint_name'])
     project_conf['edge_instance_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
-                                                                os.environ['project_name'], os.environ['endpoint_name'])
-    project_conf['de_sg'] = project_conf['service_base_name'] + "-" + project_conf['project_name'] + \
-                                             '-dataengine*'
-    project_conf['emr_sg'] = project_conf['service_base_name'] + "-" + project_conf['project_name'] + '-des-*'
+                                                                project_conf['project_name'],
+                                                                project_conf['endpoint_name'])
+    project_conf['de_sg'] = '{}-{}-{}-de*'.format(project_conf['service_base_name'],
+                                                  project_conf['project_name'],
+                                                  project_conf['endpoint_name'])
+    project_conf['emr_sg'] = '{}-{}-{}-des-*'.format(project_conf['service_base_name'],
+                                                     project_conf['project_name'],
+                                                     project_conf['endpoint_name'])
 
     try:
         logging.info('[TERMINATE PROJECT]')
         print('[TERMINATE PROJECT]')
         try:
             terminate_edge_node(project_conf['tag_name'], project_conf['project_name'], project_conf['tag_value'],
-                                project_conf['nb_sg'], project_conf['edge_sg'], project_conf['de_sg'], project_conf['emr_sg'])
+                                project_conf['nb_sg'], project_conf['edge_sg'], project_conf['de_sg'],
+                                project_conf['emr_sg'], project_conf['endpoint_name'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate project.", str(err))
+            dlab.fab.append_result("Failed to terminate project.", str(err))
     except Exception as err:
         print('Error: {0}'.format(err))
         sys.exit(1)
 
     try:
-        endpoint_id = get_instance_by_name(project_conf['tag_name'], project_conf['endpoint_name'])
+        endpoint_id = dlab.meta_lib.get_instance_by_name(project_conf['tag_name'],
+                                                         project_conf['endpoint_instance_name'])
         print("Endpoint id: " + endpoint_id)
         ec2 = boto3.client('ec2')
         ec2.delete_tags(Resources=[endpoint_id], Tags=[{'Key': 'project_tag'}, {'Key': 'endpoint_tag'}])
@@ -148,7 +175,8 @@ if __name__ == "__main__":
         }
 
         client_params = {
-            "clientId": project_conf['service_base_name'] + '-' + project_conf['project_name'] + '-' + os.environ['endpoint_name'],
+            "clientId": '{}-{}-{}'.format(project_conf['service_base_name'], project_conf['project_name'],
+                                          project_conf['endpoint_name'])
         }
 
         keycloak_token = requests.post(keycloak_auth_server_url, data=keycloak_auth_data).json()
@@ -163,8 +191,10 @@ if __name__ == "__main__":
                                                                                os.environ['keycloak_realm_name'],
                                                                                keycloak_id_client)
 
-        keycloak_client = requests.delete(keycloak_client_delete_url, headers={"Authorization": "Bearer " + keycloak_token.get("access_token"),
-                                                 "Content-Type": "application/json"})
+        keycloak_client = requests.delete(
+            keycloak_client_delete_url,
+            headers={"Authorization": "Bearer {}".format(keycloak_token.get("access_token")),
+                     "Content-Type": "application/json"})
     except Exception as err:
         print("Failed to remove project client from Keycloak", str(err))
 
@@ -175,6 +205,6 @@ if __name__ == "__main__":
                    "Action": "Terminate edge node"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

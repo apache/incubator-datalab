@@ -25,6 +25,7 @@ import com.epam.dlab.exceptions.AdapterException;
 import com.epam.dlab.model.aws.ReportLine;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import org.bson.Document;
 
 import java.util.List;
 
@@ -84,7 +85,8 @@ public class AdapterConsole extends AdapterBase {
 	}
 
 	@Override
-	public void writeRow(ReportLine row) throws AdapterException {
+	public Document writeRow(ReportLine row) throws AdapterException {
 		System.out.println(CommonFormat.rowToString(row));
+		return null;
 	}
 }

@@ -38,8 +38,8 @@ import {
   animateChild,
   state
 } from '@angular/animations';
-import {skip} from "rxjs/operators";
-import {ProgressBarService} from "../../core/services/progress-bar.service";
+import {skip} from 'rxjs/operators';
+import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'dlab-navbar',
@@ -111,7 +111,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
           this.healthStatus = result;
           result.status && this.checkQuoteUsed(this.healthStatus);
-          result.status && !result.projectAssigned && this.checkAssignment(this.healthStatus);
+          result.status && !result.projectAssigned && !result.admin && this.checkAssignment(this.healthStatus);
         }));
         this.subscriptions.add(timer(0, this.CHECK_ACTIVE_SCHEDULE_TIMEOUT).subscribe(() => this.refreshSchedulerData()));
         this.currentUserName = this.getUserName();

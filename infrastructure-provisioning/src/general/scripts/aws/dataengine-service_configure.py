@@ -24,9 +24,10 @@
 import json
 import time
 from fabric.api import *
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import traceback
 import sys
 import os
 import logging
@@ -53,9 +54,8 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to create dlab ssh user.", str(err))
-        terminate_emr(emr_conf['cluster_id'])
+        dlab.fab.append_result("Failed to create dlab ssh user.", str(err))
+        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
     # configuring proxy on Data Engine service
@@ -72,27 +72,27 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure proxy.", str(err))
-        terminate_emr(emr_conf['cluster_id'])
+        dlab.fab.append_result("Failed to configure proxy.", str(err))
+        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
     try:
         logging.info('[CONFIGURE DATAENGINE SERVICE]')
         print('[CONFIGURE DATAENGINE SERVICE]')
         try:
-            configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'], emr_conf['key_path'])
+            dlab.fab.configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'],
+                                                       emr_conf['key_path'])
             env['connection_attempts'] = 100
             env.key_filename = emr_conf['key_path']
             env.host_string = emr_conf['os_user'] + '@' + emr_conf['instance_ip']
-            sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> /etc/yum/pluginconf.d/priorities.conf')
+            sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> '
+                 '/etc/yum/pluginconf.d/priorities.conf')
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure dataengine service.", str(err))
-        terminate_emr(emr_conf['cluster_id'])
+        dlab.fab.append_result("Failed to configure dataengine service.", str(err))
+        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
 
@@ -130,12 +130,11 @@ def configure_dataengine_service(instance, emr_conf):
         try:
             local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
         except:
-            append_result("Failed edge reverse proxy template")
+            dlab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed edge reverse proxy template", str(err))
-        terminate_emr(emr_conf['cluster_id'])
+        dlab.fab.append_result("Failed edge reverse proxy template", str(err))
+        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
     try:
@@ -150,9 +149,8 @@ def configure_dataengine_service(instance, emr_conf):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing users key", str(err))
-        terminate_emr(emr_conf['cluster_id'])
+        dlab.fab.append_result("Failed installing users key", str(err))
+        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
         sys.exit(1)
 
 
@@ -163,75 +161,78 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.INFO,
                         filename=local_log_filepath)
+
     try:
-        os.environ['exploratory_name']
-    except:
-        os.environ['exploratory_name'] = ''
-    create_aws_config_files()
-    print('Generating infrastructure names and tags')
-    emr_conf = dict()
-    try:
-        emr_conf['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        emr_conf['exploratory_name'] = ''
-    try:
-        emr_conf['computational_name'] = os.environ['computational_name']
-    except:
-        emr_conf['computational_name'] = ''
-    emr_conf['apps'] = 'Hadoop Hive Hue Spark'
-    emr_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower()[:12], '-', True)
-    emr_conf['project_name'] = os.environ['project_name']
-    emr_conf['endpoint_name'] = os.environ['endpoint_name']
-    emr_conf['tag_name'] = emr_conf['service_base_name'] + '-Tag'
-    emr_conf['key_name'] = os.environ['conf_key_name']
-    emr_conf['region'] = os.environ['aws_region']
-    emr_conf['release_label'] = os.environ['emr_version']
-    emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
-    emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
-    emr_conf['instance_count'] = os.environ['emr_instance_count']
-    emr_conf['notebook_ip'] = get_instance_ip_address(emr_conf['tag_name'],
-                                                      os.environ['notebook_instance_name']).get('Private')
-    emr_conf['network_type'] = os.environ['conf_network_type']
-    emr_conf['role_service_name'] = os.environ['emr_service_role']
-    emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
-    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['project_name'] + '-des-' + \
-                       emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid + \
-                       ', ' + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + \
-                       os.environ['project_name'] + '-des-' + emr_conf['exploratory_name'] + '-' + \
-                       emr_conf['computational_name'] + '-' + args.uuid + \
-                       ', Notebook=' + os.environ['notebook_instance_name'] + ', State=not-configured'
-    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['project_name'] + '-des-' + \
-                               emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + \
-                               args.uuid
-    emr_conf['bucket_name'] = ('{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
-                                                           emr_conf['endpoint_name'])).lower().replace('_', '-')
-    tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']), "Value": "{}-{}-subnet".format(
-        emr_conf['service_base_name'], os.environ['project_name'])}
-    emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
-    emr_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
-    emr_conf['all_ip_cidr'] = '0.0.0.0/0'
-    emr_conf['additional_emr_sg_name'] = '{}-{}-de-se-additional-sg'.format(emr_conf['service_base_name'],
-                                                                          os.environ['project_name'])
-    emr_conf['vpc_id'] = os.environ['aws_vpc_id']
-    emr_conf['cluster_id'] = get_emr_id_by_name(emr_conf['cluster_name'])
-    emr_conf['cluster_instances'] = get_emr_instances_list(emr_conf['cluster_id'])
-    emr_conf['cluster_master_instances'] = get_emr_instances_list(emr_conf['cluster_id'], 'MASTER')
-    emr_conf['cluster_core_instances'] = get_emr_instances_list(emr_conf['cluster_id'], 'CORE')
-    emr_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'],
-                                                               emr_conf['project_name'], emr_conf['endpoint_name'])
-    emr_conf['edge_instance_hostname'] = get_instance_private_ip_address(emr_conf['tag_name'],
-                                                                         emr_conf['edge_instance_name'])
-    if emr_conf['network_type'] == 'private':
-        emr_conf['edge_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'],
-                                                               emr_conf['edge_instance_name']).get('Private')
-    else:
-        emr_conf['edge_instance_ip'] = get_instance_ip_address(emr_conf['tag_name'],
-                                                               emr_conf['edge_instance_name']).get('Public')
-    emr_conf['user_keyname'] = os.environ['project_name']
-    emr_conf['os_user'] = os.environ['conf_os_user']
-    emr_conf['initial_user'] = 'ec2-user'
-    emr_conf['sudo_group'] = 'wheel'
+        dlab.actions_lib.create_aws_config_files()
+        print('Generating infrastructure names and tags')
+        emr_conf = dict()
+        if 'exploratory_name' in os.environ:
+            emr_conf['exploratory_name'] = os.environ['exploratory_name']
+        else:
+            emr_conf['exploratory_name'] = ''
+        if 'computational_name' in os.environ:
+            emr_conf['computational_name'] = os.environ['computational_name']
+        else:
+            emr_conf['computational_name'] = ''
+        emr_conf['apps'] = 'Hadoop Hive Hue Spark'
+        emr_conf['service_base_name'] = os.environ['conf_service_base_name']
+        emr_conf['project_name'] = os.environ['project_name']
+        emr_conf['endpoint_name'] = os.environ['endpoint_name']
+        emr_conf['tag_name'] = emr_conf['service_base_name'] + '-tag'
+        emr_conf['key_name'] = os.environ['conf_key_name']
+        emr_conf['region'] = os.environ['aws_region']
+        emr_conf['release_label'] = os.environ['emr_version']
+        emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
+        emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
+        emr_conf['instance_count'] = os.environ['emr_instance_count']
+        emr_conf['notebook_ip'] = dlab.meta_lib.get_instance_ip_address(
+            emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
+        emr_conf['network_type'] = os.environ['conf_network_type']
+        emr_conf['role_service_name'] = os.environ['emr_service_role']
+        emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
+        emr_conf['tags'] = "Name={0}-{1}-{2}-des-{3}-{4}," \
+                           "{0}-tag={0}-{1}-{2}-des-{3}-{4}," \
+                           "Notebook={5}," \
+                           "State=not-configured," \
+                           "Endpoint_tag={2}".format(
+            emr_conf['service_base_name'], emr_conf['project_name'], emr_conf['endpoint_name'],
+            emr_conf['exploratory_name'], args.uuid, os.environ['notebook_instance_name'])
+        emr_conf['cluster_name'] = '{0}-{1}-{2}-des-{3}-{4}' \
+            .format(emr_conf['service_base_name'],
+                    emr_conf['project_name'],
+                    emr_conf['endpoint_name'],
+                    emr_conf['computational_name'],
+                    args.uuid)
+        emr_conf['bucket_name'] = '{0}-{1}-{2}-bucket'.format(emr_conf['service_base_name'], emr_conf['project_name'],
+                                                               emr_conf['endpoint_name']).lower().replace('_', '-')
+        tag = {"Key": "{}-tag".format(emr_conf['service_base_name']), "Value": "{}-{}-{}-subnet".format(
+            emr_conf['service_base_name'], emr_conf['project_name'], emr_conf['endpoint_name'])}
+        emr_conf['subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
+        emr_conf['key_path'] = '{}/{}.pem'.format(os.environ['conf_key_dir'],
+                                                  os.environ['conf_key_name'])
+        emr_conf['all_ip_cidr'] = '0.0.0.0/0'
+        emr_conf['additional_emr_sg_name'] = '{}-{}-{}-de-se-additional-sg'.format(emr_conf['service_base_name'],
+                                                                                   emr_conf['project_name'],
+                                                                                   emr_conf['endpoint_name'])
+        emr_conf['vpc_id'] = os.environ['aws_vpc_id']
+        emr_conf['cluster_id'] = dlab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])
+        emr_conf['cluster_instances'] = dlab.meta_lib.get_emr_instances_list(emr_conf['cluster_id'])
+        emr_conf['cluster_master_instances'] = dlab.meta_lib.get_emr_instances_list(emr_conf['cluster_id'], 'MASTER')
+        emr_conf['cluster_core_instances'] = dlab.meta_lib.get_emr_instances_list(emr_conf['cluster_id'], 'CORE')
+        emr_conf['edge_instance_name'] = '{0}-{1}-{2}-edge'.format(emr_conf['service_base_name'],
+                                                                   emr_conf['project_name'], emr_conf['endpoint_name'])
+        emr_conf['edge_instance_hostname'] = dlab.meta_lib.get_instance_private_ip_address(
+            emr_conf['tag_name'], emr_conf['edge_instance_name'])
+        emr_conf['edge_instance_hostname'] = dlab.meta_lib.get_instance_hostname(emr_conf['tag_name'],
+                                                                                 emr_conf['edge_instance_name'])
+        emr_conf['user_keyname'] = emr_conf['project_name']
+        emr_conf['os_user'] = os.environ['conf_os_user']
+        emr_conf['initial_user'] = 'ec2-user'
+        emr_conf['sudo_group'] = 'wheel'
+    except Exception as err:
+        dlab.fab.append_result("Failed to generate variables dictionary", str(err))
+        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
+        sys.exit(1)
 
     try:
         jobs = []
@@ -252,14 +253,14 @@ if __name__ == "__main__":
         logging.info('[SUMMARY]')
         ip_address = emr_conf['cluster_master_instances'][0].get('PrivateIpAddress')
         emr_master_url = "http://" + ip_address + ":8088"
-        emr_master_acces_url = "https://" + emr_conf['edge_instance_ip'] + "/{}/".format(emr_conf['exploratory_name'] +
-                                                                                         '_' +
-                                                                                         emr_conf['computational_name'])
+        emr_master_acces_url = "https://{}/{}_{}/".format(emr_conf['edge_instance_hostname'],
+                                                          emr_conf['exploratory_name'],
+                                                          emr_conf['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
         print("Service base name: {}".format(emr_conf['service_base_name']))
         print("Cluster name: {}".format(emr_conf['cluster_name']))
-        print("Cluster id: {}".format(get_emr_id_by_name(emr_conf['cluster_name'])))
+        print("Cluster id: {}".format(dlab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name'])))
         print("Key name: {}".format(emr_conf['key_name']))
         print("Region: {}".format(emr_conf['region']))
         print("EMR version: {}".format(emr_conf['release_label']))
@@ -270,7 +271,7 @@ if __name__ == "__main__":
         print("Bucket name: {}".format(emr_conf['bucket_name']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": emr_conf['cluster_name'],
-                   "instance_id": get_emr_id_by_name(emr_conf['cluster_name']),
+                   "instance_id": dlab.meta_lib.get_emr_id_by_name(emr_conf['cluster_name']),
                    "key_name": emr_conf['key_name'],
                    "user_own_bucket_name": emr_conf['bucket_name'],
                    "Action": "Create new EMR cluster",
@@ -282,8 +283,7 @@ if __name__ == "__main__":
                    ]}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
-
-    sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        dlab.actions_lib.terminate_emr(emr_conf['cluster_id'])
+        sys.exit(1)

@@ -25,12 +25,13 @@ import os
 import sys
 from fabric.api import *
 from fabric.contrib.files import exists
+from dlab.common_lib import manage_pkg
 
 
 def configure_http_proxy_server(config):
     try:
         if not exists('/tmp/http_proxy_ensured'):
-            sudo('apt-get -y install squid')
+            manage_pkg('-y install', 'remote', 'squid')
             template_file = config['template_file']
             proxy_subnet = config['exploratory_subnet']
             put(template_file, '/tmp/squid.conf')
@@ -62,8 +63,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                       keycloak_client_secret, user, hostname, step_cert_sans):
     try:
         if not os.path.exists('/tmp/nginx_installed'):
-            sudo('apt-get install -y wget')
-            sudo('apt-get -y install gcc build-essential make automake zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev libc6-dev libgd-dev libgeoip-dev libpcre3-dev apt-utils autoconf liblmdb-dev libtool libxml2-dev libyajl-dev pkgconf liblua5.1-0 liblua5.1-0-dev libreadline-dev libreadline6-dev libtinfo-dev libtool-bin lua5.1 zip readline-doc')
+            manage_pkg('-y install', 'remote', 'wget')
+            manage_pkg('-y install', 'remote', 'gcc build-essential make automake zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev libc6-dev libgd-dev libgeoip-dev libpcre3-dev apt-utils autoconf liblmdb-dev libtool libxml2-dev libyajl-dev pkgconf liblua5.1-0 liblua5.1-0-dev libreadline-dev libreadline6-dev libtinfo-dev libtool-bin lua5.1 zip readline-doc')
             if os.environ['conf_stepcerts_enabled'] == 'true':
                 sudo('mkdir -p /home/{0}/keys'.format(user))
                 sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(
@@ -146,15 +147,24 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('./configure')
                 sudo('make build')
                 sudo('make install')
-                sudo('luarocks install lua-resty-jwt')
-                sudo('luarocks install lua-resty-session')
-                sudo('luarocks install lua-resty-http')
-                sudo('luarocks install lua-resty-openidc')
-                sudo('luarocks install luacrypto')
-                sudo('luarocks install lua-cjson')
-                sudo('luarocks install lua-resty-core')
-                sudo('luarocks install random')
-                sudo('luarocks install lua-resty-string')
+                sudo('wget https://luarocks.org/manifests/cdbattags/lua-resty-jwt-0.2.0-0.src.rock')
+                sudo('luarocks build lua-resty-jwt-0.2.0-0.src.rock')
+                sudo('wget https://luarocks.org/manifests/bungle/lua-resty-session-2.26-1.src.rock')
+                sudo('luarocks build lua-resty-session-2.26-1.src.rock')
+                sudo('wget https://luarocks.org/manifests/pintsized/lua-resty-http-0.15-0.src.rock')
+                sudo('luarocks build lua-resty-http-0.15-0.src.rock')
+                sudo('wget https://luarocks.org/manifests/hanszandbelt/lua-resty-openidc-1.7.2-1.src.rock')
+                sudo('luarocks build lua-resty-openidc-1.7.2-1.src.rock')
+                sudo('wget https://luarocks.org/manifests/starius/luacrypto-0.3.2-2.src.rock')
+                sudo('luarocks build luacrypto-0.3.2-2.src.rock')
+                sudo('wget https://luarocks.org/manifests/openresty/lua-cjson-2.1.0.6-1.src.rock')
+                sudo('luarocks build lua-cjson-2.1.0.6-1.src.rock')
+                sudo('wget https://luarocks.org/manifests/avlubimov/lua-resty-core-0.1.17-4.src.rock')
+                sudo('luarocks build lua-resty-core-0.1.17-4.src.rock')
+                sudo('wget https://luarocks.org/manifests/hjpotter92/random-1.1-0.rockspec')
+                sudo('luarocks install random-1.1-0.rockspec')
+                sudo('wget https://luarocks.org/manifests/rsander/lua-resty-string-0.09-0.rockspec')
+                sudo('luarocks install lua-resty-string-0.09-0.rockspec')
 
             sudo('useradd -r nginx')
             sudo('rm -f /etc/nginx/nginx.conf')

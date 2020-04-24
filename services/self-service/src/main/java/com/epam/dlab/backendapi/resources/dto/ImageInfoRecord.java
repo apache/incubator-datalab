@@ -30,6 +30,7 @@ public class ImageInfoRecord {
 	private final String description;
 	private final String project;
 	private final String endpoint;
+	private final String user;
 	private final String application;
 	private final String fullName;
 	private final ImageStatus status;

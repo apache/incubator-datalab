@@ -299,36 +299,22 @@ span.mat-slide-toggle-content {
   word-break: break-all;
 }
 
-.project-form,
-.create-environment{
-  .mat-select:not(.ng-pristine){
-    .mat-form-field-label {
-      line-height: 22px !important;
-      font-size: 15px !important;
-    }
-    .ng-valid .mat-form-field-label {
-      color: transparent !important;
-    }
-  }
-}
-
-
+.create-cluster,
 .project-form,
 .create-environment,
-.create-cluster{
-  .mat-select-value{
-    overflow: visible;
-  }
-}
-
-.create-cluster {
-  .mat-select:not(.ng-pristine) {
-    .mat-form-field-label {
-      padding-top: 5px;
-      line-height: 55px !important;
-      font-size: 15px !important;
+.selection,
+.manage-roles{
+    .mat-select-value{
+      overflow: visible;
     }
-  }
+    .mat-form-field-label {
+      line-height: 21px !important;
+      font-size: 15px !important;
+
+      &:not(.mat-form-field-empty) {
+        color: transparent !important;
+      }
+    }
 }
 
 .manage-roles,
@@ -629,10 +615,8 @@ mat-horizontal-stepper {
 .mat-table {
   .header-row {
     th.mat-header-cell {
-      font-size: 15px;
       font-family: 'Open Sans', sans-serif;
       font-weight: 600;
-      color: #607D8B;
     }
 
     .mat-cell {
@@ -672,3 +656,14 @@ mat-progress-bar {
     background-color: #baf0f7;
   }
 }
+.manage-roles{
+  .mat-horizontal-content-container{
+    overflow: visible !important;
+  }
+}
+
+.filter-row-item, .label-header{
+  box-shadow: inset 0 -1px 0 lightgrey;
+  border-bottom: none !important;
+}
+

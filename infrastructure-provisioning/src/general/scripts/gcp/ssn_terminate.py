@@ -21,11 +21,16 @@
 #
 # ******************************************************************************
 
-from dlab.fab import *
-from dlab.actions_lib import *
-import sys, os
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import dlab.ssn_lib
+import sys
+import os
+import logging
+import json
+import traceback
 from fabric.api import *
-from dlab.ssn_lib import *
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
@@ -36,8 +41,8 @@ if __name__ == "__main__":
     # generating variables dictionary
     print('Generating infrastructure names and tags')
     ssn_conf = dict()
-    ssn_conf['service_base_name'] = replace_multi_symbols(
-        os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
+    ssn_conf['service_base_name'] = dlab.fab.replace_multi_symbols(
+        os.environ['conf_service_base_name'].replace('_', '-').lower()[:20], '-', True)
     ssn_conf['region'] = os.environ['gcp_region']
     ssn_conf['zone'] = os.environ['gcp_zone']
     pre_defined_vpc = False
@@ -48,7 +53,7 @@ if __name__ == "__main__":
             pre_defined_vpc = True
             ssn_conf['vpc_name'] = os.environ['gcp_vpc_name']
     except KeyError:
-        ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
+        ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
 
     try:
         logging.info('[TERMINATE SSN]')
@@ -61,8 +66,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to terminate ssn.", str(err))
+        dlab.fab.append_result("Failed to terminate ssn.", str(err))
         sys.exit(1)
 
     try:
@@ -71,6 +75,6 @@ if __name__ == "__main__":
                    "Action": "Terminate ssn with all service_base_name environment"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

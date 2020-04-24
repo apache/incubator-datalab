@@ -6,7 +6,7 @@
          "tunnel_port": "22",
          "full_edge_conf": {
             "notebook_role_profile_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-nb-Profile",
-            "tag_name": "${CONF_SERVICE_BASE_NAME}-Tag",
+            "tag_name": "${CONF_SERVICE_BASE_NAME}-tag",
             "edge_security_group_name": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-edge-SG",
             "allocation_id": "eipalloc-2801084f",
             "key_name": "${CONF_KEY_NAME}",

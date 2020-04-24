@@ -339,7 +339,7 @@ def build_emr_cluster(args):
                     ReleaseLabel=args.release_label,
                     Instances={'Ec2KeyName': args.ssh_key,
                                'KeepJobFlowAliveWhenNoSteps': not args.auto_terminate,
-                               'Ec2SubnetId': get_subnet_by_cidr(args.subnet),
+                               'Ec2SubnetId': get_subnet_by_cidr(args.subnet, os.environ['aws_notebook_vpc_id']),
                                'InstanceGroups': [
                                    {'Market': 'SPOT',
                                     'BidPrice': args.bid_price[:5],
@@ -377,7 +377,7 @@ def build_emr_cluster(args):
                                'Ec2KeyName': args.ssh_key,
                                # 'Placement': {'AvailabilityZone': args.availability_zone},
                                'KeepJobFlowAliveWhenNoSteps': not args.auto_terminate,
-                               'Ec2SubnetId': get_subnet_by_cidr(args.subnet),
+                               'Ec2SubnetId': get_subnet_by_cidr(args.subnet, os.environ['aws_notebook_vpc_id']),
                                'AdditionalMasterSecurityGroups': [
                                    get_security_group_by_name(
                                        args.additional_emr_sg)
