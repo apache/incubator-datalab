@@ -30,6 +30,40 @@ import time
 
 def manage_pkg(command, environment, requisites):
     try:
+        allow = False
+        counter = 0
+        while not allow:
+            if counter > 60:
+                print("Notebook is broken please recreate it.")
+                sys.exit(1)
+            else:
+                print('Package manager is:')
+                if environment == 'remote':
+                    if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
+                        counter += 1
+                        time.sleep(10)
+                    else:
+                        allow = True
+                        sudo('sudo dpkg --configure -a')
+                        sudo('sudo apt update')
+                        try:
+                            sudo('apt-get {0} {1}'.format(command, requisites))
+                        except:
+                            sudo('lsof /var/lib/dpkg/lock')
+                            sudo('lsof /var/lib/apt/lists/lock')
+                            sudo('lsof /var/cache/apt/archives/lock')
+                            sudo('rm -f /var/lib/apt/lists/lock')
+                            sudo('rm -f /var/cache/apt/archives/lock')
+                            sudo('rm -f /var/lib/dpkg/lock')
+                elif environment == 'local':
+                    if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
+                        counter += 1
+                        time.sleep(10)
+                    else:
+                        allow = True
+                        local('sudo apt-get {0} {1}'.format(command, requisites), capture=True)
+                else:
+                    print('Wrong environment')
         attempt = 0
         installed = False
         while not installed:
