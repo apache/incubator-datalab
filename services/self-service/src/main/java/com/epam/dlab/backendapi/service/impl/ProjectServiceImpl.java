@@ -173,8 +173,12 @@ public class ProjectServiceImpl implements ProjectService {
 				.collect(Collectors.toList());
 		checkProjectRelatedResourcesInProgress(projectName, endpointDTOs, STOP_ACTION);
 
-		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName).forEach(e ->
-				exploratoryService.stop(new UserInfo(e.getUser(), userInfo.getAccessToken()), projectName, e.getExploratoryName()));
+		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName,
+				endpointDTOs
+						.stream()
+						.map(ProjectEndpointDTO::getName)
+						.collect(Collectors.toList()))
+				.forEach(e -> exploratoryService.stop(new UserInfo(e.getUser(), userInfo.getAccessToken()), projectName, e.getExploratoryName()));
 
 		endpointDTOs.stream().filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED, UserInstanceStatus.FAILED).contains(e.getStatus()))

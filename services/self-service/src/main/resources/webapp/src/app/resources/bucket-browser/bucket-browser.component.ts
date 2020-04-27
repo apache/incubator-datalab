@@ -32,6 +32,7 @@ import {HttpErrorResponse, HttpEventType} from '@angular/common/http';
 import {catchError, map} from 'rxjs/operators';
 import {of} from 'rxjs';
 
+
 @Component({
   selector: 'dlab-bucket-browser',
   templateUrl: './bucket-browser.component.html',
@@ -94,6 +95,7 @@ export class BucketBrowserComponent implements OnInit {
     if (!file.isSelected) {
       this.folderItems.forEach(item => item.isSelected = false);
     }
+
     file.isSelected = !file.isSelected;
     this.selected = this.folderItems.filter(item => item.isSelected);
   }
@@ -103,7 +105,6 @@ export class BucketBrowserComponent implements OnInit {
     Array.prototype.forEach.call(files, file => {
       this.addedFiles.push(file.webkitRelativePath);
     });
-
   }
 
   public onFolderClick(event) {
@@ -118,6 +119,7 @@ export class BucketBrowserComponent implements OnInit {
       this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
       this.folderItems.forEach(item => item.isSelected = false);
     }
+
   }
 
   public deleteAddedFile(file) {
@@ -131,8 +133,7 @@ export class BucketBrowserComponent implements OnInit {
     formData.append('file', this.uploadForm.get('file').value);
     formData.append('object', path);
     formData.append('bucket', this.bucketName);
-    formData.append('endpoint', this.endpoint);
-    // file.inProgress = true;
+    formData.append('endpoint', this.endpoint);    
     this.isUploading = true;
     this.bucketBrowserService.uploadFile(formData)
       .subscribe((event: any) => {
@@ -161,6 +162,7 @@ export class BucketBrowserComponent implements OnInit {
 
     if (action === 'delete') {
       this.bucketBrowserService.deleteFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}`).subscribe(() => {
+
         this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
           this.toastr.success('File successfully deleted!', 'Success!');
         this.folderItems.forEach(item => item.isSelected = false);

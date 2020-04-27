@@ -132,6 +132,10 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(and(eq(PROJECT, project), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
 	}
 
+	public List<UserInstanceDTO> fetchRunningExploratoryFieldsForProject(String project, List<String> endpoints) {
+		return getUserInstances(and(eq(PROJECT, project), eq(STATUS, UserInstanceStatus.RUNNING.toString()), in(ENDPOINT, endpoints)), false);
+	}
+
 	public List<UserInstanceDTO> fetchExploratoryFieldsForProject(String project) {
 		return getUserInstances(and(eq(PROJECT, project)), false);
 	}

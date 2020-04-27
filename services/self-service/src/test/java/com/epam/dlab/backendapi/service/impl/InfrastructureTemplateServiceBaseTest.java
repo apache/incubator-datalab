@@ -41,11 +41,23 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InfrastructureTemplateServiceBaseTest {
@@ -89,7 +101,7 @@ public class InfrastructureTemplateServiceBaseTest {
 		emDto2.setExploratoryEnvironmentShapes(shapes2);
 		List<ExploratoryMetadataDTO> expectedEmdDtoList = Arrays.asList(emDto1, emDto2);
 		when(userGroupDao.getUserGroups(anyString())).thenReturn(Collections.emptySet());
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedEmdDtoList.toArray());
+		when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(expectedEmdDtoList.toArray());
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
 		UserInfo userInfo = new UserInfo("test", "token");
@@ -108,7 +120,7 @@ public class InfrastructureTemplateServiceBaseTest {
 	public void getExploratoryTemplatesWithException() {
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		doThrow(new DlabException("Could not load list of exploratory templates for user"))
-				.when(provisioningService).get(anyString(), anyString(), any());
+				.when(provisioningService).get(anyString(), anyString(), any(Class.class));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
@@ -131,7 +143,7 @@ public class InfrastructureTemplateServiceBaseTest {
 		);
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
 				null, null, null, null, true)));
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
+		when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
 				.map(e -> infrastructureTemplateServiceBaseChild.getCloudFullComputationalTemplate(e))
@@ -154,7 +166,7 @@ public class InfrastructureTemplateServiceBaseTest {
 	public void getComputationalTemplatesWhenMethodThrowsException() {
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		doThrow(new DlabException("Could not load list of computational templates for user"))
-				.when(provisioningService).get(anyString(), anyString(), any());
+				.when(provisioningService).get(anyString(), anyString(), any(Class.class));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
@@ -173,7 +185,7 @@ public class InfrastructureTemplateServiceBaseTest {
 		final ComputationalMetadataDTO computationalMetadataDTO = new ComputationalMetadataDTO("dataengine-service");
 		computationalMetadataDTO.setComputationResourceShapes(Collections.emptyMap());
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(computationalMetadataDTO);
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
+		when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
 				null, null, null, null, true)));
 		when(configuration.getMinEmrInstanceCount()).thenReturn(1);

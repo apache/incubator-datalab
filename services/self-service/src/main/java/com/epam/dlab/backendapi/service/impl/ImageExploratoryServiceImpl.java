@@ -24,9 +24,11 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
@@ -71,10 +73,12 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	private RequestBuilder requestBuilder;
 	@Inject
 	private EndpointService endpointService;
+	@Inject
+	private ProjectService projectService;
 
 	@Override
 	public String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription) {
-
+		ProjectDTO projectDTO = projectService.get(project);
 		UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), project, exploratoryName);
 
 		if (imageExploratoryDao.exist(imageName, userInstance.getProject())) {
@@ -105,7 +109,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 		EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 		return provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_IMAGE,
 				user.getAccessToken(),
-				requestBuilder.newExploratoryImageCreate(user, userInstance, imageName, endpointDTO), String.class);
+				requestBuilder.newExploratoryImageCreate(user, userInstance, imageName, endpointDTO, projectDTO), String.class);
 	}
 
 	@Override

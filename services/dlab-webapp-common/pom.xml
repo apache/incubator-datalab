@@ -57,6 +57,11 @@
             <version>${io.dropwizard.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-forms</artifactId>
+            <version>${io.dropwizard.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.epam.dlab</groupId>
             <artifactId>common</artifactId>
         </dependency>

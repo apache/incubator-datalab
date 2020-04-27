@@ -7,11 +7,13 @@ import {BucketDataService} from '../bucket-data.service';
 import {Subscription} from 'rxjs';
 
 
+
 @Component({
   selector: 'dlab-folder-tree',
   templateUrl: './folder-tree.component.html',
   styleUrls: ['./folder-tree.component.scss']
 })
+
 export class FolderTreeComponent implements OnInit, OnDestroy {
 
   @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
@@ -121,9 +123,8 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     }
   }
 
-
-
   private descendantsAllSelected(node: TodoItemFlatNode): boolean {
+
     const descendants = this.treeControl.getDescendants(node);
     const descAllSelected = descendants.every(child =>
       this.checklistSelection.isSelected(child)
@@ -132,6 +133,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   }
 
   private descendantsPartiallySelected(node: TodoItemFlatNode): boolean {
+
     const descendants = this.treeControl.getDescendants(node);
     const result = descendants.some(child => this.checklistSelection.isSelected(child));
     return result && !this.descendantsAllSelected(node);
@@ -164,6 +166,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     }
   }
 
+
   private checkRootNodeSelection(node: TodoItemFlatNode): void {
     const nodeSelected = this.checklistSelection.isSelected(node);
     const descendants = this.treeControl.getDescendants(node);
@@ -179,7 +182,6 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
 
   private getParentNode(node: TodoItemFlatNode): TodoItemFlatNode | null {
     const currentLevel = this.getLevel(node);
-
     if (currentLevel < 1) {
       return null;
     }
@@ -195,7 +197,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     }
     return null;
   }
-
+  
   private addNewItem(node: TodoItemFlatNode, file, isFile, path) {
     const parentNode = this.flatNodeMap.get(node);
     this.bucketDataService.insertItem(parentNode!, file, isFile);
@@ -205,5 +207,6 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   private saveNode(node: TodoItemFlatNode, itemValue: string) {
     const nestedNode = this.flatNodeMap.get(node);
     this.bucketDataService.updateItem(nestedNode!, itemValue);
+
   }
 }

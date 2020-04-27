@@ -22,7 +22,7 @@
     <h4 class="modal-title">Bucket browser</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
-
+  
   <div class="dialog-content tabs" [hidden]="!path" >
     <div class="submit m-bott-10 m-top-10">
       <button mat-raised-button type="button" class="butt action"><input type="file" (change)="handleFileInput($event)">Add file</button>
@@ -82,11 +82,12 @@
       <button *ngIf="this.addedFiles.length !== 0" type="button" class="butt butt-success" mat-raised-button (click)="uploadNewFile()">Upload</button>
     </div>
   </div>
-
-    <div class="loading-block" *ngIf="!path">
-      <div class="uploading">
-        <p>Please wait until DLab loads bucket: <span class="strong">{{data.bucket}}</span>...</p>
-        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-      </div>
+  
+  <div class="loading-block" *ngIf="!path">
+    <div class="uploading">
+      <p>Please wait until DLab loads bucket: <span class="strong">{{data.bucket}}</span>...</p>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     </div>
+  </div>
+
 </div>

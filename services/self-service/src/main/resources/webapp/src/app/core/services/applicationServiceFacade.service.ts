@@ -253,6 +253,7 @@ export class ApplicationServiceFacade {
       null);
   }
 
+
   public buildGetBucketData(data): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),

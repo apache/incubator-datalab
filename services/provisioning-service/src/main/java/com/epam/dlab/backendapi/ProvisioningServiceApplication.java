@@ -26,7 +26,16 @@ import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
 import com.epam.dlab.backendapi.modules.CloudModuleConfigurator;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
-import com.epam.dlab.backendapi.resources.*;
+import com.epam.dlab.backendapi.resources.BackupResource;
+import com.epam.dlab.backendapi.resources.BucketResource;
+import com.epam.dlab.backendapi.resources.CallbackHandlerResource;
+import com.epam.dlab.backendapi.resources.DockerResource;
+import com.epam.dlab.backendapi.resources.GitExploratoryResource;
+import com.epam.dlab.backendapi.resources.ImageResource;
+import com.epam.dlab.backendapi.resources.InfrastructureResource;
+import com.epam.dlab.backendapi.resources.LibraryResource;
+import com.epam.dlab.backendapi.resources.ProjectResource;
+import com.epam.dlab.backendapi.resources.ProvisioningHealthCheckResource;
 import com.epam.dlab.backendapi.resources.base.KeyResource;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.dlab.cloud.CloudModule;
@@ -47,6 +56,7 @@ import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfigurat
 import io.dropwizard.Application;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.Authorizer;
+import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -66,16 +76,17 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 
 	@Override
 	public void initialize(Bootstrap<ProvisioningServiceApplicationConfiguration> bootstrap) {
-		bootstrap.addBundle(new TemplateConfigBundle(
-				new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
-		));
-		bootstrap.addBundle(new KeycloakBundle<ProvisioningServiceApplicationConfiguration>() {
-			@Override
-			protected KeycloakConfiguration getKeycloakConfiguration(ProvisioningServiceApplicationConfiguration configuration) {
-				return configuration.getKeycloakConfiguration();
-			}
+        bootstrap.addBundle(new MultiPartBundle());
+        bootstrap.addBundle(new TemplateConfigBundle(
+                new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
+        ));
+        bootstrap.addBundle(new KeycloakBundle<ProvisioningServiceApplicationConfiguration>() {
+            @Override
+            protected KeycloakConfiguration getKeycloakConfiguration(ProvisioningServiceApplicationConfiguration configuration) {
+                return configuration.getKeycloakConfiguration();
+            }
 
-			@Override
+            @Override
 			protected Class<? extends Principal> getUserClass() {
 				return UserInfo.class;
 			}
@@ -145,5 +156,6 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 		jersey.register(injector.getInstance(CallbackHandlerResource.class));
 		jersey.register(injector.getInstance(ProjectResource.class));
 		jersey.register(injector.getInstance(ProvisioningHealthCheckResource.class));
+		environment.jersey().register(injector.getInstance(BucketResource.class));
 	}
 }

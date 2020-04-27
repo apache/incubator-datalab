@@ -17,17 +17,21 @@
  * under the License.
  */
 
-package com.epam.dlab.constants;
+package com.epam.dlab.backendapi.service;
 
-public final class ServiceConsts {
-	public static final String MONGO_NAME = "mongo";
-	public static final String PROVISIONING_SERVICE_NAME = "provisioningService";
-	public static final String BUCKET_SERVICE_NAME = "bucketService";
-	public static final String MAVEN_SEARCH_API = "mavenSearchService";
-	public static final String SECURITY_SERVICE_NAME = "securityService";
-	public static final String SELF_SERVICE_NAME = "selfService";
-	public static final String PROVISIONING_USER_AGENT = "provisioning-service";
+import com.epam.dlab.dto.bucket.BucketDTO;
 
-	private ServiceConsts() {
-	}
+import java.io.InputStream;
+import java.util.List;
+
+public interface BucketService {
+    String DATE_FORMAT = "dd-M-yyyy hh:mm:ss";
+
+    List<BucketDTO> getObjects(String bucket);
+
+    void uploadObject(String bucket, String object, InputStream stream);
+
+    byte[] downloadObject(String bucket, String object);
+
+    void deleteObject(String bucket, String object);
 }

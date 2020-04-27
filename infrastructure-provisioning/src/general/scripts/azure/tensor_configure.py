@@ -72,7 +72,7 @@ if __name__ == "__main__":
                 notebook_config['project_name'],
                 notebook_config['endpoint_name'],
                 os.environ['application'])
-            notebook_config['image_tags'] = {"Name": notebook_config['instance_name'],
+            notebook_config['image_tags'] = {"Name": notebook_config['expected_image_name'],
                                              "SBN": notebook_config['service_base_name'],
                                              "User": notebook_config['user_name'],
                                              "project_tag": notebook_config['project_tag'],
@@ -84,7 +84,7 @@ if __name__ == "__main__":
                 notebook_config['service_base_name'],
                 notebook_config['endpoint_name'],
                 os.environ['application'])
-            notebook_config['image_tags'] = {"Name": notebook_config['instance_name'],
+            notebook_config['image_tags'] = {"Name": notebook_config['expected_image_name'],
                                              "SBN": notebook_config['service_base_name'],
                                              "User": notebook_config['user_name'],
                                              "endpoint_tag": notebook_config['endpoint_tag'],

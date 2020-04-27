@@ -41,6 +41,7 @@ import { Observable } from 'rxjs';
       && !request.headers.has('Upload')
       && request.url.indexOf('upload') === -1
       && request.url.indexOf('download') === -1)
+
       headersConfig['Content-Type'] = 'application/json; charset=UTF-8';
 
     const header = request.clone({ setHeaders: headersConfig });

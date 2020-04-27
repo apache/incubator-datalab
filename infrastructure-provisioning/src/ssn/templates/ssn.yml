@@ -62,5 +62,10 @@ provisioningService:
     timeout: 3s
     connectionTimeout: 3s
 
+bucketService:
+  jerseyClient:
+    timeout: 5m
+    connectionTimeout: 3s
+
 # Log out user on inactivity
 inactiveUserTimeoutMillSec: 7200000
