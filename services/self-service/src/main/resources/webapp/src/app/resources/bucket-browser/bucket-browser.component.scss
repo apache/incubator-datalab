@@ -18,6 +18,22 @@
  */
 
 .bucket-browser {
+  .loading-block{
+    width: 80%;
+    margin: 29% auto;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    height: 100%;
+    .uploading{
+      width: 100%;
+      text-align: center;
+      p{
+        margin-bottom: 20px;
+      }
+    }
+
+  }
   .path{
     margin: 0 4px 10px 4px;
     padding: 4px 4px 4px 20px;

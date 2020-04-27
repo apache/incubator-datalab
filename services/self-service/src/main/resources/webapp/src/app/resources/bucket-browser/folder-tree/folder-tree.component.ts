@@ -1,8 +1,10 @@
-import {Component, OnInit, AfterViewInit, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, AfterViewInit, Output, EventEmitter, OnDestroy} from '@angular/core';
 import {SelectionModel} from '@angular/cdk/collections';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BucketBrowserService, TodoItemFlatNode, TodoItemNode} from '../../../core/services/bucket-browser.service';
+import {BucketDataService} from '../bucket-data.service';
+import {Subscription} from 'rxjs';
 
 
 @Component({
@@ -10,7 +12,7 @@ import {BucketBrowserService, TodoItemFlatNode, TodoItemNode} from '../../../cor
   templateUrl: './folder-tree.component.html',
   styleUrls: ['./folder-tree.component.scss']
 })
-export class FolderTreeComponent implements OnInit {
+export class FolderTreeComponent implements OnInit, OnDestroy {
 
   @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
 
@@ -20,29 +22,34 @@ export class FolderTreeComponent implements OnInit {
   nestedNodeMap = new Map<TodoItemNode, TodoItemFlatNode>();
   selectedParent: TodoItemFlatNode | null = null;
   newItemName = '';
+  private subscriptions: Subscription = new Subscription();
   treeControl: FlatTreeControl<TodoItemFlatNode>;
   treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
   dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
 
   checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
 
-  constructor(private bucketBrowserService: BucketBrowserService) {
-    this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel,
-      this.isExpandable, this.getChildren);
-
+  constructor(
+    private bucketBrowserService: BucketBrowserService,
+    private bucketDataService: BucketDataService,
+    ) {
+    this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-
-    bucketBrowserService.dataChange.subscribe(data => {
-      this.dataSource.data = data;
+    this.subscriptions.add(bucketDataService._bucketData.subscribe(data => {
+     if (data) {
+       this.dataSource.data = data;
       if (!this.selectedFolder) {
         const subject = this.dataSource._flattenedData;
         subject.subscribe((subjectData) => {
           this.treeControl.expand(subjectData[0]);
           this.showItem(subjectData[0]);
         });
-      }
-    });
+      } else {
+        this.treeControl.expand(this.selectedFolder);
+        this.showItem(this.selectedFolder);
+      }}
+    }));
   }
 
   getLevel = (node: TodoItemFlatNode) => node.level;
@@ -70,11 +77,15 @@ export class FolderTreeComponent implements OnInit {
 
 
   ngOnInit() {
-    // const subject = this.dataSource._flattenedData;
-    // subject.subscribe((data) => {
-    //   this.treeControl.expand(data[0]);
-    //   this.showItem(data[0]);
-    // });
+    const subject = this.dataSource._flattenedData;
+    subject.subscribe((data) => {
+      this.treeControl.expand(data[0]);
+      this.showItem(data[0]);
+    });
+  }
+
+  ngOnDestroy() {
+    this.bucketDataService._bucketData.next([]);
   }
 
   showItem(el) {
@@ -104,6 +115,8 @@ export class FolderTreeComponent implements OnInit {
       return this.path;
     }
   }
+
+
 
   descendantsAllSelected(node: TodoItemFlatNode): boolean {
     const descendants = this.treeControl.getDescendants(node);
@@ -180,12 +193,12 @@ export class FolderTreeComponent implements OnInit {
 
   addNewItem(node: TodoItemFlatNode, file, isFile, path) {
     const parentNode = this.flatNodeMap.get(node);
-    this.bucketBrowserService.insertItem(parentNode!, file, isFile);
+    this.bucketDataService.insertItem(parentNode!, file, isFile);
     this.treeControl.expand(node);
   }
 
   saveNode(node: TodoItemFlatNode, itemValue: string) {
     const nestedNode = this.flatNodeMap.get(node);
-    this.bucketBrowserService.updateItem(nestedNode!, itemValue);
+    this.bucketDataService.updateItem(nestedNode!, itemValue);
   }
 }

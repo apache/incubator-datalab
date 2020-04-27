@@ -37,6 +37,16 @@ export class FileUtils {
     window.URL.revokeObjectURL(url);
   }
 
+  public static downloadBigFiles(data, fileName) {
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    const blob = new Blob([data], { type: 'octet/stream' }),
+      url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
 
   public static copyToClipboard(val: string) {
     const selBox = document.createElement('textarea');

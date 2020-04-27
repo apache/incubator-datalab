@@ -30,6 +30,7 @@ import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.componen
 import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
 import {FolderTreeComponent} from './bucket-browser/folder-tree/folder-tree.component';
 import {MatTreeModule} from '@angular/material/tree';
+import {BucketDataService} from './bucket-browser/bucket-data.service';
 
 @NgModule({
   imports: [
@@ -49,6 +50,7 @@ import {MatTreeModule} from '@angular/material/tree';
     FolderTreeComponent
   ],
   entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog, BucketBrowserComponent, FolderTreeComponent],
+  providers: [BucketDataService],
   exports: [ResourcesComponent]
 })
 export class ResourcesModule { }

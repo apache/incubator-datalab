@@ -22,7 +22,8 @@
     <h4 class="modal-title">Bucket browser</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
-  <div class="dialog-content tabs">
+
+  <div class="dialog-content tabs" [hidden]="!path" >
     <div class="submit m-bott-10 m-top-10">
       <button mat-raised-button type="button" class="butt action"><input type="file" (change)="handleFileInput($event)">Add file</button>
       <button mat-raised-button type="button" class="butt action" (click)="folderTreeComponent.addNewItem(selectedFolder, '', false)">Create folder</button>
@@ -64,7 +65,7 @@
           <li *ngFor="let file of addedFiles" class="folder-item">
             <div class="folder-item-wrapper">
               <div class="name">{{file.item}}</div>
-              <div class="size">{{file.size}} MB</div>
+              <div class="size">{{file.size}}</div>
               <div class="progress-wrapper">
 <!--                <div class="progres">-->
 <!--                  <div class="bar" [ngClass]="{'full': isUploading}">-->
@@ -87,4 +88,11 @@
       <button *ngIf="this.addedFiles.length !== 0" type="button" class="butt butt-success" mat-raised-button (click)="uploadNewFile()">Upload</button>
     </div>
   </div>
+
+    <div class="loading-block" *ngIf="!path">
+      <div class="uploading">
+        <p>Please wait until DLab loads bucket: <span class="strong">{{data.bucket}}</span> data...</p>
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+    </div>
 </div>
