@@ -60,14 +60,14 @@
                 class="strong">{{ notebook.password }}</span></p>
 
             <p class="m-top-30">{{ DICTIONARY[PROVIDER].personal_storage }}: &nbsp;</p>
-            <div class="links_block" (click)="bucketBrowser('project', notebook.endpoint)">
+            <div class="links_block" (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint)">
               <p *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.account_name">{{ DICTIONARY[PROVIDER].account }}
                 <span class="bucket-info">{{ notebook.account_name}}</span></p>
               <p *ngIf="notebook.bucket_name">{{ DICTIONARY[PROVIDER].container }} <span
                   class="bucket-info">{{ notebook.bucket_name }}</span></p>
             </div>
             <p>Shared endpoint bucket: &nbsp;</p>
-            <div class="links_block" (click)="bucketBrowser('endpoint', notebook.endpoint)">
+            <div class="links_block" (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint)">
               <p *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}
                 <span class="bucket-info">{{ notebook.shared_account_name}}</span></p>
               <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY[PROVIDER].container }}
