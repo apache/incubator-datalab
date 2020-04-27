@@ -106,6 +106,12 @@ def configure_zeppelin(os_user):
         try:
             put(templates_dir + 'zeppelin-notebook.service', '/tmp/zeppelin-notebook.service')
             sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/zeppelin-notebook.service")
+            http_proxy = run('echo $http_proxy')
+            https_proxy = run('echo $https_proxy')
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/zeppelin-notebook.service'.format(
+                http_proxy))
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/zeppelin-notebook.service'.format(
+                https_proxy))
             sudo("chmod 644 /tmp/zeppelin-notebook.service")
             sudo('cp /tmp/zeppelin-notebook.service /etc/systemd/system/zeppelin-notebook.service')
             sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')

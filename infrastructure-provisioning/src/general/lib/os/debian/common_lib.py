@@ -44,7 +44,17 @@ def manage_pkg(command, environment, requisites):
                         time.sleep(10)
                     else:
                         allow = True
-                        sudo('apt-get {0} {1}'.format(command, requisites))
+                        sudo('sudo dpkg --configure -a')
+                        sudo('sudo apt update')
+                        try:
+                            sudo('apt-get {0} {1}'.format(command, requisites))
+                        except:
+                            sudo('lsof /var/lib/dpkg/lock')
+                            sudo('lsof /var/lib/apt/lists/lock')
+                            sudo('lsof /var/cache/apt/archives/lock')
+                            sudo('rm -f /var/lib/apt/lists/lock')
+                            sudo('rm -f /var/cache/apt/archives/lock')
+                            sudo('rm -f /var/lib/dpkg/lock')
                 elif environment == 'local':
                     if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
                         counter += 1
