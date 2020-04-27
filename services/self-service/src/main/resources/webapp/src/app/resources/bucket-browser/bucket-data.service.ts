@@ -36,7 +36,7 @@ export class BucketDataService {
 
   public refreshBucketdata(bucket, endpoint) {
     let backetData = [];
-    this.bucketBrowserService.getBacketData(bucket, endpoint).subscribe(v => {
+    this.bucketBrowserService.getBucketData(bucket, endpoint).subscribe(v => {
       this.serverData = v;
       backetData = this.convertToFolderTree(v);
       const data = this.buildFileTree({[bucket]: backetData}, 0);

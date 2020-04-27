@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
-
 import {Observable} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {ErrorUtils} from '../util';
 import {ApplicationServiceFacade} from './applicationServiceFacade.service';
-import {insideWorkspace} from '@angular/cli/utilities/project';
-
 
 export class TodoItemNode {
   children: TodoItemNode[];
@@ -24,17 +21,13 @@ export class TodoItemFlatNode {
   providedIn: 'root'
 })
 export class BucketBrowserService {
-  public dataChange = new BehaviorSubject<TodoItemNode[]>([]);
-  public serverData: any = [];
-  get data(): TodoItemNode[] { return this.dataChange.value; }
-
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {
-    this.initialize();
   }
 
-  public getBacketData(): Observable<{}> {
+  public getBucketData(bucket, endpoint): Observable<{}> {
+    const url = `/${bucket}/endpoint/${endpoint}`;
     return this.applicationServiceFacade
-      .buildGetBucketData()
+      .buildGetBucketData(url)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
@@ -57,7 +50,7 @@ export class BucketBrowserService {
   }
 
   public deleteFile(data) {
-    const url = JSON.stringify(data)
+    const url = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildDeleteFileFromBucket(url)
       .pipe(
