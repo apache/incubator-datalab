@@ -27,11 +27,6 @@ import {FolderTreeComponent} from './folder-tree/folder-tree.component';
 import {BucketBrowserService, TodoItemNode} from '../../core/services/bucket-browser.service';
 import {FileUtils} from '../../core/util';
 import {BucketDataService} from './bucket-data.service';
-import FileSaver from 'file-saver';
-import {HttpErrorResponse, HttpEventType} from '@angular/common/http';
-import {catchError, map} from 'rxjs/operators';
-import {of} from 'rxjs';
-
 
 @Component({
   selector: 'dlab-bucket-browser',
@@ -133,7 +128,7 @@ export class BucketBrowserComponent implements OnInit {
     formData.append('file', this.uploadForm.get('file').value);
     formData.append('object', path);
     formData.append('bucket', this.bucketName);
-    formData.append('endpoint', this.endpoint);    
+    formData.append('endpoint', this.endpoint);
     this.isUploading = true;
     this.bucketBrowserService.uploadFile(formData)
       .subscribe((event: any) => {
