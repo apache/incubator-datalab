@@ -28,7 +28,15 @@
             <span [hidden]="filtering && filterForm.users.length > 0 && !collapsedFilterRow">more_vert</span>
           </i>
         </button> </th>
-      <td mat-cell *matCellDef="let element">{{ element.user }}</td>
+      <td
+        mat-cell *matCellDef="let element"
+        class="user-name"
+        matTooltip="{{element.user}}"
+        matTooltipPosition="above"
+        [matTooltipDisabled]="element.user?.length<30"
+      >
+        <span >{{ element.user }}</span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="project">
@@ -45,14 +53,14 @@
 
     <ng-container matColumnDef="type">
       <th mat-header-cell *matHeaderCellDef class="type label-header">
-        <span class="label">Type</span>
+        <span class="label">Name</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span *ngIf="filtering && filterForm.type.length > 0 && !collapsedFilterRow">filter_list</span>
             <span [hidden]="filtering && filterForm.type.length > 0 && !collapsedFilterRow">more_vert</span>
           </i>
         </button> </th>
-      <td mat-cell *matCellDef="let element">{{ element.name || element.type }}</td>
+      <td type mat-cell *matCellDef="let element">{{ element.name || element.type }}</td>
     </ng-container>
 
     <ng-container matColumnDef="shape">
@@ -174,7 +182,7 @@
     <ng-container matColumnDef="type-filter" sticky>
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <input placeholder="Filter by environment type" type="text" class="form-control filter-field"
-          [value]="filterForm.type" (input)="filterForm.type = $event.target.value" />
+          [value]="filterForm.type" (input)="filterForm.type = $event.target['value']"/>
       </th>
     </ng-container>
     <ng-container matColumnDef="project-filter" sticky>
