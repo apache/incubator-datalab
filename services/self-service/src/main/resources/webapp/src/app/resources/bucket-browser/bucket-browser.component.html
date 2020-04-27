@@ -53,10 +53,10 @@
                 <span class="item-name">{{file.item}}</span>
               </div>
               <div class="size">{{file.size.size}}</div>
-              <div class="size">{{file.size.creationDate }}</div>
-<!--              <div class="progress-wrapper">-->
-<!--&lt;!&ndash;                <div class="progres" *ngIf="file.isSelected"><div class="bar"></div></div>&ndash;&gt;-->
-<!--              </div>-->
+              <div class="size" *ngIf="!file.isDownloading">{{file.size.lastModifiedDate }}</div>
+              <div class="progress-wrapper" *ngIf="file.isDownloading">
+                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              </div>
             </div>
 
           </li>
@@ -65,15 +65,9 @@
           <li *ngFor="let file of addedFiles" class="folder-item">
             <div class="folder-item-wrapper">
               <div class="name">{{file.item}}</div>
-              <div class="size">{{file.size}}</div>
+              <div class="size">{{file.size}}MB</div>
               <div class="progress-wrapper">
-<!--                <div class="progres">-->
-<!--                  <div class="bar" [ngClass]="{'full': isUploading}">-->
-<!--                    -->
-<!--                  </div>-->
-
-<!--                </div>-->
-              <mat-progress-bar mode="indeterminate" *ngIf="isUploading"></mat-progress-bar>
+                <mat-progress-bar mode="indeterminate" *ngIf="isUploading"></mat-progress-bar>
               </div>
               <div (click)="deleteAddedFile(file)"><i class="material-icons close">close</i></div>
             </div>
@@ -91,7 +85,7 @@
 
     <div class="loading-block" *ngIf="!path">
       <div class="uploading">
-        <p>Please wait until DLab loads bucket: <span class="strong">{{data.bucket}}</span> data...</p>
+        <p>Please wait until DLab loads bucket: <span class="strong">{{data.bucket}}</span>...</p>
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       </div>
     </div>

@@ -722,10 +722,10 @@ export class ApplicationServiceFacade {
 
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {
     // added to simplify development process
-    let url = environment.production ? url_path : API_URL + url_path;
-    if (url_path.indexOf('/api/bucket') !== -1) {
-      url = 'https://35.233.183.55' + url_path;
-    }
+    const url = environment.production ? url_path : API_URL + url_path;
+    // if (url_path.indexOf('/api/bucket') !== -1) {
+    //   url = 'https://35.233.183.55' + url_path;
+    // }
 
     if (method === HTTPMethod.POST) {
       return this.http.post(url, body, opt);
@@ -734,8 +734,6 @@ export class ApplicationServiceFacade {
     } else if (method === HTTPMethod.PUT) {
       return this.http.put(url, body, opt);
     } else {
-      console.log('GET');
-      console.log(url);
       return this.http.get(body ? (url + body) : url, opt);
     }
   }

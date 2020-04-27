@@ -3,6 +3,7 @@ import {Observable} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {ErrorUtils} from '../util';
 import {ApplicationServiceFacade} from './applicationServiceFacade.service';
+import {insideWorkspace} from '@angular/cli/utilities/project';
 
 export class TodoItemNode {
   children: TodoItemNode[];
@@ -25,7 +26,7 @@ export class BucketBrowserService {
   }
 
   public getBacketData(bucket, endpoint): Observable<{}> {
-    const url = `/${bucket}/endpoint/${endpoint}`
+    const url = `/${bucket}/endpoint/${endpoint}`;
     return this.applicationServiceFacade
       .buildGetBucketData(url)
       .pipe(
@@ -57,4 +58,5 @@ export class BucketBrowserService {
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
+
 }

@@ -36,19 +36,19 @@ export class BucketDataService {
 
   public refreshBucketdata(bucket, endpoint) {
     let backetData = [];
-    // this.bucketBrowserService.getBacketData(bucket, endpoint).subscribe(v => {
-    //   this.serverData = v;
-    //   backetData = this.convertToFolderTree(v);
+    this.bucketBrowserService.getBacketData(bucket, endpoint).subscribe(v => {
+      this.serverData = v;
+      backetData = this.convertToFolderTree(v);
+      const data = this.buildFileTree({[bucket]: backetData}, 0);
+      this._bucketData.next(data);
+    });
+
+    //   this.serverData = array;
+    //   backetData = this.convertToFolderTree(array);
     //   const data = this.buildFileTree({[bucket]: backetData}, 0);
     //   this._bucketData.next(data);
-    // });
-
-    this.serverData = array;
-    backetData = this.convertToFolderTree(array);
-    const data = this.buildFileTree({[bucket]: backetData}, 0);
-    this._bucketData.next(data);
+    // }
   }
-
   public buildFileTree(obj: {[key: string]: any}, level: number): TodoItemNode[] {
       return Object.keys(obj).reduce<TodoItemNode[]>((accumulator, key) => {
         const value = obj[key];
@@ -91,14 +91,13 @@ export class BucketDataService {
         }
         pointer = pointer[file];
       });
-
-    };
+    }
 
     public processFolderArray = (acc, curr) => {
       const files = curr.object.split('/').filter(x => x.length > 0);
       this.processFiles(files, acc);
       return acc;
-    };
+    }
 
     public convertToFolderTree = (data) => data
       .reduce(

@@ -27,6 +27,10 @@ import {FolderTreeComponent} from './folder-tree/folder-tree.component';
 import {BucketBrowserService, TodoItemNode} from '../../core/services/bucket-browser.service';
 import {FileUtils} from '../../core/util';
 import {BucketDataService} from './bucket-data.service';
+import FileSaver from 'file-saver';
+import {HttpErrorResponse, HttpEventType} from '@angular/common/http';
+import {catchError, map} from 'rxjs/operators';
+import {of} from 'rxjs';
 
 @Component({
   selector: 'dlab-bucket-browser',
@@ -62,8 +66,7 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   ngOnInit() {
-    setTimeout(() => this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint), 3000);
-    // this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
+    this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
     this.endpoint = this.data.endpoint;
     this.uploadForm = this.formBuilder.group({
       file: ['']
@@ -80,9 +83,8 @@ export class BucketBrowserComponent implements OnInit {
       const file = event.target.files[0];
       this.uploadForm.get('file').setValue(file);
       const newAddedFiles = Object['values'](event.target.files).map(v => (
-        {item: v.name, 'size': (v.size / 1048576).toFixed(2)} as unknown as TodoItemNode
-      ));
-      this.addedFiles = [...this.addedFiles, ...newAddedFiles];
+        {item: v['name'], 'size': (v['size'] / 1048576).toFixed(2)} as unknown as TodoItemNode  ));
+      this.addedFiles = [...newAddedFiles];
     }
   }
 
@@ -97,7 +99,6 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   filesPicked(files) {
-    // console.log(files);
 
     Array.prototype.forEach.call(files, file => {
       this.addedFiles.push(file.webkitRelativePath);
@@ -108,13 +109,15 @@ export class BucketBrowserComponent implements OnInit {
   public onFolderClick(event) {
     this.selectedFolder = event.flatNode;
     this.folderItems = event.element ? event.element.children : event.children;
-    const folders = this.folderItems.filter(v => v.children).sort((a, b) => a.item > b.item ? 1 : -1);
-    const files = this.folderItems.filter(v => !v.children).sort((a, b) => a.item > b.item ? 1 : -1);
-    this.folderItems = [...folders, ...files];
-    this.path = event.path;
-    this.pathInsideBucket = this.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) + '/' : '';
-    this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
-    this.folderItems.forEach(item => item.isSelected = false);
+    if (this.folderItems) {
+      const folders = this.folderItems.filter(v => v.children).sort((a, b) => a.item > b.item ? 1 : -1);
+      const files = this.folderItems.filter(v => !v.children).sort((a, b) => a.item > b.item ? 1 : -1);
+      this.folderItems = [...folders, ...files];
+      this.path = event.path;
+      this.pathInsideBucket = this.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) + '/' : '';
+      this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
+      this.folderItems.forEach(item => item.isSelected = false);
+    }
   }
 
   public deleteAddedFile(file) {
@@ -132,25 +135,7 @@ export class BucketBrowserComponent implements OnInit {
     // file.inProgress = true;
     this.isUploading = true;
     this.bucketBrowserService.uploadFile(formData)
-      // .pipe(
-      // map(event => {
-      //   switch (event.type) {
-      //     case HttpEventType.UploadProgress:
-      //       file.progress = Math.round(event.loaded * 100 / event.total);
-      //       break;
-      //     case HttpEventType.Response:
-      //       return event;
-      //   }
-      // }),
-      // catchError((error: HttpErrorResponse) => {
-      //   file.inProgress = false;
-      //   return of(`${file.name} upload failed.`);
-      // }))
       .subscribe((event: any) => {
-      //   if (typeof (event) === 'object') {
-      //     console.log(event.body);
-      //   }
-      // this.isUploading = false;
         this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
         this.addedFiles = [];
         this.isUploading = false;
@@ -161,10 +146,14 @@ export class BucketBrowserComponent implements OnInit {
 
   public fileAction(action) {
     this.selected = this.folderItems.filter(item => item.isSelected);
+    const selected = this.folderItems.filter(item => item.isSelected)[0];
     const path = encodeURIComponent(`${this.pathInsideBucket}${this.selected[0].item}`);
     if (action === 'download') {
-      this.bucketBrowserService.downloadFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}/download`).subscribe(data =>  {
-        FileUtils.downloadBigFiles(data, this.selected[0].item);
+      selected['isDownloading'] = true;
+      this.bucketBrowserService.downloadFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}/download`)
+        .subscribe(data =>  {
+        FileUtils.downloadBigFiles(data, selected.item);
+        selected['isDownloading'] = false;
         this.folderItems.forEach(item => item.isSelected = false);
         }, error => this.toastr.error(error.message || 'File downloading error!', 'Oops!')
       );
@@ -179,7 +168,6 @@ export class BucketBrowserComponent implements OnInit {
       );
     }
   }
-
 }
 
 

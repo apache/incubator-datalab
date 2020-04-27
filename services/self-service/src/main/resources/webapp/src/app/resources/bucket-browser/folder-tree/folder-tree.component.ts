@@ -15,19 +15,19 @@ import {Subscription} from 'rxjs';
 export class FolderTreeComponent implements OnInit, OnDestroy {
 
   @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
-
-  path = [];
-  selectedFolder: TodoItemFlatNode;
-  flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
-  nestedNodeMap = new Map<TodoItemNode, TodoItemFlatNode>();
-  selectedParent: TodoItemFlatNode | null = null;
-  newItemName = '';
+  private folderTreeSubs;
+  private path = [];
+  private selectedFolder: TodoItemFlatNode;
+  private flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
+  private nestedNodeMap = new Map<TodoItemNode, TodoItemFlatNode>();
+  private selectedParent: TodoItemFlatNode | null = null;
+  private newItemName = '';
   private subscriptions: Subscription = new Subscription();
-  treeControl: FlatTreeControl<TodoItemFlatNode>;
-  treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
-  dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
+  public treeControl: FlatTreeControl<TodoItemFlatNode>;
+  private treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
+  public dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
 
-  checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
+  private checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
 
   constructor(
     private bucketBrowserService: BucketBrowserService,
@@ -36,19 +36,19 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+
     this.subscriptions.add(bucketDataService._bucketData.subscribe(data => {
      if (data) {
        this.dataSource.data = data;
-      if (!this.selectedFolder) {
         const subject = this.dataSource._flattenedData;
-        subject.subscribe((subjectData) => {
-          this.treeControl.expand(subjectData[0]);
-          this.showItem(subjectData[0]);
+       this.folderTreeSubs = subject.subscribe((subjectData) => {
+          if (this.selectedFolder) {
+            this.selectedFolder = subjectData.filter(v => v.item === this.selectedFolder.item && v.level === this.selectedFolder.level)[0];
+          }
+          this.expandAllParents(this.selectedFolder || subjectData[0]);
+          this.showItem(this.selectedFolder || subjectData[0]);
         });
-      } else {
-        this.treeControl.expand(this.selectedFolder);
-        this.showItem(this.selectedFolder);
-      }}
+      }
     }));
   }
 
@@ -77,18 +77,14 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    const subject = this.dataSource._flattenedData;
-    subject.subscribe((data) => {
-      this.treeControl.expand(data[0]);
-      this.showItem(data[0]);
-    });
   }
 
   ngOnDestroy() {
+    this.folderTreeSubs.unsubscribe();
     this.bucketDataService._bucketData.next([]);
   }
 
-  showItem(el) {
+  private showItem(el) {
     if (el) {
       this.treeControl.expand(el);
       this.selectedFolder = el;
@@ -103,7 +99,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     }
   }
 
-  getPath(el) {
+  private getPath(el) {
     if (el) {
       if (this.path.length === 0) {
         this.path.unshift(el.item);
@@ -116,9 +112,18 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     }
   }
 
+  private expandAllParents(el) {
+    if (el) {
+      this.treeControl.expand(el);
+      if (this.getParentNode(el) !== null) {
+        this.expandAllParents(this.getParentNode(el));
+      }
+    }
+  }
 
 
-  descendantsAllSelected(node: TodoItemFlatNode): boolean {
+
+  private descendantsAllSelected(node: TodoItemFlatNode): boolean {
     const descendants = this.treeControl.getDescendants(node);
     const descAllSelected = descendants.every(child =>
       this.checklistSelection.isSelected(child)
@@ -126,13 +131,13 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     return descAllSelected;
   }
 
-  descendantsPartiallySelected(node: TodoItemFlatNode): boolean {
+  private descendantsPartiallySelected(node: TodoItemFlatNode): boolean {
     const descendants = this.treeControl.getDescendants(node);
     const result = descendants.some(child => this.checklistSelection.isSelected(child));
     return result && !this.descendantsAllSelected(node);
   }
 
-  todoItemSelectionToggle(node: TodoItemFlatNode): void {
+  private todoItemSelectionToggle(node: TodoItemFlatNode): void {
     this.checklistSelection.toggle(node);
   const descendants = this.treeControl.getDescendants(node);
   this.checklistSelection.isSelected(node)
@@ -146,12 +151,12 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   this.checkAllParentsSelection(node);
 }
 
-  todoLeafItemSelectionToggle(node: TodoItemFlatNode): void {
+  private todoLeafItemSelectionToggle(node: TodoItemFlatNode): void {
     this.checklistSelection.toggle(node);
     this.checkAllParentsSelection(node);
   }
 
-  checkAllParentsSelection(node: TodoItemFlatNode): void {
+  private checkAllParentsSelection(node: TodoItemFlatNode): void {
     let parent: TodoItemFlatNode | null = this.getParentNode(node);
     while (parent) {
       this.checkRootNodeSelection(parent);
@@ -159,7 +164,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     }
   }
 
-  checkRootNodeSelection(node: TodoItemFlatNode): void {
+  private checkRootNodeSelection(node: TodoItemFlatNode): void {
     const nodeSelected = this.checklistSelection.isSelected(node);
     const descendants = this.treeControl.getDescendants(node);
     const descAllSelected = descendants.every(child =>
@@ -172,7 +177,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     }
   }
 
-  getParentNode(node: TodoItemFlatNode): TodoItemFlatNode | null {
+  private getParentNode(node: TodoItemFlatNode): TodoItemFlatNode | null {
     const currentLevel = this.getLevel(node);
 
     if (currentLevel < 1) {
@@ -191,13 +196,13 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  addNewItem(node: TodoItemFlatNode, file, isFile, path) {
+  private addNewItem(node: TodoItemFlatNode, file, isFile, path) {
     const parentNode = this.flatNodeMap.get(node);
     this.bucketDataService.insertItem(parentNode!, file, isFile);
     this.treeControl.expand(node);
   }
 
-  saveNode(node: TodoItemFlatNode, itemValue: string) {
+  private saveNode(node: TodoItemFlatNode, itemValue: string) {
     const nestedNode = this.flatNodeMap.get(node);
     this.bucketDataService.updateItem(nestedNode!, itemValue);
   }
