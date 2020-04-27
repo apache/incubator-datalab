@@ -26,6 +26,7 @@ import { ManageUngitService } from '../../core/services';
 import {FolderTreeComponent} from './folder-tree/folder-tree.component';
 import {BucketBrowserService, TodoItemNode} from '../../core/services/bucket-browser.service';
 import {FileUtils} from '../../core/util';
+import {BucketDataService} from './bucket-data.service';
 
 @Component({
   selector: 'dlab-bucket-browser',
@@ -33,7 +34,6 @@ import {FileUtils} from '../../core/util';
   styleUrls: ['./bucket-browser.component.scss']
 })
 export class BucketBrowserComponent implements OnInit {
-  public filenames: Array<any> = [];
   public addedFiles = [];
   public folderItems = [];
   public path = '';
@@ -55,13 +55,14 @@ export class BucketBrowserComponent implements OnInit {
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
     private bucketBrowserService: BucketBrowserService,
+    private bucketDataService: BucketDataService,
     private formBuilder: FormBuilder
   ) {
 
   }
 
   ngOnInit() {
-    // this.bucketBrowserService.getBacketData();
+    this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
     this.endpoint = this.data.endpoint;
     this.uploadForm = this.formBuilder.group({
       file: ['']
@@ -74,54 +75,46 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public handleFileInput(event) {
-    //   for (let i = 0; i < files.length; i++) {
-    //     const file = files[i];
-    //     const path = file.webkitRelativePath.split('/');
-    //   }
-    // }
     if (event.target.files.length > 0) {
       const file = event.target.files[0];
       this.uploadForm.get('file').setValue(file);
-      this.filenames = Object['values'](event.target.files).map(v => ({item: v.name, 'size': (v.size / 1048576).toFixed(2)} as unknown as TodoItemNode));
-      this.addedFiles = [...this.addedFiles, ...this.filenames];
+      const newAddedFiles = Object['values'](event.target.files).map(v => (
+        {item: v['name'], 'size': (v['size'] / 1048576).toFixed(2)} as unknown as TodoItemNode  ));
+      this.addedFiles = [...newAddedFiles];
     }
-
   }
 
+
   public toggleSelectedFile(file) {
+   // remove if when will be possible download several files
+    if (!file.isSelected) {
+      this.folderItems.forEach(item => item.isSelected = false);
+    }
+
     file.isSelected = !file.isSelected;
     this.selected = this.folderItems.filter(item => item.isSelected);
   }
 
   filesPicked(files) {
-    // console.log(files);
 
     Array.prototype.forEach.call(files, file => {
       this.addedFiles.push(file.webkitRelativePath);
     });
-    // console.log(this.addedFiles);
   }
 
   public onFolderClick(event) {
     this.selectedFolder = event.flatNode;
     this.folderItems = event.element ? event.element.children : event.children;
-    // this.folderItems = this.folderItems.sort((a, b) => (a.children > b.children) ? 1 : -1)
-    // console.log(this.folderItems);
-    this.path = event.path;
-    this.pathInsideBucket = this.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) + '/' : '';
-    this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
-    this.folderItems.forEach(item => item.isSelected = false);
-  }
+    if (this.folderItems) {
+      const folders = this.folderItems.filter(v => v.children).sort((a, b) => a.item > b.item ? 1 : -1);
+      const files = this.folderItems.filter(v => !v.children).sort((a, b) => a.item > b.item ? 1 : -1);
+      this.folderItems = [...folders, ...files];
+      this.path = event.path;
+      this.pathInsideBucket = this.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) + '/' : '';
+      this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
+      this.folderItems.forEach(item => item.isSelected = false);
+    }
 
-  private upload(tree, path) {
-    tree.files.forEach(file => {
-      this.addedFiles.push(path + file.name);
-    });
-    tree.directories.forEach(directory => {
-      const newPath = path + directory.name + '/';
-      this.addedFiles.push(newPath);
-      this.upload(directory, newPath);
-    });
   }
 
   public deleteAddedFile(file) {
@@ -134,31 +127,12 @@ export class BucketBrowserComponent implements OnInit {
     const formData = new FormData();
     formData.append('file', this.uploadForm.get('file').value);
     formData.append('object', path);
-    formData.append('bucket', 'ofuks-1304-prj1-local-bucket');
+    formData.append('bucket', this.bucketName);
     formData.append('endpoint', this.endpoint);
-    // file.inProgress = true;
     this.isUploading = true;
     this.bucketBrowserService.uploadFile(formData)
-      // .pipe(
-      // map(event => {
-      //   switch (event.type) {
-      //     case HttpEventType.UploadProgress:
-      //       file.progress = Math.round(event.loaded * 100 / event.total);
-      //       break;
-      //     case HttpEventType.Response:
-      //       return event;
-      //   }
-      // }),
-      // catchError((error: HttpErrorResponse) => {
-      //   file.inProgress = false;
-      //   return of(`${file.name} upload failed.`);
-      // }))
       .subscribe((event: any) => {
-      //   if (typeof (event) === 'object') {
-      //     console.log(event.body);
-      //   }
-      // this.isUploading = false;
-        this.bucketBrowserService.initialize();
+        this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
         this.addedFiles = [];
         this.isUploading = false;
         this.toastr.success('File successfully uploaded!', 'Success!');
@@ -168,37 +142,29 @@ export class BucketBrowserComponent implements OnInit {
 
   public fileAction(action) {
     this.selected = this.folderItems.filter(item => item.isSelected);
+    const selected = this.folderItems.filter(item => item.isSelected)[0];
     const path = encodeURIComponent(`${this.pathInsideBucket}${this.selected[0].item}`);
     if (action === 'download') {
-      this.bucketBrowserService.downloadFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}/download`
-      ).subscribe(data =>  {
-        FileUtils.downloadFile(data);
-        // this.downLoadFile(response, 'aplication/octet-stream');
-          this.toastr.success('File downloading started!', 'Success!');
+      selected['isDownloading'] = true;
+      this.bucketBrowserService.downloadFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}/download`)
+        .subscribe(data =>  {
+        FileUtils.downloadBigFiles(data, selected.item);
+        selected['isDownloading'] = false;
+        this.folderItems.forEach(item => item.isSelected = false);
         }, error => this.toastr.error(error.message || 'File downloading error!', 'Oops!')
       );
     }
 
     if (action === 'delete') {
       this.bucketBrowserService.deleteFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}`).subscribe(() => {
-        this.bucketBrowserService.initialize();
+
+        this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
           this.toastr.success('File successfully deleted!', 'Success!');
+        this.folderItems.forEach(item => item.isSelected = false);
         }, error => this.toastr.error(error.message || 'File deleting error!', 'Oops!')
       );
     }
-
-    this.folderItems.forEach(item => item.isSelected = false);
-    this.selected = this.folderItems.filter(item => item.isSelected);
   }
-
-  // downLoadFile(data: any, type: string) {
-  //   const blob = new Blob([data], { type: type});
-  //   const url = window.URL.createObjectURL(blob);
-  //   const pwa = window.open(url);
-  //   if (!pwa || pwa.closed || typeof pwa.closed === 'undefined') {
-  //     alert( 'Please disable your Pop-up blocker and try again.');
-  //   }
-  // }
 }
 
 

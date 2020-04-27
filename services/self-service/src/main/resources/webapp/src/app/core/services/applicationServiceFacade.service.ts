@@ -22,7 +22,6 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 import { Dictionary } from '../collections';
-
 import { environment } from '../../../environments/environment';
 import { HTTPMethod } from '../util';
 
@@ -254,10 +253,11 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public buildGetBucketData(): Observable<any> {
+
+  public buildGetBucketData(data): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
-      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/ofuks-1304-prj1-local-bucket/endpoint/local',
-     null);
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
+      data);
   }
 
   public buildUploadFileToBucket(data): Observable<any> {
@@ -266,10 +266,12 @@ export class ApplicationServiceFacade {
       data);
   }
 
-  public buildDownloadFileFromBucket(data): Observable<any> {
+  public buildDownloadFileFromBucket(data) {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
-      data, { observe: 'response', responseType: 'text' } );
+      data, { dataType : 'binary',
+        processData : false,
+        responseType : 'arraybuffer' } );
   }
 
   public buildDeleteFileFromBucket(data): Observable<any> {
@@ -722,6 +724,9 @@ export class ApplicationServiceFacade {
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {
     // added to simplify development process
     const url = environment.production ? url_path : API_URL + url_path;
+    // if (url_path.indexOf('/api/bucket') !== -1) {
+    //   url = 'https://35.233.183.55' + url_path;
+    // }
 
     if (method === HTTPMethod.POST) {
       return this.http.post(url, body, opt);
@@ -729,6 +734,8 @@ export class ApplicationServiceFacade {
       return this.http.delete(body ? url + JSON.parse(body) : url, opt);
     } else if (method === HTTPMethod.PUT) {
       return this.http.put(url, body, opt);
-    } else return this.http.get(body ? (url + body) : url, opt);
+    } else {
+      return this.http.get(body ? (url + body) : url, opt);
+    }
   }
 }
