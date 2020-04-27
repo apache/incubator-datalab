@@ -138,10 +138,7 @@ export class RolesComponent implements OnInit {
           item.selected_roles = [...currGroupSource.selected_roles];
           item.roles = [...currGroupSource.roles];
         } else {
-          const isSuperAdminGroup = this.startedGroups.filter(v => v.group === item.group)[0].roles.filter(role => role.description === 'Allow to execute administration operation').length;
-          const selectedRoles = isSuperAdminGroup ?
-            [...item.selected_roles.map(v => v.role), 'Allow to execute administration operation'] :
-            item.selected_roles.map(v => v.role);
+          const selectedRoles = item.selected_roles.map(v => v.role);
           this.manageRolesGroups({
             action, type, value: {
               name: item.group,
