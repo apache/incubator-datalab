@@ -168,7 +168,10 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public printDetailEnvironmentModal(data): void {
-    this.dialog.open(DetailDialogComponent, { data: data, panelClass: 'modal-lg' })
+    this.dialog.open(DetailDialogComponent, { data:
+        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser},
+      panelClass: 'modal-lg'
+    })
       .afterClosed().subscribe(() => this.buildGrid());
   }
 
@@ -312,12 +315,12 @@ export class ResourcesGridComponent implements OnInit {
     this.displayedFilterColumns = this.displayedFilterColumns.filter(el => el !== 'cost-filter');
   }
 
-  private aliveStatuses(сonfig): void {
+  private aliveStatuses(config): void {
     for (const index in this.filterConfiguration) {
-      if (сonfig[index] && сonfig[index] instanceof Array)
-        сonfig[index] = сonfig[index].filter(item => this.filterConfiguration[index].includes(item));
+      if (config[index] && config[index] instanceof Array)
+        config[index] = config[index].filter(item => this.filterConfiguration[index].includes(item));
     }
-    return сonfig;
+    return config;
   }
 
   isActiveFilter(filterConfig): void {
@@ -344,7 +347,7 @@ export class ResourcesGridComponent implements OnInit {
 
   private updateUserPreferences(filterConfiguration: FilterConfigurationModel): void {
     this.userResourceService.updateUserPreferences(filterConfiguration)
-      .subscribe((result) => { },
+      .subscribe(() => { },
         (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
   }
 }

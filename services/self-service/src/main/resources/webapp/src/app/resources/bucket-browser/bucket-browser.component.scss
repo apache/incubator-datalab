@@ -116,6 +116,9 @@
           padding-left: 4px;
           span.item-name{
             padding-left: 14px;
+            &.removed-checkbox{
+              padding-left: 0;
+            }
           }
         }
       }
@@ -219,7 +222,7 @@
     background-color: #35afd5;
   }
   .checked-checkbox {
-    top: 0px;
+    top: 0;
     left: 4px;
     width: 5px;
     height: 10px;

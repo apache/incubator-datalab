@@ -36,12 +36,13 @@ import {BucketBrowserComponent} from '../../bucket-browser/bucket-browser.compon
 
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  readonly PROVIDER = this.data.cloud_provider;
+  readonly PROVIDER = this.data.notebook.cloud_provider;
   notebook: any;
   upTimeInHours: number;
   upTimeSince: string = '';
   tooltip: boolean = false;
   config: Array<{}> = [];
+  bucketStatus: object = {};
 
   public configurationForm: FormGroup;
 
@@ -52,15 +53,15 @@ export class DetailDialogComponent implements OnInit {
     private dataengineConfigurationService: DataengineConfigurationService,
     private _fb: FormBuilder,
     public dialogRef: MatDialogRef<DetailDialogComponent>,
-    public toastr: ToastrService,
     private dialog: MatDialog,
+    public toastr: ToastrService,
   ) {
-    this.notebook = data;
+
   }
 
   ngOnInit() {
-    this.notebook;
-
+    this.bucketStatus = this.data.bucketStatus;
+    this.notebook = this.data.notebook;
     if (this.notebook) {
       this.tooltip = false;
 
@@ -98,7 +99,7 @@ export class DetailDialogComponent implements OnInit {
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
       .editExploratorySparkConfiguration(data.configuration_parameters, this.notebook.project, this.notebook.name)
-      .subscribe(result => {
+      .subscribe(() => {
         this.dialogRef.close();
       },
         error => this.toastr.error(error.message || 'Edit onfiguration failed!', 'Oops!'));
@@ -123,8 +124,10 @@ export class DetailDialogComponent implements OnInit {
         : null;
   }
 
-  public bucketBrowser(bucketName, endpoint): void {
-  this.dialog.open(BucketBrowserComponent, { data: {bucket: bucketName, endpoint: endpoint}, panelClass: 'modal-fullscreen' })
+  public bucketBrowser(bucketName, endpoint, permition): void {
+    permition && this.dialog.open(BucketBrowserComponent, { data:
+        {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus},
+      panelClass: 'modal-fullscreen' })
     .afterClosed().subscribe();
   }
 }

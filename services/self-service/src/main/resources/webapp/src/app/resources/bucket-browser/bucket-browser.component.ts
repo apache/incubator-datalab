@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, ViewChild, Inject } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { ManageUngitService } from '../../core/services';
@@ -46,6 +46,7 @@ export class BucketBrowserComponent implements OnInit {
   private isUploading: boolean;
   private selected: any[];
   private uploadForm: FormGroup;
+  private bucketStatus: object;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -64,6 +65,7 @@ export class BucketBrowserComponent implements OnInit {
   ngOnInit() {
     this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
     this.endpoint = this.data.endpoint;
+    this.bucketStatus = this.data.bucketStatus;
     this.uploadForm = this.formBuilder.group({
       file: ['']
     });
@@ -131,7 +133,7 @@ export class BucketBrowserComponent implements OnInit {
     formData.append('endpoint', this.endpoint);
     this.isUploading = true;
     this.bucketBrowserService.uploadFile(formData)
-      .subscribe((event: any) => {
+      .subscribe(() => {
         this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
         this.addedFiles = [];
         this.isUploading = false;

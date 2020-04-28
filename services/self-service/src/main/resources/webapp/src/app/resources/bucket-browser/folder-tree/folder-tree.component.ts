@@ -82,7 +82,6 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.folderTreeSubs.unsubscribe();
     this.bucketDataService._bucketData.next([]);
   }
 
@@ -197,7 +196,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     }
     return null;
   }
-  
+
   private addNewItem(node: TodoItemFlatNode, file, isFile, path) {
     const parentNode = this.flatNodeMap.get(node);
     this.bucketDataService.insertItem(parentNode!, file, isFile);

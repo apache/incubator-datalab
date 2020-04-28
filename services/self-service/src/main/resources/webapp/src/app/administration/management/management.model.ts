@@ -75,6 +75,7 @@ export interface GeneralEnvironmentStatus {
   list_resources: any;
   status: string;
   projectAssigned: boolean;
+  bucketBrowser: object;
 }
 
 
