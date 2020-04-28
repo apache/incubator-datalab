@@ -342,6 +342,7 @@
       "/api/settings",
       "/user/settings",
       "/api/project",
+      "/api/project/create",
       "/api/endpoint"
     ],
     "groups": [

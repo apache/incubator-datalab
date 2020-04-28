@@ -29,6 +29,7 @@ import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
+import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.EndpointService;
@@ -55,9 +56,12 @@ import java.util.stream.StreamSupport;
 
 @Slf4j
 public class InfrastructureInfoServiceImpl implements InfrastructureInfoService {
+	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-dlab/blob/%s/RELEASE_NOTES.md";
+	private static final String PERMISSION_VIEW = "/api/bucket/view";
+	private static final String PERMISSION_UPLOAD = "/api/bucket/upload";
+	private static final String PERMISSION_DOWNLOAD = "/api/bucket/download";
+	private static final String PERMISSION_DELETE = "/api/bucket/delete";
 
-	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-dlab/blob/%s" +
-			"/RELEASE_NOTES.md";
 	private final ExploratoryDAO expDAO;
 	private final SelfServiceApplicationConfiguration configuration;
 	private final BillingDAO billingDAO;
@@ -134,6 +138,12 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 					.projectAssigned(projectService.isAnyProjectAssigned(userInfo))
 					.billingQuoteUsed(billingDAO.getBillingQuoteUsed())
 					.billingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user))
+					.bucketBrowser(HealthStatusPageDTO.BucketBrowser.builder()
+							.view(checkAccess(userInfo, PERMISSION_VIEW))
+							.upload(checkAccess(userInfo, PERMISSION_UPLOAD))
+							.download(checkAccess(userInfo, PERMISSION_DOWNLOAD))
+							.delete(checkAccess(userInfo, PERMISSION_DELETE))
+							.build())
 					.build();
 		} catch (Exception e) {
 			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);
@@ -182,5 +192,9 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 		}
 
 		return shared;
+	}
+
+	private boolean checkAccess(UserInfo userInfo, String permission) {
+		return UserRoles.checkAccess(userInfo, RoleType.PAGE, permission, userInfo.getRoles());
 	}
 }
