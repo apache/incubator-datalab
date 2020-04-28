@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -54,6 +55,7 @@ public class BucketResource {
     @Path("/{bucket}/endpoint/{endpoint}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("/api/bucket/view")
     public Response getListOfObjects(@Auth UserInfo userInfo,
                                      @PathParam("bucket") String bucket,
                                      @PathParam("endpoint") String endpoint) {
@@ -64,6 +66,7 @@ public class BucketResource {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("/api/bucket/upload")
     public Response uploadObject(@Auth UserInfo userInfo,
                                  @FormDataParam("object") String object,
                                  @FormDataParam("bucket") String bucket,
@@ -78,6 +81,7 @@ public class BucketResource {
     @Path("/{bucket}/object/{object}/endpoint/{endpoint}/download")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @RolesAllowed("/api/bucket/download")
     public Response downloadObject(@Auth UserInfo userInfo,
                                    @PathParam("bucket") String bucket,
                                    @PathParam("object") String object,
@@ -91,6 +95,7 @@ public class BucketResource {
     @Path("/{bucket}/object/{object}/endpoint/{endpoint}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("/api/bucket/delete")
     public Response deleteObject(@Auth UserInfo userInfo,
                                  @PathParam("bucket") String bucket,
                                  @PathParam("object") String object,

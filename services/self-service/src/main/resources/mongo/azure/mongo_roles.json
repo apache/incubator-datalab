@@ -264,6 +264,54 @@
     ]
   },
   {
+    "_id": "bucketBrowserView",
+    "description": "Allow to view objects within the bucket",
+    "type": "BUCKET_BROWSER",
+    "cloud": "GCP",
+    "pages": [
+      "/api/bucket/view"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "bucketBrowserUpload",
+    "description": "Allow to upload object to the bucket",
+    "type": "BUCKET_BROWSER",
+    "cloud": "GCP",
+    "pages": [
+      "/api/bucket/upload"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "bucketBrowserDownload",
+    "description": "Allow to download object from the bucket",
+    "type": "BUCKET_BROWSER",
+    "cloud": "GCP",
+    "pages": [
+      "/api/bucket/download"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "bucketBrowserDelete",
+    "description": "Allow to delete object from the bucket",
+    "type": "BUCKET_BROWSER",
+    "cloud": "GCP",
+    "pages": [
+      "/api/bucket/delete"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "admin",
     "description": "Allow to execute administration operation",
     "type": "ADMINISTRATION",
