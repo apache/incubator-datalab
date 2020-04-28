@@ -35,6 +35,7 @@ import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
 import com.epam.dlab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
 import com.epam.dlab.backendapi.service.impl.aws.BucketServiceAwsImpl;
+import com.epam.dlab.backendapi.service.impl.azure.BucketServiceAzureImpl;
 import com.epam.dlab.backendapi.service.impl.gcp.BucketServiceGcpImpl;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
@@ -81,6 +82,8 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
 			bind(BucketService.class).to(BucketServiceGcpImpl.class);
 		} else if (configuration.getCloudProvider() == CloudProvider.AWS) {
 			bind(BucketService.class).to(BucketServiceAwsImpl.class);
+		} else if (configuration.getCloudProvider() == CloudProvider.AZURE) {
+			bind(BucketService.class).to(BucketServiceAzureImpl.class);
 		}
 	}
 }
