@@ -40,6 +40,7 @@ export interface Endpoint {
 })
 export class EndpointsComponent implements OnInit {
   public createEndpointForm: FormGroup;
+  private maxEndpointNameLength: number = 6;
   endpoints: Endpoint[] = [];
   displayedColumns: string[] = ['name', 'url', 'account', 'endpoint_tag', 'actions'];
 
@@ -102,7 +103,9 @@ export class EndpointsComponent implements OnInit {
 
   private initFormModel(): void {
     this.createEndpointForm = this._fb.group({
-      name: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.validateName.bind(this)])],
+      name: ['', Validators.compose([
+        Validators.required, Validators.pattern(PATTERNS.namePattern), this.validateName.bind(this), this.providerMaxLength.bind(this)
+      ])],
       url: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.fullUrl), this.validateUrl.bind(this)])],
       account: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
       endpoint_tag: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])]
@@ -132,6 +135,10 @@ export class EndpointsComponent implements OnInit {
       const isDublicat = this.endpoints.some(endpoint => endpoint['name'].toLocaleLowerCase() === control.value.toLowerCase());
       return isDublicat ? { isDuplicate: true } : null;
     }
+  }
+
+  private providerMaxLength(control) {
+    return control.value.length <= this.maxEndpointNameLength ? null : { limit: true };
   }
 }
 

@@ -47,6 +47,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
   shapes = [] || {};
   resourceGrid: any;
   images: Array<any>;
+  maxNotebookLength: number = 14;
 
   @ViewChild('configurationNode', { static: false }) configuration;
 
@@ -147,7 +148,12 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
       version: ['', Validators.required],
       notebook_image_name: [''],
       shape: ['', Validators.required],
-      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
+      name: ['', [
+        Validators.required,
+        Validators.pattern(PATTERNS.namePattern),
+        this.providerMaxLength.bind(this),
+        this.checkDuplication.bind(this)
+      ]],
       cluster_config: ['', [this.validConfiguration.bind(this)]],
       custom_tag: ['', [Validators.pattern(PATTERNS.namePattern)]]
     });
@@ -169,7 +175,7 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
   private providerMaxLength(control) {
     if (control && control.value)
-      return control.value.length <= 10 ? null : { valid: false };
+      return control.value.length <= this.maxNotebookLength ? null : { valid: false };
   }
 
   private validConfiguration(control) {
