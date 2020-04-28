@@ -17,13 +17,17 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 
 public class ProjectResourceTest extends TestBase {
@@ -37,20 +41,6 @@ public class ProjectResourceTest extends TestBase {
     @Before
     public void setup() throws AuthenticationException {
         authSetup();
-    }
-
-    @Test
-    public void getProjectsForManaging() {
-        final Response response = resources.getJerseyTest()
-                .target("project/managing")
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .get();
-
-        assertEquals(HttpStatus.SC_OK, response.getStatus());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-        verify(projectService, times(1)).getProjectsForManaging();
-        verifyNoMoreInteractions(projectService);
     }
 
     @Test

@@ -1,0 +1,59 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  data:
+    mongodb:
+      username: admin
+      password: admin
+      database: dlabdb
+      port: 27017
+      host: localhost
+
+server:
+  port: 8088
+  servlet:
+    contextPath: /api/billing
+
+server.ssl.key-store-type: JKS
+server.ssl.key-store: /Users/ofuks/keys/dlabcert/billing.jks
+server.ssl.key-store-password: KEYSTORE_PASSWORD
+server.ssl.key-alias: billing
+
+logging:
+  file: /var/opt/dlab/log/ssn/billing.log
+  level:
+    com:
+      epam: trace
+
+keycloak:
+  bearer-only: true
+  realm: DLAB_bhliva
+  resource: sss
+  credentials.secret: cf5a484b-039b-4161-8707-ad65c0f25962
+  ssl-required: none
+  auth-server-url: http://52.11.45.11:8080/auth
+
+dlab:
+  sbn: <CONF_SERVICE_BASE_NAME>
+  billingEnabled: true
+  clientId: <CLIENT_ID>
+  clientSecret: <CLIENT_SECRET>
+  tenantId: <TENANT_ID>
+  subscriptionId: <SUBSCRIPTION_ID>
+  authenticationFile: <AUTHENTICATION_FILE>
+  # Billing configuration for RateCard API. For more details please see https://msdn.microsoft.com/en-us/library/mt219004.aspx
+  offerNumber: <OFFER_NUMBER>
+  currency: <CURRENCY>
+  locale: <LOCALE>
+  regionInfo: <REGION_INFO>
+  initialDelay: 1
+  period: 60
+  aggregationOutputMongoDataSource:
+    host: localhost
+    port: 27017
+    username: admin
+    password: <MONGODB_PASSWORD>
+    database: dlabdb
+  ssnStorageAccountTagName: <AZURE_SSN_STORAGE_ACCOUNT_TAG>
+  sharedStorageAccountTagName: <AZURE_SHARED_STORAGE_ACCOUNT_TAG>
+  datalakeTagName: <AZURE_DATALAKE_TAG>

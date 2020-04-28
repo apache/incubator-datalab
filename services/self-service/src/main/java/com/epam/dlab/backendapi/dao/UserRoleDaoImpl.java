@@ -119,11 +119,6 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	}
 
 	@Override
-	public boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds) {
-		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), pullAll(GROUPS_FIELD, groups)));
-	}
-
-	@Override
 	public void removeGroupWhenRoleNotIn(String group, Set<String> roleIds) {
 		updateMany(MongoCollections.ROLES, not(in(ID, roleIds)), pull(GROUPS_FIELD, group));
 	}

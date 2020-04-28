@@ -23,6 +23,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 import javax.annotation.Nonnull;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 
@@ -69,10 +70,6 @@ public class UserRole implements Comparable<UserRole> {
 		this.users = users;
 	}
 
-	UserRole(RoleType type, String name, Set<String> groups, Set<String> users) {
-		this(null, type, name, groups, users);
-	}
-
 	/**
 	 * Return the type of role.
 	 */
@@ -107,8 +104,10 @@ public class UserRole implements Comparable<UserRole> {
 
 	@Override
 	public int compareTo(@Nonnull UserRole o) {
-		int result = type.compareTo(o.type);
-		return (result == 0 ? name.compareTo(o.name) : result);
+		return Comparator.comparing(UserRole::getType)
+				.thenComparing(UserRole::getName)
+				.thenComparing(UserRole::getId, Comparator.nullsLast(String::compareToIgnoreCase))
+				.compare(this, o);
 	}
 
 	private ToStringHelper toStringHelper(Object self) {
@@ -124,7 +123,7 @@ public class UserRole implements Comparable<UserRole> {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserRole userRole = (UserRole) o;
-		return this.type.equals(userRole.getType()) && this.name.equals(userRole.getName());
+		return this.id.equals(userRole.getId()) && this.type.equals(userRole.getType()) && this.name.equals(userRole.getName());
 	}
 
 	@Override

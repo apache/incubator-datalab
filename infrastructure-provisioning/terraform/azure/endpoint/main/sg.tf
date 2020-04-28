@@ -57,6 +57,20 @@ resource "azurerm_network_security_rule" "inbound-2" {
   protocol                    = "TCP"
 }
 
+resource "azurerm_network_security_rule" "inbound-3" {
+  resource_group_name         = data.azurerm_resource_group.data-endpoint-resource-group.name
+  network_security_group_name = azurerm_network_security_group.enpoint-sg.name
+  name                        = "inbound-3"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 300
+  source_address_prefix       = "*"
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "8088"
+  protocol                    = "TCP"
+}
+
 resource "azurerm_network_security_rule" "outbound-1" {
   resource_group_name         = data.azurerm_resource_group.data-endpoint-resource-group.name
   network_security_group_name = azurerm_network_security_group.enpoint-sg.name

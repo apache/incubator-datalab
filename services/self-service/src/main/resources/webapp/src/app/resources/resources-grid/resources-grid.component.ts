@@ -46,6 +46,7 @@ import {NotebookModel} from '../exploratory/notebook.model';
 
 
 
+
 @Component({
   selector: 'resources-grid',
   templateUrl: 'resources-grid.component.html',
@@ -149,12 +150,6 @@ export class ResourcesGridComponent implements OnInit {
         && item.status !== 'running' && item.status !== 'stopped')).length > 0;
     }
     return false;
-  }
-
-  public isEdgeNodeStopped(resource) {
-    const currProject = this.projects.filter(proj => proj.name === resource.project);
-    const currEdgenodeStatus =  currProject[0].endpoints.filter(node => node.name === resource.endpoint)[0].status;
-    return currEdgenodeStatus === 'STOPPED' || currEdgenodeStatus === 'STOPPING';
   }
 
   public filterActiveInstances(): FilterConfigurationModel {

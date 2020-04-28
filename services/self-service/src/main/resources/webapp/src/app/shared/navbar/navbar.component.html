@@ -75,7 +75,7 @@
             <span *ngIf="isExpanded; else resources">List of Resources</span>
             <ng-template #resources><i class="material-icons">dashboard</i></ng-template>
           </a>
-          <a class="nav-item has-children" *ngIf="healthStatus?.admin">
+          <a class="nav-item has-children" *ngIf="healthStatus?.admin || healthStatus?.projectAdmin">
             <span *ngIf="isExpanded">Administration</span>
 
             <a class="sub-nav-item" [style.margin-left.px]="isExpanded ? '30' : '0'" [routerLink]="['/roles']"

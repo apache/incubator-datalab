@@ -308,7 +308,7 @@ public class ImageExploratoryServiceImplTest {
 	}
 
 	private ImageInfoRecord getImageInfoRecord() {
-		return new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someApp",
+		return new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someUser", "someApp",
 				"someFullName", ImageStatus.CREATED);
 	}
 

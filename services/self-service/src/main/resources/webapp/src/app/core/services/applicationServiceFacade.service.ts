@@ -446,16 +446,6 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public buildManageEnvironment(action, data): Observable<any> {
-    return this.buildRequest(HTTPMethod.POST,
-      this.requestRegistry.Item(ApplicationServiceFacade.ENV) + action,
-      data,
-      {
-        observe: 'response',
-        headers: { 'Content-Type': 'text/plain' }
-      });
-  }
-
   public buildGetAllEnvironmentData(): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.FULL_ACTIVE_LIST),

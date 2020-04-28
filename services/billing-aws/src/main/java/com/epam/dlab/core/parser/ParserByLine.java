@@ -27,10 +27,12 @@ import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.exceptions.ParseException;
 import com.epam.dlab.model.aws.ReportLine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -156,11 +158,13 @@ public abstract class ParserByLine extends ParserBase {
 	/**
 	 * Parse the source data to common format and write it to output adapter.
 	 *
+	 * @return list of billing data
 	 * @throws InitializationException
 	 * @throws AdapterException
 	 * @throws ParseException
 	 */
-	public void parse() throws InitializationException, AdapterException, ParseException {
+	public List<Document> parse() throws InitializationException, AdapterException, ParseException {
+		List<Document> billingData = new ArrayList<>();
 		try {
 			if (init()) {
 				String line;
@@ -211,14 +215,14 @@ public abstract class ParserByLine extends ParserBase {
 						if (getAggregate() != AggregateGranularity.NONE) {
 							getAggregator().append(reportLine);
 						} else {
-							getAdapterOut().writeRow(reportLine);
+							billingData.add(getAdapterOut().writeRow(reportLine));
 							getCurrentStatistics().incrRowWritten();
 						}
 					}
 
 					if (getAggregate() != AggregateGranularity.NONE) {
 						for (int i = 0; i < getAggregator().size(); i++) {
-							getAdapterOut().writeRow(getAggregator().get(i));
+							billingData.add(getAdapterOut().writeRow(getAggregator().get(i)));
 							getCurrentStatistics().incrRowWritten();
 						}
 					}
@@ -255,5 +259,6 @@ public abstract class ParserByLine extends ParserBase {
 		if (getCurrentStatistics() != null) {
 			getCurrentStatistics().stop();
 		}
+		return billingData;
 	}
 }

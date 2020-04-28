@@ -24,6 +24,7 @@ import com.epam.dlab.model.aws.ReportLine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import org.bson.Document;
 
 import java.util.List;
 
@@ -157,9 +158,10 @@ public abstract class AdapterBase extends ModuleBase {
 	 * Write the row of data to adapter.
 	 *
 	 * @param row the row of common format.
+	 * @return
 	 * @throws AdapterException
 	 */
-	public abstract void writeRow(ReportLine row) throws AdapterException;
+	public abstract Document writeRow(ReportLine row) throws AdapterException;
 
 
 	@Override

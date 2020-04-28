@@ -1,18 +1,38 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
   data:
     mongodb:
       username: admin
       password: admin
-      database: <MONGO_PASSWORD>
+      database: dlabdb
       port: 27017
       host: localhost
 dlab:
   sbn: <CONF_SERVICE_BASE_NAME>
   bigQueryDataset: <DATASET_NAME>
-  cron: 0 * * * * *
+  cron: 0 0 * * * *
+
+server:
+  port: 8088
+  servlet:
+    contextPath: /api/billing
+
+server.ssl.key-store-type: JKS
+server.ssl.key-store: /Users/ofuks/keys/dlabcert/billing.jks
+server.ssl.key-store-password: KEYSTORE_PASSWORD
+server.ssl.key-alias: billing
 
 logging:
   file: /var/opt/dlab/log/ssn/billing.log
   level:
     com:
       epam: trace
+
+keycloak:
+  bearer-only: true
+  realm: DLAB_bhliva
+  resource: sss
+  credentials.secret: cf5a484b-039b-4161-8707-ad65c0f25962
+  ssl-required: none
+  auth-server-url: http://52.11.45.11:8080/auth

@@ -31,7 +31,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
-import com.mongodb.client.*;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -41,13 +45,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.exists;
+import static com.mongodb.client.model.Filters.ne;
 
 /**
  * Implements the base API for Mongo database.
@@ -158,6 +170,29 @@ public class BaseDAO {
 	}
 
 	/**
+	 * Serializes objects and inserts into the collection.
+	 *
+	 * @param collection collection name.
+	 * @param object     for inserting to collection.
+	 */
+	protected void insertMany(String collection, List<Object> object) {
+		try {
+			mongoService.getCollection(collection)
+					.insertMany(convertToBson(object)
+							.stream()
+							.peek(o -> {
+								o.append(ID, generateUUID());
+								o.append(TIMESTAMP, new Date());
+							})
+							.collect(Collectors.toList())
+					);
+		} catch (MongoException e) {
+			LOGGER.warn("Insert to Mongo DB fails: {}", e.getLocalizedMessage(), e);
+			throw new DlabException("Insert to Mongo DB fails: " + e.getLocalizedMessage(), e);
+		}
+	}
+
+	/**
 	 * Updates single document in the collection by condition.
 	 *
 	 * @param collection collection name.
@@ -223,6 +258,22 @@ public class BaseDAO {
 		try {
 			return mongoService.getCollection(collection)
 					.deleteOne(condition);
+		} catch (MongoException e) {
+			LOGGER.warn("Removing document from Mongo DB fails: {}", e.getLocalizedMessage(), e);
+			throw new DlabException("Removing document from Mongo DB fails: " + e.getLocalizedMessage(), e);
+		}
+	}
+
+	/**
+	 * Removes many documents in the collection by condition.
+	 *
+	 * @param collection collection name.
+	 * @param condition  condition for search documents in collection.
+	 */
+	protected DeleteResult deleteMany(String collection, Bson condition) {
+		try {
+			return mongoService.getCollection(collection)
+					.deleteMany(condition);
 		} catch (MongoException e) {
 			LOGGER.warn("Removing document from Mongo DB fails: {}", e.getLocalizedMessage(), e);
 			throw new DlabException("Removing document from Mongo DB fails: " + e.getLocalizedMessage(), e);
@@ -360,6 +411,13 @@ public class BaseDAO {
 		} catch (IOException e) {
 			throw new DlabException("error converting to bson", e);
 		}
+	}
+
+	List<Document> convertToBson(List<Object> objects) {
+		return objects
+				.stream()
+				.map(this::convertToBson)
+				.collect(Collectors.toList());
 	}
 
 	/**

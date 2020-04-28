@@ -12,8 +12,6 @@ import java.util.Set;
 public interface ProjectDAO {
 	List<ProjectDTO> getProjects();
 
-	List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status);
-
 	List<ProjectDTO> getProjectsWithEndpointStatusNotIn(UserInstanceStatus... statuses);
 
 	List<ProjectDTO> getUserProjects(UserInfo userInfo, boolean active);

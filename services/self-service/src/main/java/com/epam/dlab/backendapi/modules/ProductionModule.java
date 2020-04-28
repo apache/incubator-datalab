@@ -24,6 +24,8 @@ import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BackupDao;
 import com.epam.dlab.backendapi.dao.BackupDaoImpl;
+import com.epam.dlab.backendapi.dao.BaseBillingDAO;
+import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.EndpointDAO;
 import com.epam.dlab.backendapi.dao.EndpointDAOImpl;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
@@ -126,6 +128,9 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.BUCKET_SERVICE_NAME))
 				.toInstance(configuration.getBucketFactory().build(environment, ServiceConsts
 						.BUCKET_SERVICE_NAME));
+		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.BILLING_SERVICE_NAME))
+				.toInstance(configuration.getBillingFactory()
+						.build(environment, ServiceConsts.BILLING_SERVICE_NAME));
 		bind(ImageExploratoryService.class).to(ImageExploratoryServiceImpl.class);
 		bind(ImageExploratoryDao.class).to(ImageExploratoryDaoImpl.class);
 		bind(BackupService.class).to(BackupServiceImpl.class);
@@ -148,17 +153,18 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(UserRoleDao.class).to(UserRoleDaoImpl.class);
 		bind(UserGroupDao.class).to(UserGroupDaoImpl.class);
 		bind(InactivityService.class).to(InactivityServiceImpl.class);
-        bind(ApplicationSettingService.class).to(ApplicationSettingServiceImpl.class);
-        bind(UserSettingService.class).to(UserSettingServiceImpl.class);
-        bind(GuacamoleService.class).to(GuacamoleServiceImpl.class);
-        bind(EndpointService.class).to(EndpointServiceImpl.class);
-        bind(EndpointDAO.class).to(EndpointDAOImpl.class);
-        bind(ProjectService.class).to(ProjectServiceImpl.class);
-        bind(ProjectDAO.class).to(ProjectDAOImpl.class);
-        bind(TagService.class).to(TagServiceImpl.class);
-        bind(SecurityService.class).to(SecurityServiceImpl.class);
-        bind(KeycloakService.class).to(KeycloakServiceImpl.class);
-        bind(BucketService.class).to(BucketServiceImpl.class);
-        bind(Client.class).toInstance(httpClient);
-    }
+		bind(ApplicationSettingService.class).to(ApplicationSettingServiceImpl.class);
+		bind(UserSettingService.class).to(UserSettingServiceImpl.class);
+		bind(GuacamoleService.class).to(GuacamoleServiceImpl.class);
+		bind(EndpointService.class).to(EndpointServiceImpl.class);
+		bind(EndpointDAO.class).to(EndpointDAOImpl.class);
+		bind(ProjectService.class).to(ProjectServiceImpl.class);
+		bind(ProjectDAO.class).to(ProjectDAOImpl.class);
+		bind(BillingDAO.class).to(BaseBillingDAO.class);
+		bind(BucketService.class).to(BucketServiceImpl.class);
+		bind(TagService.class).to(TagServiceImpl.class);
+		bind(SecurityService.class).to(SecurityServiceImpl.class);
+		bind(KeycloakService.class).to(KeycloakServiceImpl.class);
+		bind(Client.class).toInstance(httpClient);
+	}
 }

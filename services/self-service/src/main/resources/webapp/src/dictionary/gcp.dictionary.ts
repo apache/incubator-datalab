@@ -42,7 +42,7 @@ export const NAMING_CONVENTION_GCP = {
         'service_filter_key': 'product',
         'type': 'dlab_resource_type',
         'resourceType': 'dlab_resource_type',
-        'instance_size': 'shape',
+        'instance_size': 'shapes',
         'dlabId': 'dlab_id'
     },
     'service': 'Product',
