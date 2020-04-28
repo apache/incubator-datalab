@@ -46,7 +46,7 @@ export class BucketBrowserComponent implements OnInit {
   private isUploading: boolean;
   private selected: any[];
   private uploadForm: FormGroup;
-  private bucketStatus: object;
+  public bucketStatus;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
