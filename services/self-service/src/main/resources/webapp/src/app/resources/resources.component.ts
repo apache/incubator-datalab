@@ -27,6 +27,7 @@ import { Exploratory } from './resources-grid/resources-grid.model';
 import {ApplicationSecurityService, HealthStatusService} from '../core/services';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { Project } from './../administration/project/project.component';
+import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
 
 @Component({
   selector: 'dlab-resources',
@@ -74,6 +75,11 @@ export class ResourcesComponent implements OnInit {
 
   public manageUngit(): void {
     this.dialog.open(ManageUngitComponent, { panelClass: 'modal-xxl' })
+      .afterClosed().subscribe(() => this.refreshGrid());
+  }
+
+  public bucketBrowser(): void {
+    this.dialog.open(BucketBrowserComponent, { panelClass: 'modal-fullscreen' })
       .afterClosed().subscribe(() => this.refreshGrid());
   }
 

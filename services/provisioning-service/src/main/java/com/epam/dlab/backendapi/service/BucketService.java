@@ -17,36 +17,21 @@
  * under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+package com.epam.dlab.backendapi.service;
 
-@Injectable()
-export class AppRoutingService {
-  constructor(private router: Router) { }
+import com.epam.dlab.dto.bucket.BucketDTO;
 
-  redirectToLoginPage(): void {
-    if (this.router.url !== '/login')
-      this.router.navigate(['/login']);
-  }
+import java.io.InputStream;
+import java.util.List;
 
-  redirectToNoAccessPage(): void {
-    this.router.navigate(['/403']);
-  }
+public interface BucketService {
+    String DATE_FORMAT = "dd-M-yyyy hh:mm:ss";
 
-  redirectToHomePage(): void {
-    console.log('redirect');
-    this.router.navigate(['/resources_list']);
-  }
+    List<BucketDTO> getObjects(String bucket);
 
-  redirectToHealthStatusPage(): void {
-    this.router.navigate(['/environment_management']);
-  }
+    void uploadObject(String bucket, String object, InputStream stream);
 
-  redirectToAzure(): void {
-    window.location.href = `${window.location.origin}/api/user/azure/init`;
-  }
+    byte[] downloadObject(String bucket, String object);
 
-  redirectToUrl(url: string): void {
-    window.location.href = url;
-  }
+    void deleteObject(String bucket, String object);
 }

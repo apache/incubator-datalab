@@ -43,8 +43,12 @@ export class MultiLevelSelectDropdownComponent {
   public labels = {
     COMPUTATIONAL_SHAPE: 'Compute shapes',
     NOTEBOOK_SHAPE: 'Notebook shapes',
-    COMPUTATIONAL: 'Compute'
+    COMPUTATIONAL: 'Compute',
+    BUCKET_BROWSER: 'Bucket browser'
   };
+
+  constructor() {
+  }
 
   toggleSelectedOptions($event, model, value) {
     $event.preventDefault();

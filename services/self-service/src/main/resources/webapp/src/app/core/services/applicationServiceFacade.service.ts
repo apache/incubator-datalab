@@ -22,7 +22,6 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 import { Dictionary } from '../collections';
-
 import { environment } from '../../../environments/environment';
 import { HTTPMethod } from '../util';
 
@@ -52,6 +51,7 @@ export class ApplicationServiceFacade {
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINESERVICE = 'computational_resources_dataengineservice';
+  private static readonly BUCKET = 'bucket';
   private static readonly USER_PREFERENCES = 'user_preferences';
   private static readonly BUDGET = 'budget';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
@@ -252,6 +252,34 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.USER_PREFERENCES),
       null);
   }
+
+
+  public buildGetBucketData(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
+      data);
+  }
+
+  public buildUploadFileToBucket(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/upload',
+      data);
+  }
+
+  public buildDownloadFileFromBucket(data) {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
+      data, { dataType : 'binary',
+        processData : false,
+        responseType : 'arraybuffer' } );
+  }
+
+  public buildDeleteFileFromBucket(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.DELETE,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
+      data );
+  }
+
 
   public buildUpdateUserPreferences(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
@@ -641,6 +669,9 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
       '/api/infrastructure_templates/computational_templates');
 
+    // Bucket browser
+    this.requestRegistry.Add(ApplicationServiceFacade.BUCKET, '/api/bucket');
+
     // Filtering Configuration
     this.requestRegistry.Add(ApplicationServiceFacade.USER_PREFERENCES, '/api/user/settings');
     this.requestRegistry.Add(ApplicationServiceFacade.BUDGET, '/api/user/settings/budget');
@@ -683,6 +714,9 @@ export class ApplicationServiceFacade {
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {
     // added to simplify development process
     const url = environment.production ? url_path : API_URL + url_path;
+    // if (url_path.indexOf('/api/bucket') !== -1) {
+    //   url = 'https://35.233.183.55' + url_path;
+    // }
 
     if (method === HTTPMethod.POST) {
       return this.http.post(url, body, opt);
@@ -690,6 +724,8 @@ export class ApplicationServiceFacade {
       return this.http.delete(body ? url + JSON.parse(body) : url, opt);
     } else if (method === HTTPMethod.PUT) {
       return this.http.put(url, body, opt);
-    } else return this.http.get(body ? (url + body) : url, opt);
+    } else {
+      return this.http.get(body ? (url + body) : url, opt);
+    }
   }
 }

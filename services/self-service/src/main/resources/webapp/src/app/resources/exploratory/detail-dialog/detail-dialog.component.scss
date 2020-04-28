@@ -86,4 +86,9 @@
   padding-left: 7px;
   font-weight: 600;
   color: $blue-grey-color;
+  cursor: pointer;
+}
+
+.not-allow{
+  cursor: not-allowed;
 }

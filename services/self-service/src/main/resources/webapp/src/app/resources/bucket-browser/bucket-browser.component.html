@@ -1,0 +1,131 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<div class="bucket-browser" id="dialog-box">
+  <header class="dialog-header">
+    <h4 class="modal-title">Bucket browser</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+
+  <div class="dialog-content tabs" [hidden]="!path" >
+    <div class="submit m-bott-10 m-top-10">
+      <span [matTooltip]="'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
+        <button mat-raised-button type="button" class="butt action" [disabled]="!this.bucketStatus.upload">
+          <input [ngClass]="{'not-allowed': !this.bucketStatus.upload}" type="file" (change)="handleFileInput($event)">
+          Add file
+        </button>
+      </span>
+      <span [matTooltip]="'You have not permission to create folder'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
+        <button
+          mat-raised-button
+          type="button"
+          class="butt action"
+          (click)="folderTreeComponent.addNewItem(selectedFolder, '', false)"
+          [disabled]="!this.bucketStatus.upload"
+        >
+          Create folder
+        </button>
+      </span>
+    </div>
+    <p class="path"><span>Bucket path:</span><span class="url"> {{path}}</span></p>
+    <div class="backet-wrapper" id="scrolling">
+      <div class="navigation">
+        <dlab-folder-tree (showFolderContent)=onFolderClick($event)> </dlab-folder-tree>
+      </div>
+      <div class="directory">
+        <ul class="folder-tree" *ngIf="!addedFiles.length">
+          <li *ngFor="let file of folderItems" class="folder-item" >
+
+            <div class="folder-item-wrapper" *ngIf="file.children" (click)="showItem(file)">
+              <div class="name name-folder"><i class="material-icons folder-icon" >folder</i><span>{{file.item}}</span></div>
+              <div class="size"></div>
+              <div class="progress-wrapper">
+                <div class="progres" *ngIf="file.isSelected"><div class="bar"></div></div>
+              </div>
+            </div>
+
+            <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file)" *ngIf="!file.children">
+              <div class="name name-file">
+                 <span *ngIf="this.bucketStatus.download || this.bucketStatus.download" class="empty-checkbox" [ngClass]="{'checked': file.isSelected}" (click)="toggleSelectedFile(file);$event.stopPropagation()" >
+                    <span class="checked-checkbox" *ngIf="file.isSelected"></span>
+                  </span>
+                <span class="item-name" [ngClass]="{'removed-checkbox': !this.bucketStatus.download && !this.bucketStatus.download}">{{file.item}}</span>
+              </div>
+              <div class="size">{{file.size.size}}</div>
+              <div class="size" *ngIf="!file.isDownloading">{{file.size.lastModifiedDate }}</div>
+              <div class="progress-wrapper" *ngIf="file.isDownloading">
+                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              </div>
+            </div>
+
+          </li>
+        </ul>
+        <ul class="folder-tree">
+          <li *ngFor="let file of addedFiles" class="folder-item">
+            <div class="folder-item-wrapper">
+              <div class="name">{{file.item}}</div>
+              <div class="size">{{file.size}}MB</div>
+              <div class="progress-wrapper">
+                <mat-progress-bar mode="indeterminate" *ngIf="isUploading"></mat-progress-bar>
+              </div>
+              <div (click)="deleteAddedFile(file)"><i class="material-icons close">close</i></div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="text-center m-top-30 m-bott-30">
+      <button type="button" class="butt" mat-raised-button (click)="this.dialogRef.close()">Close</button>
+      <span [matTooltip]="'You have not permission to download data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.download}}">
+       <button
+         *ngIf="!this.addedFiles.length"
+         type="button" class="butt butt-success"
+         mat-raised-button
+         (click)="fileAction('download')"
+         [disabled]="!selected?.length || !this.bucketStatus.download"
+       >
+         Download
+       </button>
+      </span>
+      <span [matTooltip]="'You have not permission to delete data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.delete}}">
+        <button
+          *ngIf="!this.addedFiles.length"
+          type="button"
+          class="butt butt-success"
+          mat-raised-button
+          (click)="fileAction('delete')"
+          [disabled]="!selected?.length || !this.bucketStatus.delete"
+
+        >
+        Delete
+      </button>
+      </span>
+
+      <button *ngIf="this.addedFiles.length !== 0" type="button" class="butt butt-success" mat-raised-button (click)="uploadNewFile()">Upload</button>
+    </div>
+  </div>
+
+  <div class="loading-block" *ngIf="!path">
+    <div class="uploading">
+      <p>Please wait until DLab loads bucket: <span class="strong">{{data.bucket}}</span>...</p>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+  </div>
+
+</div>

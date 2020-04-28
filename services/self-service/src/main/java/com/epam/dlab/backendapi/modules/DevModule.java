@@ -41,6 +41,7 @@ import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ApplicationSettingService;
 import com.epam.dlab.backendapi.service.ApplicationSettingServiceImpl;
 import com.epam.dlab.backendapi.service.BackupService;
+import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.EnvironmentService;
@@ -68,6 +69,7 @@ import com.epam.dlab.backendapi.service.UserSettingService;
 import com.epam.dlab.backendapi.service.UserSettingServiceImpl;
 import com.epam.dlab.backendapi.service.impl.AccessKeyServiceImpl;
 import com.epam.dlab.backendapi.service.impl.BackupServiceImpl;
+import com.epam.dlab.backendapi.service.impl.BucketServiceImpl;
 import com.epam.dlab.backendapi.service.impl.ComputationalServiceImpl;
 import com.epam.dlab.backendapi.service.impl.EndpointServiceImpl;
 import com.epam.dlab.backendapi.service.impl.EnvironmentServiceImpl;
@@ -132,6 +134,9 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
 				.toInstance(configuration.getProvisioningFactory()
 						.build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
+		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.BUCKET_SERVICE_NAME))
+				.toInstance(configuration.getBucketFactory()
+						.build(environment, ServiceConsts.BUCKET_SERVICE_NAME));
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.BILLING_SERVICE_NAME))
 				.toInstance(configuration.getBillingFactory()
 						.build(environment, ServiceConsts.BILLING_SERVICE_NAME));
@@ -167,6 +172,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(ProjectService.class).to(ProjectServiceImpl.class);
 		bind(ProjectDAO.class).to(ProjectDAOImpl.class);
 		bind(BillingDAO.class).to(BaseBillingDAO.class);
+		bind(BucketService.class).to(BucketServiceImpl.class);
 	}
 
 	private void configureCors(Environment environment) {

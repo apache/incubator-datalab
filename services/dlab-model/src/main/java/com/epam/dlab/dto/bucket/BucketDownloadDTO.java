@@ -17,36 +17,17 @@
  * under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+package com.epam.dlab.dto.bucket;
 
-@Injectable()
-export class AppRoutingService {
-  constructor(private router: Router) { }
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
-  redirectToLoginPage(): void {
-    if (this.router.url !== '/login')
-      this.router.navigate(['/login']);
-  }
-
-  redirectToNoAccessPage(): void {
-    this.router.navigate(['/403']);
-  }
-
-  redirectToHomePage(): void {
-    console.log('redirect');
-    this.router.navigate(['/resources_list']);
-  }
-
-  redirectToHealthStatusPage(): void {
-    this.router.navigate(['/environment_management']);
-  }
-
-  redirectToAzure(): void {
-    window.location.href = `${window.location.origin}/api/user/azure/init`;
-  }
-
-  redirectToUrl(url: string): void {
-    window.location.href = url;
-  }
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BucketDownloadDTO {
+    @NotBlank(message = "field cannot be empty")
+    private final String bucket;
+    @NotBlank(message = "field cannot be empty")
+    private final String object;
 }

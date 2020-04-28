@@ -62,6 +62,11 @@ provisioningService:
     timeout: 3s
     connectionTimeout: 3s
 
+bucketService:
+  jerseyClient:
+    timeout: 10m
+    connectionTimeout: 3s
+
 billingService:
   jerseyClient:
     timeout: 4m

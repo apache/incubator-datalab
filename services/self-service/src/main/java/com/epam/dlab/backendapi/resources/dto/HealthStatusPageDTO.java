@@ -47,4 +47,15 @@ public class HealthStatusPageDTO {
 	private int billingUserQuoteUsed;
 	@JsonProperty
 	private boolean projectAssigned;
+	@JsonProperty
+	private BucketBrowser bucketBrowser;
+
+	@Builder
+	@Data
+	public static class BucketBrowser {
+		private final boolean view;
+		private final boolean upload;
+		private final boolean download;
+		private final boolean delete;
+	}
 }
