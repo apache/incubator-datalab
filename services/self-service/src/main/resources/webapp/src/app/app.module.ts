@@ -30,7 +30,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 
 import { LoginModule } from './login/login.module';
-import { LayoutModule } from './layout/layout.module'
+import { LayoutModule } from './layout/layout.module';
 
 import { GuidesModule } from './help';
 import { ServicePagesModule } from './service-pages/service-pages.module';
@@ -41,6 +41,7 @@ import { AdministrationModule } from './administration/administration.module';
 import { WebterminalModule } from './webterminal';
 import { CoreModule } from './core/core.module';
 import { SwaggerAPIModule } from './swagger';
+import {AuditModule} from './audit/audit.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -56,6 +57,7 @@ import { SwaggerAPIModule } from './swagger';
     GuidesModule,
     ServicePagesModule,
     ReportingModule,
+    AuditModule,
     AdministrationModule,
     WebterminalModule,
     SwaggerAPIModule,

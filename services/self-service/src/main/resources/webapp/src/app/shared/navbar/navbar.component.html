@@ -100,6 +100,11 @@
             <span *ngIf="isExpanded; else billing">Billing Report</span>
             <ng-template #billing><i class="material-icons">account_balance_wallet</i></ng-template>
           </a>
+          <a  class="nav-item" [routerLink]="['/audit']"
+             [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+            <span *ngIf="isExpanded; else audit">Audit Report</span>
+            <ng-template #audit><i class="material-icons">library_books</i></ng-template>
+          </a>
         </div>
         <div>
           <a class="nav-item" [routerLink]="['/swagger']" [routerLinkActive]="['active']"
