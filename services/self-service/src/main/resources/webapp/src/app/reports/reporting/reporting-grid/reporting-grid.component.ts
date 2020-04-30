@@ -18,7 +18,7 @@
  */
 
 import {Component, OnInit, Output, EventEmitter, ViewChild, Input} from '@angular/core';
-import { ReportingConfigModel } from '../../../dictionary/global.dictionary';
+import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-reporting-grid',

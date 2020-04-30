@@ -28,11 +28,11 @@ import {FilterAuditModel} from '../filter-audit.model';
 })
 export class AuditGridComponent implements OnInit {
   public auditData: Array<object>;
-  public displayedColumns: string[] = ['user', 'action', 'date'];
-  public displayedFilterColumns: string[] = ['user-filter', 'action-filter', 'date-filter'];
+  public displayedColumns: string[] = ['user', 'project', 'resource', 'action', 'date'];
+  public displayedFilterColumns: string[] = ['user-filter', 'project-filter', 'resource-filter', 'action-filter', 'date-filter'];
   public collapseFilterRow: boolean = true;
-  public filterConfiguration: FilterAuditModel = new FilterAuditModel([], [], '', '');
-  public filterAuditData: FilterAuditModel = new FilterAuditModel([], [], '', '');
+  public filterConfiguration: FilterAuditModel = new FilterAuditModel([], [], [], [],'', '');
+  public filterAuditData: FilterAuditModel = new FilterAuditModel([], [], [], [],'', '');
 
   ngOnInit() {}
 

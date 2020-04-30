@@ -20,11 +20,11 @@
 
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import {HealthStatusService} from '../core/services';
-import { DICTIONARY} from '../../dictionary/global.dictionary';
+import {HealthStatusService} from '../../core/services';
+import { DICTIONARY} from '../../../dictionary/global.dictionary';
 import {AuditToolbarComponent} from './audit-toolbar/audit-toolbar.component';
 import {AuditGridComponent} from './audit-grid/audit-grid.component';
-import {AuditService} from '../core/services/audit.service';
+import {AuditService} from '../../core/services/audit.service';
 
 
 @Component({

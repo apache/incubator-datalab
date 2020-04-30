@@ -41,7 +41,8 @@ import { AdministrationModule } from './administration/administration.module';
 import { WebterminalModule } from './webterminal';
 import { CoreModule } from './core/core.module';
 import { SwaggerAPIModule } from './swagger';
-import {AuditModule} from './audit/audit.module';
+import {ReportsModule} from './reports/reports.module';
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -56,9 +57,10 @@ import {AuditModule} from './audit/audit.module';
     ResourcesModule,
     GuidesModule,
     ServicePagesModule,
-    ReportingModule,
-    AuditModule,
+    // ReportingModule,
+
     AdministrationModule,
+    ReportsModule,
     WebterminalModule,
     SwaggerAPIModule,
     RouterModule,

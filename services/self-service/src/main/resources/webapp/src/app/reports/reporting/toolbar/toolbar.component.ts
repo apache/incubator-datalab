@@ -19,11 +19,11 @@
 
 import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation, ViewChild } from '@angular/core';
 import { NgDateRangePickerOptions } from 'ng-daterangepicker';
-import { DICTIONARY } from '../../../dictionary/global.dictionary';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import {skip} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
-import {HealthStatusService} from '../../core/services';
-import {GeneralEnvironmentStatus} from '../../administration/management/management.model';
+import {HealthStatusService} from '../../../core/services';
+import {GeneralEnvironmentStatus} from '../../../administration/management/management.model';
 
 @Component({
   selector: 'dlab-toolbar',
