@@ -24,7 +24,7 @@ import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
   styleUrls: ['./reporting-grid.component.scss',
-    '../../resources/resources-grid/resources-grid.component.scss'],
+    '../../../resources/resources-grid/resources-grid.component.scss'],
 
 })
 export class ReportingGridComponent implements OnInit {
