@@ -48,8 +48,8 @@ if __name__ == "__main__":
     odahu_conf['tag_name'] = '{}-tag'.format(odahu_conf['service_base_name'])
     odahu_conf['endpoint_tag'] = (os.environ['endpoint_name']).lower().replace('_', '-')
     odahu_conf['project_tag'] = (os.environ['project_name']).lower().replace('_', '-')
-    odahu_conf['region'] = os.environ['gcp_region']
-    odahu_conf['ssn_subnet_id'] = os.environ['ssn_subnet_id']
+    odahu_conf['region'] = os.environ['aws_region']
+    odahu_conf['ssn_subnet_id'] = os.environ['aws_subnet_id']
     odahu_conf['bucket_name'] = "{}-tfstate".format(odahu_conf['cluster_name'])
     odahu_conf['static_address_name'] = "{}-nat-gw".format(odahu_conf['cluster_name'])
     odahu_conf['keycloak_auth_server_url'] = os.environ['keycloak_auth_server_url']

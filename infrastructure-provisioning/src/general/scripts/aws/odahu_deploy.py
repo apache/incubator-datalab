@@ -63,7 +63,7 @@ if __name__ == "__main__":
     odahu_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
     tag = {"Key": '{}-Tag'.format(odahu_conf['service_base_name']),
            "Value": "{}-{}-subnet".format(odahu_conf['service_base_name'], odahu_conf['project_name'])}
-    odahu_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
+    odahu_conf['private_subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
     odahu_conf['grafana_admin'] = os.environ['odahu_grafana_admin']
     odahu_conf['grafana_pass'] = id_generator()
     odahu_conf['docker_password'] = base64.b64decode(os.environ['odahu_docker_password'] + "==")
