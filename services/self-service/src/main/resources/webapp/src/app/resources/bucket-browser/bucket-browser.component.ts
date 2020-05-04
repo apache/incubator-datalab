@@ -40,13 +40,16 @@ export class BucketBrowserComponent implements OnInit {
   public pathInsideBucket = '';
   public bucketName = '';
   public endpoint = '';
+  public isUploadWindowOpened = false;
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   public selectedFolder: any;
   private isUploading: boolean;
-  private selected: any[];
+  public selected: any[];
   private uploadForm: FormGroup;
-  private bucketStatus: object;
+  public bucketStatus;
+  public allDisable: boolean;
+  public folders: any[];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -81,9 +84,15 @@ export class BucketBrowserComponent implements OnInit {
       const file = event.target.files[0];
       this.uploadForm.get('file').setValue(file);
       const newAddedFiles = Object['values'](event.target.files).map(v => (
-        {item: v['name'], 'size': (v['size'] / 1048576).toFixed(2)} as unknown as TodoItemNode  ));
-      this.addedFiles = [...newAddedFiles];
+        {name: v['name'], file: file, 'size': (v['size'] / 1048576).toFixed(2), path: this.path, isUploading: false, uploaded: false, errorUploading: false}));
+      this.addedFiles = [...this.addedFiles, ...newAddedFiles];
+      this.isUploadWindowOpened = !!this.addedFiles.length;
     }
+    event.target.files = [];
+  }
+
+  public closeUploadWindow() {
+    this.isUploadWindowOpened = false;
   }
 
 
@@ -98,19 +107,24 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   filesPicked(files) {
-
     Array.prototype.forEach.call(files, file => {
       this.addedFiles.push(file.webkitRelativePath);
     });
   }
 
+  public dissableAll(event) {
+    this.allDisable = event;
+  }
+
   public onFolderClick(event) {
+    this.folderItems.forEach(item => item.isSelected = false);
+    this.selected = this.folderItems.filter(item => item.isSelected);
     this.selectedFolder = event.flatNode;
     this.folderItems = event.element ? event.element.children : event.children;
     if (this.folderItems) {
-      const folders = this.folderItems.filter(v => v.children).sort((a, b) => a.item > b.item ? 1 : -1);
+      this.folders = this.folderItems.filter(v => v.children).sort((a, b) => a.item > b.item ? 1 : -1);
       const files = this.folderItems.filter(v => !v.children).sort((a, b) => a.item > b.item ? 1 : -1);
-      this.folderItems = [...folders, ...files];
+      this.folderItems = [...this.folders, ...files];
       this.path = event.path;
       this.pathInsideBucket = this.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) + '/' : '';
       this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
@@ -123,23 +137,32 @@ export class BucketBrowserComponent implements OnInit {
     this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
   }
 
-  private uploadNewFile() {
-    const path = `${this.pathInsideBucket}${this.uploadForm.get('file').value.name}`;
-
+  private uploadNewFile(file) {
+    const path = `${file.path}/${file.name}`;
     const formData = new FormData();
-    formData.append('file', this.uploadForm.get('file').value);
+    formData.append('file', file.file);
     formData.append('object', path);
     formData.append('bucket', this.bucketName);
     formData.append('endpoint', this.endpoint);
-    this.isUploading = true;
+    file.isUploading = true;
+    console.log(formData);
     this.bucketBrowserService.uploadFile(formData)
       .subscribe(() => {
         this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
-        this.addedFiles = [];
-        this.isUploading = false;
+        file.isUploading = false;
+        file.uploaded = true;
         this.toastr.success('File successfully uploaded!', 'Success!');
-      }, error => this.toastr.error(error.message || 'File uploading error!', 'Oops!')
+      }, error => {
+        this.toastr.error(error.message || 'File uploading error!', 'Oops!');
+        file.errorUploading = true;
+        file.isUploading = false;
+      }
     );
+  }
+
+  public createFolder(folder) {
+    this.allDisable = true;
+    this.folderTreeComponent.addNewItem(folder, '', false);
   }
 
   public fileAction(action) {

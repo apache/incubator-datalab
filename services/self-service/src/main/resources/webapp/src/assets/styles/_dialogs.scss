@@ -343,6 +343,13 @@ mat-dialog-container {
   overflow: auto;
 }
 
+.bucket-browser{
+  .mat-form-field-appearance-legacy .mat-form-field-subscript-wrapper {
+    width: calc(100% + 77px);
+  }
+}
+
+
 @media screen and (max-width: 1280px) {
   .modal-fullscreen {
     max-width: 100vw !important;

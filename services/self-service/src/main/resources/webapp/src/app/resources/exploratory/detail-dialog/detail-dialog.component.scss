@@ -89,6 +89,12 @@
   cursor: pointer;
 }
 
-.not-allow{
-  cursor: not-allowed;
+.bucket-link{
+  color: #35afd5;
+  &.not-allow{
+    cursor: not-allowed;
+    color: $blue-grey-color;
+  }
 }
+
+

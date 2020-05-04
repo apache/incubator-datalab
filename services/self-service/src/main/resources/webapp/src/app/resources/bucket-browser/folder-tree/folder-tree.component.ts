@@ -1,12 +1,20 @@
-import {Component, OnInit, AfterViewInit, Output, EventEmitter, OnDestroy} from '@angular/core';
+import {Component, OnInit, AfterViewInit, Output, EventEmitter, OnDestroy, Input} from '@angular/core';
 import {SelectionModel} from '@angular/cdk/collections';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BucketBrowserService, TodoItemFlatNode, TodoItemNode} from '../../../core/services/bucket-browser.service';
 import {BucketDataService} from '../bucket-data.service';
 import {Subscription} from 'rxjs';
+import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
+import {ErrorStateMatcher} from '@angular/material/core';
+import {PATTERNS} from '../../../core/util';
 
-
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const isSubmitted = form && form.submitted;
+    return !!(control && control.invalid && (control.dirty));
+  }
+}
 
 @Component({
   selector: 'dlab-folder-tree',
@@ -17,6 +25,9 @@ import {Subscription} from 'rxjs';
 export class FolderTreeComponent implements OnInit, OnDestroy {
 
   @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
+  @Output() disableAll: EventEmitter<any> = new EventEmitter();
+  @Input() folders;
+
   private folderTreeSubs;
   private path = [];
   private selectedFolder: TodoItemFlatNode;
@@ -28,6 +39,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   public treeControl: FlatTreeControl<TodoItemFlatNode>;
   private treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
   public dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
+
 
   private checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
 
@@ -83,6 +95,21 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.bucketDataService._bucketData.next([]);
+  }
+
+  folderFormControl = new FormControl('', [
+    Validators.required,
+    Validators.pattern(PATTERNS.folderRegex),
+    this.duplicate.bind(this)
+  ]);
+
+  matcher = new MyErrorStateMatcher();
+
+  private duplicate(control) {
+    if (control && control.value) {
+      const isDublicat = this.folders.slice(1).some(folder => folder.item.toLocaleLowerCase() === control.value.toLowerCase());
+      return isDublicat ? { isDuplicate: true } : null;
+    }
   }
 
   private showItem(el) {
@@ -203,9 +230,24 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     this.treeControl.expand(node);
   }
 
+  private removeItem(node: TodoItemFlatNode) {
+    const parentNode = this.flatNodeMap.get(this.getParentNode(node));
+    this.bucketDataService.removeItem(parentNode!);
+    this.resetForm();
+  }
+
   private saveNode(node: TodoItemFlatNode, itemValue: string) {
     const nestedNode = this.flatNodeMap.get(node);
     this.bucketDataService.updateItem(nestedNode!, itemValue);
+    this.resetForm();
+    this.folderFormControl.updateValueAndValidity();
+    this.folderFormControl.markAsPristine();
+  }
 
+  private resetForm(){
+    this.folderFormControl.setValue('');
+    this.folderFormControl.updateValueAndValidity();
+    this.folderFormControl.markAsPristine();
+    this.disableAll.emit(false);
   }
 }

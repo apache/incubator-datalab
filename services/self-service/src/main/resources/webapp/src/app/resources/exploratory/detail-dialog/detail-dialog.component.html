@@ -68,9 +68,9 @@
                  [ngClass]="{'not-allow': !this.bucketStatus.view}"
             >
               <p *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.account_name">{{ DICTIONARY[PROVIDER].account }}
-                <span class="bucket-info" [ngClass]="{'not-allow': !this.bucketStatus.view}">{{ notebook.account_name}}</span></p>
+                <span class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus.view}">{{ notebook.account_name}}</span></p>
               <p *ngIf="notebook.bucket_name">{{ DICTIONARY[PROVIDER].container }} <span
-                  class="bucket-info" [ngClass]="{'not-allow': !this.bucketStatus.view}">{{ notebook.bucket_name }}</span></p>
+                  class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus.view}">{{ notebook.bucket_name }}</span></p>
             </div>
             <p>Shared endpoint bucket: &nbsp;</p>
             <div class="links_block" (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus.view)"
@@ -80,9 +80,9 @@
                  [ngClass]="{'not-allow': !this.bucketStatus.view}"
             >
               <p *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}
-                <span class="bucket-info" [ngClass]="{'not-allow': !this.bucketStatus.view}">{{ notebook.shared_account_name}}</span></p>
+                <span class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus.view}">{{ notebook.shared_account_name}}</span></p>
               <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY[PROVIDER].container }}
-                <span class="bucket-info" [ngClass]="{'not-allow': !this.bucketStatus.view}">{{ notebook.shared_bucket_name }}</span></p>
+                <span class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus.view}">{{ notebook.shared_bucket_name }}</span></p>
             </div>
             <br />
 

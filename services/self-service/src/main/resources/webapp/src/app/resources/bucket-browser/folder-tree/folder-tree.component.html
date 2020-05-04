@@ -7,13 +7,24 @@
   {{node.item}}
 </mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding>
-    <button mat-icon-button disabled></button>
-    <mat-form-field>
-      <mat-label>New folder</mat-label>
-      <input matInput #itemValue>
-    </mat-form-field>
-    <button mat-button (click)="saveNode(node, itemValue.value)">Save</button>
+  <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding class="input-node">
+    <form class="add-folder-form">
+      <mat-form-field>
+        <mat-label>New folder</mat-label>
+        <input matInput #itemValue [formControl]="folderFormControl" [errorStateMatcher]="matcher">
+        <mat-error *ngIf="!folderFormControl.hasError('required') && !folderFormControl.hasError('isDuplicate')">
+         Folder name can only contain latin letters, numbers end special characters exepting  #, ?, /, \, "
+        </mat-error>
+        <mat-error *ngIf="folderFormControl.hasError('required')">isDuplicate
+          Folder name is <strong>required</strong>
+        </mat-error>
+        <mat-error *ngIf="folderFormControl.hasError('isDuplicate')">
+          Folder with this name already exist
+        </mat-error>
+      </mat-form-field>
+      <button (click)="saveNode(node, itemValue.value)" [ngClass]="{'check': folderFormControl.valid && folderFormControl.dirty}" mat-icon-button class="btn action-btn" [disabled]="!folderFormControl.valid || !folderFormControl.dirty"><span><i class="material-icons ">check</i></span></button>
+      <button (click)="removeItem(node)" mat-icon-button class="btn close action-btn"><span ><i class="material-icons ">close</i></span></button>
+    </form>
   </mat-tree-node>
 
   <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
