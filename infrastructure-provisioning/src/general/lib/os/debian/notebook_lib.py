@@ -140,9 +140,9 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('''echo 'Sys.setenv(https_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(https_proxy, os_user))
             sudo('rstudio-server start')
             sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
-            sudo("sed -i '/exit 0/d' /etc/rc.local")
-            sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/{}/.Renviron\' >> /etc/rc.local"'''.format(os_user))
-            sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
+            #sudo("sed -i '/exit 0/d' /etc/rc.local")
+            #sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/{}/.Renviron\' >> /etc/rc.local"'''.format(os_user))
+            #sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
             sudo('touch /home/{}/.ensure_dir/rstudio_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -212,7 +212,7 @@ def ensure_additional_python_libs(os_user):
         try:
             manage_pkg('-y install', 'remote', 'libjpeg8-dev zlib1g-dev')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
-                sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('pip2 install NumPy==1.14.3 SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
                 sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('pip2 install opencv-python h5py --no-cache-dir')
@@ -259,8 +259,9 @@ def ensure_python2_libraries(os_user):
 def ensure_python3_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python3_libraries_ensured'):
         try:
-            manage_pkg('-y install', 'remote', 'python3-setuptools')
+            #manage_pkg('-y install', 'remote', 'python3-setuptools')
             manage_pkg('-y install', 'remote', 'python3-pip')
+            sudo('pip3 install setuptools')
             try:
                 sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
@@ -286,38 +287,52 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('update-initramfs -u')
             with settings(warn_only=True):
                 reboot(wait=150)
-            manage_pkg('-y install', 'remote', 'dkms')
+            manage_pkg('-y install', 'remote', 'dkms libglvnd-dev')
             kernel_version = run('uname -r | tr -d "[..0-9-]"')
             if kernel_version == 'azure':
                 manage_pkg('-y install', 'remote', 'linux-modules-`uname -r`')
             else:
-                #legacy support for old kernels
-                sudo('if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;')
-            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
+                # legacy support for old kernels
+                sudo('if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y '
+                     'install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;')
+            sudo('wget http://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
+                 '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
-            sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version, cuda_file_name))
+            sudo('python3 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'.format(
+                os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
+            sudo('wget -P /opt http://developer.download.nvidia.com/compute/cuda/{0}/Prod/local_installers/{1}'.format(
+                cuda_version, cuda_file_name))
             sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
             sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
             sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
             sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
-            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(cudnn_version, cudnn_file_name))
+            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
+                cudnn_version, cudnn_file_name))
             run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
             sudo('mkdir -p /opt/cudnn/include')
             sudo('mkdir -p /opt/cudnn/lib64')
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
+            run(
+                'echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
-            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
-            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            # sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            sudo('python3 -m pip install --upgrade '
+                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp36-cp36m-manylinux2010_x86_64.whl'
+                 ' --no-cache-dir'.format(tensorflow_version))
             sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
+            http_proxy = run('echo $http_proxy')
+            https_proxy = run('echo $https_proxy')
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/tensorboard.service'.format(
+                http_proxy))
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/tensorboard.service'.format(
+                https_proxy))
             sudo("chmod 644 /tmp/tensorboard.service")
             sudo('\cp /tmp/tensorboard.service /etc/systemd/system/')
             sudo("systemctl daemon-reload")
