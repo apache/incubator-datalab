@@ -133,6 +133,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 					.status(HealthStatusEnum.OK.toString())
 					.listResources(Collections.emptyList())
 					.billingEnabled(configuration.isBillingSchedulerEnabled())
+					.auditEnabled(configuration.isAuditEnabled())
 					.projectAdmin(UserRoles.isProjectAdmin(userInfo))
 					.admin(UserRoles.isAdmin(userInfo))
 					.projectAssigned(projectService.isAnyProjectAssigned(userInfo))
