@@ -28,6 +28,7 @@ import com.epam.dlab.util.mongo.modules.MongoModule;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
@@ -69,6 +70,7 @@ public class BaseDAO {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper()
 			.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
+			.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
 			.registerModule(new IsoDateModule())
 			.registerModule(new JavaPrimitiveModule())
 			.registerModule(new MongoModule());

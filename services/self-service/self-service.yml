@@ -50,8 +50,10 @@ roleDefaultAccess: true
 
 # Set to true to enable the scheduler of billing report.
 billingSchedulerEnabled: false
+# Set to true to enable audit
+auditEnabled: true
 # Name of configuration file for billing report.
-<#if DEV_MODE == "true">
+  <#if DEV_MODE == "true">
 billingConfFile: ${sys['user.dir']}/../billing/billing.yml
 <#else>
 billingConfFile: ${DLAB_CONF_DIR}/billing.yml
