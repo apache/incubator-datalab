@@ -18,6 +18,8 @@
  */
 
 .bucket-browser {
+  font-size: 14px;
+  font-weight: 400;
   .loading-block{
     width: 80%;
     margin: 20% auto 0 auto;
@@ -35,11 +37,17 @@
   }
 
   .path{
-    margin: 0 4px 10px 4px;
+    margin: 0 4px 20px 4px;
     padding: 4px 4px 4px 20px;
     color: rgba(0,0,0,.87);
+    overflow: hidden;
+    white-space: nowrap;
+    display: flex;
     .url{
       font-weight: 600;
+      overflow: hidden;
+      display: block;
+      padding-left: 10px;
     }
   }
   bottom: 0;
@@ -89,24 +97,39 @@
     border-right: 2px solid rgba(0,0,0,.12);
     max-height: 500px;
     overflow: auto;
+    padding-top: 6px;
     .folder-tree{
 
       .folder{
         line-height: 30px;
       }
     }
+    .mat-tree-node{
+      min-height: auto;
+    }
 
   }
 
   .directory{
     max-height: 500px;
-    overflow: auto;
     flex: 2;
+    font-size: 14px;
+    font-weight: 400;
+    position: relative;
     .folder-tree{
+      overflow: auto;
+      max-height: 100%;
       .name{
         flex:2;
         display: flex;
         align-items: center;
+        overflow: hidden;
+        .name-wrap {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          padding-right: 10px;
+        }
         &-folder{
           span{
             padding-left: 10px;
@@ -124,6 +147,15 @@
       }
       .size{
         flex:1;
+        &-folder{
+          padding-left: 34px;
+        }
+      }
+      .date{
+        flex:1;
+        .th_date{
+          font-size: 13px;
+        }
       }
       .progress-wrapper{
         flex:1;
@@ -175,11 +207,32 @@
 
   .folder-tree {
     padding: 20px 30px;
+    padding-top: 6px;
   }
 
   .folder-item{
      display: flex;
      align-items: center;
+    &.t_header{
+      top: -27px;
+      position: absolute;
+      left: 0;
+      right: 0;
+
+      .th_name{
+        padding-left: 35px;
+        font-size: 11px;
+      }
+
+      .th_size{
+        font-size: 11px;
+        padding-left: 3px;
+      }
+
+      .th_date{
+        font-size: 11px !important;
+      }
+    }
      .folder-item-wrapper{
        width: 100%;
        display: flex;
@@ -190,7 +243,7 @@
        i{
          color: rgb(232, 232, 232);
        }
-       &:hover{
+       &:hover:not(.header-wrapper){
          color: #00bcd4;
          transition: .3s ease-in-out;
          i{
@@ -206,11 +259,22 @@
            }
          }
        }
+       &.no-select{
+         pointer-events: none;
+         .name-wrap{
+           padding-left: 29px !important;
+         }
+       }
      }
    }
 }
 
+input[type='file'] {
+  opacity:0
+}
+
 .empty-checkbox {
+  min-width: 16px;
   width: 16px;
   height: 16px;
   border-radius: 2px;
@@ -241,8 +305,108 @@
   .check-box {
     background-color: red;
   }
-
 }
+
+.upload-window{
+  box-shadow: 0 11px 15px -7px rgba(0, 0, 0, 0.42), 0 24px 20px 3px rgba(0, 0, 0, 0.42), 0 9px 20px 8px rgba(0, 0, 0, 0.42);
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+  width: 700px;
+  min-height: 100px;
+  color: black;
+  .upload-header{
+    padding-left: 30px;
+    background: #f6fafe;
+    height: 30px;
+    line-height: 30px;
+    position: relative;
+    .modal-title {
+      width: 90%;
+      margin: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-weight: 600;
+      color: #455c74;
+      font-size: 14px;
+      background: #f6fafe;
+  }
+    .close{
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 30px;
+      width: 30px;
+      font-size: 14px;
+      font-weight: 300;
+      border: 0;
+      background: none;
+      color: #577289;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.45s ease-in-out;
+      &:hover{
+        color: #36afd5;
+      }
+    }
+
+  }
+  .upload-files{
+    padding: 5px;
+    .file{
+      padding: 2px;
+      display: flex;
+      font-size: 12px;
+      .name{
+        flex:12;
+        padding-right: 5px;
+      }
+
+      .upload-path{
+        flex:12;
+        padding-right: 5px;
+      }
+
+      .size{
+        flex:4;
+      }
+      .state{
+        flex:6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        .mat-raised-button{
+          width: 60px;
+          padding: 5px;
+          border-radius: 0;
+          font-style: normal;
+          font-weight: 600;
+          font-size: 11px;
+          font-family: "Open Sans", sans-serif;
+          color: #577289;
+          line-height: 8px;
+        }
+      }
+      .remove{
+        flex:1;
+        display: flex;
+        align-items: center;
+        .close{
+          color: #577289;
+          font-size: 14px;
+          cursor: pointer;
+          &:hover{
+            color: #f1696e;
+          }
+        }
+      }
+    }
+  }
+}
+
+
 
 @media only screen and (max-height: 840px) {
   .backet-wrapper {
