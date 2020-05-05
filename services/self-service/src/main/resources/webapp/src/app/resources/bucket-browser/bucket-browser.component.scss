@@ -75,27 +75,22 @@
       }
     }
   }
-
-  .text-center{
-    position: absolute;
-    bottom: 3vh;
-    left: 0;
-    right: 0;
-  }
 }
 
 .backet-wrapper{
-  height: 50vh;
+  height: 53vh;
   border: 2px solid rgba(0,0,0,.12);
   border-radius: 5px;
   display: flex;
 
-
+  &.added-upload{
+    height: 37vh;
+  }
 
   .navigation{
     flex: 1;
     border-right: 2px solid rgba(0,0,0,.12);
-    max-height: 500px;
+    height: 100%;
     overflow: auto;
     padding-top: 6px;
     .folder-tree{
@@ -111,7 +106,7 @@
   }
 
   .directory{
-    max-height: 500px;
+    max-height: 100%;
     flex: 2;
     font-size: 14px;
     font-weight: 400;
@@ -131,14 +126,15 @@
           padding-right: 10px;
         }
         &-folder{
+          padding-left: 9px;
           span{
-            padding-left: 10px;
+            padding-left: 5px;
           }
         }
         &-file{
-          padding-left: 4px;
+          //padding-left: 4px;
           span.item-name{
-            padding-left: 14px;
+            padding-left: 9px;
             &.removed-checkbox{
               padding-left: 0;
             }
@@ -148,7 +144,7 @@
       .size{
         flex:1;
         &-folder{
-          padding-left: 34px;
+          padding-left: 7px;
         }
       }
       .date{
@@ -220,7 +216,7 @@
       right: 0;
 
       .th_name{
-        padding-left: 35px;
+        padding-left: 29px;
         font-size: 11px;
       }
 
@@ -240,6 +236,9 @@
        align-items: center;
        cursor: pointer;
        color: rgba(0,0,0,.87);
+       &.header-item{
+         pointer-events: none;
+       }
        i{
          color: rgb(232, 232, 232);
        }
@@ -308,16 +307,15 @@ input[type='file'] {
 }
 
 .upload-window{
-  box-shadow: 0 11px 15px -7px rgba(0, 0, 0, 0.42), 0 24px 20px 3px rgba(0, 0, 0, 0.42), 0 9px 20px 8px rgba(0, 0, 0, 0.42);
-  position: fixed;
-  right: 0;
-  bottom: 0;
+  margin-top: 20px;
+  border: 2px solid rgba(0,0,0,.12);
+  border-radius: 5px;
   background-color: white;
-  width: 700px;
   min-height: 100px;
   color: black;
+  
   .upload-header{
-    padding-left: 30px;
+    padding-left: 8px;
     background: #f6fafe;
     height: 30px;
     line-height: 30px;
@@ -333,13 +331,14 @@ input[type='file'] {
       font-size: 14px;
       background: #f6fafe;
   }
+    
     .close{
       position: absolute;
       top: 0;
       right: 0;
       height: 30px;
       width: 30px;
-      font-size: 14px;
+      font-size: 20px;
       font-weight: 300;
       border: 0;
       background: none;
@@ -355,10 +354,16 @@ input[type='file'] {
   }
   .upload-files{
     padding: 5px;
+    height: 100px;
+    overflow: auto;
     .file{
       padding: 2px;
       display: flex;
       font-size: 12px;
+      position: relative;
+      &.upload-table-header{
+        font-size: 11px;
+      }
       .name{
         flex:12;
         padding-right: 5px;
@@ -390,13 +395,21 @@ input[type='file'] {
         }
       }
       .remove{
-        flex:1;
         display: flex;
         align-items: center;
+        flex: 1;
+        position: relative;
         .close{
           color: #577289;
-          font-size: 14px;
+          font-size: 12px;
           cursor: pointer;
+          position: absolute;
+          top: 3px;
+          right: 0;
+          height: 18px;
+          width: 14px;
+          transition: all 0.45s ease-in-out;
+
           &:hover{
             color: #f1696e;
           }
@@ -411,12 +424,18 @@ input[type='file'] {
 @media only screen and (max-height: 840px) {
   .backet-wrapper {
     height: 45vh;
+    &.added-upload{
+      height: 30vh;
+    }
   }
 }
 
 @media only screen and (max-height: 690px) {
   .backet-wrapper {
     height: 40vh;
+    &.added-upload{
+      height: 25vh;
+    }
   }
 }
 

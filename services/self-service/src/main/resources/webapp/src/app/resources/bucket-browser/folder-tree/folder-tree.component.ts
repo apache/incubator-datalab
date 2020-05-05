@@ -107,7 +107,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
 
   private duplicate(control) {
     if (control && control.value) {
-      const isDublicat = this.folders.slice(1).some(folder => folder.item.toLocaleLowerCase() === control.value.toLowerCase());
+      const isDublicat = this.folders.slice(1).some(folder => folder.item === control.value);
       return isDublicat ? { isDuplicate: true } : null;
     }
   }

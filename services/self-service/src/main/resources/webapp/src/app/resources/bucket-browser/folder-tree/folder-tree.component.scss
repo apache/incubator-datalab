@@ -1,10 +1,11 @@
 
 .folder{
   padding-left: 5px;
-  max-width: 150px;
+  max-width: 350px;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
+  overflow: hidden;
+
 }
 
 .mat-tree{
@@ -23,7 +24,6 @@
 }
 
 .active-item {
-  //border-bottom: 1px solid #00bcd4;
   color: #00bcd4;
   i{
     color: #00bcd4;
@@ -46,8 +46,6 @@
     width: 25px;
     height: 25px;
     line-height: 28px;
-    //display: flex;
-    //align-items: center;
   }
   &:hover{
     color: #00bcd4;
@@ -59,6 +57,9 @@
 
 .input-node {
   overflow: unset;
+  padding-top: 5px;
+  padding-bottom: 7px;
+
 
   button.mat-icon-button {
     &.action-btn {
