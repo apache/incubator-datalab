@@ -313,6 +313,7 @@ input[type='file'] {
   background-color: white;
   min-height: 100px;
   color: black;
+  
   .upload-header{
     padding-left: 8px;
     background: #f6fafe;
@@ -330,6 +331,7 @@ input[type='file'] {
       font-size: 14px;
       background: #f6fafe;
   }
+    
     .close{
       position: absolute;
       top: 0;
@@ -375,7 +377,6 @@ input[type='file'] {
       .size{
         flex:4;
       }
-
       .state{
         flex:6;
         display: flex;
@@ -394,7 +395,6 @@ input[type='file'] {
         }
       }
       .remove{
-
         display: flex;
         align-items: center;
         flex: 1;
@@ -409,6 +409,7 @@ input[type='file'] {
           height: 18px;
           width: 14px;
           transition: all 0.45s ease-in-out;
+
           &:hover{
             color: #f1696e;
           }

@@ -94,6 +94,7 @@ export class BucketBrowserComponent implements OnInit {
   public closeUploadWindow() {
     // this.isUploadWindowOpened = false;
     this.addedFiles = [];
+
   }
 
 

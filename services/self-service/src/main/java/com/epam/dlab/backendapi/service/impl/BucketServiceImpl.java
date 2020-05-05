@@ -116,7 +116,7 @@ public class BucketServiceImpl implements BucketService {
     }
 
     private String encodeObject(String object) throws UnsupportedEncodingException {
-        return URLEncoder.encode(object, StandardCharsets.UTF_8.toString());
+        return URLEncoder.encode(object, StandardCharsets.UTF_8.toString()).replace("+", "%20");
     }
 
     private FormDataMultiPart getFormDataMultiPart(String bucket, String object, InputStream inputStream) {

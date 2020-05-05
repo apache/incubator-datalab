@@ -100,10 +100,10 @@
 <!--                <div class="progres" *ngIf="file.isSelected"><div class="bar"></div></div>-->
 <!--              </div>-->
             </div>
-
             <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file, 'file')" *ngIf="!file.children" [ngClass]="{'no-select': !this.bucketStatus.download && !this.bucketStatus.delete}">
               <div class="name name-file">
                  <span *ngIf="this.bucketStatus.download || this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isSelected}" (click)="toggleSelectedFile(file, 'file');$event.stopPropagation()" >
+
                     <span class="checked-checkbox" *ngIf="file.isSelected"></span>
                   </span>
                 <span class="item-name name-wrap" [ngClass]="{'removed-checkbox': !this.bucketStatus.download && !this.bucketStatus.delete}">{{file.item}}</span>
@@ -149,7 +149,26 @@
       <button type="button" class="butt" mat-raised-button (click)="this.dialogRef.close()">Close</button>
     </div>
   </div>
-
+  <div class="upload-window" *ngIf="isUploadWindowOpened">
+    <header class="upload-header">
+      <h4 class="modal-title">Upload files</h4>
+      <button type="button" class="close" (click)="closeUploadWindow()">&times;</button>
+    </header>
+    <ul class="upload-files">
+      <li *ngFor="let file of addedFiles" class="file">
+          <div class="name ellipsis" matTooltip="{{file.name}}">{{file.name}}</div>
+          <div class="upload-path ellipsis" matTooltip="{{file.path}}">{{file.path}}</div>
+          <div class="size">{{file.size}}MB</div>
+          <div class="state">
+            <button mat-raised-button (click)="uploadNewFile(file)" *ngIf="!file.isUploading && !file.doneUploading && !file.errorUploading">Upload</button>
+            <mat-progress-bar mode="indeterminate" *ngIf="file.isUploading"></mat-progress-bar>
+            <span *ngIf="file.uploaded">Uploaded</span>
+            <span *ngIf="file.errorUploading" class="error">Uploading error</span>
+          </div>
+          <div class="remove"><i (click)="deleteAddedFile(file)" class="material-icons close">close</i></div>
+      </li>
+    </ul>
+  </div>
   <div class="loading-block" *ngIf="!path">
     <div class="uploading">
       <p>Please wait until DLab loads bucket: <span class="strong">{{data.bucket}}</span>...</p>
