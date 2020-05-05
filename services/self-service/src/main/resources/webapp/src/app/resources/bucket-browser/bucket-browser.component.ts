@@ -44,7 +44,7 @@ export class BucketBrowserComponent implements OnInit {
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   public selectedFolder: any;
-  private isUploading: boolean;
+  public selectedFolderForAction: any;
   public selected: any[];
   private uploadForm: FormGroup;
   public bucketStatus;
@@ -86,24 +86,36 @@ export class BucketBrowserComponent implements OnInit {
       const newAddedFiles = Object['values'](event.target.files).map(v => (
         {name: v['name'], file: file, 'size': (v['size'] / 1048576).toFixed(2), path: this.path, isUploading: false, uploaded: false, errorUploading: false}));
       this.addedFiles = [...this.addedFiles, ...newAddedFiles];
-      this.isUploadWindowOpened = !!this.addedFiles.length;
     }
-    event.target.files = [];
+    // event.target.value = null;
   }
 
   public closeUploadWindow() {
-    this.isUploadWindowOpened = false;
+    // this.isUploadWindowOpened = false;
+    this.addedFiles = [];
   }
 
 
-  public toggleSelectedFile(file) {
+  public toggleSelectedFile(file, type) {
    // remove if when will be possible download several files
-    if (!file.isSelected) {
+    if (!file.isSelected || !file.isFolderSelected) {
       this.folderItems.forEach(item => item.isSelected = false);
+      this.folderItems.forEach(item => item.isFolderSelected = false);
+    }
+    if (type === 'file') {
+      file.isSelected = !file.isSelected;
+      this.selected = this.folderItems.filter(item => item.isSelected);
+      this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
     }
 
-    file.isSelected = !file.isSelected;
-    this.selected = this.folderItems.filter(item => item.isSelected);
+    if (type === 'folder') {
+      file.isFolderSelected = !file.isFolderSelected;
+      this.selected = this.folderItems.filter(item => item.isSelected);
+      this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
+    }
+
+    console.log(this.selectedFolderForAction, this.selected );
+
   }
 
   filesPicked(files) {
@@ -117,8 +129,7 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public onFolderClick(event) {
-    this.folderItems.forEach(item => item.isSelected = false);
-    this.selected = this.folderItems.filter(item => item.isSelected);
+    this.clearSelection();
     this.selectedFolder = event.flatNode;
     this.folderItems = event.element ? event.element.children : event.children;
     if (this.folderItems) {
@@ -130,7 +141,13 @@ export class BucketBrowserComponent implements OnInit {
       this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
       this.folderItems.forEach(item => item.isSelected = false);
     }
+  }
 
+  private clearSelection() {
+    this.folderItems.forEach(item => item.isSelected = false);
+    this.folderItems.forEach(item => item.isFolderSelected = false);
+    this.selected = this.folderItems.filter(item => item.isSelected);
+    this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
   }
 
   public deleteAddedFile(file) {
@@ -138,14 +155,14 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   private uploadNewFile(file) {
-    const path = `${file.path}/${file.name}`;
+    const path = file.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) : '';
+    const fullPath = path ? `${path}/${file.name}` : file.name;
     const formData = new FormData();
     formData.append('file', file.file);
-    formData.append('object', path);
+    formData.append('object', fullPath);
     formData.append('bucket', this.bucketName);
     formData.append('endpoint', this.endpoint);
     file.isUploading = true;
-    console.log(formData);
     this.bucketBrowserService.uploadFile(formData)
       .subscribe(() => {
         this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
@@ -166,8 +183,13 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public fileAction(action) {
-    this.selected = this.folderItems.filter(item => item.isSelected);
+    // this.selected = this.folderItems.filter(item => item.isSelected);
     const selected = this.folderItems.filter(item => item.isSelected)[0];
+    const folderSelected = this.folderItems.filter(item => item.isFolderSelected)[0];
+    if (!selected) {
+      this.toastr.error('Folder deleting not working yet!', 'Oops!');
+      return;
+    }
     const path = encodeURIComponent(`${this.pathInsideBucket}${this.selected[0].item}`);
     if (action === 'download') {
       selected['isDownloading'] = true;
@@ -176,13 +198,15 @@ export class BucketBrowserComponent implements OnInit {
         FileUtils.downloadBigFiles(data, selected.item);
         selected['isDownloading'] = false;
         this.folderItems.forEach(item => item.isSelected = false);
-        }, error => this.toastr.error(error.message || 'File downloading error!', 'Oops!')
-      );
+        }, error => {
+            this.toastr.error(error.message || 'File downloading error!', 'Oops!');
+            selected['isDownloading'] = false;
+          }
+        );
     }
 
     if (action === 'delete') {
       this.bucketBrowserService.deleteFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}`).subscribe(() => {
-
         this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
           this.toastr.success('File successfully deleted!', 'Success!');
         this.folderItems.forEach(item => item.isSelected = false);

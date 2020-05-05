@@ -13,13 +13,13 @@
         <mat-label>New folder</mat-label>
         <input matInput #itemValue [formControl]="folderFormControl" [errorStateMatcher]="matcher">
         <mat-error *ngIf="!folderFormControl.hasError('required') && !folderFormControl.hasError('isDuplicate')">
-         Folder name can only contain latin letters, numbers end special characters exepting  #, ?, /, \, "
+          The folder name can only contain Latin letters, numbers and special characters except for #, ?, /, \, "
         </mat-error>
-        <mat-error *ngIf="folderFormControl.hasError('required')">isDuplicate
+        <mat-error *ngIf="folderFormControl.hasError('required')">
           Folder name is <strong>required</strong>
         </mat-error>
         <mat-error *ngIf="folderFormControl.hasError('isDuplicate')">
-          Folder with this name already exist
+          Folder with this name already exists
         </mat-error>
       </mat-form-field>
       <button (click)="saveNode(node, itemValue.value)" [ngClass]="{'check': folderFormControl.valid && folderFormControl.dirty}" mat-icon-button class="btn action-btn" [disabled]="!folderFormControl.valid || !folderFormControl.dirty"><span><i class="material-icons ">check</i></span></button>
