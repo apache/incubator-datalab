@@ -24,7 +24,6 @@ import com.epam.dlab.backendapi.service.BucketService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
@@ -71,8 +70,7 @@ public class BucketResource {
                                  @FormDataParam("object") String object,
                                  @FormDataParam("bucket") String bucket,
                                  @FormDataParam("endpoint") String endpoint,
-                                 @FormDataParam("file") InputStream fileInputStream,
-                                 @FormDataParam("file") FormDataContentDisposition fileMetaData) {
+                                 @FormDataParam("file") InputStream fileInputStream) {
         bucketService.uploadObjects(userInfo, bucket, object, endpoint, fileInputStream);
         return Response.ok().build();
     }

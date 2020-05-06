@@ -30,7 +30,6 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -59,24 +58,27 @@ public class BucketServiceGcpImpl implements BucketService {
 
     @Override
     public void uploadObject(String bucket, String object, InputStream stream) {
+        log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             BlobId blobId = BlobId.of(bucket, object);
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-            storage.create(blobInfo, IOUtils.toByteArray(stream));
+            storage.create(blobInfo, stream);
         } catch (Exception e) {
             log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
+        log.info("Finished uploading file {} to bucket {}", object, bucket);
     }
 
     @Override
     public byte[] downloadObject(String bucket, String object) {
-        try {
+        log.info("Downloading file {} from bucket {}", object, bucket);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             Blob blob = storage.get(BlobId.of(bucket, object));
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             blob.downloadTo(outputStream); //todo add check for blob != null and throw exception
+            log.info("Downloading uploading file {} from bucket {}", object, bucket);
             return outputStream.toByteArray();
         } catch (Exception e) {
             log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());

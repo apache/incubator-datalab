@@ -75,6 +75,7 @@ public class BucketServiceImpl implements BucketService {
 
     @Override
     public void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream) {
+        log.info("Uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
             FormDataMultiPart formData = getFormDataMultiPart(bucket, object, inputStream);
@@ -86,6 +87,7 @@ public class BucketServiceImpl implements BucketService {
             log.error("Cannot upload object {} to bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage());
             throw new DlabException(String.format("Cannot upload object %s to bucket %s for user %s, endpoint %s. Reason %s", object, bucket, userInfo.getName(), endpoint, e.getMessage()));
         }
+        log.info("Finished uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
     }
 
     @Override
