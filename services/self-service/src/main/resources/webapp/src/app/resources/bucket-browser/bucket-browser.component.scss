@@ -82,12 +82,14 @@
   border: 2px solid rgba(0,0,0,.12);
   border-radius: 5px;
   display: flex;
+  width: 100%;
 
   &.added-upload{
     height: 37vh;
   }
 
   .navigation{
+    width: 33.3%;
     flex: 1;
     border-right: 2px solid rgba(0,0,0,.12);
     height: 100%;
@@ -106,6 +108,7 @@
   }
 
   .directory{
+    width: 66.7%;
     max-height: 100%;
     flex: 2;
     font-size: 14px;
@@ -313,7 +316,7 @@ input[type='file'] {
   background-color: white;
   min-height: 100px;
   color: black;
-  
+
   .upload-header{
     padding-left: 8px;
     background: #f6fafe;
@@ -331,7 +334,7 @@ input[type='file'] {
       font-size: 14px;
       background: #f6fafe;
   }
-    
+
     .close{
       position: absolute;
       top: 0;
@@ -418,8 +421,6 @@ input[type='file'] {
     }
   }
 }
-
-
 
 @media only screen and (max-height: 840px) {
   .backet-wrapper {

@@ -8,7 +8,7 @@ export class TodoItemNode {
   children: TodoItemNode[];
   item: string;
   id: string;
-  size: number;
+  object: any;
 }
 
 export class TodoItemFlatNode {
@@ -49,13 +49,11 @@ export class BucketBrowserService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public deleteFile(data) {
-    const url = JSON.stringify(data);
+  public deleteFile(data, url) {
     return this.applicationServiceFacade
-      .buildDeleteFileFromBucket(url)
+      .buildDeleteFileFromBucket(data, url)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
-
 }

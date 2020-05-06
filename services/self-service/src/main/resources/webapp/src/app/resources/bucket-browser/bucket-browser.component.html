@@ -60,14 +60,12 @@
          type="button" class="butt"
          mat-raised-button
          (click)="fileAction('download')"
-         [disabled]="!selected?.length || !this.bucketStatus.download || allDisable"
+         [disabled]=" !selected?.length || this.selectedItems?.length > 1 || !this.bucketStatus.download || allDisable"
        >
          Download
        </button>
       </span>
 
-
-<!--      <button type="button" class="butt" mat-raised-button [disabled]="this.addedFiles.length === 0" (click)="uploadNewFile()">Upload</button>-->
     </div>
     <p class="path"><span>Bucket path:</span><span class="url ellipsis"> {{path}}</span></p>
     <div class="backet-wrapper" [ngClass]="{'added-upload': addedFiles.length}" id="scrolling">
@@ -76,6 +74,7 @@
           (showFolderContent)=onFolderClick($event)
           (disableAll) = dissableAll($event)
           [folders] = folders
+          [endpoint] = endpoint
         > </dlab-folder-tree>
       </div>
       <div class="directory">
@@ -108,8 +107,8 @@
                   </span>
                 <span class="item-name name-wrap" [ngClass]="{'removed-checkbox': !this.bucketStatus.download && !this.bucketStatus.delete}">{{file.item}}</span>
               </div>
-              <div class="size">{{file.size?.size}}</div>
-              <div class="date" *ngIf="!file.isDownloading">{{file.size?.lastModifiedDate }}</div>
+              <div class="size">{{file.object?.size}}</div>
+              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>
               <div class="progress-wrapper" *ngIf="file.isDownloading">
                 <mat-progress-bar mode="indeterminate"></mat-progress-bar>
               </div>

@@ -8,6 +8,7 @@ import {Subscription} from 'rxjs';
 import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
 import {PATTERNS} from '../../../core/util';
+import {ToastrService} from 'ngx-toastr';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -27,6 +28,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
   @Output() disableAll: EventEmitter<any> = new EventEmitter();
   @Input() folders;
+  @Input() endpoint;
 
   private folderTreeSubs;
   private path = [];
@@ -34,7 +36,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   private flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
   private nestedNodeMap = new Map<TodoItemNode, TodoItemFlatNode>();
   private selectedParent: TodoItemFlatNode | null = null;
-  private newItemName = '';
+  private folderCreating = false;
   private subscriptions: Subscription = new Subscription();
   public treeControl: FlatTreeControl<TodoItemFlatNode>;
   private treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
@@ -44,6 +46,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   private checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
 
   constructor(
+    public toastr: ToastrService,
     private bucketBrowserService: BucketBrowserService,
     private bucketDataService: BucketDataService,
     ) {
@@ -226,6 +229,8 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
 
   private addNewItem(node: TodoItemFlatNode, file, isFile, path) {
     const parentNode = this.flatNodeMap.get(node);
+
+    console.log(parentNode);
     this.bucketDataService.insertItem(parentNode!, file, isFile);
     this.treeControl.expand(node);
   }
@@ -237,14 +242,31 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   }
 
   private saveNode(node: TodoItemFlatNode, itemValue: string) {
-    const nestedNode = this.flatNodeMap.get(node);
-    this.bucketDataService.updateItem(nestedNode!, itemValue);
-    this.resetForm();
-    this.folderFormControl.updateValueAndValidity();
-    this.folderFormControl.markAsPristine();
+    this.folderCreating = true;
+    const parent = this.getParentNode(node);
+    const flatParent = this.flatNodeMap.get(parent);
+    const path = `${flatParent.object.object}${itemValue}/`;
+    const formData = new FormData();
+    formData.append('file', '');
+    formData.append('object', path);
+    formData.append('bucket', flatParent.object.bucket);
+    formData.append('endpoint', this.endpoint);
+    this.bucketBrowserService.uploadFile(formData)
+      .subscribe(() => {
+          this.bucketDataService.refreshBucketdata(flatParent.object.bucket, this.endpoint);
+          this.toastr.success('Folder successfully created!', 'Success!');
+          this.resetForm();
+          this.folderFormControl.updateValueAndValidity();
+          this.folderFormControl.markAsPristine();
+          this.folderCreating = false;
+        }, error => {
+          this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
+          this.folderCreating = false;
+        }
+      );
   }
 
-  private resetForm(){
+  private resetForm() {
     this.folderFormControl.setValue('');
     this.folderFormControl.updateValueAndValidity();
     this.folderFormControl.markAsPristine();
