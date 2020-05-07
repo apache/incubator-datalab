@@ -31,7 +31,7 @@
 cloudProvider: ${CLOUD_TYPE}
 
 #Switch on/off developer mode here
-  <#assign DEV_MODE="false">
+<#assign DEV_MODE="false">
 devMode: ${DEV_MODE}
 
 mongo:
