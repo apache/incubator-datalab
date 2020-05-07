@@ -33,5 +33,5 @@ public interface BucketService {
 
     byte[] downloadObject(String bucket, String object);
 
-    void deleteObject(String bucket, String object);
+    void deleteObjects(String bucket, List<String> objects);
 }

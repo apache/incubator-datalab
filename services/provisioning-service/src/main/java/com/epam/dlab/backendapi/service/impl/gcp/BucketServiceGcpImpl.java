@@ -87,13 +87,17 @@ public class BucketServiceGcpImpl implements BucketService {
     }
 
     @Override
-    public void deleteObject(String bucket, String object) {
+    public void deleteObjects(String bucket, List<String> objects) {
         try {
             Storage storage = StorageOptions.getDefaultInstance().getService();
-            storage.delete(bucket, object);
+            List<BlobId> blobIds = objects
+                    .stream()
+                    .map(o -> BlobId.of(bucket, o))
+                    .collect(Collectors.toList());
+            storage.delete(blobIds);
         } catch (Exception e) {
-            log.error("Cannot delete object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
-            throw new DlabException(String.format("Cannot delete object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
+            log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage());
+            throw new DlabException(String.format("Cannot delete objects %s from bucket %s. Reason: %s", objects, bucket, e.getMessage()));
         }
     }
 

@@ -42,7 +42,7 @@ public class BucketServiceAzureImpl implements BucketService {
     }
 
     @Override
-    public void deleteObject(String bucket, String object) {
+    public void deleteObjects(String bucket, List<String> objects) {
 
     }
 }

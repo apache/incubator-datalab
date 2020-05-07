@@ -29,9 +29,11 @@ import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -96,18 +98,28 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     @Override
-    public void deleteObject(String bucket, String object) {
+    public void deleteObjects(String bucket, List<String> objects) {
         try {
             S3Client s3 = S3Client.create();
-            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest
-                    .builder()
+            List<ObjectIdentifier> objectsToDelete = objects
+                    .stream()
+                    .map(o -> ObjectIdentifier.builder()
+                            .key(o)
+                            .build())
+                    .collect(Collectors.toList());
+
+            DeleteObjectsRequest deleteObjectsRequests = DeleteObjectsRequest.builder()
                     .bucket(bucket)
-                    .key(object)
+                    .delete(Delete.builder()
+                            .objects(objectsToDelete)
+                            .build())
                     .build();
-            s3.deleteObject(deleteObjectRequest);
+
+            s3.deleteObjects(deleteObjectsRequests);
+
         } catch (AwsServiceException e) {
-            log.error("Cannot delete object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
-            throw new DlabException(String.format("Cannot delete object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
+            log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage());
+            throw new DlabException(String.format("Cannot delete objects %s from bucket %s. Reason: %s", objects, bucket, e.getMessage()));
         }
     }
 

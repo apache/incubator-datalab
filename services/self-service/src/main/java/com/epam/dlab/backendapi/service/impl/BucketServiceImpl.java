@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.bucket.BucketDTO;
+import com.epam.dlab.dto.bucket.BucketDeleteDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -50,7 +51,7 @@ public class BucketServiceImpl implements BucketService {
     private static final String BUCKET_GET_OBJECTS = "%sbucket/%s";
     private static final String BUCKET_UPLOAD_OBJECT = "%sbucket/upload";
     private static final String BUCKET_DOWNLOAD_OBJECT = "%sbucket/%s/object/%s/download";
-    private static final String BUCKET_DELETE_OBJECT = "%sbucket/%s/object/%s";
+    private static final String BUCKET_DELETE_OBJECT = "%sbucket/objects/delete";
 
     private final EndpointService endpointService;
     private final RESTService provisioningService;
@@ -103,17 +104,17 @@ public class BucketServiceImpl implements BucketService {
     }
 
     @Override
-    public void deleteObject(UserInfo userInfo, String bucket, String object, String endpoint) {
+    public void deleteObjects(UserInfo userInfo, String bucket, List<String> objects, String endpoint) {
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
-            Response response = provisioningService.delete(String.format(BUCKET_DELETE_OBJECT, endpointDTO.getUrl(), bucket, encodeObject(object)), userInfo.getAccessToken(), Response.class,
-                    APPLICATION_JSON, APPLICATION_JSON);
+            BucketDeleteDTO bucketDeleteDTO = new BucketDeleteDTO(bucket, objects);
+            Response response = provisioningService.post(String.format(BUCKET_DELETE_OBJECT, endpointDTO.getUrl()), userInfo.getAccessToken(), bucketDeleteDTO, Response.class);
             if (response.getStatus() != HttpStatus.SC_OK) {
                 throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
             }
         } catch (Exception e) {
-            log.error("Cannot delete object {} from bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage());
-            throw new DlabException(String.format("Cannot delete object %s from bucket %s for user %s, endpoint %s. Reason %s", object, bucket, userInfo.getName(), endpoint, e.getMessage()));
+            log.error("Cannot delete objects {} from bucket {} for user {}, endpoint {}. Reason {}", objects, bucket, userInfo.getName(), endpoint, e.getMessage());
+            throw new DlabException(String.format("Cannot delete objects %s from bucket %s for user %s, endpoint %s. Reason %s", objects, bucket, userInfo.getName(), endpoint, e.getMessage()));
         }
     }
 

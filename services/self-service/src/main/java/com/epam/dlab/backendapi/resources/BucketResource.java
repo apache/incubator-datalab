@@ -20,6 +20,7 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.dto.BucketDeleteDTO;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -27,8 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -89,16 +90,13 @@ public class BucketResource {
                 .build();
     }
 
-    @DELETE
-    @Path("/{bucket}/object/{object}/endpoint/{endpoint}")
+    @POST
+    @Path("/objects/delete")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("/api/bucket/delete")
-    public Response deleteObject(@Auth UserInfo userInfo,
-                                 @PathParam("bucket") String bucket,
-                                 @PathParam("object") String object,
-                                 @PathParam("endpoint") String endpoint) {
-        bucketService.deleteObject(userInfo, bucket, object, endpoint);
+    public Response deleteObject(@Auth UserInfo userInfo, @Valid BucketDeleteDTO bucketDto) {
+        bucketService.deleteObjects(userInfo, bucketDto.getBucket(), bucketDto.getObjects(), bucketDto.getEndpoint());
         return Response.ok().build();
     }
 }
