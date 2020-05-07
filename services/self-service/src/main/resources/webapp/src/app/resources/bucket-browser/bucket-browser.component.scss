@@ -16,10 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+.dialog-header {
+  padding-left: 33px !important;
+}
 
 .bucket-browser {
   font-size: 14px;
   font-weight: 400;
+
+
   .loading-block{
     width: 80%;
     margin: 20% auto 0 auto;
@@ -37,8 +42,8 @@
   }
 
   .path{
-    margin: 0 4px 20px 4px;
-    padding: 4px 4px 4px 20px;
+    margin: 0 4px 20px 0;
+    padding: 4px 4px 4px 0;
     color: rgba(0,0,0,.87);
     overflow: hidden;
     white-space: nowrap;
@@ -65,6 +70,9 @@
       position: relative;
       overflow: hidden;
       margin: 10px;
+      &.first-btn{
+        margin-left: 0;
+      }
       input[type="file"] {
         position: absolute;
         left: 0;
@@ -82,12 +90,14 @@
   border: 2px solid rgba(0,0,0,.12);
   border-radius: 5px;
   display: flex;
+  width: 100%;
 
   &.added-upload{
     height: 37vh;
   }
 
   .navigation{
+    width: 33.3%;
     flex: 1;
     border-right: 2px solid rgba(0,0,0,.12);
     height: 100%;
@@ -106,6 +116,7 @@
   }
 
   .directory{
+    width: 66.7%;
     max-height: 100%;
     flex: 2;
     font-size: 14px;
@@ -272,6 +283,8 @@ input[type='file'] {
   opacity:0
 }
 
+
+
 .empty-checkbox {
   min-width: 16px;
   width: 16px;
@@ -313,7 +326,7 @@ input[type='file'] {
   background-color: white;
   min-height: 100px;
   color: black;
-  
+
   .upload-header{
     padding-left: 8px;
     background: #f6fafe;
@@ -331,7 +344,7 @@ input[type='file'] {
       font-size: 14px;
       background: #f6fafe;
   }
-    
+
     .close{
       position: absolute;
       top: 0;
@@ -418,8 +431,6 @@ input[type='file'] {
     }
   }
 }
-
-
 
 @media only screen and (max-height: 840px) {
   .backet-wrapper {
