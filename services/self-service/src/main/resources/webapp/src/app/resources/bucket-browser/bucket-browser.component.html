@@ -27,9 +27,9 @@
   <div class="dialog-content tabs" [hidden]="!path" >
     <div class="submit m-bott-10 m-top-10">
       <span [matTooltip]="'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
-        <button mat-raised-button type="button" class="butt action" [disabled]="!this.bucketStatus.upload || allDisable">
+        <button mat-raised-button type="button" class="butt action first-btn" [disabled]="!this.bucketStatus.upload || allDisable">
           <input [ngClass]="{'not-allowed': !this.bucketStatus.upload}" type="file" (change)="handleFileInput($event)" title="" multiple>
-          Add file
+          Upload files
         </button>
       </span>
       <span [matTooltip]="'You have not permission to create folder'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
@@ -92,7 +92,15 @@
               <span *ngIf="this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >
                     <span class="checked-checkbox" *ngIf="file.isFolderSelected"></span>
                   </span>
-              <div class="name name-folder"><i class="material-icons folder-icon" >folder</i><span class="name-wrap">{{file.item}}</span></div>
+              <div class="name name-folder">
+                <i class="material-icons folder-icon" >folder</i>
+                <span class="name-wrap"
+                      matTooltip="{{file.item}}"
+                      matTooltipPosition="above"
+                      matTooltipShowDelay="1000"
+                      [matTooltipClass]="'bucket-item-tooltip'"
+                >{{file.item}}</span>
+              </div>
               <div class="size size-folder">-</div>
               <div class="date" *ngIf="!file.isDownloading">-</div>
 <!--              <div class="progress-wrapper">-->
@@ -105,7 +113,16 @@
 
                     <span class="checked-checkbox" *ngIf="file.isSelected"></span>
                   </span>
-                <span class="item-name name-wrap" [ngClass]="{'removed-checkbox': !this.bucketStatus.download && !this.bucketStatus.delete}">{{file.item}}</span>
+                <span
+                  class="item-name name-wrap"
+                  [ngClass]="{'removed-checkbox': !this.bucketStatus.download && !this.bucketStatus.delete}"
+                  matTooltip="{{file.item}}"
+                  matTooltipPosition="above"
+                  matTooltipShowDelay="1000"
+                  [matTooltipClass]="'bucket-item-tooltip'"
+                >
+                  {{file.item}}
+                </span>
               </div>
               <div class="size">{{file.object?.size}}</div>
               <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>

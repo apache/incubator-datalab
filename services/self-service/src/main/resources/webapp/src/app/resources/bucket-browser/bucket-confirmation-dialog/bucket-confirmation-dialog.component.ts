@@ -29,7 +29,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 
 export class BucketConfirmationDialogComponent implements OnInit {
-  isFolders: boolean = false
+  isFolders: boolean = false;
+  uploadActions = ['Replace existing object', 'Skip uploading object'];
+  fileAction: string = this.uploadActions[1];
+  actionForAll: boolean = false;
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<BucketConfirmationDialogComponent>,
@@ -39,8 +42,17 @@ export class BucketConfirmationDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.isFolders = !!this.data.items.filter(v => v.children).length;
+    if (this.data.type === 'delete') {
+      this.isFolders = !!this.data.items.filter(v => v.children).length;
+    }
   }
 
+  toggleActionForAll() {
+    this.actionForAll = !this.actionForAll;
+  }
 
+  submitResolving() {
+    const submitObj = {replaceObject: !this.uploadActions.indexOf(this.fileAction), forAll: this.actionForAll};
+    this.dialogRef.close(submitObj);
+  }
 }

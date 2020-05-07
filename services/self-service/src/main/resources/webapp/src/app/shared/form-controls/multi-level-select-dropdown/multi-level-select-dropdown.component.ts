@@ -44,7 +44,7 @@ export class MultiLevelSelectDropdownComponent {
     COMPUTATIONAL_SHAPE: 'Compute shapes',
     NOTEBOOK_SHAPE: 'Notebook shapes',
     COMPUTATIONAL: 'Compute',
-    BUCKET_BROWSER: 'Bucket browser'
+    BUCKET_BROWSER: 'Bucket browser actions'
   };
 
   constructor() {

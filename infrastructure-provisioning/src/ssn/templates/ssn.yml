@@ -20,25 +20,32 @@
 # ******************************************************************************
 
 <#assign LOG_ROOT_DIR="/var/opt/dlab/log">
-<#assign KEYS_DIR="/home/${sys['user.name']}/keys">
-<#assign KEY_STORE_PATH="${KEYS_DIR}/ssn.keystore.jks">
+<#assign KEYS_DIR="/Users/Dmytro_Gnatyshyn/keys">
+<#assign KEY_STORE_PATH="${KEYS_DIR}/dlab.keystore.jks">
 <#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
 <#assign TRUST_STORE_PATH="${JRE_HOME}/lib/security/cacerts">
 <#assign TRUST_STORE_PASSWORD="changeit">
 
+#  <#assign LOG_ROOT_DIR="/var/opt/dlab/log">
+#  <#assign KEYS_DIR="/Users/Dmytro_Gnatyshyn/keys">
+#  <#assign KEY_STORE_PATH="${KEYS_DIR}/ssn.keystore.jks">
+#  <#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
+#  <#assign TRUST_STORE_PATH="${JRE_HOME}/lib/security/cacerts">
+#  <#assign TRUST_STORE_PASSWORD="changeit">
+
 # Available options are aws, azure, gcp
-<#assign CLOUD_TYPE="CLOUD_PROVIDER">
+<#assign CLOUD_TYPE="gcp">
 cloudProvider: ${CLOUD_TYPE}
 
 #Switch on/off developer mode here
-<#assign DEV_MODE="false">
+<#assign DEV_MODE="true">
 devMode: ${DEV_MODE}
 
 mongo:
   host: localhost
   port: 27017
   username: admin
-  password: MONGO_PASSWORD
+  password: <password>
   database: dlabdb
 
 selfService:

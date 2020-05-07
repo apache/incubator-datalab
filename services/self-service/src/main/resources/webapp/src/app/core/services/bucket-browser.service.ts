@@ -49,9 +49,9 @@ export class BucketBrowserService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public deleteFile(data, url) {
+  public deleteFile(data) {
     return this.applicationServiceFacade
-      .buildDeleteFileFromBucket(data, url)
+      .buildDeleteFileFromBucket(data)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

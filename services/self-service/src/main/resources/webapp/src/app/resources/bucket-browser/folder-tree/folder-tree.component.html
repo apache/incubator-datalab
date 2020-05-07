@@ -1,5 +1,5 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding matTreeNodePaddingIndent="20" [ngStyle]="{'display': 'none'}">
+  <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding matTreeNodePaddingIndent="17" [ngStyle]="{'display': 'none'}">
   <button mat-icon-button disabled></button>
   <!--    <mat-checkbox class="checklist-leaf-node"-->
   <!--                  [checked]="checklistSelection.isSelected(node)"-->
@@ -7,7 +7,7 @@
   {{node.item}}
 </mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding matTreeNodePaddingIndent="20" class="input-node">
+  <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding matTreeNodePaddingIndent="17" class="input-node">
     <form class="add-folder-form">
       <mat-form-field>
         <mat-label>New folder</mat-label>
@@ -36,7 +36,7 @@
     </form>
   </mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding  matTreeNodePaddingIndent="20">
+  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding  matTreeNodePaddingIndent="17">
     <button mat-icon-button matTreeNodeToggle
             [attr.aria-label]="'toggle ' + node.filename">
       <mat-icon class="mat-icon-rtl-mirror" [ngClass]="{'active-item': selectedFolder === node}">

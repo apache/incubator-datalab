@@ -27,8 +27,8 @@ import {FolderTreeComponent} from './folder-tree/folder-tree.component';
 import {BucketBrowserService, TodoItemNode} from '../../core/services/bucket-browser.service';
 import {FileUtils} from '../../core/util';
 import {BucketDataService} from './bucket-data.service';
-import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
 import {BucketConfirmationDialogComponent} from './bucket-confirmation-dialog/bucket-confirmation-dialog.component';
+import {logger} from 'codelyzer/util/logger';
 
 @Component({
   selector: 'dlab-bucket-browser',
@@ -78,19 +78,50 @@ export class BucketBrowserComponent implements OnInit {
     this.folderTreeComponent.showItem(flatItem);
   }
 
-  public handleFileInput(event) {
+  public async handleFileInput(event) {
     if (event.target.files.length > 0) {
-      const newAddedFiles = Object['values'](event.target.files).map(file => (
-        {name: file['name'], file: file, 'size': (file['size'] / 1048576).toFixed(2), path: this.path, isUploading: false, uploaded: false, errorUploading: false}));
-      this.addedFiles = [...this.addedFiles, ...newAddedFiles];
+      let askForAll = true;
+      let skipAll = false;
+      for (const file of  Object['values'](event.target.files)) {
+        const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
+        const existFile = folderFiles.filter(v => v === file['name'])[0];
+        const uploadItem = {
+          name: file['name'],
+          file: file,
+          'size': (file['size'] / 1048576).toFixed(2),
+          path: this.path,
+          isUploading: false,
+          uploaded: false,
+          errorUploading: false
+        };
+        if (existFile && askForAll) {
+          const result = await this.openResolveDialog(existFile);
+          askForAll = !result.forAll;
+          if (result.forAll && !result.replaceObject) {
+            skipAll = true;
+          }
+          if (result.replaceObject) {
+            this.addedFiles.push(uploadItem);
+            this.uploadNewFile(uploadItem);
+          }
+        } else if (!existFile || (existFile && !askForAll && !skipAll)) {
+          this.addedFiles.push(uploadItem);
+          this.uploadNewFile(uploadItem);
+        }
+        }
     }
     event.target.value = '';
   }
 
-  public closeUploadWindow() {
-    // this.isUploadWindowOpened = false;
-    this.addedFiles = [];
+  async openResolveDialog(existFile) {
+     const dialog = this.dialog.open(BucketConfirmationDialogComponent, {data: {items: existFile, type: 'upload-dublicat'} , width: '550px'});
+     return dialog.afterClosed().toPromise().then(result => {
+      return Promise.resolve(result);
+    });
+  }
 
+  public closeUploadWindow() {
+    this.addedFiles = [];
   }
 
 
@@ -166,7 +197,6 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public fileAction(action) {
-    // this.selected = this.folderItems.filter(item => item.isSelected);
     const selected = this.folderItems.filter(item => item.isSelected);
     const folderSelected = this.folderItems.filter(item => item.isFolderSelected);
 
@@ -192,17 +222,16 @@ export class BucketBrowserComponent implements OnInit {
       objects.forEach(object => {
         dataForServer.push(...this.bucketDataService.serverData.map(v => v.object).filter(v => v.indexOf(object) === 0));
       });
-      const url = `/${this.bucketName}/endpoint/${this.endpoint}/delete`;
-      console.log(dataForServer);
-      this.dialog.open(BucketConfirmationDialogComponent, {data: {items: itemsForDeleting} , width: '550px'})
+
+      this.dialog.open(BucketConfirmationDialogComponent, {data: {items: itemsForDeleting, type: 'delete'} , width: '550px'})
         .afterClosed().subscribe((res) => {
         !res && this.clearSelection();
-        res && this.bucketBrowserService.deleteFile(dataForServer, url).subscribe(() => {
+        res && this.bucketBrowserService.deleteFile({bucket: this.bucketName, endpoint: this.endpoint, 'objects': dataForServer}).subscribe(() => {
             this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
-            this.toastr.success('File successfully deleted!', 'Success!');
+            this.toastr.success('Objects successfully deleted!', 'Success!');
             this.clearSelection();
           }, error => {
-          this.toastr.error(error.message || 'File deleting error!', 'Oops!');
+          this.toastr.error(error.message || 'Objects deleting error!', 'Oops!');
           this.clearSelection();
         });
       });
