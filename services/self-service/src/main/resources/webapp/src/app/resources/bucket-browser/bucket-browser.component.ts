@@ -43,15 +43,16 @@ export class BucketBrowserComponent implements OnInit {
   public bucketName = '';
   public endpoint = '';
   public isUploadWindowOpened = false;
-
-  @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   public selectedFolder: any;
   public selectedFolderForAction: any;
   public selected: any[];
   public bucketStatus;
   public allDisable: boolean;
   public folders: any[];
-  private selectedItems;
+  public selectedItems;
+
+  @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
+
 
 
   constructor(
