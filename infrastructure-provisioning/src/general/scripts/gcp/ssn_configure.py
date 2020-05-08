@@ -21,14 +21,20 @@
 #
 # ******************************************************************************
 
-from dlab.fab import *
-from dlab.actions_lib import *
-from dlab.meta_lib import *
 import sys, os
 from fabric.api import *
-from dlab.ssn_lib import *
 import traceback
 import json
+import argparse
+import dlab.ssn_lib
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import logging
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--ssn_unique_index', type=str, default='')
+args = parser.parse_args()
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}.log".format(os.environ['conf_resource'], os.environ['request_id'])
@@ -36,52 +42,58 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
-    instance = 'ssn'
+
+    def clear_resources():
+        GCPActions.remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
+        GCPActions.remove_service_account(ssn_conf['service_account_name'], ssn_conf['service_base_name'])
+        GCPActions.remove_role(ssn_conf['role_name'])
+        if not ssn_conf['pre_defined_firewall']:
+            GCPActions.remove_firewall('{}-ingress'.format(ssn_conf['firewall_name']))
+            GCPActions.remove_firewall('{}-egress'.format(ssn_conf['firewall_name']))
+        if  not ssn_conf['pre_defined_subnet']:
+            GCPActions.remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+        if not ssn_conf['pre_defined_vpc']:
+            GCPActions.remove_vpc(ssn_conf['vpc_name'])
 
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         logging.info('[DERIVING NAMES]')
         print('[DERIVING NAMES]')
-        pre_defined_vpc = False
-        pre_defined_subnet = False
-        pre_defined_firewall = False
-        billing_enabled = True
-
         ssn_conf = dict()
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
+        ssn_conf['instance'] = 'ssn'
+        ssn_conf['pre_defined_vpc'] = False
+        ssn_conf['pre_defined_subnet'] = False
+        ssn_conf['pre_defined_firewall'] = False
+        ssn_conf['billing_enabled'] = True
+
+        ssn_conf['ssn_unique_index'] = args.ssn_unique_index
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
+            os.environ['conf_service_base_name'].replace('_', '-').lower()[:20], '-', True)
+        ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
+        ssn_conf['role_name'] = '{}-{}-ssn-role'.format(ssn_conf['service_base_name'], ssn_conf['ssn_unique_index'])
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
-        ssn_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(ssn_conf['service_base_name'])
         ssn_conf['default_endpoint_name'] = os.environ['default_endpoint_name']
-        ssn_conf['shared_bucket_name'] = '{0}-{1}-shared-bucket'.format(ssn_conf['service_base_name'],
-                                                                        ssn_conf['default_endpoint_name'])
         ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_size'] = os.environ['gcp_ssn_instance_size']
-        ssn_conf['subnet_cidr'] = '10.10.1.0/24'
-        ssn_conf['firewall_name'] = '{}-ssn-firewall'.format(ssn_conf['service_base_name'])
-        ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-        ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
-        ssn_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
-        ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-ssn-role'
-
         try:
             if os.environ['gcp_vpc_name'] == '':
                 raise KeyError
             else:
-                pre_defined_vpc = True
+                ssn_conf['pre_defined_vpc'] = True
                 ssn_conf['vpc_name'] = os.environ['gcp_vpc_name']
         except KeyError:
-            ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
+            ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
 
         try:
             if os.environ['gcp_subnet_name'] == '':
                 raise KeyError
             else:
-                pre_defined_subnet = True
+                ssn_conf['pre_defined_subnet'] = True
                 ssn_conf['subnet_name'] = os.environ['gcp_subnet_name']
         except KeyError:
-            ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
+            ssn_conf['subnet_name'] = '{}-subnet'.format(ssn_conf['service_base_name'])
         try:
             if os.environ['gcp_firewall_name'] == '':
                 raise KeyError
@@ -89,7 +101,11 @@ if __name__ == "__main__":
                 pre_defined_firewall = True
                 ssn_conf['firewall_name'] = os.environ['gcp_firewall_name']
         except KeyError:
-            ssn_conf['firewall_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
+            ssn_conf['firewall_name'] = '{}-ssn-sg'.format(ssn_conf['service_base_name'])
+        ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
+        ssn_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
 
         try:
             if os.environ['aws_account_id'] == '':
@@ -97,41 +113,36 @@ if __name__ == "__main__":
             if os.environ['aws_billing_bucket'] == '':
                 raise KeyError
         except KeyError:
-            billing_enabled = False
-        if not billing_enabled:
+            ssn_conf['billing_enabled'] = False
+        if not ssn_conf['billing_enabled']:
             os.environ['aws_account_id'] = 'None'
             os.environ['aws_billing_bucket'] = 'None'
             os.environ['aws_report_path'] = 'None'
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed deriving names.", str(err))
-        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        dlab.fab.dlab.fab.append_result("Failed deriving names.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
-        instance_hostname = GCPMeta().get_instance_public_ip_by_name(ssn_conf['instance_name'])
+        ssn_conf['instance_hostname'] = GCPMeta.get_instance_public_ip_by_name(ssn_conf['instance_name'])
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            ssn_conf['step_cert_sans'] = ' --san {0} --san {1}'.format(GCPMeta.get_instance_public_ip_by_name(
+                ssn_conf['instance_name']), dlab.meta_lib.get_instance_private_ip_address('ssn',
+                                                                                          ssn_conf['instance_name']))
+        else:
+            ssn_conf['step_cert_sans'] = ''
         if os.environ['conf_os_family'] == 'debian':
-            initial_user = 'ubuntu'
-            sudo_group = 'sudo'
+            ssn_conf['initial_user'] = 'ubuntu'
+            ssn_conf['sudo_group'] = 'sudo'
         if os.environ['conf_os_family'] == 'redhat':
-            initial_user = 'ec2-user'
-            sudo_group = 'wheel'
+            ssn_conf['initial_user'] = 'ec2-user'
+            ssn_conf['sudo_group'] = 'wheel'
 
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
-        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname, ssn_conf['ssh_key_path'], initial_user, ssn_conf['dlab_ssh_user'], sudo_group)
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
+            ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], ssn_conf['initial_user'],
+            ssn_conf['dlab_ssh_user'], ssn_conf['sudo_group'])
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -139,20 +150,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed creating ssh user 'dlab-user'.", str(err))
-        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        dlab.fab.dlab.fab.append_result("Failed creating ssh user 'dlab-user'.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -161,7 +160,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --pip_packages " \
                  "'boto3 backoff argparse fabric==1.14.0 awscli pymongo pyyaml " \
                  "google-api-python-client google-cloud-storage pycrypto' --user {} --region {}". \
-            format(instance_hostname, ssn_conf['ssh_key_path'],
+            format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'],
                    ssn_conf['dlab_ssh_user'], ssn_conf['region'])
 
         try:
@@ -170,20 +169,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing software: pip, packages.", str(err))
-        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        dlab.fab.dlab.fab.append_result("Failed installing software: pip, packages.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -193,9 +180,11 @@ if __name__ == "__main__":
                              "service_base_name": ssn_conf['service_base_name'],
                              "security_group_id": ssn_conf['firewall_name'], "vpc_id": ssn_conf['vpc_name'],
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
-            format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
-                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'])
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} " \
+                 "--tag_resource_id {} --step_cert_sans '{}'". \
+            format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
+                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'],
+                   ssn_conf['step_cert_sans'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_ssn_node', params))
@@ -203,20 +192,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed configuring ssn.", str(err))
-        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        dlab.fab.dlab.fab.append_result("Failed configuring ssn.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -226,15 +203,18 @@ if __name__ == "__main__":
                              {"name": "project", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
+                             {"name": "jupyterlab", "tag": "latest"},
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
+                             {"name": "superset", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
                              {"name": "tensor-rstudio", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine", "tag": "latest"},
                              {"name": "dataengine-service", "tag": "latest"}]
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
-            format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} " \
+                 "--cloud_provider {} --region {}". \
+            format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
                    os.environ['conf_cloud_provider'], ssn_conf['region'])
 
@@ -244,20 +224,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Unable to configure docker.", str(err))
-        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        dlab.fab.dlab.fab.append_result("Unable to configure docker.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -267,7 +235,7 @@ if __name__ == "__main__":
         cloud_params = [
             {
                 'key': 'KEYCLOAK_REDIRECT_URI',
-                'value': "http://{0}/".format(instance_hostname)
+                'value': "https://{0}/".format(ssn_conf['instance_hostname'])
             },
             {
                 'key': 'KEYCLOAK_REALM_NAME',
@@ -284,6 +252,14 @@ if __name__ == "__main__":
             {
                 'key': 'KEYCLOAK_CLIENT_SECRET',
                 'value': os.environ['keycloak_client_secret']
+            },
+            {
+                'key': 'KEYCLOAK_USER_NAME',
+                'value': os.environ['keycloak_user']
+            },
+            {
+                'key': 'KEYCLOAK_PASSWORD',
+                'value': os.environ['keycloak_user_password']
             },
             {
                 'key': 'CONF_OS',
@@ -390,39 +366,80 @@ if __name__ == "__main__":
                 'value': os.environ['conf_image_enabled']
             },
             {
-                'key': 'SHARED_IMAGE_ENABLED',
-                'value': os.environ['conf_shared_image_enabled']
+                'key': "AZURE_AUTH_FILE_PATH",
+                'value': ""
             }
         ]
+        if os.environ['conf_stepcerts_enabled'] == 'true':
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': os.environ['conf_stepcerts_enabled']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': os.environ['conf_stepcerts_root_ca']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': os.environ['conf_stepcerts_kid']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': os.environ['conf_stepcerts_kid_password']
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
+                    'value': os.environ['conf_stepcerts_ca_url']
+                })
+        else:
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
+                    'value': ''
+                })
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --billing_enabled {} " \
                  "--request_id {} --billing_dataset_name {} \
                  --resource {} --service_base_name {} --cloud_provider {} --default_endpoint_name {} " \
-                 "--cloud_params '{}'". \
-            format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
-                   os.environ['conf_os_family'], billing_enabled, os.environ['request_id'],
+                 "--cloud_params '{}' --keycloak_client_id {} --keycloak_client_secret {} --keycloak_auth_server_url {}". \
+            format(ssn_conf['instance_hostname'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
+                   os.environ['conf_os_family'], ssn_conf['billing_enabled'], os.environ['request_id'],
                    os.environ['billing_dataset_name'], os.environ['conf_resource'],
                    ssn_conf['service_base_name'], os.environ['conf_cloud_provider'], ssn_conf['default_endpoint_name'],
-                   json.dumps(cloud_params))
+                   json.dumps(cloud_params), os.environ['keycloak_client_name'], os.environ['keycloak_client_secret'],
+                   os.environ['keycloak_auth_server_url'])
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Unable to configure UI.", str(err))
-        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        dlab.fab.dlab.fab.append_result("Unable to configure UI.", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -430,7 +447,7 @@ if __name__ == "__main__":
         print('[SUMMARY]')
         print("Service base name: {}".format(ssn_conf['service_base_name']))
         print("SSN Name: {}".format(ssn_conf['instance_name']))
-        print("SSN Hostname: {}".format(instance_hostname))
+        print("SSN Hostname: {}".format(ssn_conf['instance_hostname']))
         print("Role name: {}".format(ssn_conf['role_name']))
         print("Key name: {}".format(os.environ['conf_key_name']))
         print("VPC Name: {}".format(ssn_conf['vpc_name']))
@@ -438,14 +455,13 @@ if __name__ == "__main__":
         print("Firewall Names: {}".format(ssn_conf['firewall_name']))
         print("SSN instance size: {}".format(ssn_conf['instance_size']))
         print("SSN AMI name: {}".format(ssn_conf['image_name']))
-        print("SSN bucket name: {}".format(ssn_conf['ssn_bucket_name']))
         print("Region: {}".format(ssn_conf['region']))
-        jenkins_url = "http://{}/jenkins".format(instance_hostname)
-        jenkins_url_https = "https://{}/jenkins".format(instance_hostname)
+        jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_hostname'])
+        jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_hostname'])
         print("Jenkins URL: {}".format(jenkins_url))
         print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
-        print("DLab UI HTTP URL: http://{}".format(instance_hostname))
-        print("DLab UI HTTPS URL: https://{}".format(instance_hostname))
+        print("DLab UI HTTP URL: http://{}".format(ssn_conf['instance_hostname']))
+        print("DLab UI HTTPS URL: https://{}".format(ssn_conf['instance_hostname']))
         try:
             with open('jenkins_creds.txt') as f:
                 print(f.read())
@@ -455,37 +471,23 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as f:
             res = {"service_base_name": ssn_conf['service_base_name'],
                    "instance_name": ssn_conf['instance_name'],
-                   "instance_hostname": instance_hostname,
+                   "instance_hostname": ssn_conf['instance_hostname'],
                    "role_name": ssn_conf['role_name'],
-                   #"role_profile_name": role_profile_name,
-                   #"policy_name": policy_name,
                    "master_keyname": os.environ['conf_key_name'],
                    "vpc_id": ssn_conf['vpc_name'],
                    "subnet_id": ssn_conf['subnet_name'],
                    "security_id": ssn_conf['firewall_name'],
                    "instance_shape": ssn_conf['instance_size'],
-                   "bucket_name": ssn_conf['ssn_bucket_name'],
-                   "shared_bucket_name": ssn_conf['shared_bucket_name'],
                    "region": ssn_conf['region'],
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
         print('Upload response file')
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}".\
-            format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['dlab_ssh_user'], instance_hostname)
+            format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['dlab_ssh_user'],
+                   ssn_conf['instance_hostname'])
         local("~/scripts/{}.py {}".format('upload_response_file', params))
     except Exception as err:
-        print('Error: {0}'.format(err))
-        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_role(ssn_conf['role_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        dlab.fab.append_result("Error with writing results.", str(err))
+        clear_resources()
         sys.exit(1)

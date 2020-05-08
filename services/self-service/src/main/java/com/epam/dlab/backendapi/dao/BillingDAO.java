@@ -18,11 +18,12 @@
  */
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
-import org.bson.Document;
 
-public interface BillingDAO<T extends BillingFilter> {
+import java.util.List;
+
+public interface BillingDAO {
 	Double getTotalCost();
 
 	Double getUserCost(String user);
@@ -32,6 +33,7 @@ public interface BillingDAO<T extends BillingFilter> {
 	int getBillingQuoteUsed();
 
 	int getBillingUserQuoteUsed(String user);
+
 	int getBillingProjectQuoteUsed(String project);
 
 	boolean isBillingQuoteReached();
@@ -40,5 +42,13 @@ public interface BillingDAO<T extends BillingFilter> {
 
 	boolean isProjectQuoteReached(String project);
 
-	Document getReport(UserInfo userInfo, T filter);
+	List<BillingReportLine> findBillingData(String project, String endpoint, List<String> resourceNames);
+
+	List<BillingReportLine> aggregateBillingData(BillingFilter filter);
+
+	void deleteByUsageDate(String application, String usageDate);
+
+	void deleteByUsageDateRegex(String application, String usageDate);
+
+	void save(List<BillingReportLine> billingData);
 }

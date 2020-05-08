@@ -19,7 +19,7 @@
 
 <div class="install-libraries" id="dialog-box">
   <header class="dialog-header">
-    <h4 class="modal-title">Manage <b>{{ notebook?.name }}</b> Libraries</h4>
+    <h4 class="modal-title">Manage <span>{{ notebook?.name }}</span> Libraries</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
@@ -28,7 +28,7 @@
       <p class=" message">Cannot install libraries: Exploratory
         <strong>{{ notebook?.name }}</strong> is not running</p>
     </div>
-    <div class="loading-block" *ngIf="!libs_uploaded && uploading && notebook?.status === 'running'">
+    <div class="loading-block" *ngIf="!libs_uploaded && uploading && data.status === 'running'">
       <div class="uploading">
         <p>Please wait until DLab loads full list of available libraries for you...</p>
         <img src="assets/img/gif-spinner.gif" alt="loading">
@@ -48,12 +48,20 @@
               <label class="label">Select group</label>
               <div class="control">
                 <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+                <span class="error-message" *ngIf="!group && libSearch.value">Group field is required. Please choose appropriate group.</span>
               </div>
             </div>
           </div>
           <div class="search">
             <mat-form-field class="chip-list">
-              <input type="text" [placeholder]="group === 'java' ? 'Enter library name in <groupId>:<artifactId>:<versionId> format' : 'Enter library name'" matInput [formControl]="libSearch" [value]="query" [matAutocomplete]="auto">
+              <input
+                type="text"
+                [placeholder]="group === 'java' ? 'Enter library name in <groupId>:<artifactId>:<versionId> format' : 'Enter library name'"
+                matInput
+                [formControl]="libSearch"
+                [value]="query"
+                [matAutocomplete]="auto"
+              >
               <mat-icon matSuffix>search</mat-icon>
               <mat-autocomplete #auto="matAutocomplete" class="suggestions">
                 <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index">
@@ -84,7 +92,7 @@
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>
-            <div class="list-selected list-container" id="scrolling">
+            <div class="list-selected list-container" id='scrolling'>
               <mat-chip-list *ngIf="model.selectedLibs.length && libs_uploaded">
                 <mat-chip *ngFor="let item of model.selectedLibs">
                   {{ item.name }}
@@ -101,26 +109,110 @@
     <div class="libs-info">
       <mat-list>
         <mat-list-item class="list-header">
-          <div class="lib-name">Name</div>
-          <div class="lib-group">Group</div>
-          <div class="lib-destination">Destination</div>
-          <div class="lib-resource-type">Resource type</div>
-          <div class="lib-status">Status</div>
+          <div class="lib-name">Name
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+            <i class="material-icons">
+              <span>more_vert</span>
+            </i>
+          </button></div>
+          <div class="lib-group">Group
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span>more_vert</span>
+              </i>
+            </button>
+          </div>
+          <div class="lib-destination"><span class="">Destination</span>
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span>more_vert</span>
+              </i>
+            </button>
+          </div>
+          <div class="lib-resource-type">Resource type
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span>more_vert</span>
+              </i>
+            </button>
+          </div>
+          <div class="lib-status"><span>Status</span>
+            <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+              <i class="material-icons">
+                <span>more_vert</span>
+              </i>
+            </button>
+          </div>
         </mat-list-item>
 
-        <div class="scrollingList" id="scrolling" *ngIf="notebookLibs?.length">
-          <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">
-            <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>
-          </div>
+        <ng-container *ngIf="filtered" >
+         <mat-list-item class="lib-col filter-row">
+          <th class="lib-name lib-input">
+            <input placeholder="Filter by library name" [value]="filterModel.name" (input)="filterModel.name = $event.target['value']" type="text" class="form-control filter-field "/>
+          </th>
+          <th class="lib-group lib-col">
+              <multi-select-dropdown
+                (selectionChange)="onFilterUpdate($event)"
+                [items]="this.filterConfiguration.group"
+                [type]="'group'"
+                [model]="this.filterModel.group"
+              >
+              </multi-select-dropdown>
+            </th>
+            <th class="lib-destination lib-col">
+              <multi-select-dropdown
+                (selectionChange)="onFilterUpdate($event)"
+                [items]="this.filterConfiguration.resource"
+                [type]="'resource'"
+                [model]="this.filterModel.resource"
+              >
+              </multi-select-dropdown>
+            </th>
+            <th class="lib-resource-type lib-col">
+              <multi-select-dropdown
+                (selectionChange)="onFilterUpdate($event)"
+                [items]="this.filterConfiguration.resourceType"
+                [type]="'resource type'"
+                [model]="this.filterModel.resourceType"
+              >
+              </multi-select-dropdown>
+          </th>
+          <th class="lib-status lib-col">
+            <multi-select-dropdown
+              (selectionChange)="onFilterUpdate($event)"
+              [items]="this.filterConfiguration.status"
+              [type]="'status'"
+              [model]="this.filterModel.status">
+            </multi-select-dropdown>
+          </th>
+           <ng-container matColumnDef="action-filter" stickyEnd>
+             <th mat-header-cell>
+               <div class="filter-actions">
+                 <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+                   <i class="material-icons">close</i>
+                 </button>
 
-          <mat-list-item *ngFor="let lib of notebookLibs">
-            <div class="lib-name">
+                 <button mat-icon-button class="btn apply" (click)="filterLibs()">
+                   <i class="material-icons"  [ngClass]="{'not-allowed': filterModel.length === 0}">done</i>
+                 </button>
+               </div>
+             </th>
+           </ng-container>
+         </mat-list-item>
+        </ng-container>
+
+        <div class="scrollingList" id="scrolling" *ngIf="notebookLibs?.length">
+<!--          <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">-->
+<!--            <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>-->
+<!--          </div>-->
+          <mat-list-item  *ngFor="let lib of filtredNotebookLibs">
+            <div class="lib-name ellipsis">
               <strong>{{ lib.name }}</strong>&nbsp;
-              <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
+              <span *ngIf="lib.version  && lib.version !== 'N/A'">{{ lib.version }}</span>
             </div>
-            <div class="lib-group">{{ groupsListMap[lib.group] }}</div>
+            <div class="lib-group-col">{{ groupsListMap[lib.group] }}</div>
             <div class="st-group">
-              <ng-template let-item ngFor [ngForOf]="lib.status">
+              <ng-template let-item ngFor [ngForOf]="lib.filteredStatus">
                 <div class="wrap-col">
                   <div class="lib-destination-col">{{ item.resource }}</div>
                   <div class="lib-resource-type-col">{{ item.resourceType }}</div>
@@ -144,6 +236,9 @@
               </ng-template>
             </div>
           </mat-list-item>
+          <div *ngIf="!filtredNotebookLibs.length && notebookLibs?.length" class="scrollingList info message">
+            <p>No matches found</p>
+          </div>
         </div>
         <div *ngIf="!notebookLibs?.length" class="scrollingList info message">
           <p>You have no libraries installed</p>

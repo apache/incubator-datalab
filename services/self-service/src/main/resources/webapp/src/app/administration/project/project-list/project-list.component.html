@@ -24,7 +24,7 @@
   </ng-container>
 
   <ng-container matColumnDef="groups">
-    <th mat-header-cell *matHeaderCellDef class="groups"> Groups </th>
+    <th mat-header-cell *matHeaderCellDef class="groups"> Group </th>
     <td mat-cell *matCellDef="let element" class="groups">
       <mat-chip-list>
         <mat-chip *ngFor="let group of element.groups">{{ group }}</mat-chip>
@@ -35,59 +35,71 @@
   <ng-container matColumnDef="endpoints">
     <th mat-header-cell *matHeaderCellDef class="endpoints">
       <span class="label-endpoint"> Endpoint </span>
-      <span class="label-status"> Endpoint status </span>
+      <span class="label-endpoint-status"> Endpoint status </span>
+      <span class="label-status"> Edge node status </span>
     </th>
     <td mat-cell *matCellDef="let element" class="source endpoints">
-      <!-- <mat-chip-list>
-        <mat-chip *ngFor="let endpoint of element.endpoints">{{ endpoint }}</mat-chip>
-      </mat-chip-list> -->
       <div *ngIf="!element.endpoints?.length; else list">
         <span *ngIf="!element.endpoints.length" class="no-details">no details</span>
       </div>
       <ng-template #list>
         <div *ngFor="let endpoint of element.endpoints" class="resource-wrap">
           <div class="resource-name">
-            <a class="detailed-link">
+            <a class="project-endpoint-name">
               {{ endpoint.name }}
             </a>
           </div>
-          <span ngClass="{{toEndpointStatus(endpoint.status).toLowerCase() || ''}}"
-            class="status resource-status">{{ toEndpointStatus(endpoint.status).toLowerCase() }}</span>
-          <div class="resource-actions">
-            <a class="start-stop-action">
-              <i class="material-icons" (click)="toggleEndpointAction(element, 'stop', endpoint)"
-                *ngIf="endpoint.status === 'RUNNING' || endpoint.status === 'STOPPING'"
-                [ngClass]="{'not-active' : endpoint.status === 'STOPPING'}">pause_circle_outline</i>
-            </a>
-            <a class="start-stop-action">
-              <i class="material-icons" (click)="toggleEndpointAction(element, 'start', endpoint)"
-                *ngIf="endpoint.status === 'STOPPED'">play_circle_outline</i>
-            </a>
-
-            <a class="remove_butt" (click)="toggleEndpointAction(element, 'terminate', endpoint)"
-              [ngClass]="{ 'disabled' : endpoint.status !== 'RUNNING' && endpoint.status !== 'STOPPED' }">
-              <i class="material-icons">highlight_off</i>
-            </a>
+          <div class="resource-status">
+            <span [ngClass]="{'active' : endpoint.endpointStatus === 'ACTIVE', 'failed': endpoint.endpointStatus === 'INACTIVE'}">
+              {{ endpoint.endpointStatus | titlecase }}
+            </span>
           </div>
+
+          <span class="status resource-status"
+            ngClass="{{endpoint.status.toLowerCase() || ''}}">{{ endpoint.status.toLowerCase() }}</span>
         </div>
       </ng-template>
     </td>
   </ng-container>
 
   <ng-container matColumnDef="actions">
-    <th mat-header-cell *matHeaderCellDef class="project-actions"></th>
-    <td mat-cell *matCellDef="let element" class="project-actions">
-      <span>
-        <a (click)="editProject(element)">
-          <mat-icon>mode_edit</mat-icon>
-        </a>
-      </span>
-      <span>
-        <a (click)="deleteProject(element)" class="action"
-          [ngClass]="{'not-allowed' : isInProgress(element) || !isActiveEndpoint(element) }">
-          <mat-icon>delete_forever</mat-icon>
-        </a>
-      </span>
+    <th mat-header-cell *matHeaderCellDef class="project-actions">
+      <span class="label"> Actions </span>
+    </th>
+    <td mat-cell *matCellDef="let element" class="settings">
+      <span #settings (click)="actions.toggle($event, settings)" class="actions"></span>
+      <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+        <ul class="list-unstyled">
+          <div class="active-items"></div>
+          <li class="project-seting-item" *ngIf="areStoppedEndpoints(element)" (click)="openEdgeDialog('start', element)">
+            <i class="material-icons">play_circle_outline</i>
+            <a class="action">
+              Start edge node
+            </a>
+          </li>
+          <li class="project-seting-item" *ngIf="areStartedEndpoints(element)" (click)="openEdgeDialog('stop', element )">
+            <i class="material-icons">pause_circle_outline</i>
+            <a class="action" >
+              Stop edge node
+            </a>
+          </li>
+          <li class="project-seting-item " *ngIf="areStoppedEndpoints(element) || areStartedEndpoints(element)" (click)="openEdgeDialog('terminate', element)">
+            <i class="material-icons">phonelink_off</i>
+            <a class="action">
+              Terminate edge node
+            </a>
+          </li>
+          <li class="project-seting-item" (click)="editProject(element)">
+            <i class="material-icons">mode_edit</i>
+            <a >
+              Edit project
+            </a>
+          </li>
+        </ul>
+      </bubble-up>
+    </td>
+    <td class="settings">
+
     </td>
 
   </ng-container>

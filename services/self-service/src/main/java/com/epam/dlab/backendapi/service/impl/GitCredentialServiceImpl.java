@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.GitCredentialService;
@@ -98,9 +99,9 @@ public class GitCredentialServiceImpl implements GitCredentialService {
 		try {
 			log.debug("Updating GIT creds for user {} on exploratory {}",
 					userInfo.getName(), instance.getExploratoryName());
-			ExploratoryGitCredsUpdateDTO dto = requestBuilder.newGitCredentialsUpdate(userInfo, instance, formDTO);
-			final String uuid = provisioningService
-					.post(endpointService.get(instance.getEndpoint()).getUrl() + EXPLORATORY_GIT_CREDS,
+			EndpointDTO endpointDTO = endpointService.get(instance.getEndpoint());
+			ExploratoryGitCredsUpdateDTO dto = requestBuilder.newGitCredentialsUpdate(userInfo, instance, endpointDTO, formDTO);
+			final String uuid = provisioningService.post(endpointDTO.getUrl() + EXPLORATORY_GIT_CREDS,
 							userInfo.getAccessToken(), dto, String.class);
 			requestId.put(userInfo.getName(), uuid);
 		} catch (Exception t) {

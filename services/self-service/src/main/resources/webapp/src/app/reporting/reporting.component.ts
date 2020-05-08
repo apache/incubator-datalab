@@ -20,13 +20,13 @@
 
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-
-import { BillingReportService, HealthStatusService } from '../core/services';
+import {ApplicationSecurityService, BillingReportService, HealthStatusService} from '../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
 import { FileUtils } from '../core/util';
 import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
+import {ProgressBarService} from '../core/services/progress-bar.service';
 
 @Component({
   selector: 'dlab-reporting',
@@ -44,8 +44,8 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
   styles: [`
     footer {
       position: fixed;
-      left: 0px;
-      bottom: 0px;
+      left: 0;
+      bottom: 0;
       width: 100%;
       background: #a1b7d1;
       color: #ffffff;
@@ -71,11 +71,14 @@ export class ReportingComponent implements OnInit, OnDestroy {
   constructor(
     private billingReportService: BillingReportService,
     private healthStatusService: HealthStatusService,
-    public toastr: ToastrService
+    public toastr: ToastrService,
+    private progressBarService: ProgressBarService,
+    private applicationSecurityService: ApplicationSecurityService,
   ) { }
 
   ngOnInit() {
-    this.rebuildBillingReport();
+    this.getEnvironmentHealthStatus();
+    this.buildBillingReport();
   }
 
   ngOnDestroy() {
@@ -83,18 +86,18 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   getGeneralBillingData() {
-
+    setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
-        this.reportingGrid.refreshData(this.data, this.data.lines);
-        this.reportingGrid.setFullReport(this.data.full_report);
+        this.reportingGrid.refreshData(this.data, this.data.report_lines);
+        this.reportingGrid.setFullReport(this.data.is_full);
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
           localStorage.setItem('report_period', JSON.stringify({
-            start_date: this.data[DICTIONARY.billing.dateFrom],
-            end_date: this.data[DICTIONARY.billing.dateTo]
+            start_date: this.data['from'],
+            end_date: this.data['to']
           }));
           this.reportingToolbar.setDateRange();
         }
@@ -105,29 +108,41 @@ export class ReportingComponent implements OnInit, OnDestroy {
         } else {
           this.getDefaultFilterConfiguration(this.data);
         }
-      });
+        this.progressBarService.stopProgressBar();
+      }, () => this.progressBarService.stopProgressBar());
   }
 
-  rebuildBillingReport($event?): void {
+  rebuildBillingReport(): void {
+    this.checkAutorize();
+    this.buildBillingReport();
+
+  }
+
+  buildBillingReport() {
     this.clearStorage();
     this.resetRangePicker();
     this.reportData.defaultConfigurations();
-
-    this.getEnvironmentHealthStatus();
     this.getGeneralBillingData();
+  }
+
+  private checkAutorize() {
+    this.applicationSecurityService.isLoggedIn().subscribe( () => {
+        this.getEnvironmentHealthStatus();
+      }
+    );
   }
 
   exportBillingReport(): void {
     this.billingReportService.downloadReport(this.reportData)
       .subscribe(
         data => FileUtils.downloadFile(data),
-        error => this.toastr.error('Billing report export failed!', 'Oops!'));
+        () => this.toastr.error('Billing report export failed!', 'Oops!'));
   }
 
   getDefaultFilterConfiguration(data): void {
     const users = [], types = [], shapes = [], services = [], statuses = [], projects = [];
 
-    data.lines.forEach((item: any) => {
+    data.report_lines.forEach((item: any) => {
       if (item.user && users.indexOf(item.user) === -1)
         users.push(item.user);
 
@@ -137,30 +152,29 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item.project && projects.indexOf(item.project) === -1)
         projects.push(item.project);
 
-      if (item[DICTIONARY.billing.resourceType] && types.indexOf(item[DICTIONARY.billing.resourceType]) === -1)
-        types.push(item[DICTIONARY.billing.resourceType]);
+      if (item['resource_type'] && types.indexOf(item['resource_type']) === -1)
+        types.push(item['resource_type']);
 
-      if (item[DICTIONARY.billing.instance_size]) {
-        if (item[DICTIONARY.billing.instance_size].indexOf('Master') > -1) {
-          for (let shape of item[DICTIONARY.billing.instance_size].split('\n')) {
+      if (item.shape && types.indexOf(item.shape)) {
+       if (item.shape.indexOf('Master') > -1) {
+          for (let shape of item.shape.split(/(?=Slave)/g)) {
             shape = shape.replace('Master: ', '');
-            shape = shape.replace(/Slave:\s+\d+ x /, '');
+            shape = shape.replace(/Slave: /, '');
             shape = shape.replace(/\s+/g, '');
-
             shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
-        } else if (item[DICTIONARY.billing.instance_size].match(/\d x \S+/)) {
-          const parsedShape = item[DICTIONARY.billing.instance_size].match(/\d x \S+/)[0].split(' x ')[1];
+        } else if (item.shape.match(/\d x \S+/)) {
+          const parsedShape = item.shape.match(/\d x \S+/)[0].split(' x ')[1];
           if (shapes.indexOf(parsedShape) === -1) {
             shapes.push(parsedShape);
           }
         } else {
-          shapes.indexOf(item[DICTIONARY.billing.instance_size]) === -1 && shapes.push(item[DICTIONARY.billing.instance_size]);
+          shapes.indexOf(item.shape) === -1 && shapes.push(item.shape);
         }
       }
 
-      if (item[DICTIONARY.billing.service] && services.indexOf(item[DICTIONARY.billing.service]) === -1)
-        services.push(item[DICTIONARY.billing.service]);
+      if (item.product && services.indexOf(item.product) === -1)
+        services.push(item.product);
     });
 
     if (!this.reportingGrid.filterConfiguration || !localStorage.getItem('report_config')) {

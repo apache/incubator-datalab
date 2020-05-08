@@ -26,7 +26,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatNativeDateModule } from '@angular/material/core';
+import {MAT_HAMMER_OPTIONS, MatNativeDateModule} from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -51,7 +51,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DateAdapter } from '@angular/material/core';
+import {STEPPER_GLOBAL_OPTIONS} from "@angular/cdk/stepper";
 
 @NgModule({
   exports: [
@@ -87,7 +87,21 @@ import { DateAdapter } from '@angular/material/core';
     MatPaginatorModule,
     MatSortModule,
     MatTableModule
-  ]
+  ],
+  providers: [
+    {
+      provide: MAT_HAMMER_OPTIONS,
+      useValue: {
+        cssProps: {
+          userSelect: true
+        }
+      },
+    },
+    {
+      provide: STEPPER_GLOBAL_OPTIONS,
+      useValue: { displayDefaultIndicatorType: false }
+    }
+  ],
 })
 
 export class MaterialModule {}

@@ -54,6 +54,9 @@ public class UserResourceInfo {
 	@JsonProperty("public_ip")
 	private String ip;
 
+	@JsonProperty("cloud_provider")
+	private String cloudProvider;
+
 
 	public UserResourceInfo withResourceType(ResourceEnum resourceType) {
 		setResourceType(resourceType);
@@ -92,6 +95,11 @@ public class UserResourceInfo {
 
 	public UserResourceInfo withProject(String project) {
 		setProject(project);
+		return this;
+	}
+
+	public UserResourceInfo withCloudProvider(String cloudProvider) {
+		setCloudProvider(cloudProvider);
 		return this;
 	}
 }

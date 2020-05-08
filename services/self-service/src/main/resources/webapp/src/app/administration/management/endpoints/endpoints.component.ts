@@ -25,6 +25,7 @@ import { ToastrService } from 'ngx-toastr';
 import { EndpointService } from '../../../core/services';
 import { NotificationDialogComponent } from '../../../shared/modal-dialog/notification-dialog';
 import { PATTERNS } from '../../../core/util';
+import { map } from 'rxjs/operators';
 
 export interface Endpoint {
   name: string;
@@ -48,7 +49,7 @@ export class EndpointsComponent implements OnInit {
     public dialogRef: MatDialogRef<EndpointsComponent>,
     public dialog: MatDialog,
     private endpointService: EndpointService,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
   ) { }
 
   ngOnInit() {
@@ -62,31 +63,168 @@ export class EndpointsComponent implements OnInit {
 
   public assignChanges(data) {
     this.endpointService.createEndpoint(data).subscribe(() => {
-      this.toastr.success('Endpoint created successfully!', 'Success!');
+      this.toastr.success('Endpoint connected successfully!', 'Success!');
       this.dialogRef.close(true);
-    }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
+    }, error => this.toastr.error(error.message || 'Endpoint connection failed!', 'Oops!'));
   }
 
-  public deleteEndpoint(data) {
-    this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data }, panelClass: 'modal-sm' })
-      .afterClosed().subscribe(result => {
-        result && this.endpointService.deleteEndpoint(data.name).subscribe(() => {
-          this.toastr.success('Endpoint successfully deleted!', 'Success!');
-          this.getEndpointList();
-        }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
-      });
+  public deleteEndpoint(data): void {
+    this.endpointService.getEndpointsResource(data.name)
+      .pipe(map(resource =>
+        resource.projects.map(project =>
+          EndpointsComponent.createResourceList(
+            project.name,
+            resource.exploratories.filter(notebook => notebook.project === project.name),
+            project.endpoints.filter(endpoint => endpoint.name === data.name)[0].status))
+          .filter(project => project.nodeStatus !== 'TERMINATED'
+            && project.nodeStatus !== 'TERMINATING'
+            && project.nodeStatus !== 'FAILED'
+          )))
+      .subscribe((resource: any) => {
+         this.dialog.open(NotificationDialogComponent, { data: {
+           type: 'confirmation', item: data, list:  resource
+           }, panelClass: 'modal-sm' })
+         .afterClosed().subscribe(result => {
+         result === 'noTerminate' && this.deleteEndpointOption(data, false);
+         result === 'terminate' && this.deleteEndpointOption(data, true);
+       });
+    });
+  }
+
+  public getEndpoinConnectionStatus(url) {
+    const getStatus = this.endpointService.getEndpoinConnectionStatus(encodeURIComponent(url));
+    this.dialog.open(EndpointTestResultDialogComponent, { data: {url: url, getStatus}, panelClass: 'modal-sm' });
+  }
+
+  private static createResourceList(name: string, resource: Array<any>, nodeStatus: string): Object {
+    return {name, resource, nodeStatus};
   }
 
   private initFormModel(): void {
     this.createEndpointForm = this._fb.group({
-      name: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
-      url: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.url)])],
+      name: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern), this.validateName.bind(this)])],
+      url: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.fullUrl), this.validateUrl.bind(this)])],
       account: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])],
       endpoint_tag: ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.namePattern)])]
     });
   }
 
-  private getEndpointList() {
+  private deleteEndpointOption(data, option): void {
+    this.endpointService.deleteEndpoint(`${data.name}?with-resources=${option}`).subscribe(() => {
+      this.toastr.success(option ? 'Endpoint successfully disconnected. All related resources are terminating!' : 'Endpoint successfully disconnected!' , 'Success!');
+      this.getEndpointList();
+    }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
+  }
+
+  private getEndpointList(): void {
     this.endpointService.getEndpointsData().subscribe((endpoints: any) => this.endpoints = endpoints);
   }
+
+  private validateUrl(control) {
+    if (control && control.value) {
+      const isDublicat = this.endpoints.some(endpoint => endpoint['url'].toLocaleLowerCase() === control.value.toLowerCase());
+      return isDublicat ? { isDuplicate: true } : null;
+    }
+  }
+
+  private validateName(control) {
+    if (control && control.value) {
+      const isDublicat = this.endpoints.some(endpoint => endpoint['name'].toLocaleLowerCase() === control.value.toLowerCase());
+      return isDublicat ? { isDuplicate: true } : null;
+    }
+  }
+}
+
+@Component({
+  selector: 'endpoint-test-result-dialog',
+  template: `
+    <div id="dialog-box">
+      <div class="dialog-header">
+        <h4 class="modal-title">Endpoint test</h4>
+        <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+      </div>
+      <div class="progress-bar" >
+        <mat-progress-bar *ngIf="!response" mode="indeterminate"></mat-progress-bar>
+      </div>
+      <div class="content-box">
+      <div mat-dialog-content class="content message">
+        <p
+          class="dialog-message ellipsis"
+          *ngIf="!response">
+          Connecting to url
+          <span class="strong"
+                matTooltip="{{data.url}}"
+                [matTooltipPosition]="'above'"
+          >
+            {{cutToLongUrl(data.url)}}
+          </span>
+        </p>
+        <p
+          class="dialog-message ellipsis"
+          *ngIf="isConnected && response">
+          <i class="material-icons icons-possition active">check_circle</i>
+          Connected to url
+          <span matTooltip="{{data.url}}"
+                [matTooltipPosition]="'above'"
+                class="strong"
+          >
+            {{cutToLongUrl(data.url)}}
+          </span>
+        </p>
+        <p class="dialog-message ellipsis"
+           *ngIf="!isConnected && response"
+        >
+          <i class="material-icons icons-possition failed">cancel</i>
+          Failed to connect to url
+          <span matTooltip="{{data.url}}"
+                [matTooltipPosition]="'above'"
+                class="strong"
+          >
+            {{cutToLongUrl(data.url)}}
+          </span>
+        </p>
+      </div>
+      <div class="text-center m-top-20 m-bott-10">
+        <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
+      </div>
+      </div>
+    </div>
+  `,
+  styles: [
+    `#dialog-box {overflow: hidden}
+    .icons-possition {line-height: 25px; vertical-align: middle; padding-right: 7px }
+    .content { color: #718ba6; padding: 15px 50px; font-size: 14px; font-weight: 400; margin: 0; }
+    .info .confirm-dialog { color: #607D8B; }
+    header { display: flex; justify-content: space-between; color: #607D8B; }
+    header h4 i { vertical-align: bottom; }
+    header a i { font-size: 20px; }
+    header a:hover i { color: #35afd5; cursor: pointer; }
+    label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif; cursor: pointer; display: flex; align-items: center;}
+    .progress-bar{ height: 4px;}
+    .dialog-message{min-height: 25px; overflow: hidden;}
+    `
+  ]
+})
+export class EndpointTestResultDialogComponent {
+  public isConnected = false;
+  public response = false;
+  constructor(
+    public dialogRef: MatDialogRef<EndpointTestResultDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    this.data.getStatus.subscribe(() => {
+        this.isConnected = true;
+        this.response = true;
+        return;
+      },
+      () => {
+        this.isConnected = false;
+        this.response = true;
+        return;
+      });
+  }
+  private cutToLongUrl(url) {
+    return url.length > 25 ? url.slice(0, 25) + '...' : url;
+  }
+
 }

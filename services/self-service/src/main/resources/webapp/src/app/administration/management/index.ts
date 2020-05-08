@@ -36,7 +36,7 @@ import { ManageEnvironmentComponent, ConfirmActionDialogComponent } from './mana
 import { DirectivesModule } from '../../core/directives';
 
 import { SsnMonitorComponent } from './ssn-monitor/ssn-monitor.component';
-import { EndpointsComponent } from './endpoints/endpoints.component';
+import {EndpointsComponent, EndpointTestResultDialogComponent} from './endpoints/endpoints.component';
 import { ProjectModule } from '../project';
 
 export * from './management.component';
@@ -62,7 +62,8 @@ export * from './management.component';
     ReconfirmationDialogComponent,
     ConfirmActionDialogComponent,
     SsnMonitorComponent,
-    EndpointsComponent
+    EndpointsComponent,
+    EndpointTestResultDialogComponent
   ],
   entryComponents: [
     ReconfirmationDialogComponent,
@@ -70,7 +71,9 @@ export * from './management.component';
     BackupDilogComponent,
     SsnMonitorComponent,
     EndpointsComponent,
-    ManageEnvironmentComponent],
+    ManageEnvironmentComponent,
+    EndpointTestResultDialogComponent
+  ],
   providers: [EnvironmentsDataService],
   exports: [ManagementComponent]
 })

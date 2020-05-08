@@ -122,6 +122,9 @@
 
       &.not-allowed {
         background-color: #dcdcdc;
+        .mat-select-placeholder {
+         cursor: not-allowed;
+        }
       }
     }
   }
@@ -211,6 +214,17 @@
   font-size: 14px;
 }
 
+.mat-select-disabled{
+  .mat-select-placeholder {
+    cursor: not-allowed;
+  }
+
+}
+
+.mat-select-disabled + .caret {
+  cursor: not-allowed !important;
+}
+
 .mat-input-placeholder {
   font-weight: 400;
 }
@@ -283,6 +297,24 @@ span.mat-slide-toggle-content {
 .break-tooltip {
   white-space: pre-line !important;
   word-break: break-all;
+}
+
+.create-cluster,
+.project-form,
+.create-environment,
+.selection,
+.manage-roles{
+    .mat-select-value{
+      overflow: visible;
+    }
+    .mat-form-field-label {
+      line-height: 21px !important;
+      font-size: 15px !important;
+
+      &:not(.mat-form-field-empty) {
+        color: transparent !important;
+      }
+    }
 }
 
 .manage-roles,
@@ -395,6 +427,7 @@ span.mat-slide-toggle-content {
       .mat-select-trigger {
         width: 100%;
         display: flex;
+        max-width: 500px;
       }
     }
   }
@@ -582,10 +615,8 @@ mat-horizontal-stepper {
 .mat-table {
   .header-row {
     th.mat-header-cell {
-      font-size: 15px;
       font-family: 'Open Sans', sans-serif;
       font-weight: 600;
-      color: #607D8B;
     }
 
     .mat-cell {
@@ -625,3 +656,14 @@ mat-progress-bar {
     background-color: #baf0f7;
   }
 }
+.manage-roles{
+  .mat-horizontal-content-container{
+    overflow: visible !important;
+  }
+}
+
+.filter-row-item, .label-header{
+  box-shadow: inset 0 -1px 0 lightgrey;
+  border-bottom: none !important;
+}
+

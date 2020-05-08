@@ -20,10 +20,13 @@
 # under the License.
 #
 # ******************************************************************************
-
-from dlab.fab import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import logging
+import os
 import sys
+import json
 
 
 if __name__ == "__main__":
@@ -35,21 +38,22 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     print('Generating infrastructure names and tags')
+    AzureMeta = dlab.meta_lib.AzureMeta()
+    AzureActions = dlab.actions_lib.AzureActions()
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['project_name'] = os.environ['project_name'].lower().replace('_', '-')
-    edge_conf['endpoint_name'] = os.environ['endpoint_name'].lower().replace('_', '-')
+    edge_conf['project_name'] = os.environ['project_name']
+    edge_conf['endpoint_name'] = os.environ['endpoint_name']
     edge_conf['instance_name'] = '{0}-{1}-{2}-edge'.format(edge_conf['service_base_name'],
                                                            edge_conf['project_name'], edge_conf['endpoint_name'])
 
     logging.info('[STOP EDGE]')
     print('[STOP EDGE]')
     try:
-        AzureActions().stop_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
+        AzureActions.stop_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to stop edge.", str(err))
+        dlab.fab.append_result("Failed to stop edge.", str(err))
         sys.exit(1)
 
     try:
@@ -58,7 +62,7 @@ if __name__ == "__main__":
                    "Action": "Stop edge server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)
 

@@ -23,9 +23,10 @@ import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
 import { ProjectDataService } from './project-data.service';
-import { HealthStatusService, ProjectService } from '../../core/services';
+import {HealthStatusService, ProjectService, UserResourceService} from '../../core/services';
 import { NotificationDialogComponent } from '../../shared/modal-dialog/notification-dialog';
 import { ProjectListComponent } from './project-list/project-list.component';
+import {ExploratoryModel} from '../../resources/resources-grid/resources-grid.model';
 
 export interface Endpoint {
   name: string;
@@ -35,9 +36,10 @@ export interface Endpoint {
 
 export interface Project {
   name: string;
-  endpoints: Endpoint[];
+  endpoints: any;
   tag: string;
   groups: string[];
+  shared_image_enabled?: boolean;
 }
 
 @Component({
@@ -49,6 +51,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   projectList: Project[] = [];
   healthStatus: any;
   activeFiltering: boolean = false;
+  resources: any = [];
 
   private subscriptions: Subscription = new Subscription();
 
@@ -59,7 +62,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
     public toastr: ToastrService,
     private projectService: ProjectService,
     private projectDataService: ProjectDataService,
-    private healthStatusService: HealthStatusService
+    private healthStatusService: HealthStatusService,
+    private userResourceService: UserResourceService
   ) { }
 
   ngOnInit() {
@@ -69,10 +73,18 @@ export class ProjectComponent implements OnInit, OnDestroy {
         if (value) this.projectList = value;
       }));
     this.refreshGrid();
+    this.getResources();
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+  }
+
+  private getResources() {
+    this.userResourceService.getUserProvisionedResources()
+      .subscribe((result: any) => {
+        this.resources = ExploratoryModel.loadEnvironments(result);
+      });
   }
 
   refreshGrid() {
@@ -84,7 +96,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
     if (this.projectList.length)
       this.dialog.open(EditProjectComponent, { data: { action: 'create', item: null }, panelClass: 'modal-xl-s' })
         .afterClosed().subscribe(() => {
-          console.log('Create project');
           this.getEnvironmentHealthStatus();
         });
   }
@@ -103,37 +114,36 @@ export class ProjectComponent implements OnInit, OnDestroy {
       });
   }
 
-  public deleteProject($event) {
-    this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: $event }, panelClass: 'modal-sm' })
-      .afterClosed().subscribe(result => {
-        result && this.projectService.deleteProject($event.name).subscribe(() => {
-          this.refreshGrid();
-        });
-      });
-  }
-
   public toggleStatus($event) {
-    const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.name };
-
-    if ($event.action === 'stop' || $event.action === 'terminate') {
-      this.dialog.open(NotificationDialogComponent, {
-        data: {
-          type: 'confirmation',
-          item: $event.endpoint, action: $event.action === 'stop' ? 'stopped' : 'terminated'
-        }, panelClass: 'modal-sm'
-      })
-        .afterClosed().subscribe(result => {
-          result && this.toggleStatusRequest(data, $event.action);
-        }, error => this.toastr.error(error.message, 'Oops!'));
-    } else {
+    const data = { 'project_name': $event.project.name, endpoint: $event.endpoint.map(endpoint => endpoint.name)};
       this.toggleStatusRequest(data, $event.action);
-    }
   }
 
   private toggleStatusRequest(data, action) {
+    if ( action === 'terminate') {
+      const projectsResources = this.resources.filter(resource => resource.project === data.project_name );
+      const activeProjectsResources = projectsResources.length ? projectsResources[0].exploratory
+        .filter(expl => expl.status !== 'terminated' && expl.status !== 'terminating' && expl.status !== 'failed') : [];
+      let termResources = [];
+      data.endpoint.forEach(v => {
+        termResources = [...termResources, ...activeProjectsResources.filter(resource => resource.endpoint === v)];
+      });
+
+      this.dialog.open(NotificationDialogComponent, { data: {
+        type: 'terminateNode', item: {action: data, resources: termResources.map(resource => resource.name)}
+        }, panelClass: 'modal-sm' })
+        .afterClosed().subscribe(result => {
+        result && this.edgeNodeAction(data, action);
+      });
+    } else {
+      this.edgeNodeAction(data, action);
+    }
+  }
+
+  private edgeNodeAction(data, action) {
     this.projectService.toggleProjectStatus(data, action).subscribe(() => {
       this.refreshGrid();
-      this.toastr.success(`Endpoint ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
+      this.toastr.success(`Edge node ${this.toEndpointAction(action)} is in progress!`, 'Processing!');
     }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
@@ -144,9 +154,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   private toEndpointAction(action) {
     if (action === 'start') {
-      return 'connect';
+      return 'starting';
     } else if (action === 'stop') {
-      return 'disconnect';
+      return 'stopping';
+    } else if (action === 'terminate') {
+      return 'terminating';
     } else {
       return action;
     }

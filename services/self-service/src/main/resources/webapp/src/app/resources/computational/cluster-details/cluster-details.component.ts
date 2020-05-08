@@ -35,6 +35,7 @@ import { CLUSTER_CONFIGURATION } from '../computational-resource-create-dialog/c
 
 export class DetailComputationalResourcesComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+  readonly PROVIDER = this.data.environment.cloud_provider;
 
   resource: any;
   environment: any;
@@ -55,13 +56,14 @@ export class DetailComputationalResourcesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.open(this.data.environment, this.data.resource)
+    this.open(this.data.environment, this.data.resource);
   }
 
   public open(environment, resource): void {
     this.tooltip = false;
     this.resource = resource;
     this.environment = environment;
+
 
     this.upTimeInHours = (this.resource.up_time) ? DateUtils.diffBetweenDatesInHours(this.resource.up_time) : 0;
     this.upTimeSince = (this.resource.up_time) ? new Date(this.resource.up_time).toString() : '';
@@ -87,14 +89,16 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   public getClusterConfiguration(): void {
     this.dataengineConfigurationService
-      .getClusterConfiguration(this.environment.name, this.resource.computational_name)
+      .getClusterConfiguration(this.environment.project, this.environment.name, this.resource.computational_name, this.PROVIDER)
       .subscribe((result: any) => this.config = result,
         error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!'));
   }
 
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
-      .editClusterConfiguration(data.configuration_parameters, this.environment.name, this.resource.computational_name)
+      .editClusterConfiguration(
+        data.configuration_parameters, this.environment.project, this.environment.name, this.resource.computational_name, this.PROVIDER
+      )
       .subscribe(result => {
         this.dialogRef.close();
       },

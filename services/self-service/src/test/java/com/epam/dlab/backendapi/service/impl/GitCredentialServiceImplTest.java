@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
@@ -76,7 +77,7 @@ public class GitCredentialServiceImplTest {
 		when(exploratoryDAO.fetchRunningExploratoryFields(anyString())).thenReturn(Collections.singletonList(uiDto));
 
 		ExploratoryGitCredsUpdateDTO egcuDto = new ExploratoryGitCredsUpdateDTO().withExploratoryName(exploratoryName);
-		when(requestBuilder.newGitCredentialsUpdate(any(UserInfo.class), any(UserInstanceDTO.class),
+		when(requestBuilder.newGitCredentialsUpdate(any(UserInfo.class), any(UserInstanceDTO.class), any(EndpointDTO.class),
 				any(ExploratoryGitCredsDTO.class))).thenReturn(egcuDto);
 
 		String uuid = "someUuid";
@@ -89,7 +90,7 @@ public class GitCredentialServiceImplTest {
 
 		verify(gitCredsDAO).updateGitCreds(USER, egcDto);
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
-		verify(requestBuilder).newGitCredentialsUpdate(userInfo, uiDto, egcDto);
+		verify(requestBuilder).newGitCredentialsUpdate(userInfo, uiDto, endpointDTO(), egcDto);
 		verify(provisioningService).post(endpointDTO().getUrl() + "exploratory/git_creds", token, egcuDto,
 				String.class);
 		verify(requestId).put(USER, uuid);
@@ -116,6 +117,7 @@ public class GitCredentialServiceImplTest {
 
 	@Test
 	public void updateGitCredentialsWithFailedNotebooks() {
+		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		String token = "token";
 		UserInfo userInfo = new UserInfo(USER, token);
 		doNothing().when(gitCredsDAO).updateGitCreds(anyString(), any(ExploratoryGitCredsDTO.class));
@@ -126,7 +128,7 @@ public class GitCredentialServiceImplTest {
 
 		doThrow(new DlabException("Cannot create instance of resource class "))
 				.when(requestBuilder).newGitCredentialsUpdate(any(UserInfo.class), any(UserInstanceDTO.class),
-				any(ExploratoryGitCredsDTO.class));
+				any(EndpointDTO.class), any(ExploratoryGitCredsDTO.class));
 
 		ExploratoryGitCredsDTO egcDto = new ExploratoryGitCredsDTO();
 		try {
@@ -138,7 +140,7 @@ public class GitCredentialServiceImplTest {
 
 		verify(gitCredsDAO).updateGitCreds(USER, egcDto);
 		verify(exploratoryDAO).fetchRunningExploratoryFields(USER);
-		verify(requestBuilder).newGitCredentialsUpdate(userInfo, uiDto, egcDto);
+		verify(requestBuilder).newGitCredentialsUpdate(userInfo, uiDto, endpointDTO(), egcDto);
 		verifyNoMoreInteractions(gitCredsDAO, exploratoryDAO, requestBuilder);
 	}
 
@@ -168,6 +170,6 @@ public class GitCredentialServiceImplTest {
 	}
 
 	private EndpointDTO endpointDTO() {
-		return new EndpointDTO("test", "url", "", null);
+		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.AWS);
 	}
 }

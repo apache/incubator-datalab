@@ -36,6 +36,12 @@ public class AzureCloudSettings extends CloudSettings {
     private String azureRegion;
     @JsonProperty("azure_iam_user")
     private String azureIamUser;
+    @JsonProperty("conf_service_base_name")
+    protected String sbn;
+    @JsonProperty("conf_os_family")
+    protected String os;
+    @JsonProperty("conf_cloud_provider")
+    protected String cloud;
     @JsonProperty("azure_vpc_name")
     private String azureVpcName;
     @JsonProperty("azure_subnet_name")
@@ -44,12 +50,38 @@ public class AzureCloudSettings extends CloudSettings {
     private String azureResourceGroupName;
     @JsonProperty("azure_security_group_name")
     private String azureSecurityGroupName;
+    @JsonProperty("ldap_hostname")
+    protected String ldapHost;
+    @JsonProperty("ldap_dn")
+    protected String ldapDn;
+    @JsonProperty("ldap_ou")
+    protected String ldapOu;
+    @JsonProperty("ldap_service_username")
+    protected String ldapUser;
+    @JsonProperty("ldap_service_password")
+    protected String ldapPassword;
     @JsonProperty("conf_key_dir")
     protected String confKeyDir;
     @JsonProperty("conf_image_enabled")
     private String imageEnabled;
-    @JsonProperty("conf_shared_image_enabled")
-    private String sharedImageEnabled;
+    @JsonProperty("conf_stepcerts_enabled")
+    private String stepCertsEnabled;
+    @JsonProperty("conf_stepcerts_root_ca")
+    private String stepCertsRootCA;
+    @JsonProperty("conf_stepcerts_kid")
+    private String stepCertsKid;
+    @JsonProperty("conf_stepcerts_kid_password")
+    private String stepCertsKidPassword;
+    @JsonProperty("conf_stepcerts_ca_url")
+    private String stepCertsCAURL;
+    @JsonProperty("keycloak_auth_server_url")
+    private String keycloakAuthServerUrl;
+    @JsonProperty("keycloak_realm_name")
+    private String keycloakRealmName;
+    @JsonProperty("keycloak_user")
+    private String keycloakUser;
+    @JsonProperty("keycloak_user_password")
+    private String keycloakUserPassword;
 
     @Override
     @JsonIgnore

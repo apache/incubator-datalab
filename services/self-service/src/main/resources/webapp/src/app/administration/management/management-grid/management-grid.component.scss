@@ -23,7 +23,7 @@
     .user,
     .name,
     .project {
-      width: 14%;
+      width: 12%;
 
       .list-menu li {
         text-transform: inherit;
@@ -31,11 +31,11 @@
     }
 
     .shape {
-      width: 16% !important;
+      width: 19% !important;
     }
 
     .status {
-      width: 15% !important;
+      width: 13% !important;
     }
 
     .type {
@@ -43,20 +43,24 @@
     }
 
     .resources {
-      width: 25%;
+      width: 22%;
       padding: 5px;
     }
 
     .settings {
-      padding-right: 24px;
+      padding-right: 14px;
 
-      .actions {
-        margin-top: 2px;
+
+    }
+    .actions {
+      margin-top: 0px;
+      .label{
+        padding-right: 5px;
       }
     }
-
     .actions-col {
-      width: 10%;
+      width: 6%;
+
     }
 
     .dashboard_table_body {
@@ -71,29 +75,36 @@
   cursor: default !important;
 }
 
-table {
+table.management {
   width: 100%;
+
+  thead {
+    background: transparent !important;
+  }
 
   td {
     padding: 5px;
   }
 
   .header-row {
+    height: auto;
     .label {
       display: inline-block;
-      padding-top: 10px;
+      padding-top: 14px;
       vertical-align: super !important;
       padding-left: 5px;
-      font-size: 11px;
+      font-size: 12px;
     }
-
-    button {
-      padding-right: 5px;
+    .actions {
+      text-align: right;
+      .label {
+        display: inline-block;
+        padding-top: 11px;
+      }
     }
   }
 
-  .actions {
-    text-align: right;
+  .filter-row {
+    background: inherit;
   }
-
 }

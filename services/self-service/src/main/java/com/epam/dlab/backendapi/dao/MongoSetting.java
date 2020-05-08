@@ -84,7 +84,7 @@ public enum MongoSetting {
 	AZURE_VPC_NAME("azure_vpc_name"),
 	AZURE_SECURITY_GROUP_NAME("azure_security_group_name"),
 	AZURE_EDGE_INSTANCE_SIZE("edge_instance_size"),
-	AZURE_SSN_INSTANCE_SIZE("ssn_instance_size"),
+	SSN_INSTANCE_SIZE("ssn_instance_size"),
 	AZURE_DATA_LAKE_NAME_TAG("datalake_tag_name"),
 	AZURE_DATA_LAKE_CLIENT_ID("azure_client_id"),
 

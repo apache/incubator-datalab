@@ -31,8 +31,6 @@ import java.util.Set;
 public interface ProjectDAO {
 	List<ProjectDTO> getProjects();
 
-	List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status);
-
 	List<ProjectDTO> getProjectsWithEndpointStatusNotIn(UserInstanceStatus... statuses);
 
 	List<ProjectDTO> getUserProjects(UserInfo userInfo, boolean active);
@@ -46,6 +44,8 @@ public interface ProjectDAO {
 	void updateEdgeInfo(String projectName, String endpointName, EdgeInfo edgeInfo);
 
 	Optional<ProjectDTO> get(String name);
+
+	List<ProjectDTO> getProjectsByEndpoint(String endpointName);
 
 	boolean update(ProjectDTO projectDTO);
 

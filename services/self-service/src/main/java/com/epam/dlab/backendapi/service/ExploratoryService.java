@@ -21,6 +21,8 @@ package com.epam.dlab.backendapi.service;
 
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.resources.dto.ExploratoryCreatePopUp;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
@@ -28,30 +30,31 @@ import com.epam.dlab.model.exploratory.Exploratory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ExploratoryService {
 
-	String start(UserInfo userInfo, String exploratoryName, String project);
+    String start(UserInfo userInfo, String exploratoryName, String project);
 
-	String stop(UserInfo userInfo, String exploratoryName);
+    String stop(UserInfo userInfo, String project, String exploratoryName);
 
-	String terminate(UserInfo userInfo, String exploratoryName);
+    String terminate(UserInfo userInfo, String project, String exploratoryName);
 
-	String create(UserInfo userInfo, Exploratory exploratory, String project);
+    String create(UserInfo userInfo, Exploratory exploratory, String project);
 
-	void updateExploratoryStatuses(String user, UserInstanceStatus status);
+    void updateProjectExploratoryStatuses(String project, String endpoint, UserInstanceStatus status);
 
-	void updateProjectExploratoryStatuses(String project, String endpoint, UserInstanceStatus status);
+    void updateClusterConfig(UserInfo userInfo, String project, String exploratoryName, List<ClusterConfig> config);
 
-	void updateExploratoriesReuploadKeyFlag(String user, boolean reuploadKeyRequired,
-											UserInstanceStatus... exploratoryStatuses);
+    Optional<UserInstanceDTO> getUserInstance(String user, String project, String exploratoryName);
 
-	List<UserInstanceDTO> getInstancesWithStatuses(String user, UserInstanceStatus exploratoryStatus,
-												   UserInstanceStatus computationalStatus);
+    Optional<UserInstanceDTO> getUserInstance(String user, String project, String exploratoryName, boolean includeCompResources);
 
-	void updateClusterConfig(UserInfo userInfo, String exploratoryName, List<ClusterConfig> config);
+    List<UserInstanceDTO> findAll();
 
-	Optional<UserInstanceDTO> getUserInstance(String user, String exploratoryName);
+    List<UserInstanceDTO> findAll(Set<ProjectDTO> projects);
 
-	List<ClusterConfig> getClusterConfig(UserInfo user, String exploratoryName);
+    List<ClusterConfig> getClusterConfig(UserInfo user, String project, String exploratoryName);
+
+    ExploratoryCreatePopUp getUserInstances(UserInfo user);
 }

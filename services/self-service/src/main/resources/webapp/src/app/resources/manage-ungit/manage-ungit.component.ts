@@ -96,7 +96,7 @@ export class ManageUngitComponent implements OnInit {
       'email': [item.email, Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
       'login': [item.login, Validators.compose([Validators.required, Validators.pattern(this.login_acceptance_pattern)])],
       'password': ['', Validators.compose([Validators.required, Validators.minLength(6)])],
-      'confirmPassword': ['', Validators.compose([Validators.required, this.validConfirmField.bind(this)])]
+      'confirmPassword': ['', Validators.compose([Validators.required])]
     });
   }
 
@@ -140,7 +140,7 @@ export class ManageUngitComponent implements OnInit {
       'email': ['', Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
       'login': ['', Validators.compose([Validators.required, Validators.pattern(this.login_acceptance_pattern)])],
       'password': ['', Validators.compose([Validators.required, Validators.minLength(6)])],
-      'confirmPassword': ['', Validators.compose([Validators.required, this.validConfirmField.bind(this)])]
+      'confirmPassword': ['', Validators.compose([Validators.required])]
     });
   }
 
@@ -149,15 +149,6 @@ export class ManageUngitComponent implements OnInit {
       .subscribe(
         (response: any) => this.gitCredentials = response.git_creds || [],
         error => this.toastr.error(error.message || 'Git credentials loading failed!', 'Oops!'));
-  }
-
-  private validConfirmField(control) {
-    if (this.updateAccountCredentialsForm) {
-      const passReq = this.updateAccountCredentialsForm.get('password');
-      const confirmPassReq = this.updateAccountCredentialsForm.get('confirmPassword');
-
-      return passReq.value === confirmPassReq.value ? null : { valid: false };
-    }
   }
 
   private containsHostname(control) {
@@ -182,8 +173,8 @@ export class ManageUngitComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p>Account <strong>{{ data.hostname }}</strong> will be decommissioned.</p>
-    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+    <p>Account <span class="strong">{{ data.hostname }}</span> will be decommissioned.</p>
+    <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
   </div>
   <div class="text-center">
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>

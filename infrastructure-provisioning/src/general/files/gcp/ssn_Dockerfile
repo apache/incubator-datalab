@@ -29,6 +29,9 @@ COPY infrastructure-provisioning/src/general/lib/os/${OS}/ssn_lib.py /usr/lib/py
 COPY infrastructure-provisioning/src/general/files/gcp/ssn_policy.json /root/files/
 COPY infrastructure-provisioning/src/general/files/gcp/ssn_roles.json /root/files/
 COPY infrastructure-provisioning/src/general/templates/gcp/jenkins_jobs /root/templates/jenkins_jobs
+COPY infrastructure-provisioning/src/general/templates/os/manage_step_certs.sh /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/step-cert-manager.service /root/templates/
+COPY infrastructure-provisioning/src/general/templates/os/renew_certificates.sh /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

@@ -30,26 +30,33 @@ table {
   }
 
   .endpoints {
-    width: 25%;
+    width: 45%;
     padding: 15px 0;
 
     .resource-wrap {
       .resource-name {
-        width: 50%;
+        width: 30%;
+        padding-left: 0;
+      }
+      resource-name, resource-status{
+        width: 30%;
         padding-left: 0;
       }
     }
 
-    .label-endpoint {
+    .label-endpoint, .label-endpoint-status {
       display: inline-block;
-      width: 50%;
+      width: 30%;
     }
 
     .label-status {
-      padding-left: 5px;
+      width: 30%;
     }
 
     &.source {
+      &.endpoints .resource-wrap{
+        justify-content: flex-start;
+      }
       .no-details {
         padding-left: 0;
       }
@@ -57,7 +64,7 @@ table {
   }
 
   .groups {
-    width: 25%;
+    width: 20%;
     padding: 10px 0;
   }
 
@@ -72,7 +79,13 @@ table {
     vertical-align: top;
     padding: 10px 24px;
 
-    span {
+    &.mat-header-cell{
+      padding-top: 19px;
+      padding-right: 13px;
+      color: rgba(0,0,0,.54);
+    }
+
+    span:not(.mat-header-cell span) {
       transition: all .5s ease-in-out;
       cursor: pointer;
 
@@ -87,3 +100,48 @@ table {
     }
   }
 }
+
+td.settings {
+  position: relative;
+  vertical-align: middle !important;
+  text-align: right;
+  .actions {
+    background-image: url(../../../../assets/svg/settings_icon.svg);
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+  }
+}
+.project-seting-item{
+  display: flex;
+  padding: 10px;
+  align-items: center;
+  border-bottom: 1px solid #edf1f5;
+  cursor: pointer;
+  color: #577289;
+  &:hover{
+    color: #36afd5;
+    transition: all .45s ease-in-out;
+  }
+  a{
+    padding-left: 5px;
+  }
+}
+.material-icons {
+  font-size: 18px;
+  padding-top: 1px;
+}
+
+.list-menu{
+  min-width: 190px;
+}
+
+.project-endpoint-name{
+   color: #577289;
+}
+
+
+
+

@@ -27,13 +27,11 @@ import lombok.Data;
 @Data
 @Builder
 public class ProjectCreateDTO extends ResourceBaseDTO<ProjectCreateDTO> {
-	private final String key;
-	@JsonProperty("project_name")
-	private final String name;
-	@JsonProperty("project_tag")
-	private final String tag;
-	@JsonProperty("endpoint_name")
-	private final String endpoint;
-	@JsonProperty("shared_image_enabled")
-	private String useSharedImage;
+    private final String key;
+    @JsonProperty("project_name")
+    private final String name;
+    @JsonProperty("project_tag")
+    private final String tag;
+    @JsonProperty("endpoint_name")
+    private final String endpoint;
 }

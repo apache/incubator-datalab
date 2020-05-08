@@ -19,7 +19,7 @@
 
 <div class="ami-dialog" id="dialog-box">
   <header class="dialog-header">
-    <h4 class="modal-title">Create {{ DICTIONARY.image }}</h4>
+    <h4 class="modal-title">Create image</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
@@ -28,12 +28,12 @@
         <div class="control-group">
           <label class="label">Name</label>
           <div class="control">
-            <input type="text" formControlName="name" placeholder="Enter {{ DICTIONARY.image }} name">
-            <span class="danger_color" *ngIf="createAMIForm.controls['name'].hasError('duplication')">This {{ DICTIONARY.image }} name already exists.</span>
-            <span class="danger_color" *ngIf="!createAMIForm.valid && createAMIForm.controls['name'].dirty && !createAMIForm.controls['name'].hasError('duplication')">
-              {{ DICTIONARY.image }} name
-              <span *ngIf="DICTIONARY.cloud_provider === 'azure'"> cannot be longer than 10 characters and</span> 
-              can only contain letters, numbers, hyphens and '_'</span>
+            <input type="text" formControlName="name" placeholder="Enter image name">
+            <span class="error" *ngIf="createAMIForm.controls['name'].hasError('duplication')">This
+              image name already exists in project.</span>
+            <span class="error"
+              *ngIf="!createAMIForm.valid && createAMIForm.controls['name'].dirty && !createAMIForm.controls['name'].hasError('duplication')">
+              Name cannot be longer than 10 characters and can only contain letters, numbers, hyphens and '_' but can not end with special characters</span>
           </div>
         </div>
         <div class="control-group">
@@ -45,7 +45,8 @@
       </form>
       <div class="text-center m-top-30 m-bott-10">
         <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
-        <button mat-raised-button type="button" [disabled]="!createAMIForm.valid" (click)="assignChanges(createAMIForm.value)" class="butt butt-success action">Create</button>
+        <button mat-raised-button type="button" [disabled]="!createAMIForm.valid"
+          (click)="assignChanges(createAMIForm.value)" class="butt butt-success action">Create</button>
       </div>
     </div>
   </div>

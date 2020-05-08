@@ -1,0 +1,12 @@
+{
+    "web": {
+        "issuer": "KEYCLOAK_AUTH_SERVER_URL/realms/KEYCLOAK_REALM_NAME",
+        "auth_uri": "KEYCLOAK_AUTH_SERVER_URL/realms/KEYCLOAK_REALM_NAME/protocol/openid-connect/auth",
+        "client_id": "CLIENT_ID",
+        "client_secret": "CLIENT_SECRET",
+        "token_uri": "KEYCLOAK_AUTH_SERVER_URL/realms/KEYCLOAK_REALM_NAME/protocol/openid-connect/token",
+        "token_introspection_uri": "KEYCLOAK_AUTH_SERVER_URL/realms/KEYCLOAK_REALM_NAME/protocol/openid-connect/token/introspect",
+        "userinfo_uri": "KEYCLOAK_AUTH_SERVER_URL/realms/KEYCLOAK_REALM_NAME/protocol/openid-connect/userinfo",
+        "ssl-required": "none"
+    }
+}

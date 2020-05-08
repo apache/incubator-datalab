@@ -20,11 +20,14 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalResourceShapeDto;
@@ -55,6 +58,10 @@ public class InfrastructureTemplateServiceBaseTest {
 	private ProjectDAO projectDAO;
 	@Mock
 	private EndpointService endpointService;
+	@Mock
+	private UserGroupDao userGroupDao;
+	@Mock
+	private SelfServiceApplicationConfiguration configuration;
 
 	@InjectMocks
 	private InfrastructureTemplateServiceBaseChild infrastructureTemplateServiceBaseChild =
@@ -81,9 +88,8 @@ public class InfrastructureTemplateServiceBaseTest {
 						"someRam2", 6)));
 		emDto2.setExploratoryEnvironmentShapes(shapes2);
 		List<ExploratoryMetadataDTO> expectedEmdDtoList = Arrays.asList(emDto1, emDto2);
-		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				null, null, null, null)));
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedEmdDtoList.toArray());
+		when(userGroupDao.getUserGroups(anyString())).thenReturn(Collections.emptySet());
+		when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(expectedEmdDtoList.toArray());
 		when(settingsDAO.getConfOsFamily()).thenReturn("someConfOsFamily");
 
 		UserInfo userInfo = new UserInfo("test", "token");
@@ -94,14 +100,15 @@ public class InfrastructureTemplateServiceBaseTest {
 
 		verify(provisioningService).get(endpointDTO().getUrl() + "docker/exploratory", "token", ExploratoryMetadataDTO[].class);
 		verify(settingsDAO, times(2)).getConfOsFamily();
-		verifyNoMoreInteractions(provisioningService, settingsDAO);
+		verify(userGroupDao).getUserGroups("test");
+		verifyNoMoreInteractions(provisioningService, settingsDAO, userGroupDao);
 	}
 
 	@Test
 	public void getExploratoryTemplatesWithException() {
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		doThrow(new DlabException("Could not load list of exploratory templates for user"))
-				.when(provisioningService).get(anyString(), anyString(), any());
+				.when(provisioningService).get(anyString(), anyString(), any(Class.class));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
@@ -123,8 +130,8 @@ public class InfrastructureTemplateServiceBaseTest {
 				computationalMetadataDTO
 		);
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				null, null, null, null)));
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
+				null, null, null, null, true)));
+		when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 
 		List<FullComputationalTemplate> expectedFullCmdDtoList = expectedCmdDtoList.stream()
 				.map(e -> infrastructureTemplateServiceBaseChild.getCloudFullComputationalTemplate(e))
@@ -147,7 +154,7 @@ public class InfrastructureTemplateServiceBaseTest {
 	public void getComputationalTemplatesWhenMethodThrowsException() {
 		when(endpointService.get(anyString())).thenReturn(endpointDTO());
 		doThrow(new DlabException("Could not load list of computational templates for user"))
-				.when(provisioningService).get(anyString(), anyString(), any());
+				.when(provisioningService).get(anyString(), anyString(), any(Class.class));
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
@@ -166,9 +173,13 @@ public class InfrastructureTemplateServiceBaseTest {
 		final ComputationalMetadataDTO computationalMetadataDTO = new ComputationalMetadataDTO("dataengine-service");
 		computationalMetadataDTO.setComputationResourceShapes(Collections.emptyMap());
 		List<ComputationalMetadataDTO> expectedCmdDtoList = Collections.singletonList(computationalMetadataDTO);
-		when(provisioningService.get(anyString(), anyString(), any())).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
+		when(provisioningService.get(anyString(), anyString(), any(Class.class))).thenReturn(expectedCmdDtoList.toArray(new ComputationalMetadataDTO[]{}));
 		when(projectDAO.get(anyString())).thenReturn(Optional.of(new ProjectDTO("project", Collections.emptySet(),
-				null, null, null, null)));
+				null, null, null, null, true)));
+		when(configuration.getMinEmrInstanceCount()).thenReturn(1);
+		when(configuration.getMaxEmrInstanceCount()).thenReturn(2);
+		when(configuration.getMaxEmrSpotInstanceBidPct()).thenReturn(3);
+		when(configuration.getMinEmrSpotInstanceBidPct()).thenReturn(4);
 
 		UserInfo userInfo = new UserInfo("test", "token");
 		try {
@@ -185,19 +196,19 @@ public class InfrastructureTemplateServiceBaseTest {
 			IllegalAccessException {
 		Field computationalMetadataDTO1 = object1.getClass().getDeclaredField("computationalMetadataDTO");
 		computationalMetadataDTO1.setAccessible(true);
-		Field computationalMetadataDTO2 = object2.getClass().getDeclaredField("computationalMetadataDTO");
+		Field computationalMetadataDTO2 = object2.getClass().getSuperclass().getDeclaredField("computationalMetadataDTO");
 		computationalMetadataDTO2.setAccessible(true);
 		return computationalMetadataDTO1.get(object1).equals(computationalMetadataDTO2.get(object2));
 	}
 
-	private class InfrastructureTemplateServiceBaseChild extends InfrastructureTemplateServiceBase {
-		@Override
+	private EndpointDTO endpointDTO() {
+		return new EndpointDTO("test", "url", "", null, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.AWS);
+	}
+
+	private class InfrastructureTemplateServiceBaseChild extends InfrastructureTemplateServiceImpl {
+
 		protected FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO metadataDTO) {
 			return new FullComputationalTemplate(metadataDTO);
 		}
-	}
-
-	private EndpointDTO endpointDTO() {
-		return new EndpointDTO("test", "url", "", null);
 	}
 }

@@ -50,6 +50,7 @@ parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 parser.add_argument('--r_version', type=str, default='')
 parser.add_argument('--r_enabled', type=str, default='')
+parser.add_argument('--scala_version', type=str, default='')
 args = parser.parse_args()
 
 dataproc_dir = '/opt/{}/jars/'.format(args.dataproc_version)
@@ -79,7 +80,6 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/{0}/{1}/spark/'.format(args.dataproc_version, args.cluster_name)
-    scala_version = local('scala -e "println(scala.util.Properties.versionNumberString)"', capture=True)
     local('mkdir -p {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
     local('tar zxvf /tmp/toree_kernel.tar.gz -C {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
     local('sudo mv {0}toree_{1}/toree-0.2.0-incubating/* {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
@@ -93,7 +93,7 @@ def toree_kernel(args):
     text = text.replace('SPARK_PATH', spark_path)
     text = text.replace('OS_USER', args.os_user)
     text = text.replace('DATAENGINE-SERVICE_VERSION', args.dataproc_version)
-    text = text.replace('SCALA_VERSION', scala_version)
+    text = text.replace('SCALA_VERSION', args.scala_version)
     with open(kernel_path, 'w') as f:
         f.write(text)
     local('touch /tmp/kernel_var.json')

@@ -88,17 +88,23 @@
   }
 }
 
+.mat-horizontal-content-container{
+  overflow: visible !important;
+}
+
 .selector-wrapper {
   display: flex;
   align-self: center;
   width: 490px;
   height: 36px;
-  padding-left: 10px;
+  padding-left: 0;
   font-family: 'Open Sans', sans-serif;
   font-size: 15px;
   font-weight: 300;
   box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
-
+  multi-level-select-dropdown{
+    width: 100%;
+  }
   mat-form-field {
     width: 100%;
 
@@ -137,7 +143,6 @@
 }
 
 .roles {
-  // width: 30%;
 
   .selector-wrapper-edit {
     position: relative;
@@ -197,6 +202,7 @@
     overflow: hidden;
   }
 }
+
 
 .expanded-panel {
   display: flex;
@@ -343,11 +349,11 @@ table {
   }
 
   .roles {
-    width: 30%;
+    width: 35%;
   }
 
   .users {
-    width: 40%;
+    width: 35%;
   }
 
   .actions {
@@ -355,13 +361,29 @@ table {
     width: 10%;
     text-align: center;
 
+    .actions-wrapper{
+      height: 41px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
     span {
-      transition: all .5s ease-in-out;
+      transition: all .35s ease-in-out;
       cursor: pointer;
+
+      &.action-disabled{
+        cursor: not-allowed;
+      }
 
       .mat-icon {
         font-size: 18px;
         padding-top: 12px;
+        &.big-icon{
+          font-size: 25px;
+          padding-top: 10px;
+          transition: .25s;
+        }
       }
 
       &:hover {

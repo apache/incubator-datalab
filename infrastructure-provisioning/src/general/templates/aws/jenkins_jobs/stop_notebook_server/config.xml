@@ -46,6 +46,7 @@ under the License.
               <string>zeppelin</string>
               <string>tensor</string>
               <string>tensor-rstudio</string>
+              <string>jupyterlab</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>

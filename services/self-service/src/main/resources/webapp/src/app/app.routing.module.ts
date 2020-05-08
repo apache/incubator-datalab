@@ -21,7 +21,7 @@ import { ModuleWithProviders } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { LoginComponent } from './login/login.module';
-import { LayoutComponent } from './layout/layout.component'
+import { LayoutComponent } from './layout/layout.component';
 import { ResourcesComponent } from './resources/resources.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './service-pages/not-found/not-found.component';
@@ -31,6 +31,7 @@ import { WebterminalComponent } from './webterminal/webterminal.component';
 import { ManagementComponent } from './administration/management/management.component';
 import { ProjectComponent } from './administration/project/project.component';
 import { RolesComponent } from './administration/roles/roles.component';
+import { SwaggerComponent } from './swagger/swagger.component';
 
 import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard } from './core/services';
 
@@ -67,6 +68,10 @@ const routes: Routes = [{
       component: ManagementComponent,
       canActivate: [AuthorizationGuard, AdminGuard]
     }, {
+    //   path: 'swagger',
+    //   component: SwaggerComponent,
+    //   canActivate: [AuthorizationGuard]
+    // }, {
       path: 'help/publickeyguide',
       component: PublicKeyGuideComponent,
       canActivate: [AuthorizationGuard]

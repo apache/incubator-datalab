@@ -39,6 +39,7 @@ import dlab.fab
 import dlab.common_lib
 import backoff
 import ast
+import random
 
 
 class GCPActions:
@@ -188,12 +189,11 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def add_bucket_label(self, bucket_name):
+    def add_bucket_labels(self, bucket_name, tags):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
-
             labels = bucket.labels
-            labels['name'] = '{}'.format(bucket_name)
+            labels.update(tags)
             bucket.labels = labels
             bucket.patch()
             print('Updated labels on {}.'.format(bucket_name))
@@ -282,7 +282,7 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_instance(self, instance_name, cluster_name, region, zone, vpc_name, subnet_name, instance_size,
+    def create_instance(self, instance_name, service_base_name, cluster_name, region, zone, vpc_name, subnet_name, instance_size,
                         ssh_key_path,
                         initial_user, image_name, secondary_image_name, service_account_name, instance_class,
                         network_tag, labels, static_ip='',
@@ -290,9 +290,13 @@ class GCPActions:
                         gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name,
-                                                                       self.project)
+        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         access_configs = ''
+        if instance_class == 'edge':
+            ip_forward = True
+        else:
+            ip_forward = False
         if instance_class == 'ssn' or instance_class == 'edge':
             access_configs = [{
                 "type": "ONE_TO_ONE_NAT",
@@ -374,6 +378,7 @@ class GCPActions:
             "name": instance_name,
             "machineType": "zones/{}/machineTypes/{}".format(zone, instance_size),
             "labels": labels,
+            "canIpForward": ip_forward,
             "networkInterfaces": [
                 {
                     "network": "global/networks/{}".format(vpc_name),
@@ -508,16 +513,17 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def remove_service_account(self, service_account_name):
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+    def remove_service_account(self, service_account_name, service_base_name):
+        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         request = self.service_iam.projects().serviceAccounts().delete(
             name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_email))
         try:
             result = request.execute()
-            service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name)
+            service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             while service_account_removed:
                 time.sleep(5)
-                service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name)
+                service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             time.sleep(30)
             print('Service account {} removed.'.format(service_account_name))
             return result
@@ -530,16 +536,18 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_service_account(self, service_account_name):
-        params = {"accountId": service_account_name, "serviceAccount": {"displayName": service_account_name}}
+    def create_service_account(self, service_account_name, service_base_name, unique_index):
+        service_account_id = service_base_name + '-' + unique_index
+        print("Creating service account with accountID:" + service_account_id)
+        params = {"accountId": service_account_id, "serviceAccount": {"displayName": service_account_name}}
         request = self.service_iam.projects().serviceAccounts().create(name='projects/{}'.format(self.project),
                                                                        body=params)
         try:
             result = request.execute()
-            service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name)
+            service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             while not service_account_created:
                 time.sleep(5)
-                service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name)
+                service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name, service_base_name)
             time.sleep(30)
             print('Service account {} created.'.format(service_account_name))
             return result
@@ -552,10 +560,13 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def set_role_to_service_account(self, service_account_name, role_name, role_type='custom'):
+    def set_role_to_service_account(self, service_account_name, role_name, service_base_name, role_type='custom',
+                                    num=0):
+        num += 1
         request = GCPActions().service_resource.projects().getIamPolicy(resource=self.project, body={})
         project_policy = request.execute()
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         params = {
             "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
             "members": [
@@ -574,6 +585,10 @@ class GCPActions:
         try:
             return request.execute()
         except Exception as err:
+            if "There were concurrent policy changes. " \
+               "Please retry the whole read-modify-write with exponential backoff." in str(err) and num <= 10:
+                time.sleep(random.randint(5, 20))
+                self.set_role_to_service_account(service_base_name, role_name, service_base_name, role_type, num)
             logging.info(
                 "Unable to set Service account policy: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
@@ -687,8 +702,9 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def set_service_account_to_instance(self, service_account_name, instance_name):
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+    def set_service_account_to_instance(self, service_account_name, instance_name, service_base_name):
+        unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+        service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index, self.project)
         params = {
             "email": service_account_email
         }
@@ -738,12 +754,14 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone, lables):
+    def create_image_from_instance_disks(self, primary_image_name, secondary_image_name, instance_name, zone, labels):
         primary_disk_name = "projects/{0}/zones/{1}/disks/{2}".format(self.project, zone, instance_name)
         secondary_disk_name = "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
-        primary_params = {"name": primary_image_name, "sourceDisk": primary_disk_name, "labels": lables}
+        labels.update({"name": primary_image_name})
+        primary_params = {"name": primary_image_name, "sourceDisk": primary_disk_name, "labels": labels}
         primary_request = self.service.images().insert(project=self.project, body=primary_params)
-        secondary_params = {"name": secondary_image_name, "sourceDisk": secondary_disk_name, "labels": lables}
+        labels.update({"name": secondary_image_name})
+        secondary_params = {"name": secondary_image_name, "sourceDisk": secondary_disk_name, "labels": labels}
         secondary_request = self.service.images().insert(project=self.project, body=secondary_params)
         id_list=[]
         try:
@@ -814,9 +832,11 @@ class GCPActions:
         except exceptions.NotFound:
             return False
 
-    def set_bucket_owner(self, bucket_name, service_account):
+    def set_bucket_owner(self, bucket_name, service_account_name, service_base_name):
         try:
-            service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account, self.project)
+            unique_index = meta_lib.GCPMeta().get_index_by_service_account_name(service_account_name)
+            service_account_email = "{}-{}@{}.iam.gserviceaccount.com".format(service_base_name, unique_index,
+                                                                                  self.project)
             bucket = self.storage_client.get_bucket(bucket_name)
             # setting bucket owner
             acl = bucket.acl
@@ -1282,9 +1302,9 @@ def ensure_local_jars(os_user, jars_dir):
         try:
             templates_dir = '/root/templates/'
             sudo('mkdir -p {}'.format(jars_dir))
-            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O {1}{0}'
-                 .format('gcs-connector-latest-hadoop2.jar', jars_dir))
-            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
+            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop2-{0}.jar -O {1}'
+                 'gcs-connector-hadoop2-{0}.jar'.format(os.environ['notebook_gcs_connector_version'], jars_dir))
+            sudo('wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
                  .format('hadoop-yarn-server-web-proxy-2.7.4.jar', jars_dir))
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
             sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
@@ -1388,6 +1408,7 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
 
 def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
     try:
+        computational_name = os.environ['computational_name'].replace('_', '-').lower()
         private = meta_lib.get_instance_private_ip_address(cluster_name, notebook_name)
         env.hosts = "{}".format(private)
         env.user = "{}".format(os_user)
@@ -1436,7 +1457,7 @@ def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name):
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            dlab.fab.remove_rstudio_dataengines_kernel(os.environ['computational_name'], os_user)
+            dlab.fab.remove_rstudio_dataengines_kernel(computational_name, os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:

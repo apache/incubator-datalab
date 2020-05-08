@@ -37,11 +37,9 @@ html {
   animation: rotate 2s linear infinite;
   transform-origin: center center;
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
+  top: calc(50% - 100px);
+  left: calc(50% - 100px);
+  margin: 0;
 }
 
 .app-loading .spinner .path {
@@ -83,4 +81,9 @@ html {
     // background: url(../img/logo.png);
     background-size: cover;
   }
+}
+
+.nav-bar .mat-progress-bar {
+  position: absolute;
+  height: 2px;
 }

@@ -21,31 +21,34 @@
 #
 # ******************************************************************************
 
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import logging
+import traceback
 import boto3
 import argparse
 import sys
+import json
 import os
 
 
 def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_user, key_path):
     print('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
     try:
-        cluster = meta_lib.GCPMeta().get_list_cluster_statuses([dataproc_name])
+        cluster = GCPMeta.get_list_cluster_statuses([dataproc_name])
         if cluster[0]['status'] == 'running':
-            computational_name = meta_lib.GCPMeta().get_cluster(dataproc_name).get('labels').get('computational_name')
-            actions_lib.GCPActions().bucket_cleanup(bucket_name, os.environ['project_name'], dataproc_name)
+            computational_name = GCPMeta.get_cluster(dataproc_name).get('labels').get('computational_name')
+            GCPActions.bucket_cleanup(bucket_name, dataproc_conf['project_name'], dataproc_name)
             print('The bucket {} has been cleaned successfully'.format(bucket_name))
-            actions_lib.GCPActions().delete_dataproc_cluster(dataproc_name, os.environ['gcp_region'])
+            GCPActions.delete_dataproc_cluster(dataproc_name, os.environ['gcp_region'])
             print('The Dataproc cluster {} has been terminated successfully'.format(dataproc_name))
-            actions_lib.GCPActions().remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user,
+            GCPActions.remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user,
                                                     key_path, computational_name)
         else:
             print("There are no Dataproc clusters to terminate.")
     except Exception as err:
-        print('Error: {0}'.format(err))
+        dlab.fab.append_result("Failed to terminate Dataproc cluster.", str(err))
         sys.exit(1)
 
 
@@ -58,12 +61,14 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
+    GCPMeta = dlab.meta_lib.GCPMeta()
+    GCPActions = dlab.actions_lib.GCPActions()
     print('Generating infrastructure names and tags')
     dataproc_conf = dict()
     dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
-    dataproc_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
-    dataproc_conf['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-    dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).lower().replace('_', '-')
+    dataproc_conf['edge_user_name'] = (os.environ['edge_user_name'])
+    dataproc_conf['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
+    dataproc_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
     dataproc_conf['dataproc_name'] = os.environ['dataproc_cluster_name']
     dataproc_conf['gcp_project_id'] = os.environ['gcp_project_id']
     dataproc_conf['gcp_region'] = os.environ['gcp_region']
@@ -79,13 +84,13 @@ if __name__ == "__main__":
         print('[TERMINATE DATAPROC CLUSTER]')
         try:
             terminate_dataproc_cluster(dataproc_conf['notebook_name'], dataproc_conf['dataproc_name'],
-                                       dataproc_conf['bucket_name'], os.environ['conf_os_user'], dataproc_conf['key_path'])
+                                       dataproc_conf['bucket_name'], os.environ['conf_os_user'],
+                                       dataproc_conf['key_path'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate Dataproc cluster.", str(err))
+            dlab.fab.append_result("Failed to terminate Dataproc cluster.", str(err))
             raise Exception
-    except Exception as err:
-        print('Error: {0}'.format(err))
+    except:
         sys.exit(1)
 
     try:
@@ -96,6 +101,6 @@ if __name__ == "__main__":
                    "Action": "Terminate Dataproc cluster"}
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        sys.exit(1)

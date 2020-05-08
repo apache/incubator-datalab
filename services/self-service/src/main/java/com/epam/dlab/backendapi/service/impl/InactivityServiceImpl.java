@@ -22,9 +22,9 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.service.ComputationalService;
-import com.epam.dlab.backendapi.service.ExploratoryService;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.InactivityService;
 import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -58,11 +58,9 @@ public class InactivityServiceImpl implements InactivityService {
 	@Inject
 	private RequestId requestId;
 	@Inject
-	private ComputationalService computationalService;
-	@Inject
-	private ExploratoryService exploratoryService;
-	@Inject
 	private SecurityService securityService;
+	@Inject
+	private EndpointService endpointService;
 
 	@Override
 	public void updateRunningResourcesLastActivity() {
@@ -77,9 +75,9 @@ public class InactivityServiceImpl implements InactivityService {
 	}
 
 	@Override
-	public void updateLastActivityForComputational(UserInfo userInfo, String exploratoryName,
+	public void updateLastActivityForComputational(UserInfo userInfo, String project, String exploratoryName,
 												   String computationalName, LocalDateTime lastActivity) {
-		computationalDAO.updateLastActivity(userInfo.getName(), exploratoryName, computationalName, lastActivity);
+		computationalDAO.updateLastActivity(userInfo.getName(), project, exploratoryName, computationalName, lastActivity);
 	}
 
 	private void updateLastActivity(UserInstanceDTO ui) {
@@ -93,19 +91,20 @@ public class InactivityServiceImpl implements InactivityService {
 	}
 
 	private void updateComputationalLastActivity(UserInfo userInfo, UserInstanceDTO ui, UserComputationalResource cr) {
-		final ComputationalCheckInactivityDTO dto =
-				requestBuilder.newComputationalCheckInactivity(userInfo, ui, cr);
+		EndpointDTO endpointDTO = endpointService.get(ui.getEndpoint());
+		final ComputationalCheckInactivityDTO dto = requestBuilder.newComputationalCheckInactivity(userInfo, ui, cr, endpointDTO);
 		final String uuid =
-				provisioningService.post(InfrasctructureAPI.COMPUTATIONAL_CHECK_INACTIVITY,
+				provisioningService.post(endpointDTO.getUrl() + InfrasctructureAPI.COMPUTATIONAL_CHECK_INACTIVITY,
 						userInfo.getAccessToken(), dto, String.class);
 		requestId.put(userInfo.getName(), uuid);
 	}
 
 	private void updateExploratoryLastActivity(UserInfo userInfo, UserInstanceDTO ui) {
+		EndpointDTO endpointDTO = endpointService.get(ui.getEndpoint());
 		final ExploratoryCheckInactivityAction dto =
-				requestBuilder.newExploratoryCheckInactivityAction(userInfo, ui);
+				requestBuilder.newExploratoryCheckInactivityAction(userInfo, ui, endpointDTO);
 		final String uuid =
-				provisioningService.post(InfrasctructureAPI.EXPLORATORY_CHECK_INACTIVITY,
+				provisioningService.post(endpointDTO.getUrl() + InfrasctructureAPI.EXPLORATORY_CHECK_INACTIVITY,
 						userInfo.getAccessToken(), dto, String.class);
 		requestId.put(userInfo.getName(), uuid);
 	}

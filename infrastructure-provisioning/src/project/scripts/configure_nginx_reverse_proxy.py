@@ -26,12 +26,16 @@ from fabric.api import *
 import argparse
 import sys
 import os
-from dlab.edge_lib import install_nginx_ldap
+from dlab.common_lib import ensure_step
+from dlab.edge_lib import install_nginx_lua
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--user', type=str, default='')
+parser.add_argument('--keycloak_client_id', type=str, default='')
+parser.add_argument('--keycloak_client_secret', type=str, default='')
+parser.add_argument('--step_cert_sans', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -51,12 +55,18 @@ if __name__ == "__main__":
     except Exception as err:
         print("Failed establish connection. Excpeption: " + str(err))
         sys.exit(1)
+    if os.environ['conf_stepcerts_enabled'] == 'true':
+        try:
+            ensure_step(args.user)
+        except Exception as err:
+            print("Failed install step: " + str(err))
+            sys.exit(1)
 
     try:
-        install_nginx_ldap(args.hostname, os.environ['reverse_proxy_nginx_version'],
-                           os.environ['ldap_hostname'], os.environ['ldap_dn'],
-                           os.environ['ldap_ou'], os.environ['ldap_service_password'],
-                           os.environ['ldap_service_username'])
+        install_nginx_lua(args.hostname, os.environ['reverse_proxy_nginx_version'],
+                          os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'],
+                          args.keycloak_client_id, args.keycloak_client_secret, args.user, args.hostname,
+                          args.step_cert_sans)
     except Exception as err:
         print("Failed install nginx reverse proxy: " + str(err))
         sys.exit(1)

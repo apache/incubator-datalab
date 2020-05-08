@@ -28,10 +28,10 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectResult extends StatusBaseDTO<ProjectResult> {
-	private EdgeInfo edgeInfo;
-	@JsonProperty("project_name")
-	private String projectName;
-	@JsonProperty("endpoint_name")
-	private String endpointName;
+    private EdgeInfo edgeInfo;
+    @JsonProperty("project_name")
+    private String projectName;
+    @JsonProperty("endpoint_name")
+    private String endpointName;
 
 }

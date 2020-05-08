@@ -30,6 +30,8 @@ COPY general/scripts/gcp/edge_* /root/scripts/
 COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python2.7/dlab/edge_lib.py
 COPY general/files/gcp/ps_policy.json /root/files/ps_policy.json
 COPY general/files/gcp/ps_roles.json /root/files/ps_roles.json
+COPY general/templates/os/manage_step_certs.sh /root/templates/
+COPY general/templates/os/step-cert-manager.service /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

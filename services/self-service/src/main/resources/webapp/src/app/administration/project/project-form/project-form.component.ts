@@ -46,6 +46,7 @@ export class ProjectFormComponent implements OnInit {
   public projectList: Project[] = [];
   public accessKeyValid: boolean;
   public keyLabel: string = '';
+  public maxProjectNameLength: number = 10;
 
   @Input() item: any;
   @Output() update: EventEmitter<{}> = new EventEmitter();
@@ -95,6 +96,7 @@ export class ProjectFormComponent implements OnInit {
   }
 
   public reset() {
+    this.stepper.reset();
     this.keyLabel = '';
     this.initFormModel();
   }
@@ -141,25 +143,28 @@ export class ProjectFormComponent implements OnInit {
     this.projectForm.controls[key].setValue(select ? filter : []);
   }
 
+
   private initFormModel(): void {
     this.projectForm = this._fb.group({
       'key': ['', Validators.required],
       'name': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.projectName), this.checkDuplication.bind(this), this.providerMaxLength.bind(this)])],
       'endpoints': [[], Validators.required],
       'tag': ['', Validators.compose([Validators.required, Validators.pattern(PATTERNS.projectName)])],
-      'groups': [[], Validators.required]
+      'groups': [[], Validators.required],
+      'shared_image_enabled': [false, Validators.required]
     });
   }
 
-  public editSpecificProject(item: Project) {
-    let endpoints = item.endpoints.map((item: any) => item.name);
+  public editSpecificProject(item) {
+    const endpoints = item.endpoints.map((endpoint: any) => endpoint.name);
 
     this.projectForm = this._fb.group({
       'key': [''],
       'name': [item.name, Validators.required],
       'endpoints': [endpoints],
       'tag': [item.tag, Validators.required],
-      'groups': [item.groups, Validators.required]
+      'groups': [item.groups, Validators.required],
+      'shared_image_enabled': [item.sharedImageEnabled, Validators.required]
     });
   }
 
@@ -200,6 +205,6 @@ export class ProjectFormComponent implements OnInit {
   }
 
   private providerMaxLength(control) {
-    return control.value.length <= DICTIONARY.max_project_name_length ? null : { limit: true };
+    return control.value.length <= this.maxProjectNameLength ? null : { limit: true };
   }
 }

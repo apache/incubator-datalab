@@ -30,6 +30,7 @@ import os
 import json
 import traceback
 import sys
+from dlab.common_lib import manage_pkg
 
 
 def ensure_docker_daemon(dlab_path, os_user, region):
@@ -39,9 +40,9 @@ def ensure_docker_daemon(dlab_path, os_user, region):
             sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
             sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
                   stable"')
-            sudo('apt-get update')
+            manage_pkg('update', 'remote', '')
             sudo('apt-cache policy docker-ce')
-            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
+            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
             sudo('usermod -a -G docker ' + os_user)
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')
@@ -54,7 +55,7 @@ def ensure_docker_daemon(dlab_path, os_user, region):
 def ensure_nginx(dlab_path):
     try:
         if not exists(dlab_path + 'tmp/nginx_ensured'):
-            sudo('apt-get -y install nginx')
+            manage_pkg('-y install', 'remote', 'nginx')
             sudo('service nginx restart')
             sudo('update-rc.d nginx defaults')
             sudo('update-rc.d nginx enable')
@@ -70,9 +71,8 @@ def ensure_jenkins(dlab_path):
         if not exists(dlab_path + 'tmp/jenkins_ensured'):
             sudo('wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | apt-key add -')
             sudo('echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list')
-            sudo('apt-get -y update')
-            sudo('apt-get -y install openjdk-8-jdk')
-            sudo('apt-get -y install jenkins')
+            manage_pkg('-y update', 'remote', '')
+            manage_pkg('-y install', 'remote', 'jenkins')
             sudo('touch ' + dlab_path + 'tmp/jenkins_ensured')
     except Exception as err:
         traceback.print_exc()
@@ -105,10 +105,14 @@ def configure_nginx(config, dlab_path, hostname):
     try:
         random_file_part = id_generator(size=20)
         if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
+            sudo('useradd -r nginx')
             sudo('rm -f /etc/nginx/conf.d/*')
+            put(config['nginx_template_dir'] + 'ssn_nginx.conf', '/tmp/nginx.conf')
             put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
             sudo("sed -i 's|SSN_HOSTNAME|" + hostname + "|' /tmp/nginx_proxy.conf")
+            sudo('mv /tmp/nginx.conf ' + dlab_path + 'tmp/')
             sudo('mv /tmp/nginx_proxy.conf ' + dlab_path + 'tmp/')
+            sudo('\cp ' + dlab_path + 'tmp/nginx.conf /etc/nginx/')
             sudo('\cp ' + dlab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
             sudo('mkdir -p /etc/nginx/locations')
             sudo('rm -f /etc/nginx/sites-enabled/default')
@@ -144,7 +148,7 @@ def configure_nginx(config, dlab_path, hostname):
 def ensure_supervisor():
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/superv_ensured'):
-            sudo('apt-get -y install supervisor')
+            manage_pkg('-y install', 'remote', 'supervisor')
             sudo('update-rc.d supervisor defaults')
             sudo('update-rc.d supervisor enable')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/superv_ensured')
@@ -159,7 +163,7 @@ def ensure_mongo():
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured'):
             sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
             sudo('ver=`lsb_release -cs`; echo "deb http://repo.mongodb.org/apt/ubuntu $ver/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; apt-get update')
-            sudo('apt-get -y --allow-unauthenticated install mongodb-org')
+            manage_pkg('-y --allow-unauthenticated install', 'remote', 'mongodb-org')
             sudo('systemctl enable mongod.service')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured')
     except Exception as err:
@@ -176,7 +180,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              locale, region_info, ldap_login, tenant_id,
              application_id, hostname, data_lake_name, subscription_id,
              validate_permission_scope, dlab_id, usage_date, product,
-             usage_type, usage, cost, resource_id, tags, billing_dataset_name, report_path=''):
+             usage_type, usage, cost, resource_id, tags, billing_dataset_name, keycloak_client_id,
+             keycloak_client_secret, keycloak_auth_server_url, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
@@ -191,16 +196,16 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
             sudo('mv /tmp/proxy_location_webapp_template.conf ' + os.environ['ssn_dlab_path'] + 'tmp/')
-            if cloud_provider == 'gcp':
-                conf_parameter_name = '--spring.config.location='
+            if cloud_provider == 'aws':
+                conf_parameter_name = '--spring.config.location={0}billing_app.yml --conf '.format(dlab_conf_dir)
                 with open('/root/templates/supervisor_svc.conf', 'r') as f:
                     text = f.read()
                 text = text.replace('WEB_CONF', dlab_conf_dir).replace('OS_USR', os_user)\
                     .replace('CONF_PARAMETER_NAME', conf_parameter_name)
                 with open('/root/templates/supervisor_svc.conf', 'w') as f:
                     f.write(text)
-            elif cloud_provider == 'aws' or 'azure':
-                conf_parameter_name = '--conf '
+            elif cloud_provider == 'gcp' or cloud_provider == 'azure':
+                conf_parameter_name = '--spring.config.location='
                 with open('/root/templates/supervisor_svc.conf', 'r') as f:
                     text = f.read()
                 text = text.replace('WEB_CONF', dlab_conf_dir).replace('OS_USR', os_user)\
@@ -229,7 +234,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                         item['key'], item['value']))
                 sudo('sed -i "s|SERVICE_BASE_NAME|{0}|g" /tmp/yml_tmp/self-service.yml'.format(service_base_name))
                 sudo('sed -i "s|OPERATION_SYSTEM|debian|g" /tmp/yml_tmp/self-service.yml')
-
+                sudo('sed -i "s|<SSN_INSTANCE_SIZE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                    os.environ['{0}_ssn_instance_size'.format(os.environ['conf_cloud_provider'])]))
                 if cloud_provider == 'azure':
                     sudo('sed -i "s|<LOGIN_USE_LDAP>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(ldap_login))
                     sudo('sed -i "s|<LOGIN_TENANT_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(tenant_id))
@@ -280,7 +286,15 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '--cost {} ' \
                          '--resource_id {} ' \
                          '--tags {} ' \
-                         '--billing_dataset_name "{}" '.\
+                         '--billing_dataset_name "{}" '\
+                         '--mongo_host localhost ' \
+                         '--mongo_port 27017 ' \
+                         '--service_base_name {} ' \
+                         '--os_user {} ' \
+                         '--keystore_password {} ' \
+                         '--keycloak_client_id {} ' \
+                         '--keycloak_client_secret {} ' \
+                         '--keycloak_auth_server_url {} '.\
                             format(cloud_provider,
                                    service_base_name,
                                    tag_resource_id,
@@ -304,15 +318,36 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                                    cost,
                                    resource_id,
                                    tags,
-                                   billing_dataset_name)
+                                   billing_dataset_name,
+                                   service_base_name,
+                                   os_user,
+                                   keystore_passwd,
+                                   keycloak_client_id,
+                                   keycloak_client_secret,
+                                   keycloak_auth_server_url)
                 sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
-                sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
-                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))
-                sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
-                     -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user, keystore_passwd))
-                sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/dlab.crt -noprompt \
-                     -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
+                if os.environ['conf_stepcerts_enabled'] == 'true':
+                    sudo('openssl pkcs12 -export -in /etc/ssl/certs/dlab.crt -inkey /etc/ssl/certs/dlab.key -name ssn '
+                         '-out ssn.p12 -password pass:{0}'.format(keystore_passwd))
+                    sudo('keytool -importkeystore -srckeystore ssn.p12 -srcstoretype PKCS12 -alias ssn -destkeystore '
+                         '/home/{0}/keys/ssn.keystore.jks -deststorepass "{1}" -srcstorepass "{1}"'.format(
+                          os_user, keystore_passwd))
+                    sudo('keytool -keystore /home/{0}/keys/ssn.keystore.jks -alias step-ca -import -file '
+                         '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -srcstorepass "{1}" -noprompt'.format(
+                          os_user, keystore_passwd))
+                    sudo('keytool -importcert -trustcacerts -alias step-ca -file /etc/ssl/certs/root_ca.crt '
+                         '-noprompt -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
+                    sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt '
+                         '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
+                else:
+                    sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
+                         -keystore /home/{0}/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
+                         os_user, keystore_passwd))
+                    sudo('keytool -exportcert -alias ssn -storepass {1} -file /etc/ssl/certs/dlab.crt \
+                         -keystore /home/{0}/keys/ssn.keystore.jks'.format(os_user, keystore_passwd))
+                    sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt \
+                         -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)
@@ -330,14 +365,14 @@ def install_build_dep():
     try:
         if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path'])):
             maven_version = '3.5.4'
-            sudo('apt-get install -y openjdk-8-jdk git wget unzip')
+            manage_pkg('-y install', 'remote', 'openjdk-8-jdk git wget unzip')
             with cd('/opt/'):
                 sudo('wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
                     maven_version.split('.')[0], maven_version))
                 sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
             sudo('bash -c "curl --silent --location https://deb.nodesource.com/setup_12.x | bash -"')
-            sudo('apt-get install -y nodejs')
+            manage_pkg('-y install', 'remote', 'nodejs')
             sudo('npm config set unsafe-perm=true')
             sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path']))
     except Exception as err:

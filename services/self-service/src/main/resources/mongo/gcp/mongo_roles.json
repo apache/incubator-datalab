@@ -2,6 +2,8 @@
   {
     "_id": "nbShapes_n1-highcpu-2_fetching",
     "description": "Use n1-highcpu-2 instance shape for notebook",
+    "type": "NOTEBOOK_SHAPE",
+    "cloud": "GCP",
     "exploratory_shapes": [
       "n1-highcpu-2"
     ],
@@ -12,6 +14,8 @@
   {
     "_id": "nbShapes_n1-highcpu-8_fetching",
     "description": "Use n1-highcpu-8 instance shape for notebook",
+    "type": "NOTEBOOK_SHAPE",
+    "cloud": "GCP",
     "exploratory_shapes": [
       "n1-highcpu-8"
     ],
@@ -22,6 +26,8 @@
   {
     "_id": "nbShapes_n1-highcpu-32_fetching",
     "description": "Use n1-highcpu-32 instance shape for notebook",
+    "type": "NOTEBOOK_SHAPE",
+    "cloud": "GCP",
     "exploratory_shapes": [
       "n1-highcpu-32"
     ],
@@ -32,6 +38,8 @@
   {
     "_id": "nbShapes_n1-highmem-4_fetching",
     "description": "Use n1-highmem-4 instance shape for notebook",
+    "type": "NOTEBOOK_SHAPE",
+    "cloud": "GCP",
     "exploratory_shapes": [
       "n1-highmem-4"
     ],
@@ -42,6 +50,8 @@
   {
     "_id": "nbShapes_n1-highmem-16_fetching",
     "description": "Use n1-highmem-16 instance shape for notebook",
+    "type": "NOTEBOOK_SHAPE",
+    "cloud": "GCP",
     "exploratory_shapes": [
       "n1-highmem-16"
     ],
@@ -52,6 +62,8 @@
   {
     "_id": "nbShapes_n1-highmem-32_fetching",
     "description": "Use n1-highmem-32 instance shape for notebook",
+    "type": "NOTEBOOK_SHAPE",
+    "cloud": "GCP",
     "exploratory_shapes": [
       "n1-highmem-32"
     ],
@@ -62,6 +74,8 @@
   {
     "_id": "nbShapes_n1-standard-2_fetching",
     "description": "Use n1-standard-2 instance shape for notebook",
+    "type": "NOTEBOOK_SHAPE",
+    "cloud": "GCP",
     "exploratory_shapes": [
       "n1-standard-2"
     ],
@@ -72,6 +86,8 @@
   {
     "_id": "nbCreateDeeplearning",
     "description": "Create Notebook Deep Learning",
+    "type": "NOTEBOOK",
+    "cloud": "GCP",
     "exploratories": [
       "docker.dlab-deeplearning"
     ],
@@ -82,6 +98,8 @@
   {
     "_id": "nbCreateJupyter",
     "description": "Create Notebook Jupyter",
+    "type": "NOTEBOOK",
+    "cloud": "GCP",
     "exploratories": [
       "docker.dlab-jupyter"
     ],
@@ -90,8 +108,34 @@
     ]
   },
   {
+    "_id": "nbCreateJupyterLab",
+    "description": "Create Notebook JupyterLab",
+    "type": "NOTEBOOK",
+    "cloud": "GCP",
+    "exploratories": [
+      "docker.dlab-jupyterlab"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateSuperset",
+    "description": "Create Notebook Superset",
+    "type": "NOTEBOOK",
+    "cloud": "GCP",
+    "exploratories": [
+      "docker.dlab-superset"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
     "_id": "nbCreateRstudio",
     "description": "Create Notebook RStudio",
+    "type": "NOTEBOOK",
+    "cloud": "GCP",
     "exploratories": [
       "docker.dlab-rstudio"
     ],
@@ -102,6 +146,8 @@
   {
     "_id": "nbCreateTensor",
     "description": "Create Notebook Jupyter with TensorFlow",
+    "type": "NOTEBOOK",
+    "cloud": "GCP",
     "exploratories": [
       "docker.dlab-tensor"
     ],
@@ -112,6 +158,8 @@
   {
     "_id": "nbCreateTensorRstudio",
     "description": "Create Notebook RStudio with TensorFlow",
+    "type": "NOTEBOOK",
+    "cloud": "GCP",
     "exploratories": [
       "docker.dlab-tensor-rstudio"
     ],
@@ -122,6 +170,8 @@
   {
     "_id": "nbCreateZeppelin",
     "description": "Create Notebook Apache Zeppelin",
+    "type": "NOTEBOOK",
+    "cloud": "GCP",
     "exploratories": [
       "docker.dlab-zeppelin"
     ],
@@ -132,6 +182,8 @@
   {
     "_id": "nbCreateDataEngine",
     "description": "Create Data Engine",
+    "type": "COMPUTATIONAL",
+    "cloud": "GCP",
     "computationals": [
       "docker.dlab-dataengine"
     ],
@@ -142,6 +194,8 @@
   {
     "_id": "nbCreateDataEngineService",
     "description": "Create Data Engine Service",
+    "type": "COMPUTATIONAL",
+    "cloud": "GCP",
     "computationals": [
       "docker.dlab-dataengine-service"
     ],
@@ -152,6 +206,8 @@
   {
     "_id": "compShapes_n1-standard-2_fetching",
     "description": "Use n1-standard-2 instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "GCP",
     "computational_shapes": [
       "n1-standard-2"
     ],
@@ -162,6 +218,8 @@
   {
     "_id": "compShapes_n1-highmem-4_fetching",
     "description": "Use n1-highmem-4 instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "GCP",
     "computational_shapes": [
       "n1-highmem-4"
     ],
@@ -172,6 +230,8 @@
   {
     "_id": "compShapes_n1-highmem-16_fetching",
     "description": "Use n1-highmem-16 instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "GCP",
     "computational_shapes": [
       "n1-highmem-16"
     ],
@@ -182,6 +242,8 @@
   {
     "_id": "compShapes_n1-highmem-32_fetching",
     "description": "Use n1-highmem-32 instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "GCP",
     "computational_shapes": [
       "n1-highmem-32"
     ],
@@ -192,6 +254,8 @@
   {
     "_id": "compShapes_n1-highcpu-8_fetching",
     "description": "Use n1-highcpu-8 instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "GCP",
     "computational_shapes": [
       "n1-highcpu-8"
     ],
@@ -202,6 +266,8 @@
   {
     "_id": "compShapes_n1-highcpu-2_fetching",
     "description": "Use n1-highcpu-2 instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "GCP",
     "computational_shapes": [
       "n1-highcpu-2"
     ],
@@ -212,6 +278,8 @@
   {
     "_id": "compShapes_n1-highcpu-32_fetching",
     "description": "Use n1-highcpu-32 instance shape for cluster",
+    "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "GCP",
     "computational_shapes": [
       "n1-highcpu-32"
     ],
@@ -222,6 +290,8 @@
   {
     "_id": "nbBillingReportFull",
     "description": "View full billing report for all users",
+    "type": "BILLING",
+    "cloud": "GCP",
     "pages": [
       "/api/infrastructure_provision/billing"
     ],
@@ -230,15 +300,37 @@
     ]
   },
   {
-    "_id": "admin",
-    "description": "Allow to execute administration operation",
+    "_id": "projectAdmin",
+    "description": "Allow to execute administration operation per project",
+    "type": "ADMINISTRATION",
+    "cloud": "GCP",
     "pages": [
       "environment/*",
-      "/api/infrastructure/backup",
       "/roleManagement",
       "/api/settings",
       "/user/settings",
       "/api/project",
+      "/api/endpoint"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "admin",
+    "description": "Allow to execute administration operation",
+    "type": "ADMINISTRATION",
+    "cloud": "GCP",
+    "pages": [
+      "environment/*",
+      "/api/infrastructure/backup",
+      "/roleManagement",
+      "/roleManagement/create",
+      "/roleManagement/delete",
+      "/api/settings",
+      "/user/settings",
+      "/api/project",
+      "/api/project/create",
       "/api/endpoint"
     ],
     "groups": [

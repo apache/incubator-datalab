@@ -21,6 +21,8 @@ package com.epam.dlab.backendapi.domain;
 
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -29,6 +31,8 @@ import java.util.List;
 import java.util.Set;
 
 @Data
+@Builder
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectDTO {
 	@NotNull
@@ -36,13 +40,13 @@ public class ProjectDTO {
 	@NotNull
 	private final Set<String> groups;
 	@NotNull
-	@Pattern(regexp = "^ssh-.*\\n", message = "Wrong key format. Key should be in openSSH format")
+	@Pattern(regexp = "^ssh-.*\\n", message = "format is incorrect. Please use the openSSH format")
 	private final String key;
 	@NotNull
 	private final String tag;
 	private final Integer budget;
 	private final List<ProjectEndpointDTO> endpoints;
-	private boolean useSharedImage;
+	private final boolean sharedImageEnabled;
 
 
 	public enum Status {

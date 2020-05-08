@@ -20,7 +20,11 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.domain.*;
+import com.epam.dlab.backendapi.domain.CreateProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectBudgetDTO;
+import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectActionFormDTO;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -38,7 +42,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
-import javax.ws.rs.*;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -76,14 +89,13 @@ public class ProjectResource {
 	})
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	@RolesAllowed("/api/project")
+	@RolesAllowed("/api/project/create")
 	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								  @Valid CreateProjectDTO projectDTO) {
-
 		projectService.create(userInfo, new ProjectDTO(projectDTO.getName(), projectDTO.getGroups(),
 				projectDTO.getKey(), projectDTO.getTag(), null,
 				projectDTO.getEndpoints().stream().map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING,
-						null)).collect(Collectors.toList())));
+						null)).collect(Collectors.toList()), projectDTO.isSharedImageEnabled()));
 		final URI uri = uriInfo.getRequestUriBuilder().path(projectDTO.getName()).build();
 		return Response
 				.ok()
@@ -103,8 +115,8 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response startProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								 @Valid ProjectActionFormDTO startProjectDto) {
-		projectService.start(userInfo, startProjectDto.getEndpoint(), startProjectDto.getProjectName());
+								 @NotNull @Valid ProjectActionFormDTO startProjectDto) {
+		projectService.start(userInfo, startProjectDto.getEndpoints(), startProjectDto.getProjectName());
 		return Response
 				.accepted()
 				.build();
@@ -122,33 +134,12 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								@Valid ProjectActionFormDTO stopProjectDTO) {
-		projectService.stop(userInfo, stopProjectDTO.getEndpoint(), stopProjectDTO.getProjectName());
+								@NotNull @Valid ProjectActionFormDTO stopProjectDTO) {
+		projectService.stopWithResources(userInfo, stopProjectDTO.getEndpoints(), stopProjectDTO.getProjectName());
 		return Response
 				.accepted()
 				.build();
 	}
-
-	@Operation(summary = "Stop project on Manage environment popup", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "202", description = "Project is stopping"),
-			@ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType =
-					MediaType.APPLICATION_JSON,
-					schema = @Schema(implementation = ErrorDTO.class)))
-	})
-	@Path("managing/stop/{name}")
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@RolesAllowed("/api/project")
-	public Response stopProjectWithResources(@Parameter(hidden = true) @Auth UserInfo userInfo,
-											 @Parameter(description = "Project name")
-											 @PathParam("name") String name) {
-		projectService.stopWithResources(userInfo, name);
-		return Response
-				.accepted()
-				.build();
-	}
-
 
 	@Operation(summary = "Get project info", tags = "project")
 	@ApiResponses({
@@ -180,27 +171,9 @@ public class ProjectResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
-	public Response getProjects(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								@Parameter(description = "Project name")
-								@PathParam("name") String name) {
+	public Response getProjects(@Parameter(hidden = true) @Auth UserInfo userInfo) {
 		return Response
-				.ok(projectService.getProjects())
-				.build();
-	}
-
-	@Operation(summary = "Get available projects for managing", tags = "project")
-	@ApiResponses({
-			@ApiResponse(responseCode = "200", description = "Return information about projects",
-					content = @Content(mediaType = MediaType.APPLICATION_JSON, schema =
-					@Schema(implementation = ProjectManagingDTO.class))),
-	})
-	@GET
-	@Path("managing")
-	@Produces(MediaType.APPLICATION_JSON)
-	@RolesAllowed("/api/project")
-	public Response getProjectsForManaging(@Parameter(hidden = true) @Auth UserInfo userInfo) {
-		return Response
-				.ok(projectService.getProjectsForManaging())
+				.ok(projectService.getProjects(userInfo))
 				.build();
 	}
 
@@ -233,7 +206,7 @@ public class ProjectResource {
 	@PUT
 	@RolesAllowed("/api/project")
 	public Response updateProject(@Parameter(hidden = true) @Auth UserInfo userInfo, UpdateProjectDTO projectDTO) {
-		projectService.update(userInfo, projectDTO);
+		projectService.update(userInfo, projectDTO, projectDTO.getName());
 		return Response.ok().build();
 	}
 
@@ -247,20 +220,9 @@ public class ProjectResource {
 	@POST
 	@Path("terminate")
 	@RolesAllowed("/api/project")
-	public Response removeProjectEndpoint(
-			@Parameter(hidden = true) @Auth UserInfo userInfo,
-			ProjectActionFormDTO projectActionDTO) {
-		projectService.terminateEndpoint(userInfo, projectActionDTO.getEndpoint(), projectActionDTO.getProjectName());
-		return Response.ok().build();
-	}
-
-	@DELETE
-	@Path("{name}")
-	@RolesAllowed("/api/project")
-	public Response removeProject(
-			@Parameter(hidden = true) @Auth UserInfo userInfo,
-			@PathParam("name") String name) {
-		projectService.terminateProject(userInfo, name);
+	public Response removeProjectEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo,
+										  @NotNull @Valid ProjectActionFormDTO projectActionDTO) {
+		projectService.terminateEndpoint(userInfo, projectActionDTO.getEndpoints(), projectActionDTO.getProjectName());
 		return Response.ok().build();
 	}
 
@@ -281,7 +243,7 @@ public class ProjectResource {
 					List<UpdateProjectBudgetDTO> dtos) {
 		final List<ProjectDTO> projects = dtos
 				.stream()
-				.map(dto -> new ProjectDTO(dto.getProject(), null, null, null, dto.getBudget(), null))
+				.map(dto -> ProjectDTO.builder().name(dto.getProject()).budget(dto.getBudget()).build())
 				.collect(Collectors.toList());
 		projectService.updateBudget(projects);
 		return Response.ok().build();

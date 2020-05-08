@@ -25,11 +25,13 @@ import { ToastrService } from 'ngx-toastr';
 import * as _moment from 'moment';
 import 'moment-timezone';
 
+
 import { SchedulerService } from '../../core/services';
 import { SchedulerModel, WeekdaysModel } from './scheduler.model';
 import { SchedulerCalculations } from './scheduler.calculations';
 import { HTTP_STATUS_CODES, CheckUtils } from '../../core/util';
 import { ScheduleSchema } from './scheduler.model';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'dlab-scheduler',
@@ -38,6 +40,7 @@ import { ScheduleSchema } from './scheduler.model';
   encapsulation: ViewEncapsulation.None
 })
 export class SchedulerComponent implements OnInit {
+
   readonly CheckUtils = CheckUtils;
 
   public model: SchedulerModel;
@@ -59,7 +62,7 @@ export class SchedulerComponent implements OnInit {
   public weekdays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   public schedulerForm: FormGroup;
   public destination: any;
-  public zones: Array<any> = [];
+  public zones: {};
   public tzOffset: string = _moment().format('Z');
   public startTime = { hour: 9, minute: 0, meridiem: 'AM' };
   public endTime = { hour: 8, minute: 0, meridiem: 'PM' };
@@ -68,9 +71,7 @@ export class SchedulerComponent implements OnInit {
   public inactivityLimits = { min: 120, max: 10080 };
   public integerRegex: string = '^[0-9]*$';
 
-  // @ViewChild('bindDialog') bindDialog;
   @ViewChild('resourceSelect', { static: false }) resource_select;
-  // @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -82,19 +83,18 @@ export class SchedulerComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // this.bindDialog.onClosing = () => {
-    //   this.resetDialog();
-    //   this.buildGrid.emit();
-    // };
     this.open(this.data.notebook, this.data.type, this.data.resource);
   }
 
   public open(notebook, type, resource?): void {
     this.notebook = notebook;
     this.zones = _moment.tz.names()
-      .map(el => _moment.tz(el).format('Z'))
-      .filter((item, pos, ar) => ar.indexOf(item) === pos)
-      .sort();
+      .map(item => [_moment.tz(item).format('Z'), item])
+      .sort()
+      .reduce((memo, item) => {
+        memo[item[0]] ? memo[item[0]] += `, ${item[1]}` : memo[item[0]] = item[1];
+        return memo;
+      }, {});
 
     this.model = new SchedulerModel(
       response => {
@@ -115,13 +115,12 @@ export class SchedulerComponent implements OnInit {
 
         if (this.destination.type === 'СOMPUTATIONAL') {
           this.allowInheritView = true;
-          this.getExploratorySchedule(this.notebook.name, this.destination.computational_name);
+          this.getExploratorySchedule(this.notebook.project, this.notebook.name, this.destination.computational_name);
           this.checkParentInherit();
         } else if (this.destination.type === 'EXPLORATORY') {
           this.allowInheritView = this.checkIsActiveSpark();
-          this.getExploratorySchedule(this.notebook.name);
+          this.getExploratorySchedule(this.notebook.project, this.notebook.name);
         }
-        // this.bindDialog.open(param);
       },
       this.schedulerService
     );
@@ -139,7 +138,7 @@ export class SchedulerComponent implements OnInit {
     this.inherit = $event.checked;
 
     if (this.destination.type === 'СOMPUTATIONAL' && this.inherit) {
-      this.getExploratorySchedule(this.notebook.name);
+      this.getExploratorySchedule(this.notebook.project, this.notebook.name);
       this.schedulerForm.get('startDate').disable();
     } else {
       this.schedulerForm.get('startDate').enable();
@@ -248,27 +247,23 @@ export class SchedulerComponent implements OnInit {
     };
 
     if (this.destination.type === 'СOMPUTATIONAL') {
-      this.model.confirmAction(this.notebook.name, parameters, this.destination.computational_name);
+      this.model.confirmAction(this.notebook.project, this.notebook.name, parameters, this.destination.computational_name);
     } else {
       parameters['consider_inactivity'] = this.considerInactivity;
-      this.model.confirmAction(this.notebook.name, parameters);
+      this.model.confirmAction(this.notebook.project, this.notebook.name, parameters);
     }
   }
 
   private setScheduleByInactivity() {
-    const data = {sync_start_required : this.parentInherit, check_inactivity_required: this.enableIdleTime, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
+    const data = {
+      sync_start_required: this.parentInherit,
+      check_inactivity_required: this.enableIdleTime,
+      max_inactivity: this.schedulerForm.controls.inactivityTime.value
+    };
     (this.destination.type === 'СOMPUTATIONAL')
-      ? this.setInactivity(this.notebook.name, data, this.destination.computational_name)
-      : this.setInactivity(this.notebook.name, { ...data, consider_inactivity: this.considerInactivity });
+      ? this.setInactivity(this.notebook.project, this.notebook.name, data, this.destination.computational_name)
+      : this.setInactivity(this.notebook.project, this.notebook.name, { ...data, consider_inactivity: this.considerInactivity });
   }
-
-  // public close(): void {
-  //   if (this.bindDialog.isOpened) {
-  //     this.bindDialog.close();
-  //   }
-
-  //   this.resetDialog();
-  // }
 
   private formInit(start?: string, end?: string, terminate?: string) {
     this.schedulerForm = this.formBuilder.group({
@@ -280,8 +275,8 @@ export class SchedulerComponent implements OnInit {
     });
   }
 
-  private getExploratorySchedule(resource, resource2?) {
-    this.schedulerService.getExploratorySchedule(resource, resource2).subscribe(
+  private getExploratorySchedule(project, resource, resource2?) {
+    this.schedulerService.getExploratorySchedule(project, resource, resource2).subscribe(
       (params: ScheduleSchema) => {
         if (params) {
           params.start_days_repeat.filter(key => (this.selectedStartWeekDays[key.toLowerCase()] = true));
@@ -310,7 +305,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   private checkParentInherit() {
-    this.schedulerService.getExploratorySchedule(this.notebook.name)
+    this.schedulerService.getExploratorySchedule(this.notebook.project, this.notebook.name)
       .subscribe((res: any) => this.parentInherit = res.sync_start_required);
   }
 

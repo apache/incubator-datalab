@@ -79,7 +79,7 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/' + args.cluster_name + '/spark/'
-    scala_version = local('scala -e "println(scala.util.Properties.versionNumberString)"', capture=True)
+    scala_version = local('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture=True)
     local('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/')
     local('tar zxvf /tmp/{}/toree_kernel.tar.gz -C '.format(args.cluster_name) + kernels_dir + 'toree_' + args.cluster_name + '/')
     local('sudo mv {0}toree_{1}/toree-0.2.0-incubating/* {0}toree_{1}/'.format(kernels_dir, args.cluster_name))

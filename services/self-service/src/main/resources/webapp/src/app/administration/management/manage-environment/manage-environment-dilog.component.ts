@@ -48,8 +48,20 @@ export class ManageEnvironmentComponent implements OnInit {
   ngOnInit() {
     !this.manageUsersForm && this.initForm();
     this.setProjectsControl();
+    this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || '');
+    this.onFormChange();
+  }
 
-    this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || null);
+  public onFormChange() {
+    this.manageUsersForm.valueChanges.subscribe(value => {
+      if ((this.getCurrentTotalValue() && this.getCurrentTotalValue() >= this.getCurrentUsersTotal())) {
+        this.manageUsersForm.controls['projects']['controls'].forEach(v => {
+            v.controls['budget'].setErrors(null);
+        }
+        );
+        this.manageUsersForm.controls['total'].setErrors(null);
+      }
+    });
   }
 
   get usersEnvironments(): FormArray {
@@ -57,7 +69,11 @@ export class ManageEnvironmentComponent implements OnInit {
   }
 
   public setBudgetLimits(value) {
-    this.dialogRef.close(value);
+    if (this.getCurrentTotalValue() >= this.getCurrentUsersTotal() || !this.getCurrentTotalValue()) {
+      this.dialogRef.close(value);
+    } else {
+      this.manageUsersForm.controls['total'].setErrors({ overrun: true });
+    }
   }
 
   public applyAction(action, project) {
@@ -72,7 +88,10 @@ export class ManageEnvironmentComponent implements OnInit {
   public setProjectsControl() {
     this.manageUsersForm.setControl('projects',
       this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
-        project: x.name, budget: [x.budget, [Validators.min(0), this.userValidityCheck.bind(this)]], status: x.status
+        project: x.name,
+        budget: [x.budget, [ this.userValidityCheck.bind(this)]],
+        canBeStopped: x.canBeStopped,
+        canBeTerminated: x.canBeTerminated
       }))));
   }
 
@@ -112,11 +131,11 @@ export class ManageEnvironmentComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p>Environment of <b>{{ data.project }}</b> will be
+    <p>Environment of <span class="strong">{{ data.project }}</span> will be
       <span *ngIf="data.action === 'terminate'"> terminated.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </p>
-    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
+    <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
   </div>
   <div class="text-center">
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>

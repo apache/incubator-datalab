@@ -36,6 +36,8 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
     private String preemptibleCount;
     @JsonProperty("dataproc_version")
     private String version;
+    @JsonProperty("conf_shared_image_enabled")
+    private String sharedImageEnabled;
 
     public ComputationalCreateGcp withMasterInstanceCount(String masterInstanceCount) {
         this.masterInstanceCount = masterInstanceCount;
@@ -64,6 +66,19 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
 
     public ComputationalCreateGcp withVersion(String version) {
         this.version = version;
+        return this;
+    }
+
+    public String getSharedImageEnabled() {
+        return sharedImageEnabled;
+    }
+
+    public void setSharedImageEnabled(String sharedImageEnabled) {
+        this.sharedImageEnabled = sharedImageEnabled;
+    }
+
+    public ComputationalCreateGcp withSharedImageEnabled(String sharedImageEnabled) {
+        setSharedImageEnabled(sharedImageEnabled);
         return this;
     }
 

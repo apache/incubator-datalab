@@ -27,6 +27,7 @@
      display: flex;
      justify-content: space-between;
      height: 26px;
+     align-items: center;
 
      .resource-name {
        width: 55%;
@@ -66,6 +67,9 @@
 
        .schedule {
          cursor: pointer;
+         display: flex;
+         align-items: center;
+         font-size: 18px;
 
          &.not-allowed {
            pointer-events: none;
@@ -77,7 +81,8 @@
        }
 
        .start-stop-action {
-
+         display: flex;
+         align-items: center;
          font-size: 18px;
          color: #36afd5;
 
@@ -93,10 +98,32 @@
        .remove_butt {
          cursor: pointer;
          color: #ef5c4b;
+         display: flex;
+         align-items: center;
 
          &.disabled {
            color: #f5d3d3;
            pointer-events: none;
+         }
+       }
+     }
+   }
+ }
+ @media screen and (max-width: 1520px) {
+   .resources,
+   managment {
+     .source {
+       .resource-wrap {
+         .resource-name {
+           width: 45%;
+         }
+
+         .resource-status {
+           width: 40%;
+         }
+
+         .resource-actions {
+           width: 15%;
          }
        }
      }

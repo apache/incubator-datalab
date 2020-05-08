@@ -19,7 +19,7 @@
 
 import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Subscription, timer, interval } from 'rxjs';
+import {Subscription, timer, interval, Subject} from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { RouterOutlet } from '@angular/router';
 
@@ -38,6 +38,8 @@ import {
   animateChild,
   state
 } from '@angular/animations';
+import {skip} from 'rxjs/operators';
+import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'dlab-navbar',
@@ -50,7 +52,7 @@ import {
       ], { optional: true }),
       group([
         query(':leave', [
-          animate('.3s ease-in-out',
+          animate('0s',
             style({
               opacity: 0,
             })
@@ -73,7 +75,6 @@ import {
   encapsulation: ViewEncapsulation.None
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  readonly PROVIDER = DICTIONARY.cloud_provider;
 
   private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 55000;
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
@@ -83,9 +84,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   metadata: any;
   isExpanded: boolean = true;
-
+  public showProgressBar: any = false;
   healthStatus: GeneralEnvironmentStatus;
   subscriptions: Subscription = new Subscription();
+  showProgressBarSubscr = new Subscription();
 
   constructor(
     public toastr: ToastrService,
@@ -94,20 +96,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private healthStatusService: HealthStatusService,
     private schedulerService: SchedulerService,
     private storage: StorageService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private progressBarService: ProgressBarService,
   ) { }
 
   ngOnInit() {
+    this.showProgressBarSubscr = this.progressBarService.showProgressBar.subscribe(isProgressBarVissible => this.showProgressBar = isProgressBarVissible);
     this.applicationSecurityService.loggedInStatus.subscribe(response => {
       this.subscriptions.unsubscribe();
       this.subscriptions.closed = false;
 
       this.isLoggedIn = response;
       if (this.isLoggedIn) {
-        this.subscriptions.add(this.healthStatusService.statusData.subscribe(result => {
+        this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
           this.healthStatus = result;
           result.status && this.checkQuoteUsed(this.healthStatus);
-          result.status && !result.projectAssigned && this.checkAssignment(this.healthStatus);
+          result.status && !result.projectAssigned && !result.admin && this.checkAssignment(this.healthStatus);
         }));
         this.subscriptions.add(timer(0, this.CHECK_ACTIVE_SCHEDULE_TIMEOUT).subscribe(() => this.refreshSchedulerData()));
         this.currentUserName = this.getUserName();
@@ -118,6 +122,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    this.showProgressBarSubscr.unsubscribe();
   }
 
   public getRouterOutletState(routerOutlet: RouterOutlet) {

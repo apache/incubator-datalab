@@ -27,6 +27,7 @@ export class EnvironmentModel {
     public ip: string,
     public type?: string,
     public project?: string,
+    public cloud_provider?: string
   ) { }
 
   public static loadEnvironments(data: Array<any>) {
@@ -40,6 +41,7 @@ export class EnvironmentModel {
         value.public_ip,
         value.resource_type,
         value.project,
+        value.cloud_provider
       ));
     }
   }
@@ -67,6 +69,7 @@ export class BackupOptionsModel {
 
 export interface GeneralEnvironmentStatus {
   admin: boolean;
+  projectAdmin: boolean;
   billingEnabled: boolean;
   billingQuoteUsed: number;
   list_resources: any;

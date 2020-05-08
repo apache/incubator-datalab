@@ -20,6 +20,7 @@
 package com.epam.dlab.backendapi.dropwizard.listeners;
 
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.EndpointDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
@@ -33,9 +34,16 @@ import org.eclipse.jetty.server.Server;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static java.lang.String.format;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 
 @Slf4j
@@ -46,22 +54,22 @@ public class MongoStartupListener implements ServerLifecycleListener {
 	private final UserRoleDao userRoleDao;
 	private final SelfServiceApplicationConfiguration configuration;
 	private final SettingsDAO settingsDAO;
+	private final EndpointDAO endpointDAO;
 
 	@Inject
-	public MongoStartupListener(UserRoleDao userRoleDao,
-								SelfServiceApplicationConfiguration configuration, SettingsDAO settingsDAO) {
+	public MongoStartupListener(UserRoleDao userRoleDao, SelfServiceApplicationConfiguration configuration,
+								SettingsDAO settingsDAO, EndpointDAO endpointDAO) {
 		this.userRoleDao = userRoleDao;
 		this.configuration = configuration;
 		this.settingsDAO = settingsDAO;
+		this.endpointDAO = endpointDAO;
 	}
 
 	@Override
 	public void serverStarted(Server server) {
 		settingsDAO.setServiceBaseName(configuration.getServiceBaseName());
 		settingsDAO.setConfOsFamily(configuration.getOs());
-		if (configuration.getCloudProvider() == CloudProvider.AZURE) {
-			settingsDAO.setAzureSsnInstanceSize(configuration.getSsnInstanceSize());
-		}
+		settingsDAO.setSsnInstanceSize(configuration.getSsnInstanceSize());
 		if (userRoleDao.findAll().isEmpty()) {
 			log.debug("Populating DLab roles into database");
 			userRoleDao.insert(getRoles());
@@ -71,8 +79,14 @@ public class MongoStartupListener implements ServerLifecycleListener {
 	}
 
 	private List<UserRoleDto> getRoles() {
-		try (InputStream is = getClass().getResourceAsStream(format(ROLES_FILE_FORMAT,
-				configuration.getCloudProvider().getName()))) {
+		Set<UserRoleDto> userRoles = new HashSet<>();
+		endpointDAO.getEndpoints().forEach(e -> userRoles.addAll(getUserRoleFromFile(e.getCloudProvider())));
+		return userRoles.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(UserRoleDto::getId))),
+				ArrayList::new));
+	}
+
+	private List<UserRoleDto> getUserRoleFromFile(CloudProvider cloudProvider) {
+		try (InputStream is = getClass().getResourceAsStream(format(ROLES_FILE_FORMAT, cloudProvider.getName()))) {
 			return MAPPER.readValue(is, new TypeReference<List<UserRoleDto>>() {
 			});
 		} catch (IOException e) {

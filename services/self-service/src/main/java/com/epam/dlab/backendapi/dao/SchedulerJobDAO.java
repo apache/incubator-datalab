@@ -31,19 +31,35 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
-import static com.epam.dlab.backendapi.dao.ComputationalDAO.PROJECT;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.IMAGE;
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
+import static com.epam.dlab.backendapi.dao.ComputationalDAO.PROJECT;
+import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
+import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
+import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static com.epam.dlab.dto.base.DataEngineType.fromDockerImageName;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.lte;
+import static com.mongodb.client.model.Filters.ne;
+import static com.mongodb.client.model.Filters.or;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -78,12 +94,13 @@ public class SchedulerJobDAO extends BaseDAO {
 	 * Finds and returns the info of user's single scheduler job by exploratory name.
 	 *
 	 * @param user            user name.
+	 * @param project         project name
 	 * @param exploratoryName the name of exploratory.
 	 * @return scheduler job data.
 	 */
-	public Optional<SchedulerJobDTO> fetchSingleSchedulerJobByUserAndExploratory(String user, String exploratoryName) {
+	public Optional<SchedulerJobDTO> fetchSingleSchedulerJobByUserAndExploratory(String user, String project, String exploratoryName) {
 		return findOne(USER_INSTANCES,
-				and(exploratoryCondition(user, exploratoryName), schedulerNotNullCondition()),
+				and(exploratoryCondition(user, exploratoryName, project), schedulerNotNullCondition()),
 				fields(include(SCHEDULER_DATA), excludeId()))
 				.map(d -> convertFromDocument((Document) d.get(SCHEDULER_DATA), SchedulerJobDTO.class));
 	}
@@ -92,16 +109,17 @@ public class SchedulerJobDAO extends BaseDAO {
 	 * Finds and returns the info of user's single scheduler job for computational resource.
 	 *
 	 * @param user              user name.
+	 * @param project           project name
 	 * @param exploratoryName   the name of exploratory.
 	 * @param computationalName the name of computational resource.
 	 * @return scheduler job data.
 	 */
 
 	@SuppressWarnings("unchecked")
-	public Optional<SchedulerJobDTO> fetchSingleSchedulerJobForCluster(String user, String exploratoryName,
+	public Optional<SchedulerJobDTO> fetchSingleSchedulerJobForCluster(String user, String project, String exploratoryName,
 																	   String computationalName) {
 		return findOne(USER_INSTANCES,
-				exploratoryCondition(user, exploratoryName),
+				exploratoryCondition(user, exploratoryName, project),
 				fields(include(COMPUTATIONAL_RESOURCES), excludeId()))
 				.map(d -> (List<Document>) d.get(COMPUTATIONAL_RESOURCES))
 				.map(list -> list.stream().filter(d -> d.getString(COMPUTATIONAL_NAME).equals(computationalName))
@@ -140,7 +158,7 @@ public class SchedulerJobDAO extends BaseDAO {
 								eq(CONSIDER_INACTIVITY_FLAG, false)
 						)
 				),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA))))
+				fields(excludeId(), include(USER, PROJECT, EXPLORATORY_NAME, SCHEDULER_DATA))))
 				.map(d -> convertFromDocument(d, SchedulerJobData.class))
 				.collect(toList());
 	}
@@ -176,7 +194,7 @@ public class SchedulerJobDAO extends BaseDAO {
 				and(schedulerNotNullCondition()));
 		return find(USER_INSTANCES,
 				and(eq(STATUS, exploratoryStatus.toString()), computationalSchedulerCondition),
-				fields(excludeId(), include(USER, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
+				fields(excludeId(), include(USER, PROJECT, EXPLORATORY_NAME, COMPUTATIONAL_RESOURCES)));
 	}
 
 	public void removeScheduler(String user, String exploratory) {
@@ -208,9 +226,9 @@ public class SchedulerJobDAO extends BaseDAO {
 
 	private SchedulerJobData toSchedulerData(Document userInstanceDocument, Document compResource) {
 		final String user = userInstanceDocument.getString(USER);
+		final String project = userInstanceDocument.getString(PROJECT);
 		final String exploratoryName = userInstanceDocument.getString(EXPLORATORY_NAME);
 		final String computationalName = compResource.getString(COMPUTATIONAL_NAME);
-		final String project = compResource.getString(PROJECT);
 		final SchedulerJobDTO schedulerData = convertFromDocument((Document) compResource.get(SCHEDULER_DATA),
 				SchedulerJobDTO.class);
 		return new SchedulerJobData(user, exploratoryName, computationalName, project, schedulerData);

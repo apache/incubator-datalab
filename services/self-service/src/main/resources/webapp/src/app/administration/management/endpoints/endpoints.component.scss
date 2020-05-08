@@ -16,72 +16,84 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+.endpoints-dialog {
+  .content-box {
+    padding: 10px 30px 30px;
+    height: 400px;
 
-.content-box {
-  padding: 10px 30px 30px;
-  height: 400px;
+    .split {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
 
-  .split {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
+      form {
+        padding: 20px 10px;
 
-    form {
-      padding: 20px 10px;
-
-      .control-group {
-        .error {
-          position: absolute;
-          right: 0;
-          bottom: 5px;
-          font-family: 'Open Sans', sans-serif;
-          font-weight: 300;
-        }
-      }
-    }
-  }
-
-  .action-group {
-    text-align: center;
-  }
-
-  .endpoints {
-    height: 265px;
-
-    table {
-      width: 100%;
-
-      tr {
-        td {
-          vertical-align: middle;
-        }
-      }
-
-      .actions {
-        color: #607d8b;
-        width: 10%;
-        text-align: center;
-
-        span {
-          transition: all .5s ease-in-out;
-          cursor: pointer;
-
-          .mat-icon {
-            font-size: 18px;
-            padding-top: 5px;
-          }
-
-          &:hover {
-            color: darken(#607d8b, 10%);
+        .control-group {
+          .error {
+            position: absolute;
+            right: 0;
+            bottom: 5px;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 300;
+            top: 34px;
           }
         }
       }
     }
 
-    .content {
-      p {
-        margin-bottom: 30px;
+    .action-group {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+
+    .endpoints {
+      height: 265px;
+
+      table.mat-table {
+        width: 100%;
+        thead{
+          background: transparent;
+          .mat-header-row{
+            background-clip:padding-box;
+          }
+        }
+        tr {
+          td {
+            vertical-align: middle;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .actions {
+          color: #607d8b;
+          text-align: center;
+          width: 14%;
+
+          span {
+            transition: all .5s ease-in-out;
+            cursor: pointer;
+
+            .mat-icon {
+              font-size: 18px;
+              padding-top: 5px;
+            }
+
+            &:hover {
+              color: darken(#607d8b, 10%);
+            }
+          }
+        }
+      }
+
+      .content {
+        p {
+          margin-bottom: 30px;
+        }
       }
     }
   }

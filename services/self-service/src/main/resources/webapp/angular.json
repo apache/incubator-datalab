@@ -26,14 +26,18 @@
               },
               "src/styles.scss",
               "src/assets/styles/app-loading.scss",
-              "node_modules/ngx-toastr/toastr.css"
+              "node_modules/ngx-toastr/toastr.css",
+              "node_modules/swagger-ui-dist/swagger-ui.css"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src/assets/styles"
               ]
             },
-            "scripts": []
+            "scripts": [
+              "node_modules/swagger-ui-dist/swagger-ui-bundle.js",
+              "node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js"
+            ]
           },
           "configurations": {
             "production": {

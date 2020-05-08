@@ -20,29 +20,39 @@
 package com.epam.dlab.backendapi.resources.dto;
 
 import com.epam.dlab.dto.UserInstanceStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import java.util.Collections;
 import java.util.List;
 
 @Data
-public abstract class BillingFilter {
-	@JsonProperty
-	protected List<String> user;
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BillingFilter {
+	@NonNull
+	private List<String> users;
+	@NonNull
 	@JsonProperty("dlab_id")
-	protected String dlabId;
-	@JsonProperty("resource_type")
-	protected List<String> resourceType;
+	private String dlabId;
+	@NonNull
 	@JsonProperty("date_start")
-	protected String dateStart;
+	private String dateStart;
+	@NonNull
 	@JsonProperty("date_end")
-	protected String dateEnd;
-	@JsonProperty("status")
-	protected List<UserInstanceStatus> statuses = Collections.emptyList();
-
-	@JsonProperty("project")
-	protected List<String> projects;
-
-	public abstract List<String> getShapes();
+	private String dateEnd;
+	@NonNull
+	@JsonProperty("resource_type")
+	private List<String> resourceTypes;
+	@NonNull
+	private List<UserInstanceStatus> statuses = Collections.emptyList();
+	@NonNull
+	private List<String> projects;
+	@NonNull
+	private List<String> products;
+	@NonNull
+	private List<String> shapes;
 }

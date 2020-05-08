@@ -22,6 +22,7 @@ export class ExploratoryModel {
   readonly DICTIONARY = DICTIONARY;
 
   constructor(
+    public cloud_provider: string,
     public name: Array<any>,
     public template_name: string,
     public image: string,
@@ -49,6 +50,7 @@ export class ExploratoryModel {
     public project: string,
     public endpoint: string,
     public tags: any,
+    public edgeNodeStatus: string
   ) { }
 
   public static loadEnvironments(data: Array<any>) {
@@ -56,35 +58,42 @@ export class ExploratoryModel {
       return data.map((value) => {
         return {
           project: value.project,
-          exploratory: value.exploratory.map(el => new ExploratoryModel(el.exploratory_name,
-            el.template_name,
-            el.image,
-            el.status,
-            el.shape,
-            el.computational_resources,
-            el.up_time,
-            el.exploratory_url,
-            value.shared[el.endpoint].edge_node_ip,
-            el.private_ip,
-            el.exploratory_user,
-            el.exploratory_pass,
-            value.shared[el.endpoint][DICTIONARY.bucket_name],
-            value.shared[el.endpoint][DICTIONARY.shared_bucket_name],
-            el.error_message,
-            el[DICTIONARY.billing.cost],
-            el[DICTIONARY.billing.currencyCode],
-            el.billing,
-            el.libs,
-            value.shared[el.endpoint][DICTIONARY.user_storage_account_name],
-            value.shared[el.endpoint][DICTIONARY.shared_storage_account_name],
-            value.shared[el.endpoint][DICTIONARY.datalake_name],
-            value.shared[el.endpoint][DICTIONARY.datalake_user_directory_name],
-            value.shared[el.endpoint][DICTIONARY.datalake_shared_directory_name],
-            el.project,
-            el.endpoint,
-            el.tags
-          ))
-        }
+          exploratory: value.exploratory.map(el => {
+            const provider = el.cloud_provider.toLowerCase();
+            const billing = value.exploratoryBilling.filter(res => res.name === el.exploratory_name)[0];
+            return new ExploratoryModel(
+              provider,
+              el.exploratory_name,
+              el.template_name,
+              el.image,
+              el.status,
+              el.shape,
+              el.computational_resources,
+              el.up_time,
+              el.exploratory_url,
+              value.shared[el.endpoint].edge_node_ip,
+              el.private_ip,
+              el.exploratory_user,
+              el.exploratory_pass,
+              value.shared[el.endpoint][DICTIONARY[provider].bucket_name],
+              value.shared[el.endpoint][DICTIONARY[provider].shared_bucket_name],
+              el.error_message,
+              billing ? billing.total_cost : '',
+              billing ? billing.currency : '',
+              billing,
+              el.libs,
+              value.shared[el.endpoint][DICTIONARY[provider].user_storage_account_name],
+              value.shared[el.endpoint][DICTIONARY[provider].shared_storage_account_name],
+              value.shared[el.endpoint][DICTIONARY[provider].datalake_name],
+              value.shared[el.endpoint][DICTIONARY[provider].datalake_user_directory_name],
+              value.shared[el.endpoint][DICTIONARY[provider].datalake_shared_directory_name],
+              el.project,
+              el.endpoint,
+              el.tags,
+              value.shared[el.endpoint].status
+            );
+          })
+        };
       });
     }
   }
@@ -92,5 +101,5 @@ export class ExploratoryModel {
 
 export interface Exploratory {
   project: string;
-  exploratory: ExploratoryModel[]
+  exploratory: ExploratoryModel[];
 }

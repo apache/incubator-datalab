@@ -20,11 +20,15 @@
 import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation, ViewChild } from '@angular/core';
 import { NgDateRangePickerOptions } from 'ng-daterangepicker';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
+import {skip} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
+import {HealthStatusService} from '../../core/services';
+import {GeneralEnvironmentStatus} from '../../administration/management/management.model';
 
 @Component({
   selector: 'dlab-toolbar',
   templateUrl: './toolbar.component.html',
-  styleUrls: ['./toolbar.component.css'],
+  styleUrls: ['./toolbar.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class ToolbarComponent implements OnInit, AfterViewInit {
@@ -33,8 +37,10 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   reportData: any;
   availablePeriodFrom: string;
   availablePeriodTo: string;
+  subscriptions: Subscription = new Subscription();
+  healthStatus: GeneralEnvironmentStatus;
 
-  rangeOptions = {'YTD': 'Year To Date', 'QTD': 'Quarter To Date', 'MTD': 'Month To Date', 'reset': 'All Period Report'};
+  rangeOptions = { 'YTD': 'Year To Date', 'QTD': 'Quarter To Date', 'MTD': 'Month To Date', 'reset': 'All Period Report' };
   options: NgDateRangePickerOptions;
   rangeLabels: any;
 
@@ -42,7 +48,7 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   @Output() exportReport: EventEmitter<{}> = new EventEmitter();
   @Output() setRangeOption: EventEmitter<{}> = new EventEmitter();
 
-  constructor() {
+  constructor(private healthStatusService: HealthStatusService) {
     this.options = {
       theme: 'default',
       range: 'tm',
@@ -55,11 +61,13 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-     if (localStorage.getItem('report_period')) {
-        const availableRange = JSON.parse(localStorage.getItem('report_period'));
-        this.availablePeriodFrom = availableRange.start_date;
-        this.availablePeriodTo = availableRange.end_date;
-     }
+    if (localStorage.getItem('report_period')) {
+      const availableRange = JSON.parse(localStorage.getItem('report_period'));
+      this.availablePeriodFrom = availableRange.start_date;
+      this.availablePeriodTo = availableRange.end_date;    }
+    this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
+      this.healthStatus = result;
+    }));
   }
 
   ngAfterViewInit() {
@@ -86,11 +94,13 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
     for (let label = 0; label < rangeLabels.length; ++label)
       if (rangeLabels[label].classList.contains('untouched')) {
         rangeLabels[label].classList.remove('untouched');
-    }
+      }
 
     const reportDateRange = dateRange.split('-');
-    this.setRangeOption.emit({start_date: reportDateRange[0].split('/').join('-'),
-      end_date: reportDateRange[1].split('/').join('-')});
+    this.setRangeOption.emit({
+      start_date: reportDateRange[0].split('/').join('-'),
+      end_date: reportDateRange[1].split('/').join('-')
+    });
   }
 
   rebuild($event): void {

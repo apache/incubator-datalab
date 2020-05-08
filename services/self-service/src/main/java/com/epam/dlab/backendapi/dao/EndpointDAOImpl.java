@@ -20,20 +20,37 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.regex;
+
 
 public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 
 	private static final String ENDPOINTS_COLLECTION = "endpoints";
+	private static final String ENDPOINT_NAME_FIELD = "name";
+	private static final String ENDPOINT_STATUS_FIELD = "status";
+	private static final String ENDPOINT_URL_FIELD = "url";
 
 	@Override
 	public List<EndpointDTO> getEndpoints() {
 		return find(ENDPOINTS_COLLECTION, EndpointDTO.class);
+	}
+
+	@Override
+	public List<EndpointDTO> getEndpointsWithStatus(String status) {
+		return find(ENDPOINTS_COLLECTION, endpointStatusCondition(status), EndpointDTO.class);
+	}
+
+	@Override
+	public Optional<EndpointDTO> getEndpointWithUrl(String url) {
+		return findOne(ENDPOINTS_COLLECTION, endpointUrlCondition(url), EndpointDTO.class);
 	}
 
 	@Override
@@ -47,11 +64,27 @@ public class EndpointDAOImpl extends BaseDAO implements EndpointDAO {
 	}
 
 	@Override
+	public void updateEndpointStatus(String name, String status) {
+		final Document updatedFiled = new Document(ENDPOINT_STATUS_FIELD, status);
+		updateOne(ENDPOINTS_COLLECTION, endpointCondition(name), new Document(SET, updatedFiled));
+	}
+
+	@Override
 	public void remove(String name) {
 		deleteOne(ENDPOINTS_COLLECTION, endpointCondition(name));
 	}
 
 	private Bson endpointCondition(String name) {
-		return eq("name", name);
+		Pattern endPointName = Pattern.compile("^" + name + "$", Pattern.CASE_INSENSITIVE);
+		return regex(ENDPOINT_NAME_FIELD, endPointName);
+	}
+
+	private Bson endpointUrlCondition(String url) {
+		Pattern endPointUrl = Pattern.compile("^" + url + "$", Pattern.CASE_INSENSITIVE);
+		return regex(ENDPOINT_URL_FIELD, endPointUrl);
+	}
+
+	private Bson endpointStatusCondition(String status) {
+		return eq(ENDPOINT_STATUS_FIELD, status);
 	}
 }

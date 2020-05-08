@@ -30,6 +30,7 @@ import os
 import json
 import sys
 import traceback
+from dlab.common_lib import manage_pkg
 
 
 def ensure_docker_daemon(dlab_path, os_user, region):
@@ -48,9 +49,9 @@ def ensure_docker_daemon(dlab_path, os_user, region):
                 sudo('echo "gpgcheck=1" >> centos.repo')
                 sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
             sudo('yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo')
-            sudo('yum update-minimal --security -y')
-            sudo('yum install container-selinux -y')
-            sudo('yum install docker-ce-{}.ce -y'.format(docker_version))
+            manage_pkg('update-minimal --security -y', 'remote', '')
+            manage_pkg('-y install', 'remote', 'container-selinux')
+            manage_pkg('-y install', 'remote', 'docker-ce-{}.ce'.format(docker_version))
             sudo('usermod -aG docker {}'.format(os_user))
             sudo('systemctl enable docker.service')
             sudo('systemctl start docker')
@@ -63,7 +64,7 @@ def ensure_docker_daemon(dlab_path, os_user, region):
 def ensure_nginx(dlab_path):
     try:
         if not exists('{}tmp/nginx_ensured'.format(dlab_path)):
-            sudo('yum -y install nginx')
+            manage_pkg('-y install', 'remote', 'nginx')
             sudo('systemctl restart nginx.service')
             sudo('chkconfig nginx on')
             sudo('touch {}tmp/nginx_ensured'.format(dlab_path))
@@ -81,9 +82,8 @@ def ensure_jenkins(dlab_path):
                 sudo('rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key')
             except:
                 pass
-            sudo('yum -y install java-1.8.0-openjdk-devel')
-            sudo('yum -y install jenkins')
-            sudo('yum -y install policycoreutils-python')
+            manage_pkg('-y install', 'remote', 'jenkins')
+            manage_pkg('-y install', 'remote', 'policycoreutils-python')
             sudo('touch {}tmp/jenkins_ensured'.format(dlab_path))
     except Exception as err:
         traceback.print_exc()
@@ -161,7 +161,7 @@ def configure_nginx(config, dlab_path, hostname):
 def ensure_supervisor():
     try:
         if not exists('{}tmp/superv_ensured'.format(os.environ['ssn_dlab_path'])):
-            sudo('yum install -y supervisor')
+            manage_pkg('-y install', 'remote', 'supervisor')
             #sudo('pip install supervisor')
             sudo('chkconfig supervisord on')
             sudo('systemctl start supervisord')
@@ -181,7 +181,7 @@ def ensure_mongo():
                  '\nenabled=1'
                  '\ngpgkey=https://www.mongodb.org/static/pgp/server-3.2.asc" '
                  '> /etc/yum.repos.d/mongodb.repo')
-            sudo('yum install -y mongodb-org')
+            manage_pkg('-y install', 'remote', 'mongodb-org')
             sudo('semanage port -a -t mongod_port_t -p tcp 27017')
             sudo('chkconfig mongod on')
             sudo('echo "d /var/run/mongodb 0755 mongod mongod" > /lib/tmpfiles.d/mongodb.conf')
@@ -255,6 +255,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                         item['key'], item['value']))
                 sudo('sed -i "s|SERVICE_BASE_NAME|{0}|g" /tmp/yml_tmp/self-service.yml'.format(service_base_name))
                 sudo('sed -i "s|OPERATION_SYSTEM|redhat|g" /tmp/yml_tmp/self-service.yml')
+                sudo('sed -i "s|<SSN_INSTANCE_SIZE>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(
+                    os.environ['{0}_ssn_instance_size'.format(os.environ['conf_cloud_provider'])]))
                 if os.environ['conf_cloud_provider'] == 'azure':
                     sudo('sed -i "s|<LOGIN_USE_LDAP>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(ldap_login))
                     sudo('sed -i "s|<LOGIN_TENANT_ID>|{0}|g" /tmp/yml_tmp/self-service.yml'.format(tenant_id))
@@ -333,13 +335,27 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                 sudo('python /tmp/configure_billing.py {}'.format(params))
 
             try:
-                sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
-                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
-                    os_user, keystore_passwd))
-                sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
-                     -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user, keystore_passwd))
-                sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/dlab.crt -noprompt \
-                     -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
+                if os.environ['conf_stepcerts_enabled'] == 'true':
+                    sudo('openssl pkcs12 -export -in /etc/ssl/certs/dlab.crt -inkey /etc/ssl/certs/dlab.key -name ssn '
+                         '-out ssn.p12 -password pass:{0}'.format(keystore_passwd))
+                    sudo('keytool -importkeystore -srckeystore ssn.p12 -srcstoretype PKCS12 -alias ssn -destkeystore '
+                         '/home/{0}/keys/ssn.keystore.jks -deststorepass "{1}" -srcstorepass "{1}"'.format(
+                        os_user, keystore_passwd))
+                    sudo('keytool -keystore /home/{0}/keys/ssn.keystore.jks -alias step-ca -import -file '
+                         '/etc/ssl/certs/root_ca.crt  -deststorepass "{1}" -srcstorepass "{1}" -noprompt'.format(
+                        os_user, keystore_passwd))
+                    sudo('keytool -importcert -trustcacerts -alias step-ca -file /etc/ssl/certs/root_ca.crt '
+                         '-noprompt -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
+                    sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt '
+                         '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
+                else:
+                    sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
+                         -keystore /home/{0}/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
+                        os_user, keystore_passwd))
+                    sudo('keytool -exportcert -alias ssn -storepass {1} -file /etc/ssl/certs/dlab.crt \
+                         -keystore /home/{0}/keys/ssn.keystore.jks'.format(os_user, keystore_passwd))
+                    sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt \
+                         -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)
@@ -356,14 +372,14 @@ def install_build_dep():
     try:
         if not exists('{}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path'])):
             maven_version = '3.5.4'
-            sudo('yum install -y java-1.8.0-openjdk java-1.8.0-openjdk-devel git wget unzip')
+            manage_pkg('-y install', 'remote', 'java-1.8.0-openjdk java-1.8.0-openjdk-devel git wget unzip')
             with cd('/opt/'):
                 sudo('wget http://mirrors.sonic.net/apache/maven/maven-{0}/{1}/binaries/apache-maven-{1}-bin.zip'.format(
                     maven_version.split('.')[0], maven_version))
                 sudo('unzip apache-maven-{}-bin.zip'.format(maven_version))
                 sudo('mv apache-maven-{} maven'.format(maven_version))
             sudo('bash -c "curl --silent --location https://rpm.nodesource.com/setup_12.x | bash -"')
-            sudo('yum install -y nodejs')
+            manage_pkg('-y install', 'remote', 'nodejs')
             sudo('npm config set unsafe-perm=true')
             sudo('touch {}tmp/build_dep_ensured'.format(os.environ['ssn_dlab_path']))
     except Exception as err:

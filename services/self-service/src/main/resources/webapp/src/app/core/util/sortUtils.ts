@@ -24,6 +24,10 @@ export class SortUtils {
     return order.indexOf(arg1) - order.indexOf(arg2);
   }
 
+  public static activeStatuses(): String[] {
+    return ['running', 'stopping', 'stopped', 'creating', 'configuring', 'reconfiguring', 'starting', 'creating image'];
+  }
+
   public static shapesSort(shapesJson) {
     const sortOrder = ['For testing', 'Memory optimized', 'GPU optimized', 'Compute optimized'];
     const sortedShapes = {};
@@ -40,4 +44,9 @@ export class SortUtils {
 
     return groups.sort((arg1, arg2) => sortOrder.indexOf(arg1) - sortOrder.indexOf(arg2));
   }
+
+  public static flatDeep(arr, d = 1) {
+    return d > 0 ? arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? this.flatDeep(val, d - 1) : val), [])
+      : arr.slice();
+  };
 }

@@ -40,6 +40,14 @@ export class CheckUtils {
     return true;
   }
 
+  public static numberOnly(event): boolean {
+    const charCode = (event.which) ? event.which : event.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+      return false;
+    }
+    return true;
+  }
+
   public static delimitersFiltering(resource): string {
     return resource.replace(RegExp(PATTERNS.delimitersRegex, 'g'), '').toString().toLowerCase();
   }

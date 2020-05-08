@@ -21,7 +21,6 @@ package com.epam.dlab.backendapi;
 
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.IndexCreator;
-import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.dropwizard.bundles.DlabKeycloakBundle;
 import com.epam.dlab.backendapi.dropwizard.listeners.MongoStartupListener;
@@ -31,6 +30,7 @@ import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.backendapi.schedulers.internal.ManagedScheduler;
+import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.servlet.guacamole.GuacamoleServlet;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.constants.ServiceConsts;
@@ -106,11 +106,10 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		environment.lifecycle().addServerLifecycleListener(injector.getInstance(MongoStartupListener.class));
 		final RestoreHandlerStartupListener restoreHandlerStartupListener =
 				new RestoreHandlerStartupListener(injector.getInstance(Key.get(RESTService.class,
-						Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))));
+						Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))), injector.getInstance(EndpointService.class));
 		environment.lifecycle().addServerLifecycleListener(restoreHandlerStartupListener);
 		environment.lifecycle().addServerLifecycleListener(this::disableGzipHandlerForGuacamoleServlet);
 		environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
-		environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
 		environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
 		environment.lifecycle().manage(injector.getInstance(ManagedScheduler.class));
 		environment.healthChecks().register(ServiceConsts.MONGO_NAME, injector.getInstance(MongoHealthCheck.class));
@@ -128,9 +127,6 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		jersey.register(new DlabValidationExceptionMapper());
 		jersey.register(new ValidationExceptionMapper());
 		jersey.register(new ResourceQuoteReachedExceptionMapper());
-		jersey.register(injector.getInstance(SecurityResource.class));
-		jersey.register(injector.getInstance(KeyUploaderResource.class));
-		jersey.register(injector.getInstance(EdgeResource.class));
 
 		jersey.register(injector.getInstance(InfrastructureTemplateResource.class));
 		jersey.register(injector.getInstance(InfrastructureInfoResource.class));

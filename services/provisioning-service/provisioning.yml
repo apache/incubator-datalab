@@ -27,7 +27,7 @@ keyDirectory: ${KEYS_DIR}
 responseDirectory: /opt/dlab/tmp
 handlerDirectory: /opt/dlab/handlers
 dockerLogDirectory: ${LOG_ROOT_DIR}
-warmupPollTimeout: 50s
+warmupPollTimeout: 2m
 resourceStatusPollTimeout: 300m
 keyLoaderPollTimeout: 30m
 requestEnvStatusTimeout: 50s
@@ -58,7 +58,7 @@ server:
 #    - type: http
     - type: https
       port: 8084
-      certAlias: dlab
+      certAlias: ssn
       validateCerts: false
       keyStorePath: ${KEY_STORE_PATH}
       keyStorePassword: ${KEY_STORE_PASSWORD}
@@ -68,7 +68,7 @@ server:
 #    - type: http
     - type: https
       port: 8085
-      certAlias: dlab
+      certAlias: ssn
       validateCerts: false
       keyStorePath: ${KEY_STORE_PATH}
       keyStorePassword: ${KEY_STORE_PASSWORD}
@@ -123,10 +123,21 @@ cloudProperties:
   azureClientId: AZURE_CLIENT_ID
   gcpProjectId: GCP_PROJECT_ID
   imageEnabled: CONF_IMAGE_ENABLED
-  sharedImageEnabled: SHARED_IMAGE_ENABLED
+  azureAuthFile: AZURE_AUTH_FILE_PATH
   ldap:
     host: LDAP_HOST
     dn: LDAP_DN
     ou: LDAP_OU
     user: LDAP_USER_NAME
     password: LDAP_USER_PASSWORD
+  stepCerts:
+    enabled: STEP_CERTS_ENABLED
+    rootCA: STEP_ROOT_CA
+    kid: STEP_KID_ID
+    kidPassword: STEP_KID_PASSWORD
+    caURL: STEP_CA_URL
+  keycloak:
+    auth_server_url: KEYCLOAK_AUTH_SERVER_URL
+    realm_name: KEYCLOAK_REALM_NAME
+    user: KEYCLOAK_USER_NAME
+    user_password: KEYCLOAK_PASSWORD

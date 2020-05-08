@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.KeyAPI;
@@ -32,6 +33,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 public abstract class EdgeService implements DockerCommands {
 
@@ -73,6 +76,11 @@ public abstract class EdgeService implements DockerCommands {
 				.withConfKeyName(configuration.getAdminKey())
 				.withImage(configuration.getEdgeImage())
 				.withAction(action);
+		if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+				Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+				!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+			runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+		}
 
 		commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
 		return uuid;

@@ -47,6 +47,7 @@ export class ApplicationServiceFacade {
   private static readonly IMAGE = 'image';
   private static readonly SCHEDULER = 'scheduler';
   private static readonly TEMPLATES = 'templates';
+  private static readonly COMPUTATION_TEMPLATES = 'computation_templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
@@ -74,8 +75,8 @@ export class ApplicationServiceFacade {
   private static readonly DOWNLOAD_REPORT = 'download_report';
   private static readonly SETTINGS = 'settings';
   private static readonly PROJECT = 'project';
-  private static readonly USER_PROJECT = 'user_project';
   private static readonly ENDPOINT = 'endpoint';
+  private static readonly ENDPOINT_CONNECTION = 'endpoint_connection';
 
   private requestRegistry: Dictionary<string>;
 
@@ -181,11 +182,24 @@ export class ApplicationServiceFacade {
       null);
   }
 
+  public buildGetComputationTemplatesRequest(params, provider): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATION_TEMPLATES) + params,
+      null);
+  }
+
   public buildCreateExploratoryEnvironmentRequest(data): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
       data,
       { responseType: 'text', observe: 'response' });
+  }
+
+  public buildGetExploratoryEnvironmentRequest(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
+      null,
+      { observe: 'response' });
   }
 
   public buildRunExploratoryEnvironmentRequest(data): Observable<any> {
@@ -201,35 +215,35 @@ export class ApplicationServiceFacade {
       data, { responseType: 'text', observe: 'response' });
   }
 
-  public buildCreateComputationalResources_DataengineServiceRequest(data): Observable<any> {
+  public buildCreateComputationalResources_DataengineServiceRequest(data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE),
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE),
       data,
       { observe: 'response' });
   }
 
-  public buildCreateComputationalResources_DataengineRequest(data): Observable<any> {
+  public buildCreateComputationalResources_DataengineRequest(data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE),
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE),
       data,
       { observe: 'response' });
   }
 
-  public buildDeleteComputationalResourcesRequest(data): Observable<any> {
+  public buildDeleteComputationalResourcesRequest(data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.DELETE,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
       data);
   }
 
-  public buildStopSparkClusterAction(data): Observable<any> {
+  public buildStopSparkClusterAction(data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.DELETE,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
       data);
   }
 
-  public buildStartSparkClusterAction(params): Observable<any> {
+  public buildStartSparkClusterAction(params, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + params,
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + params,
       null);
   }
 
@@ -347,6 +361,7 @@ export class ApplicationServiceFacade {
       data,
       { responseType: 'text', observe: 'response' });
   }
+
   public buildGetBackupStatusRequest(uuid): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.BACKUP),
@@ -359,9 +374,9 @@ export class ApplicationServiceFacade {
       image);
   }
 
-  public buildGetImagesList(): Observable<any> {
+  public buildGetImagesList(param): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
-      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE) + param,
       null);
   }
 
@@ -401,16 +416,6 @@ export class ApplicationServiceFacade {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.ACTIVE_LIST),
       null);
-  }
-
-  public buildManageEnvironment(action, data): Observable<any> {
-    return this.buildRequest(HTTPMethod.POST,
-      this.requestRegistry.Item(ApplicationServiceFacade.ENV) + action,
-      data,
-      {
-        observe: 'response',
-        headers: { 'Content-Type': 'text/plain' }
-      });
   }
 
   public buildGetAllEnvironmentData(): Observable<any> {
@@ -497,15 +502,15 @@ export class ApplicationServiceFacade {
       data);
   }
 
-  public buildGetClusterConfiguration(param): Observable<any> {
+  public buildGetClusterConfiguration(param, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
       null);
   }
 
-  public buildEditClusterConfiguration(param, data): Observable<any> {
+  public buildEditClusterConfiguration(param, data, provider): Observable<any> {
     return this.buildRequest(HTTPMethod.PUT,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
+      '/api/' + provider + this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES) + param,
       data);
   }
 
@@ -547,13 +552,7 @@ export class ApplicationServiceFacade {
 
   public buildGetUserProjectsList(params?): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
-      this.requestRegistry.Item(ApplicationServiceFacade.USER_PROJECT) + params,
-      null);
-  }
-
-  public buildDeleteProject(param): Observable<any> {
-    return this.buildRequest(HTTPMethod.DELETE,
-      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + param,
+      this.requestRegistry.Item(ApplicationServiceFacade.PROJECT) + params,
       null);
   }
 
@@ -576,6 +575,12 @@ export class ApplicationServiceFacade {
       null);
   }
 
+  public getEndpointsResource(endpoint): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT) + `/${endpoint}/resources`,
+      null);
+  }
+
   public buildCreateEndpoint(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT),
@@ -585,6 +590,12 @@ export class ApplicationServiceFacade {
   public buildDeleteEndpoint(param): Observable<any> {
     return this.buildRequest(HTTPMethod.DELETE,
       this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT) + param,
+      null);
+  }
+
+  public getEndpointConnectionStatus(endpointUrl): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENDPOINT_CONNECTION) + endpointUrl,
       null);
   }
 
@@ -611,6 +622,8 @@ export class ApplicationServiceFacade {
       '/api/infrastructure_provision/exploratory_environment');
     this.requestRegistry.Add(ApplicationServiceFacade.TEMPLATES,
       '/api/infrastructure_templates');
+    this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATION_TEMPLATES,
+    '/infrastructure_provision/computational_resources');
     this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
       '/api/infrastructure_provision/exploratory_environment/image');
     this.requestRegistry.Add(ApplicationServiceFacade.SCHEDULER,
@@ -619,11 +632,11 @@ export class ApplicationServiceFacade {
 
     // Computational Resources
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES,
-      '/api/infrastructure_provision/computational_resources');
+      '/infrastructure_provision/computational_resources');
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE,
-      '/api/infrastructure_provision/computational_resources/dataengine-service'); // emr(aws)
+      '/infrastructure_provision/computational_resources/dataengine-service'); // emr(aws)
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE,
-      '/api/infrastructure_provision/computational_resources/dataengine'); // spark (azure|aws)
+      '/infrastructure_provision/computational_resources/dataengine'); // spark (azure|aws)
 
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
       '/api/infrastructure_templates/computational_templates');
@@ -664,7 +677,7 @@ export class ApplicationServiceFacade {
     // project
     this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
-    this.requestRegistry.Add(ApplicationServiceFacade.USER_PROJECT, '/api/project/me');
+    this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT_CONNECTION, '/api/endpoint/url/');
   }
 
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {

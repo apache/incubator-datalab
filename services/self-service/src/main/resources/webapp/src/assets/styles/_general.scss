@@ -46,7 +46,6 @@ textarea {
   width: 100%;
   height: 36px;
   padding: 0 10px;
-  color: #455c74;
   color: #6e7ca0;
   border: 1px solid transparent;
   background: rgba(247, 247, 247, 0.87);
@@ -86,6 +85,7 @@ textarea::placeholder {
   padding-bottom: 20px;
   position: relative;
 }
+
 .row-wrap {
   padding-bottom: 0;
 }
@@ -103,6 +103,7 @@ textarea::placeholder {
   text-align: left;
   font-family: 'Open Sans', sans-serif;
 }
+
 .control-group .control {
   width: 65%;
 }
@@ -165,4 +166,9 @@ button {
   vertical-align: middle;
   color: #35afd5;
   line-height: 26px;
+}
+
+input[type=file],
+input[type=file]::-webkit-file-upload-button {
+    cursor: pointer;
 }

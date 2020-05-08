@@ -19,7 +19,7 @@
 
 package com.epam.dlab.backendapi.resources;
 
-import com.epam.dlab.backendapi.resources.dto.UserDTO;
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.exceptions.ResourceConflictException;
 import io.dropwizard.auth.AuthenticationException;
@@ -30,17 +30,23 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class EnvironmentResourceTest extends TestBase {
 
@@ -55,45 +61,9 @@ public class EnvironmentResourceTest extends TestBase {
 	}
 
 	@Test
-	public void getUsersWithActiveEnv() {
-		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO("activeUser",
-				null, UserDTO.Status.ACTIVE)));
-		final Response response = resources.getJerseyTest()
-				.target("/environment/user")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.get();
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals(Collections.singletonList(new UserDTO("activeUser", null, UserDTO.Status.ACTIVE)),
-				response.readEntity(new GenericType<List<UserDTO>>() {
-				}));
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(environmentService).getUsers();
-		verifyNoMoreInteractions(environmentService);
-	}
-
-	@Test
-	public void getUsersWithActiveEnvWithFailedAuth() throws AuthenticationException {
-		authFailSetup();
-		when(environmentService.getUsers()).thenReturn(Collections.singletonList(new UserDTO("activeUser",
-				null, UserDTO.Status.ACTIVE)));
-		final Response response = resources.getJerseyTest()
-				.target("/environment/user")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.get();
-
-		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verifyZeroInteractions(environmentService);
-	}
-
-	@Test
 	public void getAllEnv() {
-		when(environmentService.getAllEnv()).thenReturn(Collections.emptyList());
+		UserInfo userInfo = getUserInfo();
+		when(environmentService.getAllEnv(userInfo)).thenReturn(Collections.emptyList());
 		final Response response = resources.getJerseyTest()
 				.target("/environment/all")
 				.request()
@@ -103,14 +73,14 @@ public class EnvironmentResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).getAllEnv();
+		verify(environmentService).getAllEnv(eq(userInfo));
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void getAllEnvWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(environmentService.getAllEnv()).thenReturn(Collections.emptyList());
+		when(environmentService.getAllEnv(getUserInfo())).thenReturn(Collections.emptyList());
 		final Response response = resources.getJerseyTest()
 				.target("/environment/all")
 				.request()
@@ -124,157 +94,10 @@ public class EnvironmentResourceTest extends TestBase {
 	}
 
 	@Test
-	public void terminateEnv() {
-		doNothing().when(environmentService).terminateEnvironment(anyString());
-		final Response response = resources.getJerseyTest()
-				.target("/environment/terminate")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.text(USER));
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(environmentService).terminateEnvironment(USER);
-		verifyNoMoreInteractions(environmentService);
-	}
-
-	@Test
-	public void terminateEnvWithFailedAuth() throws AuthenticationException {
-		authFailSetup();
-		doNothing().when(environmentService).terminateEnvironment(anyString());
-		final Response response = resources.getJerseyTest()
-				.target("/environment/terminate")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.text(USER));
-
-		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verifyZeroInteractions(environmentService);
-	}
-
-	@Test
-	public void terminateEnvWithResourceConflictException() {
-		doThrow(new ResourceConflictException("Can not terminate environment because one of the user resources is in" +
-				"status CREATING or STARTING")).when(environmentService).terminateEnvironment(anyString());
-		final Response response = resources.getJerseyTest()
-				.target("/environment/terminate")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.text(USER));
-
-		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(environmentService).terminateEnvironment(USER);
-		verifyNoMoreInteractions(environmentService);
-	}
-
-	@Test
-	public void stopEnv() {
-		doNothing().when(environmentService).stopEnvironment(anyString());
-		final Response response = resources.getJerseyTest()
-				.target("/environment/stop")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.text(USER));
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(environmentService).stopEnvironment(USER);
-		verifyNoMoreInteractions(environmentService);
-	}
-
-	@Test
-	public void stopEnvWithFailedAuth() throws AuthenticationException {
-		authFailSetup();
-		doNothing().when(environmentService).stopEnvironment(anyString());
-		final Response response = resources.getJerseyTest()
-				.target("/environment/stop")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.text(USER));
-
-		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verifyZeroInteractions(environmentService);
-	}
-
-	@Test
-	public void stopEnvWithResourceConflictException() {
-		doThrow(new ResourceConflictException("Can not stop environment because one of the user resources is in " +
-				"status CREATING or STARTING")).when(environmentService).stopEnvironment(anyString());
-		final Response response = resources.getJerseyTest()
-				.target("/environment/stop")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.text(USER));
-
-		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(environmentService).stopEnvironment(USER);
-		verifyNoMoreInteractions(environmentService);
-	}
-
-	@Test
-	public void stopEdge() {
-		doNothing().when(environmentService).stopEdge(anyString());
-		final Response response = resources.getJerseyTest()
-				.target("/environment/stop/edge")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.text(USER));
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(environmentService).stopEdge(USER);
-		verifyNoMoreInteractions(environmentService);
-	}
-
-	@Test
-	public void stopEdgeWithFailedAuth() throws AuthenticationException {
-		authFailSetup();
-		doNothing().when(environmentService).stopEdge(anyString());
-		final Response response = resources.getJerseyTest()
-				.target("/environment/stop/edge")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.text(USER));
-
-		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verifyZeroInteractions(environmentService);
-	}
-
-	@Test
-	public void stopEdgeWithResourceConflictException() {
-		doThrow(new ResourceConflictException("Can not stop edge because its status is CREATING or STARTING"))
-				.when(environmentService).stopEdge(anyString());
-		final Response response = resources.getJerseyTest()
-				.target("/environment/stop/edge")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.text(USER));
-
-		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(environmentService).stopEdge(USER);
-		verifyNoMoreInteractions(environmentService);
-	}
-
-	@Test
 	public void stopNotebook() {
-		doNothing().when(environmentService).stopExploratory(anyString(), anyString());
+		doNothing().when(environmentService).stopExploratory(any(UserInfo.class), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/stop/explName")
+				.target("/environment/stop/projectName/explName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -282,16 +105,16 @@ public class EnvironmentResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).stopExploratory(USER, "explName");
+		verify(environmentService).stopExploratory(new UserInfo(USER, TOKEN), USER, "projectName", "explName");
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void stopNotebookWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		doNothing().when(environmentService).stopExploratory(anyString(), anyString());
+		doNothing().when(environmentService).stopExploratory(any(UserInfo.class), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/stop/explName")
+				.target("/environment/stop/projectName/explName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -305,9 +128,9 @@ public class EnvironmentResourceTest extends TestBase {
 	@Test
 	public void stopNotebookWithResourceConflictException() {
 		doThrow(new ResourceConflictException("Can not stop notebook because its status is CREATING or STARTING"))
-				.when(environmentService).stopExploratory(anyString(), anyString());
+				.when(environmentService).stopExploratory(any(UserInfo.class), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/stop/explName")
+				.target("/environment/stop/projectName/explName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -315,15 +138,15 @@ public class EnvironmentResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).stopExploratory(USER, "explName");
+		verify(environmentService).stopExploratory(new UserInfo(USER, TOKEN), USER, "projectName", "explName");
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void stopCluster() {
-		doNothing().when(environmentService).stopComputational(anyString(), anyString(), anyString());
+		doNothing().when(environmentService).stopComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/stop/explName/compName")
+				.target("/environment/stop/projectName/explName/compName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -331,16 +154,16 @@ public class EnvironmentResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).stopComputational(USER, "explName", "compName");
+		verify(environmentService).stopComputational(new UserInfo(USER, TOKEN), USER, "projectName", "explName", "compName");
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void stopClusterWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		doNothing().when(environmentService).stopComputational(anyString(), anyString(), anyString());
+		doNothing().when(environmentService).stopComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/stop/explName/compName")
+				.target("/environment/stop/projectName/explName/compName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -354,9 +177,9 @@ public class EnvironmentResourceTest extends TestBase {
 	@Test
 	public void stopClusterWithResourceConflictException() {
 		doThrow(new ResourceConflictException("Can not stop cluster because its status is CREATING or STARTING"))
-				.when(environmentService).stopComputational(anyString(), anyString(), anyString());
+				.when(environmentService).stopComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/stop/explName/compName")
+				.target("/environment/stop/projectName/explName/compName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -364,15 +187,15 @@ public class EnvironmentResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).stopComputational(USER, "explName", "compName");
+		verify(environmentService).stopComputational(new UserInfo(USER, TOKEN), USER, "projectName", "explName", "compName");
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void terminateNotebook() {
-		doNothing().when(environmentService).terminateExploratory(anyString(), anyString());
+		doNothing().when(environmentService).terminateExploratory(any(UserInfo.class), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/terminate/explName")
+				.target("/environment/terminate/projectName/explName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -380,16 +203,16 @@ public class EnvironmentResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).terminateExploratory(USER, "explName");
+		verify(environmentService).terminateExploratory(new UserInfo(USER, TOKEN), USER, "projectName", "explName");
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void terminateNotebookWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		doNothing().when(environmentService).terminateExploratory(anyString(), anyString());
+		doNothing().when(environmentService).terminateExploratory(any(UserInfo.class), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/terminate/explName")
+				.target("/environment/terminate/projectName/explName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -403,9 +226,9 @@ public class EnvironmentResourceTest extends TestBase {
 	@Test
 	public void terminateNotebookWithResourceConflictException() {
 		doThrow(new ResourceConflictException("Can not terminate notebook because its status is CREATING or STARTING"))
-				.when(environmentService).terminateExploratory(anyString(), anyString());
+				.when(environmentService).terminateExploratory(any(UserInfo.class), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/terminate/explName")
+				.target("/environment/terminate/projectName/explName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -413,15 +236,15 @@ public class EnvironmentResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).terminateExploratory(USER, "explName");
+		verify(environmentService).terminateExploratory(new UserInfo(USER, TOKEN), USER, "projectName", "explName");
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void terminateCluster() {
-		doNothing().when(environmentService).terminateComputational(anyString(), anyString(), anyString());
+		doNothing().when(environmentService).terminateComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/terminate/explName/compName")
+				.target("/environment/terminate/projectName/explName/compName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -429,16 +252,16 @@ public class EnvironmentResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 		assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).terminateComputational(USER, "explName", "compName");
+		verify(environmentService).terminateComputational(new UserInfo(USER, TOKEN), USER, "projectName", "explName", "compName");
 		verifyNoMoreInteractions(environmentService);
 	}
 
 	@Test
 	public void terminateClusterWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		doNothing().when(environmentService).terminateComputational(anyString(), anyString(), anyString());
+		doNothing().when(environmentService).terminateComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/terminate/explName/compName")
+				.target("/environment/terminate/projectName/explName/compName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -452,9 +275,9 @@ public class EnvironmentResourceTest extends TestBase {
 	@Test
 	public void terminateClusterWithResourceConflictException() {
 		doThrow(new ResourceConflictException("Can not terminate cluster because its status is CREATING or STARTING"))
-				.when(environmentService).terminateComputational(anyString(), anyString(), anyString());
+				.when(environmentService).terminateComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/environment/terminate/explName/compName")
+				.target("/environment/terminate/projectName/explName/compName")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.text(USER));
@@ -462,7 +285,7 @@ public class EnvironmentResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(environmentService).terminateComputational(USER, "explName", "compName");
+		verify(environmentService).terminateComputational(new UserInfo(USER, TOKEN), USER, "projectName", "explName", "compName");
 		verifyNoMoreInteractions(environmentService);
 	}
 }

@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.resources.callback;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
@@ -29,7 +28,6 @@ import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.model.ResourceData;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +39,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
-
-import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 
 @Path("/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -75,11 +71,12 @@ public class ComputationalCallback {
 		String uuid = dto.getRequestId();
 		requestId.checkAndRemove(uuid);
 
-		UserComputationalResource compResource = computationalService.getComputationalResource(dto.getUser(),
-				dto.getExploratoryName(), dto.getComputationalName()).orElseThrow(() ->
-				new DlabException("Computational resource " + dto.getComputationalName() +
-						" of exploratory environment " + dto.getExploratoryName() + " for user " + dto.getUser() +
-						" doesn't exist"));
+		UserComputationalResource compResource = computationalService.getComputationalResource(dto.getUser(), dto.getProject(),
+				dto.getExploratoryName(), dto.getComputationalName())
+				.orElseThrow(() ->
+						new DlabException(String.format("Computational resource %s of exploratory environment %s of " +
+										"project %s for user %s doesn't exist", dto.getComputationalName(),
+								dto.getExploratoryName(), dto.getProject(), dto.getUser())));
 		log.debug("Current status for computational resource {} of exploratory environment {} for user {} is {}",
 				dto.getComputationalName(), dto.getExploratoryName(), dto.getUser(),
 				compResource.getStatus());
@@ -93,11 +90,6 @@ public class ComputationalCallback {
 			log.debug("Waiting for configuration of the computational resource {} for user {}",
 					dto.getComputationalName(), dto.getUser());
 			requestId.put(dto.getUser(), uuid);
-		} else if (UserInstanceStatus.of(dto.getStatus()) == RUNNING && compResource.isReuploadKeyRequired()) {
-			ResourceData resourceData = ResourceData.computationalResource(compResource.getComputationalId(),
-					dto.getExploratoryName(), dto.getComputationalName());
-			UserInfo userInfo = securityService.getUserInfoOffline(dto.getUser());
-			reuploadKeyService.reuploadKeyAction(userInfo, resourceData);
 		}
 		return Response.ok().build();
 	}

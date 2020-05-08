@@ -37,7 +37,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -61,13 +64,9 @@ public class AzureInvoiceCalculationService {
 	 * Constructs service class
 	 *
 	 * @param billingConfigurationAzure contains <code>billing-azure</code> module configuration
-	 * @param billableResources         resources that invoices should be calculated for
 	 */
-	public AzureInvoiceCalculationService(BillingConfigurationAzure billingConfigurationAzure,
-										  Set<AzureDlabBillableResource> billableResources) {
+	public AzureInvoiceCalculationService(BillingConfigurationAzure billingConfigurationAzure) {
 		this.billingConfigurationAzure = billingConfigurationAzure;
-		this.billableResources = billableResources.stream().collect(Collectors.toMap(AzureDlabBillableResource::getId,
-                e -> e));
 	}
 
 	/**
@@ -135,8 +134,6 @@ public class AzureInvoiceCalculationService {
 
 		if (usageAggregateRecordList != null && !usageAggregateRecordList.isEmpty()) {
 			log.info("Processing {} usage records", usageAggregateRecordList.size());
-
-
 			usageAggregateRecordList = usageAggregateRecordList.stream().filter(e ->
 					matchProperStructure(e) && isBillableDlabResource(e))
 					.collect(Collectors.toList());
@@ -164,7 +161,6 @@ public class AzureInvoiceCalculationService {
 	}
 
 	private boolean matchProperStructure(UsageAggregateRecord record) {
-
 		if (record.getProperties() == null) {
 			return false;
 		}
@@ -181,13 +177,10 @@ public class AzureInvoiceCalculationService {
 
 	private boolean isBillableDlabResource(UsageAggregateRecord record) {
 		String dlabId = record.getProperties().getParsedInstanceData().getMicrosoftResources().getTags().get("Name");
-		return dlabId != null && !dlabId.isEmpty() && billableResources.containsKey(dlabId);
+		return dlabId != null && !dlabId.isEmpty() && dlabId.startsWith(billingConfigurationAzure.getSbn());
 	}
 
-	private AzureDailyResourceInvoice calculateInvoice(Map<String, Meter> rates, UsageAggregateRecord record,
-													   String dlabId) {
-
-		AzureDlabBillableResource azureDlabBillableResource = billableResources.get(dlabId);
+	private AzureDailyResourceInvoice calculateInvoice(Map<String, Meter> rates, UsageAggregateRecord record, String dlabId) {
 		String meterId = record.getProperties().getMeterId();
 		Meter rateCard = rates.get(meterId);
 
@@ -196,34 +189,25 @@ public class AzureInvoiceCalculationService {
 			if (meterRates != null) {
 				Double rate = meterRates.get(AzureRateCardClient.MAIN_RATE_KEY);
 				if (rate != null) {
-
-					AzureDailyResourceInvoice azureDailyResourceInvoice = new AzureDailyResourceInvoice
-                            (azureDlabBillableResource);
-					azureDailyResourceInvoice.setUsageStartDate(record.getProperties().getUsageStartTime());
-					azureDailyResourceInvoice.setUsageEndDate(record.getProperties().getUsageEndTime());
-					azureDailyResourceInvoice.setMeterCategory(record.getProperties().getMeterCategory());
-					azureDailyResourceInvoice.setCost(
-							BillingCalculationUtils.round(rate * record.getProperties().getQuantity(), 2));
-					azureDailyResourceInvoice.setDay(getDay(record.getProperties().getUsageStartTime()));
-					azureDailyResourceInvoice.setCurrencyCode(billingConfigurationAzure.getCurrency());
-
-					log.trace("Generated invoice for azure resource {}", azureDailyResourceInvoice);
-
-					return azureDailyResourceInvoice;
-
+					return AzureDailyResourceInvoice.builder()
+							.dlabId(dlabId)
+							.usageStartDate(getDay(record.getProperties().getUsageStartTime()))
+							.usageEndDate(getDay(record.getProperties().getUsageEndTime()))
+							.meterCategory(record.getProperties().getMeterCategory())
+							.cost(BillingCalculationUtils.round(rate * record.getProperties().getQuantity(), 3))
+							.day(getDay(record.getProperties().getUsageStartTime()))
+							.currencyCode(billingConfigurationAzure.getCurrency())
+							.build();
 				} else {
-					log.error("Rate Card {} has no rate for meter id {} and rate id {}. Skip record {}. Azure resource" +
-                                    " {}",
-							rateCard, meterId, AzureRateCardClient.MAIN_RATE_KEY, record, azureDlabBillableResource);
+					log.error("Rate Card {} has no rate for meter id {} and rate id {}. Skip record {}.",
+							rateCard, meterId, AzureRateCardClient.MAIN_RATE_KEY, record);
 				}
 			} else {
-				log.error("Rate Card {} has no meter rates fro meter id {}. Skip record {}. Azure resource {}",
-						rateCard, meterId, record, azureDlabBillableResource);
+				log.error("Rate Card {} has no meter rates fro meter id {}. Skip record {}",
+						rateCard, meterId, record);
 			}
 		} else {
-			log.error("Meter rate {} form usage aggregate is not found in rate card. Skip record {}.  Azure resource " +
-                            "{}",
-					meterId, record, azureDlabBillableResource);
+			log.error("Meter rate {} form usage aggregate is not found in rate card. Skip record {}.", meterId, record);
 		}
 
 		return null;
@@ -231,7 +215,6 @@ public class AzureInvoiceCalculationService {
 
 	private String getNewToken() {
 		try {
-
 			log.info("Requesting authentication token ... ");
 			ApplicationTokenCredentials applicationTokenCredentials = new ApplicationTokenCredentials(
 					billingConfigurationAzure.getClientId(),
@@ -247,7 +230,6 @@ public class AzureInvoiceCalculationService {
 	}
 
 	private String getDay(String dateTime) {
-
 		if (dateTime != null) {
 			String[] parts = dateTime.split("T");
 			if (parts.length == 2) {

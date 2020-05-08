@@ -19,13 +19,6 @@
 
 package com.epam.dlab.core.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.epam.dlab.core.AdapterBase;
 import com.epam.dlab.core.FilterBase;
 import com.epam.dlab.core.ModuleBase;
@@ -37,6 +30,12 @@ import com.epam.dlab.exceptions.ParseException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
+
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Abstract module of parser.<br>
  * See description of {@link ModuleBase} how to create your own parser.
@@ -234,13 +233,16 @@ public abstract class ParserBase extends ModuleBase {
 	 * @throws InitializationException
 	 */
 	public abstract void initialize()  throws InitializationException;
-	
-	/** Parse the source data to common format and write it to output adapter.
+
+	/**
+	 * Parse the source data to common format and write it to output adapter.
+	 *
+	 * @return
 	 * @throws InitializationException
 	 * @throws AdapterException
 	 * @throws ParseException
 	 */
-	public abstract void parse() throws InitializationException, AdapterException, ParseException;
+	public abstract List<Document> parse() throws InitializationException, AdapterException, ParseException;
 	
 	/** Build parser from given modules.
 	 * @param adapterIn the adapter for reading source data.

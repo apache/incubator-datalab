@@ -23,9 +23,12 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
@@ -70,17 +73,19 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	private RequestBuilder requestBuilder;
 	@Inject
 	private EndpointService endpointService;
+	@Inject
+	private ProjectService projectService;
 
 	@Override
-	public String createImage(UserInfo user, String exploratoryName, String imageName, String imageDescription) {
-
-		UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), exploratoryName);
+	public String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription) {
+		ProjectDTO projectDTO = projectService.get(project);
+		UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), project, exploratoryName);
 
 		if (imageExploratoryDao.exist(imageName, userInstance.getProject())) {
 			log.error(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
 			throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
 		}
-		final List<Library> libraries = libDAO.getLibraries(user.getName(), exploratoryName);
+		final List<Library> libraries = libDAO.getLibraries(user.getName(), project, exploratoryName);
 
 		imageExploratoryDao.save(Image.builder()
 				.name(imageName)
@@ -97,11 +102,14 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
 		exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
 				.withUser(user.getName())
+				.withProject(project)
 				.withExploratoryName(exploratoryName)
 				.withStatus(UserInstanceStatus.CREATING_IMAGE));
 
-		return provisioningService.post(endpointService.get(userInstance.getEndpoint()).getUrl() + ExploratoryAPI.EXPLORATORY_IMAGE, user.getAccessToken(),
-				requestBuilder.newExploratoryImageCreate(user, userInstance, imageName), String.class);
+		EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
+		return provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_IMAGE,
+				user.getAccessToken(),
+				requestBuilder.newExploratoryImageCreate(user, userInstance, imageName, endpointDTO, projectDTO), String.class);
 	}
 
 	@Override
@@ -110,13 +118,14 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 				exploratoryName, image.getUser());
 		exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
 				.withUser(image.getUser())
+				.withProject(image.getProject())
 				.withExploratoryName(exploratoryName)
 				.withStatus(UserInstanceStatus.RUNNING));
 		imageExploratoryDao.updateImageFields(image);
 		if (newNotebookIp != null) {
 			log.debug("Changing exploratory ip with name {} for user {} to {}", exploratoryName, image.getUser(),
 					newNotebookIp);
-			exploratoryDAO.updateExploratoryIp(image.getUser(), newNotebookIp, exploratoryName);
+			exploratoryDAO.updateExploratoryIp(image.getUser(), image.getProject(), newNotebookIp, exploratoryName);
 		}
 
 	}
@@ -127,8 +136,8 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	}
 
 	@Override
-	public ImageInfoRecord getImage(String user, String name) {
-		return imageExploratoryDao.getImage(user, name).orElseThrow(() ->
+	public ImageInfoRecord getImage(String user, String name, String project, String endpoint) {
+		return imageExploratoryDao.getImage(user, name, project, endpoint).orElseThrow(() ->
 				new ResourceNotFoundException(String.format(IMAGE_NOT_FOUND_MSG, name, user)));
 	}
 

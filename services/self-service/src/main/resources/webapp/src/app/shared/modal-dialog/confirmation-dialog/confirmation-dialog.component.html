@@ -23,16 +23,23 @@
       <span *ngIf="model.notebook.name && model.notebook.name !== 'edge node'">
         <span>{{ confirmationType ? 'Terminate' : 'Stop' }} notebook: {{ model.notebook.name }}</span>
       </span>
-      <span *ngIf="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'">
+      <span *ngIf="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node' || data.type === 4 && data.notebook.length">
         <i class="material-icons">priority_high</i>Warning
+      </span>
+      <span *ngIf="data.type === 4 && !data.notebook.length">
+        Update group data
       </span>
     </h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
     <div class="content-box">
-      <p class="info text-center">{{ model.title }}</p>
-
+      <p *ngIf="data.type !== 4" class="info text-center">{{ model.title }}</p>
+      <div *ngIf="data.type === 4" class="text-center m-bot-20">
+        <h3 class="strong">Group data will be updated.</h3>
+      </div>
+      <p *ngIf="data.type === 4 && data.notebook.length" class="text-center delete-user">User<span *ngIf="data.notebook.length>1">s</span>  <span class="strong"> {{data.notebook.join(', ')}} </span>will be deleted from this group.</p>
+<!--        All <span *ngIf="data.notebook.length===1">his</span><span *ngIf="data.notebook.length>1">their</span> resources authorized within this group will be terminated.-->
       <mat-list class="resources"
         [hidden]="model.notebook.type === 'Edge Node' || model.notebook.name === 'edge node'
                                   || !model.notebook.resources || model.notebook.resources.length === 0 || (!isAliveResources && !confirmationType) || onlyKilled">
@@ -48,17 +55,18 @@
             <div class="status" [ngClass]="{ 'stopped': !confirmationType && resource.image === 'docker.dlab-dataengine',
                   'terminated': resource.image === 'docker.dlab-dataengine-service' || confirmationType }">
               {{ (!confirmationType && resource.image === 'docker.dlab-dataengine') ? 'Stopped' : 'Terminated' }}</div>
-            <div class="size">{{ resource[DICTIONARY[resource.image].master_node_shape] }}</div>
+            <div class="size">{{ resource[DICTIONARY[notebook.cloud_provider.toLowerCase()][resource.image].master_node_shape] }} </div>
           </mat-list-item>
         </div>
       </mat-list>
 
       <div class="text-center m-top-20">
-        <p>Do you want to proceed?</p>
+        <p class="strong">Do you want to proceed?</p>
       </div>
       <div class="text-center m-top-20">
         <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">No</button>
-        <button mat-raised-button type="button" class="butt butt-success action" (click)="confirm()">Yes</button>
+        <button *ngIf="data.type !== 4" mat-raised-button type="button" class="butt butt-success action" (click)="confirm()">Yes</button>
+        <button *ngIf="data.type === 4" mat-raised-button type="button" class="butt butt-success action" (click)="dialogRef.close(true)">Yes</button>
       </div>
     </div>
   </div>

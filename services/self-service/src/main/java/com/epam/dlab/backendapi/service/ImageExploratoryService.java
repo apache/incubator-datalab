@@ -27,13 +27,13 @@ import java.util.List;
 
 public interface ImageExploratoryService {
 
-	String createImage(UserInfo user, String exploratoryName, String imageName, String imageDescription);
+    String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription);
 
-	void finishImageCreate(Image image, String exploratoryName, String newNotebookIp);
+    void finishImageCreate(Image image, String exploratoryName, String newNotebookIp);
 
-	List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project, String endpoint);
+    List<ImageInfoRecord> getNotFailedImages(String user, String dockerImage, String project, String endpoint);
 
-	ImageInfoRecord getImage(String user, String name);
+    ImageInfoRecord getImage(String user, String name, String project, String endpoint);
 
-	List<ImageInfoRecord> getImagesForProject(String project);
+    List<ImageInfoRecord> getImagesForProject(String project);
 }

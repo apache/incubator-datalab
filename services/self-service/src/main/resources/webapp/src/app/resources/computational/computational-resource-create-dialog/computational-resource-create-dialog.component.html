@@ -33,8 +33,8 @@
               <label class="label">Select cluster type</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-label>Select cluster type</mat-label>
-                  <mat-select formControlName="template_name" disableOptionCentering>
+<!--                  <mat-label>Select cluster type</mat-label>-->
+                  <mat-select formControlName="template_name" disableOptionCentering placeholder="Select cluster type">
                     <mat-option *ngFor="let type of clusterTypes" [value]="type.template_name"
                       (click)="selectImage(type)">{{ type.template_name }}</mat-option>
                     <mat-option *ngIf="!clusterTypes.length" class="multiple-select ml-10" disabled>Clusters types list
@@ -69,17 +69,18 @@
               <label class="label">Cluster alias</label>
               <div class="control">
                 <input
-                  [class.danger_field]="computationalResourceExist || !resourceForm?.controls['cluster_alias_name'].valid
+                  [class.danger_field]="!resourceForm?.controls['cluster_alias_name'].valid
                         && resourceForm?.controls['cluster_alias_name'].dirty && resourceForm?.controls['cluster_alias_name'].hasError('duplication')"
                   type="text" class="form-control" placeholder="Enter cluster alias"
                   formControlName="cluster_alias_name" />
-                <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('duplication')">This
-                  cluster name already exists.</span>
+                <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('user-duplication')">You have cluster with this name in current project.</span>
+                <span class="error" *ngIf="resourceForm?.controls['cluster_alias_name'].hasError('other-user-duplication')">Other user has cluster with this name in current project.</span>
                 <span class="error" *ngIf="!resourceForm?.controls.cluster_alias_name.valid
                                             && resourceForm?.controls['cluster_alias_name'].dirty
-                                            && !resourceForm?.controls['cluster_alias_name'].hasError('duplication')">
-                  Cluster name <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters
-                    and</span> can only contain letters, numbers, hyphens and '_' but can not end with special
+                                            && !resourceForm?.controls['cluster_alias_name'].hasError('user-duplication')
+                                            && !resourceForm?.controls['cluster_alias_name'].hasError('other-user-duplication')">
+                  Cluster name cannot be longer than {{DICTIONARY[PROVIDER].max_cluster_name_length}} characters
+                  and can only contain letters, numbers, hyphens and '_' but can not end with special
                   characters
                 </span>
               </div>
@@ -88,7 +89,7 @@
 
           <div class="col">
             <div class="control-group" *ngIf="selectedImage?.image">
-              <label class="label">{{ DICTIONARY[selectedImage.image].instance_number }}</label>
+              <label class="label">Total instance number</label>
               <div class="control">
                 <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}"
                   formControlName="instance_number" (keypress)="CheckUtils.isNumberKey($event)" />
@@ -100,10 +101,10 @@
             </div>
 
             <div class="control-group" *ngIf="selectedImage?.image">
-              <label class="label">{{ DICTIONARY[selectedImage.image].data_engine_master_instance_size }}</label>
+              <label class="label">Master instance size</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-label>Select {{ DICTIONARY.notebook_instance_size }}</mat-label>
+                  <mat-label>Select instance size</mat-label>
                   <mat-select formControlName="shape_master" disableOptionCentering>
                     <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
                       [label]="item.key | underscoreless">
@@ -121,10 +122,10 @@
 
             <div class="control-group" *ngIf="selectedImage?.image"
               [hidden]="selectedImage?.image === 'docker.dlab-dataengine'">
-              <label class="label">{{ DICTIONARY[selectedImage.image].data_engine_slave_instance_size }}</label>
+              <label class="label">Slave instance size</label>
               <div class="control selector-wrapper">
                 <mat-form-field>
-                  <mat-label>Select {{ DICTIONARY.notebook_instance_size }}</mat-label>
+                  <mat-label>Select instance size</mat-label>
                   <mat-select formControlName="shape_slave" disableOptionCentering>
                     <mat-optgroup *ngFor="let item of (selectedImage.computation_resources_shapes | keys)"
                       [label]="item.key | underscoreless">
@@ -194,7 +195,7 @@
           </label>
           <div class="config-link" *ngIf="(configuration?.nativeElement['checked'] || false)
             && selectedImage?.image === 'docker.dlab-dataengine-service'
-            && DICTIONARY.cloud_provider === 'aws'">
+            && PROVIDER === 'aws'">
             To view example JSON of configurations refer for <a
               href="https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-configure-apps.html" target="_blank">AWS
               official documentation</a>
@@ -219,7 +220,7 @@
         </div>
         <div class="text-center m-top-30">
           <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
-          <button mat-raised-button type="button" [disabled]="!resourceForm?.valid || 
+          <button mat-raised-button type="button" [disabled]="!resourceForm?.valid ||
               (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.shape_slave) ||
               (selectedImage?.image === 'docker.dlab-dataengine-service' && !resourceForm.value.version)"
             (click)="createComputationalResource(resourceForm.value)" class="butt butt-success action"
@@ -231,8 +232,8 @@
 
     </div>
     <ng-template #placeholder>
-      <div *ngIf="!loading" class="info message">Computational resource creations are not available.<br>Please, check
-        your permissions.</div>
+      <div *ngIf="!loading && !clusterTypes?.length" class="info message">
+        Computational resource creations are not available.<br>Please, check your permissions.</div>
       <div *ngIf="loading" class="info message">
         Computational resource data is processing
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>

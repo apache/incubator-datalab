@@ -19,8 +19,12 @@
 
 <div class="manage-roles base-retreat">
   <div class="sub-nav">
-    <div>
-      <button mat-raised-button class="butt add-group" (click)="stepperView = !stepperView">
+    <div matTooltip="Only admin can add group."
+         matTooltipPosition="above"
+         [matTooltipDisabled]="healthStatus?.admin"
+    >
+      <button mat-raised-button class="butt add-group" (click)="stepperView = !stepperView" [disabled]="!healthStatus?.admin"
+              >
         <i class="material-icons">people_outline</i>Add group
       </button>
     </div>
@@ -29,10 +33,10 @@
 
   <mat-card *ngIf="stepperView" class="m-top-10">
     <mat-horizontal-stepper #stepper class="stepper ani">
-      <mat-step>
+      <mat-step [completed]='false'>
         <ng-template matStepLabel>Groups</ng-template>
         <div class="inner-step mat-reset">
-          <input [validator]="groupValidarion()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup"
+          <input [validator]="groupValidation()" type="text" placeholder="Enter group name" [(ngModel)]="setupGroup"
             #setupGroupName="ngModel">
           <div class="error" *ngIf="setupGroupName.errors?.patterns && setupGroupName.dirty">Group name can only
             contain letters, numbers, hyphens and '_'</div>
@@ -45,7 +49,8 @@
               class="material-icons">keyboard_arrow_right</i></button>
         </div>
       </mat-step>
-      <mat-step>
+
+      <mat-step [completed]='false'>
         <ng-template matStepLabel>Users</ng-template>
         <div class="inner-step mat-reset">
           <input type="text" placeholder="Enter user login" [(ngModel)]="setupUser">
@@ -58,29 +63,19 @@
               class="material-icons">keyboard_arrow_right</i></button>
         </div>
       </mat-step>
-      <mat-step>
+
+      <mat-step [completed]='false'>
         <ng-template matStepLabel>Roles</ng-template>
         <div class="inner-step mat-reset roles">
           <div class="selector-wrapper">
-            <mat-form-field>
-              <mat-select multiple [compareWith]="compareObjects" name="roles" [(value)]="setupRoles"
-                disableOptionCentering placeholder="Select roles">
-                <mat-option class="multiple-select" disabled>
-                  <a class="select ani" (click)="selectAllOptions(setupRoles, rolesList)">
-                    <i class="material-icons">playlist_add_check</i>&nbsp;All
-                  </a>
-                  <a class="deselect ani" (click)="selectAllOptions(setupRoles)">
-                    <i class="material-icons">clear</i>&nbsp;None
-                  </a>
-                </mat-option>
-                <mat-option *ngFor="let role of rolesList" [value]="role">
-                  {{ role }}
-                </mat-option>
-              </mat-select>
-              <button class="caret">
-                <i class="material-icons">keyboard_arrow_down</i>
-              </button>
-            </mat-form-field>
+            <multi-level-select-dropdown
+              (selectionChange)="onUpdate($event)"
+              name="roles"
+              [items]="rolesList"
+              [model]="setupRoles"
+              [isAdmin]="healthStatus?.admin"
+            >
+            </multi-level-select-dropdown>
           </div>
         </div>
         <div class="text-center m-bott-10">
@@ -88,9 +83,10 @@
               class="material-icons">keyboard_arrow_left</i>Back</button>
           <button mat-raised-button (click)="resetDialog()" class="butt">Cancel</button>
           <button mat-raised-button (click)="manageAction('create', 'group')" class="butt butt-success"
-            [disabled]="!setupGroup || setupGroupName.errors?.patterns || setupGroupName.errors?.duplicate || !setupRoles.length > 0">Create</button>
+            [disabled]="!setupGroup || setupGroupName.errors?.patterns || setupGroupName.errors?.duplicate || !setupRoles.length">Create</button>
         </div>
       </mat-step>
+
     </mat-horizontal-stepper>
   </mat-card>
   <mat-divider></mat-divider>
@@ -106,27 +102,14 @@
         <th mat-header-cell *matHeaderCellDef class="roles"> Roles </th>
         <td mat-cell *matCellDef="let element" class="roles">
           <div class="inner-step mat-reset">
-            <div class="selector-wrapper-edit">
-              <mat-form-field class="select">
-                <mat-select multiple [compareWith]="compareObjects" name="selected_roles" disableOptionCentering
-                  [(value)]="element.selected_roles" placeholder="Select roles" class="roles-select">
-                  <mat-option class="multiple-select" disabled>
-                    <a class="select ani" (click)="selectAllOptions(element, rolesList, 'selected_roles')">
-                      <i class="material-icons">playlist_add_check</i>&nbsp;All
-                    </a>
-                    <a class="deselect ani" (click)="selectAllOptions(element, null, 'selected_roles')">
-                      <i class="material-icons">clear</i>&nbsp;None
-                    </a>
-                  </mat-option>
-                  <mat-option *ngFor="let role of rolesList" [value]="role">
-                    {{ role }}
-                  </mat-option>
-                </mat-select>
-                <button class="caret">
-                  <i class="material-icons">keyboard_arrow_down</i>
-                </button>
-              </mat-form-field>
-            </div>
+              <multi-level-select-dropdown
+                (selectionChange)="onUpdate($event)"
+                [type]="element.group"
+                [items]="rolesList"
+                [model]="element.selected_roles"
+                [isAdmin]="healthStatus?.admin"
+              >
+              </multi-level-select-dropdown>
           </div>
         </td>
       </ng-container>
@@ -155,15 +138,29 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef class="actions"></th>
         <td mat-cell *matCellDef="let element" class="actions">
-          <span (click)="manageAction('delete', 'group', element)" class="reset ani">
-            <mat-icon>delete_forever</mat-icon>
-          </span>
-          <span class="apply ani" matTooltip="Group cannot be updated without any selected role"
-            matTooltipPosition="above" [matTooltipDisabled]="element.selected_roles.length > 0"
-            [ngClass]="{ 'not-allowed' : !element.selected_roles.length }"
-            (click)="manageAction('update', 'group', element)">
-            <mat-icon>done</mat-icon>
-          </span>
+          <div class="actions-wrapper">
+            <span class="action-disabled"
+              matTooltip="Only admin can delete group."
+              matTooltipPosition="above"
+              [matTooltipDisabled]="healthStatus?.admin"
+            >
+              <span
+                (click)="manageAction('delete', 'group', element)"
+                class="reset ani"
+                [ngClass]="{ 'not-allowed' : !healthStatus?.admin}"
+
+              >
+              <mat-icon >delete_forever</mat-icon>
+            </span>
+            </span>
+
+            <span class="apply ani big-icon" matTooltip="Group cannot be updated without any selected role"
+              matTooltipPosition="above" [matTooltipDisabled]="element.selected_roles.length > 0"
+              [ngClass]="{ 'not-allowed' : !element.selected_roles.length || isGroupChanded(element)}"
+              (click)="manageAction('update', 'group', element)">
+              <mat-icon [ngClass]="{'big-icon': !isGroupChanded(element) && element.selected_roles.length}">done</mat-icon>
+            </span>
+          </div>
         </td>
       </ng-container>
 

@@ -50,7 +50,7 @@ parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
 parser.add_argument('--endpoint_url', type=str, default='')
-parser.add_argument('--ip_adress', type=str, default='')
+parser.add_argument('--ip_address', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
 parser.add_argument('--edge_ip', type=str, default='')
 args = parser.parse_args()
@@ -67,7 +67,7 @@ if args.region == 'cn-north-1':
 else:
     spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
-zeppelin_interpreters = "md,python,livy,shell"
+zeppelin_interpreters = "md,python,shell"
 python3_version = "3.4"
 local_spark_path = '/opt/spark/'
 templates_dir = '/root/templates/'
@@ -88,7 +88,9 @@ def configure_zeppelin(os_user):
             sudo('cp /opt/zeppelin/conf/zeppelin-site.xml.template /opt/zeppelin/conf/zeppelin-site.xml')
             sudo('sed -i \"/# export ZEPPELIN_PID_DIR/c\export ZEPPELIN_PID_DIR=/var/run/zeppelin\" /opt/zeppelin/conf/zeppelin-env.sh')
             sudo('sed -i \"/# export ZEPPELIN_IDENT_STRING/c\export ZEPPELIN_IDENT_STRING=notebook\" /opt/zeppelin/conf/zeppelin-env.sh')
+            sudo('sed -i \"/# export ZEPPELIN_INTERPRETER_DEP_MVNREPO/c\export ZEPPELIN_INTERPRETER_DEP_MVNREPO=https://repo1.maven.org/maven2\" /opt/zeppelin/conf/zeppelin-env.sh')
             sudo('sed -i \"/# export SPARK_HOME/c\export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+            sudo('sed -i \'s/127.0.0.1/0.0.0.0/g\' /opt/zeppelin/conf/zeppelin-site.xml')
             sudo('mkdir /var/log/zeppelin')
             sudo('mkdir /var/run/zeppelin')
             sudo('ln -s /var/log/zeppelin /opt/zeppelin-' + zeppelin_version + '-bin-netinst/logs')
@@ -97,6 +99,8 @@ def configure_zeppelin(os_user):
             sudo('chown ' + os_user + ':' + os_user + ' -R /var/run/zeppelin')
             sudo('/opt/zeppelin/bin/install-interpreter.sh --name ' + zeppelin_interpreters + ' --proxy-url $http_proxy')
             sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin-' + zeppelin_version + '-bin-netinst')
+            sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/md/zeppelin-markdown-*.jar /opt/zeppelin/lib/interpreter/') # necessary when executing paragraph launches java process with "-cp :/opt/zeppelin/lib/interpreter/*:"
+            sudo('cp /opt/zeppelin-' + zeppelin_version + '-bin-netinst/interpreter/shell/zeppelin-shell-*.jar /opt/zeppelin/lib/interpreter/')
         except:
             sys.exit(1)
         try:
@@ -252,7 +256,7 @@ if __name__ == "__main__":
 
     # INSTALL INACTIVITY CHECKER
     print("Install inactivity checker")
-    install_inactivity_checker(args.os_user, args.ip_adress)
+    install_inactivity_checker(args.os_user, args.ip_address)
 
     # INSTALL OPTIONAL PACKAGES
     if os.environ['notebook_r_enabled'] == 'true':

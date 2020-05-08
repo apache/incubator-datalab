@@ -42,13 +42,15 @@ public class CloudConfiguration {
 	private final String ssnStorageAccountTagName;
 	private final String sharedStorageAccountTagName;
 	private final String datalakeTagName;
+	private final String azureAuthFile;
 	private final String azureClientId;
 	private final String peeringId;
 	private final String gcpProjectId;
 	private final boolean imageEnabled;
-	private final boolean sharedImageEnabled;
 	@JsonProperty("ldap")
 	private final LdapConfig ldapConfig;
+	private final StepCerts stepCerts;
+	private final Keycloak keycloak;
 
 	@Data
 	public static class LdapConfig {
@@ -57,5 +59,25 @@ public class CloudConfiguration {
 		private final String ou;
 		private final String user;
 		private final String password;
+	}
+
+	@Data
+	public static class StepCerts {
+		private final boolean enabled;
+		private final String rootCA;
+		private final String kid;
+		private final String kidPassword;
+		private final String caURL;
+	}
+
+	@Data
+	public static class Keycloak {
+		@JsonProperty("auth_server_url")
+		private final String authServerUrl;
+		@JsonProperty("realm_name")
+		private final String realmName;
+		private final String user;
+		@JsonProperty("user_password")
+		private final String userPassword;
 	}
 }

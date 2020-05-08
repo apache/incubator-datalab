@@ -23,7 +23,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { UserResourceService } from '../../../core/services';
-import { HTTP_STATUS_CODES } from '../../../core/util';
+import {HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
@@ -35,8 +35,7 @@ export class AmiCreateDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   public notebook: any;
   public createAMIForm: FormGroup;
-
-  namePattern = '[-_a-zA-Z0-9]+';
+  public provider: string;
   delimitersRegex = /[-_]?/g;
   imagesList: any;
 
@@ -49,40 +48,31 @@ export class AmiCreateDialogComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this._userResource.getImagesList().subscribe(res => this.imagesList = res);
-    this.open(this.data);
-  }
-
-  public open(notebook): void {
-    this.notebook = notebook;
+    this.notebook = this.data;
+    this.provider = this.data.cloud_provider;
 
     this.initFormModel();
-    this._userResource.getImagesList().subscribe(res => this.imagesList = res);
+    this._userResource.getImagesList(this.data.project).subscribe(res => this.imagesList = res);
   }
 
   public assignChanges(data) {
     this._userResource.createAMI(data).subscribe(
-      response => {
-        if (response.status === HTTP_STATUS_CODES.ACCEPTED) this.dialogRef.close();
-      },
-      error => this.toastr.error(error.message || `${DICTIONARY.image.toLocaleUpperCase()} creation failed!`, 'Oops!'));
+      response => response.status === HTTP_STATUS_CODES.ACCEPTED && this.dialogRef.close(),
+      error => this.toastr.error(error.message || `Image creation failed!`, 'Oops!'));
   }
 
   private initFormModel(): void {
     this.createAMIForm = this._fb.group({
-      name: ['', [Validators.required, Validators.pattern(this.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
+      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
       description: [''],
-      exploratory_name: [this.notebook.name]
+      exploratory_name: [this.notebook.name],
+      project_name: [this.notebook.project]
     });
   }
 
   private providerMaxLength(control) {
-    if (DICTIONARY.cloud_provider !== 'aws')
+    if (control && control.value)
       return control.value.length <= 10 ? null : { valid: false };
-  }
-
-  private delimitersFiltering(resource): string {
-    return resource.replace(this.delimitersRegex, '').toString().toLowerCase();
   }
 
   private checkDuplication(control) {
@@ -96,5 +86,9 @@ export class AmiCreateDialogComponent implements OnInit {
         return true;
     }
     return false;
+  }
+
+  private delimitersFiltering(resource): string {
+    return resource.replace(this.delimitersRegex, '').toString().toLowerCase();
   }
 }

@@ -24,9 +24,10 @@
 import json
 import time
 from fabric.api import *
-from dlab.fab import *
-from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.fab
+import dlab.actions_lib
+import dlab.meta_lib
+import traceback
 import sys
 import os
 import uuid
@@ -37,7 +38,7 @@ import multiprocessing
 
 def configure_slave(slave_number, data_engine):
     slave_name = data_engine['slave_node_name'] + '{}'.format(slave_number + 1)
-    slave_hostname = GCPMeta().get_private_ip_address(slave_name)
+    slave_hostname = GCPMeta.get_private_ip_address(slave_name)
     try:
         logging.info('[CREATING DLAB SSH USER ON SLAVE NODE]')
         print('[CREATING DLAB SSH USER ON SLAVE NODE]')
@@ -51,18 +52,14 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        append_result("Failed to create ssh user on slave.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to create ssh user on slave.", str(err))
         sys.exit(1)
 
     try:
         print('[INSTALLING USERs KEY ON SLAVE NODE]')
         logging.info('[INSTALLING USERs KEY ON SLAVE NODE]')
-        additional_config = {"user_keyname": os.environ['project_name'],
+        additional_config = {"user_keyname": data_engine['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(
@@ -70,15 +67,11 @@ def configure_slave(slave_number, data_engine):
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
-            append_result("Failed installing users key")
+            dlab.fab.append_result("Failed installing users key")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        append_result("Failed to install ssh user key on slave.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to install ssh user key on slave.", str(err))
         sys.exit(1)
 
     try:
@@ -94,12 +87,8 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        append_result("Failed to configure proxy on slave.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to configure proxy on slave.", str(err))
         sys.exit(1)
 
     try:
@@ -114,13 +103,8 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing apps: apt & pip.", str(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        append_result("Failed to install prerequisites on slave.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to install prerequisites on slave.", str(err))
         sys.exit(1)
 
     try:
@@ -138,14 +122,16 @@ def configure_slave(slave_number, data_engine):
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed configuring slave node", str(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        append_result("Failed to configure slave node.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to configure slave node.", str(err))
         sys.exit(1)
+
+
+def clear_resources():
+    for i in range(data_engine['instance_count'] - 1):
+        slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+        GCPActions.remove_instance(slave_name, data_engine['zone'])
+    GCPActions.remove_instance(data_engine['master_node_name'], data_engine['zone'])
 
 
 if __name__ == "__main__":
@@ -157,12 +143,15 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         print('Generating infrastructure names and tags')
         data_engine = dict()
-        data_engine['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
-        data_engine['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
-        data_engine['project_name'] = (os.environ['project_name']).lower().replace('_', '-')
-        data_engine['endpoint_tag'] = os.environ['endpoint_name'].lower().replace('_', '-')
+        data_engine['service_base_name'] = (os.environ['conf_service_base_name'])
+        data_engine['edge_user_name'] = (os.environ['edge_user_name'])
+        data_engine['project_name'] = (os.environ['project_name']).replace('_', '-').lower()
+        data_engine['endpoint_name'] = os.environ['endpoint_name'].replace('_', '-').lower()
+        data_engine['endpoint_tag'] = data_engine['endpoint_name']
         data_engine['region'] = os.environ['gcp_region']
         data_engine['zone'] = os.environ['gcp_zone']
         try:
@@ -171,24 +160,26 @@ if __name__ == "__main__":
             else:
                 data_engine['vpc_name'] = os.environ['gcp_vpc_name']
         except KeyError:
-            data_engine['vpc_name'] = '{}-ssn-vpc'.format(data_engine['service_base_name'])
-        try:
-            data_engine['exploratory_name'] = (os.environ['exploratory_name']).lower().replace('_', '-')
-        except:
+            data_engine['vpc_name'] = '{}-vpc'.format(data_engine['service_base_name'])
+        if 'exploratory_name' in os.environ:
+            data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-').lower()
+        else:
             data_engine['exploratory_name'] = ''
-        try:
-            data_engine['computational_name'] = os.environ['computational_name'].lower().replace('_', '-')
-        except:
+        if 'computational_name' in os.environ:
+            data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-').lower()
+        else:
             data_engine['computational_name'] = ''
 
-        data_engine['subnet_name'] = '{0}-{1}-subnet'.format(data_engine['service_base_name'],
-                                                             data_engine['project_name'])
+        data_engine['subnet_name'] = '{0}-{1}-{2}-subnet'.format(data_engine['service_base_name'],
+                                                                 data_engine['project_name'],
+                                                                 data_engine['endpoint_name'])
         data_engine['master_size'] = os.environ['gcp_dataengine_master_size']
         data_engine['slave_size'] = os.environ['gcp_dataengine_slave_size']
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], data_engine['key_name'])
-        data_engine['dataengine_service_account_name'] = '{}-{}-ps'.format(data_engine['service_base_name'],
-                                                                           data_engine['project_name'])
+        data_engine['dataengine_service_account_name'] = '{}-{}-{}-ps-sa'.format(data_engine['service_base_name'],
+                                                                                 data_engine['project_name'],
+                                                                                 data_engine['endpoint_name'])
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -196,9 +187,10 @@ if __name__ == "__main__":
         if os.environ['conf_os_family'] == 'redhat':
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['project_name'] + \
-                                      '-de-' + data_engine['exploratory_name'] + '-' + \
-                                      data_engine['computational_name']
+        data_engine['cluster_name'] = "{}-{}-{}-de-{}".format(data_engine['service_base_name'],
+                                                              data_engine['project_name'],
+                                                              data_engine['endpoint_name'],
+                                                              data_engine['computational_name'])
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
@@ -206,23 +198,19 @@ if __name__ == "__main__":
         data_engine['gpu_accelerator_type'] = 'None'
         if os.environ['application'] in ('tensor', 'deeplearning'):
             data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
-        data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
-                                                         data_engine['project_name'])
-        master_node_hostname = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
+        data_engine['network_tag'] = '{0}-{1}-{2}-ps'.format(data_engine['service_base_name'],
+                                                             data_engine['project_name'],
+                                                             data_engine['endpoint_name'])
+        master_node_hostname = GCPMeta.get_private_ip_address(data_engine['master_node_name'])
         edge_instance_name = '{0}-{1}-{2}-edge'.format(data_engine['service_base_name'],
                                                        data_engine['project_name'], data_engine['endpoint_tag'])
-        edge_instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_instance_name)
-        edge_instance_private_ip = GCPMeta().get_private_ip_address(edge_instance_name)
+        edge_instance_hostname = GCPMeta.get_instance_public_ip_by_name(edge_instance_name)
+        edge_instance_private_ip = GCPMeta.get_private_ip_address(edge_instance_name)
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        print("Failed to generate variables dictionary.")
-        append_result("Failed to generate variables dictionary.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     try:
@@ -238,33 +226,26 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        append_result("Failed to create ssh user on master.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to create ssh user on master.", str(err))
         sys.exit(1)
 
     try:
         print('[INSTALLING USERs KEY ON MASTER NODE]')
         logging.info('[INSTALLING USERs KEY ON MASTER NODE]')
-        additional_config = {"user_keyname": os.environ['project_name'],
+        additional_config = {"user_keyname": data_engine['project_name'],
                              "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", json.dumps(additional_config), data_engine['dlab_ssh_user'])
+            master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem",
+            json.dumps(additional_config), data_engine['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
-            append_result("Failed installing users key")
+            dlab.fab.append_result("Failed installing users key")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        append_result("Failed to install ssh user on master.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to install ssh user on master.", str(err))
         sys.exit(1)
 
     try:
@@ -280,12 +261,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        append_result("Failed to configure proxy on master.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to configure proxy on master.", str(err))
         sys.exit(1)
 
     try:
@@ -300,13 +277,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed installing apps: apt & pip.", str(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
-        append_result("Failed to install prerequisites on master.", str(err))
+        clear_resources()
+        dlab.fab.append_result("Failed to install prerequisites on master.", str(err))
         sys.exit(1)
 
     try:
@@ -324,12 +296,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        append_result("Failed to configure master node", str(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        dlab.fab.append_result("Failed to configure master node", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
@@ -344,17 +312,14 @@ if __name__ == "__main__":
             if job.exitcode != 0:
                 raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        dlab.fab.append_result("Failed to configure slave nodes", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
         print('[SETUP EDGE REVERSE PROXY TEMPLATE]')
         logging.info('[SETUP EDGE REVERSE PROXY TEMPLATE]')
-        notebook_instance_ip = GCPMeta().get_private_ip_address(data_engine['notebook_name'])
+        notebook_instance_ip = GCPMeta.get_private_ip_address(data_engine['notebook_name'])
         additional_info = {
             "computational_name": data_engine['computational_name'],
             "master_node_hostname": master_node_hostname,
@@ -379,20 +344,17 @@ if __name__ == "__main__":
         try:
             local("~/scripts/{}.py {}".format('common_configure_reverse_proxy', params))
         except:
-            append_result("Failed edge reverse proxy template")
+            dlab.fab.append_result("Failed edge reverse proxy template")
             raise Exception
     except Exception as err:
-        print('Error: {0}'.format(err))
-        for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            GCPActions().remove_instance(slave_name, data_engine['zone'])
-        GCPActions().remove_instance(data_engine['master_node_name'], data_engine['zone'])
+        dlab.fab.append_result("Failed to configure reverse proxy", str(err))
+        clear_resources()
         sys.exit(1)
 
     try:
-        ip_address = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
+        ip_address = GCPMeta.get_private_ip_address(data_engine['master_node_name'])
         spark_master_url = "http://" + ip_address + ":8080"
-        spark_master_acces_url = "http://" + edge_instance_hostname + "/{}/".format(
+        spark_master_access_url = "https://" + edge_instance_hostname + "/{}/".format(
             data_engine['exploratory_name'] + '_' + data_engine['computational_name'])
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
@@ -409,13 +371,14 @@ if __name__ == "__main__":
                    "Action": "Create new Data Engine",
                    "computational_url": [
                        {"description": "Apache Spark Master",
-                        "url": spark_master_acces_url},
+                        "url": spark_master_access_url},
                        # {"description": "Apache Spark Master (via tunnel)",
                        # "url": spark_master_url}
                    ]
                    }
             print(json.dumps(res))
             result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
+    except Exception as err:
+        dlab.fab.append_result("Error with writing results", str(err))
+        clear_resources()
+        sys.exit(1)

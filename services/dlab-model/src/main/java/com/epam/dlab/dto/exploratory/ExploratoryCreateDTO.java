@@ -41,6 +41,8 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 	private Map<String, String> tags;
 	@JsonProperty("endpoint_name")
 	private String endpoint;
+	@JsonProperty("conf_shared_image_enabled")
+	private String sharedImageEnabled;
 
 	/**
 	 * Return the list of GIT credentials.
@@ -82,6 +84,11 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 		return self;
 	}
 
+	public T withSharedImageEnabled(String sharedImageEnabled) {
+		this.sharedImageEnabled = sharedImageEnabled;
+		return self;
+	}
+
 	public String getImageName() {
 		return imageName;
 	}
@@ -101,6 +108,14 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 
 	public void setEndpoint(String endpoint) {
 		this.endpoint = endpoint;
+	}
+
+	public String getSharedImageEnabled() {
+		return sharedImageEnabled;
+	}
+
+	public void setSharedImageEnabled(String sharedImageEnabled) {
+		this.sharedImageEnabled = sharedImageEnabled;
 	}
 
 	public List<ClusterConfig> getClusterConfig() {

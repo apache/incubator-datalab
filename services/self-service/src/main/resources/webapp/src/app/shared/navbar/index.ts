@@ -25,6 +25,7 @@ import { ProgressDialogModule, BubbleModule } from '../index';
 
 import { NavbarComponent } from './navbar.component';
 import { NotificationDialogModule } from '../modal-dialog/notification-dialog';
+import {EdgeActionDialogModule} from "../modal-dialog/edge-action-dialog";
 
 export * from './navbar.component';
 
@@ -34,8 +35,9 @@ export * from './navbar.component';
     RouterModule,
     MaterialModule,
     NotificationDialogModule,
+    EdgeActionDialogModule,
     ProgressDialogModule,
-    BubbleModule
+    BubbleModule,
   ],
   declarations: [NavbarComponent],
   exports: [NavbarComponent, RouterModule]

@@ -35,6 +35,7 @@ import { CLUSTER_CONFIGURATION } from '../../computational/computational-resourc
 
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+  readonly PROVIDER = this.data.cloud_provider;
   notebook: any;
   upTimeInHours: number;
   upTimeSince: string = '';
@@ -75,7 +76,7 @@ export class DetailDialogComponent implements OnInit {
 
   public getClusterConfiguration(): void {
     this.dataengineConfigurationService
-      .getExploratorySparkConfiguration(this.notebook.name)
+      .getExploratorySparkConfiguration(this.notebook.project, this.notebook.name)
       .subscribe(
         (result: any) => this.config = result,
         error => this.toastr.error(error.message || 'Configuration loading failed!', 'Oops!'));
@@ -94,7 +95,7 @@ export class DetailDialogComponent implements OnInit {
 
   public editClusterConfiguration(data): void {
     this.dataengineConfigurationService
-      .editExploratorySparkConfiguration(data.configuration_parameters, this.notebook.name)
+      .editExploratorySparkConfiguration(data.configuration_parameters, this.notebook.project, this.notebook.name)
       .subscribe(result => {
         this.dialogRef.close();
       },

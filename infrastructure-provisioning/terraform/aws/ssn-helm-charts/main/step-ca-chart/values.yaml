@@ -1,0 +1,124 @@
+# *****************************************************************************
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# ******************************************************************************
+
+# Default values for step-certificates.
+
+# replicaCount is the number of replicas of step-certificates.
+# Only one replica is supported at this time.
+replicaCount: 1
+
+# nameOverride overrides the name of the chart.
+nameOverride: ""
+# fullnameOverride overrides the full name of the chart.
+fullnameOverride: ""
+
+# image contains the docker image for step-certificates.
+image:
+  repository: smallstep/step-ca
+  tag: 0.13.2
+  pullPolicy: IfNotPresent
+
+# bootstrapImage contains the docker image for the bootstrap of the configuration.
+bootstrapImage:
+  repository: smallstep/step-ca-bootstrap
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# service contains configuration for the kubernetes service.
+service:
+  type: NodePort
+  nodePort: 32433
+  port: 443
+  targetPort: 9000
+
+# ca contains the certificate authority configuration.
+ca:
+  # name is new public key infrastructure (PKI) names.
+  name: dlab-step-ca
+  # address is the HTTP listener address of step-certificates.
+  address: :9000
+  # dns is the comma separated dns names to use. Leave it empty to use the format:
+  # {include "step-certificates.fullname" .}.{ .Release.Namespace}.svc.cluster.local,127.0.0.1
+  dns: ${ssn_k8s_nlb_dns_name}
+  # url is the http url where step-certificates will listen at. Leave it empty to use the format
+  # https://{{ include "step-certificates.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+  url: https://${ssn_k8s_nlb_dns_name}
+  # password is the password used to encrypt the keys. Leave it empty to generate a random one.
+  password: ${step_ca_password}
+  # provisioner contains the step-certificates provisioner configuration.
+  provisioner:
+    # name is the new provisioner name.
+    name: admin
+    # password is the password used to encrypt the provisioner private key.
+    password: ${step_ca_provisioner_password}
+  # db contains the step-certificate dataabase configuration.
+  db:
+    # enabled defines if the database is enabled.
+    enabled: true
+    # persistent defines if a Persistent Volume Claim is used, if false and emptyDir will be used.
+    persistent: true
+    # storeageClass is Persistent Volume Storage Class
+    # If defined, storageClassName: <storageClass>.
+    # If set to "-", storageClassName: "", which disables dynamic provisioning.
+    # If undefined or set to null, no storageClassName spec is set, choosing the
+    # default provisioner (gp2 on AWS, standard on GKE, AWS & OpenStack).
+    storageClass: ${storage_class_name}
+    # accessModes defines the Persistent Volume Access Mode.
+    accessModes:
+      - ReadWriteOnce
+    # size is the Persistent Volume size.
+    size: 10Gi
+  # runAsRoot runs the ca as root instead of the step user. This is required in
+  # some storage provisioners.
+  runAsRoot: false
+
+# autocert is used to configure the autocert chart that depends on step-certificates.
+autocert:
+  enabled: false
+
+# ingress contains the configuration for an ingress controller.
+ingress:
+  enabled: false
+  annotations: {}
+  hosts: []
+  tls: []
+
+# resources contains the CPU/memory resource requests/limits.
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+#   memory: 128Mi
+
+# nodeSelector contains the node labels for pod assignment.
+nodeSelector: {}
+
+# tolerations contains the toleration labels for pod assignment.
+tolerations: []
+
+# affinity contains the affinity settings for pod assignment.
+affinity: {}

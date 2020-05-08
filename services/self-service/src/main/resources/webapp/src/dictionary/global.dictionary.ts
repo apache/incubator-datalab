@@ -19,8 +19,45 @@
 
 // from './{{ aws | gcp | azure }}.dictionary';
 
-import { NAMING_CONVENTION } from './CLOUD_PROVIDER.dictionary';
+import { NAMING_CONVENTION_AWS } from './aws.dictionary';
+import { NAMING_CONVENTION_GCP } from './gcp.dictionary';
+import { NAMING_CONVENTION_AZURE } from './azure.dictionary';
 
-export * from './CLOUD_PROVIDER.dictionary';
+export const DICTIONARY = Object.freeze({
+  aws: NAMING_CONVENTION_AWS,
+  gcp: NAMING_CONVENTION_GCP,
+  azure: NAMING_CONVENTION_AZURE
+});
 
-export const DICTIONARY = Object.freeze(NAMING_CONVENTION);
+export class ReportingConfigModel {
+
+  static getDefault(): ReportingConfigModel {
+    return new ReportingConfigModel([], [], [], [], [], '', '', '', []);
+  }
+
+  constructor(
+    public users: Array<string>,
+    public products: Array<string>,
+    public resource_type: Array<string>,
+    public statuses: Array<string>,
+    public shapes: Array<string>,
+    public date_start: string,
+    public date_end: string,
+    public dlab_id: string,
+    public projects: Array<string>
+  ) { }
+
+  defaultConfigurations(): void {
+    this.users = [];
+    this.products = [];
+    this.resource_type = [];
+    this.statuses = [];
+    this.shapes = [];
+    this.date_start = '';
+    this.date_end = '';
+    this.dlab_id = '';
+    this.projects = [];
+  }
+}
+
+

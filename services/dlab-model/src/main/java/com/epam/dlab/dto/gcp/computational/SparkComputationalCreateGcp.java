@@ -37,6 +37,8 @@ public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputat
 	private String dataEngineMasterSize;
 	@JsonProperty("spark_configurations")
 	private List<ClusterConfig> config;
+	@JsonProperty("conf_shared_image_enabled")
+	private String sharedImageEnabled;
 
 	public SparkComputationalCreateGcp withDataEngineInstanceCount(String dataEngineInstanceCount) {
 		this.dataEngineInstanceCount = dataEngineInstanceCount;
@@ -55,6 +57,11 @@ public class SparkComputationalCreateGcp extends ComputationalBase<SparkComputat
 
 	public SparkComputationalCreateGcp withConfig(List<ClusterConfig> config) {
 		this.config = config;
+		return this;
+	}
+
+	public SparkComputationalCreateGcp withSharedImageEnabled(String sharedImageEnabled) {
+		this.sharedImageEnabled = sharedImageEnabled;
 		return this;
 	}
 

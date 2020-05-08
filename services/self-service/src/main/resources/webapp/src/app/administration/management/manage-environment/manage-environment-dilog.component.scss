@@ -20,7 +20,7 @@
 .manage-env-dialog {
   .mat-list {
     .mat-list-item {
-      height: 60px;
+      height: 63px;
       margin: 5px 0;
       position: relative;
 
@@ -43,41 +43,15 @@
   }
 
   .quotes {
-    width: 40%;
+    width: 55%;
     margin-right: 10px;
     position: relative;
 
     .error {
       position: absolute;
       left: 0;
-      bottom: -14px;
-    }
-  }
-
-  .action {
-    width: 15%;
-
-    span {
-      padding: 3px;
-      cursor: pointer;
-
-      &:hover {
-        color: #35afd5;
-      }
-
-      i {
-        font-size: 20px;
-      }
-    }
-
-    .disabled {
-      cursor: not-allowed !important;
-      pointer-events: all;
-      opacity: .6;
-
-      &:hover {
-        color: #6b8299;
-      }
+      top: 34px;
+      font-family: 'Open Sans', sans-serif;
     }
   }
 
@@ -87,17 +61,18 @@
 
     .control {
       position: relative;
-      width: 56%;
+      width: 45%;
+      margin-right: 10px;
 
       .error {
         position: absolute;
         left: 0;
-        bottom: -14px;
+        bottom: -15px;
       }
     }
 
     .label {
-      width: 44%;
+      width: 55%;
     }
   }
 }

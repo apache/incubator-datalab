@@ -57,10 +57,10 @@ export class ConfirmationDialogModel {
   public isAliveResources(resources): boolean {
     if (resources) {
       for (let i = 0; i < resources.length; i++) {
-        if (resources[i].status.toLowerCase() != 'failed'
-          && resources[i].status.toLowerCase() != 'terminated'
-          && resources[i].status.toLowerCase() != 'terminating'
-          && resources[i].status.toLowerCase() != 'stopped')
+        if (resources[i].status.toLowerCase() !== 'failed'
+          && resources[i].status.toLowerCase() !== 'terminated'
+          && resources[i].status.toLowerCase() !== 'terminating'
+          && resources[i].status.toLowerCase() !== 'stopped')
           return true;
       }
     }
@@ -71,19 +71,19 @@ export class ConfirmationDialogModel {
 
   private stopExploratory(): Observable<{}> {
     return this.manageAction
-      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', this.notebook.name)
+      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', this.notebook.project, this.notebook.name)
       : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
   }
 
   private terminateExploratory(): Observable<{}> {
-    return this.manageAction
-      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'terminate', this.notebook.name)
-      : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
+    return this.manageAction ? this.manageEnvironmentsService.environmentManagement(
+        this.notebook.user, 'terminate', this.notebook.project,  this.notebook.name
+      ) : this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
   }
 
   private stopEdgeNode(): Observable<{}> {
     return this.manageAction
-      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', 'edge')
+      ? this.manageEnvironmentsService.environmentManagement(this.notebook.user, 'stop', this.notebook.project, 'edge')
       : this.healthStatusService.suspendEdgeNode();
   }
 

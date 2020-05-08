@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
+import com.epam.dlab.cloud.CloudProvider;
 
 import java.util.List;
 import java.util.Set;
@@ -28,19 +29,19 @@ import java.util.Set;
 public interface UserRoleDao {
 	List<UserRoleDto> findAll();
 
-	void removeAll();
-
 	void insert(UserRoleDto dto);
 
 	void insert(List<UserRoleDto> roles);
 
 	boolean update(UserRoleDto dto);
 
+	void updateMissingRoles(CloudProvider cloudProvider);
+
 	boolean addGroupToRole(Set<String> groups, Set<String> roleIds);
 
-	boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds);
-
 	void removeGroupWhenRoleNotIn(String group, Set<String> roleIds);
+
+	void removeUnnecessaryRoles(CloudProvider cloudProviderToBeRemoved, List<CloudProvider> remainingProviders);
 
 	void remove(String roleId);
 

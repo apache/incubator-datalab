@@ -19,18 +19,17 @@
 
 package com.epam.dlab;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.core.ModuleType;
 import com.epam.dlab.exceptions.InitializationException;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /** Print help for billing tool.
  */
@@ -47,12 +46,12 @@ public class Help {
 	private static void printHelp(String resourceName, Map<String, String> substitute) throws InitializationException {
 		List<String> list = BillingUtils.getResourceAsList("/" + Help.class.getName() + "." + resourceName + ".txt");
 		String help = StringUtils.join(list, System.lineSeparator());
-		
+
 		if (substitute == null) {
 			substitute = new HashMap<>();
 		}
-		substitute.put("classname", BillingScheduler.class.getName());
-		
+		substitute.put("classname", BillingServiceImpl.class.getName());
+
 		for (String key : substitute.keySet()) {
 			help = StringUtils.replace(help, "${" + key.toUpperCase() + "}", substitute.get(key));
 		}

@@ -56,6 +56,7 @@ public class ComputationalConfigureCallbackHandler extends ResourceCallbackHandl
 		return baseStatus
 				.withExploratoryName(dto.getExploratoryName())
 				.withComputationalName(dto.getComputationalName())
+				.withProject(dto.getProject())
 				.withUptime(null)
 				.withLastActivity(Date.from(Instant.now()));
 	}

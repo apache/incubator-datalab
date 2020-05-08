@@ -22,7 +22,6 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.dto.exploratory.LibStatus;
-import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.exploratory.Image;
 import com.epam.dlab.model.library.Library;
 
@@ -41,7 +40,7 @@ public interface ImageExploratoryDao {
 
 	List<ImageInfoRecord> getImagesForProject(String project);
 
-	Optional<ImageInfoRecord> getImage(String user, String name);
+	Optional<ImageInfoRecord> getImage(String user, String name, String project, String endpoint);
 
-	List<Library> getLibraries(String user, String imageFullName, ResourceType resourceType, LibStatus status);
+	List<Library> getLibraries(String user, String imageFullName, String project, String endpoint, LibStatus status);
 }

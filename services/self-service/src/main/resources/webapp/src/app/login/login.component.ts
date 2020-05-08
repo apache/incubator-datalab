@@ -22,7 +22,6 @@ import { Subscription } from 'rxjs';
 
 import { LoginModel } from './login.model';
 import { AppRoutingService, HealthStatusService, ApplicationSecurityService } from '../core/services';
-import { HTTP_STATUS_CODES } from '../core/util';
 import { DICTIONARY } from '../../dictionary/global.dictionary';
 
 @Component({
@@ -69,12 +68,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
         return false;
       }, error => {
-        if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
-          window.location.href = error.headers.get('Location');
-        } else {
           this.error = error.message;
           this.loading = false;
-        }
       });
 
     return false;

@@ -38,7 +38,7 @@ parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
-parser.add_argument('--ip_adress', type=str, default='')
+parser.add_argument('--ip_address', type=str, default='')
 parser.add_argument('--exploratory_name', type=str, default='')
 parser.add_argument('--edge_ip', type=str, default='')
 args = parser.parse_args()
@@ -107,6 +107,7 @@ if __name__ == "__main__":
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
+    local_spark_scala_version = sudo('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"')
     print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir)
     print("Configure local Spark")
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     print("Install py3spark local kernel for Jupyter")
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
     print("Install Toree-Scala kernel for Jupyter")
-    ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
+    ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, local_spark_scala_version, spark_version)
     if os.environ['notebook_r_enabled'] == 'true':
         print("Install R kernel for Jupyter")
         ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
@@ -133,7 +134,7 @@ if __name__ == "__main__":
 
     # INSTALL INACTIVITY CHECKER
     print("Install inactivity checker")
-    install_inactivity_checker(args.os_user, args.ip_adress)
+    install_inactivity_checker(args.os_user, args.ip_address)
 
     # INSTALL OPTIONAL PACKAGES
     print("Installing additional Python packages")

@@ -72,6 +72,9 @@ parser.add_argument('--usage', type=str, default=None)
 parser.add_argument('--cost', type=str, default=None)
 parser.add_argument('--resource_id', type=str, default=None)
 parser.add_argument('--tags', type=str, default=None)
+parser.add_argument('--keycloak_client_id', type=str, default=None)
+parser.add_argument('--keycloak_client_secret', type=str, default=None)
+parser.add_argument('--keycloak_auth_server_url', type=str, default=None)
 args = parser.parse_args()
 
 dlab_conf_dir = args.dlab_path + 'conf/'
@@ -127,6 +130,8 @@ def configure_mongo(mongo_passwd, default_endpoint_name):
                                                                                              env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
         sudo('sed -i "s|DEF_ENDPOINT_NAME|{0}|g" /tmp/local_endpoint.json'.format(default_endpoint_name))
+        sudo('sed -i "s|CLOUD_PROVIDER|{0}|g" /tmp/local_endpoint.json'.format(
+            os.environ['conf_cloud_provider'].upper()))
         sudo('mv /tmp/local_endpoint.json ' + args.dlab_path + 'tmp/')
         sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} ".format(
             args.dlab_path))
@@ -147,7 +152,7 @@ def build_ui():
                      '\'use_ldap\': false'))
 
             sudo('echo "N" | npm install')
-            sudo('npm run build.prod')
+            manage_npm_pkg('run build.prod')
             sudo('sudo chown -R {} {}/*'.format(args.os_user, args.dlab_path))
 
         # Building Back-end
@@ -173,6 +178,8 @@ def build_ui():
                 args.dlab_path))
         elif args.cloud_provider == 'aws':
             sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
+            sudo('cp {0}/sources/services/billing-aws/src/main/resources/application.yml '
+                 '{0}/webapp/billing/conf/billing_app.yml'.format(args.dlab_path))
             sudo(
                 'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/webapp/billing/lib/'.format(
                     args.dlab_path))
@@ -230,4 +237,5 @@ if __name__ == "__main__":
              args.region_info, args.ldap_login, args.tenant_id, args.application_id,
              args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
              args.dlab_id, args.usage_date, args.product, args.usage_type,
-             args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name)
+             args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name, args.keycloak_client_id,
+             args.keycloak_client_secret, args.keycloak_auth_server_url)

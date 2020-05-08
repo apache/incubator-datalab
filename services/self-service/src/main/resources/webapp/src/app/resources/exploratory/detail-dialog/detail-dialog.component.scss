@@ -17,6 +17,8 @@
  * under the License.
  */
 
+@import '_variables.scss';
+
 .scroll-box {
   max-height: 65vh;
   overflow-y: auto;
@@ -24,11 +26,15 @@
 }
 
 .links_block {
-  > p {
+
+  >p {
     display: flex;
+
     .description {
       white-space: nowrap;
-      padding-right: 5px;
+      padding-left: 7px;
+      font-weight: 600;
+      color: $blue-grey-color;
     }
   }
 }
@@ -36,12 +42,15 @@
 .checkbox-group {
   position: relative;
   padding: 5px;
+
   label {
     input[type="checkbox"] {
       margin: 10px 0;
     }
   }
+
   span {
+
     &.danger_color {
       position: absolute;
       bottom: -20px;
@@ -49,10 +58,12 @@
     }
   }
 }
+
 .config-details {
   text-align: left;
   position: relative;
   height: 280px;
+
   textarea {
     height: 100%;
     resize: none;
@@ -60,11 +71,19 @@
     line-height: 1.5;
     font-family: Consolas, monospace;
   }
+
   span {
+
     .danger_color {
       position: absolute;
       bottom: -16px;
       right: 0;
     }
   }
+}
+
+.bucket-info {
+  padding-left: 7px;
+  font-weight: 600;
+  color: $blue-grey-color;
 }

@@ -26,9 +26,12 @@ import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
 import com.epam.dlab.backendapi.service.impl.DockerService;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Objects;
 
 @Slf4j
 public class ExploratoryService extends DockerService implements DockerCommands {
@@ -51,6 +54,11 @@ public class ExploratoryService extends DockerService implements DockerCommands 
 				.withConfKeyName(configuration.getAdminKey())
 				.withImage(dto.getNotebookImage())
 				.withAction(action);
+		if (configuration.getCloudProvider() == CloudProvider.AZURE &&
+				Objects.nonNull(configuration.getCloudConfiguration().getAzureAuthFile()) &&
+				!configuration.getCloudConfiguration().getAzureAuthFile().isEmpty()) {
+			runDockerCommand.withVolumeFoAzureAuthFile(configuration.getCloudConfiguration().getAzureAuthFile());
+		}
 
 		commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
 		return uuid;
@@ -62,7 +70,7 @@ public class ExploratoryService extends DockerService implements DockerCommands 
 
 	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
 		return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
-				dto.getExploratoryName());
+				dto.getProject(), dto.getExploratoryName());
 	}
 
 	private String nameContainer(String user, DockerAction action, String name) {

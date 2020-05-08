@@ -17,34 +17,30 @@
  * under the License.
  */
 
-export const NAMING_CONVENTION = {
+export const NAMING_CONVENTION_AZURE = {
     'cloud_provider': 'azure',
-    'use_ldap': true,
-    'notebook_instance_size': 'Virtual machine size',
-    'personal_storage': 'Shared bucket',
-    'collaboration_storage': 'Shared project bucket',
+    'personal_storage': 'Project bucket',
+    'collaboration_storage': 'Shared endpoint bucket',
     'account': 'Account:',
     'container': 'Container:',
-    'data_engine': 'Deploy Spark Server / Deploy HDInsight',
     'image': 'image',
     'data_engine_master_instance_size': 'Head node size',
     'data_engine_slave_instance_size': 'Worker node size',
     'master_node_shape': 'azure_dataengine_master_size',
     'slave_node_shape': 'azure_dataengine_slave_size',
     'total_instance_number': 'dataengine_instance_count',
-
     'spot_instance': 'Low-priority virtual machines',
     'cluster_version': '',
     'max_cluster_name_length': 10,
     'billing': {
         'resourceName': 'resourceName',
-        'cost': 'costString',
+        'cost': 'cost',
         'costTotal': 'cost_total',
         'currencyCode': 'currencyCode',
         'dateFrom': 'from',
         'dateTo': 'to',
         'service': 'meterCategory',
-        'service_filter_key': 'category',
+        'service_filter_key': 'meterCategory',
         'type': '',
         'resourceType': 'resource_type',
         'instance_size': 'size',
@@ -53,7 +49,6 @@ export const NAMING_CONVENTION = {
     'service': 'Category',
     'type': '',
     'instance_size': 'Size',
-    'computational_resource': 'Computational resources',
     'user_storage_account_name': 'user_storage_account_name',
     'shared_storage_account_name': 'shared_storage_account_name',
     'bucket_name': 'user_container_name',
@@ -66,9 +61,6 @@ export const NAMING_CONVENTION = {
         'total_instance_number_max': 'max_emr_instance_count',
         'min_emr_spot_instance_bid_pct': 'min_emr_spot_instance_bid_pct',
         'max_emr_spot_instance_bid_pct': 'max_emr_spot_instance_bid_pct',
-        'data_engine_master_instance_size': 'Master instance shape',
-        'data_engine_slave_instance_size': 'Slave instance shape',
-        'instance_number': 'Total instance number',
         'master_node_shape': 'master_node_shape',
         'slave_node_shape': 'slave_node_shape',
         'total_instance_number': 'total_instance_number',
@@ -77,40 +69,8 @@ export const NAMING_CONVENTION = {
         'total_instance_number_min': 'min_spark_instance_count',
         'total_instance_number_max': 'max_spark_instance_count',
         'data_engine_master_instance_size': 'Node size',
-        'instance_number': 'Total node number',
         'master_node_shape': 'dataengine_instance_shape',
         'total_instance_number': 'dataengine_instance_count'
     },
-    'max_project_name_length': 30
 };
 
-export class ReportingConfigModel {
-
-    static getDefault(): ReportingConfigModel {
-        return new ReportingConfigModel([], [], [], [], [], '', '', '', []);
-    }
-
-    constructor(
-        public user: Array<string>,
-        public category: Array<string>,
-        public resource_type: Array<string>,
-        public status: Array<string>,
-        public size: Array<string>,
-        public date_start: string,
-        public date_end: string,
-        public dlab_id: string,
-        public project?: Array<string>
-    ) { }
-
-    defaultConfigurations(): void {
-        this.user = [];
-        this.category = [];
-        this.resource_type = [];
-        this.status = [];
-        this.size = [];
-        this.date_start = '';
-        this.date_end = '';
-        this.dlab_id = '';
-        this.project = [];
-    }
-}

@@ -46,16 +46,6 @@ public class ModuleFactory {
 	}
 
 	public static CloudModule getCloudProviderModule(SelfServiceApplicationConfiguration configuration) {
-		switch (configuration.getCloudProvider()) {
-			case AWS:
-				return new AwsSelfServiceModule();
-			case AZURE:
-				return new AzureSelfServiceModule(configuration.isAzureUseLdap(),
-						configuration.getMaxSessionDurabilityMilliseconds());
-			case GCP:
-				return new GcpSelfServiceModule();
-			default:
-				throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());
-		}
+		return new CloudProviderModule(configuration);
 	}
 }

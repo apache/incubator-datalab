@@ -56,7 +56,8 @@ export class InstallLibrariesModel {
   }
 
   public getLibrariesList(group: string, query: string): Observable<{}> {
-    let lib_query: any = {
+    const lib_query: any = {
+      project_name: this.notebook.project,
       exploratory_name: this.notebook.name,
       group: group,
       start_with: query
@@ -75,12 +76,13 @@ export class InstallLibrariesModel {
 
   public getInstalledLibrariesList(notebook): Observable<{}> {
     return this.librariesInstallationService.getInstalledLibrariesList(
-      notebook.name
+      notebook.project, notebook.name
     );
   }
 
   private installLibraries(retry?: Library, item?): Observable<{}> {
-    let lib_list: any = {
+    const lib_list: any = {
+      project_name: this.notebook.project,
       exploratory_name: this.notebook.name,
       libs: retry ? retry : this.selectedLibs
     };

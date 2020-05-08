@@ -69,33 +69,56 @@ public class CommandBuilder {
 		final CloudProvider cloudProvider = conf.getCloudProvider();
 		final CloudConfiguration cloudConfiguration = conf.getCloudConfiguration();
 		final CloudConfiguration.LdapConfig ldapConfig = cloudConfiguration.getLdapConfig();
+		final CloudConfiguration.StepCerts stepCerts = cloudConfiguration.getStepCerts();
+		final CloudConfiguration.Keycloak keycloak = cloudConfiguration.getKeycloak();
 		if (cloudProvider == CloudProvider.AWS) {
-			return awsCloudSettings(settings, cloudConfiguration, ldapConfig);
+			return awsCloudSettings(settings, cloudConfiguration, ldapConfig, stepCerts, keycloak);
 		} else if (cloudProvider == CloudProvider.GCP) {
-			return gcpCloudSettings(settings, cloudConfiguration, ldapConfig);
+			return gcpCloudSettings(settings, cloudConfiguration, ldapConfig, stepCerts, keycloak);
 		} else if (cloudProvider == CloudProvider.AZURE) {
-			return azureCloudSettings(settings, cloudConfiguration);
+			return azureCloudSettings(settings, cloudConfiguration, ldapConfig, stepCerts, keycloak);
 		} else {
 			throw new UnsupportedOperationException("Unsupported cloud provider " + cloudProvider.getName());
 		}
 	}
 
-	private AzureCloudSettings azureCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration) {
+	private AzureCloudSettings azureCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration,
+												  CloudConfiguration.LdapConfig ldapConfig,
+												  CloudConfiguration.StepCerts stepCerts,
+												  CloudConfiguration.Keycloak keycloak) {
 		return AzureCloudSettings.builder()
 				.azureRegion(cloudConfiguration.getRegion())
 				.azureResourceGroupName(cloudConfiguration.getAzureResourceGroupName())
 				.azureSecurityGroupName(cloudConfiguration.getSecurityGroupIds())
+				.ldapDn(ldapConfig.getDn())
+				.ldapHost(ldapConfig.getHost())
+				.ldapOu(ldapConfig.getOu())
+				.ldapUser(ldapConfig.getUser())
+				.ldapPassword(ldapConfig.getPassword())
 				.azureSubnetName(cloudConfiguration.getSubnetId())
 				.azureVpcName(cloudConfiguration.getVpcId())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
 				.azureIamUser(settings.getIamUser())
+				.sbn(cloudConfiguration.getServiceBaseName())
+				.os(cloudConfiguration.getOs())
+				.cloud(conf.getCloudProvider().getName())
 				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
-				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
+				.stepCertsEnabled(String.valueOf(stepCerts.isEnabled()))
+				.stepCertsRootCA(stepCerts.getRootCA())
+				.stepCertsKid(stepCerts.getKid())
+				.stepCertsKidPassword(stepCerts.getKidPassword())
+				.stepCertsCAURL(stepCerts.getCaURL())
+				.keycloakAuthServerUrl(keycloak.getAuthServerUrl())
+				.keycloakRealmName(keycloak.getRealmName())
+				.keycloakUser(keycloak.getUser())
+				.keycloakUserPassword(keycloak.getUserPassword())
 				.build();
 	}
 
 	private GcpCloudSettings gcpCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration,
-											  CloudConfiguration.LdapConfig ldapConfig) {
+											  CloudConfiguration.LdapConfig ldapConfig,
+											  CloudConfiguration.StepCerts stepCerts,
+											  CloudConfiguration.Keycloak keycloak) {
 		return GcpCloudSettings.builder()
 				.projectId(cloudConfiguration.getGcpProjectId())
 				.vpcName(cloudConfiguration.getVpcId())
@@ -113,12 +136,22 @@ public class CommandBuilder {
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
 				.gcpIamUser(settings.getIamUser())
 				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
-				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
+				.stepCertsEnabled(String.valueOf(stepCerts.isEnabled()))
+				.stepCertsRootCA(stepCerts.getRootCA())
+				.stepCertsKid(stepCerts.getKid())
+				.stepCertsKidPassword(stepCerts.getKidPassword())
+				.stepCertsCAURL(stepCerts.getCaURL())
+				.keycloakAuthServerUrl(keycloak.getAuthServerUrl())
+				.keycloakRealmName(keycloak.getRealmName())
+				.keycloakUser(keycloak.getUser())
+				.keycloakUserPassword(keycloak.getUserPassword())
 				.build();
 	}
 
 	private AwsCloudSettings awsCloudSettings(CloudSettings settings, CloudConfiguration cloudConfiguration,
-											  CloudConfiguration.LdapConfig ldapConfig) {
+											  CloudConfiguration.LdapConfig ldapConfig,
+											  CloudConfiguration.StepCerts stepCerts,
+											  CloudConfiguration.Keycloak keycloak) {
 		return AwsCloudSettings.builder()
 				.awsRegion(cloudConfiguration.getRegion())
 				.awsSecurityGroupIds(cloudConfiguration.getSecurityGroupIds())
@@ -139,7 +172,15 @@ public class CommandBuilder {
 				.os(cloudConfiguration.getOs())
 				.confKeyDir(cloudConfiguration.getConfKeyDir())
 				.imageEnabled(String.valueOf(cloudConfiguration.isImageEnabled()))
-				.sharedImageEnabled(String.valueOf(cloudConfiguration.isSharedImageEnabled()))
+				.stepCertsEnabled(String.valueOf(stepCerts.isEnabled()))
+				.stepCertsRootCA(stepCerts.getRootCA())
+				.stepCertsKid(stepCerts.getKid())
+				.stepCertsKidPassword(stepCerts.getKidPassword())
+				.stepCertsCAURL(stepCerts.getCaURL())
+				.keycloakAuthServerUrl(keycloak.getAuthServerUrl())
+				.keycloakRealmName(keycloak.getRealmName())
+				.keycloakUser(keycloak.getUser())
+				.keycloakUserPassword(keycloak.getUserPassword())
 				.build();
 	}
 }

@@ -20,28 +20,47 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
+import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.exceptions.DlabException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Singleton;
 import com.mongodb.client.model.BsonField;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_GROUPS;
-import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Aggregates.lookup;
+import static com.mongodb.client.model.Aggregates.project;
+import static com.mongodb.client.model.Aggregates.unwind;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.not;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
 public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
-
+	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final String ROLES_FILE_FORMAT = "/mongo/%s/mongo_roles.json";
 	private static final String USERS_FIELD = "users";
 	private static final String GROUPS_FIELD = "groups";
 	private static final String DESCRIPTION = "description";
+	private static final String TYPE = "type";
+	private static final String CLOUD = "cloud";
 	private static final String ROLES = "roles";
 	private static final String GROUPS = "$groups";
 	private static final String GROUP = "group";
@@ -55,11 +74,6 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	@Override
 	public List<UserRoleDto> findAll() {
 		return find(MongoCollections.ROLES, UserRoleDto.class);
-	}
-
-	@Override
-	public void removeAll() {
-		mongoService.getCollection(MongoCollections.ROLES).drop();
 	}
 
 	@Override
@@ -81,19 +95,49 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	}
 
 	@Override
+	public void updateMissingRoles(CloudProvider cloudProvider) {
+		getUserRoleFromFile(cloudProvider)
+				.stream()
+				.peek(u -> u.setGroups(Collections.emptySet()))
+				.filter(u -> findAll()
+						.stream()
+						.map(UserRoleDto::getId)
+						.noneMatch(id -> id.equals(u.getId())))
+				.forEach(this::insert);
+
+		addGroupToRole(aggregateRolesByGroup()
+						.stream()
+						.map(UserGroupDto::getGroup)
+						.collect(Collectors.toSet()),
+				getDefaultShapes(cloudProvider));
+	}
+
+	@Override
 	public boolean addGroupToRole(Set<String> groups, Set<String> roleIds) {
 		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), addToSet(GROUPS_FIELD,
 				groups)));
 	}
 
 	@Override
-	public boolean removeGroupFromRole(Set<String> groups, Set<String> roleIds) {
-		return conditionMatched(updateMany(MongoCollections.ROLES, in(ID, roleIds), pullAll(GROUPS_FIELD, groups)));
+	public void removeGroupWhenRoleNotIn(String group, Set<String> roleIds) {
+		updateMany(MongoCollections.ROLES, not(in(ID, roleIds)), pull(GROUPS_FIELD, group));
 	}
 
 	@Override
-	public void removeGroupWhenRoleNotIn(String group, Set<String> roleIds) {
-		updateMany(MongoCollections.ROLES, not(in(ID, roleIds)), pull(GROUPS_FIELD, group));
+	public void removeUnnecessaryRoles(CloudProvider cloudProviderToBeRemoved, List<CloudProvider> remainingProviders) {
+		if (remainingProviders.contains(cloudProviderToBeRemoved)) {
+			return;
+		}
+
+		List<UserRoleDto> remainingRoles = new ArrayList<>();
+		remainingProviders.forEach(p -> remainingRoles.addAll(getUserRoleFromFile(p)));
+
+		getUserRoleFromFile(cloudProviderToBeRemoved).stream()
+				.map(UserRoleDto::getId)
+				.filter(u -> remainingRoles.stream()
+						.map(UserRoleDto::getId)
+						.noneMatch(id -> id.equals(u)))
+				.forEach(this::remove);
 	}
 
 	@Override
@@ -123,9 +167,35 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 				.collect(toList());
 	}
 
+	private List<UserRoleDto> getUserRoleFromFile(CloudProvider cloudProvider) {
+		try (InputStream is = getClass().getResourceAsStream(format(ROLES_FILE_FORMAT, cloudProvider.getName()))) {
+			return MAPPER.readValue(is, new TypeReference<List<UserRoleDto>>() {
+			});
+		} catch (IOException e) {
+			throw new IllegalStateException("Can not marshall dlab roles due to: " + e.getMessage());
+		}
+	}
+
+	private Set<String> getDefaultShapes(CloudProvider cloudProvider) {
+		if (cloudProvider == CloudProvider.AWS) {
+			return Stream.of("nbShapes_t2.medium_fetching", "compShapes_c4.xlarge_fetching")
+					.collect(Collectors.toSet());
+		} else if (cloudProvider == CloudProvider.GCP) {
+			return Stream.of("compShapes_n1-standard-2_fetching", "nbShapes_n1-standard-2_fetching")
+					.collect(Collectors.toSet());
+		} else if (cloudProvider == CloudProvider.AZURE) {
+			return Stream.of("nbShapes_Standard_E4s_v3_fetching", "compShapes_Standard_E4s_v3_fetching")
+					.collect(Collectors.toSet());
+		} else {
+			throw new DlabException("Unsupported cloud provider " + cloudProvider);
+		}
+	}
+
 	private Document roleDocument() {
 		return new Document().append(ID, "$" + ID)
 				.append(DESCRIPTION, "$" + DESCRIPTION)
+				.append(TYPE, "$" + TYPE)
+				.append(CLOUD, "$" + CLOUD)
 				.append(USERS_FIELD, "$" + USERS_FIELD)
 				.append(EXPLORATORY_SHAPES_FIELD, "$" + EXPLORATORY_SHAPES_FIELD)
 				.append(PAGES_FIELD, "$" + PAGES_FIELD)

@@ -40,13 +40,18 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
 	private final String imageName;
 	@JsonProperty
 	private final String exploratoryName;
+	@JsonProperty
+	private final String project;
+	@JsonProperty
+	private final String endpoint;
 
-	public ImageCreateCallbackHandler(
-			RESTService selfService, String uuid, DockerAction action,
+	public ImageCreateCallbackHandler(RESTService selfService, String uuid, DockerAction action,
 			ExploratoryImageDTO image) {
 		super(selfService, image.getCloudSettings().getIamUser(), uuid, action);
 		this.imageName = image.getImageName();
 		this.exploratoryName = image.getExploratoryName();
+		this.project = image.getProject();
+		this.endpoint = image.getEndpoint();
 	}
 
 	@JsonCreator
@@ -55,10 +60,14 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
 			@JsonProperty("action") DockerAction action,
 			@JsonProperty("user") String user,
 			@JsonProperty("imageName") String imageName,
-			@JsonProperty("exploratoryName") String exploratoryName) {
+			@JsonProperty("exploratoryName") String exploratoryName,
+			@JsonProperty("project") String projectName,
+			@JsonProperty("endpoint") String endpoint) {
 		super(selfService, user, uuid, action);
 		this.imageName = imageName;
 		this.exploratoryName = exploratoryName;
+		this.project = projectName;
+		this.endpoint = endpoint;
 	}
 
 	@Override
@@ -79,6 +88,8 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
 		final ImageCreateStatusDTO statusDTO = super.getBaseStatusDTO(status);
 		statusDTO.setExploratoryName(exploratoryName);
 		statusDTO.setName(imageName);
+		statusDTO.setProject(project);
+		statusDTO.setEndpoint(endpoint);
 		statusDTO.withoutImageCreateDto();
 		return statusDTO;
 	}

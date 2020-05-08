@@ -49,7 +49,7 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 	private String handlerDirectory;
 
 	@JsonProperty
-	private Duration warmupPollTimeout = Duration.seconds(3);
+	private Duration warmupPollTimeout;
 
 	@JsonProperty
 	private Duration resourceStatusPollTimeout = Duration.minutes(3);

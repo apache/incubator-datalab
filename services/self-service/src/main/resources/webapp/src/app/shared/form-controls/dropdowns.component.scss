@@ -122,6 +122,14 @@
       }
     }
   }
+
+  &.resources {
+    .list-menu {
+      .list-item {
+        text-transform: capitalize;
+      }
+    }
+  }
 }
 
 .dropdown-list .list-menu a,
@@ -158,7 +166,7 @@
   color: #35afd5;
   display: block;
   padding: 0;
-  line-height: 40px;
+  line-height: 40px !important;
   text-align: center;
 }
 

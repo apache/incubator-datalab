@@ -47,7 +47,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.refEq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class ExploratoryResourceTest extends TestBase {
 
@@ -103,15 +110,34 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void start() {
+		ExploratoryActionFormDTO exploratoryDTO = getExploratoryActionFormDTO();
 		when(exploratoryService.start(any(UserInfo.class), anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getExploratoryActionFormDTO()));
+				.post(Entity.json(exploratoryDTO));
+
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals("someUuid", response.readEntity(String.class));
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(exploratoryService).start(getUserInfo(), exploratoryDTO.getNotebookInstanceName(),
+				exploratoryDTO.getProjectName());
+
+		verifyZeroInteractions(exploratoryService);
+	}
+
+	@Test
+	public void startUnprocessableEntity() {
+		when(exploratoryService.start(any(UserInfo.class), anyString(), anyString())).thenReturn("someUuid");
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.post(Entity.json(getEmptyExploratoryActionFormDTO()));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
-		assertEquals("{\"errors\":[\"notebookInstanceName may not be empty\"]}", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verifyZeroInteractions(exploratoryService);
@@ -125,7 +151,7 @@ public class ExploratoryResourceTest extends TestBase {
 				.target("/infrastructure_provision/exploratory_environment")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getExploratoryActionFormDTO()));
+				.post(Entity.json(getEmptyExploratoryActionFormDTO()));
 
 		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
@@ -135,9 +161,9 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void stop() {
-		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn("someUuid");
+		when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/someName/stop")
+				.target("/infrastructure_provision/exploratory_environment/project/someName/stop")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
@@ -146,16 +172,16 @@ public class ExploratoryResourceTest extends TestBase {
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).stop(getUserInfo(), "someName");
+		verify(exploratoryService).stop(getUserInfo(), "project", "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void stopWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(exploratoryService.stop(any(UserInfo.class), anyString())).thenReturn("someUuid");
+		when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/someName/stop")
+				.target("/infrastructure_provision/exploratory_environment/project/someName/stop")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
@@ -164,16 +190,16 @@ public class ExploratoryResourceTest extends TestBase {
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).stop(getUserInfo(), "someName");
+		verify(exploratoryService).stop(getUserInfo(), "project", "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void stopWithException() {
 		doThrow(new DlabException("Could not stop exploratory environment"))
-				.when(exploratoryService).stop(any(UserInfo.class), anyString());
+				.when(exploratoryService).stop(any(UserInfo.class), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/someName/stop")
+				.target("/infrastructure_provision/exploratory_environment/project/someName/stop")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
@@ -185,15 +211,15 @@ public class ExploratoryResourceTest extends TestBase {
 		assertTrue(actualJson.contains(expectedJson));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).stop(getUserInfo(), "someName");
+		verify(exploratoryService).stop(getUserInfo(), "project", "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void terminate() {
-		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn("someUuid");
+		when(exploratoryService.terminate(any(UserInfo.class), anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/someName/terminate")
+				.target("/infrastructure_provision/exploratory_environment/project/someName/terminate")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
@@ -202,16 +228,16 @@ public class ExploratoryResourceTest extends TestBase {
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).terminate(getUserInfo(), "someName");
+		verify(exploratoryService).terminate(getUserInfo(), "project", "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void terminateWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(exploratoryService.terminate(any(UserInfo.class), anyString())).thenReturn("someUuid");
+		when(exploratoryService.terminate(any(UserInfo.class), anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/someName/terminate")
+				.target("/infrastructure_provision/exploratory_environment/project/someName/terminate")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
@@ -220,16 +246,16 @@ public class ExploratoryResourceTest extends TestBase {
 		assertEquals("someUuid", response.readEntity(String.class));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).terminate(getUserInfo(), "someName");
+		verify(exploratoryService).terminate(getUserInfo(), "project", "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void terminateWithException() {
 		doThrow(new DlabException("Could not terminate exploratory environment"))
-				.when(exploratoryService).terminate(any(UserInfo.class), anyString());
+				.when(exploratoryService).terminate(any(UserInfo.class), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/someName/terminate")
+				.target("/infrastructure_provision/exploratory_environment/project/someName/terminate")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.delete();
@@ -241,22 +267,22 @@ public class ExploratoryResourceTest extends TestBase {
 		assertTrue(actualJson.contains(expectedJson));
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(exploratoryService).terminate(getUserInfo(), "someName");
+		verify(exploratoryService).terminate(getUserInfo(), "project", "someName");
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
 	@Test
 	public void updateSparkConfig() {
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/someName/reconfigure")
+				.target("/infrastructure_provision/exploratory_environment/someProject/someName/reconfigure")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.put(Entity.json(Collections.singletonList(new ClusterConfig())));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
-		verify(exploratoryService).updateClusterConfig(refEq(getUserInfo()), eq("someName"),
-				eq(Collections.singletonList(new ClusterConfig())));
+		verify(exploratoryService).updateClusterConfig(refEq(getUserInfo()), eq("someProject"),
+				eq("someName"), eq(Collections.singletonList(new ClusterConfig())));
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
@@ -264,9 +290,9 @@ public class ExploratoryResourceTest extends TestBase {
 	public void getSparkConfig() {
 		final ClusterConfig config = new ClusterConfig();
 		config.setClassification("test");
-		when(exploratoryService.getClusterConfig(any(UserInfo.class), anyString())).thenReturn(Collections.singletonList(config));
+		when(exploratoryService.getClusterConfig(any(UserInfo.class), anyString(), anyString())).thenReturn(Collections.singletonList(config));
 		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/someName/cluster/config")
+				.target("/infrastructure_provision/exploratory_environment/someProject/someName/cluster/config")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
 				.get();
@@ -277,7 +303,7 @@ public class ExploratoryResourceTest extends TestBase {
 		assertEquals(1, clusterConfigs.size());
 		assertEquals("test", clusterConfigs.get(0).getClassification());
 
-		verify(exploratoryService).getClusterConfig(refEq(getUserInfo()), eq("someName"));
+		verify(exploratoryService).getClusterConfig(refEq(getUserInfo()), eq("someProject"), eq("someName"));
 		verifyNoMoreInteractions(exploratoryService);
 	}
 
@@ -294,8 +320,12 @@ public class ExploratoryResourceTest extends TestBase {
 		return ecfDto;
 	}
 
-	private ExploratoryActionFormDTO getExploratoryActionFormDTO() {
+	private ExploratoryActionFormDTO getEmptyExploratoryActionFormDTO() {
 		return new ExploratoryActionFormDTO();
+	}
+
+	private ExploratoryActionFormDTO getExploratoryActionFormDTO() {
+		return new ExploratoryActionFormDTO("notebook_instance_name", "project_name");
 	}
 
 	private Exploratory getExploratory(@Valid @NotNull ExploratoryCreateFormDTO formDTO) {

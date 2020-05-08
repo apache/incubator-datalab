@@ -35,7 +35,7 @@
               {{resource.status}}
             </span>
           </td>
-          <td>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</td>
+          <td>{{ resource[DICTIONARY[PROVIDER][resource.image].master_node_shape] }}</td>
         </tr>
       </table>
       <div class="detail-info content-box" *ngIf="!resource.error_message">
@@ -49,7 +49,7 @@
           <div class="col">
             <p>Cluster version:</p>
           </div>
-          <div class="col"><span>{{ resource[DICTIONARY.cluster_version] }}</span></div>
+          <div class="col"><span>{{ resource[DICTIONARY[PROVIDER].cluster_version] }}</span></div>
         </div>
         <div class="row-wrap">
           <div class="col">
@@ -63,34 +63,34 @@
         </div>
         <div class="row-wrap">
           <div class="col"
-            *ngIf="DICTIONARY.cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'; else inst">
-            <p>{{ DICTIONARY[resource.image].master_instance_number }}:</p>
+            *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'; else inst">
+            <p>Master instance number:</p>
           </div>
           <ng-template #inst>
             <div class="col">
-              <p>{{ DICTIONARY[resource.image].instance_number }}:</p>
+              <p>Total instance number:</p>
             </div>
           </ng-template>
-          <div class="col"><span>{{ resource[DICTIONARY[resource.image].total_instance_number] }}</span></div>
+          <div class="col"><span>{{ resource[DICTIONARY[PROVIDER][resource.image].total_instance_number] }}</span></div>
         </div>
         <div class="row-wrap"
-          *ngIf="DICTIONARY.cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'">
+          *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'">
           <div class="col">
-            <p>{{ DICTIONARY[resource.image].slave_instance_number }}:</p>
+            <p>Slave instance number:</p>
           </div>
-          <div class="col"><span>{{ resource[DICTIONARY[resource.image].total_slave_instance_number] }}</span></div>
+          <div class="col"><span>{{ resource[DICTIONARY[PROVIDER][resource.image].total_slave_instance_number] }}</span></div>
         </div>
         <div class="row-wrap">
           <div class="col">
-            <p>{{ DICTIONARY[resource.image].data_engine_master_instance_size }}:</p>
+            <p>Master instance size:</p>
           </div>
-          <div class="col"><span>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</span></div>
+          <div class="col"><span>{{ resource[DICTIONARY[PROVIDER][resource.image].master_node_shape] }}</span></div>
         </div>
         <div class="row-wrap" *ngIf="resource.image === 'docker.dlab-dataengine-service'">
           <div class="col">
-            <p>{{ DICTIONARY[resource.image].data_engine_slave_instance_size }}:</p>
+            <p>Slave instance size:</p>
           </div>
-          <div class="col"><span>{{ resource[DICTIONARY[resource.image].slave_node_shape] }}</span></div>
+          <div class="col"><span>{{ resource[DICTIONARY[PROVIDER][resource.image].slave_node_shape] }}</span></div>
         </div>
 
         <div *ngIf="resource.status === 'running'">
@@ -98,16 +98,19 @@
             <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
           </div>
           <div class="m-top-10">
-            <p *ngFor="let item of resource.computational_url" class="ellipsis">
-              <strong>{{ item.description }}:</strong>&nbsp;
+            <p *ngFor="let item of resource.computational_url" class="ellipsis flex">
+              <span class="strong">{{ item.description }}:</span>&nbsp;
               <a href="{{item.url}}" target="_blank" matTooltip="{{item.url}}"
                 matTooltipPosition="above">{{ item.url }}</a>
             </p>
           </div>
         </div>
 
-        <div class="checkbox-group"
-          *ngIf="resource.image === 'docker.dlab-dataengine' && resource.status === 'running' && environment.image !== 'docker.dlab-zeppelin'">
+        <div class="checkbox-group" *ngIf="resource.image === 'docker.dlab-dataengine'
+          && resource.status === 'running'
+          && environment.image !== 'docker.dlab-zeppelin'
+          && environment.image !== 'docker.dlab-superset'
+          && environment.image !== 'docker.dlab-jupyterlab'">
           <label>
             <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
           </label>

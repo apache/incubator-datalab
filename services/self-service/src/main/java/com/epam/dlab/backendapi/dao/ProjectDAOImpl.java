@@ -37,7 +37,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.elemMatch;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.not;
 
 public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
@@ -45,6 +49,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String GROUPS = "groups";
 	private static final String ENDPOINTS = "endpoints";
 	private static final String STATUS_FIELD = "status";
+	private static final String SHARED_IMAGE_FIELD = "sharedImageEnabled";
 	private static final String ENDPOINT_STATUS_FIELD = "endpoints." + STATUS_FIELD;
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
 	private static final String ENDPOINT_FIELD = "endpoints.$.";
@@ -61,11 +66,6 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	@Override
 	public List<ProjectDTO> getProjects() {
 		return find(PROJECTS_COLLECTION, ProjectDTO.class);
-	}
-
-	@Override
-	public List<ProjectDTO> getProjectsWithStatus(ProjectDTO.Status status) {
-		return find(PROJECTS_COLLECTION, eq(STATUS_FIELD, status.toString()), ProjectDTO.class);
 	}
 
 	@Override
@@ -118,11 +118,17 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
+	public List<ProjectDTO> getProjectsByEndpoint(String endpointName) {
+		return find(PROJECTS_COLLECTION, elemMatch(ENDPOINTS, eq("name", endpointName)), ProjectDTO.class);
+	}
+
+	@Override
 	public boolean update(ProjectDTO projectDTO) {
 		BasicDBObject updateProject = new BasicDBObject();
 		updateProject.put(GROUPS, projectDTO.getGroups());
 		updateProject.put(ENDPOINTS,
 				projectDTO.getEndpoints().stream().map(this::convertToBson).collect(Collectors.toList()));
+		updateProject.put(SHARED_IMAGE_FIELD, projectDTO.isSharedImageEnabled());
 		return updateOne(PROJECTS_COLLECTION, projectCondition(projectDTO.getName()),
 				new Document(SET, updateProject)).getMatchedCount() > 0L;
 	}

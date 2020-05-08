@@ -31,6 +31,7 @@ import java.util.Set;
 @Singleton
 public class UserRoleServiceImpl implements UserRoleService {
 	private static final String ROLE_NOT_FOUND_MSG = "Any of role : %s were not found";
+
 	@Inject
 	private UserRoleDao userRoleDao;
 

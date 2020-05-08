@@ -1,0 +1,197 @@
+# *****************************************************************************
+#
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+#
+# ******************************************************************************
+
+<#assign LOG_ROOT_DIR="/var/opt/dlab/log">
+<#assign KEYS_DIR="/home/OS_USER/keys">
+<#assign KEY_STORE_PATH="${KEYS_DIR}/endpoint.keystore.jks">
+<#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
+<#assign TRUST_STORE_PATH="JRE_HOME/lib/security/cacerts">
+<#assign TRUST_STORE_PASSWORD="changeit">
+
+# Available options are aws, azure, gcp
+<#assign CLOUD_TYPE="CLOUD_PROVIDER">
+cloudProvider: ${CLOUD_TYPE}
+
+#Switch on/off developer mode here
+<#assign DEV_MODE="false">
+devMode: ${DEV_MODE}
+
+
+mongo:
+  host: MONGO_HOST
+  port: MONGO_PORT
+  username: admin
+  password: MONGO_PASSWORD
+  database: dlabdb
+
+selfService:
+  protocol: https
+  host: SSN_UI_HOST
+  port: 443
+  jerseyClient:
+    timeout: 3s
+    connectionTimeout: 3s
+
+securityService:
+  protocol: https
+  host: localhost
+  port: 8090
+  jerseyClient:
+    timeout: 20s
+    connectionTimeout: 20s
+
+
+provisioningService:
+  protocol: https
+  host: localhost
+  port: 8084
+  jerseyClient:
+    timeout: 3s
+    connectionTimeout: 3s
+
+billingService:
+  jerseyClient:
+    timeout: 4m
+    connectionTimeout: 3s
+
+# Log out user on inactivity
+inactiveUserTimeoutMillSec: 7200000
+
+backupScriptPath: /opt/dlab/tmp/backup.py
+backupDirectory: /opt/dlab/tmp/result
+keyDirectory: ${KEYS_DIR}
+responseDirectory: /opt/dlab/tmp
+handlerDirectory: /opt/dlab/handlers
+dockerLogDirectory: ${LOG_ROOT_DIR}
+warmupPollTimeout: 2m
+resourceStatusPollTimeout: 300m
+keyLoaderPollTimeout: 30m
+requestEnvStatusTimeout: 50s
+adminKey: KEYNAME
+edgeImage: docker.dlab-edge
+fileLengthCheckDelay: 500ms
+
+<#if CLOUD_TYPE == "aws">
+emrEC2RoleDefault: EMR_EC2_DefaultRole
+emrServiceRoleDefault: EMR_DefaultRole
+</#if>
+
+processMaxThreadsPerJvm: 50
+processMaxThreadsPerUser: 5
+processTimeout: 180m
+
+handlersPersistenceEnabled: true
+
+server:
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: ${LOG_ROOT_DIR}/provisioning/request-provisioning.log
+        archive: true
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/provisioning/request-provisioning-%d{yyyy-MM-dd}.log.gz
+        archivedFileCount: 10
+  applicationConnectors:
+#    - type: http
+    - type: https
+      port: 8084
+      certAlias: endpoint
+      validateCerts: false
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
+  adminConnectors:
+#    - type: http
+    - type: https
+      port: 8085
+      certAlias: endpoint
+      validateCerts: false
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
+
+logging:
+  level: INFO
+  loggers:
+    com.epam: TRACE
+    com.aegisql: INFO
+  appenders:
+<#if DEV_MODE == "true">
+    - type: console
+</#if>
+    - type: file
+      currentLogFilename: ${LOG_ROOT_DIR}/provisioning/provisioning.log
+      archive: true
+      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/provisioning/provisioning-%d{yyyy-MM-dd}.log.gz
+      archivedFileCount: 10
+
+keycloakConfiguration:
+  realm: dlab
+  bearer-only: true
+  auth-server-url: KEYCLOAK_AUTH_SERVER_URL
+  ssl-required: none
+  register-node-at-startup: true
+  register-node-period: 600
+  resource: KEYCLOAK_CLIENT_ID
+  credentials:
+    secret: CLIENT_SECRET
+
+cloudProperties:
+  os: CONF_OS
+  serviceBaseName: SERVICE_BASE_NAME
+  edgeInstanceSize: EDGE_INSTANCE_SIZE
+  subnetId: SUBNET_ID
+  region: REGION
+  zone: ZONE
+  confTagResourceId: TAG_RESOURCE_ID
+  securityGroupIds: SG_IDS
+  ssnInstanceSize: SSN_INSTANCE_SIZE
+  notebookVpcId: VPC2_ID
+  notebookSubnetId: SUBNET2_ID
+  confKeyDir: CONF_KEY_DIR
+  vpcId: VPC_ID
+  peeringId: PEERING_ID
+  azureResourceGroupName: AZURE_RESOURCE_GROUP_NAME
+  ssnStorageAccountTagName: AZURE_SSN_STORAGE_ACCOUNT_TAG
+  sharedStorageAccountTagName: AZURE_SHARED_STORAGE_ACCOUNT_TAG
+  datalakeTagName: AZURE_DATALAKE_TAG
+  azureClientId: AZURE_CLIENT_ID
+  gcpProjectId: GCP_PROJECT_ID
+  imageEnabled: CONF_IMAGE_ENABLED
+  azureAuthFile: AZURE_AUTH_FILE_PATH
+  ldap:
+    host: LDAP_HOST
+    dn: LDAP_DN
+    ou: LDAP_OU
+    user: LDAP_USER_NAME
+    password: LDAP_USER_PASSWORD
+  stepCerts:
+    enabled: STEP_CERTS_ENABLED
+    rootCA: STEP_ROOT_CA
+    kid: STEP_KID_ID
+    kidPassword: STEP_KID_PASSWORD
+    caURL: STEP_CA_URL
+  keycloak:
+    auth_server_url: KEYCLOAK_AUTH_SERVER_URL
+    realm_name: KEYCLOAK_REALM_NAME
+    user: KEYCLOAK_USER_NAME
+    user_password: KEYCLOAK_PASSWORD

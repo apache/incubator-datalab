@@ -37,10 +37,10 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getComputationalTemplates(project, endpoint): Observable<any> {
-    const url = `/${project}/${endpoint}/computational_templates`;
+  public getComputationalTemplates(project, endpoint, provider): Observable<any> {
+    const url = `/${project}/${endpoint}/templates`;
     return this.applicationServiceFacade
-      .buildGetTemplatesRequest(url)
+      .buildGetComputationTemplatesRequest(url, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
@@ -72,8 +72,16 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+  public getProjectByExploratoryEnvironment(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetExploratoryEnvironmentRequest()
+      .pipe(
+        map(response => response.body.project_exploratories),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public suspendExploratoryEnvironment(notebook: any, action): Observable<{}> {
-    const url = '/' + notebook.name + '/' + action;
+    const url = '/' + notebook.project + '/' + notebook.name + '/' + action;
 
     return this.applicationServiceFacade
       .buildSuspendExploratoryEnvironmentRequest(JSON.stringify(url))
@@ -82,44 +90,44 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public createComputationalResource_DataengineService(data): Observable<{}> {
+  public createComputationalResource_DataengineService(data, provider): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
-      .buildCreateComputationalResources_DataengineServiceRequest(body)
+      .buildCreateComputationalResources_DataengineServiceRequest(body, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public createComputationalResource_Dataengine(data): Observable<{}> {
+  public createComputationalResource_Dataengine(data, provider): Observable<{}> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
-      .buildCreateComputationalResources_DataengineRequest(body)
+      .buildCreateComputationalResources_DataengineRequest(body, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public suspendComputationalResource(notebookName: string, computationalResourceName: string): Observable<{}> {
-    const body = JSON.stringify('/' + notebookName + '/' + computationalResourceName + '/terminate');
+  public suspendComputationalResource(projectName: string, notebookName: string, computationalResourceName: string, provider: string): Observable<{}> {
+    const body = JSON.stringify('/' + projectName + '/' + notebookName + '/' + computationalResourceName + '/terminate');
     return this.applicationServiceFacade
-      .buildDeleteComputationalResourcesRequest(body)
+      .buildDeleteComputationalResourcesRequest(body, provider)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public toggleStopStartAction(project: string, notebook: string, resource: string, action): Observable<{}> {
+  public toggleStopStartAction(project: string, notebook: string, resource: string, action, provider: string): Observable<{}> {
     const url = `/${project}/${notebook}/${resource}/${action}`;
     if (action === 'stop') {
       return this.applicationServiceFacade
-        .buildStopSparkClusterAction(JSON.stringify(url))
+        .buildStopSparkClusterAction(JSON.stringify(url), provider)
         .pipe(
           map(response => response),
           catchError(ErrorUtils.handleServiceError));
     } else if (action === 'start') {
       return this.applicationServiceFacade
-        .buildStartSparkClusterAction(url)
+        .buildStartSparkClusterAction(url, provider)
         .pipe(
           map(response => response),
           catchError(ErrorUtils.handleServiceError));
@@ -152,9 +160,10 @@ export class UserResourceService {
         catchError(ErrorUtils.handleServiceError));
   }
 
-  public getImagesList(): Observable<{}> {
+  public getImagesList(project?): Observable<{}> {
+    const body = project ? `/all?project=${project}` : '';
     return this.applicationServiceFacade
-      .buildGetImagesList()
+      .buildGetImagesList(body)
       .pipe(
         map(response => response),
         catchError(ErrorUtils.handleServiceError));

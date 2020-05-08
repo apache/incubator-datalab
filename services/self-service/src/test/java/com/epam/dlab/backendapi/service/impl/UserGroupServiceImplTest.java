@@ -23,10 +23,13 @@ import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
 import com.epam.dlab.backendapi.dao.UserRoleDao;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
+import com.epam.dlab.backendapi.resources.TestBase;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
+import io.dropwizard.auth.AuthenticationException;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -36,39 +39,50 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anySet;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserGroupServiceImplTest {
+public class UserGroupServiceImplTest extends TestBase {
 
-	private static final String ROLE_ID = "Role id";
-	private static final String USER = "test";
-	private static final String GROUP = "admin";
-	@Mock
-	private UserRoleDao userRoleDao;
-	@Mock
-	private UserGroupDao userGroupDao;
-	@Mock
-	private ProjectDAO projectDAO;
-	@InjectMocks
-	private UserGroupServiceImpl userGroupService;
+    private static final String ROLE_ID = "Role id";
+    private static final String USER = "test";
+    private static final String GROUP = "admin";
+    @Mock
+    private UserRoleDao userRoleDao;
+    @Mock
+    private UserGroupDao userGroupDao;
+    @Mock
+    private ProjectDAO projectDAO;
+    @InjectMocks
+    private UserGroupServiceImpl userGroupService;
 
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
-	@Test
-	public void createGroup() {
-		when(userRoleDao.addGroupToRole(anySet(), anySet())).thenReturn(true);
+    @Before
+    public void setup() throws AuthenticationException {
+        authSetup();
+    }
 
-		userGroupService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+    @Test
+    public void createGroup() {
+        when(userRoleDao.addGroupToRole(anySet(), anySet())).thenReturn(true);
 
-		verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
-		verify(userGroupDao).addUsers(GROUP, Collections.singleton(USER));
-	}
+        userGroupService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+
+        verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
+        verify(userGroupDao).addUsers(GROUP, Collections.singleton(USER));
+    }
 
 	@Test
 	public void createGroupWithNoUsers() {
@@ -77,7 +91,7 @@ public class UserGroupServiceImplTest {
 		userGroupService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.emptySet());
 
 		verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
-		verify(userGroupDao, never()).addUsers(anyString(), anySet());
+		verify(userGroupDao).addUsers(anyString(), anySet());
 	}
 
 	@Test
@@ -89,75 +103,11 @@ public class UserGroupServiceImplTest {
 	}
 
 	@Test
-	public void getAggregatedRoles() {
-		when(userRoleDao.aggregateRolesByGroup()).thenReturn(Collections.singletonList(getUserGroup()));
-
-		final List<UserGroupDto> aggregatedRolesByGroup = userGroupService.getAggregatedRolesByGroup();
-
-		assertEquals(1, aggregatedRolesByGroup.size());
-		assertEquals(GROUP, aggregatedRolesByGroup.get(0).getGroup());
-		assertTrue(aggregatedRolesByGroup.get(0).getRoles().isEmpty());
-
-		verify(userRoleDao).aggregateRolesByGroup();
-		verifyNoMoreInteractions(userRoleDao);
-	}
-
-	@Test
-	public void addUserToGroup() {
-		userGroupService.addUsersToGroup(GROUP, Collections.singleton(USER));
-
-		verify(userGroupDao).addUsers(eq(GROUP), refEq(Collections.singleton(USER)));
-		verifyNoMoreInteractions(userRoleDao, userGroupDao);
-	}
-
-	@Test
-	public void addRolesToGroup() {
-		when(userRoleDao.addGroupToRole(anySetOf(String.class), anySetOf(String.class))).thenReturn(true);
-
-		userGroupService.updateRolesForGroup(GROUP, Collections.singleton(ROLE_ID));
-
-		verify(userRoleDao).addGroupToRole(refEq(Collections.singleton(GROUP)), refEq(Collections.singleton(ROLE_ID)));
-		verify(userRoleDao).removeGroupWhenRoleNotIn(GROUP, Collections.singleton(ROLE_ID));
-		verifyNoMoreInteractions(userRoleDao);
-	}
-
-	@Test
-	public void removeUserFromGroup() {
-
-		userGroupService.removeUserFromGroup(GROUP, USER);
-
-		verify(userGroupDao).removeUser(GROUP, USER);
-		verifyNoMoreInteractions(userGroupDao);
-	}
-
-	@Test
-	public void removeGroupFromRole() {
-
-		when(userRoleDao.removeGroupFromRole(anySetOf(String.class), anySetOf(String.class))).thenReturn(true);
-
-		userGroupService.removeGroupFromRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
-
-		verify(userRoleDao).removeGroupFromRole(refEq(Collections.singleton(GROUP)),
-				refEq(Collections.singleton(ROLE_ID)));
-		verifyNoMoreInteractions(userRoleDao);
-	}
-
-	@Test
-	public void removeGroupFromRoleWithException() {
-		when(userRoleDao.removeGroupFromRole(anySetOf(String.class), anySetOf(String.class))).thenReturn(false);
-
-		expectedException.expectMessage("Any of role : [" + ROLE_ID + "] were not found");
-		expectedException.expect(ResourceNotFoundException.class);
-
-		userGroupService.removeGroupFromRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
-	}
-
-	@Test
 	public void removeGroup() {
 
 		when(userRoleDao.removeGroup(anyString())).thenReturn(true);
 		final ProjectDTO projectDTO = new ProjectDTO(
-				"name", Collections.emptySet(), "", "", null, Collections.emptyList());
+				"name", Collections.emptySet(), "", "", null, Collections.emptyList(), true);
 		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList(projectDTO));
 		doNothing().when(userGroupDao).removeGroup(anyString());
@@ -175,7 +125,7 @@ public class UserGroupServiceImplTest {
 		when(userRoleDao.removeGroup(anyString())).thenReturn(true);
 		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList( new ProjectDTO(
-				"name", Collections.singleton(GROUP), "", "", null, Collections.emptyList())));
+				"name", Collections.singleton(GROUP), "", "", null, Collections.emptyList(), true)));
 		doNothing().when(userGroupDao).removeGroup(anyString());
 
 		try {
@@ -193,7 +143,7 @@ public class UserGroupServiceImplTest {
 	public void removeGroupWhenGroupNotExist() {
 
 		final ProjectDTO projectDTO = new ProjectDTO(
-				"name", Collections.emptySet(), "", "", null, Collections.emptyList());
+				"name", Collections.emptySet(), "", "", null, Collections.emptyList(), true);
 		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList(projectDTO));
 		when(userRoleDao.removeGroup(anyString())).thenReturn(false);
@@ -209,7 +159,7 @@ public class UserGroupServiceImplTest {
 	@Test
 	public void removeGroupWithException() {
 		final ProjectDTO projectDTO = new ProjectDTO(
-				"name", Collections.emptySet(), "", "", null, Collections.emptyList());
+				"name", Collections.emptySet(), "", "", null, Collections.emptyList(), true);
 		when(projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
 				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList(projectDTO));
 		when(userRoleDao.removeGroup(anyString())).thenThrow(new DlabException("Exception"));
@@ -220,17 +170,13 @@ public class UserGroupServiceImplTest {
 		userGroupService.removeGroup(GROUP);
 	}
 
-	@Test
-	public void updateGroup() {
-		userGroupService.updateGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+    private UserGroupDto getUserGroup() {
+        return new UserGroupDto(GROUP, Collections.emptyList(), Collections.emptySet());
+    }
 
-		verify(userGroupDao).updateUsers(GROUP, Collections.singleton(USER));
-		verify(userRoleDao).removeGroupWhenRoleNotIn(GROUP, Collections.singleton(ROLE_ID));
-		verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
-		verifyNoMoreInteractions(userRoleDao, userGroupDao);
-	}
-
-	private UserGroupDto getUserGroup() {
-		return new UserGroupDto(GROUP, Collections.emptyList(), Collections.emptySet());
-	}
+    private List<ProjectDTO> getProjects() {
+        return Collections.singletonList(ProjectDTO.builder()
+                .groups(new HashSet<>(Collections.singletonList(GROUP)))
+                .build());
+    }
 }

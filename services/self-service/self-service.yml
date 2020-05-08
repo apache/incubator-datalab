@@ -21,16 +21,13 @@
 
 <#include "ssn.yml">
 
-<#if CLOUD_TYPE == "aws">
 # Minimum and maximum number of slave EMR instances than could be created
 minEmrInstanceCount: 2
 maxEmrInstanceCount: 14
 # Minimum and maximum percentage cost for slave EMR spot instances biding
 minEmrSpotInstanceBidPct: 20
 maxEmrSpotInstanceBidPct: 90
-</#if>
 
-<#if CLOUD_TYPE == "gcp">
 # Maximum length for gcp user name (due to gcp restrictions)
 maxUserNameLength: 10
 # Minimum and maximum number of slave Dataproc instances that could be created
@@ -38,7 +35,6 @@ minInstanceCount: 3
 maxInstanceCount: 15
 minDataprocPreemptibleCount: 0
 gcpOuauth2AuthenticationEnabled: false
-</#if>
 
 # Boundaries for Spark cluster creation
 minSparkInstanceCount: 2
@@ -61,11 +57,7 @@ billingConfFile: ${sys['user.dir']}/../billing/billing.yml
 billingConfFile: ${DLAB_CONF_DIR}/billing.yml
 </#if>
 
-<#if CLOUD_TYPE == "azure">
-azureUseLdap: <LOGIN_USE_LDAP>
 ssnInstanceSize: <SSN_INSTANCE_SIZE>
-maxSessionDurabilityMilliseconds: 288000000
-</#if>
 
 serviceBaseName: SERVICE_BASE_NAME
 os: OPERATION_SYSTEM
@@ -83,8 +75,8 @@ server:
 #      port: 8080
   - type: https
     port: 8443
-    certAlias: dlab
-    validateCerts: true
+    certAlias: ssn
+    validateCerts: false
     keyStorePath: ${KEY_STORE_PATH}
     keyStorePassword: ${KEY_STORE_PASSWORD}
     trustStorePath: ${TRUST_STORE_PATH}
@@ -94,8 +86,8 @@ server:
 #      port: 8081
   - type: https
     port: 8444
-    certAlias: dlab
-    validateCerts: true
+    certAlias: ssn
+    validateCerts: false
     keyStorePath: ${KEY_STORE_PATH}
     keyStorePassword: ${KEY_STORE_PASSWORD}
     trustStorePath: ${TRUST_STORE_PATH}
@@ -148,13 +140,19 @@ schedulers:
     cron: "*/20 * * ? * * *"
   checkQuoteScheduler:
     enabled: true
-    cron: "0 0 * ? * * *"
+    cron: "0 2/15 * ? * *"
   checkUserQuoteScheduler:
     enabled: false
     cron: "0 0 * ? * * *"
   checkProjectQuoteScheduler:
     enabled: true
-    cron: "0 * * ? * * *"
+    cron: "0 4/15 * ? * *"
+  checkEndpointStatusScheduler:
+    enabled: true
+    cron: "0 6/15 * ? * *"
+  billingScheduler:
+    enabled: true
+    cron: "0 0/15 * ? * *"
 
 
 guacamole:

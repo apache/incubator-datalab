@@ -35,6 +35,8 @@ public class SparkComputationalCreateAws extends ComputationalBase<SparkComputat
 	private String dataEngineMasterShape;
 	@JsonProperty("spark_configurations")
 	private List<ClusterConfig> config;
+	@JsonProperty("conf_shared_image_enabled")
+	private String sharedImageEnabled;
 
 	public SparkComputationalCreateAws withDataEngineInstanceCount(String dataEngineInstanceCount) {
 		this.dataEngineInstanceCount = dataEngineInstanceCount;
@@ -53,6 +55,11 @@ public class SparkComputationalCreateAws extends ComputationalBase<SparkComputat
 
 	public SparkComputationalCreateAws withConfig(List<ClusterConfig> config) {
 		this.config = config;
+		return this;
+	}
+
+	public SparkComputationalCreateAws withSharedImageEnabled(String sharedImageEnabled) {
+		this.sharedImageEnabled = sharedImageEnabled;
 		return this;
 	}
 

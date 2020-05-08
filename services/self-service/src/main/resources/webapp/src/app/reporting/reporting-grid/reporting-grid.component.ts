@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
-
-import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dictionary';
+import {Component, OnInit, Output, EventEmitter, ViewChild, Input} from '@angular/core';
+import { ReportingConfigModel } from '../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-reporting-grid',
@@ -29,7 +28,6 @@ import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dic
 
 })
 export class ReportingGridComponent implements OnInit {
-  readonly DICTIONARY = DICTIONARY;
 
   filterConfiguration: ReportingConfigModel;
   filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
@@ -37,6 +35,7 @@ export class ReportingGridComponent implements OnInit {
   reportData: Array<any> = [];
   fullReport: Array<any>;
   isFiltered: boolean = false;
+  active: object = {};
 
   @ViewChild('nameFilter', { static: false }) filter;
 
@@ -44,8 +43,9 @@ export class ReportingGridComponent implements OnInit {
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
   displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'charge'];
   displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
+  filtered: any;
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   onUpdate($event): void {
     this.filteredReportData[$event.type] = $event.model;
@@ -63,6 +63,33 @@ export class ReportingGridComponent implements OnInit {
     }
   }
 
+  sortBy(sortItem, direction) {
+  let report: Array<object>;
+  if (direction === 'down') {
+    report = this.reportData.sort((a, b) => {
+      if (a[sortItem] === null) a = '';
+      if (b[sortItem] === null) b = '';
+     return (a[sortItem] > b[sortItem]) ? 1 : -1;
+    });
+  }
+  if (direction === 'up') {
+    report = this.reportData.sort((a, b) => {
+      if (a[sortItem] === null) a = '';
+      if (b[sortItem] === null) b = '';
+      return (a[sortItem] < b[sortItem]) ? 1 : -1 ;
+    });
+  }
+  this.refreshData(this.fullReport, report);
+  this.removeSorting();
+  this.active[sortItem + direction] = true;
+  }
+
+  removeSorting() {
+    for (const item in this.active) {
+      this.active[item] = false;
+    }
+  }
+
   toggleFilterRow(): void {
     this.collapseFilterRow = !this.collapseFilterRow;
   }
@@ -74,13 +101,18 @@ export class ReportingGridComponent implements OnInit {
   filter_btnClick(): void {
     this.filterReport.emit(this.filteredReportData);
     this.isFiltered = true;
+    this.removeSorting();
   }
 
   resetFiltering(): void {
     this.filteredReportData.defaultConfigurations();
-
-    this.filter.nativeElement.value = ''
+    this.removeSorting();
+    this.filter.nativeElement.value = '';
     this.filterReport.emit(this.filteredReportData);
     this.resetRangePicker.emit(true);
+  }
+
+  shapeSplit(shape) {
+    return shape.split(/(?=Slave)/g);
   }
 }

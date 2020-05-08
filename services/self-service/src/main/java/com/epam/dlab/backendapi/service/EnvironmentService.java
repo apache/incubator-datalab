@@ -19,39 +19,30 @@
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.UserDTO;
 import com.epam.dlab.backendapi.resources.dto.UserResourceInfo;
 
 import java.util.List;
-import java.util.Set;
 
 public interface EnvironmentService {
-
-	Set<String> getUserNames();
-
 	List<UserDTO> getUsers();
 
-	List<UserResourceInfo> getAllEnv();
+	List<UserResourceInfo> getAllEnv(UserInfo user);
 
 	void stopAll();
 
-	void stopEnvironment(String user);
+	void stopEnvironmentWithServiceAccount(String user);
 
 	void stopEnvironmentWithServiceAccount(String user);
 
 	void stopProjectEnvironment(String project);
 
-	void stopEdge(String user);
+	void stopExploratory(UserInfo userInfo, String user, String project, String exploratoryName);
 
-	void stopExploratory(String user, String exploratoryName);
+	void stopComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName);
 
-	void stopComputational(String user, String exploratoryName, String computationalName);
+	void terminateExploratory(UserInfo userInfo, String user, String project, String exploratoryName);
 
-	void terminateAll();
-
-	void terminateEnvironment(String user);
-
-	void terminateExploratory(String user, String exploratoryName);
-
-	void terminateComputational(String user, String exploratoryName, String computationalName);
+	void terminateComputational(UserInfo userInfo, String user, String project, String exploratoryName, String computationalName);
 }

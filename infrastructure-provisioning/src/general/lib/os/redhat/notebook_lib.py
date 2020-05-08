@@ -31,6 +31,7 @@ import sys
 from dlab.notebook_lib import *
 from dlab.fab import *
 import os, time
+from dlab.common_lib import manage_pkg
 
 
 def enable_proxy(proxy_host, proxy_port):
@@ -43,7 +44,7 @@ def enable_proxy(proxy_host, proxy_port):
         if exists('/etc/yum.conf'):
             sudo('sed -i "/^proxy=/d" /etc/yum.conf')
         sudo("echo 'proxy={}' >> /etc/yum.conf".format(proxy_string))
-        sudo('yum clean all')
+        manage_pkg('clean all', 'remote', '')
     except:
         sys.exit(1)
 
@@ -65,7 +66,7 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             run('R -e "IRkernel::installspec()"')
             sudo('ln -s /opt/spark/ /usr/local/spark')
             try:
-                sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'http://cran.us.r-project.org\')" R -e "devtools::check(\'.\')"')
+                sudo('cd /usr/local/spark/R/lib/SparkR; R -e "install.packages(\'roxygen2\',repos=\'https://cloud.r-project.org\')" R -e "devtools::check(\'.\')"')
             except:
                 pass
             sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
@@ -87,11 +88,11 @@ def ensure_r(os_user, r_libs, region, r_mirror):
             if region == 'cn-north-1':
                 r_repository = r_mirror
             else:
-                r_repository = 'http://cran.us.r-project.org'
-            sudo('yum install -y cmake')
-            sudo('yum -y install libcur*')
+                r_repository = 'https://cloud.r-project.org'
+            manage_pkg('-y install', 'remote', 'cmake')
+            manage_pkg('-y install', 'remote', 'libcur*')
             sudo('echo -e "[base]\nname=CentOS-7-Base\nbaseurl=http://buildlogs.centos.org/centos/7/os/x86_64-20140704-1/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7\npriority=1\nexclude=php mysql" >> /etc/yum.repos.d/CentOS-base.repo')
-            sudo('yum install -y R R-core R-core-devel R-devel --nogpgcheck')
+            manage_pkg('-y install', 'remote', 'R R-core R-core-devel R-devel --nogpgcheck')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
             for i in r_libs:
@@ -108,13 +109,13 @@ def ensure_r(os_user, r_libs, region, r_mirror):
 def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
     if not exists('/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
         try:
-            sudo('yum install -y --nogpgcheck https://download2.rstudio.org/rstudio-server-rhel-{}-x86_64.rpm'.format(rstudio_version))
+            manage_pkg('-y install --nogpgcheck', 'remote', 'https://download2.rstudio.org/server/centos6/x86_64/rstudio-server-rhel-{}-x86_64.rpm'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
-            if os.environ['application'] == 'tensor-rstudio':
-                sudo("sed -i '/ExecStart/s|=|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /etc/systemd/system/rstudio-server.service")
-                sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
-                sudo("systemctl daemon-reload")
+            sudo("sed -i '/Type=forking/a \Environment=USER=dlab-user' /etc/systemd/system/rstudio-server.service")
+            sudo("sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /etc/systemd/system/rstudio-server.service")
+            sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
+            sudo("systemctl daemon-reload")
             sudo('touch /home/{}/.Renviron'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
             sudo('''echo 'SPARK_HOME="{0}"' >> /home/{1}/.Renviron'''.format(local_spark_path, os_user))
@@ -157,7 +158,7 @@ def ensure_sbt(os_user):
     if not exists('/home/{}/.ensure_dir/sbt_ensured'.format(os_user)):
         try:
             sudo('curl https://bintray.com/sbt/rpm/rpm | sudo tee /etc/yum.repos.d/bintray-sbt-rpm.repo')
-            sudo('yum install -y sbt')
+            manage_pkg('-y install', 'remote', 'sbt')
             sudo('touch /home/{}/.ensure_dir/sbt_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -166,8 +167,8 @@ def ensure_sbt(os_user):
 def ensure_jre_jdk(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/jre_jdk_ensured'):
         try:
-            sudo('yum install -y java-1.8.0-openjdk')
-            sudo('yum install -y java-1.8.0-openjdk-devel')
+            manage_pkg('-y install', 'remote', 'java-1.8.0-openjdk')
+            manage_pkg('-y install', 'remote', 'java-1.8.0-openjdk-devel')
             sudo('touch /home/' + os_user + '/.ensure_dir/jre_jdk_ensured')
         except:
             sys.exit(1)
@@ -186,8 +187,8 @@ def ensure_scala(scala_link, scala_version, os_user):
 def ensure_additional_python_libs(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/additional_python_libs_ensured'):
         try:
-            sudo('yum clean all')
-            sudo('yum install -y zlib-devel libjpeg-turbo-devel --nogpgcheck')
+            manage_pkg('clean', 'remote', 'all')
+            manage_pkg('-y install', 'remote', 'zlib-devel libjpeg-turbo-devel --nogpgcheck')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
                 sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
                 sudo('python3.5 -m pip install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
@@ -202,8 +203,8 @@ def ensure_additional_python_libs(os_user):
 def ensure_python3_specific_version(python3_version, os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python3_specific_version_ensured'):
         try:
-            sudo('yum install -y yum-utils python34 openssl-devel')
-            sudo('yum -y groupinstall development --nogpgcheck')
+            manage_pkg('-y install', 'remote', 'yum-utils python34 openssl-devel')
+            manage_pkg('-y groupinstall', 'remote', 'development --nogpgcheck')
             if len(python3_version) < 4:
                 python3_version = python3_version + ".0"
             sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version))
@@ -217,8 +218,8 @@ def ensure_python2_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python2_libraries_ensured'):
         try:
             sudo('pip2 install pyparsing==2.0.3')
-            sudo('yum install -y python-setuptools python-wheel')
-            sudo('yum install -y python-virtualenv openssl-devel python-devel openssl-libs libxslt-devel --nogpgcheck')
+            manage_pkg('-y install', 'remote', 'python-setuptools python-wheel')
+            manage_pkg('-y install', 'remote', 'python-virtualenv openssl-devel python-devel openssl-libs libxslt-devel --nogpgcheck')
             try:
                 sudo('python2 -m pip install backports.shutil_get_terminal_size tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
@@ -239,8 +240,8 @@ def ensure_python2_libraries(os_user):
 def ensure_python3_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python3_libraries_ensured'):
         try:
-            sudo('yum -y install https://centos7.iuscommunity.org/ius-release.rpm')
-            sudo('yum install -y python35u python35u-pip python35u-devel')
+            manage_pkg('-y install', 'remote', 'https://centos7.iuscommunity.org/ius-release.rpm')
+            manage_pkg('-y install', 'remote', 'python35u python35u-pip python35u-devel')
             sudo('python3.5 -m pip install -U pip=={} setuptools --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('python3.5 -m pip install boto3 --no-cache-dir')
             sudo('python3.5 -m pip install fabvenv fabric-virtualenv future --no-cache-dir')
@@ -266,7 +267,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('dracut --force')
             with settings(warn_only=True):
                 reboot(wait=150)
-            sudo('yum -y install libglvnd-opengl libglvnd-devel dkms gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
+            manage_pkg('-y install', 'remote', 'libglvnd-opengl libglvnd-devel dkms gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
@@ -338,7 +339,7 @@ def install_livy_dependencies_emr(os_user):
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
         sudo('curl -sL https://rpm.nodesource.com/setup_6.x | sudo -E bash -')
-        sudo('yum install -y nodejs')
+        manage_pkg('-y install', 'remote', 'nodejs')
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 
@@ -347,10 +348,10 @@ def install_os_pkg(requisites):
     error_parser = "Could not|No matching|Error:|failed|Requires:|Errno"
     try:
         print("Updating repositories and installing requested tools: {}".format(requisites))
-        sudo('yum update-minimal --security -y --skip-broken')
+        manage_pkg('update-minimal --security -y --skip-broken', 'remote', '')
         sudo('export LC_ALL=C')
         for os_pkg in requisites:
-            sudo('yum -y install {0} --nogpgcheck 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
+            manage_pkg('-y install', 'remote', '{0} --nogpgcheck 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
             try:
                 res = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\'][0]"'.format(os_pkg))
@@ -365,14 +366,14 @@ def install_os_pkg(requisites):
 
 def remove_os_pkg(pkgs):
     try:
-        sudo('yum remove -y {}'.format(' '.join(pkgs)))
+        manage_pkg('remove -y', 'remote', '{}'.format(' '.join(pkgs)))
     except:
         sys.exit(1)
 
 
 def get_available_os_pkgs():
     try:
-        sudo('yum update-minimal --security -y --skip-broken')
+        manage_pkg('update-minimal --security -y --skip-broken', 'remote', '')
         downgrade_python_version()
         yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
         yum_re = re.sub\
@@ -387,7 +388,7 @@ def get_available_os_pkgs():
 
 def install_opencv(os_user):
     if not exists('/home/{}/.ensure_dir/opencv_ensured'.format(os_user)):
-        sudo('yum install -y cmake python34 python34-devel python34-pip gcc gcc-c++')
+        manage_pkg('-y install', 'remote', 'cmake python34 python34-devel python34-pip gcc gcc-c++')
         sudo('pip2 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('pip3.4 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('pip3.5 install numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
@@ -405,8 +406,8 @@ def install_opencv(os_user):
 def install_caffe2(os_user, caffe2_version, cmake_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
-        sudo('yum update-minimal --security -y')
-        sudo('yum install -y --nogpgcheck automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
+        manage_pkg('update-minimal --security -y', 'remote', '')
+        manage_pkg('-y install --nogpgcheck', 'remote', 'automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy=={} protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy=={} protobuf pydot python-nvd3 pyyaml '
@@ -432,8 +433,9 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
 def install_cntk(os_user, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
         sudo('echo "exclude=*.i386 *.i686" >> /etc/yum.conf')
-        sudo('yum clean all && yum update-minimal --security -y')
-        sudo('yum install -y openmpi openmpi-devel --nogpgcheck')
+        manage_pkg('clean', 'remote', 'all')
+        manage_pkg('update-minimal --security -y', 'remote', '')
+        manage_pkg('-y install --nogpgcheck', 'remote', 'openmpi openmpi-devel')
         sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
@@ -464,9 +466,7 @@ def install_torch(os_user):
     if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
         run('git clone https://github.com/torch/distro.git ~/torch --recursive')
         with cd('/home/{}/torch/'.format(os_user)):
-            sudo('yum install -y --nogpgcheck cmake curl readline-devel ncurses-devel gcc-c++ gcc-gfortran git '
-                 'gnuplot unzip libjpeg-turbo-devel libpng-devel ImageMagick GraphicsMagick-devel fftw-devel '
-                 'sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld qt-devel')
+            manage_pkg('-y install --nogpgcheck', 'remote', 'cmake curl readline-devel ncurses-devel gcc-c++ gcc-gfortran git gnuplot unzip libjpeg-turbo-devel libpng-devel ImageMagick GraphicsMagick-devel fftw-devel sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld qt-devel')
             run('./install.sh -b')
         run('source /home/{}/.bashrc'.format(os_user))
         sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))

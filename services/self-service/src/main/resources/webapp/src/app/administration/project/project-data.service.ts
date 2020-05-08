@@ -18,17 +18,20 @@
  */
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
+import { mergeMap} from 'rxjs/operators';
 
-import { ProjectService } from '../../core/services';
+import { ProjectService, EndpointService } from '../../core/services';
 import { Project } from './project.component';
 
 @Injectable()
 export class ProjectDataService {
-
-  _projects = new BehaviorSubject<any>(null);
-
-  constructor(private projectService: ProjectService) {
+  public _projects = new BehaviorSubject<any>(null);
+  private endpointsList: any = [];
+  constructor(
+    private projectService: ProjectService,
+    private endpointService: EndpointService
+  ) {
     this.getProjectsList();
   }
 
@@ -37,7 +40,25 @@ export class ProjectDataService {
   }
 
   private getProjectsList() {
-    this.projectService.getProjectsList().subscribe(
-      (response: Project[]) => this._projects.next(response));
+    this.endpointService.getEndpointsData().subscribe(list => this.endpointsList = list);
+    this.projectService.getProjectsList()
+      .pipe(
+        mergeMap ((response: Project[]) => {
+            if (response && this.endpointsList.length) {
+              response.forEach(project => project.endpoints.forEach(endpoint => {
+                const filtredEndpoints =  this.endpointsList.filter(v => v.name === endpoint.name);
+                if (filtredEndpoints.length) {
+                  endpoint.endpointStatus = this.endpointsList.filter(v => v.name === endpoint.name)[0].status;
+                } else {
+                  endpoint.endpointStatus = 'N/A';
+                }
+              }));
+            }
+          return of(response);
+        }))
+      .subscribe(
+        (response: Project[]) => {
+          return this._projects.next(response);
+        });
   }
 }

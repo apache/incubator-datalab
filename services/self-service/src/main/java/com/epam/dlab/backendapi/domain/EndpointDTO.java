@@ -19,20 +19,33 @@
 
 package com.epam.dlab.backendapi.domain;
 
+import com.epam.dlab.cloud.CloudProvider;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.URL;
 
-import javax.annotation.RegEx;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EndpointDTO {
 
+	private static final String URL_REGEXP_VALIDATION = "^(http(s)?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+	@NotBlank(message = "field cannot be empty")
 	private final String name;
-
+	@URL(regexp = URL_REGEXP_VALIDATION, message = "field is in improper format!")
 	private final String url;
+	@NotBlank(message = "field cannot be empty")
 	private final String account;
 	@JsonProperty("endpoint_tag")
 	private final String tag;
+	private final EndpointStatus status;
+	private final CloudProvider cloudProvider;
+
+	public enum EndpointStatus {
+		ACTIVE,
+		INACTIVE
+	}
 }

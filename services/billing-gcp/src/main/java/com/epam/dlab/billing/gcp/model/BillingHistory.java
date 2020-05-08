@@ -26,7 +26,7 @@ import org.springframework.data.annotation.Id;
 @Data
 @AllArgsConstructor
 public class BillingHistory {
-	@Id
-	private String tableName;
-	private final long lastModified;
+    @Id
+    private String tableName;
+    private final long lastModified;
 }

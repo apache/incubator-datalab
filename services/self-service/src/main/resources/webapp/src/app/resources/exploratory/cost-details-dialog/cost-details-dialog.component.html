@@ -34,25 +34,25 @@
       <div class="billing-detail content-box">
         <mat-list>
             <mat-list-item class="list-header">
-              <div class="resource-name ellipsis" [ngClass]="{ 'wide-name-field' : DICTIONARY.cloud_provider === 'azure' }">Name</div>
-              <div class="service">{{ DICTIONARY.service }}</div>
-              <div class="resource-type" *ngIf="DICTIONARY.cloud_provider === 'aws'">{{ DICTIONARY.type }}</div>
-              <div class="cost-currency">Cost</div>
+              <div class="resource-name ellipsis" [ngClass]="{ 'wide-name-field' : provider === 'azure' }">Name</div>
+              <div class="service">Product</div>
+<!--              <div class="resource-type" *ngIf="provider === 'aws'">Type</div>-->
               <div class="usage-date-start">Start</div>
               <div class="usage-date-end">End</div>
+              <div class="cost-currency">Cost</div>
             </mat-list-item>
             <div class="scrolling-content" id="scrolling">
-              <mat-list-item *ngFor="let item of notebook.billing">
-                <div class="resource-name" [ngClass]="{ 'wide-name-field' : DICTIONARY.cloud_provider === 'azure' }"
-                     matTooltip="{{ item[DICTIONARY.billing.resourceName] }}"
+              <mat-list-item *ngFor="let item of notebook.billing.report_lines">
+                <div class="resource-name" [ngClass]="{ 'wide-name-field' : provider === 'azure' }"
+                     matTooltip="{{ item.resource_name }}"
                      matTooltipPosition="above">
-                     {{ item[DICTIONARY.billing.resourceName] }}
+                     {{ item.resource_name }}
                 </div>
-                <div class="service">{{ item[DICTIONARY.billing.service] }}</div>
-                <div class="resource-type" *ngIf="DICTIONARY.cloud_provider === 'aws'">{{ item[DICTIONARY.billing.type] }}</div>
-                <div class="cost-currency">{{ item[DICTIONARY.billing.cost] }} {{ item[DICTIONARY.billing.currencyCode] }}</div>
-                <div class="usage-date-start">{{ item[DICTIONARY.billing.dateFrom] | date }}</div>
-                <div class="usage-date-end">{{ item[DICTIONARY.billing.dateTo] | date }}</div>
+                <div class="service">{{ item.product }}</div>
+<!--                <div class="resource-type" >{{ item.resourse_type }}</div>-->
+                <div class="usage-date-start">{{ item.from | date }}</div>
+                <div class="usage-date-end">{{ item.to | date }}</div>
+                <div class="cost-currency">{{ item.cost }} {{ item.currency }}</div>
               </mat-list-item>
             </div>
         </mat-list>
