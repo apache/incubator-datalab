@@ -224,6 +224,24 @@ def create_rt(vpc_id, infra_tag_name, infra_tag_value, secondary):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def create_nat_rt(vpc_id, infra_tag_value, edge_instance_id, private_subnet_id):
+    try:
+        ec2 = boto3.client('ec2')
+        nat_rt = ec2.create_route_table(VpcId=vpc_id)
+        nat_rt_id = nat_rt.get('RouteTable').get('RouteTableId')
+        tag = {"Key": 'Name', "Value": infra_tag_value}
+        create_tag(nat_rt_id, json.dumps(tag))
+        ec2 = boto3.resource('ec2')
+        route_table = ec2.RouteTable(nat_rt_id)
+        route_table.create_route(DestinationCidrBlock='0.0.0.0/0', InstanceId=edge_instance_id)
+        route_table.associate_with_subnet(SubnetId=private_subnet_id)
+    except Exception as err:
+        logging.info(
+            "Unable to create Route Table: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create Route Table",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
 
 def create_subnet(vpc_id, subnet, tag, zone):
     try:
@@ -474,6 +492,15 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
+def modify_instance_sourcedescheck(instance_id):
+    try:
+        ec2 = boto3.client('ec2')
+        ec2.modify_instance_attribute(InstanceId=instance_id, SourceDestCheck={'Value': False})
+    except Exception as err:
+        logging.info("Unable to modify EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to modify EC2",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 def tag_intance_volume(instance_id, node_name, instance_tag):
     try:

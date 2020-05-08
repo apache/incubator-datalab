@@ -245,6 +245,25 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        print('[CONFIGRING EDGE AS NAT]')
+        if os.environ['edge_is_nat'] == 'true':
+            print('Installing nftables')
+            additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
+                                 "edge_ip": edge_conf['edge_private_ip']}
+            params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+                edge_conf['instance_hostname'], edge_conf['keyfile_name'], json.dumps(additional_config),
+                edge_conf['dlab_ssh_user'])
+            try:
+                local("~/scripts/{}.py {}".format('configure_nftables', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+    except Exception as err:
+        dlab.fab.append_result("Failed to configure NAT." + str(err))
+        clear_resources()
+        sys.exit(1)
+
+    try:
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(edge_conf['instance_name']))

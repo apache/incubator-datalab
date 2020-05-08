@@ -152,3 +152,18 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
     except Exception as err:
         print("Failed install nginx with ldap: " + str(err))
         sys.exit(1)
+
+def configure_nftables(config):
+    try:
+        if not exists('/tmp/nftables_ensured'):
+            manage_pkg('-y install', 'remote', 'nftables')
+            sudo('systemctl enable nftables.service')
+            sudo('sysctl net.ipv4.ip_forward=1')
+            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/nftables.conf'.format(config['edge_ip']))
+            sudo('sed -i "s|SUBNET_CIDR|{}|g" /opt/dlab/templates/nftables.conf'.format(config['exploratory_subnet']))
+            sudo('cp /opt/dlab/templates/nftables.conf /etc/')
+            sudo('systemctl restart nftables')
+            sudo('touch /tmp/nftables_ensured')
+    except Exception as err:
+        print("Failed to configure nftables: " + str(err))
+        sys.exit(1)
