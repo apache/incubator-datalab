@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.service.impl.azure;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.dto.bucket.BucketDTO;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.util.List;
 
@@ -37,8 +38,7 @@ public class BucketServiceAzureImpl implements BucketService {
     }
 
     @Override
-    public byte[] downloadObject(String bucket, String object) {
-        return new byte[0];
+    public void downloadObject(String bucket, String object, HttpServletResponse resp) {
     }
 
     @Override

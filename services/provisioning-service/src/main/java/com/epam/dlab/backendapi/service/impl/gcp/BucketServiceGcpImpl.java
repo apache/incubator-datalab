@@ -31,7 +31,8 @@ import com.google.cloud.storage.StorageOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
-import java.io.ByteArrayOutputStream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -72,14 +73,13 @@ public class BucketServiceGcpImpl implements BucketService {
     }
 
     @Override
-    public byte[] downloadObject(String bucket, String object) {
+    public void downloadObject(String bucket, String object, HttpServletResponse resp) {
         log.info("Downloading file {} from bucket {}", object, bucket);
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+        try (ServletOutputStream outputStream = resp.getOutputStream()) {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             Blob blob = storage.get(BlobId.of(bucket, object));
-            blob.downloadTo(outputStream); //todo add check for blob != null and throw exception
-            log.info("Downloading uploading file {} from bucket {}", object, bucket);
-            return outputStream.toByteArray();
+            blob.downloadTo(outputStream);
+            log.info("Finished downloading file {} from bucket {}", object, bucket);
         } catch (Exception e) {
             log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));

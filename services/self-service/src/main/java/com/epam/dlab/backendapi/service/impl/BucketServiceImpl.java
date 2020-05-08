@@ -31,9 +31,13 @@ import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -92,11 +96,13 @@ public class BucketServiceImpl implements BucketService {
     }
 
     @Override
-    public byte[] downloadObject(UserInfo userInfo, String bucket, String object, String endpoint) {
-        try {
-            EndpointDTO endpointDTO = endpointService.get(endpoint);
-            return provisioningService.getWithMediaTypes(String.format(BUCKET_DOWNLOAD_OBJECT, endpointDTO.getUrl(), bucket, encodeObject(object)), userInfo.getAccessToken(), byte[].class,
-                    APPLICATION_JSON, APPLICATION_OCTET_STREAM);
+    public void downloadObject(UserInfo userInfo, String bucket, String object, String endpoint, HttpServletResponse resp) {
+        log.info("Downloading file {} for user {} from bucket {}", object, userInfo.getName(), bucket);
+        EndpointDTO endpointDTO = endpointService.get(endpoint);
+        try (InputStream inputStream = provisioningService.getWithMediaTypes(String.format(BUCKET_DOWNLOAD_OBJECT, endpointDTO.getUrl(), bucket, encodeObject(object)), userInfo.getAccessToken(),
+                InputStream.class, APPLICATION_JSON, APPLICATION_OCTET_STREAM); ServletOutputStream outputStream = resp.getOutputStream()) {
+            IOUtils.copyLarge(inputStream, outputStream);
+            log.info("Finished downloading file {} for user {} from bucket {}", object, userInfo.getName(), bucket);
         } catch (Exception e) {
             log.error("Cannot upload object {} from bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage());
             throw new DlabException(String.format("Cannot download object %s from bucket %s for user %s, endpoint %s. Reason %s", object, bucket, userInfo.getName(), endpoint, e.getMessage()));
@@ -123,10 +129,11 @@ public class BucketServiceImpl implements BucketService {
     }
 
     private FormDataMultiPart getFormDataMultiPart(String bucket, String object, InputStream inputStream) {
+        StreamDataBodyPart filePart = new StreamDataBodyPart("file", inputStream, object, MediaType.valueOf(APPLICATION_OCTET_STREAM));
         FormDataMultiPart formData = new FormDataMultiPart();
-        formData.field("file", inputStream, MediaType.valueOf(APPLICATION_OCTET_STREAM));
         formData.field("bucket", bucket);
         formData.field("object", object);
+        formData.bodyPart(filePart);
         return formData;
     }
 }

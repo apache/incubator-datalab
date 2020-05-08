@@ -27,12 +27,14 @@ import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -72,10 +74,11 @@ public class BucketResource {
     @Path("/{bucket}/object/{object}/download")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadObject(@Auth UserInfo userInfo,
+    public Response downloadObject(@Auth UserInfo userInfo, @Context HttpServletResponse resp,
                                    @PathParam("object") String object,
                                    @PathParam("bucket") String bucket) {
-        return Response.ok(bucketService.downloadObject(bucket, object)).build();
+        bucketService.downloadObject(bucket, object, resp);
+        return Response.ok().build();
     }
 
     @POST

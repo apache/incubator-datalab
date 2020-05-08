@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -35,6 +36,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -81,11 +83,12 @@ public class BucketResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @RolesAllowed("/api/bucket/download")
-    public Response downloadObject(@Auth UserInfo userInfo,
+    public Response downloadObject(@Auth UserInfo userInfo, @Context HttpServletResponse resp,
                                    @PathParam("bucket") String bucket,
                                    @PathParam("object") String object,
                                    @PathParam("endpoint") String endpoint) {
-        return Response.ok(bucketService.downloadObject(userInfo, bucket, object, endpoint))
+        bucketService.downloadObject(userInfo, bucket, object, endpoint, resp);
+        return Response.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Paths.get(object).getFileName() + "\"")
                 .build();
     }

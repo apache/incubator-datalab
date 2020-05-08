@@ -37,6 +37,8 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -82,15 +84,15 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     @Override
-    public byte[] downloadObject(String bucket, String object) {
-        try {
+    public void downloadObject(String bucket, String object, HttpServletResponse resp) {
+        try (ServletOutputStream outputStream = resp.getOutputStream()) {
             S3Client s3 = S3Client.create();
             GetObjectRequest downloadRequest = GetObjectRequest
                     .builder()
                     .bucket(bucket)
                     .key(object)
                     .build();
-            return s3.getObject(downloadRequest, ResponseTransformer.toBytes()).asByteArray();
+            s3.getObject(downloadRequest, ResponseTransformer.toOutputStream(outputStream));
         } catch (Exception e) {
             log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
