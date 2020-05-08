@@ -1,15 +1,15 @@
 {
  "argv": [
-  "/usr/bin/python3.5",
+  "/usr/bin/python3",
   "-m",
   "ipykernel",
   "-f",
   "{connection_file}"
  ],
  "language": "python",
- "display_name": "Local PySpark (Python-3.5 / Spark-SP_VER )",
+ "display_name": "Local PySpark (Python-3.6 / Spark-SP_VER )",
  "env": {
-  "PYSPARK_PYTHON": "python3.5",
+  "PYSPARK_PYTHON": "python3.6",
   "SPARK_HOME": "/opt/spark/",
   "PYTHONPATH": "PY4J:/opt/spark/python/:",
   "PYTHONSTARTUP": "/opt/spark/python/pyspark/shell.py",
