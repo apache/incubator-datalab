@@ -1,5 +1,5 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding [ngStyle]="{'display': 'none'}">
+  <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding matTreeNodePaddingIndent="17" [ngStyle]="{'display': 'none'}">
   <button mat-icon-button disabled></button>
   <!--    <mat-checkbox class="checklist-leaf-node"-->
   <!--                  [checked]="checklistSelection.isSelected(node)"-->
@@ -7,7 +7,7 @@
   {{node.item}}
 </mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding class="input-node">
+  <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding matTreeNodePaddingIndent="17" class="input-node">
     <form class="add-folder-form">
       <mat-form-field>
         <mat-label>New folder</mat-label>
@@ -23,12 +23,20 @@
 
         </mat-error>
       </mat-form-field>
-      <button (click)="saveNode(node, itemValue.value)" [ngClass]="{'check': folderFormControl.valid && folderFormControl.dirty}" mat-icon-button class="btn action-btn" [disabled]="!folderFormControl.valid || !folderFormControl.dirty"><span><i class="material-icons ">check</i></span></button>
+      <button (click)="saveNode(node, itemValue.value)"
+              [ngClass]="{'check': folderFormControl.valid && folderFormControl.dirty && !folderCreating}"
+              mat-icon-button class="btn action-btn"
+              [disabled]="!folderFormControl.valid || !folderFormControl.dirty"
+              matTooltip="Please wait! Folder is creating."
+              [matTooltipDisabled]="!folderCreating"
+              matTooltipPosition="above"
+      >
+        <span><i class="material-icons ">check</i></span></button>
       <button (click)="removeItem(node)" mat-icon-button class="btn close action-btn"><span ><i class="material-icons ">close</i></span></button>
     </form>
   </mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding  matTreeNodePaddingIndent="17">
     <button mat-icon-button matTreeNodeToggle
             [attr.aria-label]="'toggle ' + node.filename">
       <mat-icon class="mat-icon-rtl-mirror" [ngClass]="{'active-item': selectedFolder === node}">

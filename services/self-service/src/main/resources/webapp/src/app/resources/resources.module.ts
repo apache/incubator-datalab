@@ -31,6 +31,7 @@ import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component'
 import {FolderTreeComponent} from './bucket-browser/folder-tree/folder-tree.component';
 import {MatTreeModule} from '@angular/material/tree';
 import {BucketDataService} from './bucket-browser/bucket-data.service';
+import {BucketConfirmationDialogComponent} from './bucket-browser/bucket-confirmation-dialog/bucket-confirmation-dialog.component';
 
 
 @NgModule({
@@ -48,9 +49,10 @@ import {BucketDataService} from './bucket-browser/bucket-data.service';
     ManageUngitComponent,
     ConfirmDeleteAccountDialog,
     BucketBrowserComponent,
-    FolderTreeComponent
+    FolderTreeComponent,
+    BucketConfirmationDialogComponent
   ],
-  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog, BucketBrowserComponent, FolderTreeComponent],
+  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog, BucketBrowserComponent, FolderTreeComponent, BucketConfirmationDialogComponent],
   providers: [BucketDataService],
   exports: [ResourcesComponent]
 })

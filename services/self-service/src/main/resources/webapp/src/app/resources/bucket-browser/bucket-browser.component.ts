@@ -27,6 +27,8 @@ import {FolderTreeComponent} from './folder-tree/folder-tree.component';
 import {BucketBrowserService, TodoItemNode} from '../../core/services/bucket-browser.service';
 import {FileUtils} from '../../core/util';
 import {BucketDataService} from './bucket-data.service';
+import {BucketConfirmationDialogComponent} from './bucket-confirmation-dialog/bucket-confirmation-dialog.component';
+import {logger} from 'codelyzer/util/logger';
 
 @Component({
   selector: 'dlab-bucket-browser',
@@ -41,15 +43,16 @@ export class BucketBrowserComponent implements OnInit {
   public bucketName = '';
   public endpoint = '';
   public isUploadWindowOpened = false;
-
-  @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   public selectedFolder: any;
   public selectedFolderForAction: any;
   public selected: any[];
-  private uploadForm: FormGroup;
   public bucketStatus;
   public allDisable: boolean;
   public folders: any[];
+  public selectedItems;
+
+  @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
+
 
 
   constructor(
@@ -61,7 +64,6 @@ export class BucketBrowserComponent implements OnInit {
     private _fb: FormBuilder,
     private bucketBrowserService: BucketBrowserService,
     private bucketDataService: BucketDataService,
-    private formBuilder: FormBuilder
   ) {
 
   }
@@ -70,9 +72,6 @@ export class BucketBrowserComponent implements OnInit {
     this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
     this.endpoint = this.data.endpoint;
     this.bucketStatus = this.data.bucketStatus;
-    this.uploadForm = this.formBuilder.group({
-      file: ['']
-    });
   }
 
   public showItem(item) {
@@ -80,44 +79,58 @@ export class BucketBrowserComponent implements OnInit {
     this.folderTreeComponent.showItem(flatItem);
   }
 
-  public handleFileInput(event) {
+  public async handleFileInput(event) {
     if (event.target.files.length > 0) {
-      const file = event.target.files[0];
-      this.uploadForm.get('file').setValue(file);
-      const newAddedFiles = Object['values'](event.target.files).map(v => (
-        {name: v['name'], file: file, 'size': (v['size'] / 1048576).toFixed(2), path: this.path, isUploading: false, uploaded: false, errorUploading: false}));
-      this.addedFiles = [...this.addedFiles, ...newAddedFiles];
+      let askForAll = true;
+      let skipAll = false;
+      for (const file of  Object['values'](event.target.files)) {
+        const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
+        const existFile = folderFiles.filter(v => v === file['name'])[0];
+        const uploadItem = {
+          name: file['name'],
+          file: file,
+          'size': (file['size'] / 1048576).toFixed(2),
+          path: this.path,
+          isUploading: false,
+          uploaded: false,
+          errorUploading: false
+        };
+        if (existFile && askForAll) {
+          const result = await this.openResolveDialog(existFile);
+          askForAll = !result.forAll;
+          if (result.forAll && !result.replaceObject) {
+            skipAll = true;
+          }
+          if (result.replaceObject) {
+            this.addedFiles.push(uploadItem);
+            this.uploadNewFile(uploadItem);
+          }
+        } else if (!existFile || (existFile && !askForAll && !skipAll)) {
+          this.addedFiles.push(uploadItem);
+          this.uploadNewFile(uploadItem);
+        }
+        }
     }
-    // event.target.value = null;
+    event.target.value = '';
+  }
+
+  async openResolveDialog(existFile) {
+     const dialog = this.dialog.open(BucketConfirmationDialogComponent, {data: {items: existFile, type: 'upload-dublicat'} , width: '550px'});
+     return dialog.afterClosed().toPromise().then(result => {
+      return Promise.resolve(result);
+    });
   }
 
   public closeUploadWindow() {
-    // this.isUploadWindowOpened = false;
     this.addedFiles = [];
-
   }
 
 
   public toggleSelectedFile(file, type) {
-   // remove if when will be possible download several files
-    if (!file.isSelected || !file.isFolderSelected) {
-      this.folderItems.forEach(item => item.isSelected = false);
-      this.folderItems.forEach(item => item.isFolderSelected = false);
-    }
-    if (type === 'file') {
-      file.isSelected = !file.isSelected;
-      this.selected = this.folderItems.filter(item => item.isSelected);
-      this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
-    }
-
-    if (type === 'folder') {
-      file.isFolderSelected = !file.isFolderSelected;
-      this.selected = this.folderItems.filter(item => item.isSelected);
-      this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
-    }
-
-    console.log(this.selectedFolderForAction, this.selected );
-
+  type === 'file' ?  file.isSelected = !file.isSelected : file.isFolderSelected = !file.isFolderSelected;
+  this.selected = this.folderItems.filter(item => item.isSelected);
+  this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
+  this.selectedItems = [...this.selected, ...this.selectedFolderForAction];
   }
 
   filesPicked(files) {
@@ -185,35 +198,46 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public fileAction(action) {
-    // this.selected = this.folderItems.filter(item => item.isSelected);
-    const selected = this.folderItems.filter(item => item.isSelected)[0];
-    const folderSelected = this.folderItems.filter(item => item.isFolderSelected)[0];
-    if (!selected) {
-      this.toastr.error('Folder deleting not working yet!', 'Oops!');
-      return;
-    }
-    const path = encodeURIComponent(`${this.pathInsideBucket}${this.selected[0].item}`);
+    const selected = this.folderItems.filter(item => item.isSelected);
+    const folderSelected = this.folderItems.filter(item => item.isFolderSelected);
+
     if (action === 'download') {
-      selected['isDownloading'] = true;
+      const path = encodeURIComponent(`${this.pathInsideBucket}${this.selected[0].item}`);
+      selected[0]['isDownloading'] = true;
       this.bucketBrowserService.downloadFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}/download`)
         .subscribe(data =>  {
-        FileUtils.downloadBigFiles(data, selected.item);
-        selected['isDownloading'] = false;
+        FileUtils.downloadBigFiles(data, selected[0].item);
+        selected[0]['isDownloading'] = false;
         this.folderItems.forEach(item => item.isSelected = false);
         }, error => {
             this.toastr.error(error.message || 'File downloading error!', 'Oops!');
-            selected['isDownloading'] = false;
+            selected[0]['isDownloading'] = false;
           }
         );
     }
 
     if (action === 'delete') {
-      this.bucketBrowserService.deleteFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}`).subscribe(() => {
-        this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
-          this.toastr.success('File successfully deleted!', 'Success!');
-        this.folderItems.forEach(item => item.isSelected = false);
-        }, error => this.toastr.error(error.message || 'File deleting error!', 'Oops!')
-      );
+      const itemsForDeleting = [...folderSelected, ...selected];
+      const objects = itemsForDeleting.map(obj => obj.object.object);
+      const dataForServer = [];
+      objects.forEach(object => {
+        dataForServer.push(...this.bucketDataService.serverData.map(v => v.object).filter(v => v.indexOf(object) === 0));
+      });
+
+      this.dialog.open(BucketConfirmationDialogComponent, {data: {items: itemsForDeleting, type: 'delete'} , width: '550px'})
+        .afterClosed().subscribe((res) => {
+        !res && this.clearSelection();
+        res && this.bucketBrowserService.deleteFile({bucket: this.bucketName, endpoint: this.endpoint, 'objects': dataForServer}).subscribe(() => {
+            this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
+            this.toastr.success('Objects successfully deleted!', 'Success!');
+            this.clearSelection();
+          }, error => {
+          this.toastr.error(error.message || 'Objects deleting error!', 'Oops!');
+          this.clearSelection();
+        });
+      });
+
+
     }
   }
 }
