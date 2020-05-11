@@ -40,17 +40,16 @@ export class BucketDataService {
 
   public refreshBucketdata(bucket, endpoint) {
     let backetData = [];
-    // this.bucketBrowserService.getBucketData(bucket, endpoint).subscribe(v => {
-    //   this.serverData = v;
-    //   backetData = this.convertToFolderTree(v);
-    //   const data = this.buildFileTree({[bucket]: backetData}, 0);
-    //   this._bucketData.next(data);
-    // });
-
-      this.serverData = array;
-      backetData = this.convertToFolderTree(array);
-      const data = this.buildFileTree({[bucket]: backetData}, 0);
-      this._bucketData.next(data);
+     this.bucketBrowserService.getBucketData(bucket, endpoint).subscribe(v => {
+     this.serverData = v;
+     backetData = this.convertToFolderTree(v);
+     const data = this.buildFileTree({[bucket]: backetData}, 0);
+     this._bucketData.next(data);
+     });
+      // this.serverData = array;
+      // backetData = this.convertToFolderTree(array);
+      // const data = this.buildFileTree({[bucket]: backetData}, 0);
+      // this._bucketData.next(data);
   }
 
   public buildFileTree(obj: {[key: string]: any}, level: number): TodoItemNode[] {

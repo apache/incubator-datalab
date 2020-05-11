@@ -21,19 +21,20 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.BucketService;
+import com.epam.dlab.dto.bucket.BucketDeleteDTO;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -64,8 +65,7 @@ public class BucketResource {
     public Response uploadObject(@Auth UserInfo userInfo,
                                  @FormDataParam("object") String object,
                                  @FormDataParam("bucket") String bucket,
-                                 @FormDataParam("file") InputStream inputStream,
-                                 @FormDataParam("file") FormDataContentDisposition fileMetaData) {
+                                 @FormDataParam("file") InputStream inputStream) {
         bucketService.uploadObject(bucket, object, inputStream);
         return Response.ok().build();
     }
@@ -74,20 +74,19 @@ public class BucketResource {
     @Path("/{bucket}/object/{object}/download")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadObject(@Auth UserInfo userInfo,
+    public Response downloadObject(@Auth UserInfo userInfo, @Context HttpServletResponse resp,
                                    @PathParam("object") String object,
                                    @PathParam("bucket") String bucket) {
-        return Response.ok(bucketService.downloadObject(bucket, object)).build();
+        bucketService.downloadObject(bucket, object, resp);
+        return Response.ok().build();
     }
 
-    @DELETE
-    @Path("/{bucket}/object/{object}")
+    @POST
+    @Path("/objects/delete")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response uploadObject(@Auth UserInfo userInfo,
-                                 @PathParam("bucket") String bucket,
-                                 @PathParam("object") String object) {
-        bucketService.deleteObject(bucket, object);
+    public Response uploadObject(@Auth UserInfo userInfo, BucketDeleteDTO bucketDeleteDTO) {
+        bucketService.deleteObjects(bucketDeleteDTO.getBucket(), bucketDeleteDTO.getObjects());
         return Response.ok().build();
     }
 }

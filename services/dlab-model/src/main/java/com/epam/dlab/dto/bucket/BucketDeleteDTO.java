@@ -21,13 +21,12 @@ package com.epam.dlab.dto.bucket;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import org.hibernate.validator.constraints.NotBlank;
+
+import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BucketDownloadDTO {
-    @NotBlank(message = "field cannot be empty")
+public class BucketDeleteDTO {
     private final String bucket;
-    @NotBlank(message = "field cannot be empty")
-    private final String object;
+    private final List<String> objects;
 }

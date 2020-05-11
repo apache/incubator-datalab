@@ -30,6 +30,7 @@
       <div *ngIf="data.type === 'delete'">
       <mat-list class="resources">
         <mat-list-item class="list-header">
+
           <div class="object">Object</div>
           <div class="size">Size</div>
         </mat-list-item>
@@ -63,7 +64,6 @@
           matTooltipShowDelay="1000"
           [matTooltipClass]="'bucket-item-tooltip'"
         >{{data.items}}</span> already exist in selected folder. How would you like to resolve this conflict?</p>
-
         <mat-radio-group
           aria-labelledby="upload-radio-group-label"
           class="upload-radio-group"

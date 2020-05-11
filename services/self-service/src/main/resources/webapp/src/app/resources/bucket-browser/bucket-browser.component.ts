@@ -55,7 +55,6 @@ export class BucketBrowserComponent implements OnInit {
   public selectedItems;
   public searchValue: string;
 
-
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
 
 
@@ -88,6 +87,7 @@ export class BucketBrowserComponent implements OnInit {
     if (event.target.files.length > 0) {
       let askForAll = true;
       let skipAll = false;
+
       const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
       for (const file of  Object['values'](event.target.files)) {
       const existFile = folderFiles.includes(v => v === file['name'])[0];
@@ -108,11 +108,11 @@ export class BucketBrowserComponent implements OnInit {
           }
           if (result.replaceObject) {
             this.addedFiles.push(uploadItem);
-            // this.uploadNewFile(uploadItem);
+            this.uploadNewFile(uploadItem);
           }
         } else if (!existFile || (existFile && !askForAll && !skipAll)) {
           this.addedFiles.push(uploadItem);
-          // this.uploadNewFile(uploadItem);
+          this.uploadNewFile(uploadItem);
         }
         }
     }
@@ -137,6 +137,7 @@ export class BucketBrowserComponent implements OnInit {
   this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
   this.selectedItems = [...this.selected, ...this.selectedFolderForAction];
   this.isActionsOpen = false;
+
   }
 
   filesPicked(files) {
@@ -237,6 +238,7 @@ export class BucketBrowserComponent implements OnInit {
       objects.forEach(object => {
         dataForServer.push(...this.bucketDataService.serverData.map(v => v.object).filter(v => v.indexOf(object) === 0));
       });
+
       this.dialog.open(BucketConfirmationDialogComponent, {data: {items: itemsForDeleting, type: 'delete'} , width: '550px'})
         .afterClosed().subscribe((res) => {
         !res && this.clearSelection();

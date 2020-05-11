@@ -29,12 +29,16 @@ import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -80,15 +84,15 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     @Override
-    public byte[] downloadObject(String bucket, String object) {
-        try {
+    public void downloadObject(String bucket, String object, HttpServletResponse resp) {
+        try (ServletOutputStream outputStream = resp.getOutputStream()) {
             S3Client s3 = S3Client.create();
             GetObjectRequest downloadRequest = GetObjectRequest
                     .builder()
                     .bucket(bucket)
                     .key(object)
                     .build();
-            return s3.getObject(downloadRequest, ResponseTransformer.toBytes()).asByteArray();
+            s3.getObject(downloadRequest, ResponseTransformer.toOutputStream(outputStream));
         } catch (Exception e) {
             log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
@@ -96,18 +100,28 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     @Override
-    public void deleteObject(String bucket, String object) {
+    public void deleteObjects(String bucket, List<String> objects) {
         try {
             S3Client s3 = S3Client.create();
-            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest
-                    .builder()
+            List<ObjectIdentifier> objectsToDelete = objects
+                    .stream()
+                    .map(o -> ObjectIdentifier.builder()
+                            .key(o)
+                            .build())
+                    .collect(Collectors.toList());
+
+            DeleteObjectsRequest deleteObjectsRequests = DeleteObjectsRequest.builder()
                     .bucket(bucket)
-                    .key(object)
+                    .delete(Delete.builder()
+                            .objects(objectsToDelete)
+                            .build())
                     .build();
-            s3.deleteObject(deleteObjectRequest);
+
+            s3.deleteObjects(deleteObjectsRequests);
+
         } catch (AwsServiceException e) {
-            log.error("Cannot delete object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
-            throw new DlabException(String.format("Cannot delete object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
+            log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage());
+            throw new DlabException(String.format("Cannot delete objects %s from bucket %s. Reason: %s", objects, bucket, e.getMessage()));
         }
     }
 

@@ -17,32 +17,22 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.service.impl.azure;
+package com.epam.dlab.backendapi.resources.dto;
 
-import com.epam.dlab.backendapi.service.BucketService;
-import com.epam.dlab.dto.bucket.BucketDTO;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
 import java.util.List;
 
-public class BucketServiceAzureImpl implements BucketService {
-    @Override
-    public List<BucketDTO> getObjects(String bucket) {
-        return null;
-    }
-
-    @Override
-    public void uploadObject(String bucket, String object, InputStream stream) {
-
-    }
-
-    @Override
-    public void downloadObject(String bucket, String object, HttpServletResponse resp) {
-    }
-
-    @Override
-    public void deleteObjects(String bucket, List<String> objects) {
-
-    }
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BucketDeleteDTO {
+    @NotBlank(message = "field cannot be empty")
+    private final String bucket;
+    @NotBlank(message = "field cannot be empty")
+    private final String endpoint;
+    @NotEmpty(message = "field cannot be empty")
+    private final List<String> objects;
 }

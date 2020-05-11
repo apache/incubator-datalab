@@ -20,21 +20,23 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.resources.dto.BucketDeleteDTO;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -71,8 +73,7 @@ public class BucketResource {
                                  @FormDataParam("object") String object,
                                  @FormDataParam("bucket") String bucket,
                                  @FormDataParam("endpoint") String endpoint,
-                                 @FormDataParam("file") InputStream fileInputStream,
-                                 @FormDataParam("file") FormDataContentDisposition fileMetaData) {
+                                 @FormDataParam("file") InputStream fileInputStream) {
         bucketService.uploadObjects(userInfo, bucket, object, endpoint, fileInputStream);
         return Response.ok().build();
     }
@@ -82,25 +83,23 @@ public class BucketResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @RolesAllowed("/api/bucket/download")
-    public Response downloadObject(@Auth UserInfo userInfo,
+    public Response downloadObject(@Auth UserInfo userInfo, @Context HttpServletResponse resp,
                                    @PathParam("bucket") String bucket,
                                    @PathParam("object") String object,
                                    @PathParam("endpoint") String endpoint) {
-        return Response.ok(bucketService.downloadObject(userInfo, bucket, object, endpoint))
+        bucketService.downloadObject(userInfo, bucket, object, endpoint, resp);
+        return Response.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Paths.get(object).getFileName() + "\"")
                 .build();
     }
 
-    @DELETE
-    @Path("/{bucket}/object/{object}/endpoint/{endpoint}")
+    @POST
+    @Path("/objects/delete")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("/api/bucket/delete")
-    public Response deleteObject(@Auth UserInfo userInfo,
-                                 @PathParam("bucket") String bucket,
-                                 @PathParam("object") String object,
-                                 @PathParam("endpoint") String endpoint) {
-        bucketService.deleteObject(userInfo, bucket, object, endpoint);
+    public Response deleteObject(@Auth UserInfo userInfo, @Valid BucketDeleteDTO bucketDto) {
+        bucketService.deleteObjects(userInfo, bucketDto.getBucket(), bucketDto.getObjects(), bucketDto.getEndpoint());
         return Response.ok().build();
     }
 }
