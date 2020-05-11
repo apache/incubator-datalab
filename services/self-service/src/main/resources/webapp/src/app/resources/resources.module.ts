@@ -32,18 +32,20 @@ import {FolderTreeComponent} from './bucket-browser/folder-tree/folder-tree.comp
 import {MatTreeModule} from '@angular/material/tree';
 import {BucketDataService} from './bucket-browser/bucket-data.service';
 import {BucketConfirmationDialogComponent} from './bucket-browser/bucket-confirmation-dialog/bucket-confirmation-dialog.component';
+import {BubbleModule} from '../shared/bubble';
 
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ResourcesGridModule,
-    ExploratoryEnvironmentCreateModule,
-    MaterialModule,
-    MatTreeModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ResourcesGridModule,
+        ExploratoryEnvironmentCreateModule,
+        MaterialModule,
+        MatTreeModule,
+        BubbleModule
+    ],
   declarations: [
     ResourcesComponent,
     ManageUngitComponent,

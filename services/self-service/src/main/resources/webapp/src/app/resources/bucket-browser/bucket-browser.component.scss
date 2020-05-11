@@ -41,8 +41,48 @@
     }
   }
 
+  .action-wrapper{
+    position: relative;
+    .action-button-wrapper{
+      position: relative;
+      width: 160px;
+    }
+    .mat-raised-button.butt{
+      margin-bottom: 0;
+      &.actions-btn{
+        .material-icons{
+          font-size: 25px;
+          position: absolute;
+          top: 6px;
+          right: 6px;
+        }
+      }
+    }
+    .action-menu{
+      position: absolute;
+      margin: 0 10px;
+      text-align: center;
+      //box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+      &-item.mat-raised-button.butt{
+        margin: 0;
+        box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 0px 0px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+        width: 160px;
+        padding: 0 20px;
+        border-radius: 0;
+        font-style: normal;
+        font-weight: 600;
+        font-size: 15px;
+        font-family: 'Open Sans', sans-serif;
+        color: #577289;
+        position: relative;
+        overflow: hidden;
+        line-height: 36px;
+      }
+    }
+  }
+
   .path{
-    margin: 0 4px 20px 0;
+    margin: 0 4px 10px 0;
     padding: 4px 4px 4px 0;
     color: rgba(0,0,0,.87);
     overflow: hidden;
@@ -52,7 +92,17 @@
       font-weight: 600;
       overflow: hidden;
       display: block;
-      padding-left: 10px;
+      direction: rtl;
+     &-folder{
+       padding-left: 5px;
+       padding-right: 5px;
+       color: #00bcd4;
+       cursor: pointer;
+     }
+      &-icon i{
+        transform: translateY(2px);
+        font-size: 15px;
+      }
     }
   }
   bottom: 0;
@@ -85,7 +135,23 @@
   }
 }
 
-.backet-wrapper{
+.navigation-line{
+  display: flex;
+  margin-bottom: 25px;
+
+  .endpoint-select{
+    flex: 1;
+    position: relative;
+    opacity: 0;
+  }
+
+  .filter-files{
+    flex: 2;
+  }
+}
+
+
+.bucket-wrapper{
   height: 53vh;
   border: 2px solid rgba(0,0,0,.12);
   border-radius: 5px;
@@ -380,11 +446,14 @@ input[type='file'] {
       .name{
         flex:12;
         padding-right: 5px;
+        overflow: hidden;
+        display: flex;
       }
 
       .upload-path{
         flex:12;
         padding-right: 5px;
+        display: flex;
       }
 
       .size{
@@ -433,7 +502,7 @@ input[type='file'] {
 }
 
 @media only screen and (max-height: 840px) {
-  .backet-wrapper {
+  .bucket-wrapper {
     height: 45vh;
     &.added-upload{
       height: 30vh;
@@ -442,7 +511,7 @@ input[type='file'] {
 }
 
 @media only screen and (max-height: 690px) {
-  .backet-wrapper {
+  .bucket-wrapper {
     height: 40vh;
     &.added-upload{
       height: 25vh;

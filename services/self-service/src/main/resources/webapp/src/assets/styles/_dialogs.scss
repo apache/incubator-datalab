@@ -354,6 +354,10 @@ mat-dialog-container {
   white-space: pre-line;
 }
 
+.mat-list-base .mat-list-item.delete-item{
+  height: 30px;
+}
+
 @media screen and (max-width: 1280px) {
   .modal-fullscreen {
     max-width: 100vw !important;

@@ -124,7 +124,8 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
       const data = {
         flatNode: el,
         element: this.flatNodeMap.get(el),
-        path: path.join('/')
+        path: path.map(v => v.item).join('/'),
+        pathObject: path
       };
       this.showFolderContent.emit(data);
     }
@@ -133,10 +134,10 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   private getPath(el) {
     if (el) {
       if (this.path.length === 0) {
-        this.path.unshift(el.item);
+        this.path.unshift(el);
       }
       if (this.getParentNode(el) !== null) {
-        this.path.unshift(this.getParentNode(el).item);
+        this.path.unshift(this.getParentNode(el));
         this.getPath(this.getParentNode(el));
       }
       return this.path;

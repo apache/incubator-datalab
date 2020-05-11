@@ -20,7 +20,7 @@
 <div id="dialog-box" class="confirmation-dialog">
   <header class="dialog-header">
     <h4 class="modal-title">
-        <span *ngIf="data.type === 'delete'">Delete objects</span>
+        <span *ngIf="data.type === 'delete'">Delete</span>
         <span *ngIf="data.type === 'upload-dublicat'">Resolve conflicts</span>
     </h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
@@ -30,11 +30,11 @@
       <div *ngIf="data.type === 'delete'">
       <mat-list class="resources">
         <mat-list-item class="list-header">
-          <div class="object">Objects</div>
+          <div class="object">Object</div>
           <div class="size">Size</div>
         </mat-list-item>
-        <div class="scrolling-content" id="scrolling">
-          <mat-list-item *ngFor="let object of data.items">
+        <div class="scrolling-content delete-list" id="scrolling">
+          <mat-list-item *ngFor="let object of data.items" class="delete-item">
             <div class="object">
               <span *ngIf="object['children']"><i class="material-icons folder-icon" >folder</i></span>
               <div class="ellipsis"
@@ -48,15 +48,21 @@
         </div>
       </mat-list>
       <div mat-dialog-content class="bottom-message" *ngIf="data.type === 'delete'">
-        <span class="confirm-message" *ngIf="isFolders">All affected objects will be deleted.</span>
-        <span class="confirm-message" *ngIf="!isFolders">These objects will be deleted.</span>
+        <span class="confirm-message" *ngIf="isFolders">All affected object <span *ngIf="data.items.length > 1">s</span> will be deleted.</span>
+        <span class="confirm-message" *ngIf="!isFolders"><span *ngIf="data.items.length > 1">These objects</span><span *ngIf="data.items.length === 1">This object</span> will be deleted.</span>
       </div>
       <div class="text-center m-top-20">
         <p class="strong">Do you want to proceed?</p>
       </div>
       </div>
       <div *ngIf="data.type === 'upload-dublicat'">
-        <p><span class="strong">{{data.items}}</span> already exist in selected folder. How would you like to resolve this conflict?</p>
+        <p><span
+          class="strong upload-item-name ellipsis"
+          matTooltip="{{data.items}}"
+          matTooltipPosition="above"
+          matTooltipShowDelay="1000"
+          [matTooltipClass]="'bucket-item-tooltip'"
+        >{{data.items}}</span> already exist in selected folder. How would you like to resolve this conflict?</p>
 
         <mat-radio-group
           aria-labelledby="upload-radio-group-label"
