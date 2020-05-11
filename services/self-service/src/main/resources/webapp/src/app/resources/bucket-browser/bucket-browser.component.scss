@@ -47,14 +47,17 @@
       position: relative;
       width: 160px;
     }
+
     .mat-raised-button.butt{
       margin-bottom: 0;
       &.actions-btn{
+        padding-right: 38px;
         .material-icons{
+          transition: ease-in-out 1s;
           font-size: 25px;
           position: absolute;
-          top: 6px;
-          right: 6px;
+          top: 7px;
+          right: 30px;
         }
       }
     }
@@ -64,6 +67,7 @@
       text-align: center;
       //box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
       &-item.mat-raised-button.butt{
+        z-index: 1;
         margin: 0;
         box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 0px 0px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
         width: 160px;
@@ -346,10 +350,8 @@
 }
 
 input[type='file'] {
-  opacity:0
+  opacity:1
 }
-
-
 
 .empty-checkbox {
   min-width: 16px;

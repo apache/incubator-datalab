@@ -60,8 +60,7 @@
                 class="strong">{{ notebook.password }}</span></p>
 
             <p class="m-top-30">{{ DICTIONARY[PROVIDER].personal_storage }}: &nbsp;</p>
-
-<!--                 (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
+            <!--                 (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
             <div class="links_block"
                  (click)="bucketBrowser('ofuks-1304-pr2-local-bucket', notebook.endpoint, this.bucketStatus.view && this.isBucketAllowed)"
             >

@@ -85,7 +85,6 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public async handleFileInput(event) {
-    console.log('work');
     if (event.target.files.length > 0) {
       let askForAll = true;
       let skipAll = false;
@@ -137,6 +136,7 @@ export class BucketBrowserComponent implements OnInit {
   this.selected = this.folderItems.filter(item => item.isSelected);
   this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
   this.selectedItems = [...this.selected, ...this.selectedFolderForAction];
+  this.isActionsOpen = false;
   }
 
   filesPicked(files) {
@@ -258,7 +258,11 @@ export class BucketBrowserComponent implements OnInit {
     this.isActionsOpen = !this.isActionsOpen;
   }
 
-  copyPath() {
+  public closeActions() {
+    this.isActionsOpen = false;
+  }
+
+  public copyPath() {
     const selBox = document.createElement('textarea');
     const selected = this.folderItems.filter(item => item.isSelected || item.isFolderSelected)[0];
     selBox.style.position = 'fixed';

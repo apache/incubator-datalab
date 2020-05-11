@@ -17,17 +17,17 @@
   ~ under the License.
   -->
 
-<div class="bucket-browser" id="dialog-box" (click)="this.isActionsOpen = false">
+<div class="bucket-browser" id="dialog-box"  (click)="closeActions()">
   <header class="dialog-header">
     <h4 class="modal-title">Bucket browser</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
 
 <!--  <div class="dialog-content tabs">-->
-  <div class="dialog-content tabs" [hidden]="!path" >
+  <div class="dialog-content tabs" [hidden]="!path">
     <div class="submit m-bott-10 m-top-10">
       <span [matTooltip]="'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
-        <button mat-raised-button type="button" class="butt action first-btn" [disabled]="!this.bucketStatus.upload || allDisable">
+        <button mat-raised-button type="button" class="butt action first-btn" [disabled]="!this.bucketStatus.upload || allDisable" (click)="handleFileInput($event)">
           <input [ngClass]="{'not-allowed': !this.bucketStatus.upload}" type="file" (change)="handleFileInput($event)" title="" multiple>
           Upload files
         </button>
@@ -66,15 +66,15 @@
 <!--       </button>-->
 <!--      </div>-->
 
-      <div class="action-wrapper" [matTooltip]="'You have not permission to download data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.download}}" clickOutside (clickOutside)="opened = !opened">
+      <div class="action-wrapper" [matTooltip]="'You have not permission to download data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.download}}">
         <span class="action-button-wrapper">
           <button
             type="button" class="butt actions-btn"
             mat-raised-button
-            [disabled]=" !selected?.length || allDisable"
+            [disabled]=" selectedItems?.length !== 1 || allDisable"
             (click)="toogleActions();$event.stopPropagation()"
           >
-            Actions <i class="material-icons"> expand_more </i>
+            Actions <i class="material-icons" >{{ !isActionsOpen ?  'expand_more' : 'expand_less' }}</i>
           </button>
           </span>
         <div class="action-menu" *ngIf="isActionsOpen">
@@ -102,7 +102,6 @@
      <span *ngFor="let folder of this.objectPath">
        <span class="url-icon" *ngIf="this.objectPath.indexOf(folder) !== 0"> <i class="material-icons">
              chevron_right
-
           </i> </span>
        <span class="url-folder" (click)="folderTreeComponent.showItem(folder);">{{folder.item}}</span>
      </span>
