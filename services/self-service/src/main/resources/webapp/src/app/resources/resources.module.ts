@@ -42,7 +42,6 @@ import {BucketConfirmationDialogComponent} from './bucket-browser/bucket-confirm
         ExploratoryEnvironmentCreateModule,
         MaterialModule,
         MatTreeModule,
-        BubbleModule
     ],
   declarations: [
     ResourcesComponent,
