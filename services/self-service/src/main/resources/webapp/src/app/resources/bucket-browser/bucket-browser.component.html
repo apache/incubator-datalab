@@ -17,17 +17,17 @@
   ~ under the License.
   -->
 
-<div class="bucket-browser" id="dialog-box">
+<div class="bucket-browser" id="dialog-box"  (click)="closeActions()">
   <header class="dialog-header">
     <h4 class="modal-title">Bucket browser</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
 
 <!--  <div class="dialog-content tabs">-->
-  <div class="dialog-content tabs" [hidden]="!path" >
+  <div class="dialog-content tabs" [hidden]="!path">
     <div class="submit m-bott-10 m-top-10">
       <span [matTooltip]="'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
-        <button mat-raised-button type="button" class="butt action first-btn" [disabled]="!this.bucketStatus.upload || allDisable">
+        <button mat-raised-button type="button" class="butt action first-btn" [disabled]="!this.bucketStatus.upload || allDisable" (click)="handleFileInput($event)">
           <input [ngClass]="{'not-allowed': !this.bucketStatus.upload}" type="file" (change)="handleFileInput($event)" title="" multiple>
           Upload files
         </button>
@@ -55,20 +55,86 @@
       </button>
       </span>
 
-      <span [matTooltip]="'You have not permission to download data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.download}}">
-       <button
-         type="button" class="butt"
-         mat-raised-button
-         (click)="fileAction('download')"
-         [disabled]=" !selected?.length || this.selectedItems?.length > 1 || !this.bucketStatus.download || allDisable"
-       >
-         Download
-       </button>
-      </span>
+<!--      <div [matTooltip]="'You have not permission to download data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.download}}">-->
+<!--       <button-->
+<!--         type="button" class="butt"-->
+<!--         mat-raised-button-->
+<!--         (click)="fileAction('download')"-->
+<!--         [disabled]=" !selected?.length || this.selectedItems?.length > 1 || !this.bucketStatus.download || allDisable"-->
+<!--       >-->
+<!--         Download-->
+<!--       </button>-->
+<!--      </div>-->
+
+      <div class="action-wrapper" [matTooltip]="'You have not permission to download data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.download}}">
+        <span class="action-button-wrapper">
+          <button
+            type="button" class="butt actions-btn"
+            mat-raised-button
+            [disabled]=" selectedItems?.length !== 1 || allDisable"
+            (click)="toogleActions();$event.stopPropagation()"
+          >
+            Actions <i class="material-icons" >{{ !isActionsOpen ?  'expand_more' : 'expand_less' }}</i>
+          </button>
+          </span>
+        <div class="action-menu" *ngIf="isActionsOpen">
+          <button
+            type="button" class="butt action-menu-item"
+            mat-raised-button
+            [disabled]=" !selected?.length || this.selectedItems?.length > 1 || !this.bucketStatus.download || allDisable"
+            (click)="fileAction('download');$event.stopPropagation()"
+          >
+            Download
+          </button>
+          <button
+            type="button" class="butt action-menu-item"
+            mat-raised-button
+            (click)="copyPath();$event.stopPropagation()"
+          >
+            Copy path
+          </button>
+        </div>
+      </div>
 
     </div>
-    <p class="path"><span>Bucket path:</span><span class="url ellipsis"> {{path}}</span></p>
-    <div class="backet-wrapper" [ngClass]="{'added-upload': addedFiles.length}" id="scrolling">
+    <p class="path"><span>Bucket path:</span>
+    <span class="url ellipsis">
+     <span *ngFor="let folder of this.objectPath">
+       <span class="url-icon" *ngIf="this.objectPath.indexOf(folder) !== 0"> <i class="material-icons">
+             chevron_right
+          </i> </span>
+       <span class="url-folder" (click)="folderTreeComponent.showItem(folder);">{{folder.item}}</span>
+     </span>
+    </span></p>
+
+    <div class="navigation-line">
+        <div class="endpoint-select selection">
+          <div class="mat-reset">
+            <div class="control selector-wrapper">
+              <mat-form-field>
+                <mat-label>{{bucketName}}</mat-label>
+                <mat-select [(value)]="bucketName">
+<!--                    <mat-option *ngIf="projects.length > 1" (click)="setActiveProject()">Show all</mat-option>-->
+<!--                    <mat-option *ngFor="let project of projects" [value]="project.name"-->
+<!--                                (click)="setActiveProject(project.name)">-->
+<!--                      {{ project.name }}</mat-option>-->
+                  <mat-option class="multiple-select ml-10" disabled>Bucket list is empty
+                  </mat-option>
+                </mat-select>
+                <button class="caret">
+                  <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <div class="filter-files">
+          <input _ngcontent-yns-c13="" [(ngModel)]="searchValue" (keyup)=filterObjects($event) class="form-control filter-field" placeholder="Filter by name" type="text">
+        </div>
+
+    </div>
+
+    <div class="bucket-wrapper" [ngClass]="{'added-upload': addedFiles.length}" id="scrolling">
       <div class="navigation">
         <dlab-folder-tree
           (showFolderContent)=onFolderClick($event)
@@ -148,42 +214,26 @@
           <div class="remove"></div>
         </li>
         <li *ngFor="let file of addedFiles" class="file">
-          <div class="name ellipsis" matTooltip="{{file.name}}">{{file.name}}</div>
-          <div class="upload-path ellipsis" matTooltip="{{file.path}}">{{file.path}}</div>
+          <div class="name">
+            <span class="ellipsis" matTooltip="{{file.name}}" matTooltipPosition="above">{{file.name}}</span>
+          </div>
+          <div class="upload-path">
+            <span class="ellipsis" matTooltip="{{file.path}}" matTooltipPosition="above">{{file.path}}</span>
+          </div>
           <div class="size">{{file.size}}MB</div>
           <div class="state">
             <button mat-raised-button (click)="uploadNewFile(file)" *ngIf="!file.isUploading && !file.uploaded && !file.errorUploading">Upload</button>
             <mat-progress-bar mode="indeterminate" *ngIf="file.isUploading"></mat-progress-bar>
-            <span *ngIf="file.uploaded">Uploaded</span>
-            <span *ngIf="file.errorUploading" class="error">Uploading error</span>
+            <span *ngIf="file.uploaded" class="running">Uploaded</span>
+            <span *ngIf="file.errorUploading" class="error">Failed</span>
           </div>
           <div class="remove"><i (click)="deleteAddedFile(file)" class="material-icons close">close</i></div>
         </li>
       </ul>
     </div>
-    <div class="text-center m-top-30 m-bott-20">
-      <button type="button" class="butt" mat-raised-button (click)="this.dialogRef.close()">Close</button>
-    </div>
-  </div>
-  <div class="upload-window" *ngIf="isUploadWindowOpened">
-    <header class="upload-header">
-      <h4 class="modal-title">Upload files</h4>
-      <button type="button" class="close" (click)="closeUploadWindow()">&times;</button>
-    </header>
-    <ul class="upload-files">
-      <li *ngFor="let file of addedFiles" class="file">
-          <div class="name ellipsis" matTooltip="{{file.name}}">{{file.name}}</div>
-          <div class="upload-path ellipsis" matTooltip="{{file.path}}">{{file.path}}</div>
-          <div class="size">{{file.size}}MB</div>
-          <div class="state">
-            <button mat-raised-button (click)="uploadNewFile(file)" *ngIf="!file.isUploading && !file.doneUploading && !file.errorUploading">Upload</button>
-            <mat-progress-bar mode="indeterminate" *ngIf="file.isUploading"></mat-progress-bar>
-            <span *ngIf="file.uploaded">Uploaded</span>
-            <span *ngIf="file.errorUploading" class="error">Uploading error</span>
-          </div>
-          <div class="remove"><i (click)="deleteAddedFile(file)" class="material-icons close">close</i></div>
-      </li>
-    </ul>
+<!--    <div class="text-center m-top-30 m-bott-20">-->
+<!--      <button type="button" class="butt" mat-raised-button (click)="this.dialogRef.close()">Close</button>-->
+<!--    </div>-->
   </div>
   <div class="loading-block" *ngIf="!path">
     <div class="uploading">

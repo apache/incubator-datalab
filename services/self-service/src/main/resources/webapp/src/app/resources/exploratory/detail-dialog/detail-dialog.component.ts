@@ -43,6 +43,7 @@ export class DetailDialogComponent implements OnInit {
   tooltip: boolean = false;
   config: Array<{}> = [];
   bucketStatus: object = {};
+  isBucketAllowed = true;
 
   public configurationForm: FormGroup;
 
@@ -69,6 +70,12 @@ export class DetailDialogComponent implements OnInit {
       this.upTimeSince = (this.notebook.time) ? new Date(this.notebook.time).toString() : '';
       this.initFormModel();
       this.getClusterConfiguration();
+    console.log(this.notebook.edgeNodeStatus);
+    if (this.notebook.edgeNodeStatus === 'terminated' ||
+      this.notebook.edgeNodeStatus === 'terminating' ||
+      this.notebook.edgeNodeStatus === 'failed'){
+      this.isBucketAllowed = false;
+    }
     }
   }
 

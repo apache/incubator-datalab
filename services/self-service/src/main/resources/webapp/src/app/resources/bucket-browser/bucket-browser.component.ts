@@ -38,6 +38,8 @@ import {logger} from 'codelyzer/util/logger';
 export class BucketBrowserComponent implements OnInit {
   public addedFiles = [];
   public folderItems = [];
+  public originFolderItems = [];
+  public objectPath;
   public path = '';
   public pathInsideBucket = '';
   public bucketName = '';
@@ -48,8 +50,10 @@ export class BucketBrowserComponent implements OnInit {
   public selected: any[];
   public bucketStatus;
   public allDisable: boolean;
+  public isActionsOpen: boolean;
   public folders: any[];
   public selectedItems;
+  public searchValue: string;
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
 
@@ -83,9 +87,10 @@ export class BucketBrowserComponent implements OnInit {
     if (event.target.files.length > 0) {
       let askForAll = true;
       let skipAll = false;
+
+      const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
       for (const file of  Object['values'](event.target.files)) {
-        const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
-        const existFile = folderFiles.filter(v => v === file['name'])[0];
+      const existFile = folderFiles.includes(v => v === file['name'])[0];
         const uploadItem = {
           name: file['name'],
           file: file,
@@ -131,6 +136,8 @@ export class BucketBrowserComponent implements OnInit {
   this.selected = this.folderItems.filter(item => item.isSelected);
   this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
   this.selectedItems = [...this.selected, ...this.selectedFolderForAction];
+  this.isActionsOpen = false;
+
   }
 
   filesPicked(files) {
@@ -144,6 +151,7 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public onFolderClick(event) {
+    this.searchValue = '';
     this.clearSelection();
     this.selectedFolder = event.flatNode;
     this.folderItems = event.element ? event.element.children : event.children;
@@ -151,11 +159,18 @@ export class BucketBrowserComponent implements OnInit {
       this.folders = this.folderItems.filter(v => v.children).sort((a, b) => a.item > b.item ? 1 : -1);
       const files = this.folderItems.filter(v => !v.children).sort((a, b) => a.item > b.item ? 1 : -1);
       this.folderItems = [...this.folders, ...files];
+      this.objectPath = event.pathObject;
       this.path = event.path;
+      this.originFolderItems = this.folderItems.map(v => v);
       this.pathInsideBucket = this.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) + '/' : '';
       this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
       this.folderItems.forEach(item => item.isSelected = false);
     }
+  }
+
+  filterObjects(event) {
+    console.log(event);
+    this.folderItems = this.originFolderItems.filter(v => v.item.indexOf(event.target.value) !== -1);
   }
 
   private clearSelection() {
@@ -239,6 +254,32 @@ export class BucketBrowserComponent implements OnInit {
 
 
     }
+  }
+
+  public toogleActions() {
+    this.isActionsOpen = !this.isActionsOpen;
+  }
+
+  public closeActions() {
+    this.isActionsOpen = false;
+  }
+
+  public copyPath() {
+    const selBox = document.createElement('textarea');
+    const selected = this.folderItems.filter(item => item.isSelected || item.isFolderSelected)[0];
+    selBox.style.position = 'fixed';
+    selBox.style.left = '0';
+    selBox.style.top = '0';
+    selBox.style.opacity = '0';
+    selBox.value = selected.object.bucket + '/' + selected.object.object;
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand('copy');
+    document.body.removeChild(selBox);
+    this.clearSelection();
+    this.isActionsOpen = false;
+    this.toastr.success('Object path successfully copied!', 'Success!');
   }
 }
 

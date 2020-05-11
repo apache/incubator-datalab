@@ -37,18 +37,24 @@
     }
   }
   .resources {
+    .mat-list-base .mat-list-item.delete-item{
+      height: 30px;
+    }
+
     .object {
       width: 70%;
       display: flex;
       align-items: center;
+      padding-right: 10px;
     }
 
     .size {
       width: 30%;
     }
-    .scrolling-content {
+    .scrolling-content.delete-list {
       max-height: 200px;
       overflow-y: auto;
+      padding-top: 11px;
     }
   }
   .empty-list {
@@ -76,6 +82,10 @@
       text-align: center;
       padding-top: 20px}
   }
+.upload-item-name{
+  max-width: 300px;
+}
+
 .mat-radio-button{
   font-family: inherit;
   .mat-radio-ripple{
