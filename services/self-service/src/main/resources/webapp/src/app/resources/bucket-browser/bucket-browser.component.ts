@@ -56,7 +56,7 @@ export class BucketBrowserComponent implements OnInit {
   public searchValue: string;
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
-  private isSelectionOpened: any;
+  public isSelectionOpened: any;
   isFilterVisible: boolean;
 
 
@@ -122,7 +122,9 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   async openResolveDialog(existFile) {
-     const dialog = this.dialog.open(BucketConfirmationDialogComponent, {data: {items: existFile, type: 'upload-dublicat'} , width: '550px'});
+     const dialog = this.dialog.open(BucketConfirmationDialogComponent, {
+       data: {items: existFile, type: 'upload-dublicat'} , width: '550px'
+     });
      return dialog.afterClosed().toPromise().then(result => {
       return Promise.resolve(result);
     });
@@ -244,7 +246,9 @@ export class BucketBrowserComponent implements OnInit {
       this.dialog.open(BucketConfirmationDialogComponent, {data: {items: itemsForDeleting, type: 'delete'} , width: '550px'})
         .afterClosed().subscribe((res) => {
         !res && this.clearSelection();
-        res && this.bucketBrowserService.deleteFile({bucket: this.bucketName, endpoint: this.endpoint, 'objects': dataForServer}).subscribe(() => {
+        res && this.bucketBrowserService.deleteFile({
+          bucket: this.bucketName, endpoint: this.endpoint, 'objects': dataForServer
+        }).subscribe(() => {
             this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
             this.toastr.success('Objects successfully deleted!', 'Success!');
             this.clearSelection();
@@ -284,11 +288,11 @@ export class BucketBrowserComponent implements OnInit {
     this.toastr.success('Object path successfully copied!', 'Success!');
   }
 
-  public toggleBucketSelection(){
-    this.isSelectionOpened = !this.isSelectionOpened
+  public toggleBucketSelection() {
+    this.isSelectionOpened = !this.isSelectionOpened;
   }
 
-  public closeFilterInput(){
+  public closeFilterInput() {
     this.isFilterVisible = false;
     this.searchValue = '';
     this.filterObjects();
