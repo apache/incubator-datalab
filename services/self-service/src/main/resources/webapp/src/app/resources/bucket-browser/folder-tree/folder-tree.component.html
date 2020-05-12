@@ -46,7 +46,22 @@
 <!--    <mat-checkbox [checked]="descendantsAllSelected(node)"-->
 <!--                  [indeterminate]="descendantsPartiallySelected(node)"-->
 <!--                  (change)="todoItemSelectionToggle(node)"></mat-checkbox>-->
-    <div (click)="showItem(node)" class="folder-item-line"  [ngClass]="{'active-item': selectedFolder === node}"><i class="material-icons folder-icon">folder</i> <span class="folder">{{node.item}}</span></div>
+    <div
+      (click)="showItem(node)"
+      class="folder-item-line"
+      [ngClass]="{'active-item': selectedFolder === node}"
+    >
+      <i class="material-icons folder-icon">folder</i>
+      <span
+        class="folder"
+        matTooltip="{{node.item}}"
+        matTooltipPosition="above"
+        matTooltipShowDelay="1000"
+        [matTooltipClass]="'bucket-item-tooltip'"
+      >
+        {{node.item}}
+      </span>
+    </div>
 <!--    <button mat-icon-button (click)="addNewItem(node)"><mat-icon>add</mat-icon></button>-->
   </mat-tree-node>
 </mat-tree>

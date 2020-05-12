@@ -27,7 +27,7 @@
   <div class="dialog-content tabs" [hidden]="!path">
     <div class="submit m-bott-10 m-top-10">
       <span [matTooltip]="'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
-        <button mat-raised-button type="button" class="butt action first-btn" [disabled]="!this.bucketStatus.upload || allDisable" (click)="handleFileInput($event)">
+        <button mat-raised-button type="button" class="butt action first-btn" [disabled]="!this.bucketStatus.upload || allDisable || isSelectionOpened" (click)="handleFileInput($event)">
           <input [ngClass]="{'not-allowed': !this.bucketStatus.upload}" type="file" (change)="handleFileInput($event)" title="" multiple>
           Upload files
         </button>
@@ -107,35 +107,25 @@
      </span>
     </span></p>
 
-    <div class="navigation-line">
-        <div class="endpoint-select selection">
-          <div class="mat-reset">
-            <div class="control selector-wrapper">
-              <mat-form-field>
-                <mat-label>{{bucketName}}</mat-label>
-                <mat-select [(value)]="bucketName">
-<!--                    <mat-option *ngIf="projects.length > 1" (click)="setActiveProject()">Show all</mat-option>-->
-<!--                    <mat-option *ngFor="let project of projects" [value]="project.name"-->
-<!--                                (click)="setActiveProject(project.name)">-->
-<!--                      {{ project.name }}</mat-option>-->
-                  <mat-option class="multiple-select ml-10" disabled>Bucket list is empty
-                  </mat-option>
-                </mat-select>
-                <button class="caret">
-                  <i class="material-icons">keyboard_arrow_down</i>
-                </button>
-              </mat-form-field>
-            </div>
-          </div>
-        </div>
-        <div class="filter-files">
-          <input _ngcontent-yns-c13="" [(ngModel)]="searchValue" (keyup)=filterObjects($event) class="form-control filter-field" placeholder="Filter by name" type="text">
-        </div>
-
-    </div>
+<!--    <div class="navigation-line">-->
+<!--        <div class="filter-files">-->
+<!--          <input _ngcontent-yns-c13="" [(ngModel)]="searchValue" (keyup)=filterObjects($event) class="form-control filter-field" placeholder="Filter by name" type="text">-->
+<!--        </div>-->
+<!--    </div>-->
 
     <div class="bucket-wrapper" [ngClass]="{'added-upload': addedFiles.length}" id="scrolling">
-      <div class="navigation">
+      <div class="backet-selection" [ngClass]="{'opened': isSelectionOpened}">
+        <div class="button-wrapper">
+          <i (click)="toggleBucketSelection()" class="material-icons close">{{isSelectionOpened ? 'chevron_left' : 'chevron_right'}}</i>
+        </div>
+        <dlab-bucket-tree
+          *ngIf="isSelectionOpened"
+          (emitActiveBucket)=onFolderClick($event)
+          [openedBucket] = this.bucketName
+        >
+        </dlab-bucket-tree>
+      </div>
+      <div class="navigation" [ngClass]="{'selection-opened': isSelectionOpened}">
         <dlab-folder-tree
           (showFolderContent)=onFolderClick($event)
           (disableAll) = dissableAll($event)
@@ -143,10 +133,22 @@
           [endpoint] = endpoint
         > </dlab-folder-tree>
       </div>
-      <div class="directory">
-        <div class="folder-item t_header"  *ngIf="folderItems.length">
+      <div class="directory" [ngClass]="{'selection-opened': isSelectionOpened}">
+        <div class="folder-item t_header">
           <div class="folder-item-wrapper header-wrapper folder-tree header-item">
-            <div class="name"><span class="th_name">Name</span></div>
+            <div class="name">
+              <span class="th_name" (click)="isFilterVisible = true" *ngIf="!isFilterVisible">Name</span>
+              <div class="filter-files"  *ngIf="isFilterVisible">
+                <input _ngcontent-yns-c13=""
+                       [(ngModel)]="searchValue"
+                       (keyup)=filterObjects()
+                       class="form-control filter-field filter-name"
+                       placeholder="Filter by name" type="text"
+                >
+                <span><i (click)="closeFilterInput()" class="material-icons close">close</i></span>
+              </div>
+
+            </div>
             <div class="size"><span class="th_size">Size</span></div>
             <div class="date"><span class="th_date">Last modified</span></div>
           </div>

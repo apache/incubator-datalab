@@ -86,7 +86,7 @@
   }
 
   .path{
-    margin: 0 4px 10px 0;
+    margin: 0 4px 30px 0;
     padding: 4px 4px 4px 0;
     color: rgba(0,0,0,.87);
     overflow: hidden;
@@ -149,9 +149,7 @@
     opacity: 0;
   }
 
-  .filter-files{
-    flex: 2;
-  }
+
 }
 
 
@@ -165,14 +163,58 @@
   &.added-upload{
     height: 37vh;
   }
+   .backet-selection{
+     position: relative;
+     width: 2%;
+     border-right: 2px solid rgba(0,0,0,.12);
+     padding-top: 6px;
+     transition: .2s;
+     &.opened{
+       width: 33.3%;
+       .button-wrapper {
+         text-align: right;
+         left: auto;
+         i{
+           padding-right: 3px;
+         }
+       }
+     }
+     .button-wrapper {
+       position: absolute;
+       left: 0;
+       right: 0;
+       top: 9px;
+       text-align: center;
+       i{
+         cursor: pointer;
+         font-size: 18px;
+         &:hover{
+           color:  #00bcd4;
+       }
+       }
+     }
 
+     .buckets-list{
+       color: rgba(0, 0, 0, 0.87);
+       padding-left: 20px;
+       line-height: 24px;
+       &-item{
+         &:hover{
+           color:  #00bcd4;
+           cursor: pointer;
+         }
+       }
+     }
+   }
   .navigation{
-    width: 33.3%;
-    flex: 1;
-    border-right: 2px solid rgba(0,0,0,.12);
+    transition: .2s;
+    width: 31.3%;
     height: 100%;
     overflow: auto;
     padding-top: 6px;
+    &.selection-opened{
+      width: 66.7%;
+    }
     .folder-tree{
 
       .folder{
@@ -188,10 +230,13 @@
   .directory{
     width: 66.7%;
     max-height: 100%;
-    flex: 2;
     font-size: 14px;
     font-weight: 400;
     position: relative;
+    border-left: 2px solid rgba(0,0,0,.12);
+    &.selection-opened{
+      display: none;
+    }
     .folder-tree{
       overflow: auto;
       max-height: 100%;
@@ -224,9 +269,6 @@
       }
       .size{
         flex:1;
-        &-folder{
-          padding-left: 7px;
-        }
       }
       .date{
         flex:1;
@@ -291,23 +333,55 @@
      display: flex;
      align-items: center;
     &.t_header{
-      top: -27px;
+      top: -33px;
       position: absolute;
       left: 0;
       right: 0;
 
-      .th_name{
-        padding-left: 29px;
-        font-size: 11px;
+      .folder-item-wrapper{
+        height: 52px;
       }
 
+      .th_name{
+        padding-left: 25px;
+        font-size: 14px;
+        cursor: pointer;
+        &:hover{
+          color: #00bcd4;
+        }
+      }
+
+      .filter-files{
+        width: 100%;
+        padding: 3px 26px;
+        display: flex;
+        align-items: center;
+        .filter-name{
+          font-size: 14px;
+          height: 20px;
+          width: 90%;
+        }
+        span{
+          transform: translateY(2px);
+          &:hover{
+            i{
+              color: #00bcd4;
+            }
+          }
+        }
+      }
+
+
+
       .th_size{
-        font-size: 11px;
+        font-size: 14px;
         padding-left: 3px;
+        cursor: auto;
       }
 
       .th_date{
-        font-size: 11px !important;
+        font-size: 14px !important;
+        cursor: auto;
       }
     }
      .folder-item-wrapper{
@@ -318,7 +392,7 @@
        cursor: pointer;
        color: rgba(0,0,0,.87);
        &.header-item{
-         pointer-events: none;
+         //pointer-events: none;
        }
        i{
          color: rgb(232, 232, 232);

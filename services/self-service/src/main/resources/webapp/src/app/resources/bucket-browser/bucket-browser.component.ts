@@ -56,6 +56,8 @@ export class BucketBrowserComponent implements OnInit {
   public searchValue: string;
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
+  public isSelectionOpened: any;
+  isFilterVisible: boolean;
 
 
 
@@ -90,7 +92,7 @@ export class BucketBrowserComponent implements OnInit {
 
       const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
       for (const file of  Object['values'](event.target.files)) {
-      const existFile = folderFiles.includes(v => v === file['name'])[0];
+      const existFile = folderFiles.filter(v => v === file['name'])[0];
         const uploadItem = {
           name: file['name'],
           file: file,
@@ -120,7 +122,9 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   async openResolveDialog(existFile) {
-     const dialog = this.dialog.open(BucketConfirmationDialogComponent, {data: {items: existFile, type: 'upload-dublicat'} , width: '550px'});
+     const dialog = this.dialog.open(BucketConfirmationDialogComponent, {
+       data: {items: existFile, type: 'upload-dublicat'} , width: '550px'
+     });
      return dialog.afterClosed().toPromise().then(result => {
       return Promise.resolve(result);
     });
@@ -168,9 +172,8 @@ export class BucketBrowserComponent implements OnInit {
     }
   }
 
-  filterObjects(event) {
-    console.log(event);
-    this.folderItems = this.originFolderItems.filter(v => v.item.indexOf(event.target.value) !== -1);
+  public filterObjects() {
+    this.folderItems = this.originFolderItems.filter(v => v.item.indexOf(this.searchValue) !== -1);
   }
 
   private clearSelection() {
@@ -178,6 +181,7 @@ export class BucketBrowserComponent implements OnInit {
     this.folderItems.forEach(item => item.isFolderSelected = false);
     this.selected = this.folderItems.filter(item => item.isSelected);
     this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
+    this.selectedItems = [];
   }
 
   public deleteAddedFile(file) {
@@ -242,7 +246,9 @@ export class BucketBrowserComponent implements OnInit {
       this.dialog.open(BucketConfirmationDialogComponent, {data: {items: itemsForDeleting, type: 'delete'} , width: '550px'})
         .afterClosed().subscribe((res) => {
         !res && this.clearSelection();
-        res && this.bucketBrowserService.deleteFile({bucket: this.bucketName, endpoint: this.endpoint, 'objects': dataForServer}).subscribe(() => {
+        res && this.bucketBrowserService.deleteFile({
+          bucket: this.bucketName, endpoint: this.endpoint, 'objects': dataForServer
+        }).subscribe(() => {
             this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
             this.toastr.success('Objects successfully deleted!', 'Success!');
             this.clearSelection();
@@ -280,6 +286,16 @@ export class BucketBrowserComponent implements OnInit {
     this.clearSelection();
     this.isActionsOpen = false;
     this.toastr.success('Object path successfully copied!', 'Success!');
+  }
+
+  public toggleBucketSelection() {
+    this.isSelectionOpened = !this.isSelectionOpened;
+  }
+
+  public closeFilterInput() {
+    this.isFilterVisible = false;
+    this.searchValue = '';
+    this.filterObjects();
   }
 }
 

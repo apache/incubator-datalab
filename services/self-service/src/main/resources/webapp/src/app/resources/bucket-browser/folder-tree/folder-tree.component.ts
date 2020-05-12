@@ -231,7 +231,6 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   private addNewItem(node: TodoItemFlatNode, file, isFile, path) {
     const parentNode = this.flatNodeMap.get(node);
 
-    console.log(parentNode);
     this.bucketDataService.insertItem(parentNode!, file, isFile);
     this.treeControl.expand(node);
   }
@@ -246,15 +245,16 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     this.folderCreating = true;
     const parent = this.getParentNode(node);
     const flatParent = this.flatNodeMap.get(parent);
-    const path = `${flatParent.object.object}${itemValue}/`;
+    const path = `${ flatParent.object ? flatParent.object.object : ''}${itemValue}/`;
+    const bucket = flatParent.object ? flatParent.object.bucket : flatParent.item;
     const formData = new FormData();
     formData.append('file', '');
     formData.append('object', path);
-    formData.append('bucket', flatParent.object.bucket);
+    formData.append('bucket', bucket);
     formData.append('endpoint', this.endpoint);
     this.bucketBrowserService.uploadFile(formData)
       .subscribe(() => {
-          this.bucketDataService.refreshBucketdata(flatParent.object.bucket, this.endpoint);
+          this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
           this.toastr.success('Folder successfully created!', 'Success!');
           this.resetForm();
           this.folderFormControl.updateValueAndValidity();
