@@ -64,7 +64,7 @@ export class BucketDataService {
           node.children = this.buildFileTree({}, level + 1);
           return accumulator.concat(node);
         }
-        if (Object.keys(value).length && Object.keys(value).length > 1) {
+        if (Object.keys(value).filter(v => v !== 'obj').length > 0) {
           if (typeof value === 'object') {
             node.object = value.obj || {'bucket': node.item, 'object': '', 'size': '', 'lastModifiedDate': ''};
             delete value.obj;

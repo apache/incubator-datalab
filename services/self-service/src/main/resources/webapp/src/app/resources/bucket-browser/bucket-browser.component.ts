@@ -56,6 +56,8 @@ export class BucketBrowserComponent implements OnInit {
   public searchValue: string;
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
+  private isSelectionOpened: any;
+  isFilterVisible: boolean;
 
 
 
@@ -90,7 +92,7 @@ export class BucketBrowserComponent implements OnInit {
 
       const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
       for (const file of  Object['values'](event.target.files)) {
-      const existFile = folderFiles.includes(v => v === file['name'])[0];
+      const existFile = folderFiles.filter(v => v === file['name'])[0];
         const uploadItem = {
           name: file['name'],
           file: file,
@@ -168,9 +170,8 @@ export class BucketBrowserComponent implements OnInit {
     }
   }
 
-  filterObjects(event) {
-    console.log(event);
-    this.folderItems = this.originFolderItems.filter(v => v.item.indexOf(event.target.value) !== -1);
+  public filterObjects() {
+    this.folderItems = this.originFolderItems.filter(v => v.item.indexOf(this.searchValue) !== -1);
   }
 
   private clearSelection() {
@@ -178,6 +179,7 @@ export class BucketBrowserComponent implements OnInit {
     this.folderItems.forEach(item => item.isFolderSelected = false);
     this.selected = this.folderItems.filter(item => item.isSelected);
     this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
+    this.selectedItems = [];
   }
 
   public deleteAddedFile(file) {
@@ -280,6 +282,16 @@ export class BucketBrowserComponent implements OnInit {
     this.clearSelection();
     this.isActionsOpen = false;
     this.toastr.success('Object path successfully copied!', 'Success!');
+  }
+
+  public toggleBucketSelection(){
+    this.isSelectionOpened = !this.isSelectionOpened
+  }
+
+  public closeFilterInput(){
+    this.isFilterVisible = false;
+    this.searchValue = '';
+    this.filterObjects();
   }
 }
 
