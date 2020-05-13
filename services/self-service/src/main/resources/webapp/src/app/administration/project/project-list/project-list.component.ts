@@ -28,7 +28,7 @@ import { Project, Endpoint } from '../project.component';
 import { CheckUtils } from '../../../core/util';
 import {ProgressBarService} from '../../../core/services/progress-bar.service';
 import {EdgeActionDialogComponent} from '../../../shared/modal-dialog/edge-action-dialog';
-import {EndpointService} from '../../../core/services';
+import {EndpointService} from "../../../core/services";
 
 
 @Component({
@@ -50,6 +50,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     public toastr: ToastrService,
     private projectDataService: ProjectDataService,
     private progressBarService: ProgressBarService,
+    private endpointService: EndpointService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<ProjectListComponent>,
     public dialog: MatDialog,
@@ -69,6 +70,18 @@ export class ProjectListComponent implements OnInit, OnDestroy {
     setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
     this.subscriptions.add(this.projectDataService._projects.subscribe((value: Project[]) => {
       this.projectList = value;
+      this.endpointService.getEndpointsData().subscribe((endpoints: any) => {
+        if (this.projectList) {
+          this.projectList.forEach(project => project.endpoints.forEach(endpoint => {
+            const filtredEndpoints =  endpoints.filter(v => v.name === endpoint.name);
+            if (filtredEndpoints.length) {
+              endpoint.endpointStatus = endpoints.filter(v => v.name === endpoint.name)[0].status;
+            } else {
+              endpoint.endpointStatus = 'N/A';
+            }
+          }));
+        }
+       });
       if (value) this.dataSource = new MatTableDataSource(value);
       this.progressBarService.stopProgressBar();
     }, () => this.progressBarService.stopProgressBar()));

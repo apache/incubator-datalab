@@ -49,13 +49,22 @@ if __name__ == "__main__":
     except:
         reply['response']['result'] = {"error": "Failed to open result.json"}
 
-    reply['response']['log'] = "/var/log/dlab/{0}/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
-                                                                          os.environ['project_name'],
-                                                                          os.environ['request_id'])
+    if os.environ['conf_resource'] == 'odahu':
+        reply['response']['log'] = "/var/log/dlab/{0}/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
+                                                                              os.environ['odahu_cluster_name'],
+                                                                              os.environ['request_id'])
 
-    with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['project_name'],
-                                               os.environ['request_id']), 'w') as response_file:
-        response_file.write(json.dumps(reply))
+        with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['odahu_cluster_name'],
+                                                   os.environ['request_id']), 'w') as response_file:
+            response_file.write(json.dumps(reply))
+    else:
+        reply['response']['log'] = "/var/log/dlab/{0}/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
+                                                                              os.environ['project_name'],
+                                                                              os.environ['request_id'])
+
+        with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['project_name'],
+                                                   os.environ['request_id']), 'w') as response_file:
+            response_file.write(json.dumps(reply))
 
     try:
         local('chmod 666 /response/*')

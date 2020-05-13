@@ -35,7 +35,7 @@ import { CLUSTER_CONFIGURATION } from '../../computational/computational-resourc
 
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  readonly PROVIDER = this.data.cloud_provider;
+  public PROVIDER: string;
   notebook: any;
   upTimeInHours: number;
   upTimeSince: string = '';
@@ -43,6 +43,7 @@ export class DetailDialogComponent implements OnInit {
   config: Array<{}> = [];
 
   public configurationForm: FormGroup;
+  private legion: any;
 
   @ViewChild('configurationNode', { static: false }) configuration;
 
@@ -53,13 +54,19 @@ export class DetailDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<DetailDialogComponent>,
     public toastr: ToastrService
   ) {
-    this.notebook = data;
+    if(data.notebook) {
+      this.notebook = data.notebook;
+      this.PROVIDER = this.data.notebook.cloud_provider;
+    }
+
+    if(data.legion) {
+      this.legion = data.legion;
+      this.PROVIDER = this.data.legion.cloud_provider || 'azure';
+    }
   }
 
   ngOnInit() {
-    this.notebook;
-
-    if (this.notebook) {
+   if (this.notebook) {
       this.tooltip = false;
 
       this.upTimeInHours = (this.notebook.time) ? DateUtils.diffBetweenDatesInHours(this.notebook.time) : 0;

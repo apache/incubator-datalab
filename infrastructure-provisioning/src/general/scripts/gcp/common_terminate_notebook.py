@@ -57,7 +57,7 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
         if clusters_list.get('items'):
             for vm in clusters_list['items']:
                 try:
-                    GCPActions().remove_instance(vm['name'], zone)
+                    GCPActions.remove_instance(vm['name'], zone)
                     print("Instance {} has been terminated".format(vm['name']))
                 except:
                     pass

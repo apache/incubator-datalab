@@ -25,7 +25,7 @@ import { ToastrService } from 'ngx-toastr';
 import { EndpointService } from '../../../core/services';
 import { NotificationDialogComponent } from '../../../shared/modal-dialog/notification-dialog';
 import { PATTERNS } from '../../../core/util';
-import { map } from "rxjs/operators";
+import { map } from 'rxjs/operators';
 
 export interface Endpoint {
   name: string;
@@ -76,9 +76,14 @@ export class EndpointsComponent implements OnInit {
             project.name,
             resource.exploratories.filter(notebook => notebook.project === project.name),
             project.endpoints.filter(endpoint => endpoint.name === data.name)[0].status))
-          .filter(project => project.nodeStatus !== "TERMINATED" && project.nodeStatus !== "TERMINATING" && project.nodeStatus !== "FAILED")))
+          .filter(project => project.nodeStatus !== 'TERMINATED'
+            && project.nodeStatus !== 'TERMINATING'
+            && project.nodeStatus !== 'FAILED'
+          )))
       .subscribe((resource: any) => {
-         this.dialog.open(NotificationDialogComponent, { data: { type: 'confirmation', item: data, list:  resource }, panelClass: 'modal-sm' })
+         this.dialog.open(NotificationDialogComponent, { data: {
+           type: 'confirmation', item: data, list:  resource
+           }, panelClass: 'modal-sm' })
          .afterClosed().subscribe(result => {
          result === 'noTerminate' && this.deleteEndpointOption(data, false);
          result === 'terminate' && this.deleteEndpointOption(data, true);
@@ -86,13 +91,13 @@ export class EndpointsComponent implements OnInit {
     });
   }
 
-  public getEndpoinConnectionStatus(url){
-    let getStatus = this.endpointService.getEndpoinConnectionStatus(encodeURIComponent(url));
+  public getEndpoinConnectionStatus(url) {
+    const getStatus = this.endpointService.getEndpoinConnectionStatus(encodeURIComponent(url));
     this.dialog.open(EndpointTestResultDialogComponent, { data: {url: url, getStatus}, panelClass: 'modal-sm' });
   }
 
   private static createResourceList(name: string, resource: Array<any>, nodeStatus: string): Object {
-    return {name, resource, nodeStatus}
+    return {name, resource, nodeStatus};
   }
 
   private initFormModel(): void {
@@ -104,26 +109,26 @@ export class EndpointsComponent implements OnInit {
     });
   }
 
-  private deleteEndpointOption(data, option): void{
+  private deleteEndpointOption(data, option): void {
     this.endpointService.deleteEndpoint(`${data.name}?with-resources=${option}`).subscribe(() => {
       this.toastr.success(option ? 'Endpoint successfully disconnected. All related resources are terminating!' : 'Endpoint successfully disconnected!' , 'Success!');
       this.getEndpointList();
     }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
   }
 
-  private getEndpointList() : void{
+  private getEndpointList(): void {
     this.endpointService.getEndpointsData().subscribe((endpoints: any) => this.endpoints = endpoints);
   }
 
   private validateUrl(control) {
-    if (control && control.value){
+    if (control && control.value) {
       const isDublicat = this.endpoints.some(endpoint => endpoint['url'].toLocaleLowerCase() === control.value.toLowerCase());
       return isDublicat ? { isDuplicate: true } : null;
     }
   }
 
   private validateName(control) {
-    if (control && control.value){
+    if (control && control.value) {
       const isDublicat = this.endpoints.some(endpoint => endpoint['name'].toLocaleLowerCase() === control.value.toLowerCase());
       return isDublicat ? { isDuplicate: true } : null;
     }
@@ -212,14 +217,14 @@ export class EndpointTestResultDialogComponent {
         this.response = true;
         return;
       },
-      ()=> {
+      () => {
         this.isConnected = false;
         this.response = true;
         return;
-      })
+      });
   }
   private cutToLongUrl(url) {
-    return url.length > 25 ? url.slice(0,25) + '...' : url
+    return url.length > 25 ? url.slice(0, 25) + '...' : url;
   }
 
 }

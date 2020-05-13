@@ -71,7 +71,7 @@ if __name__ == "__main__":
             notebook_config['image_labels'] = {"sbn": notebook_config['service_base_name'],
                                                "endpoint_tag": notebook_config['endpoint_tag'],
                                                "project_tag": notebook_config['project_tag'],
-                                               "product": "dlab"}
+                                               os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         else:
             notebook_config['expected_primary_image_name'] = '{}-{}-{}-primary-image'.format(
                 notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application'])
@@ -79,7 +79,7 @@ if __name__ == "__main__":
                 notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application'])
             notebook_config['image_labels'] = {"sbn": notebook_config['service_base_name'],
                                                "endpoint_tag": notebook_config['endpoint_tag'],
-                                               "product": "dlab"}
+                                               os.environ['conf_billing_tag_key']: os.environ['conf_billing_tag_value']}
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = GCPMeta.get_private_ip_address(notebook_config['instance_name'])
         edge_instance_name = '{0}-{1}-{2}-edge'.format(notebook_config['service_base_name'],

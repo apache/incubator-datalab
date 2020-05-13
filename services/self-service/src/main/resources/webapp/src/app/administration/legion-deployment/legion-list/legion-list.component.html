@@ -1,0 +1,94 @@
+
+<table mat-table [dataSource]="dataSource" class="legion-clasters-table mat-elevation-z6 selection">
+  <ng-container matColumnDef="project">
+    <th mat-header-cell *matHeaderCellDef class="project"> Project name </th>
+    <td mat-cell *matCellDef="let element" class="project">
+      <span *ngIf="element && element.project">{{element.project}}</span>
+    </td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+
+  <ng-container matColumnDef="endpoint-url">
+    <th mat-header-cell *matHeaderCellDef class="endpoint"> Endpoint </th>
+    <td mat-cell *matCellDef="let element" class="endpoint">
+      <span *ngIf="element && element.endpoint" matTooltip="{{element.endpoint}}" [matTooltipPosition]="'above'">
+        {{element.endpoint}}
+      </span>
+    </td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+
+  <ng-container matColumnDef="legion-name">
+    <th mat-header-cell *matHeaderCellDef class="legion-name"> Odahu cluster name </th>
+    <td mat-cell *matCellDef="let element" class="legion-name">
+      <span *ngIf="element && element.name">{{element.name}}</span>
+    </td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+
+  <ng-container matColumnDef="legion-status">
+    <th mat-header-cell *matHeaderCellDef class="legion-status"> Odahu cluster status </th>
+    <td mat-cell *matCellDef="let element" class="legion-status">
+      <span *ngIf="element && element.name" [ngClass]="element.status.toLowerCase()">{{ element.status | titlecase}}</span>
+    </td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef class="legion-actions"></th>
+    <td mat-cell *matCellDef="let element" class="settings">
+      <span *ngIf="element && element.name" #settings (click)="actions.toggle($event, settings)" class="actions" [ngClass]="{'disabled': element.status !== 'RUNNING' && element.status !== 'STOPPED'}"></span>
+      <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+        <ul class="list-unstyled">
+          <div class="active-items"></div>
+          <li class="project-seting-item" *ngIf="element.status === 'STOPPED'" (click)="odahuAction(element, 'start')">
+            <i class="material-icons">play_circle_outline</i>
+            <a class="action">
+              Start
+            </a>
+          </li>
+          <li class="project-seting-item" *ngIf="element.status === 'RUNNING'" (click)="odahuAction(element, 'stop')">
+            <i class="material-icons">pause_circle_outline</i>
+            <a class="action" >
+              Stop
+            </a>
+          </li>
+          <li class="project-seting-item" [ngClass]="{'disabled' : element.status === 'STOPPED'}" *ngIf="element.status !== 'TERMINATED' && element.status !== 'TERMINATING'" (click)="odahuAction(element, 'terminate')">
+            <i class="material-icons">phonelink_off</i>
+            <a class="action">
+              Terminate
+            </a>
+          </li>
+          <!--<li class="project-seting-item">-->
+            <!--<i class="material-icons">arrow_downward</i>-->
+            <!--<a>-->
+              <!--Scale-down-->
+            <!--</a>-->
+          <!--</li>-->
+          <!--<li class="project-seting-item">-->
+            <!--<i class="material-icons">arrow_upward</i>-->
+            <!--<a  class="action">-->
+              <!--Scale-up-->
+            <!--</a>-->
+          <!--</li>-->
+        </ul>
+      </bubble-up>
+    </td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+
+    <ng-container matColumnDef="placeholder">
+      <td mat-footer-cell *matFooterCellDef
+          [colSpan]="displayedColumns.length"
+          class="info">
+          <span>No Odahu clusters</span>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  <tr [hidden]="legionClustersList && legionClustersList.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
+</table>
+
+

@@ -75,6 +75,13 @@ def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg
         dlab.fab.append_result("Failed to remove IAM roles and profiles.", str(err))
         sys.exit(1)
 
+    print("Deregistering project specific notebook's AMI")
+    try:
+        dlab.actions_lib.deregister_image(project_name)
+    except Exception as err:
+        dlab.fab.append_result("Failed to deregister images.", str(err))
+        sys.exit(1)
+
     print("Removing security groups")
     try:
         dlab.actions_lib.remove_sgroups(emr_sg)

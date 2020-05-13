@@ -84,14 +84,14 @@ if __name__ == "__main__":
                                                                                 edge_conf['region'])
         edge_conf['user_storage_account_name'] = '{0}-{1}-{2}-bucket'.format(edge_conf['service_base_name'],
                                                                              edge_conf['project_name'],
-                                                                             edge_conf['endpoint_name'])
+                                                                             edge_conf['endpoint_name']).lower()
         edge_conf['user_container_name'] = '{0}-{1}-{2}-bucket'.format(edge_conf['service_base_name'],
                                                                        edge_conf['project_name'],
-                                                                       edge_conf['endpoint_name'])
+                                                                       edge_conf['endpoint_name']).lower()
         edge_conf['shared_storage_account_name'] = '{0}-{1}-shared-bucket'.format(edge_conf['service_base_name'],
-                                                                                  edge_conf['endpoint_name'])
+                                                                                  edge_conf['endpoint_name']).lower()
         edge_conf['shared_container_name'] = '{0}-{1}-shared-bucket'.format(edge_conf['service_base_name'],
-                                                                            edge_conf['endpoint_name'])
+                                                                            edge_conf['endpoint_name']).lower()
         edge_conf['datalake_store_name'] = '{}-ssn-datalake'.format(edge_conf['service_base_name'])
         edge_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(edge_conf['service_base_name'])
         edge_conf['datalake_user_directory_name'] = '{0}-{1}-{2}-folder'.format(edge_conf['service_base_name'],

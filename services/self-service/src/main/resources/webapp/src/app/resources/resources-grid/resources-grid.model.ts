@@ -55,11 +55,12 @@ export class ExploratoryModel {
   public static loadEnvironments(data: Array<any>) {
     if (data) {
       return data.map((value) => {
-        return {
-          project: value.project,
-          exploratory: value.exploratory.map(el => {
-            const provider = el.cloud_provider.toLowerCase();
-            return new ExploratoryModel(
+        const exploratory = value.exploratory.map(el => {
+          let provider;
+          if (el.cloud_provider) {
+            provider = el.cloud_provider.toLowerCase();
+          }
+          return new ExploratoryModel(
             provider,
             el.exploratory_name,
             el.template_name,
@@ -73,13 +74,13 @@ export class ExploratoryModel {
             el.private_ip,
             el.exploratory_user,
             el.exploratory_pass,
-            value.shared[el.endpoint][DICTIONARY[provider].bucket_name],
-            value.shared[el.endpoint][DICTIONARY[provider].shared_bucket_name],
-            el.error_message,
-            el[DICTIONARY[provider].billing.cost],
-            el[DICTIONARY[provider].billing.currencyCode],
-            el.billing,
-            el.libs,
+          value.shared[el.endpoint][DICTIONARY[provider].bucket_name],
+          value.shared[el.endpoint][DICTIONARY[provider].shared_bucket_name],
+          el.error_message,
+          el[DICTIONARY[provider].billing.cost],
+          el[DICTIONARY[provider].billing.currencyCode],
+          el.billing,
+          el.libs,
             value.shared[el.endpoint][DICTIONARY[provider].user_storage_account_name],
             value.shared[el.endpoint][DICTIONARY[provider].shared_storage_account_name],
             value.shared[el.endpoint][DICTIONARY[provider].datalake_name],
@@ -87,8 +88,50 @@ export class ExploratoryModel {
             value.shared[el.endpoint][DICTIONARY[provider].datalake_shared_directory_name],
             el.project,
             el.endpoint,
-            el.tags,
-          )})
+            el.tags
+          );
+        });
+
+        const odahu = value.odahu.map(el => {
+          let provider;
+          if (el.cloud_provider) {
+            provider = el.cloud_provider.toLowerCase();
+          } else {
+            provider = 'azure';
+          }
+          return new ExploratoryModel(
+            provider,
+            el.name,
+            el.template_name,
+            el.image,
+            el.status.toLowerCase(),
+            'odahu cluster',
+            [],
+            el.up_time,
+            el.urls,
+            value.shared[el.endpoint].edge_node_ip,
+            el.private_ip,
+          el.exploratory_user,
+          el.exploratory_pass,
+          el.grafana_admin,
+          el.grafana_pass,
+          el.error_message,
+          el[DICTIONARY[provider].billing.cost],
+            el[DICTIONARY[provider].billing.currencyCode],
+            [],
+            [],
+            '',
+            '',
+            '',
+            '',
+            '',
+            el.project,
+            el.endpoint,
+            el.tags
+          )});
+        return {
+          project: value.project,
+          exploratory: [...exploratory, ...odahu]
         };
       });
     }

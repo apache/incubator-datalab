@@ -3,6 +3,7 @@
     "_id": "nbShapes_p2.xlarge_fetching",
     "description": "Use p2.xlarge instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AWS",
     "exploratory_shapes": [
       "p2.xlarge"
     ],
@@ -14,6 +15,7 @@
     "_id": "nbShapes_t2.medium_fetching",
     "description": "Use t2.medium instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AWS",
     "exploratory_shapes": [
       "t2.medium"
     ],
@@ -25,6 +27,7 @@
     "_id": "nbShapes_r3.xlarge_fetching",
     "description": "Use r3.xlarge instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AWS",
     "exploratory_shapes": [
       "r3.xlarge"
     ],
@@ -36,6 +39,7 @@
     "_id": "nbShapes_r4.2xlarge_fetching",
     "description": "Use r4.2xlarge instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AWS",
     "exploratory_shapes": [
       "r4.2xlarge"
     ],
@@ -47,6 +51,7 @@
     "_id": "nbShapes_r3.4xlarge_fetching",
     "description": "Use r3.4xlarge instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AWS",
     "exploratory_shapes": [
       "r3.4xlarge"
     ],
@@ -58,6 +63,7 @@
     "_id": "nbShapes_r3.8xlarge_fetching",
     "description": "Use r3.8xlarge instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AWS",
     "exploratory_shapes": [
       "r3.8xlarge"
     ],
@@ -69,6 +75,7 @@
     "_id": "nbShapes_c4.large_fetching",
     "description": "Use c4.large instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AWS",
     "exploratory_shapes": [
       "c4.large"
     ],
@@ -80,6 +87,7 @@
     "_id": "nbShapes_c4.2xlarge_fetching",
     "description": "Use c4.2xlarge instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AWS",
     "exploratory_shapes": [
       "c4.2xlarge"
     ],
@@ -91,6 +99,7 @@
     "_id": "nbShapes_c4.8xlarge_fetching",
     "description": "Use c4.8xlarge instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AWS",
     "exploratory_shapes": [
       "c4.8xlarge"
     ],
@@ -102,6 +111,7 @@
     "_id": "nbCreateDeeplearning",
     "description": "Create Notebook Deep Learning",
     "type": "NOTEBOOK",
+    "cloud": "AWS",
     "exploratories": [
       "docker.dlab-deeplearning"
     ],
@@ -113,6 +123,7 @@
     "_id": "nbCreateJupyter",
     "description": "Create Notebook Jupyter",
     "type": "NOTEBOOK",
+    "cloud": "AWS",
     "exploratories": [
       "docker.dlab-jupyter"
     ],
@@ -124,6 +135,7 @@
     "_id": "nbCreateJupyterLab",
     "description": "Create Notebook JupyterLab",
     "type": "NOTEBOOK",
+    "cloud": "AWS",
     "exploratories": [
       "docker.dlab-jupyterlab"
     ],
@@ -135,6 +147,7 @@
     "_id": "nbCreateRstudio",
     "description": "Create Notebook RStudio",
     "type": "NOTEBOOK",
+    "cloud": "AWS",
     "exploratories": [
       "docker.dlab-rstudio"
     ],
@@ -146,6 +159,7 @@
     "_id": "nbCreateTensor",
     "description": "Create Notebook Jupyter with TensorFlow",
     "type": "NOTEBOOK",
+    "cloud": "AWS",
     "exploratories": [
       "docker.dlab-tensor"
     ],
@@ -157,6 +171,7 @@
     "_id": "nbCreateZeppelin",
     "description": "Create Notebook Apache Zeppelin",
     "type": "NOTEBOOK",
+    "cloud": "AWS",
     "exploratories": [
       "docker.dlab-zeppelin"
     ],
@@ -168,6 +183,7 @@
     "_id": "nbCreateTensorRstudio",
     "description": "Create Notebook RStudio with TensorFlow",
     "type": "NOTEBOOK",
+    "cloud": "AWS",
     "exploratories": [
       "docker.dlab-tensor-rstudio"
     ],
@@ -179,6 +195,7 @@
     "_id": "nbCreateDataEngine",
     "description": "Create Data Engine",
     "type": "COMPUTATIONAL",
+    "cloud": "AWS",
     "computationals": [
       "docker.dlab-dataengine"
     ],
@@ -190,6 +207,7 @@
     "_id": "nbCreateDataEngineService",
     "description": "Create Data Engine Service",
     "type": "COMPUTATIONAL",
+    "cloud": "AWS",
     "computationals": [
       "docker.dlab-dataengine-service"
     ],
@@ -201,6 +219,7 @@
     "_id": "compShapes_c4.xlarge_fetching",
     "description": "Use c4.xlarge instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AWS",
     "computational_shapes": [
       "c4.xlarge"
     ],
@@ -212,6 +231,7 @@
     "_id": "compShapes_r3.xlarge_fetching",
     "description": "Use r3.xlarge instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AWS",
     "computational_shapes": [
       "r3.xlarge"
     ],
@@ -223,6 +243,7 @@
     "_id": "compShapes_r4.2xlarge_fetching",
     "description": "Use r4.2xlarge instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AWS",
     "computational_shapes": [
       "r4.2xlarge"
     ],
@@ -234,6 +255,7 @@
     "_id": "compShapes_r3.4xlarge_fetching",
     "description": "Use r3.4xlarge instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AWS",
     "computational_shapes": [
       "r3.4xlarge"
     ],
@@ -245,6 +267,7 @@
     "_id": "compShapes_r3.8xlarge_fetching",
     "description": "Use r3.8xlarge instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AWS",
     "computational_shapes": [
       "r3.8xlarge"
     ],
@@ -256,6 +279,7 @@
     "_id": "compShapes_c4.2xlarge_fetching",
     "description": "Use c4.2xlarge instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AWS",
     "computational_shapes": [
       "c4.2xlarge"
     ],
@@ -267,6 +291,7 @@
     "_id": "compShapes_c4.8xlarge_fetching",
     "description": "Use c4.8xlarge instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AWS",
     "computational_shapes": [
       "c4.8xlarge"
     ],
@@ -278,6 +303,7 @@
     "_id": "compShapes_p2.xlarge_fetching",
     "description": "Use p2.xlarge instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AWS",
     "computational_shapes": [
       "p2.xlarge"
     ],
@@ -289,6 +315,7 @@
     "_id": "nbBillingReportFull",
     "description": "View full billing report for all users",
     "type": "BILLING",
+    "cloud": "AWS",
     "pages": [
       "/api/infrastructure_provision/billing"
     ],
@@ -300,6 +327,7 @@
     "_id": "admin",
     "description": "Allow to execute administration operation",
     "type": "ADMINISTRATION",
+    "cloud": "AWS",
     "pages": [
       "environment/*",
       "/api/infrastructure/backup",
@@ -307,7 +335,8 @@
       "/api/settings",
       "/user/settings",
       "/api/project",
-      "/api/endpoint"
+      "/api/endpoint",
+      "/api/odahu"
     ],
     "groups": [
       "$anyuser"

@@ -206,6 +206,7 @@ def docker_build_script():
         print('Failed to configure docker_build script: ', str(err))
         sys.exit(1)
 
+
 ##############
 # Run script #
 ##############

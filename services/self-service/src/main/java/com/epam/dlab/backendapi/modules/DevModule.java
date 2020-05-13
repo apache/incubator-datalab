@@ -106,6 +106,8 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(EndpointDAO.class).to(EndpointDAOImpl.class);
 		bind(ProjectService.class).to(ProjectServiceImpl.class);
 		bind(ProjectDAO.class).to(ProjectDAOImpl.class);
+		bind(OdahuDAO.class).to(OdahuDAOImpl.class);
+		bind(OdahuService.class).to(OdahuServiceImpl.class);
 	}
 
 	private void configureCors(Environment environment) {
