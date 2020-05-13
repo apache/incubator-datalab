@@ -336,10 +336,11 @@ mat-dialog-container {
   top: 49%;
 }
 
-.confirmation-dialog p.delete-user{
+.confirmation-dialog p.delete-user {
   font-weight: 500;
   max-height: 200px;
   overflow: auto;
+}
 
 .disabled {
   opacity: 0.4;
