@@ -38,6 +38,7 @@
           <mat-list-item *ngFor="let object of data.items" class="delete-item">
             <div class="object">
               <span *ngIf="object['children']"><i class="material-icons folder-icon" >folder</i></span>
+              <span *ngIf="!object['children']"><i class="material-icons folder-icon file-icon" >description</i></span>
               <div class="ellipsis"
                    matTooltip="{{object['item']}}"
                    matTooltipPosition="above"
@@ -63,7 +64,7 @@
           matTooltipPosition="above"
           matTooltipShowDelay="1000"
           [matTooltipClass]="'bucket-item-tooltip'"
-        >{{data.items}}</span> already exist in selected folder. How would you like to resolve this conflict?</p>
+        >{{data.items}}</span> already exists in selected folder. How would you like to resolve this conflict?</p>
         <mat-radio-group
           aria-labelledby="upload-radio-group-label"
           class="upload-radio-group"

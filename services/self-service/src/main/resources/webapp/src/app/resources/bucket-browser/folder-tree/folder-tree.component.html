@@ -8,7 +8,7 @@
 </mat-tree-node>
 
   <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding matTreeNodePaddingIndent="17" class="input-node">
-    <form class="add-folder-form">
+    <form class="add-folder-form" id="folder-form">
       <mat-form-field>
         <mat-label>New folder</mat-label>
         <input matInput #itemValue [formControl]="folderFormControl" [errorStateMatcher]="matcher">
@@ -20,7 +20,6 @@
         </mat-error>
         <mat-error *ngIf="folderFormControl.hasError('isDuplicate')">
           Folder with this name already exists
-
         </mat-error>
       </mat-form-field>
       <button (click)="saveNode(node, itemValue.value)"

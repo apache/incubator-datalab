@@ -104,13 +104,15 @@ export class BucketBrowserComponent implements OnInit {
         };
         if (existFile && askForAll) {
           const result = await this.openResolveDialog(existFile);
-          askForAll = !result.forAll;
-          if (result.forAll && !result.replaceObject) {
-            skipAll = true;
-          }
-          if (result.replaceObject) {
-            this.addedFiles.push(uploadItem);
-            this.uploadNewFile(uploadItem);
+          if (result) {
+            askForAll = !result.forAll;
+            if (result.forAll && !result.replaceObject) {
+              skipAll = true;
+            }
+            if (result.replaceObject) {
+              this.addedFiles.push(uploadItem);
+              this.uploadNewFile(uploadItem);
+            }
           }
         } else if (!existFile || (existFile && !askForAll && !skipAll)) {
           this.addedFiles.push(uploadItem);
@@ -119,6 +121,10 @@ export class BucketBrowserComponent implements OnInit {
         }
     }
     event.target.value = '';
+    setTimeout(() => {
+      const element = document.querySelector('#upload-list');
+      element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    }, 0);
   }
 
   async openResolveDialog(existFile) {
@@ -202,13 +208,17 @@ export class BucketBrowserComponent implements OnInit {
         this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
         file.isUploading = false;
         file.uploaded = true;
-        this.toastr.success('File successfully uploaded!', 'Success!');
+        // this.toastr.success('File successfully uploaded!', 'Success!');
       }, error => {
-        this.toastr.error(error.message || 'File uploading error!', 'Oops!');
+        // this.toastr.error(error.message || 'File uploading error!', 'Oops!');
         file.errorUploading = true;
         file.isUploading = false;
       }
     );
+  }
+
+  public refreshBucket() {
+    this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
   }
 
   public createFolder(folder) {
