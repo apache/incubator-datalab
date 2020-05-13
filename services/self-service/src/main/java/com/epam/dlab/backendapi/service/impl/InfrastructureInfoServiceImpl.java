@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
@@ -85,37 +86,14 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	public List<ProjectInfrastructureInfo> getUserResources(UserInfo user) {
 		log.debug("Loading list of provisioned resources for user {}", user);
 		try {
-			Iterable<Document> documents = expDAO.findExploratory(user.getName());
 			List<EndpointDTO> allEndpoints = endpointService.getEndpoints();
-			return StreamSupport.stream(documents.spliterator(), false)
-					.collect(Collectors.groupingBy(d -> d.getString("project")))
-					.entrySet()
+			return projectService.getUserProjects(user, false)
 					.stream()
-					.map(e -> {
-						List<ProjectEndpointDTO> endpoints = projectService.get(e.getKey()).getEndpoints();
-						List<EndpointDTO> endpointResult = allEndpoints.stream()
-								.filter(endpoint -> endpoints.stream()
-										.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
-								.collect(Collectors.toList());
-
-						List<BillingReport> billingData = e.getValue()
-								.stream()
-								.map(exp ->
-										billingService.getExploratoryBillingData(exp.getString("project"), exp.getString("endpoint"),
-												exp.getString("exploratory_name"),
-												Optional.ofNullable(exp.get("computational_resources")).map(cr -> (List<Document>) cr).get()
-														.stream()
-														.map(cr -> cr.getString("computational_name"))
-														.collect(Collectors.toList()))
-								)
-								.collect(Collectors.toList());
-
-						final Map<String, Map<String, String>> projectEdges =
-								endpoints
-										.stream()
-										.collect(Collectors.toMap(ProjectEndpointDTO::getName, this::getSharedInfo));
-						return new ProjectInfrastructureInfo(e.getKey(), billingDAO.getBillingProjectQuoteUsed(e.getKey()),
-								projectEdges, e.getValue(), billingData, endpointResult);
+					.map(p -> {
+						Iterable<Document> exploratories = expDAO.findExploratories(user.getName(), p.getName());
+						return new ProjectInfrastructureInfo(p.getName(), billingDAO.getBillingProjectQuoteUsed(p.getName()),
+								getSharedInfo(p.getName()), exploratories, getExploratoryBillingData(exploratories),
+								getEndpoints(allEndpoints, p));
 					})
 					.collect(Collectors.toList());
 		} catch (Exception e) {
@@ -160,6 +138,30 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 				.version(Manifests.read("DLab-Version"))
 				.releaseNotes(String.format(RELEASE_NOTES_FORMAT, branch))
 				.build();
+	}
+
+	private List<BillingReport> getExploratoryBillingData(Iterable<Document> exploratories) {
+		return StreamSupport.stream(exploratories.spliterator(), false)
+				.map(exp ->
+						billingService.getExploratoryBillingData(exp.getString("project"), exp.getString("endpoint"),
+								exp.getString("exploratory_name"),
+								Optional.ofNullable(exp.get("computational_resources")).map(cr -> (List<Document>) cr).get()
+										.stream()
+										.map(cr -> cr.getString("computational_name"))
+										.collect(Collectors.toList()))
+				)
+				.collect(Collectors.toList());
+	}
+
+	private List<EndpointDTO> getEndpoints(List<EndpointDTO> allEndpoints, ProjectDTO projectDTO) {
+		return allEndpoints.stream().filter(endpoint -> projectDTO.getEndpoints().stream()
+				.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
+				.collect(Collectors.toList());
+	}
+
+	private Map<String, Map<String, String>> getSharedInfo(String name) {
+		return projectService.get(name).getEndpoints().stream()
+				.collect(Collectors.toMap(ProjectEndpointDTO::getName, this::getSharedInfo));
 	}
 
 	private Map<String, String> getSharedInfo(ProjectEndpointDTO endpointDTO) {
