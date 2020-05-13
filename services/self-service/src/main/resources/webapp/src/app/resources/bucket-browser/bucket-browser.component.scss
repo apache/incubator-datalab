@@ -195,13 +195,13 @@
      border-right: 2px solid rgba(0,0,0,.12);
      padding-top: 6px;
      transition: .2s;
-
      &.opened{
        width: 33.3%;
 
        .button-wrapper {
          text-align: right;
          left: auto;
+
 
          i{
            padding-right: 3px;
@@ -215,6 +215,7 @@
        right: 0;
        top: 9px;
        text-align: center;
+
 
        i{
          cursor: pointer;
@@ -240,6 +241,18 @@
      }
    }
 
+     .buckets-list{
+       color: rgba(0, 0, 0, 0.87);
+       padding-left: 20px;
+       line-height: 24px;
+       &-item{
+         &:hover{
+           color:  #00bcd4;
+           cursor: pointer;
+         }
+       }
+     }
+   }
   .navigation{
     transition: .2s;
     width: 31.3%;
@@ -392,6 +405,7 @@
 
     &.t_header{
       top: -41px;
+
       position: absolute;
       left: 0;
       right: 0;
@@ -434,8 +448,6 @@
         }
       }
 
-
-
       .th_size{
         font-size: 14px;
         padding-left: 3px;
@@ -461,6 +473,7 @@
          .name{
            margin-left: -3px;
          }
+
        }
 
        i{
