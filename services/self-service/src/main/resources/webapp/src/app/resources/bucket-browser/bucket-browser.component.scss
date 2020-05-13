@@ -43,6 +43,7 @@
 
   .action-wrapper{
     position: relative;
+
     .action-button-wrapper{
       position: relative;
       width: 160px;
@@ -50,8 +51,10 @@
 
     .mat-raised-button.butt{
       margin-bottom: 0;
+
       &.actions-btn{
         padding-right: 38px;
+
         .material-icons{
           transition: ease-in-out 1s;
           font-size: 25px;
@@ -61,11 +64,12 @@
         }
       }
     }
+
     .action-menu{
       position: absolute;
       margin: 0 10px;
       text-align: center;
-      //box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+
       &-item.mat-raised-button.butt{
         z-index: 1;
         margin: 0;
@@ -92,17 +96,20 @@
     overflow: hidden;
     white-space: nowrap;
     display: flex;
+
     .url{
       font-weight: 600;
       overflow: hidden;
       display: block;
       direction: rtl;
+
      &-folder{
        padding-left: 5px;
        padding-right: 5px;
        color: #00bcd4;
        cursor: pointer;
      }
+
       &-icon i{
         transform: translateY(2px);
         font-size: 15px;
@@ -110,23 +117,42 @@
     }
   }
   bottom: 0;
+
   .dialog-content{
     padding: 0 35px;
   }
+
   .content-box {
     height: 500px;
-
   }
 
   .submit{
     display: flex;
+    justify-content: space-between;
+    .left-side-butts{
+      display: flex;
+    }
+
     .butt{
       position: relative;
       overflow: hidden;
       margin: 10px;
+
       &.first-btn{
         margin-left: 0;
       }
+
+      &.refresh{
+        margin-right: 0;
+      }
+
+      &.action-menu-item{
+        &:hover{
+          color:  #00bcd4;
+          background-color: #fafafa;
+        }
+      }
+
       input[type="file"] {
         position: absolute;
         left: 0;
@@ -154,14 +180,14 @@
 
 
 .bucket-wrapper{
-  height: 53vh;
+  height: 57vh;
   border: 2px solid rgba(0,0,0,.12);
   border-radius: 5px;
   display: flex;
   width: 100%;
 
   &.added-upload{
-    height: 37vh;
+    height: 40vh;
   }
    .backet-selection{
      position: relative;
@@ -169,25 +195,31 @@
      border-right: 2px solid rgba(0,0,0,.12);
      padding-top: 6px;
      transition: .2s;
+
      &.opened{
        width: 33.3%;
+
        .button-wrapper {
          text-align: right;
          left: auto;
+
          i{
            padding-right: 3px;
          }
        }
      }
+
      .button-wrapper {
        position: absolute;
        left: 0;
        right: 0;
        top: 9px;
        text-align: center;
+
        i{
          cursor: pointer;
          font-size: 18px;
+
          &:hover{
            color:  #00bcd4;
        }
@@ -198,6 +230,7 @@
        color: rgba(0, 0, 0, 0.87);
        padding-left: 20px;
        line-height: 24px;
+
        &-item{
          &:hover{
            color:  #00bcd4;
@@ -206,25 +239,27 @@
        }
      }
    }
+
   .navigation{
     transition: .2s;
     width: 31.3%;
     height: 100%;
     overflow: auto;
     padding-top: 6px;
+
     &.selection-opened{
       width: 66.7%;
     }
-    .folder-tree{
 
+    .folder-tree{
       .folder{
         line-height: 30px;
       }
     }
+
     .mat-tree-node{
       min-height: auto;
     }
-
   }
 
   .directory{
@@ -234,54 +269,72 @@
     font-weight: 400;
     position: relative;
     border-left: 2px solid rgba(0,0,0,.12);
+
     &.selection-opened{
       display: none;
     }
+
     .folder-tree{
-      overflow: auto;
+      overflow-x: auto;
+      overflow-y: overlay;
       max-height: 100%;
+
       .name{
         flex:2;
         display: flex;
         align-items: center;
         overflow: hidden;
+
         .name-wrap {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
           padding-right: 10px;
         }
+
         &-folder{
-          padding-left: 9px;
-          span{
-            padding-left: 5px;
+          .folder-name{
+            padding-left: 8px;
           }
         }
+
         &-file{
-          //padding-left: 4px;
+          i{
+            transform: translateX(6px);
+          }
           span.item-name{
-            padding-left: 9px;
+            padding-left: 8px;
             &.removed-checkbox{
               padding-left: 0;
             }
           }
         }
       }
+
       .size{
         flex:1;
+
+        &-folder{
+          padding-left: 4px;
+        }
       }
+
       .date{
         flex:1;
+
         .th_date{
           font-size: 13px;
         }
       }
+
       .progress-wrapper{
         flex:1;
+
         .progres{
           border: 1px solid rgba(0,0,0,.12);
           height: 15px;
           position: relative;
+
           .bar{
             position: absolute;
             top: 0;
@@ -289,6 +342,7 @@
             left: 0;
             width: 0;
             background-color:  #00bcd4;
+
             &.full{
               width: 100%;
               transition: 5s ease-in-out;
@@ -296,20 +350,24 @@
           }
         }
       }
+
       .material-icons.close{
         font-size: 15px;
         margin: 0 10px;
         cursor: pointer;
       }
+
       .action {
         display: flex;
         justify-content: space-around;
         width: 100%;
+
         .add-file {
           overflow: hidden;
           min-width: 100px ;
           height: 30px;
           position: relative;
+
           input{
             position: absolute;
             left: 0;
@@ -320,20 +378,20 @@
           }
         }
       }
-
     }
   }
 
   .folder-tree {
-    padding: 20px 30px;
+    padding: 0px 30px;
     padding-top: 6px;
   }
 
   .folder-item{
      display: flex;
      align-items: center;
+
     &.t_header{
-      top: -33px;
+      top: -41px;
       position: absolute;
       left: 0;
       right: 0;
@@ -343,9 +401,10 @@
       }
 
       .th_name{
-        padding-left: 25px;
+        padding-left: 29px;
         font-size: 14px;
         cursor: pointer;
+
         &:hover{
           color: #00bcd4;
         }
@@ -353,16 +412,20 @@
 
       .filter-files{
         width: 100%;
-        padding: 3px 26px;
+        padding: 3px 0;
+        padding-left: 3px;
         display: flex;
         align-items: center;
+
         .filter-name{
           font-size: 14px;
           height: 20px;
           width: 90%;
         }
+
         span{
           transform: translateY(2px);
+
           &:hover{
             i{
               color: #00bcd4;
@@ -391,12 +454,19 @@
        align-items: center;
        cursor: pointer;
        color: rgba(0,0,0,.87);
+
        &.header-item{
-         //pointer-events: none;
+         cursor: auto;
+
+         .name{
+           margin-left: -3px;
+         }
        }
+
        i{
          color: rgb(232, 232, 232);
        }
+
        &:hover:not(.header-wrapper){
          color: #00bcd4;
          transition: .3s ease-in-out;
@@ -404,17 +474,22 @@
            color: #00bcd4;
            transition: .3s ease-in-out;
          }
+
          .empty-checkbox{
            border-color: #00bcd4
          }
+
          .progress-wrapper{
+
            .progres{
              border-color: #00bcd4 !important;
            }
          }
        }
+
        &.no-select{
          pointer-events: none;
+
          .name-wrap{
            padding-left: 29px !important;
          }
@@ -427,8 +502,6 @@ input[type='file'] {
   opacity:1
 }
 
-
-
 .empty-checkbox {
   min-width: 16px;
   width: 16px;
@@ -437,10 +510,12 @@ input[type='file'] {
   border: 2px solid lightgrey;
   margin-top: 2px;
   position: relative;
+
   &.checked {
     border-color: #35afd5;
     background-color: #35afd5;
   }
+
   .checked-checkbox {
     top: 0;
     left: 4px;
@@ -464,11 +539,11 @@ input[type='file'] {
 }
 
 .upload-window{
-  margin-top: 20px;
+  margin-top: 2vh;
   border: 2px solid rgba(0,0,0,.12);
   border-radius: 5px;
   background-color: white;
-  min-height: 100px;
+  height: 15vh;
   color: black;
 
   .upload-header{
@@ -503,6 +578,7 @@ input[type='file'] {
       outline: none;
       cursor: pointer;
       transition: all 0.45s ease-in-out;
+
       &:hover{
         color: #36afd5;
       }
@@ -511,16 +587,18 @@ input[type='file'] {
   }
   .upload-files{
     padding: 5px;
-    height: 100px;
+    height: calc(100% - 30px);
     overflow: auto;
     .file{
       padding: 2px;
       display: flex;
       font-size: 12px;
       position: relative;
+
       &.upload-table-header{
         font-size: 11px;
       }
+
       .name{
         flex:12;
         padding-right: 5px;
@@ -579,20 +657,47 @@ input[type='file'] {
   }
 }
 
-@media only screen and (max-height: 840px) {
+@media only screen and (max-height: 920px) {
   .bucket-wrapper {
-    height: 45vh;
+    height: 55vh;
     &.added-upload{
-      height: 30vh;
+      height: 38vh;
     }
   }
 }
 
-@media only screen and (max-height: 690px) {
+@media only screen and (max-height: 840px) {
   .bucket-wrapper {
-    height: 40vh;
+    height: 53vh;
     &.added-upload{
-      height: 25vh;
+      height: 36vh;
+    }
+  }
+}
+
+@media only screen and (max-height: 760px) {
+  .bucket-wrapper {
+    height: 51vh;
+    &.added-upload{
+      height: 34vh;
+    }
+  }
+}
+
+@media only screen and (max-height: 700px) {
+  .bucket-wrapper {
+    height: 49vh;
+    &.added-upload{
+      height: 32vh;
+    }
+  }
+}
+
+@media only screen and (max-height: 650px) {
+  .bucket-wrapper {
+    height: 47vh;
+    &.added-upload{
+      height: 30vh;
     }
   }
 }

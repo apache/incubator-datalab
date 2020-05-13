@@ -230,9 +230,12 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
 
   private addNewItem(node: TodoItemFlatNode, file, isFile, path) {
     const parentNode = this.flatNodeMap.get(node);
-
     this.bucketDataService.insertItem(parentNode!, file, isFile);
     this.treeControl.expand(node);
+    setTimeout(() => {
+      const element = document.querySelector('#folder-form');
+      element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    }, 0);
   }
 
   private removeItem(node: TodoItemFlatNode) {

@@ -21,7 +21,12 @@
 
   .folder-icon{
     color: rgb(232, 232, 232);
-    margin-right: 5px;
+    margin-right: 3px;
+    transform: translateX(-2px);
+    &.file-icon{
+      transform: translateX(-4px);
+      margin-right: -2px;
+    }
   }
   h3{
     margin-bottom: 20px;
