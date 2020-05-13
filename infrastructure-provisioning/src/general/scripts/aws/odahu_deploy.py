@@ -41,7 +41,7 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     odahu_conf = dict()
     odahu_conf['allowed_cidr'] = os.environ['odahu_allowed_cidr'].split(',')
-    odahu_conf['project_id'] = (os.environ['gcp_project_id'])
+    odahu_conf['project_id'] = (os.environ['aws_project_id'])
     odahu_conf['region'] = (os.environ['aws_region'])
     odahu_conf['zone'] = (os.environ['aws_zone'])
     odahu_conf['edge_user_name'] = os.environ['edge_user_name']
