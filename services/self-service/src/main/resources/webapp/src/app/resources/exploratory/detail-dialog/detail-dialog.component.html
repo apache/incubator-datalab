@@ -66,7 +66,7 @@
             >
               <span
                 [matTooltip]="!this.bucketStatus.view
-                 ? 'You have not permission to open project bucket'
+                 ? 'You have not permission to open bucket'
                  : 'The bucket ' + notebook.bucket_name + ' is deleted. To start working with data choose available bucket.'"
                 matTooltipDisabled="{{this.bucketStatus.view && this.isBucketAllowed}}"
                 matTooltipPosition="above"
@@ -79,7 +79,7 @@
             </div>
             <p>Shared endpoint bucket: &nbsp;</p>
             <div class="links_block" (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus.view)"
-                 [matTooltip]="'You have not permission to open shared endpoint bucket'"
+                 [matTooltip]="'You have not permission to open bucket'"
                  matTooltipDisabled="{{this.bucketStatus.view}}"
                  matTooltipPosition="above"
                  [matTooltipClass]="'bucket-item-tooltip'"

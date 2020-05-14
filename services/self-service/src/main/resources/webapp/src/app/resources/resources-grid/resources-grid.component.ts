@@ -338,13 +338,20 @@ export class ResourcesGridComponent implements OnInit {
       return Object.keys(project.projectEndpoints).map(key => {
         const currEndpoint = project.projectEndpoints[key];
         const provider: string =  project.endpoints.filter(endpoint => endpoint['name'] === key)[0]['cloudProvider'];
-        return {name: `${project.project}(${key})`, children: [
-            {name: currEndpoint[this.DICTIONARY[provider.toLowerCase()].bucket_name], endpoint: key},
-            {name: currEndpoint[DICTIONARY[provider.toLowerCase()].shared_bucket_name], endpoint: key}
-          ]};
+        const edgeItem = {name: `${project.project}(${key})`, children: []};
+        const projectBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].bucket_name];
+        const sharedBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].shared_bucket_name];
+        if (projectBucket) {
+          edgeItem.children.push({name: projectBucket, endpoint: key});
+        }
+        if (sharedBucket) {
+          edgeItem.children.push({name: sharedBucket, endpoint: key});
+        }
+        return edgeItem;
       });
     });
-    this.bucketsList = SortUtils.flatDeep(bucketsList, 1);
+    this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
+    console.log(this.bucketsList.filter(v => v.children.length));
   }
 
   private getUserPreferences(): void {

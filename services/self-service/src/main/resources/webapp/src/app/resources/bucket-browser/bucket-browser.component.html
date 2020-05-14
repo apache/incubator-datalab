@@ -28,7 +28,7 @@
     <div class="submit m-bott-10 m-top-10">
       <div class="left-side-butts">
       <span [matTooltip]="'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
-        <button mat-raised-button type="button" class="butt first-btn" [disabled]="!this.bucketStatus.upload || allDisable || isSelectionOpened || !path" (click)="handleFileInput($event)">
+        <button mat-raised-button type="button" class="butt first-btn" [disabled]="!this.bucketStatus.upload || allDisable || isSelectionOpened || !path || isSelectionOpened" (click)="handleFileInput($event)">
           <input [ngClass]="{'not-allowed': !this.bucketStatus.upload}" type="file" (change)="handleFileInput($event)" title="" multiple>
           Upload files
         </button>
@@ -39,7 +39,7 @@
           type="button"
           class="butt"
           (click)="createFolder(selectedFolder)"
-          [disabled]="!this.bucketStatus.upload || allDisable || !path"
+          [disabled]="!this.bucketStatus.upload || allDisable || !path || isSelectionOpened"
         >
           Create folder
         </button>
@@ -50,7 +50,7 @@
           class="butt"
           mat-raised-button
           (click)="fileAction('delete')"
-          [disabled]="(!selected?.length && !selectedFolderForAction?.length) || !this.bucketStatus.delete || allDisable || !path"
+          [disabled]="(!selected?.length && !selectedFolderForAction?.length) || !this.bucketStatus.delete || allDisable || !path || isSelectionOpened"
         >
         Delete
       </button>
@@ -60,7 +60,7 @@
           <button
             type="button" class="butt actions-btn"
             mat-raised-button
-            [disabled]=" selectedItems?.length !== 1 || allDisable || !path"
+            [disabled]=" selectedItems?.length !== 1 || allDisable || !path || isSelectionOpened"
             (click)="toogleActions();$event.stopPropagation()"
           >
             Actions <i class="material-icons" >{{ !isActionsOpen ?  'expand_more' : 'expand_less' }}</i>
@@ -70,7 +70,7 @@
           <button
             type="button" class="butt action-menu-item"
             mat-raised-button
-            [disabled]=" !selected?.length || this.selectedItems?.length > 1 || !this.bucketStatus.download || allDisable "
+            [disabled]=" !selected?.length || this.selectedItems?.length > 1 || !this.bucketStatus.download || allDisable || isSelectionOpened"
             (click)="fileAction('download');$event.stopPropagation()"
           >
             Download
@@ -152,7 +152,6 @@
             <div class="date"><span class="th_date">Last modified</span></div>
           </div>
         </div>
-<!--        <ul class="folder-tree" *ngIf="!addedFiles.length">-->
         <ul class="folder-tree">
           <li *ngFor="let file of folderItems" class="folder-item" >
             <div class="folder-item-wrapper" *ngIf="file.children && file.item" (click)="showItem(file)">
@@ -204,7 +203,7 @@
       </div>
       <div class="loading-block" *ngIf="!path">
         <div class="uploading">
-          <p>Please wait until DLab loads bucket: <span class="strong">{{data.bucket}}</span>...</p>
+          <p>Please wait until DLab loads bucket: <span class="strong">{{bucketName}}</span>...</p>
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         </div>
       </div>

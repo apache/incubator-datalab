@@ -54,7 +54,9 @@ export class BucketTreeComponent implements OnInit {
     this.dataSource.data = this.buckets;
     this.setActiveBucket();
   }
+
   public openBucketData(bucket) {
+    this.dataSource['_treeControl'].collapseAll();
     this.setActiveBucket(bucket);
     this.emitActiveBucket.emit(bucket);
   }

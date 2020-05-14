@@ -41,7 +41,7 @@ export class ResourcesComponent implements OnInit {
   projects: Project[] = [];
 
   @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
-  private bucketStatus: ((bucketName, endpoint, permition) => void) | Object;
+  private bucketStatus;
 
   constructor(
     public toastr: ToastrService,
@@ -82,9 +82,15 @@ export class ResourcesComponent implements OnInit {
       .afterClosed().subscribe(() => this.refreshGrid());
   }
 
-  public bucketBrowser(bucketName, endpoint, permition): void {
+  public bucketBrowser(permition): void {
+    const defaultBucket = this.resourcesGrid.bucketsList[0].children[0];
       permition && this.dialog.open(BucketBrowserComponent, { data:
-        {bucket: this.resourcesGrid.bucketsList[0].children[0].name, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.resourcesGrid.bucketsList},
+        {
+          bucket: defaultBucket.name,
+          endpoint: defaultBucket.endpoint,
+          bucketStatus: this.bucketStatus,
+          buckets: this.resourcesGrid.bucketsList
+        },
       panelClass: 'modal-fullscreen' })
       .afterClosed().subscribe();
   }
@@ -113,6 +119,7 @@ export class ResourcesComponent implements OnInit {
         this.healthStatus = result;
         this.resourcesGrid.healthStatus = this.healthStatus;
         this.bucketStatus = this.healthStatus.bucketBrowser;
+        console.log(this.bucketStatus);
       },
       error => this.toastr.error(error.message, 'Oops!'));
   }
