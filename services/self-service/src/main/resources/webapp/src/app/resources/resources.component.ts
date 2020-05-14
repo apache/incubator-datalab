@@ -41,8 +41,8 @@ export class ResourcesComponent implements OnInit {
   projects: Project[] = [];
 
   @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
-  private bucketStatus;
 
+  public bucketStatus;
   constructor(
     public toastr: ToastrService,
     private healthStatusService: HealthStatusService,
