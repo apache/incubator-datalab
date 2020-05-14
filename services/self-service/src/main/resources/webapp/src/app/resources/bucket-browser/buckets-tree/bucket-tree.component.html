@@ -1,7 +1,17 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding matTreeNodePaddingIndent="17" (click)="openBucketData(node)" [ngClass]="{'active-item': activeBucket === node}">
+  <mat-tree-node
+    *matTreeNodeDef="let node"
+    matTreeNodePadding matTreeNodePaddingIndent="17"
+    (click)="openBucketData(node)"
+    [ngClass]="{'active-item': activeBacket === node}">
     <button mat-icon-button disabled></button>
-    {{node.name}}
+    <div
+      class="ellipsis"
+      matTooltip="{{node.name}}"
+      matTooltipPosition="above"
+      matTooltipShowDelay="1000"
+      [matTooltipClass]="'bucket-item-tooltip'"
+    >{{node.name}}</div>
   </mat-tree-node>
   <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding  matTreeNodePaddingIndent="17">
     <button mat-icon-button matTreeNodeToggle

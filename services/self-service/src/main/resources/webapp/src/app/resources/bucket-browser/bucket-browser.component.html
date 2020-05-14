@@ -24,11 +24,11 @@
   </header>
 
 <!--  <div class="dialog-content tabs">-->
-  <div class="dialog-content tabs" [hidden]="!path">
+  <div class="dialog-content tabs">
     <div class="submit m-bott-10 m-top-10">
       <div class="left-side-butts">
       <span [matTooltip]="'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
-        <button mat-raised-button type="button" class="butt first-btn" [disabled]="!this.bucketStatus.upload || allDisable || isSelectionOpened" (click)="handleFileInput($event)">
+        <button mat-raised-button type="button" class="butt first-btn" [disabled]="!this.bucketStatus.upload || allDisable || isSelectionOpened || !path || isSelectionOpened" (click)="handleFileInput($event)">
           <input [ngClass]="{'not-allowed': !this.bucketStatus.upload}" type="file" (change)="handleFileInput($event)" title="" multiple>
           Upload files
         </button>
@@ -39,7 +39,7 @@
           type="button"
           class="butt"
           (click)="createFolder(selectedFolder)"
-          [disabled]="!this.bucketStatus.upload || allDisable"
+          [disabled]="!this.bucketStatus.upload || allDisable || !path || isSelectionOpened"
         >
           Create folder
         </button>
@@ -50,7 +50,7 @@
           class="butt"
           mat-raised-button
           (click)="fileAction('delete')"
-          [disabled]="(!selected?.length && !selectedFolderForAction?.length) || !this.bucketStatus.delete || allDisable"
+          [disabled]="(!selected?.length && !selectedFolderForAction?.length) || !this.bucketStatus.delete || allDisable || !path || isSelectionOpened"
         >
         Delete
       </button>
@@ -60,7 +60,7 @@
           <button
             type="button" class="butt actions-btn"
             mat-raised-button
-            [disabled]=" selectedItems?.length !== 1 || allDisable"
+            [disabled]=" selectedItems?.length !== 1 || allDisable || !path || isSelectionOpened"
             (click)="toogleActions();$event.stopPropagation()"
           >
             Actions <i class="material-icons" >{{ !isActionsOpen ?  'expand_more' : 'expand_less' }}</i>
@@ -70,7 +70,7 @@
           <button
             type="button" class="butt action-menu-item"
             mat-raised-button
-            [disabled]=" !selected?.length || this.selectedItems?.length > 1 || !this.bucketStatus.download || allDisable"
+            [disabled]=" !selected?.length || this.selectedItems?.length > 1 || !this.bucketStatus.download || allDisable || isSelectionOpened"
             (click)="fileAction('download');$event.stopPropagation()"
           >
             Download
@@ -94,7 +94,6 @@
       >
         <i class="material-icons">autorenew</i>Refresh
       </button>
-
     </div>
     <p class="path"><span>Bucket path:</span>
     <span class="url ellipsis">
@@ -118,13 +117,14 @@
           <i (click)="toggleBucketSelection()" class="material-icons close">{{isSelectionOpened ? 'chevron_left' : 'chevron_right'}}</i>
         </div>
         <dlab-bucket-tree
-          *ngIf="isSelectionOpened"
-          (emitActiveBucket)=onFolderClick($event)
+          [hidden] = "!isSelectionOpened"
+          (emitActiveBucket)=openBucket($event)
+          [buckets]='buckets'
           [openedBucket] = this.bucketName
         >
         </dlab-bucket-tree>
       </div>
-      <div class="navigation" [ngClass]="{'selection-opened': isSelectionOpened}">
+      <div class="navigation" [ngClass]="{'selection-opened': isSelectionOpened}" [hidden]="!path">
         <dlab-folder-tree
           (showFolderContent)=onFolderClick($event)
           (disableAll) = dissableAll($event)
@@ -132,7 +132,7 @@
           [endpoint] = endpoint
         > </dlab-folder-tree>
       </div>
-      <div class="directory" [ngClass]="{'selection-opened': isSelectionOpened}">
+      <div class="directory" [ngClass]="{'selection-opened': isSelectionOpened}" [hidden]="!path">
         <div class="folder-item t_header">
           <div class="folder-item-wrapper header-wrapper folder-tree header-item">
             <div class="name">
@@ -152,7 +152,6 @@
             <div class="date"><span class="th_date">Last modified</span></div>
           </div>
         </div>
-<!--        <ul class="folder-tree" *ngIf="!addedFiles.length">-->
         <ul class="folder-tree">
           <li *ngFor="let file of folderItems" class="folder-item" >
             <div class="folder-item-wrapper" *ngIf="file.children && file.item" (click)="showItem(file)">
@@ -202,6 +201,12 @@
           </li>
         </ul>
       </div>
+      <div class="loading-block" *ngIf="!path">
+        <div class="uploading">
+          <p>Please wait until DLab loads bucket: <span class="strong">{{bucketName}}</span>...</p>
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+      </div>
     </div>
     <div class="upload-window" *ngIf="addedFiles.length">
       <header class="upload-header">
@@ -241,15 +246,6 @@
         </li>
         <li id="upload-list"></li>
       </ul>
-    </div>
-<!--    <div class="text-center m-top-30 m-bott-20">-->
-<!--      <button type="button" class="butt" mat-raised-button (click)="this.dialogRef.close()">Close</button>-->
-<!--    </div>-->
-  </div>
-  <div class="loading-block" *ngIf="!path">
-    <div class="uploading">
-      <p>Please wait until DLab loads bucket: <span class="strong">{{data.bucket}}</span>...</p>
-      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     </div>
   </div>
 </div>

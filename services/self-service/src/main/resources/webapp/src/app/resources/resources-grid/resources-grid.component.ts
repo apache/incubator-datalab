@@ -89,6 +89,7 @@ export class ResourcesGridComponent implements OnInit {
 
   public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
   public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
+  public bucketsList;
 
 
   constructor(
@@ -100,6 +101,7 @@ export class ResourcesGridComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildGrid();
+
   }
 
   public buildGrid(): void {
@@ -107,6 +109,7 @@ export class ResourcesGridComponent implements OnInit {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
+        this.getBuckets();
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
@@ -169,7 +172,7 @@ export class ResourcesGridComponent implements OnInit {
 
   public printDetailEnvironmentModal(data): void {
     this.dialog.open(DetailDialogComponent, { data:
-        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser},
+        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser, buckets: this.bucketsList},
       panelClass: 'modal-lg'
     })
       .afterClosed().subscribe(() => this.buildGrid());
@@ -328,6 +331,27 @@ export class ResourcesGridComponent implements OnInit {
 
     for (const index in filterConfig)
       if (filterConfig[index].length) this.activeFiltering = true;
+  }
+
+  public getBuckets() {
+    const bucketsList = this.environments.map(project => {
+      return Object.keys(project.projectEndpoints).map(key => {
+        const currEndpoint = project.projectEndpoints[key];
+        const provider: string =  project.endpoints.filter(endpoint => endpoint['name'] === key)[0]['cloudProvider'];
+        const edgeItem = {name: `${project.project}(${key})`, children: []};
+        const projectBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].bucket_name];
+        const sharedBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].shared_bucket_name];
+        if (projectBucket) {
+          edgeItem.children.push({name: projectBucket, endpoint: key});
+        }
+        if (sharedBucket) {
+          edgeItem.children.push({name: sharedBucket, endpoint: key});
+        }
+        return edgeItem;
+      });
+    });
+    this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
+    console.log(this.bucketsList.filter(v => v.children.length));
   }
 
   private getUserPreferences(): void {
