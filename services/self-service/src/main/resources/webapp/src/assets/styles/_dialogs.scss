@@ -358,6 +358,10 @@ mat-dialog-container {
   height: 30px;
 }
 
+.d-none{
+  display: none !important;
+}
+
 
 @media screen and (max-width: 1280px) {
   .modal-fullscreen {

@@ -41,6 +41,7 @@ export class ResourcesComponent implements OnInit {
   projects: Project[] = [];
 
   @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
+  private bucketStatus: ((bucketName, endpoint, permition) => void) | Object;
 
   constructor(
     public toastr: ToastrService,
@@ -52,6 +53,7 @@ export class ResourcesComponent implements OnInit {
   ngOnInit() {
     this.getEnvironmentHealthStatus();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
+
   }
 
   public createEnvironment(): void {
@@ -64,6 +66,8 @@ export class ResourcesComponent implements OnInit {
     this.checkAutorize();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
+
+
 
   public toggleFiltering(): void {
     if (this.resourcesGrid.activeFiltering) {
@@ -78,9 +82,11 @@ export class ResourcesComponent implements OnInit {
       .afterClosed().subscribe(() => this.refreshGrid());
   }
 
-  public bucketBrowser(): void {
-    this.dialog.open(BucketBrowserComponent, { panelClass: 'modal-fullscreen' })
-      .afterClosed().subscribe(() => this.refreshGrid());
+  public bucketBrowser(bucketName, endpoint, permition): void {
+      permition && this.dialog.open(BucketBrowserComponent, { data:
+        {bucket: this.resourcesGrid.bucketsList[0].children[0].name, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.resourcesGrid.bucketsList},
+      panelClass: 'modal-fullscreen' })
+      .afterClosed().subscribe();
   }
 
   public setActiveProject(project): void {
@@ -106,6 +112,7 @@ export class ResourcesComponent implements OnInit {
       (result: any) => {
         this.healthStatus = result;
         this.resourcesGrid.healthStatus = this.healthStatus;
+        this.bucketStatus = this.healthStatus.bucketBrowser;
       },
       error => this.toastr.error(error.message, 'Oops!'));
   }

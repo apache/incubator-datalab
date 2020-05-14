@@ -1,5 +1,9 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding matTreeNodePaddingIndent="17" (click)="openBucketData(node)" [ngClass]="{'active-item': activeBucket === node}">
+  <mat-tree-node
+    *matTreeNodeDef="let node"
+    matTreeNodePadding matTreeNodePaddingIndent="17"
+    (click)="openBucketData(node)"
+    [ngClass]="{'active-item': activeBacket === node, 'd-none': !node.name}">
     <button mat-icon-button disabled></button>
     {{node.name}}
   </mat-tree-node>

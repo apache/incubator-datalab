@@ -70,7 +70,6 @@ export class DetailDialogComponent implements OnInit {
       this.upTimeSince = (this.notebook.time) ? new Date(this.notebook.time).toString() : '';
       this.initFormModel();
       this.getClusterConfiguration();
-    console.log(this.notebook.edgeNodeStatus);
     if (this.notebook.edgeNodeStatus === 'terminated' ||
       this.notebook.edgeNodeStatus === 'terminating' ||
       this.notebook.edgeNodeStatus === 'failed'){
@@ -133,7 +132,7 @@ export class DetailDialogComponent implements OnInit {
 
   public bucketBrowser(bucketName, endpoint, permition): void {
     permition && this.dialog.open(BucketBrowserComponent, { data:
-        {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus},
+        {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.data.buckets},
       panelClass: 'modal-fullscreen' })
     .afterClosed().subscribe();
   }

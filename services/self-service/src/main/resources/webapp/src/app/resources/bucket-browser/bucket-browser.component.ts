@@ -44,7 +44,6 @@ export class BucketBrowserComponent implements OnInit {
   public pathInsideBucket = '';
   public bucketName = '';
   public endpoint = '';
-  public isUploadWindowOpened = false;
   public selectedFolder: any;
   public selectedFolderForAction: any;
   public selected: any[];
@@ -58,6 +57,7 @@ export class BucketBrowserComponent implements OnInit {
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   public isSelectionOpened: any;
   isFilterVisible: boolean;
+  public buckets;
 
 
 
@@ -75,9 +75,11 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
+    this.bucketName = this.data.bucket;
+    this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
     this.endpoint = this.data.endpoint;
     this.bucketStatus = this.data.bucketStatus;
+    this.buckets = this.data.buckets;
   }
 
   public showItem(item) {
@@ -173,7 +175,7 @@ export class BucketBrowserComponent implements OnInit {
       this.path = event.path;
       this.originFolderItems = this.folderItems.map(v => v);
       this.pathInsideBucket = this.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) + '/' : '';
-      this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
+      // this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
       this.folderItems.forEach(item => item.isSelected = false);
     }
   }
@@ -218,7 +220,16 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public refreshBucket() {
-    this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
+    this.path = '';
+    this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
+    this.isSelectionOpened = false;
+  }
+
+  public openBucket($event) {
+    this.bucketName = $event.name;
+    this.path = '';
+    this.bucketDataService.refreshBucketdata(this.bucketName, $event.endpoint);
+    this.isSelectionOpened = false;
   }
 
   public createFolder(folder) {
