@@ -58,7 +58,7 @@ public class BucketServiceGcpImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream) {
+    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
         log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             Storage storage = StorageOptions.getDefaultInstance().getService();

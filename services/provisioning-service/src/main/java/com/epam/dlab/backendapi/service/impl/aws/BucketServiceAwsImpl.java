@@ -24,8 +24,6 @@ import com.epam.dlab.dto.bucket.BucketDTO;
 import com.epam.dlab.exceptions.DlabException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -68,7 +66,7 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream) {
+    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
         try {
             S3Client s3 = S3Client.create();
             PutObjectRequest uploadRequest = PutObjectRequest
@@ -76,7 +74,7 @@ public class BucketServiceAwsImpl implements BucketService {
                     .bucket(bucket)
                     .key(object)
                     .build();
-            s3.putObject(uploadRequest, RequestBody.fromBytes(IOUtils.toByteArray(stream)));
+            s3.putObject(uploadRequest, RequestBody.fromInputStream(stream, fileSize));
         } catch (Exception e) {
             log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
@@ -118,8 +116,7 @@ public class BucketServiceAwsImpl implements BucketService {
                     .build();
 
             s3.deleteObjects(deleteObjectsRequests);
-
-        } catch (AwsServiceException e) {
+        } catch (Exception e) {
             log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot delete objects %s from bucket %s. Reason: %s", objects, bucket, e.getMessage()));
         }

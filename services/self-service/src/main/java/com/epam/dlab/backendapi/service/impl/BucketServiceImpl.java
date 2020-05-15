@@ -79,11 +79,11 @@ public class BucketServiceImpl implements BucketService {
     }
 
     @Override
-    public void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream) {
+    public void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize) {
         log.info("Uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
-            FormDataMultiPart formData = getFormDataMultiPart(bucket, object, inputStream);
+            FormDataMultiPart formData = getFormDataMultiPart(bucket, object, inputStream, fileSize);
             Response response = provisioningService.postForm(String.format(BUCKET_UPLOAD_OBJECT, endpointDTO.getUrl()), userInfo.getAccessToken(), formData, Response.class);
             if (response.getStatus() != HttpStatus.SC_OK) {
                 throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
@@ -128,11 +128,12 @@ public class BucketServiceImpl implements BucketService {
         return URLEncoder.encode(object, StandardCharsets.UTF_8.toString()).replace("+", "%20");
     }
 
-    private FormDataMultiPart getFormDataMultiPart(String bucket, String object, InputStream inputStream) {
+    private FormDataMultiPart getFormDataMultiPart(String bucket, String object, InputStream inputStream, long fileSize) {
         StreamDataBodyPart filePart = new StreamDataBodyPart("file", inputStream, object, MediaType.valueOf(APPLICATION_OCTET_STREAM));
         FormDataMultiPart formData = new FormDataMultiPart();
         formData.field("bucket", bucket);
         formData.field("object", object);
+        formData.field("file-size", String.valueOf(fileSize));
         formData.bodyPart(filePart);
         return formData;
     }

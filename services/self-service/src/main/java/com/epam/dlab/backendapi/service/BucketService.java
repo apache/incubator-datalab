@@ -29,7 +29,7 @@ import java.util.List;
 public interface BucketService {
     List<BucketDTO> getObjects(UserInfo userInfo, String bucket, String endpoint);
 
-    void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream);
+    void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize);
 
     void downloadObject(UserInfo userInfo, String bucket, String object, String endpoint, HttpServletResponse resp);
 
