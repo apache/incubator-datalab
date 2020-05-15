@@ -119,7 +119,6 @@ export class ResourcesComponent implements OnInit {
         this.healthStatus = result;
         this.resourcesGrid.healthStatus = this.healthStatus;
         this.bucketStatus = this.healthStatus.bucketBrowser;
-        console.log(this.bucketStatus);
       },
       error => this.toastr.error(error.message, 'Oops!'));
   }

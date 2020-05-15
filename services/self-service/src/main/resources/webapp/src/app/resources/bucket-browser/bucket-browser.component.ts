@@ -150,7 +150,6 @@ export class BucketBrowserComponent implements OnInit {
   this.selectedFolderForAction = this.folderItems.filter(item => item.isFolderSelected);
   this.selectedItems = [...this.selected, ...this.selectedFolderForAction];
   this.isActionsOpen = false;
-
   }
 
   filesPicked(files) {
@@ -176,7 +175,6 @@ export class BucketBrowserComponent implements OnInit {
       this.path = event.path;
       this.originFolderItems = this.folderItems.map(v => v);
       this.pathInsideBucket = this.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) + '/' : '';
-      // this.bucketName = this.path.substring(0, this.path.indexOf('/')) || this.path;
       this.folderItems.forEach(item => item.isSelected = false);
     }
   }
@@ -205,25 +203,33 @@ export class BucketBrowserComponent implements OnInit {
     formData.append('object', fullPath);
     formData.append('bucket', this.bucketName);
     formData.append('endpoint', this.endpoint);
-    file.isUploading = true;
-    this.bucketBrowserService.uploadFile(formData)
-      .subscribe((event: any) => {
-        if (event.type === HttpEventType.UploadProgress) {
-          file.progress = Math.round(99 * event.loaded / event.total);
-        } else if (event instanceof HttpResponse) {
-          this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
-          file.isUploading = false;
-          file.uploaded = true;
+    file.status = 'waiting';
+    file.request = this.bucketBrowserService.uploadFile(formData);
+    this.sendFile(file);
+  }
+
+  public sendFile(file) {
+    const waitUploading = this.addedFiles.filter(v => v.status === 'waiting');
+    const uploading = this.addedFiles.filter(v => v.status === 'uploading');
+    if (waitUploading.length && uploading.length < 11) {
+      file.status = 'uploading';
+      file.request.subscribe((event: any) => {
+          if (event.type === HttpEventType.UploadProgress) {
+            file.progress = Math.round(99 * event.loaded / event.total);
+          } else if (event instanceof HttpResponse) {
+            this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
+            file.status = 'uploaded';
+            delete file.request;
+            this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
+          }
+        }, error => {
+          file.status = 'failed';
+          delete file.request;
+          this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
         }
+      );
+    }
 
-
-        // this.toastr.success('File successfully uploaded!', 'Success!');
-      }, error => {
-        // this.toastr.error(error.message || 'File uploading error!', 'Oops!');
-        file.errorUploading = true;
-        file.isUploading = false;
-      }
-    );
   }
 
   public refreshBucket() {
@@ -253,11 +259,15 @@ export class BucketBrowserComponent implements OnInit {
       this.bucketBrowserService.downloadFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}/download`)
         .subscribe(event =>  {
             if (event['type'] === HttpEventType.DownloadProgress) {
-              console.log(event['loaded']);
+              selected[0].progress = Math.round(100 * event['loaded'] / selected[0].object.size);
             }
             if (event['type'] === HttpEventType.Response) {
               FileUtils.downloadBigFiles(event['body'], selected[0].item);
-              selected[0]['isDownloading'] = false;
+              setTimeout(() => {
+                selected[0]['isDownloading'] = false;
+                selected[0].progress = 0;
+              }, 1000);
+
               this.folderItems.forEach(item => item.isSelected = false);
             }
 

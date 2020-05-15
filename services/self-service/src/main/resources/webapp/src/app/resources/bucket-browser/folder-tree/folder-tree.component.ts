@@ -9,6 +9,7 @@ import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/form
 import {ErrorStateMatcher} from '@angular/material/core';
 import {PATTERNS} from '../../../core/util';
 import {ToastrService} from 'ngx-toastr';
+import {HttpEventType, HttpResponse} from '@angular/common/http';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -256,13 +257,15 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     formData.append('bucket', bucket);
     formData.append('endpoint', this.endpoint);
     this.bucketBrowserService.uploadFile(formData)
-      .subscribe(() => {
+      .subscribe((event) => {
+      if (event instanceof HttpResponse) {
           this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
           this.toastr.success('Folder successfully created!', 'Success!');
           this.resetForm();
           this.folderFormControl.updateValueAndValidity();
           this.folderFormControl.markAsPristine();
           this.folderCreating = false;
+        }
         }, error => {
           this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
           this.folderCreating = false;

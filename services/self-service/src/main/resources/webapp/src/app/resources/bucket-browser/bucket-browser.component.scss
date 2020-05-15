@@ -27,14 +27,15 @@
 
   .loading-block{
     width: 80%;
-    margin: 20% auto 0 auto;
+    margin: 0 auto;
     display: flex;
-    align-content: center;
+    align-items: center;
     justify-content: center;
     height: 100%;
     .uploading{
       width: 100%;
       text-align: center;
+      padding-bottom: 50px;
       p{
         margin-bottom: 20px;
       }
@@ -342,26 +343,6 @@
 
       .progress-wrapper{
         flex:1;
-
-        .progres{
-          border: 1px solid rgba(0,0,0,.12);
-          height: 15px;
-          position: relative;
-
-          .bar{
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            background-color:  #00bcd4;
-
-            &.full{
-              width: 100%;
-              transition: 5s ease-in-out;
-            }
-          }
-        }
       }
 
       .material-icons.close{
@@ -625,12 +606,11 @@ input[type='file'] {
       }
 
       .size{
-        flex:4;
+        flex:2;
       }
       .state{
-        flex:6;
+        flex:4;
         display: flex;
-        justify-content: center;
         align-items: center;
         .mat-raised-button{
           width: 60px;

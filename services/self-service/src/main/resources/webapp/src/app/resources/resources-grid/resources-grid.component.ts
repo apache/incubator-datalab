@@ -341,7 +341,7 @@ export class ResourcesGridComponent implements OnInit {
         const edgeItem = {name: `${project.project}(${key})`, children: []};
         const projectBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].bucket_name];
         const sharedBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].shared_bucket_name];
-        if (projectBucket) {
+        if (projectBucket && currEndpoint.status !== 'terminated' && currEndpoint.status !== 'terminating' && currEndpoint.status !== 'failed') {
           edgeItem.children.push({name: projectBucket, endpoint: key});
         }
         if (sharedBucket) {
@@ -351,7 +351,6 @@ export class ResourcesGridComponent implements OnInit {
       });
     });
     this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
-    console.log(this.bucketsList.filter(v => v.children.length));
   }
 
   private getUserPreferences(): void {
