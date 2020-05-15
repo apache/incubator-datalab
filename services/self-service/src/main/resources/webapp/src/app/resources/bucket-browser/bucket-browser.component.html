@@ -192,10 +192,14 @@
                   {{file.item}}
                 </span>
               </div>
-              <div class="size">{{file.object?.size}}</div>
+              <div class="size">{{file.object?.size | convertFileSize}}</div>
               <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>
               <div class="progress-wrapper" *ngIf="file.isDownloading">
-                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                <div class="progres">
+                  <span class="progress-bar-text">{{file.progress || 0}}% Downloading...</span>
+                  <div class="bar" [ngStyle]="{width: file.progress + '%'}">
+                  </div>
+                </div>
               </div>
             </div>
           </li>
@@ -235,12 +239,18 @@
           <div class="upload-path">
             <span class="ellipsis" matTooltip="{{file.path}}" matTooltipPosition="above">{{file.path}}</span>
           </div>
-          <div class="size">{{file.size}}MB</div>
+          <div class="size">{{file.size | convertFileSize}} </div>
           <div class="state">
-            <button mat-raised-button (click)="uploadNewFile(file)" *ngIf="!file.isUploading && !file.uploaded && !file.errorUploading">Upload</button>
-            <mat-progress-bar mode="indeterminate" *ngIf="file.isUploading"></mat-progress-bar>
-            <span *ngIf="file.uploaded" class="running">Uploaded</span>
-            <span *ngIf="file.errorUploading" class="error">Failed</span>
+<!--           <button mat-raised-button (click)="uploadNewFile(file)" *ngIf="!file.isUploading && !file.uploaded && !file.errorUploading">Upload</button>-->
+           <mat-progress-bar mode="indeterminate" *ngIf="file.isUploading"></mat-progress-bar>
+            <span *ngIf="file.status === 'uploaded'" class="running">Uploaded</span>
+            <div class="progres" *ngIf="file.status === 'uploading'">
+              <span class="progress-bar-text">{{file.progress || 0}}% Uploading...</span>
+              <div class="bar" [ngStyle]="{width: file.progress + '%'}">
+              </div>
+            </div>
+            <span *ngIf="file.status === 'failed'" class="error">Failed</span>
+            <span *ngIf="file.status === 'waiting'" class="stopped">Waiting for uploading...</span>
           </div>
           <div class="remove"><i (click)="deleteAddedFile(file)" class="material-icons close">close</i></div>
         </li>

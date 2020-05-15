@@ -263,7 +263,7 @@ export class ApplicationServiceFacade {
   public buildUploadFileToBucket(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/upload',
-      data);
+      data, { reportProgress: true, observe: 'events' });
   }
 
   public buildDownloadFileFromBucket(data) {
@@ -271,7 +271,7 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
       data, { dataType : 'binary',
         processData : false,
-        responseType : 'arraybuffer' } );
+        responseType : 'arraybuffer', reportProgress: true, observe: 'events' } );
   }
 
   public buildDeleteFileFromBucket(data): Observable<any> {

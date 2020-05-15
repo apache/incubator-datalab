@@ -33,6 +33,7 @@ import {MatTreeModule} from '@angular/material/tree';
 import {BucketDataService} from './bucket-browser/bucket-data.service';
 import {BucketConfirmationDialogComponent} from './bucket-browser/bucket-confirmation-dialog/bucket-confirmation-dialog.component';
 import {BucketTreeComponent} from './bucket-browser/buckets-tree/bucket-tree.component';
+import {ConvertFileSizePipeModule} from '../core/pipes/convert-file-size';
 
 @NgModule({
     imports: [
@@ -43,6 +44,7 @@ import {BucketTreeComponent} from './bucket-browser/buckets-tree/bucket-tree.com
         ExploratoryEnvironmentCreateModule,
         MaterialModule,
         MatTreeModule,
+        ConvertFileSizePipeModule
     ],
   declarations: [
     ResourcesComponent,
