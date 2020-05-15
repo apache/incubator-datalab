@@ -29,7 +29,6 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -102,13 +101,12 @@ public class BucketServiceGcpImpl implements BucketService {
     }
 
     private BucketDTO toBucketDTO(BlobInfo blobInfo) {
-        final String size = FileUtils.byteCountToDisplaySize(blobInfo.getSize());
         Date date = new Date(blobInfo.getUpdateTime());
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
         return BucketDTO.builder()
                 .bucket(blobInfo.getBucket())
                 .object(blobInfo.getName())
-                .size(size)
+                .size(String.valueOf(blobInfo.getSize()))
                 .lastModifiedDate(formatter.format(date))
                 .build();
     }
