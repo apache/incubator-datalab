@@ -29,6 +29,7 @@ import {FileUtils} from '../../core/util';
 import {BucketDataService} from './bucket-data.service';
 import {BucketConfirmationDialogComponent} from './bucket-confirmation-dialog/bucket-confirmation-dialog.component';
 import {logger} from 'codelyzer/util/logger';
+import {HttpEventType, HttpResponse} from '@angular/common/http';
 
 @Component({
   selector: 'dlab-bucket-browser',
@@ -98,7 +99,7 @@ export class BucketBrowserComponent implements OnInit {
         const uploadItem = {
           name: file['name'],
           file: file,
-          'size': (file['size'] / 1048576).toFixed(2),
+          size: file.size,
           path: this.path,
           isUploading: false,
           uploaded: false,
@@ -206,10 +207,16 @@ export class BucketBrowserComponent implements OnInit {
     formData.append('endpoint', this.endpoint);
     file.isUploading = true;
     this.bucketBrowserService.uploadFile(formData)
-      .subscribe(() => {
-        this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
-        file.isUploading = false;
-        file.uploaded = true;
+      .subscribe((event: any) => {
+        if (event.type === HttpEventType.UploadProgress) {
+          file.progress = Math.round(99 * event.loaded / event.total);
+        } else if (event instanceof HttpResponse) {
+          this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
+          file.isUploading = false;
+          file.uploaded = true;
+        }
+
+
         // this.toastr.success('File successfully uploaded!', 'Success!');
       }, error => {
         // this.toastr.error(error.message || 'File uploading error!', 'Oops!');
@@ -240,15 +247,20 @@ export class BucketBrowserComponent implements OnInit {
   public fileAction(action) {
     const selected = this.folderItems.filter(item => item.isSelected);
     const folderSelected = this.folderItems.filter(item => item.isFolderSelected);
-
     if (action === 'download') {
       const path = encodeURIComponent(`${this.pathInsideBucket}${this.selected[0].item}`);
       selected[0]['isDownloading'] = true;
       this.bucketBrowserService.downloadFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}/download`)
-        .subscribe(data =>  {
-        FileUtils.downloadBigFiles(data, selected[0].item);
-        selected[0]['isDownloading'] = false;
-        this.folderItems.forEach(item => item.isSelected = false);
+        .subscribe(event =>  {
+            if (event['type'] === HttpEventType.DownloadProgress) {
+              console.log(event['loaded']);
+            }
+            if (event['type'] === HttpEventType.Response) {
+              FileUtils.downloadBigFiles(event['body'], selected[0].item);
+              selected[0]['isDownloading'] = false;
+              this.folderItems.forEach(item => item.isSelected = false);
+            }
+
         }, error => {
             this.toastr.error(error.message || 'File downloading error!', 'Oops!');
             selected[0]['isDownloading'] = false;

@@ -235,11 +235,12 @@
           <div class="upload-path">
             <span class="ellipsis" matTooltip="{{file.path}}" matTooltipPosition="above">{{file.path}}</span>
           </div>
-          <div class="size">{{file.size}}MB</div>
+          <div class="size">{{file.size | convertFileSize}} </div>
           <div class="state">
             <button mat-raised-button (click)="uploadNewFile(file)" *ngIf="!file.isUploading && !file.uploaded && !file.errorUploading">Upload</button>
-            <mat-progress-bar mode="indeterminate" *ngIf="file.isUploading"></mat-progress-bar>
+<!--            <mat-progress-bar mode="indeterminate" *ngIf="file.isUploading"></mat-progress-bar>-->
             <span *ngIf="file.uploaded" class="running">Uploaded</span>
+            <span *ngIf="file.isUploading">{{file.progress || 0}}%</span>
             <span *ngIf="file.errorUploading" class="error">Failed</span>
           </div>
           <div class="remove"><i (click)="deleteAddedFile(file)" class="material-icons close">close</i></div>
