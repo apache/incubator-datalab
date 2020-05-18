@@ -160,3 +160,12 @@
     }
   }
 }
+.upload-message{
+  display: flex;
+  .upload-item-name{
+    max-width: 340px;
+    display: block;
+    padding-left: 4px;
+  }
+}
+
