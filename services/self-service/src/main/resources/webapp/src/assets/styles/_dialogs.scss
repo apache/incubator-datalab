@@ -263,6 +263,7 @@ mat-dialog-container {
   p {
     font-weight: 400;
     margin-bottom: 10px;
+    display: flex;
 
     small {
       font-size: 12px;
@@ -275,6 +276,11 @@ mat-dialog-container {
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
+    &.link-icon{
+      margin-left: 10px;
+      cursor: pointer;
+      padding-top: 3px;
+    }
   }
 
   .links_block {
