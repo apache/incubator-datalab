@@ -113,7 +113,6 @@ export class BucketDataService {
     }
 
     public processFolderArray = (acc, curr) => {
-      // const files = curr.object.split('/').filter(x => x.length > 0);
       const files = curr.object.split('/');
       this.processFiles(files, acc, curr);
 

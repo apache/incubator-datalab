@@ -1,5 +1,4 @@
-import {Component, OnInit, AfterViewInit, Output, EventEmitter, OnDestroy, Input} from '@angular/core';
-import {SelectionModel} from '@angular/cdk/collections';
+import {Component, Output, EventEmitter, OnDestroy, Input} from '@angular/core';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BucketBrowserService, TodoItemFlatNode, TodoItemNode} from '../../../core/services/bucket-browser.service';
