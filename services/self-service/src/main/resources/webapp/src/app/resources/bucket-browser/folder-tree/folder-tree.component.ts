@@ -64,7 +64,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
           }
           this.expandAllParents(this.selectedFolder || subjectData[0]);
           this.showItem(this.selectedFolder || subjectData[0]);
-          if (this.folderCreationParent) {
+          if (this.folderCreationParent && subject.getValue().filter(v => v.item === '').length === 0) {
             this.folderCreationRefresh(this.folderCreationParent, '', false);
           } else {
             this.disableAll.emit(false);

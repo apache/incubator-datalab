@@ -30,6 +30,7 @@ import {BucketDataService} from './bucket-data.service';
 import {BucketConfirmationDialogComponent} from './bucket-confirmation-dialog/bucket-confirmation-dialog.component';
 import {logger} from 'codelyzer/util/logger';
 import {HttpEventType, HttpResponse} from '@angular/common/http';
+import {CopyPathUtils} from '../../core/util/copyPathUtils';
 
 @Component({
   selector: 'dlab-bucket-browser',
@@ -316,18 +317,8 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public copyPath() {
-    const selBox = document.createElement('textarea');
     const selected = this.folderItems.filter(item => item.isSelected || item.isFolderSelected)[0];
-    selBox.style.position = 'fixed';
-    selBox.style.left = '0';
-    selBox.style.top = '0';
-    selBox.style.opacity = '0';
-    selBox.value = selected.object.bucket + '/' + selected.object.object;
-    document.body.appendChild(selBox);
-    selBox.focus();
-    selBox.select();
-    document.execCommand('copy');
-    document.body.removeChild(selBox);
+    CopyPathUtils.copyPath(selected.object.bucket + '/' + selected.object.object);
     this.clearSelection();
     this.isActionsOpen = false;
     this.toastr.success('Object path successfully copied!', 'Success!');

@@ -27,6 +27,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { DataengineConfigurationService } from '../../../core/services';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 import {BucketBrowserComponent} from '../../bucket-browser/bucket-browser.component';
+import {CopyPathUtils} from '../../../core/util/copyPathUtils';
 
 @Component({
   selector: 'detail-dialog',
@@ -44,6 +45,10 @@ export class DetailDialogComponent implements OnInit {
   config: Array<{}> = [];
   bucketStatus: object = {};
   isBucketAllowed = true;
+  isCopyIconVissible = {
+    project: false,
+    shared: false
+  };
 
   public configurationForm: FormGroup;
 
@@ -72,7 +77,7 @@ export class DetailDialogComponent implements OnInit {
       this.getClusterConfiguration();
     if (this.notebook.edgeNodeStatus === 'terminated' ||
       this.notebook.edgeNodeStatus === 'terminating' ||
-      this.notebook.edgeNodeStatus === 'failed'){
+      this.notebook.edgeNodeStatus === 'failed') {
       this.isBucketAllowed = false;
     }
     }
@@ -135,5 +140,14 @@ export class DetailDialogComponent implements OnInit {
         {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.data.buckets},
       panelClass: 'modal-fullscreen' })
     .afterClosed().subscribe();
+  }
+
+  protected showCopyIcon(bucket) {
+    this.isCopyIconVissible[bucket] = true;
+  }
+
+  protected copyBucketName(copyValue) {
+    CopyPathUtils.copyPath(copyValue);
+    this.toastr.success('Bucket name successfully copied!', 'Success!');
   }
 }
