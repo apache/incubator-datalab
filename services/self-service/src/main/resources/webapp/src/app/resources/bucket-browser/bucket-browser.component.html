@@ -96,21 +96,15 @@
       </button>
     </div>
     <p class="path"><span>Bucket path:</span>
-    <span class="url ellipsis">
-     <span *ngFor="let folder of this.objectPath">
-       <span class="url-icon" *ngIf="this.objectPath.indexOf(folder) !== 0"> <i class="material-icons">
-             chevron_right
-          </i> </span>
-       <span class="url-folder" (click)="folderTreeComponent.showItem(folder);">{{folder.item}}</span>
-     </span>
-    </span></p>
-
-<!--    <div class="navigation-line">-->
-<!--        <div class="filter-files">-->
-<!--          <input _ngcontent-yns-c13="" [(ngModel)]="searchValue" (keyup)=filterObjects($event) class="form-control filter-field" placeholder="Filter by name" type="text">-->
-<!--        </div>-->
-<!--    </div>-->
-
+      <span class="url ellipsis">
+       <span *ngFor="let folder of this.objectPath">
+         <span class="url-icon" *ngIf="this.objectPath.indexOf(folder) !== 0"> <i class="material-icons">
+               chevron_right
+            </i> </span>
+         <span class="url-folder" (click)="folderTreeComponent.showItem(folder);">{{folder.item}}</span>
+       </span>
+      </span>
+    </p>
     <div class="bucket-wrapper" [ngClass]="{'added-upload': addedFiles.length}" id="scrolling">
       <div class="backet-selection" [ngClass]="{'opened': isSelectionOpened}">
         <div class="button-wrapper">
@@ -171,9 +165,6 @@
               </div>
               <div class="size size-folder">-</div>
               <div class="date" *ngIf="!file.isDownloading">-</div>
-<!--              <div class="progress-wrapper">-->
-<!--                <div class="progres" *ngIf="file.isSelected"><div class="bar"></div></div>-->
-<!--              </div>-->
             </div>
             <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file, 'file')" *ngIf="!file.children" [ngClass]="{'no-select': !this.bucketStatus.download && !this.bucketStatus.delete}">
               <div class="name name-file">

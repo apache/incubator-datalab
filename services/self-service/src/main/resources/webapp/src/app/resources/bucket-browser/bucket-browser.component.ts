@@ -191,8 +191,15 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public deleteAddedFile(file) {
-    console.log(file);
-    file.request.unsubscribe();
+    if ( file.subscr ) {
+      this.dialog.open(BucketConfirmationDialogComponent, {data: {items: file, type: 'cancel-uploading'} , width: '550px'})
+        .afterClosed().subscribe((res) => {
+          res && file.subscr.unsubscribe();
+          if (!res) {
+            return;
+          }
+      });
+    }
     this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
   }
 
@@ -214,20 +221,18 @@ export class BucketBrowserComponent implements OnInit {
     const uploading = this.addedFiles.filter(v => v.status === 'uploading');
     if (waitUploading.length && uploading.length < 10) {
       file.status = 'uploading';
-      file.request.subscribe((event: any) => {
+      file.subscr =  file.request.subscribe((event: any) => {
           if (event.type === HttpEventType.UploadProgress) {
             file.progress = Math.round(99 * event.loaded / event.total);
           } else if (event instanceof HttpResponse) {
             this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
             file.status = 'uploaded';
             delete file.request;
-            console.log(file);
             this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
           }
         }, error => {
           file.status = 'failed';
           delete file.request;
-          console.log(file);
           this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
         }
       );

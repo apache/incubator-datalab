@@ -9,7 +9,7 @@ import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/form
 import {ErrorStateMatcher} from '@angular/material/core';
 import {PATTERNS} from '../../../core/util';
 import {ToastrService} from 'ngx-toastr';
-import {HttpEventType, HttpResponse} from '@angular/common/http';
+import {HttpResponse} from '@angular/common/http';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -24,7 +24,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
   styleUrls: ['./folder-tree.component.scss']
 })
 
-export class FolderTreeComponent implements OnInit, OnDestroy {
+export class FolderTreeComponent implements OnDestroy {
 
   @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
   @Output() disableAll: EventEmitter<any> = new EventEmitter();
@@ -42,7 +42,6 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   public treeControl: FlatTreeControl<TodoItemFlatNode>;
   private treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
   public dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
-  private checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
   private folderCreationParent;
 
   constructor(
@@ -95,10 +94,6 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
-  }
-
-
-  ngOnInit() {
   }
 
   ngOnDestroy() {
@@ -159,63 +154,6 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private descendantsAllSelected(node: TodoItemFlatNode): boolean {
-
-    const descendants = this.treeControl.getDescendants(node);
-    const descAllSelected = descendants.every(child =>
-      this.checklistSelection.isSelected(child)
-    );
-    return descAllSelected;
-  }
-
-  private descendantsPartiallySelected(node: TodoItemFlatNode): boolean {
-
-    const descendants = this.treeControl.getDescendants(node);
-    const result = descendants.some(child => this.checklistSelection.isSelected(child));
-    return result && !this.descendantsAllSelected(node);
-  }
-
-  private todoItemSelectionToggle(node: TodoItemFlatNode): void {
-    this.checklistSelection.toggle(node);
-  const descendants = this.treeControl.getDescendants(node);
-  this.checklistSelection.isSelected(node)
-? this.checklistSelection.select(...descendants)
-    : this.checklistSelection.deselect(...descendants);
-
-  // Force update for the parent
-  descendants.every(child =>
-  this.checklistSelection.isSelected(child)
-);
-  this.checkAllParentsSelection(node);
-}
-
-  private todoLeafItemSelectionToggle(node: TodoItemFlatNode): void {
-    this.checklistSelection.toggle(node);
-    this.checkAllParentsSelection(node);
-  }
-
-  private checkAllParentsSelection(node: TodoItemFlatNode): void {
-    let parent: TodoItemFlatNode | null = this.getParentNode(node);
-    while (parent) {
-      this.checkRootNodeSelection(parent);
-      parent = this.getParentNode(parent);
-    }
-  }
-
-
-  private checkRootNodeSelection(node: TodoItemFlatNode): void {
-    const nodeSelected = this.checklistSelection.isSelected(node);
-    const descendants = this.treeControl.getDescendants(node);
-    const descAllSelected = descendants.every(child =>
-      this.checklistSelection.isSelected(child)
-    );
-    if (nodeSelected && !descAllSelected) {
-      this.checklistSelection.deselect(node);
-    } else if (!nodeSelected && descAllSelected) {
-      this.checklistSelection.select(node);
-    }
-  }
-
   private getParentNode(node: TodoItemFlatNode): TodoItemFlatNode | null {
     const currentLevel = this.getLevel(node);
     if (currentLevel < 1) {
@@ -272,8 +210,6 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
           this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
           this.toastr.success('Folder successfully created!', 'Success!');
           this.resetForm();
-          this.folderFormControl.updateValueAndValidity();
-          this.folderFormControl.markAsPristine();
           this.folderCreating = false;
           this.folderCreationParent = null;
         }
