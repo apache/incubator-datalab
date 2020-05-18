@@ -239,7 +239,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     this.folderCreationRefresh(node, file, isFile);
   }
 
-  private folderCreationRefresh(node: TodoItemFlatNode, file, isFile) {
+  public folderCreationRefresh(node: TodoItemFlatNode, file, isFile) {
     const currNode = this.flatNodeMap.get(node);
     this.bucketDataService.insertItem(currNode!, file, isFile);
     this.treeControl.expand(node);
