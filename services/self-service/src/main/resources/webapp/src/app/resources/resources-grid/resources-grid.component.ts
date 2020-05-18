@@ -338,7 +338,7 @@ export class ResourcesGridComponent implements OnInit {
       return Object.keys(project.projectEndpoints).map(key => {
         const currEndpoint = project.projectEndpoints[key];
         const provider: string =  project.endpoints.filter(endpoint => endpoint['name'] === key)[0]['cloudProvider'];
-        const edgeItem = {name: `${project.project}(${key})`, children: []};
+        const edgeItem = {name: `${project.project} (${key})`, children: []};
         const projectBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].bucket_name];
         const sharedBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].shared_bucket_name];
         if (projectBucket && currEndpoint.status !== 'terminated' && currEndpoint.status !== 'terminating' && currEndpoint.status !== 'failed') {

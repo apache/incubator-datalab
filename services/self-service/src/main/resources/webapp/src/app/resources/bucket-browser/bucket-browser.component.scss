@@ -593,23 +593,23 @@ input[type='file'] {
       }
 
       .name{
-        flex:12;
+        width: 38%;
         padding-right: 5px;
         overflow: hidden;
         display: flex;
       }
 
       .upload-path{
-        flex:12;
+        width: 38%;
         padding-right: 5px;
         display: flex;
       }
 
       .size{
-        flex:2;
+        width: 7%;
       }
       .state{
-        flex:4;
+        width: 14%;
         display: flex;
         align-items: center;
         .mat-raised-button{
@@ -627,7 +627,7 @@ input[type='file'] {
       .remove{
         display: flex;
         align-items: center;
-        flex: 1;
+        width: 3%;
         position: relative;
         .close{
           color: #577289;

@@ -21,7 +21,7 @@ import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { ManageUngitService } from '../../core/services';
+import {ApplicationSecurityService, ManageUngitService} from '../../core/services';
 
 import {FolderTreeComponent} from './folder-tree/folder-tree.component';
 import {BucketBrowserService, TodoItemNode} from '../../core/services/bucket-browser.service';
@@ -71,6 +71,7 @@ export class BucketBrowserComponent implements OnInit {
     private _fb: FormBuilder,
     private bucketBrowserService: BucketBrowserService,
     private bucketDataService: BucketDataService,
+    private auth: ApplicationSecurityService
   ) {
 
   }
@@ -92,7 +93,7 @@ export class BucketBrowserComponent implements OnInit {
     if (event.target.files.length > 0) {
       let askForAll = true;
       let skipAll = false;
-
+      this.auth.refreshToken().subscribe();
       const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
       for (const file of  Object['values'](event.target.files)) {
       const existFile = folderFiles.filter(v => v === file['name'])[0];
@@ -101,9 +102,6 @@ export class BucketBrowserComponent implements OnInit {
           file: file,
           size: file.size,
           path: this.path,
-          isUploading: false,
-          uploaded: false,
-          errorUploading: false
         };
         if (existFile && askForAll) {
           const result = await this.openResolveDialog(existFile);
@@ -192,6 +190,8 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public deleteAddedFile(file) {
+    console.log(file);
+    file.request.unsubscribe();
     this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
   }
 
@@ -211,7 +211,7 @@ export class BucketBrowserComponent implements OnInit {
   public sendFile(file) {
     const waitUploading = this.addedFiles.filter(v => v.status === 'waiting');
     const uploading = this.addedFiles.filter(v => v.status === 'uploading');
-    if (waitUploading.length && uploading.length < 11) {
+    if (waitUploading.length && uploading.length < 10) {
       file.status = 'uploading';
       file.request.subscribe((event: any) => {
           if (event.type === HttpEventType.UploadProgress) {
@@ -220,11 +220,13 @@ export class BucketBrowserComponent implements OnInit {
             this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
             file.status = 'uploaded';
             delete file.request;
+            console.log(file);
             this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
           }
         }, error => {
           file.status = 'failed';
           delete file.request;
+          console.log(file);
           this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
         }
       );

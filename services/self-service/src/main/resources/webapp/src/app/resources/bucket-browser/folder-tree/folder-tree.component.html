@@ -1,10 +1,12 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding matTreeNodePaddingIndent="17" [ngStyle]="{'display': 'none'}">
   <button mat-icon-button disabled></button>
   <!--    <mat-checkbox class="checklist-leaf-node"-->
   <!--                  [checked]="checklistSelection.isSelected(node)"-->
   <!--                  (change)="todoLeafItemSelectionToggle(node)"></mat-checkbox>-->
   {{node.item}}
+
 </mat-tree-node>
 
   <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding matTreeNodePaddingIndent="17" class="input-node">

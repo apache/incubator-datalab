@@ -36,15 +36,14 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   private selectedFolder: TodoItemFlatNode;
   private flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
   private nestedNodeMap = new Map<TodoItemNode, TodoItemFlatNode>();
-  private selectedParent: TodoItemFlatNode | null = null;
+
   private folderCreating = false;
   private subscriptions: Subscription = new Subscription();
   public treeControl: FlatTreeControl<TodoItemFlatNode>;
   private treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
   public dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
-
-
   private checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
+  private folderCreationParent;
 
   constructor(
     public toastr: ToastrService,
@@ -65,6 +64,11 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
           }
           this.expandAllParents(this.selectedFolder || subjectData[0]);
           this.showItem(this.selectedFolder || subjectData[0]);
+          if (this.folderCreationParent) {
+            this.folderCreationRefresh(this.folderCreationParent, '', false);
+          } else {
+            this.disableAll.emit(false);
+          }
         });
       }
     }));
@@ -99,6 +103,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.bucketDataService._bucketData.next([]);
+    this.subscriptions.unsubscribe();
   }
 
   folderFormControl = new FormControl('', [
@@ -230,8 +235,13 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   }
 
   private addNewItem(node: TodoItemFlatNode, file, isFile, path) {
-    const parentNode = this.flatNodeMap.get(node);
-    this.bucketDataService.insertItem(parentNode!, file, isFile);
+    this.folderCreationParent = node;
+    this.folderCreationRefresh(node, file, isFile);
+  }
+
+  private folderCreationRefresh(node: TodoItemFlatNode, file, isFile) {
+    const currNode = this.flatNodeMap.get(node);
+    this.bucketDataService.insertItem(currNode!, file, isFile);
     this.treeControl.expand(node);
     setTimeout(() => {
       const element = document.querySelector('#folder-form');
@@ -265,10 +275,12 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
           this.folderFormControl.updateValueAndValidity();
           this.folderFormControl.markAsPristine();
           this.folderCreating = false;
+          this.folderCreationParent = null;
         }
         }, error => {
           this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
           this.folderCreating = false;
+          this.folderCreationParent = null;
         }
       );
   }

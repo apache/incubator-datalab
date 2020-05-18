@@ -46,7 +46,7 @@
     </div>
 
     <div>
-      <span  matTooltip="{{!this.bucketStatus?.view ? 'You have not permission to open bucket browser' : 'You have not any buckets'}}"
+      <span  matTooltip="{{!this.bucketStatus?.view ? 'You have not permission to open bucket browser' : 'You have not any bucket'}}"
              matTooltipPosition="above"
              matTooltipDisabled="{{resourcesGrid.bucketsList?.length > 0 || !this.bucketStatus?.view}}"
              [matTooltipClass]="'bucket-item-tooltip'"
