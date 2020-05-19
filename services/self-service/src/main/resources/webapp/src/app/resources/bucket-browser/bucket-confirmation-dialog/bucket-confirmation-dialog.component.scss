@@ -37,6 +37,11 @@
     font-weight: 400;
     margin: 0;
     margin-bottom: 10px;
+    &.upload-limit-message{
+      text-align: center;
+      color: red;
+      font-size: 14px;
+    }
     &.info {
       font-weight: 500;
     }
