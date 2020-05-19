@@ -165,6 +165,9 @@ export class BucketBrowserComponent implements OnInit {
     this.searchValue = '';
     this.clearSelection();
     this.selectedFolder = event.flatNode;
+    if (this.isSelectionOpened){
+      this.isSelectionOpened = false;
+    }
     this.folderItems = event.element ? event.element.children : event.children;
     if (this.folderItems) {
       this.folders = this.folderItems.filter(v => v.children).sort((a, b) => a.item > b.item ? 1 : -1);
@@ -191,16 +194,15 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public deleteAddedFile(file) {
-    if ( file.subscr ) {
+    if ( file.subscr && file.request) {
       this.dialog.open(BucketConfirmationDialogComponent, {data: {items: file, type: 'cancel-uploading'} , width: '550px'})
         .afterClosed().subscribe((res) => {
           res && file.subscr.unsubscribe();
-          if (!res) {
-            return;
-          }
+          res && this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
       });
+    } else {
+      this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
     }
-    this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
   }
 
   private uploadNewFile(file) {

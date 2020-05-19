@@ -77,7 +77,7 @@
                     class="bucket-info bucket-link"
                     [ngClass]="{'not-allow': !this.bucketStatus.view || !this.isBucketAllowed}"
                     (mouseover)="showCopyIcon('project')"
-                    (click)="bucketBrowser('ofuks-1304-pr2-local-bucket', notebook.endpoint, this.bucketStatus.view && this.isBucketAllowed)"
+                    (click)="bucketBrowser(notebook.account_name, notebook.endpoint, this.bucketStatus.view && this.isBucketAllowed)"
                   >
                     {{ notebook.account_name}}
                   </span>

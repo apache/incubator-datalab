@@ -1,4 +1,4 @@
-import {Component, Output, EventEmitter, OnDestroy, Input} from '@angular/core';
+import {Component, Output, EventEmitter, OnDestroy, Input, OnInit} from '@angular/core';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BucketBrowserService, TodoItemFlatNode, TodoItemNode} from '../../../core/services/bucket-browser.service';
@@ -16,6 +16,8 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     return !!(control && control.invalid && (control.dirty));
   }
 }
+
+
 
 @Component({
   selector: 'dlab-folder-tree',
@@ -47,29 +49,36 @@ export class FolderTreeComponent implements OnDestroy {
     public toastr: ToastrService,
     private bucketBrowserService: BucketBrowserService,
     private bucketDataService: BucketDataService,
-    ) {
+  ) {
     this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-
-    this.subscriptions.add(bucketDataService._bucketData.subscribe(data => {
-     if (data) {
-       this.dataSource.data = data;
+    this.subscriptions.add(this.bucketDataService._bucketData.subscribe(data => {
+      // const emptyFolder = this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0];
+      // console.log(emptyFolder);
+      if (data) {
+        this.dataSource.data = data;
         const subject = this.dataSource._flattenedData;
-       this.folderTreeSubs = subject.subscribe((subjectData) => {
+        const subjectData = subject.getValue();
           if (this.selectedFolder) {
             this.selectedFolder = subjectData.filter(v => v.item === this.selectedFolder.item && v.level === this.selectedFolder.level)[0];
           }
           this.expandAllParents(this.selectedFolder || subjectData[0]);
           this.showItem(this.selectedFolder || subjectData[0]);
-          if (this.folderCreationParent && subject.getValue().filter(v => v.item === '').length === 0) {
-            this.folderCreationRefresh(this.folderCreationParent, '', false);
-          } else {
-            this.disableAll.emit(false);
-          }
-        });
+          // if (emptyFolder || this.folderFormControl.value) {
+          //   const folderName = this.folderFormControl.value;
+          //   this.folderFormControl.setValue('');
+          //   this.folderFormControl.updateValueAndValidity();
+          //   this.folderFormControl.markAsPristine();
+          //   console.log(this.folderCreationParent);
+          //   this.addNewItem(this.folderCreationParent, folderName, false);
+          // } else {
+          //   console.log('false');
+          //   this.disableAll.emit(false);
+          // }
       }
     }));
+    this.dataSource._flattenedData.subscribe();
   }
 
   getLevel = (node: TodoItemFlatNode) => node.level;
@@ -93,7 +102,7 @@ export class FolderTreeComponent implements OnDestroy {
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
-  }
+  };
 
   ngOnDestroy() {
     this.bucketDataService._bucketData.next([]);
@@ -171,12 +180,13 @@ export class FolderTreeComponent implements OnDestroy {
     return null;
   }
 
-  private addNewItem(node: TodoItemFlatNode, file, isFile, path) {
+  private addNewItem(node: TodoItemFlatNode, file, isFile) {
     this.folderCreationParent = node;
     this.folderCreationRefresh(node, file, isFile);
   }
 
   public folderCreationRefresh(node: TodoItemFlatNode, file, isFile) {
+    this.folderFormControl.setValue(file);
     const currNode = this.flatNodeMap.get(node);
     this.bucketDataService.insertItem(currNode!, file, isFile);
     this.treeControl.expand(node);
@@ -205,13 +215,15 @@ export class FolderTreeComponent implements OnDestroy {
     formData.append('endpoint', this.endpoint);
     this.bucketBrowserService.uploadFile(formData)
       .subscribe((event) => {
-      if (event instanceof HttpResponse) {
-          this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
-          this.toastr.success('Folder successfully created!', 'Success!');
-          this.resetForm();
-          this.folderCreating = false;
-          this.folderCreationParent = null;
-        }
+          if (event instanceof HttpResponse) {
+            this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
+            this.toastr.success('Folder successfully created!', 'Success!');
+            this.resetForm();
+            this.folderCreating = false;
+            this.folderCreationParent = null;
+            // this.dataSource._flattenedData.getValue().slice()this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0]
+            this.dataSource._flattenedData.getValue().splice(this.dataSource._flattenedData.getValue().indexOf(this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0]));
+          }
         }, error => {
           this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
           this.folderCreating = false;
