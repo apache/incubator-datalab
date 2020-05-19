@@ -108,7 +108,7 @@
     <div class="bucket-wrapper" [ngClass]="{'added-upload': addedFiles.length}" id="scrolling">
       <div class="backet-selection" [ngClass]="{'opened': isSelectionOpened}">
         <div class="button-wrapper">
-          <i (click)="toggleBucketSelection()" class="material-icons close">{{isSelectionOpened ? 'chevron_left' : 'chevron_right'}}</i>
+          <i (click)="toggleBucketSelection()" class="material-icons close" *ngIf="!isSelectionOpened">chevron_right</i>
         </div>
         <dlab-bucket-tree
           [hidden] = "!isSelectionOpened"

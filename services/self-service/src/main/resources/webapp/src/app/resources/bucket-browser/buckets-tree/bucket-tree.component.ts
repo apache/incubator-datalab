@@ -53,6 +53,7 @@ export class BucketTreeComponent implements OnInit {
     this.activeBucketName = this.openedBucket || '';
     this.dataSource.data = this.buckets;
     this.setActiveBucket();
+    console.log(this.treeControl);
   }
 
   public openBucketData(bucket) {
@@ -64,6 +65,10 @@ export class BucketTreeComponent implements OnInit {
   public setActiveBucket(bucket?) {
     this.activeBacket = bucket || this.dataSource._flattenedData.getValue().filter(v => v.name === this.openedBucket)[0];
     this.expandAllParents(this.activeBacket);
+  }
+
+  public toggleProject(el, isExpanded){
+    isExpanded ? this.treeControl.collapse(el) : this.treeControl.expand(el);
   }
 
   private expandAllParents(el) {

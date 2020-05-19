@@ -20,6 +20,6 @@
         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
       </mat-icon>
     </button>
-    {{node.name}}
+    <span (click)="toggleProject(node, treeControl.isExpanded(node))">{{node.name}}</span>
   </mat-tree-node>
 </mat-tree>
