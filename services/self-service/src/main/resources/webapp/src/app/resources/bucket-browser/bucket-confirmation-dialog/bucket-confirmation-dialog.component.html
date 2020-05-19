@@ -24,6 +24,7 @@
         <span *ngIf="data.type === 'delete'">Delete</span>
         <span *ngIf="data.type === 'upload-dublicat'">Resolve conflicts</span>
         <span *ngIf="data.type === 'cancel-uploading'">Cancel</span>
+        <span *ngIf="data.type === 'uploading-error'">Upload limitation</span>
     </h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
@@ -94,11 +95,19 @@
       <div *ngIf="data.type === 'cancel-uploading'">
         <p class="upload-message"><span>Cancel uploading file </span> <span class="strong ellipsis upload-item-name">{{data.items.name}}.</span></p>
         <div class="text-center m-top-20">
-          <p class="strong">Do you want to proceed?</p>
+          <span class="strong">Do you want to proceed?</span>
         </div>
       </div>
 
-      <div class="text-center m-top-20" *ngIf="data.type === 'delete' || data.type === 'cancel-uploading'">
+      <div *ngIf="data.type === 'uploading-error'">
+        <p class="upload-limit-message" *ngIf="data.items.toMany">Only the first fifty objects will be uploaded.</p>
+        <p class="upload-limit-message" *ngIf="data.items.toBig">Only file(s) within 4 GB will be uploaded.</p>
+        <div class="text-center m-top-20">
+          <span class="strong">Do you want to proceed?</span>
+        </div>
+      </div>
+
+      <div class="text-center m-top-20" *ngIf="data.type === 'delete' || data.type === 'cancel-uploading' || data.type === 'uploading-error'">
         <button  mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">No</button>
         <button mat-raised-button type="button" class="butt butt-success action" (click)="dialogRef.close(true)">Yes</button>
       </div>

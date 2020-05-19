@@ -90,54 +90,6 @@ export class BucketBrowserComponent implements OnInit {
     this.folderTreeComponent.showItem(flatItem);
   }
 
-  public async handleFileInput(event) {
-    if (event.target.files.length > 0) {
-      let askForAll = true;
-      let skipAll = false;
-      this.auth.refreshToken().subscribe();
-      const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
-      for (const file of  Object['values'](event.target.files)) {
-      const existFile = folderFiles.filter(v => v === file['name'])[0];
-        const uploadItem = {
-          name: file['name'],
-          file: file,
-          size: file.size,
-          path: this.path,
-        };
-        if (existFile && askForAll) {
-          const result = await this.openResolveDialog(existFile);
-          if (result) {
-            askForAll = !result.forAll;
-            if (result.forAll && !result.replaceObject) {
-              skipAll = true;
-            }
-            if (result.replaceObject) {
-              this.addedFiles.push(uploadItem);
-              this.uploadNewFile(uploadItem);
-            }
-          }
-        } else if (!existFile || (existFile && !askForAll && !skipAll)) {
-          this.addedFiles.push(uploadItem);
-          this.uploadNewFile(uploadItem);
-        }
-        }
-    }
-    event.target.value = '';
-    setTimeout(() => {
-      const element = document.querySelector('#upload-list');
-      element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
-    }, 0);
-  }
-
-  async openResolveDialog(existFile) {
-     const dialog = this.dialog.open(BucketConfirmationDialogComponent, {
-       data: {items: existFile, type: 'upload-dublicat'} , width: '550px'
-     });
-     return dialog.afterClosed().toPromise().then(result => {
-      return Promise.resolve(result);
-    });
-  }
-
   public closeUploadWindow() {
     this.addedFiles = [];
   }
@@ -161,11 +113,85 @@ export class BucketBrowserComponent implements OnInit {
     this.allDisable = event;
   }
 
+  public handleFileInput(event) {
+    console.log('handleFileInput');
+    const fullFilesList = Object['values'](event.target.files);
+    if (fullFilesList.length > 0) {
+      console.log('handleFileInputLength');
+      const files = fullFilesList.filter(v => v.size < 4294967296);
+      const toBigFile = fullFilesList.length !== files.length;
+      const toMany = files.length > 50;
+      if (files.length > 50) {
+        files.length = 50;
+      }
+      if (toBigFile || toMany) {
+        this.dialog.open(BucketConfirmationDialogComponent, {data: {
+          items: {toBig: toBigFile, toMany: toMany}, type: 'uploading-error'
+          } , width: '550px'})
+          .afterClosed().subscribe((res) => {
+            res && this.uploadingQueue(files);
+        });
+      } else {
+        this.uploadingQueue(files);
+      }
+    }
+    event.target.value = '';
+    setTimeout(() => {
+      const element = document.querySelector('#upload-list');
+      element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    }, 0);
+  }
+
+  private async uploadingQueue(files) {
+    if (files.length) {
+      let askForAll = true;
+      let skipAll = false;
+      console.log('uploadingQueue');
+      // this.auth.refreshToken().subscribe();
+      const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
+      for (const file of files) {
+        const existFile = folderFiles.filter(v => v === file['name'])[0];
+        const uploadItem = {
+          name: file['name'],
+          file: file,
+          size: file.size,
+          path: this.path,
+        };
+        if (existFile && askForAll) {
+          const result = await this.openResolveDialog(existFile);
+          if (result) {
+            askForAll = !result.forAll;
+            if (result.forAll && !result.replaceObject) {
+              skipAll = true;
+            }
+            if (result.replaceObject) {
+              this.addedFiles.push(uploadItem);
+              this.uploadNewFile(uploadItem);
+            }
+          }
+        } else if (!existFile || (existFile && !askForAll && !skipAll)) {
+          this.addedFiles.push(uploadItem);
+          this.uploadNewFile(uploadItem);
+        }
+      }
+    }
+
+  }
+
+  async openResolveDialog(existFile) {
+    const dialog = this.dialog.open(BucketConfirmationDialogComponent, {
+      data: {items: existFile, type: 'upload-dublicat'} , width: '550px'
+    });
+    return dialog.afterClosed().toPromise().then(result => {
+      return Promise.resolve(result);
+    });
+  }
+
   public onFolderClick(event) {
     this.searchValue = '';
     this.clearSelection();
     this.selectedFolder = event.flatNode;
-    if (this.isSelectionOpened){
+    if (this.isSelectionOpened) {
       this.isSelectionOpened = false;
     }
     this.folderItems = event.element ? event.element.children : event.children;
@@ -223,14 +249,16 @@ export class BucketBrowserComponent implements OnInit {
     const uploading = this.addedFiles.filter(v => v.status === 'uploading');
     if (waitUploading.length && uploading.length < 10) {
       file.status = 'uploading';
+
       file.subscr =  file.request.subscribe((event: any) => {
           if (event.type === HttpEventType.UploadProgress) {
             file.progress = Math.round(99 * event.loaded / event.total);
           } else if (event instanceof HttpResponse) {
-            this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
+            console.log('upload response');
             file.status = 'uploaded';
             delete file.request;
             this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
+            this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
           }
         }, error => {
           file.status = 'failed';
