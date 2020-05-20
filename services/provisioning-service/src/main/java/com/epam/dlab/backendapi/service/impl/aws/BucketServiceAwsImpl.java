@@ -23,7 +23,6 @@ import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.dto.bucket.BucketDTO;
 import com.epam.dlab.exceptions.DlabException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -126,13 +125,12 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     private BucketDTO toBucketDTO(String bucket, S3Object s3Object) {
-        final String size = FileUtils.byteCountToDisplaySize(s3Object.size());
         Date date = Date.from(s3Object.lastModified());
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
         return BucketDTO.builder()
                 .bucket(bucket)
                 .object(s3Object.key())
-                .size(size)
+                .size(String.valueOf(s3Object.size()))
                 .lastModifiedDate(formatter.format(date))
                 .build();
     }
