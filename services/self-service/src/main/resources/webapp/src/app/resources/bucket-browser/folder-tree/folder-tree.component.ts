@@ -221,7 +221,6 @@ export class FolderTreeComponent implements OnDestroy {
             this.resetForm();
             this.folderCreating = false;
             this.folderCreationParent = null;
-            // this.dataSource._flattenedData.getValue().slice()this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0]
             this.dataSource._flattenedData.getValue().splice(this.dataSource._flattenedData.getValue().indexOf(this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0]));
           }
         }, error => {

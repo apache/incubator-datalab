@@ -27,8 +27,8 @@
   <div class="dialog-content tabs">
     <div class="submit m-bott-10 m-top-10">
       <div class="left-side-butts">
-      <span [matTooltip]="'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
-        <button mat-raised-button type="button" class="butt first-btn" [disabled]="!this.bucketStatus.upload || allDisable || isSelectionOpened || !path " (click)="handleFileInput($event)">
+      <span [matTooltip]="isQueueFull ? 'Previous upload is still in progress, please wait.' : 'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload && !isQueueFull}}">
+        <button mat-raised-button type="button" class="butt first-btn" [disabled]="!this.bucketStatus.upload || allDisable || isSelectionOpened || !path || isQueueFull" (click)="handleFileInput($event)">
           <input [ngClass]="{'not-allowed': !this.bucketStatus.upload}" type="file" (change)="handleFileInput($event)" title="" multiple>
           Upload files
         </button>
@@ -184,7 +184,9 @@
                 </span>
               </div>
               <div class="size">{{file.object?.size | convertFileSize}}</div>
-              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>
+              <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>
+<!--              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>-->
+
               <div class="progress-wrapper" *ngIf="file.isDownloading">
                 <div class="progres">
                   <span class="progress-bar-text">{{file.progress || 0}}% Downloading...</span>
@@ -206,7 +208,10 @@
     <div class="upload-window" *ngIf="addedFiles.length">
       <header class="upload-header">
         <h4 class="modal-title">Upload files</h4>
-        <button type="button" class="close" (click)="closeUploadWindow()">&times;</button>
+        <span class="close" matTooltip="Upload is still in progress, please wait." matTooltipPosition="above" [ngClass]="{'not-allow': isFileUploading}" [matTooltipDisabled]="!isFileUploading">
+           <button type="button" class="close" (click)="closeUploadWindow()" [disabled]="isFileUploading" [ngClass]="{'not-allow': isFileUploading}" >&times;</button>
+        </span>
+
       </header>
       <ul class="upload-files">
         <li class="file upload-table-header" *ngIf="addedFiles.length">

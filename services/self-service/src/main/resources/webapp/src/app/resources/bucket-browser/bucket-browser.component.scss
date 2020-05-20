@@ -582,6 +582,7 @@ input[type='file'] {
     padding: 5px 0;
     height: calc(100% - 30px);
     overflow: auto;
+    overflow-y: overlay;
     width: 100%;
     .file{
       padding: 2px;
@@ -639,7 +640,7 @@ input[type='file'] {
           align-items: center;
           width: 5%;
           position: absolute;
-          right: 7px;
+          right: 20px;
           .close{
             color: #577289;
             font-size: 12px;

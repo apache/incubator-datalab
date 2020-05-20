@@ -395,6 +395,10 @@ mat-dialog-container {
   }
 }
 
+.not-allow{
+  cursor: not-allowed !important;
+}
+
 
 @media screen and (max-width: 1280px) {
   .modal-fullscreen {
