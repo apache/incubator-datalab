@@ -158,7 +158,9 @@ def configure_nftables(config):
         if not exists('/tmp/nftables_ensured'):
             manage_pkg('-y install', 'remote', 'nftables')
             sudo('systemctl enable nftables.service')
+            sudo('systemctl start nftables')
             sudo('sysctl net.ipv4.ip_forward=1')
+            sudo('sed -i \'s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g\' /etc/sysctl.conf')
             sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/nftables.conf'.format(config['edge_ip']))
             sudo('sed -i "s|SUBNET_CIDR|{}|g" /opt/dlab/templates/nftables.conf'.format(config['exploratory_subnet']))
             sudo('cp /opt/dlab/templates/nftables.conf /etc/')

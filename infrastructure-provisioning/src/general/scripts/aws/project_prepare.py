@@ -401,6 +401,12 @@ if __name__ == "__main__":
                 "FromPort": 389,
                 "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
                 "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": -1,
+                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
             }
         ])
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
