@@ -51,7 +51,7 @@
                      matTooltipShowDelay="1000"
                      [matTooltipClass]="'bucket-item-tooltip'">{{object['item']}}</div>
               </div>
-              <div  class="size">{{object['children'] ? '-' : object['object'].size}}</div>
+              <div  class="size">{{object['children'] ? '-' : object['object'].size | convertFileSize}}</div>
             </mat-list-item>
 
           </div>

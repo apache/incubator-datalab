@@ -27,8 +27,8 @@
   <div class="dialog-content tabs">
     <div class="submit m-bott-10 m-top-10">
       <div class="left-side-butts">
-      <span [matTooltip]="'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
-        <button mat-raised-button type="button" class="butt first-btn" [disabled]="!this.bucketStatus.upload || allDisable || isSelectionOpened || !path " (click)="handleFileInput($event)">
+      <span [matTooltip]="isQueueFull ? 'Previous upload is still in progress, please wait.' : 'You have not permission to upload data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload && !isQueueFull}}">
+        <button mat-raised-button type="button" class="butt first-btn" [disabled]="!this.bucketStatus.upload || allDisable || isSelectionOpened || !path || isQueueFull" (click)="handleFileInput($event)">
           <input [ngClass]="{'not-allowed': !this.bucketStatus.upload}" type="file" (change)="handleFileInput($event)" title="" multiple>
           Upload files
         </button>
@@ -184,7 +184,9 @@
                 </span>
               </div>
               <div class="size">{{file.object?.size | convertFileSize}}</div>
-              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>
+              <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>
+<!--              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>-->
+
               <div class="progress-wrapper" *ngIf="file.isDownloading">
                 <div class="progres">
                   <span class="progress-bar-text">{{file.progress || 0}}% Downloading...</span>
@@ -206,15 +208,21 @@
     <div class="upload-window" *ngIf="addedFiles.length">
       <header class="upload-header">
         <h4 class="modal-title">Upload files</h4>
-        <button type="button" class="close" (click)="closeUploadWindow()">&times;</button>
+        <span class="close" matTooltip="Upload is still in progress, please wait." matTooltipPosition="above" [ngClass]="{'not-allow': isFileUploading}" [matTooltipDisabled]="!isFileUploading">
+           <button type="button" class="close" (click)="closeUploadWindow()" [disabled]="isFileUploading" [ngClass]="{'not-allow': isFileUploading}" >&times;</button>
+        </span>
+
       </header>
       <ul class="upload-files">
         <li class="file upload-table-header" *ngIf="addedFiles.length">
           <div class="name ellipsis" >File</div>
-          <div class="upload-path ellipsis">Path</div>
-          <div class="size">Size</div>
-          <div class="state"></div>
-          <div class="remove"></div>
+          <div class="second-block">
+            <div class="upload-path ellipsis">Path</div>
+            <div class="size">Size</div>
+            <div class="state"></div>
+            <div class="remove"></div>
+          </div>
+
         </li>
         <li *ngFor="let file of addedFiles" class="file">
           <div class="name">
@@ -227,23 +235,25 @@
               {{file.name}}
             </span>
           </div>
-          <div class="upload-path">
-            <span class="ellipsis" matTooltip="{{file.path}}" matTooltipPosition="above" [matTooltipClass]="'bucket-item-tooltip'">{{file.path}}</span>
-          </div>
-          <div class="size">{{file.size | convertFileSize}} </div>
-          <div class="state">
-<!--           <button mat-raised-button (click)="uploadNewFile(file)" *ngIf="!file.isUploading && !file.uploaded && !file.errorUploading">Upload</button>-->
-           <mat-progress-bar mode="indeterminate" *ngIf="file.isUploading"></mat-progress-bar>
-            <span *ngIf="file.status === 'uploaded'" class="running">Uploaded</span>
-            <div class="progres" *ngIf="file.status === 'uploading'">
-              <span class="progress-bar-text">{{file.progress || 0}}% Uploading...</span>
-              <div class="bar" [ngStyle]="{width: file.progress + '%'}">
-              </div>
+          <div class="second-block">
+            <div class="upload-path">
+              <span class="ellipsis" matTooltip="{{file.path}}" matTooltipPosition="above" [matTooltipClass]="'bucket-item-tooltip'">{{file.path}}</span>
             </div>
-            <span *ngIf="file.status === 'failed'" class="error">Failed</span>
-            <span *ngIf="file.status === 'waiting'" class="stopped">Waiting for uploading...</span>
+            <div class="size">{{file.size | convertFileSize}} </div>
+            <div class="state">
+              <!--           <button mat-raised-button (click)="uploadNewFile(file)" *ngIf="!file.isUploading && !file.uploaded && !file.errorUploading">Upload</button>-->
+              <!--           <mat-progress-bar mode="indeterminate" *ngIf="file.isUploading"></mat-progress-bar>-->
+              <span *ngIf="file.status === 'uploaded'" class="running">Uploaded</span>
+              <div class="progres" *ngIf="file.status === 'uploading'">
+                <span class="progress-bar-text">{{file.progress || 0}}% Uploading...</span>
+                <div class="bar" [ngStyle]="{width: file.progress + '%'}">
+                </div>
+              </div>
+              <span *ngIf="file.status === 'failed'" class="error">Failed</span>
+              <span *ngIf="file.status === 'waiting'" class="stopped">Waiting for uploading...</span>
+            </div>
+            <div class="remove"><i (click)="deleteAddedFile(file)" class="material-icons close">delete</i></div>
           </div>
-          <div class="remove"><i (click)="deleteAddedFile(file)" class="material-icons close">close</i></div>
         </li>
         <li id="upload-list"></li>
       </ul>

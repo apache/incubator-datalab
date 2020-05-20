@@ -61,9 +61,7 @@
 
             <p class="m-top-30">{{ DICTIONARY[PROVIDER].personal_storage }}: &nbsp;</p>
             <!--                 (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
-            <div class="links_block"
-                 (mouseleave)="isCopyIconVissible.project = false"
-            >
+            <div class="links_block" (mouseleave)="hideCopyIcon()">
               <span
                 [matTooltip]="!this.bucketStatus.view
                  ? 'You have not permission to open bucket'
@@ -76,68 +74,79 @@
                   <span
                     class="bucket-info bucket-link"
                     [ngClass]="{'not-allow': !this.bucketStatus.view || !this.isBucketAllowed}"
-                    (mouseover)="showCopyIcon('project')"
-                    (click)="bucketBrowser(notebook.account_name, notebook.endpoint, this.bucketStatus.view && this.isBucketAllowed)"
+                    (mouseover)="showCopyIcon()"
                   >
                     {{ notebook.account_name}}
                   </span>
-                  <span *ngIf="isCopyIconVissible.project" class="link-icon" (click)="copyBucketName(notebook.bucket_name)">
-                    <span class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>
+                  <span *ngIf="isCopyIconVissible" class="link-icon" (click)="copyBucketName(notebook.account_name)">
+                    <span class="material-icons" [matTooltip]="isCopied" matTooltipPosition="above">content_copy</span>
                   </span>
                 </p>
                 <p *ngIf="notebook.bucket_name">{{ DICTIONARY[PROVIDER].container }}
                   <span
-                    class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus.view || !this.isBucketAllowed}"
-                    (mouseover)="showCopyIcon('project')"
-                    (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view && this.isBucketAllowed)"
+                    class="bucket-info"
+                    (mouseover)="showCopyIcon()"
                   >
+<!--                    (click)="bucketBrowser('ofuks-1304-pr2-local-bucket', notebook.endpoint, this.bucketStatus.view && this.isBucketAllowed)"-->
                     {{ notebook.bucket_name }}
                 </span>
-                  <span *ngIf="isCopyIconVissible.project" class="link-icon" (click)="copyBucketName(notebook.bucket_name)">
-                    <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>
+
+                  <span  *ngIf="isCopyIconVissible" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
+                    <span  class="link-icon" (click)="copyBucketName(notebook.bucket_name);$event.stopPropagation()" >
+                    <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
                   </span>
+                  </span>
+
                 </p>
               </span>
             </div>
-            <p>Shared endpoint bucket: &nbsp;</p>
-            <div class="links_block"
-                 [matTooltip]="'You have not permission to open bucket'"
-                 matTooltipDisabled="{{this.bucketStatus.view}}"
-                 matTooltipPosition="above"
-                 [matTooltipClass]="'bucket-item-tooltip'"
-                 (mouseleave)="isCopyIconVissible.shared = false"
-            >
-              <p *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}
-                <span class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus.view}" (mouseover)="showCopyIcon('shared')">{{ notebook.shared_account_name}}</span>
-                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.shared_account_name)">
-                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>
-                </span>
-              </p>
-              <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY[PROVIDER].container }}
-                <span
-                  class="bucket-info bucket-link"
-                  [ngClass]="{'not-allow': !this.bucketStatus.view}"
-                  (mouseover)="showCopyIcon('shared')"
-                  (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus.view)"
-                >
-                  {{ notebook.shared_bucket_name }}
-                </span>
-                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.notebook.shared_bucket_name)">
-                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>
-                </span>
-              </p>
+            <div class="bucket-info bucket-link">
+              <span></span>
+              <span class="description open-bucket"
+                 [ngClass]="{'not-allow': !this.bucketStatus.view || !this.isBucketAllowed}"
+                (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view && this.isBucketAllowed)"
+              >
+                Open bucket browser
+              </span>
             </div>
-            <br />
+<!--            <p>Shared endpoint bucket: &nbsp;</p>-->
+<!--            <div class="links_block" (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
+<!--                 [matTooltip]="'You have not permission to open bucket'"-->
+<!--                 matTooltipDisabled="{{this.bucketStatus.view}}"-->
+<!--                 matTooltipPosition="above"-->
+<!--                 [matTooltipClass]="'bucket-item-tooltip'"-->
+<!--            >-->
+<!--              <p *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}-->
+<!--                <span class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus.view}" (mouseover)="showCopyIcon('shared')">{{ notebook.shared_account_name}}</span>-->
+<!--                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.shared_account_name)">-->
+<!--                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>-->
+<!--                </span>-->
+<!--              </p>-->
+<!--              <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY[PROVIDER].container }}-->
+<!--                <span-->
+<!--                  class="bucket-info bucket-link"-->
+<!--                  [ngClass]="{'not-allow': !this.bucketStatus.view}"-->
+<!--                  (mouseover)="showCopyIcon('shared')"-->
+<!--                  (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
+<!--                >-->
+<!--                  {{ notebook.shared_bucket_name }}-->
+<!--                </span>-->
+<!--                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.shared_bucket_name)">-->
+<!--                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>-->
+<!--                </span>-->
+<!--              </p>-->
+<!--            </div>-->
+<!--            <br />-->
 
-            <div *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.datalake_name">
-              <p>Data Lake Store: &nbsp;</p>
-              <div class="links_block">
-                <p>Data Lake Store Account: &nbsp;<span class="bucket-info">{{ notebook.datalake_name }}</span></p>
-                <p>Personal folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_directory }}</span></p>
-                <p>Collaboration folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_shared_directory }}</span>
-                </p>
-              </div>
-            </div>
+<!--            <div *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.datalake_name">-->
+<!--              <p>Data Lake Store: &nbsp;</p>-->
+<!--              <div class="links_block">-->
+<!--                <p>Data Lake Store Account: &nbsp;<span class="bucket-info">{{ notebook.datalake_name }}</span></p>-->
+<!--                <p>Personal folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_directory }}</span></p>-->
+<!--                <p>Collaboration folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_shared_directory }}</span>-->
+<!--                </p>-->
+<!--              </div>-->
+<!--            </div>-->
 
             <!-- <p>
               <a href="#/help/accessnotebookguide" target="_blank">

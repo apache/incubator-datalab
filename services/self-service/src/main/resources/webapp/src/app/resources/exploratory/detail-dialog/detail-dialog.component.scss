@@ -85,11 +85,15 @@
   padding-left: 7px;
   font-weight: 600;
   color: $blue-grey-color;
-  cursor: pointer;
 }
 
 .bucket-link{
+  padding: 15px;
+  padding-left: 0;
   color: #35afd5;
+  .open-bucket{
+    cursor: pointer;
+  }
   &.not-allow{
     cursor: not-allowed;
     color: $blue-grey-color;

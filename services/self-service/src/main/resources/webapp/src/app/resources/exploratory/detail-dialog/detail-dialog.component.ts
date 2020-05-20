@@ -38,6 +38,7 @@ import {CopyPathUtils} from '../../../core/util/copyPathUtils';
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   readonly PROVIDER = this.data.notebook.cloud_provider;
+  private isCopied: boolean = true;
   notebook: any;
   upTimeInHours: number;
   upTimeSince: string = '';
@@ -45,14 +46,12 @@ export class DetailDialogComponent implements OnInit {
   config: Array<{}> = [];
   bucketStatus: object = {};
   isBucketAllowed = true;
-  isCopyIconVissible = {
-    project: false,
-    shared: false
-  };
+  isCopyIconVissible = false;
 
   public configurationForm: FormGroup;
 
   @ViewChild('configurationNode', { static: false }) configuration;
+
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -142,12 +141,15 @@ export class DetailDialogComponent implements OnInit {
     .afterClosed().subscribe();
   }
 
-  protected showCopyIcon(bucket) {
-    this.isCopyIconVissible[bucket] = true;
+  protected showCopyIcon() {
+    this.isCopyIconVissible = true;
+  }
+  protected hideCopyIcon() {
+    this.isCopyIconVissible = false;
+    this.isCopied = true;
   }
 
   protected copyBucketName(copyValue) {
     CopyPathUtils.copyPath(copyValue);
-    this.toastr.success('Bucket name successfully copied!', 'Success!');
   }
 }

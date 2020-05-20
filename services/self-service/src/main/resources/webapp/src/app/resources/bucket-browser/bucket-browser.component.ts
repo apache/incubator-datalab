@@ -55,11 +55,15 @@ export class BucketBrowserComponent implements OnInit {
   public folders: any[];
   public selectedItems;
   public searchValue: string;
+  public isQueueFull: boolean;
+  date = new Date(2020, 2, 2, 10, 57, 2);
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   public isSelectionOpened: any;
   isFilterVisible: boolean;
   public buckets;
+  private isFileUploading: boolean;
+
 
 
 
@@ -83,6 +87,8 @@ export class BucketBrowserComponent implements OnInit {
     this.endpoint = this.data.endpoint;
     this.bucketStatus = this.data.bucketStatus;
     this.buckets = this.data.buckets;
+    const time = [...'2-02-2020 10:57:02'.split(' ')[0].split('-').reverse(), ...'2-02-2020 10:57:02'.split(' ')[1].split(':')].map(v => + v);
+    this.convertDate('2020-05-19T18:47:10');
   }
 
   public showItem(item) {
@@ -229,6 +235,7 @@ export class BucketBrowserComponent implements OnInit {
     } else {
       this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
     }
+   this.sendFile();
   }
 
   private uploadNewFile(file) {
@@ -244,16 +251,23 @@ export class BucketBrowserComponent implements OnInit {
     this.sendFile(file);
   }
 
-  public sendFile(file) {
+  public sendFile(file?) {
     const waitUploading = this.addedFiles.filter(v => v.status === 'waiting');
     const uploading = this.addedFiles.filter(v => v.status === 'uploading');
+    this.isFileUploading = !!uploading.length;
+    this.isQueueFull = this.addedFiles.filter(v => v.status === 'uploading').length >= 9;
+    console.log(this.addedFiles.filter(v => v.status === 'uploading').length);
     if (waitUploading.length && uploading.length < 10) {
+      if (!file) {
+        file = waitUploading[0];
+      }
       file.status = 'uploading';
-
+      this.isFileUploading = true;
+      this.isQueueFull = this.addedFiles.filter(v => v.status === 'uploading').length === 10;
       file.subscr =  file.request.subscribe((event: any) => {
           if (event.type === HttpEventType.UploadProgress) {
-            file.progress = Math.round(99 * event.loaded / event.total);
-          } else if (event instanceof HttpResponse) {
+            file.progress = Math.round(95 * event.loaded / event.total);
+          } else if (event['type'] === HttpEventType.Response) {
             console.log('upload response');
             file.status = 'uploaded';
             delete file.request;
@@ -367,6 +381,11 @@ export class BucketBrowserComponent implements OnInit {
     this.isFilterVisible = false;
     this.searchValue = '';
     this.filterObjects();
+  }
+
+  public convertDate(date) {
+    const utcDate = new Date(date);
+    return new Date(utcDate.setTime( utcDate.getTime() - utcDate.getTimezoneOffset() * 60 * 1000 ));
   }
 }
 
