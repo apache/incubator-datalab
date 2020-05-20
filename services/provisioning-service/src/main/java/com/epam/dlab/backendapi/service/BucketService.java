@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.util.List;
 
 public interface BucketService {
-    String DATE_FORMAT = "dd-MM-yyyy hh:mm:ss";
+    String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     List<BucketDTO> getObjects(String bucket);
 
