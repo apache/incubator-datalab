@@ -294,7 +294,7 @@
       max-height: 100%;
 
       .name{
-        flex:2;
+        width: 60%;
         display: flex;
         align-items: center;
         overflow: hidden;
@@ -326,7 +326,7 @@
       }
 
       .size{
-        flex:1;
+        width: 15%;
 
         &-folder{
           padding-left: 4px;
@@ -334,7 +334,7 @@
       }
 
       .date{
-        flex:1;
+        width: 25%;
 
         .th_date{
           font-size: 13px;
@@ -579,9 +579,10 @@ input[type='file'] {
 
   }
   .upload-files{
-    padding: 5px;
+    padding: 5px 0;
     height: calc(100% - 30px);
     overflow: auto;
+    width: 100%;
     .file{
       padding: 2px;
       display: flex;
@@ -593,58 +594,71 @@ input[type='file'] {
       }
 
       .name{
-        width: 38%;
-        padding-right: 5px;
-        overflow: hidden;
+        width: 33.3%;
+        padding-left: 5px;
+        position: relative;
         display: flex;
-      }
-
-      .upload-path{
-        width: 38%;
-        padding-right: 5px;
-        display: flex;
-      }
-
-      .size{
-        width: 7%;
-      }
-      .state{
-        width: 14%;
-        display: flex;
-        align-items: center;
-        .mat-raised-button{
-          width: 60px;
-          padding: 5px;
-          border-radius: 0;
-          font-style: normal;
-          font-weight: 600;
-          font-size: 11px;
-          font-family: "Open Sans", sans-serif;
-          color: #577289;
-          line-height: 8px;
+        span{
+          position: absolute;
+          width: calc(100% + 30px);
         }
       }
-      .remove{
-        display: flex;
-        align-items: center;
-        width: 3%;
-        position: relative;
-        .close{
-          color: #577289;
-          font-size: 12px;
-          cursor: pointer;
-          position: absolute;
-          top: 3px;
-          right: 0;
-          height: 18px;
-          width: 14px;
-          transition: all 0.45s ease-in-out;
 
-          &:hover{
-            color: #f1696e;
+      .second-block{
+        width: 66.7%;
+        display: flex;
+        padding: 0 14px 0 17px;
+        .upload-path{
+          width: 60%;
+          padding-left: 24px;
+          padding-right: 1%;
+          display: flex;
+        }
+
+        .size{
+          width: 15%;
+        }
+        .state{
+          width: 22%;
+          display: flex;
+          align-items: center;
+          .mat-raised-button{
+            width: 60px;
+            padding: 5px;
+            border-radius: 0;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 11px;
+            font-family: "Open Sans", sans-serif;
+            color: #577289;
+            line-height: 8px;
+          }
+        }
+        .remove{
+          display: flex;
+          align-items: center;
+          width: 5%;
+          position: absolute;
+          right: 7px;
+          .close{
+            color: #577289;
+            font-size: 12px;
+            cursor: pointer;
+            position: absolute;
+            top: 3px;
+            right: 0;
+            height: 18px;
+            width: 14px;
+            transition: all 0.45s ease-in-out;
+
+            &:hover{
+              color: #f1696e;
+            }
           }
         }
       }
+
+
     }
   }
 }
