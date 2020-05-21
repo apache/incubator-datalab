@@ -446,8 +446,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
              'scipy setuptools tornado --no-cache-dir')
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
-        sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(cuda_version))
-        sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(cuda_version))
+        sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
+        sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
         sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
