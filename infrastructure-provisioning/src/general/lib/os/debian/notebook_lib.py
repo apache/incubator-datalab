@@ -261,7 +261,7 @@ def ensure_python3_libraries(os_user):
         try:
             #manage_pkg('-y install', 'remote', 'python3-setuptools')
             manage_pkg('-y install', 'remote', 'python3-pip')
-            sudo('pip3 install setuptools=={}').format(os.environ['notebook_setuptools_version'])
+            sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
             try:
                 sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
