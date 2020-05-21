@@ -57,13 +57,13 @@ caffe2_version = os.environ['notebook_caffe2_version']
 cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
 mxnet_version = os.environ['notebook_mxnet_version']
-keras_version = '2.0.8'
+keras_version = os.environ['notebook_keras_version']
 theano_version = os.environ['notebook_theano_version']
-tensorflow_version = '1.4.0'
-cuda_version = '8.0'
-cuda_file_name = 'cuda_8.0.44_linux-run'
-cudnn_version = '6.0'
-cudnn_file_name = 'cudnn-8.0-linux-x64-v6.0.tgz'
+tensorflow_version = os.environ['notebook_tensorflow_version']
+cuda_version = os.environ['notebook_cuda_version']
+cuda_file_name = os.environ['notebook_cuda_file_name']
+cudnn_version = os.environ['notebook_cudnn_version']
+cudnn_file_name = os.environ['notebook_cudnn_file_name']
 
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     ensure_additional_python_libs(args.os_user)
     print("Install Matplotlib")
     ensure_matplot(args.os_user)
-    
+
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)

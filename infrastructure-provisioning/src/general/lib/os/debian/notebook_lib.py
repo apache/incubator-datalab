@@ -162,7 +162,7 @@ def ensure_matplot(os_user):
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('python2.7 -m pip install -U numpy==1.16.6 --no-cache-dir')
+                sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
                 sudo('python3.6 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/' + os_user + '/.ensure_dir/matplot_ensured')
         except:
@@ -212,7 +212,7 @@ def ensure_additional_python_libs(os_user):
         try:
             manage_pkg('-y install', 'remote', 'libjpeg8-dev zlib1g-dev')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
-                sudo('pip2 install NumPy==1.14.3 SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
                 sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('pip2 install opencv-python h5py --no-cache-dir')
@@ -438,7 +438,7 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         env.shell = "/bin/bash -l -c -i"
         manage_pkg('update', 'remote', '')
         manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev libprotobuf-dev protobuf-compiler python-dev python-pip')
-        sudo('pip2 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        sudo('pip2 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
         sudo('pip3 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgflags-dev')
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
@@ -446,8 +446,8 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
              'scipy setuptools tornado --no-cache-dir')
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
-        sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')
-        sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
+        sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(cuda_version))
+        sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(cuda_version))
         sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
