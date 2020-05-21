@@ -84,6 +84,7 @@ public class BucketServiceGcpImpl implements BucketService {
             log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
+        log.info("Finished downloading file {} from bucket {}", object, bucket);
     }
 
     @Override
