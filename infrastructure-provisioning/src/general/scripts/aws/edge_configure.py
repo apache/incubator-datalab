@@ -161,6 +161,21 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
             raise Exception
+        print('RESTARTING EDGE NODE')
+        try:
+            print('Stoping EDGE node')
+            dlab.actions_lib.stop_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            dlab.fab.append_result("Failed to stop edge.", str(err))
+            sys.exit(1)
+        try:
+            print('Starting EDGE node')
+            dlab.actions_lib.start_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            dlab.fab.append_result("Failed to start edge.", str(err))
+            sys.exit(1)
     except Exception as err:
         dlab.fab.append_result("Failed installing apps: apt & pip.", str(err))
         clear_resources()
