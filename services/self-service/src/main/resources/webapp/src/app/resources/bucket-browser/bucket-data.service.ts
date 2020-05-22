@@ -31,6 +31,7 @@ export class BucketDataService {
   public _bucketData = new BehaviorSubject<any>(null);
   public serverData: any = [];
   get data(): TodoItemNode[] { return this._bucketData.value; }
+  emptyFolder = null;
   constructor(
     private bucketBrowserService: BucketBrowserService,
   ) {
@@ -39,8 +40,13 @@ export class BucketDataService {
   public refreshBucketdata(bucket, endpoint) {
     let backetData = [];
      this.bucketBrowserService.getBucketData(bucket, endpoint).subscribe(v => {
+     const copiedData = JSON.parse(JSON.stringify(v));
+
      this.serverData = v;
-     backetData = this.convertToFolderTree(v);
+     if (this.emptyFolder) {
+       copiedData.push(this.emptyFolder);
+     }
+     backetData = this.convertToFolderTree(copiedData);
      const data = this.buildFileTree({[bucket]: backetData}, 0);
      this._bucketData.next(data);
      });
@@ -77,12 +83,13 @@ export class BucketDataService {
       }, []);
     }
 
-  public insertItem(parent: TodoItemNode, name, isFile) {
+  public insertItem(parent: TodoItemNode, name, isFile, emptyFolderObj?) {
       if (parent.children) {
         if (isFile) {
           parent.children.push(name as TodoItemNode);
         } else {
-          parent.children.unshift({item: name ? name + '/' : name, children: []} as TodoItemNode);
+          parent.children.push({item: '', children: [], object: {}} as TodoItemNode);
+          this.emptyFolder = emptyFolderObj;
           this._bucketData.next(this.data);
         }
       }
@@ -93,8 +100,8 @@ export class BucketDataService {
       this._bucketData.next(this.data);
     }
 
-  public removeItem(parent) {
-     parent.children.shift();
+  public removeItem(parent, child) {
+     parent.children.splice( parent.children.indexOf(child), 1);
      this._bucketData.next(this.data);
     }
 
@@ -108,16 +115,15 @@ export class BucketDataService {
         if (!pointer.obj) {
           pointer.obj = object;
         }
-
       });
-    }
+    };
 
     public processFolderArray = (acc, curr) => {
       const files = curr.object.split('/');
       this.processFiles(files, acc, curr);
 
       return acc;
-    }
+    };
 
     public convertToFolderTree = (data) => {
       const finalData = data.reduce(this.processFolderArray, {});
@@ -126,5 +132,4 @@ export class BucketDataService {
       }
       return finalData;
     }
-
 }

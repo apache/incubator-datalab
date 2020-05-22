@@ -276,8 +276,10 @@ mat-dialog-container {
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
+    max-width: 450px;
+    white-space: nowrap;
     &.link-icon{
-      margin-left: 10px;
+      //margin-left: 10px;
       cursor: pointer;
       padding-top: 3px;
     }
@@ -397,6 +399,9 @@ mat-dialog-container {
 
 .not-allow{
   cursor: not-allowed !important;
+  &.open-bucket{
+    color: $blue-grey-color !important;
+  }
 }
 
 

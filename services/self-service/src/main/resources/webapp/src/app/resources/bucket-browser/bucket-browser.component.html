@@ -166,7 +166,7 @@
               <div class="size size-folder">-</div>
               <div class="date" *ngIf="!file.isDownloading">-</div>
             </div>
-            <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file, 'file')" *ngIf="!file.children" [ngClass]="{'no-select': !this.bucketStatus.download && !this.bucketStatus.delete}">
+            <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file, 'file')" *ngIf="!file.children && file.item !== 'ا'" [ngClass]="{'no-select': !this.bucketStatus.download && !this.bucketStatus.delete}">
               <div class="name name-file">
                  <span *ngIf="this.bucketStatus.download || this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isSelected}" (click)="toggleSelectedFile(file, 'file');$event.stopPropagation()" >
                     <span class="checked-checkbox" *ngIf="file.isSelected"></span>
@@ -184,8 +184,8 @@
                 </span>
               </div>
               <div class="size">{{file.object?.size | convertFileSize}}</div>
-              <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>
-<!--              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>-->
+<!--              <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>-->
+              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>
 
               <div class="progress-wrapper" *ngIf="file.isDownloading">
                 <div class="progres">
@@ -252,7 +252,7 @@
               <span *ngIf="file.status === 'failed'" class="error">Failed</span>
               <span *ngIf="file.status === 'waiting'" class="stopped">Waiting for uploading...</span>
             </div>
-            <div class="remove"><i (click)="deleteAddedFile(file)" class="material-icons close">delete</i></div>
+            <div class="remove"><i (click)="deleteAddedFile(file)" class="material-icons close">close</i></div>
           </div>
         </li>
         <li id="upload-list"></li>

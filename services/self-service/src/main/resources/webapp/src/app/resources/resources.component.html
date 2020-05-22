@@ -48,10 +48,11 @@
     <div>
       <span  matTooltip="{{!this.bucketStatus?.view ? 'You have not permission to open bucket browser' : 'You have not any bucket'}}"
              matTooltipPosition="above"
-             matTooltipDisabled="{{resourcesGrid.bucketsList?.length > 0 || !this.bucketStatus?.view}}"
+             matTooltipDisabled="{{resourcesGrid.bucketsList?.length > 0 && this.bucketStatus?.view}}"
              [matTooltipClass]="'bucket-item-tooltip'"
       >
-        <button mat-raised-button class="butt butt-tool" (click)="bucketBrowser(this.bucketStatus?.view)" [disabled]="!this.bucketStatus?.view || resourcesGrid.bucketsList?.length === 0">
+        <button mat-raised-button class="butt butt-tool" (click)="bucketBrowser(this.bucketStatus?.view)"
+                [disabled]="!this.bucketStatus?.view || resourcesGrid.bucketsList?.length === 0">
         <i class="material-icons"></i>Bucket browser
       </button>
       </span>
