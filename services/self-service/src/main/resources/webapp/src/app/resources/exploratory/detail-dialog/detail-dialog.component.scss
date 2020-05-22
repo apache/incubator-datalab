@@ -83,6 +83,7 @@
 
 .bucket-info {
   padding-left: 7px;
+  margin-right: 10px;
   font-weight: 600;
   color: $blue-grey-color;
 }
@@ -93,10 +94,11 @@
   color: #35afd5;
   .open-bucket{
     cursor: pointer;
+    font-size: 14px;
   }
   &.not-allow{
     cursor: not-allowed;
-    color: $blue-grey-color;
+    color: $blue-grey-color !important;
   }
 }
 

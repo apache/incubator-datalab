@@ -63,6 +63,7 @@ export class BucketBrowserComponent implements OnInit {
   isFilterVisible: boolean;
   public buckets;
   private isFileUploading: boolean;
+  private isFileUploaded: boolean;
 
 
 
@@ -87,8 +88,6 @@ export class BucketBrowserComponent implements OnInit {
     this.endpoint = this.data.endpoint;
     this.bucketStatus = this.data.bucketStatus;
     this.buckets = this.data.buckets;
-    const time = [...'2-02-2020 10:57:02'.split(' ')[0].split('-').reverse(), ...'2-02-2020 10:57:02'.split(' ')[1].split(':')].map(v => + v);
-    this.convertDate('2020-05-19T18:47:10');
   }
 
   public showItem(item) {
@@ -120,10 +119,8 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public handleFileInput(event) {
-    console.log('handleFileInput');
     const fullFilesList = Object['values'](event.target.files);
     if (fullFilesList.length > 0) {
-      console.log('handleFileInputLength');
       const files = fullFilesList.filter(v => v.size < 4294967296);
       const toBigFile = fullFilesList.length !== files.length;
       const toMany = files.length > 50;
@@ -142,17 +139,12 @@ export class BucketBrowserComponent implements OnInit {
       }
     }
     event.target.value = '';
-    setTimeout(() => {
-      const element = document.querySelector('#upload-list');
-      element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
-    }, 0);
   }
 
   private async uploadingQueue(files) {
     if (files.length) {
       let askForAll = true;
       let skipAll = false;
-      console.log('uploadingQueue');
       // this.auth.refreshToken().subscribe();
       const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
       for (const file of files) {
@@ -181,7 +173,10 @@ export class BucketBrowserComponent implements OnInit {
         }
       }
     }
-
+    setTimeout(() => {
+      const element = document.querySelector('#upload-list');
+      element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    }, 0);
   }
 
   async openResolveDialog(existFile) {
@@ -214,7 +209,7 @@ export class BucketBrowserComponent implements OnInit {
   }
 
   public filterObjects() {
-    this.folderItems = this.originFolderItems.filter(v => v.item.indexOf(this.searchValue) !== -1);
+    this.folderItems = this.originFolderItems.filter(v => v.item.toLowerCase().indexOf(this.searchValue.toLowerCase()) !== -1);
   }
 
   private clearSelection() {
@@ -254,27 +249,33 @@ export class BucketBrowserComponent implements OnInit {
   public sendFile(file?) {
     const waitUploading = this.addedFiles.filter(v => v.status === 'waiting');
     const uploading = this.addedFiles.filter(v => v.status === 'uploading');
-    this.isFileUploading = !!uploading.length;
-    this.isQueueFull = this.addedFiles.filter(v => v.status === 'uploading').length >= 9;
-    console.log(this.addedFiles.filter(v => v.status === 'uploading').length);
+    this.isQueueFull = !!waitUploading.length;
+    this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
     if (waitUploading.length && uploading.length < 10) {
       if (!file) {
         file = waitUploading[0];
       }
       file.status = 'uploading';
-      this.isFileUploading = true;
-      this.isQueueFull = this.addedFiles.filter(v => v.status === 'uploading').length === 10;
+      this.isQueueFull = !!this.addedFiles.filter(v => v.status === 'waiting').length;
       file.subscr =  file.request.subscribe((event: any) => {
           if (event.type === HttpEventType.UploadProgress) {
-            file.progress = Math.round(95 * event.loaded / event.total);
+             file.progress = Math.round(95 * event.loaded / event.total);
+            if (file.progress === 95 && !file.interval) {
+              file.interval = setInterval(() => {
+                if (file.progress < 99) {
+                  return file.progress++;
+                }
+              }, file.size < 1094967296 ? 12000 : 20000);
+            }
           } else if (event['type'] === HttpEventType.Response) {
-            console.log('upload response');
+            window.clearInterval(file.interval);
             file.status = 'uploaded';
             delete file.request;
             this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
             this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
           }
         }, error => {
+        window.clearInterval(file.interval);
           file.status = 'failed';
           delete file.request;
           this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
@@ -387,6 +388,10 @@ export class BucketBrowserComponent implements OnInit {
     const utcDate = new Date(date);
     return new Date(utcDate.setTime( utcDate.getTime() - utcDate.getTimezoneOffset() * 60 * 1000 ));
   }
+
+  // public toggleFileUploaded($event: any) {
+  //   this.isFileUploaded = $event;
+  // }
 }
 
 

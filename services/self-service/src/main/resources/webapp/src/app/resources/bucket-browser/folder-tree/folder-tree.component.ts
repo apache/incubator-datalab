@@ -43,7 +43,6 @@ export class FolderTreeComponent implements OnDestroy {
   public treeControl: FlatTreeControl<TodoItemFlatNode>;
   private treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
   public dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
-  private folderCreationParent;
 
   constructor(
     public toastr: ToastrService,
@@ -54,8 +53,6 @@ export class FolderTreeComponent implements OnDestroy {
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
     this.subscriptions.add(this.bucketDataService._bucketData.subscribe(data => {
-      // const emptyFolder = this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0];
-      // console.log(emptyFolder);
       if (data) {
         this.dataSource.data = data;
         const subject = this.dataSource._flattenedData;
@@ -65,17 +62,12 @@ export class FolderTreeComponent implements OnDestroy {
           }
           this.expandAllParents(this.selectedFolder || subjectData[0]);
           this.showItem(this.selectedFolder || subjectData[0]);
-          // if (emptyFolder || this.folderFormControl.value) {
-          //   const folderName = this.folderFormControl.value;
-          //   this.folderFormControl.setValue('');
-          //   this.folderFormControl.updateValueAndValidity();
-          //   this.folderFormControl.markAsPristine();
-          //   console.log(this.folderCreationParent);
-          //   this.addNewItem(this.folderCreationParent, folderName, false);
-          // } else {
-          //   console.log('false');
-          //   this.disableAll.emit(false);
-          // }
+          if (this.selectedFolder) {
+            setTimeout(() => {
+              const element = document.querySelector('.folder-item-line.active-item');
+              element && element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }, 0);
+          }
       }
     }));
     this.dataSource._flattenedData.subscribe();
@@ -89,7 +81,7 @@ export class FolderTreeComponent implements OnDestroy {
 
   hasChild = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.expandable;
 
-  hasNoContent = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.item === '';
+  hasNoContent = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.item === '' || _nodeData.item === 'ا';
 
   transformer = (node: TodoItemNode, level: number) => {
     const existingNode = this.nestedNodeMap.get(node);
@@ -102,7 +94,7 @@ export class FolderTreeComponent implements OnDestroy {
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
-  };
+  }
 
   ngOnDestroy() {
     this.bucketDataService._bucketData.next([]);
@@ -180,25 +172,26 @@ export class FolderTreeComponent implements OnDestroy {
     return null;
   }
 
-  private addNewItem(node: TodoItemFlatNode, file, isFile) {
-    this.folderCreationParent = node;
-    this.folderCreationRefresh(node, file, isFile);
-  }
 
-  public folderCreationRefresh(node: TodoItemFlatNode, file, isFile) {
-    this.folderFormControl.setValue(file);
-    const currNode = this.flatNodeMap.get(node);
-    this.bucketDataService.insertItem(currNode!, file, isFile);
-    this.treeControl.expand(node);
-    setTimeout(() => {
-      const element = document.querySelector('#folder-form');
-      element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
-    }, 0);
+private addNewItem(node: TodoItemFlatNode, file, isFile) {
+  const currNode = this.flatNodeMap.get(node);
+  const emptyFolderObject = currNode.object;
+  if (emptyFolderObject.object.lastIndexOf('ا') !== emptyFolderObject.object.length - 1 || emptyFolderObject.object === '') {
+    emptyFolderObject.object += 'ا';
+  }
+  this.bucketDataService.insertItem(currNode!, file, isFile, emptyFolderObject);
+  this.treeControl.expand(node);
+  setTimeout(() => {
+    const element = document.querySelector('#folder-form');
+    element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }, 0);
   }
 
   private removeItem(node: TodoItemFlatNode) {
     const parentNode = this.flatNodeMap.get(this.getParentNode(node));
-    this.bucketDataService.removeItem(parentNode!);
+    const childNode = this.flatNodeMap.get(node);
+    this.bucketDataService.emptyFolder = null;
+    this.bucketDataService.removeItem(parentNode!, childNode);
     this.resetForm();
   }
 
@@ -206,13 +199,18 @@ export class FolderTreeComponent implements OnDestroy {
     this.folderCreating = true;
     const parent = this.getParentNode(node);
     const flatParent = this.flatNodeMap.get(parent);
-    const path = `${ flatParent.object ? flatParent.object.object : ''}${itemValue}/`;
+    let flatObject = flatParent.object.object;
+    if (flatObject.indexOf('ا') === flatObject.length - 1) {
+      flatObject = flatObject.substring(0, flatParent.object.object.length - 1);
+    }
+    const path = `${ flatParent.object ? flatObject : ''}${itemValue}/`;
     const bucket = flatParent.object ? flatParent.object.bucket : flatParent.item;
     const formData = new FormData();
     formData.append('file', '');
     formData.append('object', path);
     formData.append('bucket', bucket);
     formData.append('endpoint', this.endpoint);
+    this.bucketDataService.emptyFolder = null;
     this.bucketBrowserService.uploadFile(formData)
       .subscribe((event) => {
           if (event instanceof HttpResponse) {
@@ -220,13 +218,11 @@ export class FolderTreeComponent implements OnDestroy {
             this.toastr.success('Folder successfully created!', 'Success!');
             this.resetForm();
             this.folderCreating = false;
-            this.folderCreationParent = null;
             this.dataSource._flattenedData.getValue().splice(this.dataSource._flattenedData.getValue().indexOf(this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0]));
           }
         }, error => {
-          this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
           this.folderCreating = false;
-          this.folderCreationParent = null;
+          this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
         }
       );
   }
