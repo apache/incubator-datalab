@@ -46,7 +46,7 @@ checkEnvStatusTimeout: 5m
 # Restrict access to DLab features using roles policy
 rolePolicyEnabled: true
 # Default access to DLab features using roles policy
-roleDefaultAccess: true
+roleDefaultAccess: false
 
 # Set to true to enable the scheduler of billing report.
 billingSchedulerEnabled: false
