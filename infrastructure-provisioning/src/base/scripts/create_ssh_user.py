@@ -35,6 +35,14 @@ parser.add_argument('--sudo_group', type=str, default='')
 args = parser.parse_args()
 
 
+def resolving_hosts(initial_user):
+    if not exists('/home/{}/.hosts_resolved'.format(initial_user)):
+        host = sudo('curl http://169.254.169.254/latest/meta-data/local-hostname').split('\n')[1]
+        host_short = host.split('.')[0]
+        private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4').split('\n')[1]
+        sudo('echo "{} {} {}" >> /etc/hosts'.format(private_ip, host, host_short))
+        sudo('touch /home/{}/.hosts_resolved'.format(initial_user))
+
 def ensure_ssh_user(initial_user, os_user, sudo_group):
     if not exists('/home/{}/.ssh_user_ensured'.format(initial_user)):
         sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
@@ -48,12 +56,18 @@ def ensure_ssh_user(initial_user, os_user, sudo_group):
         sudo('mkdir /home/{}/.ensure_dir'.format(os_user))
         sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
 
-
 if __name__ == "__main__":
     print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = '{}@{}'.format(args.initial_user, args.hostname)
+
+    print("Resolving hosts")
+    try:
+        resolving_hosts(args.initial_user)
+    except Exception as err:
+        print('Failed to resolve hosts', str(err))
+        sys.exit(1)
 
     print("Creating ssh user: {}".format(args.os_user))
     try:
