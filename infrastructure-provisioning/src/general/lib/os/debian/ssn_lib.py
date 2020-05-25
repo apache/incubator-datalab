@@ -341,13 +341,20 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt '
                          '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
                 else:
-                    sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
-                         -keystore /home/{0}/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
-                         os_user, keystore_passwd))
-                    sudo('keytool -exportcert -alias ssn -storepass {1} -file /etc/ssl/certs/dlab.crt \
-                         -keystore /home/{0}/keys/ssn.keystore.jks'.format(os_user, keystore_passwd))
-                    sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt \
-                         -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
+                    sudo(
+                        'sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key '
+                        '-out /etc/ssl/certs/dlab.crt -subj '
+                        '"/C=US/ST=US/L=US/O=dlab/CN=localhost/subjectAltName={0}"'.format(hostname))
+                    sudo(
+                        'sudo openssl pkcs12 -export -in /etc/ssl/certs/dlab.crt -inkey /etc/ssl/certs/dlab.key '
+                        '-name ssn -out /home/dlab-user/keys/ssn.p12 -password pass:{0}'.format(keystore_passwd))
+                    sudo(
+                        'sudo keytool -importkeystore -srckeystore /home/dlab-user/keys/ssn.p12 '
+                        '-srcstoretype PKCS12 -alias ssn -destkeystore /home/dlab-user/keys/ssn.keystore.jks '
+                        '-deststorepass {0} -srcstorepass {0}'.format(keystore_passwd))
+                    sudo('sudo keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt '
+                         '-noprompt -storepass changeit '
+                         '-keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts')
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)
