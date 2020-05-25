@@ -43,6 +43,14 @@ external_port = "80"
 internal_port = "8080"
 private_ip_address = "127.0.0.1"
 
+def resolving_hosts(os_user):
+    if not exists('/home/{}/.hosts_resolved'.format(os_user)):
+        host = sudo('curl http://169.254.169.254/latest/meta-data/local-hostname').split('\n')[1]
+        host_short = host.split('.')[0]
+        private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4').split('\n')[1]
+        sudo('echo "{} {} {}" >> /etc/hosts'.format(private_ip, host, host_short))
+        sudo('touch /home/{}/.hosts_resolved'.format(os_user))
+
 def ensure_jre_jdk(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/jre_jdk_ensured'):
         try:
@@ -110,8 +118,19 @@ if __name__ == "__main__":
             print("Failed establish connection. Excpeption: " + str(err))
             sys.exit(1)
 
+    print("Resolving hosts")
+    try:
+        resolving_hosts(args.os_user)
+    except Exception as err:
+        print('Failed to resolve hosts', str(err))
+        sys.exit(1)
+
     print("Install Java")
-    ensure_jre_jdk(args.os_user)
+    try:
+        ensure_jre_jdk(args.os_user)
+    except Exception as err:
+        print('Failed to Install Java', str(err))
+        sys.exit(1)
 
     try:
         print("installing Keycloak")
