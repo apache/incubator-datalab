@@ -226,11 +226,18 @@ export class BucketBrowserComponent implements OnInit {
         .afterClosed().subscribe((res) => {
           res && file.subscr.unsubscribe();
           res && this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
+          this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+          this.sendFile();
+      }, () => {
+        this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+        this.sendFile();
       });
     } else {
       this.addedFiles.splice(this.addedFiles.indexOf(file), 1);
+      this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+      this.sendFile();
     }
-   this.sendFile();
+
   }
 
   private uploadNewFile(file) {

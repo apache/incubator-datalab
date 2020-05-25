@@ -62,10 +62,13 @@
             <p class="m-top-30">{{ DICTIONARY[PROVIDER].personal_storage }}: &nbsp;</p>
             <!--                 (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
             <div class="links_block" (mouseleave)="hideCopyIcon()">
-                <p *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.account_name">{{ DICTIONARY[PROVIDER].account }}
+                <p *ngIf="PROVIDER === 'azure' && notebook.account_name">
                   <span
                     class="bucket-info"
                     (mouseover)="showCopyIcon()"
+                    [matTooltip]="notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net'"
+                    matTooltipPosition="above"
+                    [matTooltipClass]="'bucket-item-tooltip'"
                   >
                     {{notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net'}}
 <!--                    rc-22-projecta-conteiner@1ebobsvx7t.blob.core.windows.net-->
@@ -124,7 +127,7 @@
 <!--                 matTooltipPosition="above"-->
 <!--                 [matTooltipClass]="'bucket-item-tooltip'"-->
 <!--            >-->
-<!--              <p *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}-->
+<!--              <p *ngIf="DICTIONARY[PROVIDER === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}-->
 <!--                <span class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus.view}" (mouseover)="showCopyIcon('shared')">{{ notebook.shared_account_name}}</span>-->
 <!--                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.shared_account_name)">-->
 <!--                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>-->
@@ -146,7 +149,7 @@
 <!--            </div>-->
 <!--            <br />-->
 
-<!--            <div *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'azure' && notebook.datalake_name">-->
+<!--            <div *ngIf="DICTIONARY[PROVIDER === 'azure' && notebook.datalake_name">-->
 <!--              <p>Data Lake Store: &nbsp;</p>-->
 <!--              <div class="links_block">-->
 <!--                <p>Data Lake Store Account: &nbsp;<span class="bucket-info">{{ notebook.datalake_name }}</span></p>-->
