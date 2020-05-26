@@ -21,7 +21,7 @@ import { ModuleWithProviders } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { LoginComponent } from './login/login.module';
-import { LayoutComponent } from './layout/layout.component';
+import { LayoutComponent } from './layout/layout.component'
 import { ResourcesComponent } from './resources/resources.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './service-pages/not-found/not-found.component';
@@ -68,10 +68,10 @@ const routes: Routes = [{
       component: ManagementComponent,
       canActivate: [AuthorizationGuard, AdminGuard]
     }, {
-    //   path: 'swagger',
-    //   component: SwaggerComponent,
-    //   canActivate: [AuthorizationGuard]
-    // }, {
+      path: 'swagger',
+      component: SwaggerComponent,
+      canActivate: [AuthorizationGuard]
+    }, {
       path: 'help/publickeyguide',
       component: PublicKeyGuideComponent,
       canActivate: [AuthorizationGuard]

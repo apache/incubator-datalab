@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-<#include "infrastructure-provisioning/src/ssn/templates/ssn.yml">
+<#include "ssn.yml">
 
 # Minimum and maximum number of slave EMR instances than could be created
 minEmrInstanceCount: 2
@@ -46,10 +46,10 @@ checkEnvStatusTimeout: 5m
 # Restrict access to DLab features using roles policy
 rolePolicyEnabled: true
 # Default access to DLab features using roles policy
-roleDefaultAccess: true
+roleDefaultAccess: false
 
 # Set to true to enable the scheduler of billing report.
-billingSchedulerEnabled: true
+billingSchedulerEnabled: false
 # Name of configuration file for billing report.
 <#if DEV_MODE == "true">
 billingConfFile: ${sys['user.dir']}/../billing/billing.yml
@@ -140,13 +140,13 @@ schedulers:
     cron: "*/20 * * ? * * *"
   checkQuoteScheduler:
     enabled: true
-    cron: "0 0 * ? * * *"
+    cron: "0 2/15 * ? * *"
   checkUserQuoteScheduler:
     enabled: false
     cron: "0 0 * ? * * *"
   checkProjectQuoteScheduler:
     enabled: true
-    cron: "0 * * ? * * *"
+    cron: "0 4/15 * ? * *"
   checkEndpointStatusScheduler:
     enabled: true
     cron: "0 6/15 * ? * *"
@@ -162,16 +162,16 @@ guacamole:
   username: dlab-user
 
 keycloakConfiguration:
-  redirectUri: https://localhost:8443/
-  realm: DLAB_bhliva
+  redirectUri: KEYCLOAK_REDIRECT_URI
+  realm: KEYCLOAK_REALM_NAME
   bearer-only: true
-  auth-server-url: http://52.11.45.11:8080/auth
+  auth-server-url: KEYCLOAK_AUTH_SERVER_URL
   ssl-required: none
   register-node-at-startup: true
   register-node-period: 600
-  resource: sss
+  resource: KEYCLOAK_CLIENT_NAME
   credentials:
-    secret: cf5a484b-039b-4161-8707-ad65c0f25962
+    secret: KEYCLOAK_CLIENT_SECRET
 
 jerseyClient:
   minThreads: 1

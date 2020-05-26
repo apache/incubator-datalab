@@ -246,40 +246,6 @@ public class ImageExploratoryResourceTest extends TestBase {
 	}
 
 	@Test
-	public void getAllImagesForProject() {
-		when(imageExploratoryService.getImagesForProject(anyString())).thenReturn(getImageList());
-		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/image/all")
-				.queryParam("project", "someProject")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.get();
-
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals(getImageList(), response.readEntity(new GenericType<List<ImageInfoRecord>>() {}));
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(imageExploratoryService).getImagesForProject("someProject");
-		verifyNoMoreInteractions(imageExploratoryService);
-	}
-
-	@Test
-	public void getAllImagesForNullProject() {
-		when(imageExploratoryService.getImagesForProject(anyString())).thenReturn(getImageList());
-		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/image/all")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.get();
-
-		assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-		verify(imageExploratoryService, never()).getImagesForProject(anyString());
-		verifyNoMoreInteractions(imageExploratoryService);
-	}
-
-	@Test
 	public void getImageWithException() {
 		doThrow(new ResourceNotFoundException("Image with name was not found for user"))
 				.when(imageExploratoryService).getImage(anyString(), anyString(), anyString(), anyString());

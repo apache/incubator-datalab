@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-<#include "infrastructure-provisioning/src/ssn/templates/ssn.yml">
+<#include "ssn.yml">
 
 backupScriptPath: /opt/dlab/tmp/backup.py
 backupDirectory: /opt/dlab/tmp/result
@@ -27,7 +27,7 @@ keyDirectory: ${KEYS_DIR}
 responseDirectory: /opt/dlab/tmp
 handlerDirectory: /opt/dlab/handlers
 dockerLogDirectory: ${LOG_ROOT_DIR}
-warmupPollTimeout: 50s
+warmupPollTimeout: 2m
 resourceStatusPollTimeout: 300m
 keyLoaderPollTimeout: 30m
 requestEnvStatusTimeout: 50s
@@ -64,14 +64,6 @@ server:
       keyStorePassword: ${KEY_STORE_PASSWORD}
       trustStorePath: ${TRUST_STORE_PATH}
       trustStorePassword: ${TRUST_STORE_PASSWORD}
-    - type: https
-      port: 8083
-      certAlias: ssn
-      validateCerts: false
-      keyStorePath: ${KEY_STORE_PATH}
-      keyStorePassword: ${KEY_STORE_PASSWORD}
-      trustStorePath: ${TRUST_STORE_PATH}
-      trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
 #    - type: http
     - type: https
@@ -99,15 +91,15 @@ logging:
       archivedFileCount: 10
 
 keycloakConfiguration:
-  realm: DLAB_bhliva
+  realm: KEYCLOAK_REALM_NAME
   bearer-only: true
-  auth-server-url: http://52.11.45.11:8080/auth
+  auth-server-url: KEYCLOAK_AUTH_SERVER_URL
   ssl-required: none
   register-node-at-startup: true
   register-node-period: 600
-  resource: sss
+  resource: KEYCLOAK_CLIENT_NAME
   credentials:
-    secret: cf5a484b-039b-4161-8707-ad65c0f25962
+    secret: KEYCLOAK_CLIENT_SECRET
 
 cloudProperties:
   os: CONF_OS
@@ -130,7 +122,7 @@ cloudProperties:
   datalakeTagName: AZURE_DATALAKE_TAG
   azureClientId: AZURE_CLIENT_ID
   gcpProjectId: GCP_PROJECT_ID
-  imageEnabled: true
+  imageEnabled: CONF_IMAGE_ENABLED
   azureAuthFile: AZURE_AUTH_FILE_PATH
   ldap:
     host: LDAP_HOST
@@ -139,7 +131,7 @@ cloudProperties:
     user: LDAP_USER_NAME
     password: LDAP_USER_PASSWORD
   stepCerts:
-    enabled: true
+    enabled: STEP_CERTS_ENABLED
     rootCA: STEP_ROOT_CA
     kid: STEP_KID_ID
     kidPassword: STEP_KID_PASSWORD

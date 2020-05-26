@@ -20,26 +20,26 @@
 # ******************************************************************************
 
 <#assign LOG_ROOT_DIR="/var/opt/dlab/log">
-<#assign KEYS_DIR="/Users/Pavel_Papou/keys/">
+<#assign KEYS_DIR="/home/${sys['user.name']}/keys">
 <#assign KEY_STORE_PATH="${KEYS_DIR}/ssn.keystore.jks">
 <#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
 <#assign TRUST_STORE_PATH="${JRE_HOME}/lib/security/cacerts">
 <#assign TRUST_STORE_PASSWORD="changeit">
 
 # Available options are aws, azure, gcp
-<#assign CLOUD_TYPE="azure">
+<#assign CLOUD_TYPE="CLOUD_PROVIDER">
 cloudProvider: ${CLOUD_TYPE}
 
 #Switch on/off developer mode here
-<#assign DEV_MODE="true">
+<#assign DEV_MODE="false">
 devMode: ${DEV_MODE}
 
 mongo:
   host: localhost
   port: 27017
   username: admin
-  password: gfdtk123
-  database: paveldb
+  password: MONGO_PASSWORD
+  database: dlabdb
 
 selfService:
   protocol: https
@@ -60,6 +60,11 @@ securityService:
 provisioningService:
   jerseyClient:
     timeout: 3s
+    connectionTimeout: 3s
+
+bucketService:
+  jerseyClient:
+    timeout: 50m
     connectionTimeout: 3s
 
 billingService:

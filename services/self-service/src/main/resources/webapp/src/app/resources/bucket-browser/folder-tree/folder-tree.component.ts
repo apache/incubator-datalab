@@ -53,7 +53,6 @@ export class FolderTreeComponent implements OnDestroy {
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
     this.subscriptions.add(this.bucketDataService._bucketData.subscribe(data => {
-
       if (data) {
         this.dataSource.data = data;
         const subject = this.dataSource._flattenedData;
@@ -63,15 +62,10 @@ export class FolderTreeComponent implements OnDestroy {
           }
           this.expandAllParents(this.selectedFolder || subjectData[0]);
           this.showItem(this.selectedFolder || subjectData[0]);
-          if (this.selectedFolder && !this.bucketDataService.emptyFolder) {
+          if (this.selectedFolder) {
             setTimeout(() => {
               const element = document.querySelector('.folder-item-line.active-item');
               element && element.scrollIntoView({ block: 'center', behavior: 'smooth' });
-            }, 0);
-          } else if (this.selectedFolder && this.bucketDataService.emptyFolder) {
-            setTimeout(() => {
-              const element = document.querySelector('#folder-form');
-              element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
             }, 0);
           }
       }
@@ -181,9 +175,6 @@ export class FolderTreeComponent implements OnDestroy {
 
 private addNewItem(node: TodoItemFlatNode, file, isFile) {
   const currNode = this.flatNodeMap.get(node);
-  if (!currNode.object) {
-    currNode.object = {bucket: currNode.item, object: ''};
-  }
   const emptyFolderObject = currNode.object;
   if (emptyFolderObject.object.lastIndexOf('ا') !== emptyFolderObject.object.length - 1 || emptyFolderObject.object === '') {
     emptyFolderObject.object += 'ا';
@@ -227,8 +218,7 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
             this.toastr.success('Folder successfully created!', 'Success!');
             this.resetForm();
             this.folderCreating = false;
-            this.dataSource._flattenedData.getValue()
-              .splice(this.dataSource._flattenedData.getValue().indexOf(this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0]));
+            this.dataSource._flattenedData.getValue().splice(this.dataSource._flattenedData.getValue().indexOf(this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0]));
           }
         }, error => {
           this.folderCreating = false;
