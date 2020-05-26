@@ -46,6 +46,7 @@ import {NotebookModel} from '../exploratory/notebook.model';
 
 
 
+
 @Component({
   selector: 'resources-grid',
   templateUrl: 'resources-grid.component.html',
@@ -88,6 +89,7 @@ export class ResourcesGridComponent implements OnInit {
 
   public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
   public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
+  public bucketsList;
 
 
   constructor(
@@ -99,6 +101,7 @@ export class ResourcesGridComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildGrid();
+
   }
 
   public buildGrid(): void {
@@ -106,6 +109,7 @@ export class ResourcesGridComponent implements OnInit {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
+        this.getBuckets();
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
@@ -151,12 +155,6 @@ export class ResourcesGridComponent implements OnInit {
     return false;
   }
 
-  public isEdgeNodeStopped(resource) {
-    const currProject = this.projects.filter(proj => proj.name === resource.project);
-    const currEdgenodeStatus =  currProject[0].endpoints.filter(node => node.name === resource.endpoint)[0].status;
-    return currEdgenodeStatus === 'STOPPED' || currEdgenodeStatus === 'STOPPING';
-  }
-
   public filterActiveInstances(): FilterConfigurationModel {
     return (<FilterConfigurationModel | any>Object).assign({}, this.filterConfiguration, {
       statuses: SortUtils.activeStatuses(),
@@ -173,7 +171,10 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   public printDetailEnvironmentModal(data): void {
-    this.dialog.open(DetailDialogComponent, { data: data, panelClass: 'modal-lg' })
+    this.dialog.open(DetailDialogComponent, { data:
+        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser, buckets: this.bucketsList},
+      panelClass: 'modal-lg'
+    })
       .afterClosed().subscribe(() => this.buildGrid());
   }
 
@@ -317,12 +318,12 @@ export class ResourcesGridComponent implements OnInit {
     this.displayedFilterColumns = this.displayedFilterColumns.filter(el => el !== 'cost-filter');
   }
 
-  private aliveStatuses(сonfig): void {
+  private aliveStatuses(config): void {
     for (const index in this.filterConfiguration) {
-      if (сonfig[index] && сonfig[index] instanceof Array)
-        сonfig[index] = сonfig[index].filter(item => this.filterConfiguration[index].includes(item));
+      if (config[index] && config[index] instanceof Array)
+        config[index] = config[index].filter(item => this.filterConfiguration[index].includes(item));
     }
-    return сonfig;
+    return config;
   }
 
   isActiveFilter(filterConfig): void {
@@ -330,6 +331,26 @@ export class ResourcesGridComponent implements OnInit {
 
     for (const index in filterConfig)
       if (filterConfig[index].length) this.activeFiltering = true;
+  }
+
+  public getBuckets() {
+    const bucketsList = this.environments.map(project => {
+      return Object.keys(project.projectEndpoints).map(key => {
+        const currEndpoint = project.projectEndpoints[key];
+        const provider: string =  project.endpoints.filter(endpoint => endpoint['name'] === key)[0]['cloudProvider'];
+        const edgeItem = {name: `${project.project} (${key})`, children: []};
+        const projectBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].bucket_name];
+        const sharedBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].shared_bucket_name];
+        if (projectBucket && currEndpoint.status !== 'terminated' && currEndpoint.status !== 'terminating' && currEndpoint.status !== 'failed') {
+          edgeItem.children.push({name: projectBucket, endpoint: key});
+        }
+        if (sharedBucket) {
+          edgeItem.children.push({name: sharedBucket, endpoint: key});
+        }
+        return edgeItem;
+      });
+    });
+    this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
   }
 
   private getUserPreferences(): void {
@@ -349,7 +370,7 @@ export class ResourcesGridComponent implements OnInit {
 
   private updateUserPreferences(filterConfiguration: FilterConfigurationModel): void {
     this.userResourceService.updateUserPreferences(filterConfiguration)
-      .subscribe((result) => { },
+      .subscribe(() => { },
         (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
   }
 }

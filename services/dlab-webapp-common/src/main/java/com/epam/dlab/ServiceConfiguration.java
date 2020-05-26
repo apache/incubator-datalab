@@ -54,6 +54,16 @@ public class ServiceConfiguration extends Configuration {
 
     @Valid
     @NotNull
+    @JsonProperty(ServiceConsts.BUCKET_SERVICE_NAME)
+    private RESTServiceFactory bucketFactory = new RESTServiceFactory();
+
+    @Valid
+    @NotNull
+    @JsonProperty(ServiceConsts.BILLING_SERVICE_NAME)
+    private RESTServiceFactory billingFactory = new RESTServiceFactory();
+
+    @Valid
+    @NotNull
     @JsonProperty(ServiceConsts.SECURITY_SERVICE_NAME)
     private RESTServiceFactory securityFactory;
 
@@ -83,6 +93,14 @@ public class ServiceConfiguration extends Configuration {
 
     public RESTServiceFactory getProvisioningFactory() {
         return provisioningFactory;
+    }
+
+    public RESTServiceFactory getBucketFactory() {
+        return bucketFactory;
+    }
+
+    public RESTServiceFactory getBillingFactory() {
+        return billingFactory;
     }
 
     public RESTServiceFactory getSecurityFactory() {

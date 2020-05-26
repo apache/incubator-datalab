@@ -48,7 +48,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   projectComputations = [];
   selectedImage: any;
   spotInstance: boolean = true;
-
+  maxClusterNameLength: number = 14;
   loading: boolean = false;
 
   public minInstanceNumber: number;
@@ -143,8 +143,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       version: [''],
       shape_master: ['', Validators.required],
       shape_slave: [''],
-      cluster_alias_name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), Validators.maxLength(DICTIONARY[this.PROVIDER].max_cluster_name_length),
-      this.checkDuplication.bind(this)]],
+      cluster_alias_name: ['', [
+        Validators.required, Validators.pattern(PATTERNS.namePattern),
+        Validators.maxLength(this.maxClusterNameLength),
+      this.checkDuplication.bind(this)
+      ]],
       instance_number: ['', [Validators.required, Validators.pattern(PATTERNS.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       preemptible_instance_number: [0,
         Validators.compose([Validators.pattern(PATTERNS.integerRegex),
@@ -231,11 +234,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private checkDuplication(control) {
-    if (this.containsComputationalResource(control.value, this.userComputations)){
+    if (this.containsComputationalResource(control.value, this.userComputations)) {
       return { 'user-duplication': true };
     }
 
-    if (this.containsComputationalResource(control.value, this.projectComputations)){
+    if (this.containsComputationalResource(control.value, this.projectComputations)) {
       return { 'other-user-duplication': true };
     }
   }
@@ -247,7 +250,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.userComputations = clusterTypes.user_computations;
         this.projectComputations = clusterTypes.project_computations;
 
-        this.clusterTypes.forEach((cluster, index) => this.clusterTypes[index].computation_resources_shapes = SortUtils.shapesSort(cluster.computation_resources_shapes));
+        this.clusterTypes.forEach((cluster, index) => this.clusterTypes[index].computation_resources_shapes =
+          SortUtils.shapesSort(cluster.computation_resources_shapes));
         this.selectedImage = clusterTypes.templates[0];
 
         if (this.selectedImage) {

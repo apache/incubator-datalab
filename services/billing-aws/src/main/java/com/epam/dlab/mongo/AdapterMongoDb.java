@@ -31,11 +31,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
+
+import static com.epam.dlab.mongo.MongoConstants.COLLECTION_SETTINGS;
+import static com.epam.dlab.mongo.MongoConstants.FIELD_SERIVICE_BASE_NAME;
+import static com.mongodb.client.model.Filters.eq;
 
 /**
  * The adapter for file system.
@@ -66,6 +71,17 @@ public class AdapterMongoDb extends DBAdapterBase {
 	 */
 	@JsonProperty
 	private boolean upsert = false;
+
+	@JsonProperty
+	private String serviceBaseName;
+
+	public String getServiceBaseName() {
+		return serviceBaseName;
+	}
+
+	public void setServiceBaseName(String serviceBaseName) {
+		this.serviceBaseName = serviceBaseName;
+	}
 
 	/**
 	 * Return the size of buffer for bulk insert.
@@ -142,6 +158,7 @@ public class AdapterMongoDb extends DBAdapterBase {
 				throw new AdapterException("Mode of " + getType() + " adapter may be " + Mode.WRITE + " only.");
 			}
 			connection = new MongoDbConnection(getHost(), getPort(), getDatabase(), getUsername(), getPassword());
+			setServiceBaseName();
 			collection = connection.getCollection(MongoConstants.COLLECTION_BILLING);
 			try {
 				resourceTypeDAO = new DlabResourceTypeDAO(connection);
@@ -156,6 +173,12 @@ public class AdapterMongoDb extends DBAdapterBase {
 		} else {
 			throw new AdapterException("Connection is already opened");
 		}
+	}
+
+	private void setServiceBaseName() {
+		connection.getCollection(COLLECTION_SETTINGS)
+				.updateOne(eq("_id", FIELD_SERIVICE_BASE_NAME), new Document("$set", new Document("value", serviceBaseName)),
+						new UpdateOptions().upsert(true));
 	}
 
 	@Override
@@ -191,12 +214,12 @@ public class AdapterMongoDb extends DBAdapterBase {
 	}
 
 	@Override
-	public void writeHeader(List<String> header) throws AdapterException {
+	public void writeHeader(List<String> header) {
 		// Nothing to do
 	}
 
 	@Override
-	public void writeRow(ReportLine row) throws AdapterException {
+	public Document writeRow(ReportLine row) throws AdapterException {
 		Document document;
 		try {
 			document = resourceTypeDAO.transform(row);
@@ -204,20 +227,21 @@ public class AdapterMongoDb extends DBAdapterBase {
 			throw new AdapterException("Cannot transform report line. " + e.getLocalizedMessage(), e);
 		}
 
-		usageDateList.append(row.getUsageDate());
-		if (upsert) {
-			buffer.add(document);
-			if (buffer.size() >= bufferSize) {
-				connection.upsertRows(collection, buffer, usageDateList);
-			}
-		} else if (bufferSize > 0) {
-			buffer.add(document);
-			if (buffer.size() >= bufferSize) {
-				connection.insertRows(collection, buffer);
-			}
-		} else {
-			connection.insertOne(collection, document);
-		}
+//		usageDateList.append(row.getUsageDate());
+//		if (upsert) {
+//			buffer.add(document);
+//			if (buffer.size() >= bufferSize) {
+//				connection.upsertRows(collection, buffer, usageDateList);
+//			}
+//		} else if (bufferSize > 0) {
+//			buffer.add(document);
+//			if (buffer.size() >= bufferSize) {
+//				connection.insertRows(collection, buffer);
+//			}
+//		} else {
+//			connection.insertOne(collection, document);
+//		}
+		return document;
 	}
 
 	/**
@@ -234,13 +258,6 @@ public class AdapterMongoDb extends DBAdapterBase {
 			}
 		} catch (Exception e) {
 			throw new AdapterException("Cannot update total monthly cost. " + e.getLocalizedMessage(), e);
-		}
-		try {
-			if (months.size() > 0) {
-				resourceTypeDAO.updateExploratoryCost();
-			}
-		} catch (Exception e) {
-			throw new AdapterException("Cannot update total cost of exploratory. " + e.getLocalizedMessage(), e);
 		}
 	}
 

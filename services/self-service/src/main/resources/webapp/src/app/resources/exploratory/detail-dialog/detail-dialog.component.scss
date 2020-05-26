@@ -73,7 +73,6 @@
   }
 
   span {
-
     .danger_color {
       position: absolute;
       bottom: -16px;
@@ -84,6 +83,23 @@
 
 .bucket-info {
   padding-left: 7px;
+  margin-right: 10px;
   font-weight: 600;
   color: $blue-grey-color;
 }
+
+.bucket-link{
+  padding: 15px;
+  padding-left: 0;
+  color: #35afd5;
+  .open-bucket{
+    cursor: pointer;
+    font-size: 14px;
+  }
+  &.not-allow{
+    cursor: not-allowed;
+    color: $blue-grey-color !important;
+  }
+}
+
+

@@ -17,16 +17,17 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ResourcesGridComponent } from './resources-grid/resources-grid.component';
 import { ExploratoryEnvironmentCreateComponent } from './exploratory/create-environment';
 import { Exploratory } from './resources-grid/resources-grid.model';
-import { HealthStatusService, ProjectService } from '../core/services';
+import {ApplicationSecurityService, HealthStatusService} from '../core/services';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { Project } from './../administration/project/project.component';
+import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
 
 @Component({
   selector: 'dlab-resources',
@@ -41,17 +42,18 @@ export class ResourcesComponent implements OnInit {
 
   @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
 
+  public bucketStatus;
   constructor(
     public toastr: ToastrService,
     private healthStatusService: HealthStatusService,
     private dialog: MatDialog,
-    private projectService: ProjectService
+    private applicationSecurityService: ApplicationSecurityService
   ) { }
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.getProjects();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
+
   }
 
   public createEnvironment(): void {
@@ -61,10 +63,11 @@ export class ResourcesComponent implements OnInit {
 
   public refreshGrid(): void {
     this.resourcesGrid.buildGrid();
-    this.getProjects();
-    this.getEnvironmentHealthStatus();
+    this.checkAutorize();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
+
+
 
   public toggleFiltering(): void {
     if (this.resourcesGrid.activeFiltering) {
@@ -79,6 +82,19 @@ export class ResourcesComponent implements OnInit {
       .afterClosed().subscribe(() => this.refreshGrid());
   }
 
+  public bucketBrowser(permition): void {
+    const defaultBucket = this.resourcesGrid.bucketsList[0].children[0];
+      permition && this.dialog.open(BucketBrowserComponent, { data:
+        {
+          bucket: defaultBucket.name,
+          endpoint: defaultBucket.endpoint,
+          bucketStatus: this.bucketStatus,
+          buckets: this.resourcesGrid.bucketsList
+        },
+      panelClass: 'modal-fullscreen' })
+      .afterClosed().subscribe();
+  }
+
   public setActiveProject(project): void {
     this.resourcesGrid.selectActiveProject(project);
   }
@@ -89,8 +105,11 @@ export class ResourcesComponent implements OnInit {
     return this.resourcesGrid.activeProject;
   }
 
-  private getProjects() {
-    this.projectService.getUserProjectsList().subscribe((projects: any) => this.projects = projects);
+  private checkAutorize() {
+   this.applicationSecurityService.isLoggedIn().subscribe( () => {
+     this.getEnvironmentHealthStatus();
+     }
+   );
   }
 
 
@@ -99,6 +118,7 @@ export class ResourcesComponent implements OnInit {
       (result: any) => {
         this.healthStatus = result;
         this.resourcesGrid.healthStatus = this.healthStatus;
+        this.bucketStatus = this.healthStatus.bucketBrowser;
       },
       error => this.toastr.error(error.message, 'Oops!'));
   }

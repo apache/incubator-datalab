@@ -113,8 +113,8 @@ public class ExploratoryDAO extends BaseDAO {
 	 * @param user name
 	 * @return list of user resources
 	 */
-	public Iterable<Document> findExploratory(String user) {
-		return find(USER_INSTANCES, eq(USER, user),
+	public Iterable<Document> findExploratories(String user, String project) {
+		return find(USER_INSTANCES, and(eq(USER, user), eq(PROJECT, project)),
 				fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS, ExploratoryLibDAO.COMPUTATIONAL_LIBS, SCHEDULER_DATA,
 						EXPLORATORY_USER, EXPLORATORY_PASS)));
 	}
@@ -132,12 +132,35 @@ public class ExploratoryDAO extends BaseDAO {
 		return getUserInstances(and(eq(PROJECT, project), eq(STATUS, UserInstanceStatus.RUNNING.toString())), false);
 	}
 
+	public List<UserInstanceDTO> fetchRunningExploratoryFieldsForProject(String project, List<String> endpoints) {
+		return getUserInstances(and(eq(PROJECT, project), eq(STATUS, UserInstanceStatus.RUNNING.toString()), in(ENDPOINT, endpoints)), false);
+	}
+
 	public List<UserInstanceDTO> fetchExploratoryFieldsForProject(String project) {
 		return getUserInstances(and(eq(PROJECT, project)), false);
 	}
 
 	public List<UserInstanceDTO> fetchExploratoryFieldsForProjectWithComp(String project) {
 		return getUserInstances(and(eq(PROJECT, project)), true);
+	}
+
+	public List<UserInstanceDTO> fetchExploratoryFieldsForProjectWithComp(List<String> projects) {
+		return getUserInstances(and(in(PROJECT, projects)), true);
+	}
+
+	public List<UserInstanceDTO> findExploratories(String project, String endpoint, String user) {
+		return getUserInstances(and(eq(PROJECT, project), eq(ENDPOINT, endpoint), eq(USER, user)), true);
+	}
+
+	public List<UserInstanceDTO> fetchUserExploratoriesWhereStatusIn(String user, boolean computationalFieldsRequired,
+																	 UserInstanceStatus... statuses) {
+		final List<String> statusList = statusList(statuses);
+		return getUserInstances(
+				and(
+						eq(USER, user),
+						in(STATUS, statusList)
+				),
+				computationalFieldsRequired);
 	}
 
 	/**

@@ -110,7 +110,7 @@
             <span class="error" *ngIf="!createExploratoryForm?.controls.name.valid
                                         && createExploratoryForm?.controls['name'].dirty
                                         && !createExploratoryForm?.controls['name'].hasError('duplication')">Name
-             cannot be longer than 10 characters and can only
+             cannot be longer than {{maxNotebookLength}} characters and can only
               contain letters, numbers, hyphens and '_' but can not end with special characters
             </span>
           </div>

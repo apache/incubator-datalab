@@ -59,17 +59,21 @@ public class UserComputationalResource {
 	private LocalDateTime lastActivity;
 	@JsonProperty("master_node_shape")
 	private String masterNodeShape;
+	@JsonProperty("slave_node_shape")
+	private String slaveNodeShape;
 	@JsonProperty("dataengine_instance_shape")
 	private String dataengineShape;
+	@JsonProperty("dataengine_instance_count")
+	private int dataengineInstanceCount;
 	@JsonProperty("instance_id")
 	private String instanceId;
 	protected List<ClusterConfig> config;
-	private Map<String,String> tags;
+	private Map<String, String> tags;
 
 	public UserComputationalResource(String computationalName, String computationalId, String imageName,
 									 String templateName, String status, Date uptime, SchedulerJobDTO schedulerData,
 									 boolean reuploadKeyRequired, List<ResourceURL> resourceUrl,
-									 LocalDateTime lastActivity, Map<String,String> tags) {
+									 LocalDateTime lastActivity, Map<String, String> tags) {
 		this.computationalName = computationalName;
 		this.computationalId = computationalId;
 		this.imageName = imageName;

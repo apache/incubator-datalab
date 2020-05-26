@@ -46,6 +46,16 @@
     </div>
 
     <div>
+      <span  matTooltip="{{!this.bucketStatus?.view ? 'You have not permission to open bucket browser' : 'You have not any bucket'}}"
+             matTooltipPosition="above"
+             matTooltipDisabled="{{resourcesGrid.bucketsList?.length > 0 && this.bucketStatus?.view}}"
+             [matTooltipClass]="'bucket-item-tooltip'"
+      >
+        <button mat-raised-button class="butt butt-tool" (click)="bucketBrowser(this.bucketStatus?.view)"
+                [disabled]="!this.bucketStatus?.view || resourcesGrid.bucketsList?.length === 0">
+        <i class="material-icons"></i>Bucket browser
+      </button>
+      </span>
       <button mat-raised-button class="butt butt-tool" (click)="manageUngit()">
         <i class="material-icons"></i>Git credentials
       </button>
@@ -63,5 +73,5 @@
     </div>
   </div>
   <mat-divider></mat-divider>
-  <resources-grid [projects] = "projects"></resources-grid>
+  <resources-grid></resources-grid>
 </div>

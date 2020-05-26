@@ -69,11 +69,13 @@ export class BackupOptionsModel {
 
 export interface GeneralEnvironmentStatus {
   admin: boolean;
+  projectAdmin: boolean;
   billingEnabled: boolean;
   billingQuoteUsed: number;
   list_resources: any;
   status: string;
   projectAssigned: boolean;
+  bucketBrowser: object;
 }
 
 

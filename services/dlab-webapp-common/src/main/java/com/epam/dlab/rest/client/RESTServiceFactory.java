@@ -24,10 +24,9 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.setup.Environment;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.client.Client;
 
@@ -51,7 +50,7 @@ public class RESTServiceFactory {
 	}
 
 	public RESTService build(Environment environment, String name, String userAgent) {
-		Client client = new JerseyClientBuilder(environment).using(jerseyClientConfiguration).build(name);
+		Client client = new JerseyClientBuilder(environment).using(jerseyClientConfiguration).build(name).register(MultiPartFeature.class);
 		return StringUtils.isNotEmpty(host) ?
 				new RESTService(client, getURL(), userAgent) : new RESTService(client, userAgent);
 	}

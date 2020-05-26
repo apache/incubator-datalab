@@ -23,7 +23,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
 import { UserResourceService } from '../../../core/services';
-import { HTTP_STATUS_CODES } from '../../../core/util';
+import {HTTP_STATUS_CODES, PATTERNS} from '../../../core/util';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
@@ -36,7 +36,6 @@ export class AmiCreateDialogComponent implements OnInit {
   public notebook: any;
   public createAMIForm: FormGroup;
   public provider: string;
-  namePattern = '[-_a-zA-Z0-9]+';
   delimitersRegex = /[-_]?/g;
   imagesList: any;
 
@@ -64,7 +63,7 @@ export class AmiCreateDialogComponent implements OnInit {
 
   private initFormModel(): void {
     this.createAMIForm = this._fb.group({
-      name: ['', [Validators.required, Validators.pattern(this.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
+      name: ['', [Validators.required, Validators.pattern(PATTERNS.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
       description: [''],
       exploratory_name: [this.notebook.name],
       project_name: [this.notebook.project]

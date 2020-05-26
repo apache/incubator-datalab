@@ -30,16 +30,25 @@ export class MultiLevelSelectDropdownComponent {
   @Input() items: Array<any>;
   @Input() model: Array<any>;
   @Input() type: string;
+  @Input() isAdmin: boolean;
   @Output() selectionChange: EventEmitter<{}> = new EventEmitter();
 
   public isOpenCategory = {
   };
 
+  public isCloudOpen = {
+
+  };
+
   public labels = {
     COMPUTATIONAL_SHAPE: 'Compute shapes',
     NOTEBOOK_SHAPE: 'Notebook shapes',
-    COMPUTATIONAL: 'Compute'
+    COMPUTATIONAL: 'Compute',
+    BUCKET_BROWSER: 'Bucket browser actions'
   };
+
+  constructor() {
+  }
 
   toggleSelectedOptions($event, model, value) {
     $event.preventDefault();
@@ -57,8 +66,21 @@ export class MultiLevelSelectDropdownComponent {
     this.onUpdate($event);
   }
 
-  selectAllOptions($event) {
+  toggleSelectedCloud($event, model, category, cloud) {
+    $event.preventDefault();
+    const categoryItems = this.items.filter(role => role.type === category && role.cloud === cloud);
+    this.selectedAllInCloud(category, cloud) ? this.model = this.model.filter(role => {
+      if (role.type === category && role.cloud === cloud) {
+        return false;
+      }
+      return true;
+    }) : categoryItems.forEach(role => {
+      if (!model.filter(mod => mod.role === role.role).length) {this.model.push(role); }
+    });
+    this.onUpdate($event);
+  }
 
+  selectAllOptions($event) {
     $event.preventDefault();
     this.model = [...this.items];
     this.onUpdate($event);
@@ -77,6 +99,14 @@ export class MultiLevelSelectDropdownComponent {
 
   public toggleItemsForLable(label, $event) {
     this.isOpenCategory[label] = !this.isOpenCategory[label];
+    this.isCloudOpen[label + 'AWS'] = false;
+    this.isCloudOpen[label + 'GCP'] = false;
+    this.isCloudOpen[label + 'AZURE'] = false;
+    $event.preventDefault();
+  }
+
+  public toggleItemsForCloud(label, $event) {
+    this.isCloudOpen[label] = !this.isCloudOpen[label];
     $event.preventDefault();
   }
 
@@ -89,6 +119,18 @@ export class MultiLevelSelectDropdownComponent {
   public selectedSomeInCattegory(category) {
     const selected = this.model.filter(role => role.type === category);
     const categoryItems = this.items.filter(role => role.type === category);
+    return selected.length && selected.length !== categoryItems.length;
+  }
+
+  public selectedAllInCloud(category, cloud) {
+    const selected = this.model.filter(role => role.type === category && role.cloud === cloud);
+    const categoryItems = this.items.filter(role => role.type === category && role.cloud === cloud);
+    return selected.length === categoryItems.length;
+  }
+
+  public selectedSomeInCloud(category, cloud) {
+    const selected = this.model.filter(role => role.type === category && role.cloud === cloud);
+    const categoryItems = this.items.filter(role => role.type === category && role.cloud === cloud);
     return selected.length && selected.length !== categoryItems.length;
   }
 

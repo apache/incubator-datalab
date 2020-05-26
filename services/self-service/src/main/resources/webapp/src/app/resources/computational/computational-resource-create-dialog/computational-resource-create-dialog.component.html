@@ -79,7 +79,7 @@
                                             && resourceForm?.controls['cluster_alias_name'].dirty
                                             && !resourceForm?.controls['cluster_alias_name'].hasError('user-duplication')
                                             && !resourceForm?.controls['cluster_alias_name'].hasError('other-user-duplication')">
-                  Cluster name cannot be longer than {{DICTIONARY[PROVIDER].max_cluster_name_length}} characters
+                  Cluster name cannot be longer than {{maxClusterNameLength}} characters
                   and can only contain letters, numbers, hyphens and '_' but can not end with special
                   characters
                 </span>

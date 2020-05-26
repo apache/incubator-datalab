@@ -19,20 +19,23 @@
 
 package com.epam.dlab.rest.client;
 
-import com.epam.dlab.exceptions.DlabException;
 import lombok.extern.slf4j.Slf4j;
+import org.glassfish.jersey.media.multipart.Boundary;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import java.net.ConnectException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.MULTIPART_FORM_DATA_TYPE;
 
 @Slf4j
 public class RESTService {
@@ -65,10 +68,32 @@ public class RESTService {
 				.get(clazz);
 	}
 
+	public <T> T getWithMediaTypes(String path, String accessToken, Class<T> clazz, String requestMediaType, String acceptMediaType) {
+		return get(path, accessToken, clazz, requestMediaType, acceptMediaType);
+	}
+
 	public <T> T get(String path, String accessToken, Class<T> clazz) {
-		Invocation.Builder builder = getBuilder(path, accessToken, Collections.emptyMap());
+		return get(path, accessToken, clazz, APPLICATION_JSON, APPLICATION_JSON);
+	}
+
+	private <T> T get(String path, String accessToken, Class<T> clazz, String requestMediaType, String acceptMediaType) {
+		Invocation.Builder builder = getBuilder(path, accessToken, Collections.emptyMap(), requestMediaType, acceptMediaType);
 		log.debug("REST get secured {} {}", path, accessToken);
 		return builder.get(clazz);
+	}
+
+	public <T> T get(String path, GenericType<T> genericType) {
+		return get(path, null, genericType);
+	}
+
+	public <T> T get(String path, String accessToken, GenericType<T> genericType) {
+		return get(path, accessToken, genericType, Collections.emptyMap());
+	}
+
+	public <T> T get(String path, String accessToken, GenericType<T> genericType, Map<String, Object> queryParams) {
+		Invocation.Builder builder = getBuilder(path, accessToken, queryParams, APPLICATION_JSON, APPLICATION_JSON);
+		log.debug("REST get secured {} {}", path, accessToken);
+		return builder.get(genericType);
 	}
 
 	public <T> T post(String path, Object parameter, Class<T> clazz) {
@@ -76,31 +101,42 @@ public class RESTService {
 	}
 
 	public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz) {
-		return post(path, accessToken, parameter, clazz, Collections.emptyMap());
+		return post(path, accessToken, parameter, clazz, Collections.emptyMap(), APPLICATION_JSON, APPLICATION_JSON);
 	}
 
-	public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz,
-					  Map<String, Object> queryParams) {
-		Invocation.Builder builder = getBuilder(path, accessToken, queryParams);
+	public <T> T delete(String path, String accessToken, Class<T> clazz, String requestMediaType, String acceptMediaType) {
+		return delete(path, accessToken, clazz, Collections.emptyMap(), requestMediaType, acceptMediaType);
+	}
+
+	private <T> T delete(String path, String accessToken, Class<T> clazz, Map<String, Object> queryParams,
+						 String requestMediaType, String acceptMediaType) {
+		Invocation.Builder builder = getBuilder(path, accessToken, queryParams, requestMediaType, acceptMediaType);
+		log.debug("REST delete secured {} {}", path, accessToken);
+		return builder.delete(clazz);
+	}
+
+	private <T> T post(String path, String accessToken, Object parameter, Class<T> clazz, Map<String, Object> queryParams,
+					   String requestMediaType, String acceptMediaType) {
+		Invocation.Builder builder = getBuilder(path, accessToken, queryParams, requestMediaType, acceptMediaType);
 		log.debug("REST post secured {} {}", path, accessToken);
 		return builder.post(Entity.json(parameter), clazz);
 	}
 
 
-	private Invocation.Builder getBuilder(String path, String token, Map<String, Object> queryParams) {
+	private Invocation.Builder getBuilder(String path, String token, Map<String, Object> queryParams,
+										  String requestMediaType, String acceptMediaType) {
 		WebTarget webTarget = getWebTarget(path);
 		for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
 			webTarget = webTarget.queryParam(entry.getKey(), entry.getValue());
 		}
 
 		Invocation.Builder builder = webTarget
-				.request(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON);
+				.request(requestMediaType)
+				.accept(acceptMediaType);
 
 		if (token != null) {
 			builder.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
 		}
-
 		if (userAgent != null) {
 			builder.header(HttpHeaders.USER_AGENT, userAgent);
 		}
@@ -108,8 +144,22 @@ public class RESTService {
 		return builder;
 	}
 
+	public <T> T postForm(String path, String token, FormDataMultiPart form, Class<T> clazz) {
+		WebTarget webTarget = getWebTarget(path);
+		Invocation.Builder builder = webTarget.request();
+		if (token != null) {
+			builder.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+		}
+		if (userAgent != null) {
+			builder.header(HttpHeaders.USER_AGENT, userAgent);
+		}
+
+		MediaType mediaType = Boundary.addBoundary(MULTIPART_FORM_DATA_TYPE);
+		return builder.post(Entity.entity(form, mediaType), clazz);
+	}
+
+
 	private WebTarget getWebTarget(String path) {
-		return url != null ?
-				client.target(url).path(path) : client.target(path);
+		return url != null ? client.target(url).path(path) : client.target(path);
 	}
 }

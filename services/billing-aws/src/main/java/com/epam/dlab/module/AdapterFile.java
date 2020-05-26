@@ -19,15 +19,6 @@
 
 package com.epam.dlab.module;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
 import com.epam.dlab.core.AdapterBase;
 import com.epam.dlab.core.parser.CommonFormat;
 import com.epam.dlab.exceptions.AdapterException;
@@ -37,6 +28,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import org.bson.Document;
+
+import javax.validation.constraints.NotNull;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
 
 /** The adapter for file system.
  */
@@ -137,15 +137,16 @@ public class AdapterFile extends AdapterBase {
 			throw new AdapterException("Cannot write file " + file + ". " + e.getLocalizedMessage(), e);
 		}
 	}
-	
+
 	@Override
-	public void writeRow(ReportLine row) throws AdapterException {
+	public Document writeRow(ReportLine row) throws AdapterException {
 		try {
 			writer.write(CommonFormat.rowToString(row));
 			writer.write(System.lineSeparator());
 		} catch (IOException e) {
 			throw new AdapterException("Cannot write file " + file + ". " + e.getLocalizedMessage(), e);
 		}
+		return null;
 	}
 	
 	

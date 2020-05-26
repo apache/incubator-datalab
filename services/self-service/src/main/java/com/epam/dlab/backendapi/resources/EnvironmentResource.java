@@ -49,29 +49,11 @@ public class EnvironmentResource {
 	}
 
 	@GET
-	@Path("user")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUsersWithActiveEnv(@Auth UserInfo userInfo) {
-		log.debug("User {} requested information about active environments", userInfo.getName());
-		return Response.ok(environmentService.getUsers()).build();
-	}
-
-	@GET
 	@Path("all")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAllEnv(@Auth UserInfo userInfo) {
 		log.debug("Admin {} requested information about all user's environment", userInfo.getName());
-		return Response.ok(environmentService.getAllEnv()).build();
-	}
-
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("stop/{projectName}")
-	public Response stopEnv(@Auth UserInfo userInfo, @NotEmpty String user, @PathParam("projectName") String projectName) {
-		log.info("User {} is stopping {} environment", userInfo.getName(), user);
-		environmentService.stopEnvironment(userInfo, user, projectName);
-		return Response.ok().build();
+		return Response.ok(environmentService.getAllEnv(userInfo)).build();
 	}
 
 	@POST

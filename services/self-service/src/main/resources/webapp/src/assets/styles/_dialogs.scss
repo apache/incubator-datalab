@@ -59,9 +59,11 @@ mat-dialog-container {
     padding: 0;
     border-radius: 0;
     overflow-x: hidden;
+    position: relative;
 
     #dialog-box {
       color: $modal-text-color;
+      min-height: 150px;
 
       .dialog-header {
         padding-left: 30px;
@@ -261,6 +263,7 @@ mat-dialog-container {
   p {
     font-weight: 400;
     margin-bottom: 10px;
+    display: flex;
 
     small {
       font-size: 12px;
@@ -273,6 +276,13 @@ mat-dialog-container {
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
+    max-width: 450px;
+    white-space: nowrap;
+    &.link-icon{
+      //margin-left: 10px;
+      cursor: pointer;
+      padding-top: 3px;
+    }
   }
 
   .links_block {
@@ -340,6 +350,60 @@ mat-dialog-container {
   max-height: 200px;
   overflow: auto;
 }
+
+.bucket-browser{
+  .mat-form-field-appearance-legacy .mat-form-field-subscript-wrapper {
+    width: calc(100% + 77px);
+  }
+}
+
+.bucket-item-tooltip{
+  max-width: 1100px  !important;
+  white-space: pre-line;
+}
+
+.mat-list-base .mat-list-item.delete-item{
+  height: 30px;
+}
+
+.d-none{
+  display: none !important;
+}
+
+.progres{
+  border: 1px solid rgba(0,0,0,.12);
+  height: 17px;
+  position: relative;
+  width: 155px;
+
+  .bar{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    background-color:  #00bcd4;
+  }
+
+  .progress-bar-text{
+    position: absolute;
+    left: 5px;
+    top: 0;
+    bottom: 0;
+    font-size: 11px;
+    line-height: 13px;
+    color: rgba(0, 0, 0, 0.87);
+    z-index: 10;
+  }
+}
+
+.not-allow{
+  cursor: not-allowed !important;
+  &.open-bucket{
+    color: $blue-grey-color !important;
+  }
+}
+
 
 @media screen and (max-width: 1280px) {
   .modal-fullscreen {

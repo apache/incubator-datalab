@@ -3,6 +3,7 @@
     "_id": "nbShapes_Standard_NC6_fetching",
     "description": "Use Standard_NC6 instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AZURE",
     "exploratory_shapes": [
       "Standard_NC6"
     ],
@@ -14,6 +15,7 @@
     "_id": "nbShapes_Standard_E4s_v3_fetching",
     "description": "Use Standard_E4s_v3 instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AZURE",
     "exploratory_shapes": [
       "Standard_E4s_v3"
     ],
@@ -25,6 +27,7 @@
     "_id": "nbShapes_Standard_E16s_v3_fetching",
     "description": "Use Standard_E16s_v3 instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AZURE",
     "exploratory_shapes": [
       "Standard_E16s_v3"
     ],
@@ -36,6 +39,7 @@
     "_id": "nbShapes_Standard_E32s_v3_fetching",
     "description": "Use Standard_E32s_v3 instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AZURE",
     "exploratory_shapes": [
       "Standard_E32s_v3"
     ],
@@ -47,6 +51,7 @@
     "_id": "nbShapes_Standard_F2s_fetching",
     "description": "Use Standard_F2s instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AZURE",
     "exploratory_shapes": [
       "Standard_F2s"
     ],
@@ -58,6 +63,7 @@
     "_id": "nbShapes_Standard_F4s_fetching",
     "description": "Use Standard_F4s instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AZURE",
     "exploratory_shapes": [
       "Standard_F4s"
     ],
@@ -69,6 +75,7 @@
     "_id": "nbShapes_Standard_F8s_fetching",
     "description": "Use Standard_F8s instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AZURE",
     "exploratory_shapes": [
       "Standard_F8s"
     ],
@@ -80,6 +87,7 @@
     "_id": "nbShapes_Standard_F16s_fetching",
     "description": "Use Standard_F16s instance shape for notebook",
     "type": "NOTEBOOK_SHAPE",
+    "cloud": "AZURE",
     "exploratory_shapes": [
       "Standard_F16s"
     ],
@@ -91,6 +99,7 @@
     "_id": "nbCreateDeeplearning",
     "description": "Create Notebook Deep Learning",
     "type": "NOTEBOOK",
+    "cloud": "AZURE",
     "exploratories": [
       "docker.dlab-deeplearning"
     ],
@@ -102,6 +111,7 @@
     "_id": "nbCreateJupyter",
     "description": "Create Notebook Jupyter",
     "type": "NOTEBOOK",
+    "cloud": "AZURE",
     "exploratories": [
       "docker.dlab-jupyter"
     ],
@@ -113,6 +123,7 @@
     "_id": "nbCreateRstudio",
     "description": "Create Notebook RStudio",
     "type": "NOTEBOOK",
+    "cloud": "AZURE",
     "exploratories": [
       "docker.dlab-rstudio"
     ],
@@ -124,6 +135,7 @@
     "_id": "nbCreateTensor",
     "description": "Create Notebook Jupyter with TensorFlow",
     "type": "NOTEBOOK",
+    "cloud": "AZURE",
     "exploratories": [
       "docker.dlab-tensor"
     ],
@@ -135,6 +147,7 @@
     "_id": "nbCreateZeppelin",
     "description": "Create Notebook Apache Zeppelin",
     "type": "NOTEBOOK",
+    "cloud": "AZURE",
     "exploratories": [
       "docker.dlab-zeppelin"
     ],
@@ -146,6 +159,7 @@
     "_id": "nbCreateDataEngine",
     "description": "Create Data Engine",
     "type": "COMPUTATIONAL",
+    "cloud": "AZURE",
     "computationals": [
       "docker.dlab-dataengine"
     ],
@@ -157,6 +171,7 @@
     "_id": "compShapes_Standard_F4s_fetching",
     "description": "Use Standard_F4s instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AZURE",
     "computational_shapes": [
       "Standard_F4s"
     ],
@@ -168,6 +183,7 @@
     "_id": "compShapes_Standard_E4s_v3_fetching",
     "description": "Use Standard_E4s_v3 instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AZURE",
     "computational_shapes": [
       "Standard_E4s_v3"
     ],
@@ -179,6 +195,7 @@
     "_id": "compShapes_Standard_E16s_v3_fetching",
     "description": "Use Standard_E16s_v3 instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AZURE",
     "computational_shapes": [
       "Standard_E16s_v3"
     ],
@@ -190,6 +207,7 @@
     "_id": "compShapes_Standard_E32s_v3_fetching",
     "description": "Use Standard_E32s_v3 instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AZURE",
     "computational_shapes": [
       "Standard_E32s_v3"
     ],
@@ -201,6 +219,7 @@
     "_id": "compShapes_Standard_F8s_fetching",
     "description": "Use Standard_F8s instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AZURE",
     "computational_shapes": [
       "Standard_F8s"
     ],
@@ -212,6 +231,7 @@
     "_id": "compShapes_Standard_F16s_fetching",
     "description": "Use Standard_F16s instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AZURE",
     "computational_shapes": [
       "Standard_F16s"
     ],
@@ -223,6 +243,7 @@
     "_id": "compShapes_Standard_NC6_fetching",
     "description": "Use Standard_NC6 instance shape for cluster",
     "type": "COMPUTATIONAL_SHAPE",
+    "cloud": "AZURE",
     "computational_shapes": [
       "Standard_NC6"
     ],
@@ -234,8 +255,74 @@
     "_id": "nbBillingReportFull",
     "description": "View full billing report for all users",
     "type": "BILLING",
+    "cloud": "AZURE",
     "pages": [
       "/api/infrastructure_provision/billing"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "bucketBrowserView",
+    "description": "Allow to view object via bucket browser",
+    "type": "BUCKET_BROWSER",
+    "cloud": "GCP",
+    "pages": [
+      "/api/bucket/view"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "bucketBrowserUpload",
+    "description": "Allow to upload object via bucket browser",
+    "type": "BUCKET_BROWSER",
+    "cloud": "GCP",
+    "pages": [
+      "/api/bucket/upload"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "bucketBrowserDownload",
+    "description": "Allow to download object via bucket browser",
+    "type": "BUCKET_BROWSER",
+    "cloud": "GCP",
+    "pages": [
+      "/api/bucket/download"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "bucketBrowserDelete",
+    "description": "Allow to delete object via bucket browser",
+    "type": "BUCKET_BROWSER",
+    "cloud": "GCP",
+    "pages": [
+      "/api/bucket/delete"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "projectAdmin",
+    "description": "Allow to execute administration operation per project",
+    "type": "ADMINISTRATION",
+    "cloud": "AZURE",
+    "pages": [
+      "environment/*",
+      "/roleManagement",
+      "/api/settings",
+      "/user/settings",
+      "/api/project",
+      "/api/endpoint"
     ],
     "groups": [
       "$anyuser"
@@ -245,13 +332,17 @@
     "_id": "admin",
     "description": "Allow to execute administration operation",
     "type": "ADMINISTRATION",
+    "cloud": "AZURE",
     "pages": [
       "environment/*",
       "/api/infrastructure/backup",
       "/roleManagement",
+      "/roleManagement/create",
+      "/roleManagement/delete",
       "/api/settings",
       "/user/settings",
       "/api/project",
+      "/api/project/create",
       "/api/endpoint"
     ],
     "groups": [

@@ -19,24 +19,22 @@
 
 package com.epam.dlab;
 
-import java.util.Arrays;
-
-import com.epam.dlab.exceptions.DlabException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import com.epam.dlab.configuration.BillingToolConfiguration;
 import com.epam.dlab.configuration.BillingToolConfigurationFactory;
 import com.epam.dlab.core.parser.ParserBase;
 import com.epam.dlab.exceptions.AdapterException;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.exceptions.InitializationException;
 import com.epam.dlab.exceptions.ParseException;
 import com.epam.dlab.util.ServiceUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
+import java.util.Arrays;
 
 /** Provides billing parser features.
  */
@@ -110,14 +108,14 @@ public class BillingTool {
 	 * @throws InitializationException
 	 */
 	public static void main(String[] args) throws InitializationException {
-		if (ServiceUtils.printAppVersion(BillingScheduler.class, args)) {
+		if (ServiceUtils.printAppVersion(BillingServiceImpl.class, args)) {
 			return;
 		}
 
 		String confName = null;
 		String json = null;
-		
-		for(int i = 0; i < args.length; i++) {
+
+		for (int i = 0; i < args.length; i++) {
 			if (isKey("help", args[i])) {
 				i++;
 				Help.usage(i < args.length ? Arrays.copyOfRange(args, i, args.length) : null);

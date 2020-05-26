@@ -22,12 +22,17 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
-import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
+import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
+import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.ProjectInfrastructureInfo;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -42,55 +47,53 @@ import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Slf4j
 public class InfrastructureInfoServiceImpl implements InfrastructureInfoService {
+	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-dlab/blob/%s/RELEASE_NOTES.md";
+	private static final String PERMISSION_VIEW = "/api/bucket/view";
+	private static final String PERMISSION_UPLOAD = "/api/bucket/upload";
+	private static final String PERMISSION_DOWNLOAD = "/api/bucket/download";
+	private static final String PERMISSION_DELETE = "/api/bucket/delete";
 
-	private static final String RELEASE_NOTES_FORMAT = "https://github.com/apache/incubator-dlab/blob/%s" +
-			"/RELEASE_NOTES.md";
-	@Inject
-	private ExploratoryDAO expDAO;
-	@Inject
-	private EnvDAO envDAO;
-	@Inject
-	private SelfServiceApplicationConfiguration configuration;
-	@Inject
-	private BillingDAO billingDAO;
-	@Inject
-	private ProjectService projectService;
-	@Inject
-	private EndpointService endpointService;
+	private final ExploratoryDAO expDAO;
+	private final SelfServiceApplicationConfiguration configuration;
+	private final BillingDAO billingDAO;
+	private final ProjectService projectService;
+	private final EndpointService endpointService;
+	private final BillingService billingService;
 
+	@Inject
+	public InfrastructureInfoServiceImpl(ExploratoryDAO expDAO, SelfServiceApplicationConfiguration configuration,
+										 BillingDAO billingDAO, ProjectService projectService, EndpointService endpointService,
+										 BillingService billingService) {
+		this.expDAO = expDAO;
+		this.configuration = configuration;
+		this.billingDAO = billingDAO;
+		this.projectService = projectService;
+		this.endpointService = endpointService;
+		this.billingService = billingService;
+	}
 
 	@Override
-	public List<ProjectInfrastructureInfo> getUserResources(String user) {
+	public List<ProjectInfrastructureInfo> getUserResources(UserInfo user) {
 		log.debug("Loading list of provisioned resources for user {}", user);
 		try {
-			Iterable<Document> documents = expDAO.findExploratory(user);
 			List<EndpointDTO> allEndpoints = endpointService.getEndpoints();
-			return StreamSupport.stream(documents.spliterator(),
-					false)
-					.collect(Collectors.groupingBy(d -> d.getString("project")))
-					.entrySet()
+			return projectService.getUserProjects(user, false)
 					.stream()
-					.map(e -> {
-						List<ProjectEndpointDTO> endpoints = projectService.get(e.getKey()).getEndpoints();
-						List<EndpointDTO> endpointResult = allEndpoints.stream()
-								.filter(endpoint -> endpoints.stream()
-										.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
-								.collect(Collectors.toList());
-						final Map<String, Map<String, String>> projectEdges =
-								endpoints.stream()
-										.collect(Collectors.toMap(ProjectEndpointDTO::getName,
-												endpointDTO -> getSharedInfo(endpointDTO.getEdgeInfo())));
-						return new ProjectInfrastructureInfo(e.getKey(),
-								billingDAO.getBillingProjectQuoteUsed(e.getKey()), projectEdges, e.getValue(), endpointResult);
+					.map(p -> {
+						Iterable<Document> exploratories = expDAO.findExploratories(user.getName(), p.getName());
+						return new ProjectInfrastructureInfo(p.getName(), billingDAO.getBillingProjectQuoteUsed(p.getName()),
+								getSharedInfo(p.getName()), exploratories, getExploratoryBillingData(exploratories),
+								getEndpoints(allEndpoints, p));
 					})
 					.collect(Collectors.toList());
 		} catch (Exception e) {
@@ -100,17 +103,26 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 	}
 
 	@Override
-	public HealthStatusPageDTO getHeathStatus(UserInfo userInfo, boolean fullReport, boolean isAdmin) {
+	public HealthStatusPageDTO getHeathStatus(UserInfo userInfo, boolean fullReport) {
 		final String user = userInfo.getName();
 		log.debug("Request the status of resources for user {}, report type {}", user, fullReport);
 		try {
-
-			return envDAO.getHealthStatusPageDTO(user, fullReport)
-					.withBillingEnabled(configuration.isBillingSchedulerEnabled())
-					.withAdmin(isAdmin)
-					.withProjectAssinged(projectService.isAnyProjectAssigned(userInfo))
-					.withBillingQuoteUsed(billingDAO.getBillingQuoteUsed())
-					.withBillingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user));
+			return HealthStatusPageDTO.builder()
+					.status(HealthStatusEnum.OK.toString())
+					.listResources(Collections.emptyList())
+					.billingEnabled(configuration.isBillingSchedulerEnabled())
+					.projectAdmin(UserRoles.isProjectAdmin(userInfo))
+					.admin(UserRoles.isAdmin(userInfo))
+					.projectAssigned(projectService.isAnyProjectAssigned(userInfo))
+					.billingQuoteUsed(billingDAO.getBillingQuoteUsed())
+					.billingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user))
+					.bucketBrowser(HealthStatusPageDTO.BucketBrowser.builder()
+							.view(checkAccess(userInfo, PERMISSION_VIEW))
+							.upload(checkAccess(userInfo, PERMISSION_UPLOAD))
+							.download(checkAccess(userInfo, PERMISSION_DOWNLOAD))
+							.delete(checkAccess(userInfo, PERMISSION_DELETE))
+							.build())
+					.build();
 		} catch (Exception e) {
 			log.warn("Could not return status of resources for user {}: {}", user, e.getLocalizedMessage(), e);
 			throw new DlabException(e.getMessage(), e);
@@ -128,18 +140,46 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 				.build();
 	}
 
-	private Map<String, String> getSharedInfo(EdgeInfo edgeInfo) {
-		Map<String, String> shared = new HashMap<>();
-		if (Objects.isNull(edgeInfo)) {
-			return shared;
+	private List<BillingReport> getExploratoryBillingData(Iterable<Document> exploratories) {
+		return StreamSupport.stream(exploratories.spliterator(), false)
+				.map(exp ->
+						billingService.getExploratoryBillingData(exp.getString("project"), exp.getString("endpoint"),
+								exp.getString("exploratory_name"),
+								Optional.ofNullable(exp.get("computational_resources")).map(cr -> (List<Document>) cr).get()
+										.stream()
+										.map(cr -> cr.getString("computational_name"))
+										.collect(Collectors.toList()))
+				)
+				.collect(Collectors.toList());
+	}
+
+	private List<EndpointDTO> getEndpoints(List<EndpointDTO> allEndpoints, ProjectDTO projectDTO) {
+		return allEndpoints.stream().filter(endpoint -> projectDTO.getEndpoints().stream()
+				.anyMatch(endpoint1 -> endpoint1.getName().equals(endpoint.getName())))
+				.collect(Collectors.toList());
+	}
+
+	private Map<String, Map<String, String>> getSharedInfo(String name) {
+		return projectService.get(name).getEndpoints().stream()
+				.collect(Collectors.toMap(ProjectEndpointDTO::getName, this::getSharedInfo));
+	}
+
+	private Map<String, String> getSharedInfo(ProjectEndpointDTO endpointDTO) {
+		Optional<EdgeInfo> edgeInfo = Optional.ofNullable(endpointDTO.getEdgeInfo());
+		if (!edgeInfo.isPresent()) {
+			return Collections.emptyMap();
 		}
-		shared.put("edge_node_ip", edgeInfo.getPublicIp());
-		if (edgeInfo instanceof EdgeInfoAws) {
-			EdgeInfoAws edgeInfoAws = (EdgeInfoAws) edgeInfo;
+		EdgeInfo edge = edgeInfo.get();
+		Map<String, String> shared = new HashMap<>();
+
+		shared.put("status", endpointDTO.getStatus().toString());
+		shared.put("edge_node_ip", edge.getPublicIp());
+		if (edge instanceof EdgeInfoAws) {
+			EdgeInfoAws edgeInfoAws = (EdgeInfoAws) edge;
 			shared.put("user_own_bicket_name", edgeInfoAws.getUserOwnBucketName());
 			shared.put("shared_bucket_name", edgeInfoAws.getSharedBucketName());
-		} else if (edgeInfo instanceof EdgeInfoAzure) {
-			EdgeInfoAzure edgeInfoAzure = (EdgeInfoAzure) edgeInfo;
+		} else if (edge instanceof EdgeInfoAzure) {
+			EdgeInfoAzure edgeInfoAzure = (EdgeInfoAzure) edge;
 			shared.put("user_container_name", edgeInfoAzure.getUserContainerName());
 			shared.put("shared_container_name", edgeInfoAzure.getSharedContainerName());
 			shared.put("user_storage_account_name", edgeInfoAzure.getUserStorageAccountName());
@@ -147,12 +187,16 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 			shared.put("datalake_name", edgeInfoAzure.getDataLakeName());
 			shared.put("datalake_user_directory_name", edgeInfoAzure.getDataLakeDirectoryName());
 			shared.put("datalake_shared_directory_name", edgeInfoAzure.getDataLakeSharedDirectoryName());
-		} else if (edgeInfo instanceof EdgeInfoGcp) {
-			EdgeInfoGcp edgeInfoGcp = (EdgeInfoGcp) edgeInfo;
+		} else if (edge instanceof EdgeInfoGcp) {
+			EdgeInfoGcp edgeInfoGcp = (EdgeInfoGcp) edge;
 			shared.put("user_own_bucket_name", edgeInfoGcp.getUserOwnBucketName());
 			shared.put("shared_bucket_name", edgeInfoGcp.getSharedBucketName());
 		}
 
 		return shared;
+	}
+
+	private boolean checkAccess(UserInfo userInfo, String permission) {
+		return UserRoles.checkAccess(userInfo, RoleType.PAGE, permission, userInfo.getRoles());
 	}
 }

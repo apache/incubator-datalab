@@ -72,6 +72,9 @@ parser.add_argument('--usage', type=str, default=None)
 parser.add_argument('--cost', type=str, default=None)
 parser.add_argument('--resource_id', type=str, default=None)
 parser.add_argument('--tags', type=str, default=None)
+parser.add_argument('--keycloak_client_id', type=str, default=None)
+parser.add_argument('--keycloak_client_secret', type=str, default=None)
+parser.add_argument('--keycloak_auth_server_url', type=str, default=None)
 args = parser.parse_args()
 
 dlab_conf_dir = args.dlab_path + 'conf/'
@@ -175,6 +178,8 @@ def build_ui():
                 args.dlab_path))
         elif args.cloud_provider == 'aws':
             sudo('cp {0}/sources/services/billing-aws/billing.yml {0}/webapp/billing/conf/'.format(args.dlab_path))
+            sudo('cp {0}/sources/services/billing-aws/src/main/resources/application.yml '
+                 '{0}/webapp/billing/conf/billing_app.yml'.format(args.dlab_path))
             sudo(
                 'cp {0}/sources/services/billing-aws/target/billing-aws*.jar {0}/webapp/billing/lib/'.format(
                     args.dlab_path))
@@ -232,4 +237,5 @@ if __name__ == "__main__":
              args.region_info, args.ldap_login, args.tenant_id, args.application_id,
              args.hostname, args.datalake_store_name, args.subscription_id, args.validate_permission_scope,
              args.dlab_id, args.usage_date, args.product, args.usage_type,
-             args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name)
+             args.usage, args.cost, args.resource_id, args.tags, args.billing_dataset_name, args.keycloak_client_id,
+             args.keycloak_client_secret, args.keycloak_auth_server_url)

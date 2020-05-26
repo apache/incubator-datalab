@@ -272,7 +272,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 	}
 
 	private List<ImageInfoRecord> getImageList() {
-		ImageInfoRecord imageInfoRecord = new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someApp",
+		ImageInfoRecord imageInfoRecord = new ImageInfoRecord("someName", "someDescription", "someProject", "someEndpoint", "someUser", "someApp",
 				"someFullName", ImageStatus.CREATED);
 		return Collections.singletonList(imageInfoRecord);
 	}

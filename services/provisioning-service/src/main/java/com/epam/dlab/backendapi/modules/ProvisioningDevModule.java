@@ -30,13 +30,17 @@ import com.epam.dlab.backendapi.core.commands.CommandExecutorMock;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.dao.CallbackHandlerDao;
 import com.epam.dlab.backendapi.core.response.handlers.dao.FileSystemCallbackHandlerDao;
-import com.epam.dlab.backendapi.service.ProjectService;
-import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
+import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.backendapi.service.CheckInactivityService;
+import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.backendapi.service.RestoreCallbackHandlerService;
 import com.epam.dlab.backendapi.service.impl.CheckInactivityServiceImpl;
 import com.epam.dlab.backendapi.service.impl.ProjectServiceImpl;
 import com.epam.dlab.backendapi.service.impl.RestoreCallbackHandlerServiceImpl;
+import com.epam.dlab.backendapi.service.impl.aws.BucketServiceAwsImpl;
+import com.epam.dlab.backendapi.service.impl.azure.BucketServiceAzureImpl;
+import com.epam.dlab.backendapi.service.impl.gcp.BucketServiceGcpImpl;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
@@ -70,17 +74,24 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
 	protected void configure() {
 		bind(ProvisioningServiceApplicationConfiguration.class).toInstance(configuration);
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME)).toInstance
-				(createAuthenticationService());
-		bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, ServiceConsts
-				.SELF_SERVICE_NAME));
-		bind(MetadataHolder.class).to(DockerWarmuper.class);
-		bind(ICommandExecutor.class).toInstance(new CommandExecutorMock(configuration.getCloudProvider()));
-		bind(ObjectMapper.class).toInstance(new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true));
-		bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
-		bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
-		bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
-		bind(ProjectService.class).to(ProjectServiceImpl.class);
-	}
+                (createAuthenticationService());
+        bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, ServiceConsts
+                .SELF_SERVICE_NAME));
+        bind(MetadataHolder.class).to(DockerWarmuper.class);
+        bind(ICommandExecutor.class).toInstance(new CommandExecutorMock(configuration.getCloudProvider()));
+        bind(ObjectMapper.class).toInstance(new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true));
+        bind(CallbackHandlerDao.class).to(FileSystemCallbackHandlerDao.class);
+        bind(RestoreCallbackHandlerService.class).to(RestoreCallbackHandlerServiceImpl.class);
+        bind(CheckInactivityService.class).to(CheckInactivityServiceImpl.class);
+        bind(ProjectService.class).to(ProjectServiceImpl.class);
+		if (configuration.getCloudProvider() == CloudProvider.GCP) {
+			bind(BucketService.class).to(BucketServiceGcpImpl.class);
+        } else if (configuration.getCloudProvider() == CloudProvider.AWS) {
+            bind(BucketService.class).to(BucketServiceAwsImpl.class);
+        } else if (configuration.getCloudProvider() == CloudProvider.AZURE) {
+            bind(BucketService.class).to(BucketServiceAzureImpl.class);
+        }
+    }
 
 	/**
 	 * Creates and returns the mock object for authentication service.
