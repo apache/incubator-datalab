@@ -245,6 +245,7 @@ export class BucketBrowserComponent implements OnInit {
     const fullPath = path ? `${path}/${file.name}` : file.name;
     const formData = new FormData();
     formData.append('file', file.file);
+    formData.append('size', file.file.size);
     formData.append('object', fullPath);
     formData.append('bucket', this.bucketName);
     formData.append('endpoint', this.endpoint);
