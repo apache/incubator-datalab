@@ -82,8 +82,8 @@ def toree_kernel(args):
     spark_path = '/opt/{0}/{1}/spark/'.format(args.dataproc_version, args.cluster_name)
     local('mkdir -p {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
     local('tar zxvf /tmp/toree_kernel.tar.gz -C {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
-    local('sudo mv {0}toree_{1}/toree-0.2.0-incubating/* {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
-    local('sudo rm -r {0}toree_{1}/toree-0.2.0-incubating'.format(kernels_dir, args.cluster_name))
+    local('sudo mv {0}toree_{1}/toree-0.3.0-incubating/* {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
+    local('sudo rm -r {0}toree_{1}/toree-0.3.0-incubating'.format(kernels_dir, args.cluster_name))
     kernel_path = '{0}toree_{1}/kernel.json'.format(kernels_dir, args.cluster_name)
     template_file = "/tmp/toree_dataengine-service_templatev2.json"
     with open(template_file, 'r') as f:
