@@ -23,8 +23,6 @@ import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.dto.bucket.BucketDTO;
 import com.epam.dlab.exceptions.DlabException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
-import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -67,7 +65,8 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream) {
+    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
+        log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             S3Client s3 = S3Client.create();
             PutObjectRequest uploadRequest = PutObjectRequest
@@ -75,15 +74,17 @@ public class BucketServiceAwsImpl implements BucketService {
                     .bucket(bucket)
                     .key(object)
                     .build();
-            s3.putObject(uploadRequest, RequestBody.fromBytes(IOUtils.toByteArray(stream)));
+            s3.putObject(uploadRequest, RequestBody.fromInputStream(stream, fileSize));
         } catch (Exception e) {
             log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
+        log.info("Finished uploading file {} to bucket {}", object, bucket);
     }
 
     @Override
     public void downloadObject(String bucket, String object, HttpServletResponse resp) {
+        log.info("Downloading file {} from bucket {}", object, bucket);
         try (ServletOutputStream outputStream = resp.getOutputStream()) {
             S3Client s3 = S3Client.create();
             GetObjectRequest downloadRequest = GetObjectRequest
@@ -96,6 +97,7 @@ public class BucketServiceAwsImpl implements BucketService {
             log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
+        log.info("Finished downloading file {} from bucket {}", object, bucket);
     }
 
     @Override
@@ -117,8 +119,7 @@ public class BucketServiceAwsImpl implements BucketService {
                     .build();
 
             s3.deleteObjects(deleteObjectsRequests);
-
-        } catch (AwsServiceException e) {
+        } catch (Exception e) {
             log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot delete objects %s from bucket %s. Reason: %s", objects, bucket, e.getMessage()));
         }

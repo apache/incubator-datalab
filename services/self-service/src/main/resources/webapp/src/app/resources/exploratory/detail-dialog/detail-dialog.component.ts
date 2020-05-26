@@ -37,7 +37,7 @@ import {CopyPathUtils} from '../../../core/util/copyPathUtils';
 
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  readonly PROVIDER = this.data.notebook.cloud_provider;
+  readonly PROVIDER = this.data.notebook.cloud_provider.toLowerCase();
   private isCopied: boolean = true;
   notebook: any;
   upTimeInHours: number;
@@ -65,6 +65,7 @@ export class DetailDialogComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.data.notebook);
     this.bucketStatus = this.data.bucketStatus;
     this.notebook = this.data.notebook;
     if (this.notebook) {

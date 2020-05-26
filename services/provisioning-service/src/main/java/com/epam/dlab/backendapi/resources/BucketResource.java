@@ -65,8 +65,9 @@ public class BucketResource {
     public Response uploadObject(@Auth UserInfo userInfo,
                                  @FormDataParam("object") String object,
                                  @FormDataParam("bucket") String bucket,
-                                 @FormDataParam("file") InputStream inputStream) {
-        bucketService.uploadObject(bucket, object, inputStream);
+                                 @FormDataParam("file") InputStream inputStream,
+                                 @FormDataParam("file-size") long fileSize) {
+        bucketService.uploadObject(bucket, object, inputStream, fileSize);
         return Response.ok().build();
     }
 

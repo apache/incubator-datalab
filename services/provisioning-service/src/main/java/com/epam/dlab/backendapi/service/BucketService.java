@@ -30,7 +30,7 @@ public interface BucketService {
 
     List<BucketDTO> getObjects(String bucket);
 
-    void uploadObject(String bucket, String object, InputStream stream);
+    void uploadObject(String bucket, String object, InputStream stream, long fileSize);
 
     void downloadObject(String bucket, String object, HttpServletResponse resp);
 
