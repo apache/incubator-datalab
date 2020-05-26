@@ -172,7 +172,7 @@ export class ResourcesGridComponent implements OnInit {
 
   public printDetailEnvironmentModal(data): void {
     this.dialog.open(DetailDialogComponent, { data:
-        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser, buckets: this.bucketsList},
+        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser, buckets: this.bucketsList, type: 'resource'},
       panelClass: 'modal-lg'
     })
       .afterClosed().subscribe(() => this.buildGrid());
