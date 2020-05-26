@@ -152,6 +152,11 @@
           color:  #00bcd4;
           background-color: #fafafa;
         }
+        &.disabled{
+          &:hover{
+            color: #577289;
+          }
+        }
       }
 
       input[type="file"] {
@@ -317,9 +322,9 @@
             transform: translateX(6px);
           }
           span.item-name{
-            padding-left: 8px;
+            padding-left: 4px;
             &.removed-checkbox{
-              padding-left: 0;
+              padding-left: 4px;
             }
           }
         }
@@ -478,14 +483,6 @@
            .progres{
              border-color: #00bcd4 !important;
            }
-         }
-       }
-
-       &.no-select{
-         pointer-events: none;
-
-         .name-wrap{
-           padding-left: 29px !important;
          }
        }
      }

@@ -88,7 +88,6 @@ export class SchedulerComponent implements OnInit {
 
   public open(notebook, type, resource?): void {
     this.notebook = notebook;
-    console.log(this.notebook)
     this.zones = _moment.tz.names()
       .map(item => [_moment.tz(item).format('Z'), item])
       .sort()
@@ -256,8 +255,11 @@ export class SchedulerComponent implements OnInit {
   }
 
   private setScheduleByInactivity() {
-    console.log(this.notebook)
-    const data = { sync_start_required: this.parentInherit, check_inactivity_required: this.enableIdleTime, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
+    const data = {
+      sync_start_required: this.parentInherit,
+      check_inactivity_required: this.enableIdleTime,
+      max_inactivity: this.schedulerForm.controls.inactivityTime.value
+    };
     (this.destination.type === 'СOMPUTATIONAL')
       ? this.setInactivity(this.notebook.project, this.notebook.name, data, this.destination.computational_name)
       : this.setInactivity(this.notebook.project, this.notebook.name, { ...data, consider_inactivity: this.considerInactivity });

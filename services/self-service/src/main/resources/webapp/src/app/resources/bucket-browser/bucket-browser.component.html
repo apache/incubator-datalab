@@ -55,7 +55,7 @@
         Delete
       </button>
       </span>
-      <div class="action-wrapper" [matTooltip]="'You have not permission to download data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.download}}">
+      <div class="action-wrapper" >
         <span class="action-button-wrapper">
           <button
             type="button" class="butt actions-btn"
@@ -67,14 +67,17 @@
           </button>
           </span>
         <div class="action-menu" *ngIf="isActionsOpen">
+          <span [matTooltip]="'You have not permission to download data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.download}}">
           <button
             type="button" class="butt action-menu-item"
+            [ngClass]="{'disabled': !selected?.length || this.selectedItems?.length > 1 || !this.bucketStatus.download || allDisable || isSelectionOpened}"
             mat-raised-button
             [disabled]=" !selected?.length || this.selectedItems?.length > 1 || !this.bucketStatus.download || allDisable || isSelectionOpened"
             (click)="fileAction('download');$event.stopPropagation()"
           >
             Download
           </button>
+            </span>
           <button
             type="button" class="butt action-menu-item"
             mat-raised-button
@@ -150,7 +153,8 @@
           <li *ngFor="let file of folderItems" class="folder-item" >
             <div class="folder-item-wrapper" *ngIf="file.children && file.item" (click)="showItem(file)">
               <div class="name name-folder">
-                <span *ngIf="this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >
+<!--                <span *ngIf="this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >-->
+                <span class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >
                     <span class="checked-checkbox" *ngIf="file.isFolderSelected"></span>
                 </span>
                   <i class="material-icons folder-icon folder-name">folder</i>
@@ -166,15 +170,17 @@
               <div class="size size-folder">-</div>
               <div class="date" *ngIf="!file.isDownloading">-</div>
             </div>
-            <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file, 'file')" *ngIf="!file.children && file.item !== 'ا'" [ngClass]="{'no-select': !this.bucketStatus.download && !this.bucketStatus.delete}">
+            <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file, 'file')" *ngIf="!file.children && file.item !== 'ا'">
               <div class="name name-file">
-                 <span *ngIf="this.bucketStatus.download || this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isSelected}" (click)="toggleSelectedFile(file, 'file');$event.stopPropagation()" >
+
+                 <span class="empty-checkbox" [ngClass]="{'checked': file.isSelected}" (click)="toggleSelectedFile(file, 'file');$event.stopPropagation()" >
                     <span class="checked-checkbox" *ngIf="file.isSelected"></span>
                   </span>
                 <i class="material-icons folder-icon" >description</i>
+
                 <span
                   class="item-name name-wrap"
-                  [ngClass]="{'removed-checkbox': !this.bucketStatus.download && !this.bucketStatus.delete}"
+
                   matTooltip="{{file.item}}"
                   matTooltipPosition="above"
                   matTooltipShowDelay="1000"
@@ -184,9 +190,8 @@
                 </span>
               </div>
               <div class="size">{{file.object?.size | convertFileSize}}</div>
-<!--              <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>-->
-              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>
-
+              <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>
+<!--              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>-->
               <div class="progress-wrapper" *ngIf="file.isDownloading">
                 <div class="progres">
                   <span class="progress-bar-text">{{file.progress || 0}}% Downloading...</span>

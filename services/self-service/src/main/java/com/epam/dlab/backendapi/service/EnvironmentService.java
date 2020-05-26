@@ -34,6 +34,8 @@ public interface EnvironmentService {
 
 	void stopEnvironmentWithServiceAccount(String user);
 
+	void stopEnvironmentWithServiceAccount(String user);
+
 	void stopProjectEnvironment(String project);
 
 	void stopExploratory(UserInfo userInfo, String user, String project, String exploratoryName);
