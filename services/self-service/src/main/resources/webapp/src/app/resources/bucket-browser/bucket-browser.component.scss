@@ -1,715 +1,246 @@
-/*!
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-.dialog-header {
-  padding-left: 33px !important;
-}
+import {Component, Output, EventEmitter, OnDestroy, Input, OnInit} from '@angular/core';
+import {FlatTreeControl} from '@angular/cdk/tree';
+import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
+import {BucketBrowserService, TodoItemFlatNode, TodoItemNode} from '../../../core/services/bucket-browser.service';
+import {BucketDataService} from '../bucket-data.service';
+import {Subscription} from 'rxjs';
+import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
+import {ErrorStateMatcher} from '@angular/material/core';
+import {PATTERNS} from '../../../core/util';
+import {ToastrService} from 'ngx-toastr';
+import {HttpResponse} from '@angular/common/http';
 
-.bucket-browser {
-  font-size: 14px;
-  font-weight: 400;
-
-
-  .loading-block{
-    width: 80%;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    .uploading{
-      width: 100%;
-      text-align: center;
-      padding-bottom: 50px;
-      p{
-        margin-bottom: 20px;
-      }
-    }
-  }
-
-  .action-wrapper{
-    position: relative;
-
-    .action-button-wrapper{
-      position: relative;
-      width: 160px;
-    }
-
-    .mat-raised-button.butt{
-      margin-bottom: 0;
-
-      &.actions-btn{
-        padding-right: 38px;
-
-        .material-icons{
-          transition: ease-in-out 1s;
-          font-size: 25px;
-          position: absolute;
-          top: 7px;
-          right: 30px;
-        }
-      }
-    }
-
-    .action-menu{
-      position: absolute;
-      margin: 0 10px;
-      text-align: center;
-
-      &-item.mat-raised-button.butt{
-        z-index: 1;
-        margin: 0;
-        box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 0px 0px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-        width: 160px;
-        padding: 0 20px;
-        border-radius: 0;
-        font-style: normal;
-        font-weight: 600;
-        font-size: 15px;
-        font-family: 'Open Sans', sans-serif;
-        color: #577289;
-        position: relative;
-        overflow: hidden;
-        line-height: 36px;
-      }
-    }
-  }
-
-  .path{
-    margin: 0 4px 30px 0;
-    padding: 4px 4px 4px 0;
-    color: rgba(0,0,0,.87);
-    overflow: hidden;
-    white-space: nowrap;
-    display: flex;
-
-    .url{
-      font-weight: 600;
-      overflow: hidden;
-      display: block;
-      direction: rtl;
-
-     &-folder{
-       padding-left: 5px;
-       padding-right: 5px;
-       color: #00bcd4;
-       cursor: pointer;
-     }
-
-      &-icon i{
-        transform: translateY(2px);
-        font-size: 15px;
-      }
-    }
-  }
-  bottom: 0;
-
-  .dialog-content{
-    padding: 0 35px;
-  }
-
-  .content-box {
-    height: 500px;
-  }
-
-  .submit{
-    display: flex;
-    justify-content: space-between;
-    .left-side-butts{
-      display: flex;
-    }
-
-    .butt{
-      position: relative;
-      overflow: hidden;
-      margin: 10px;
-
-      &.first-btn{
-        margin-left: 0;
-      }
-
-      &.refresh{
-        margin-right: 0;
-      }
-
-      &.action-menu-item{
-        &:hover{
-          color:  #00bcd4;
-          background-color: #fafafa;
-        }
-      }
-
-      input[type="file"] {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        opacity: 0;
-      }
-    }
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const isSubmitted = form && form.submitted;
+    return !!(control && control.invalid && (control.dirty));
   }
 }
 
-.navigation-line{
-  display: flex;
-  margin-bottom: 25px;
-
-  .endpoint-select{
-    flex: 1;
-    position: relative;
-    opacity: 0;
-  }
 
 
-}
+@Component({
+  selector: 'dlab-folder-tree',
+  templateUrl: './folder-tree.component.html',
+  styleUrls: ['./folder-tree.component.scss']
+})
 
+export class FolderTreeComponent implements OnDestroy {
 
-.bucket-wrapper{
-  height: 57vh;
-  border: 2px solid rgba(0,0,0,.12);
-  border-radius: 5px;
-  display: flex;
-  width: 100%;
+  @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
+  @Output() disableAll: EventEmitter<any> = new EventEmitter();
+  @Input() folders;
+  @Input() endpoint;
 
-  &.added-upload{
-    height: 40vh;
-  }
-   .backet-selection{
-     position: relative;
-     width: 2%;
-     border-right: 2px solid rgba(0,0,0,.12);
-     padding-top: 6px;
-     transition: .2s;
-     &.opened{
-       width: 33.3%;
+  private folderTreeSubs;
+  private path = [];
+  private selectedFolder: TodoItemFlatNode;
+  private flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
+  private nestedNodeMap = new Map<TodoItemNode, TodoItemFlatNode>();
 
-       .button-wrapper {
-         text-align: right;
-         left: auto;
+  private folderCreating = false;
+  private subscriptions: Subscription = new Subscription();
+  public treeControl: FlatTreeControl<TodoItemFlatNode>;
+  private treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
+  public dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
 
+  constructor(
+    public toastr: ToastrService,
+    private bucketBrowserService: BucketBrowserService,
+    private bucketDataService: BucketDataService,
+  ) {
+    this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
+    this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
+    this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+    this.subscriptions.add(this.bucketDataService._bucketData.subscribe(data => {
 
-         i{
-           padding-right: 3px;
-         }
-       }
-     }
-
-     .button-wrapper {
-       position: absolute;
-       left: 0;
-       right: 0;
-       top: 9px;
-       text-align: center;
-
-
-       i{
-         cursor: pointer;
-         font-size: 18px;
-
-         &:hover{
-           color:  #00bcd4;
-       }
-       }
-     }
-
-     .buckets-list{
-       color: rgba(0, 0, 0, 0.87);
-       padding-left: 20px;
-       line-height: 24px;
-
-       &-item{
-         &:hover{
-           color:  #00bcd4;
-           cursor: pointer;
-         }
-       }
-     }
-   }
-
-     .buckets-list{
-       color: rgba(0, 0, 0, 0.87);
-       padding-left: 20px;
-       line-height: 24px;
-       &-item{
-         &:hover{
-           color:  #00bcd4;
-           cursor: pointer;
-         }
-       }
-     }
-   }
-  .navigation{
-    transition: .2s;
-    width: 31.3%;
-    height: 100%;
-    overflow: auto;
-    padding-top: 6px;
-
-    &.selection-opened{
-      width: 66.7%;
-    }
-
-    .folder-tree{
-      .folder{
-        line-height: 30px;
-      }
-    }
-
-    .mat-tree-node{
-      min-height: auto;
-    }
-  }
-
-  .directory{
-    width: 66.7%;
-    max-height: 100%;
-    font-size: 14px;
-    font-weight: 400;
-    position: relative;
-    border-left: 2px solid rgba(0,0,0,.12);
-
-    &.selection-opened{
-      display: none;
-    }
-
-    .folder-tree{
-      overflow-x: auto;
-      overflow-y: overlay;
-      max-height: 100%;
-
-      .name{
-        width: 60%;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-
-        .name-wrap {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          padding-right: 10px;
-        }
-
-        &-folder{
-          .folder-name{
-            padding-left: 8px;
+      if (data) {
+        this.dataSource.data = data;
+        const subject = this.dataSource._flattenedData;
+        const subjectData = subject.getValue();
+          if (this.selectedFolder) {
+            this.selectedFolder = subjectData.filter(v => v.item === this.selectedFolder.item && v.level === this.selectedFolder.level)[0];
           }
-        }
-
-        &-file{
-          i{
-            transform: translateX(6px);
+          this.expandAllParents(this.selectedFolder || subjectData[0]);
+          this.showItem(this.selectedFolder || subjectData[0]);
+          if (this.selectedFolder && !this.bucketDataService.emptyFolder) {
+            setTimeout(() => {
+              const element = document.querySelector('.folder-item-line.active-item');
+              element && element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }, 0);
+          } else if (this.selectedFolder && this.bucketDataService.emptyFolder) {
+            setTimeout(() => {
+              const element = document.querySelector('#folder-form');
+              element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+            }, 0);
           }
-          span.item-name{
-            padding-left: 8px;
-            &.removed-checkbox{
-              padding-left: 0;
-            }
+      }
+    }));
+    this.dataSource._flattenedData.subscribe();
+  }
+
+  getLevel = (node: TodoItemFlatNode) => node.level;
+
+  isExpandable = (node: TodoItemFlatNode) => node.expandable;
+
+  getChildren = (node: TodoItemNode): TodoItemNode[] => node.children;
+
+  hasChild = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.expandable;
+
+  hasNoContent = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.item === '' || _nodeData.item === 'ا';
+
+  transformer = (node: TodoItemNode, level: number) => {
+    const existingNode = this.nestedNodeMap.get(node);
+    const flatNode = existingNode && existingNode.item === node.item
+      ? existingNode
+      : new TodoItemFlatNode();
+    flatNode.item = node.item;
+    flatNode.level = level;
+    flatNode.expandable = !!node.children;
+    this.flatNodeMap.set(flatNode, node);
+    this.nestedNodeMap.set(node, flatNode);
+    return flatNode;
+  }
+
+  ngOnDestroy() {
+    this.bucketDataService._bucketData.next([]);
+    this.subscriptions.unsubscribe();
+  }
+
+  folderFormControl = new FormControl('', [
+    Validators.required,
+    Validators.pattern(PATTERNS.folderRegex),
+    this.duplicate.bind(this)
+  ]);
+
+  matcher = new MyErrorStateMatcher();
+
+  private duplicate(control) {
+    if (control && control.value) {
+      const isDublicat = this.folders.slice(1).some(folder => folder.item === control.value);
+      return isDublicat ? { isDuplicate: true } : null;
+    }
+  }
+
+  private showItem(el) {
+    if (el) {
+      this.treeControl.expand(el);
+      this.selectedFolder = el;
+      const path = this.getPath(el);
+      this.path = [];
+      const data = {
+        flatNode: el,
+        element: this.flatNodeMap.get(el),
+        path: path.map(v => v.item).join('/'),
+        pathObject: path
+      };
+      this.showFolderContent.emit(data);
+    }
+  }
+
+  private getPath(el) {
+    if (el) {
+      if (this.path.length === 0) {
+        this.path.unshift(el);
+      }
+      if (this.getParentNode(el) !== null) {
+        this.path.unshift(this.getParentNode(el));
+        this.getPath(this.getParentNode(el));
+      }
+      return this.path;
+    }
+  }
+
+  private expandAllParents(el) {
+    if (el) {
+      this.treeControl.expand(el);
+      if (this.getParentNode(el) !== null) {
+        this.expandAllParents(this.getParentNode(el));
+      }
+    }
+  }
+
+  private getParentNode(node: TodoItemFlatNode): TodoItemFlatNode | null {
+    const currentLevel = this.getLevel(node);
+    if (currentLevel < 1) {
+      return null;
+    }
+
+    const startIndex = this.treeControl.dataNodes.indexOf(node) - 1;
+
+    for (let i = startIndex; i >= 0; i--) {
+      const currentNode = this.treeControl.dataNodes[i];
+
+      if (this.getLevel(currentNode) < currentLevel) {
+        return currentNode;
+      }
+    }
+    return null;
+  }
+
+
+private addNewItem(node: TodoItemFlatNode, file, isFile) {
+  const currNode = this.flatNodeMap.get(node);
+  if (!currNode.object) {
+    currNode.object = {bucket: currNode.item, object: ''};
+  }
+  const emptyFolderObject = currNode.object;
+  if (emptyFolderObject.object.lastIndexOf('ا') !== emptyFolderObject.object.length - 1 || emptyFolderObject.object === '') {
+    emptyFolderObject.object += 'ا';
+  }
+  this.bucketDataService.insertItem(currNode!, file, isFile, emptyFolderObject);
+  this.treeControl.expand(node);
+  setTimeout(() => {
+    const element = document.querySelector('#folder-form');
+    element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }, 0);
+  }
+
+  private removeItem(node: TodoItemFlatNode) {
+    const parentNode = this.flatNodeMap.get(this.getParentNode(node));
+    const childNode = this.flatNodeMap.get(node);
+    this.bucketDataService.emptyFolder = null;
+    this.bucketDataService.removeItem(parentNode!, childNode);
+    this.resetForm();
+  }
+
+  private saveNode(node: TodoItemFlatNode, itemValue: string) {
+    this.folderCreating = true;
+    const parent = this.getParentNode(node);
+    const flatParent = this.flatNodeMap.get(parent);
+    let flatObject = flatParent.object.object;
+    if (flatObject.indexOf('ا') === flatObject.length - 1) {
+      flatObject = flatObject.substring(0, flatParent.object.object.length - 1);
+    }
+    const path = `${ flatParent.object ? flatObject : ''}${itemValue}/`;
+    const bucket = flatParent.object ? flatParent.object.bucket : flatParent.item;
+    const formData = new FormData();
+    formData.append('file', '');
+    formData.append('object', path);
+    formData.append('bucket', bucket);
+    formData.append('endpoint', this.endpoint);
+    this.bucketDataService.emptyFolder = null;
+    this.bucketBrowserService.uploadFile(formData)
+      .subscribe((event) => {
+          if (event instanceof HttpResponse) {
+            this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
+            this.toastr.success('Folder successfully created!', 'Success!');
+            this.resetForm();
+            this.folderCreating = false;
+            this.dataSource._flattenedData.getValue()
+              .splice(this.dataSource._flattenedData.getValue().indexOf(this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0]));
           }
+        }, error => {
+          this.folderCreating = false;
+          this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
         }
-      }
-
-      .size{
-        width: 15%;
-
-        &-folder{
-          padding-left: 4px;
-        }
-      }
-
-      .date{
-        width: 25%;
-
-        .th_date{
-          font-size: 13px;
-        }
-      }
-
-      .progress-wrapper{
-        flex:1;
-      }
-
-      .material-icons.close{
-        font-size: 15px;
-        margin: 0 10px;
-        cursor: pointer;
-      }
-
-      .action {
-        display: flex;
-        justify-content: space-around;
-        width: 100%;
-
-        .add-file {
-          overflow: hidden;
-          min-width: 100px ;
-          height: 30px;
-          position: relative;
-
-          input{
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            opacity: 0;
-          }
-        }
-      }
-    }
+      );
   }
 
-  .folder-tree {
-    padding: 0px 15px;
-    padding-top: 6px;
-  }
-
-  .folder-item{
-     display: flex;
-     align-items: center;
-
-    &.t_header{
-      top: -41px;
-
-      position: absolute;
-      left: 0;
-      right: 0;
-
-      .folder-item-wrapper{
-        height: 52px;
-      }
-
-      .th_name{
-        padding-left: 29px;
-        font-size: 14px;
-        cursor: pointer;
-
-        &:hover{
-          color: #00bcd4;
-        }
-      }
-
-      .filter-files{
-        width: 100%;
-        padding: 3px 0;
-        padding-left: 3px;
-        display: flex;
-        align-items: center;
-
-        .filter-name{
-          font-size: 14px;
-          height: 20px;
-          width: 90%;
-        }
-
-        span{
-          transform: translateY(2px);
-
-          &:hover{
-            i{
-              color: #00bcd4;
-            }
-          }
-        }
-      }
-
-      .th_size{
-        font-size: 14px;
-        padding-left: 3px;
-        cursor: auto;
-      }
-
-      .th_date{
-        font-size: 14px !important;
-        cursor: auto;
-      }
-    }
-     .folder-item-wrapper{
-       width: 100%;
-       display: flex;
-       justify-content: space-between;
-       align-items: center;
-       cursor: pointer;
-       color: rgba(0,0,0,.87);
-
-       &.header-item{
-         cursor: auto;
-
-         .name{
-           margin-left: -3px;
-         }
-
-       }
-
-       i{
-         color: rgb(232, 232, 232);
-       }
-
-       &:hover:not(.header-wrapper){
-         color: #00bcd4;
-         transition: .3s ease-in-out;
-         i{
-           color: #00bcd4;
-           transition: .3s ease-in-out;
-         }
-
-         .empty-checkbox{
-           border-color: #00bcd4
-         }
-
-         .progress-wrapper{
-
-           .progres{
-             border-color: #00bcd4 !important;
-           }
-         }
-       }
-
-       &.no-select{
-         pointer-events: none;
-
-         .name-wrap{
-           padding-left: 29px !important;
-         }
-       }
-     }
-   }
-
-input[type='file'] {
-  opacity:1
-}
-
-.empty-checkbox {
-  min-width: 16px;
-  width: 16px;
-  height: 16px;
-  border-radius: 2px;
-  border: 2px solid lightgrey;
-  margin-top: 2px;
-  position: relative;
-
-  &.checked {
-    border-color: #35afd5;
-    background-color: #35afd5;
-  }
-
-  .checked-checkbox {
-    top: 0;
-    left: 4px;
-    width: 5px;
-    height: 10px;
-    border-bottom: 2px solid white;
-    border-right: 2px solid white;
-    position: absolute;
-    transform: rotate(45deg);
+  private resetForm() {
+    this.folderFormControl.setValue('');
+    this.folderFormControl.updateValueAndValidity();
+    this.folderFormControl.markAsPristine();
+    this.disableAll.emit(false);
   }
 }
-
-.folder-item-name{
-  span{
-    color: #000;
-  }
-
-  .check-box {
-    background-color: red;
-  }
-}
-
-.upload-window{
-  margin-top: 2vh;
-  border: 2px solid rgba(0,0,0,.12);
-  border-radius: 5px;
-  background-color: white;
-  height: 15vh;
-  color: black;
-
-  .upload-header{
-    padding-left: 8px;
-    background: #f6fafe;
-    height: 30px;
-    line-height: 30px;
-    position: relative;
-    .modal-title {
-      width: 90%;
-      margin: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      font-weight: 500;
-      color: #455c74;
-      font-size: 13px;
-      background: #f6fafe;
-  }
-
-    .close{
-      position: absolute;
-      top: 0;
-      right: 0;
-      height: 30px;
-      width: 30px;
-      font-size: 20px;
-      font-weight: 300;
-      border: 0;
-      background: none;
-      color: #577289;
-      outline: none;
-      cursor: pointer;
-      transition: all 0.45s ease-in-out;
-
-      &:hover{
-        color: #36afd5;
-      }
-    }
-
-  }
-  .upload-files{
-    padding: 5px 0;
-    height: calc(100% - 30px);
-    overflow: auto;
-    overflow-y: overlay;
-    width: 100%;
-    .file{
-      padding: 2px;
-      display: flex;
-      font-size: 12px;
-      position: relative;
-
-      &.upload-table-header{
-        font-size: 11px;
-      }
-
-      .name{
-        width: 33.3%;
-        padding-left: 5px;
-        position: relative;
-        display: flex;
-        span{
-          position: absolute;
-          width: calc(100% + 30px);
-        }
-      }
-
-      .second-block{
-        width: 66.7%;
-        display: flex;
-        padding: 0 14px 0 17px;
-        .upload-path{
-          width: 60%;
-          padding-left: 24px;
-          padding-right: 1%;
-          display: flex;
-        }
-
-        .size{
-          width: 15%;
-        }
-        .state{
-          width: 22%;
-          display: flex;
-          align-items: center;
-          .mat-raised-button{
-            width: 60px;
-            padding: 5px;
-            border-radius: 0;
-            font-style: normal;
-            font-weight: 600;
-            font-size: 11px;
-            font-family: "Open Sans", sans-serif;
-            color: #577289;
-            line-height: 8px;
-          }
-        }
-        .remove{
-          display: flex;
-          align-items: center;
-          width: 5%;
-          position: absolute;
-          right: 20px;
-          .close{
-            color: #577289;
-            font-size: 12px;
-            cursor: pointer;
-            position: absolute;
-            top: 3px;
-            right: 0;
-            height: 18px;
-            width: 14px;
-            transition: all 0.45s ease-in-out;
-
-            &:hover{
-              color: #f1696e;
-            }
-          }
-        }
-      }
-
-
-    }
-  }
-}
-
-@media only screen and (max-height: 920px) {
-  .bucket-wrapper {
-    height: 55vh;
-    &.added-upload{
-      height: 38vh;
-    }
-  }
-}
-
-@media only screen and (max-height: 840px) {
-  .bucket-wrapper {
-    height: 53vh;
-    &.added-upload{
-      height: 36vh;
-    }
-  }
-}
-
-@media only screen and (max-height: 760px) {
-  .bucket-wrapper {
-    height: 51vh;
-    &.added-upload{
-      height: 34vh;
-    }
-  }
-}
-
-@media only screen and (max-height: 700px) {
-  .bucket-wrapper {
-    height: 49vh;
-    &.added-upload{
-      height: 32vh;
-    }
-  }
-}
-
-@media only screen and (max-height: 650px) {
-  .bucket-wrapper {
-    height: 47vh;
-    &.added-upload{
-      height: 30vh;
-    }
-  }
-}
-
-
-
-
-
