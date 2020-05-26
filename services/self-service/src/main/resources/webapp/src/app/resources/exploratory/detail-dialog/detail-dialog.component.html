@@ -22,10 +22,10 @@
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content">
-    <div *ngIf="data">
+    <div *ngIf="data ">
       <table class="detail-header">
         <tr>
-          <td>{{notebook.template_name}}</td>
+          <td>{{notebook.template_name || notebook.name}}</td>
           <td>
             <span class="status" ngClass="{{notebook.status || ''}}">
               {{notebook.status}}
@@ -34,12 +34,24 @@
           <td>{{notebook.shape}}</td>
         </tr>
       </table>
+
       <div class="content-box">
         <div class="detail-info" *ngIf="notebook.error_message">
           <p class="failed">{{ notebook.error_message }}</p>
         </div>
-
-        <div class="scroll-box" id="scrolling">
+        <div *ngIf="data.type === 'environment'" class="detail-info">
+          <p>Open following URL(s) in your browser to access this box:</p>
+          <div class="links_block">
+            <p *ngFor="let item of notebook.exploratory_urls">
+              <span class="description">{{item.description}}: &nbsp;</span>
+              <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
+                 target="_blank">
+                &nbsp;{{item.url}}
+              </a>
+            </p>
+          </div>
+        </div>
+        <div class="scroll-box" id="scrolling" *ngIf="data.type === 'resource'">
           <div class="detail-info" *ngIf="!notebook.error_message">
             <p>Edge Node IP Address {{notebook.node_ip}}</p>
             <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since
@@ -59,7 +71,7 @@
             <p class="flex" *ngIf="notebook.password">Password: &nbsp;<span
                 class="strong">{{ notebook.password }}</span></p>
 
-            <p class="m-top-30">{{ DICTIONARY[PROVIDER].personal_storage }}: &nbsp;</p>
+            <p class="m-top-30">{{ 'Project bucket' }}: &nbsp;</p>
             <!--                 (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
             <div class="links_block" (mouseleave)="hideCopyIcon()">
                 <p *ngIf="PROVIDER === 'azure' && notebook.account_name">
@@ -203,5 +215,6 @@
         </div>
       </div>
     </div>
+
   </div>
 </div>
