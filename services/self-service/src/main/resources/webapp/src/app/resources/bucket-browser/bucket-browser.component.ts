@@ -151,8 +151,10 @@ export class BucketBrowserComponent implements OnInit {
           .afterClosed().subscribe((res) => {
          if (res) {
            if (this.refreshTokenLimit > this.getTokenValidTime()) {
+             this.isTokenRefreshing = true;
              this.auth.refreshToken().subscribe(v => {
                this.uploadingQueue(files);
+               this.isTokenRefreshing = false;
              });
            } else {
              this.uploadingQueue(files);
@@ -161,8 +163,10 @@ export class BucketBrowserComponent implements OnInit {
         });
       } else {
         if (this.refreshTokenLimit > this.getTokenValidTime()) {
+          this.isTokenRefreshing = true;
           this.auth.refreshToken().subscribe(v => {
             this.uploadingQueue(files);
+            this.isTokenRefreshing = false;
           });
         } else {
           this.uploadingQueue(files);
