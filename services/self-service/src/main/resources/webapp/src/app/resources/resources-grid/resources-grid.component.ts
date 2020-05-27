@@ -23,7 +23,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 
-import { UserResourceService } from '../../core/services';
+import {ProjectService, UserResourceService} from '../../core/services';
 
 import { ExploratoryModel, Exploratory } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
@@ -90,6 +90,8 @@ export class ResourcesGridComponent implements OnInit {
   public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
   public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
   public bucketsList;
+  public activeProjectsList: any;
+
 
 
   constructor(
@@ -97,11 +99,25 @@ export class ResourcesGridComponent implements OnInit {
     private userResourceService: UserResourceService,
     private dialog: MatDialog,
     private progressBarService: ProgressBarService,
+    private projectService: ProjectService,
   ) { }
 
   ngOnInit(): void {
     this.buildGrid();
+    this.getUserProjects();
+  }
 
+  public getUserProjects() {
+    this.projectService.getUserProjectsList(true).subscribe((projects: any) => {
+      this.activeProjectsList = projects;
+      console.log(projects);
+      // console.log(projects);
+      // const activeProject = projects.find(item => item.name === this.resourceGrid.activeProject);
+      // if (this.resourceGrid.activeProject && activeProject) {
+      //   this.setEndpoints(activeProject);
+      //   this.createExploratoryForm.controls['project'].setValue(activeProject.name);
+      // }
+    });
   }
 
   public buildGrid(): void {
@@ -255,6 +271,7 @@ export class ResourcesGridComponent implements OnInit {
 
     if (filteredData.length) this.filtering = true;
     if (config) {
+      console.log(config);
       this.activeProject = config.project;
       filteredData = filteredData
         .filter(project => config.project ? project.project === config.project : project)
