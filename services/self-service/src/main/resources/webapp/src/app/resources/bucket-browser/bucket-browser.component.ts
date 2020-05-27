@@ -56,8 +56,7 @@ export class BucketBrowserComponent implements OnInit {
   public selectedItems;
   public searchValue: string;
   public isQueueFull: boolean;
-  // public refreshTokenLimit = 300000;
-  public refreshTokenLimit = 150000;
+  public refreshTokenLimit = 300000;
   private isTokenRefreshing = false;
 
 
@@ -294,10 +293,10 @@ export class BucketBrowserComponent implements OnInit {
     const uploading = this.addedFiles.filter(v => v.status === 'uploading');
     this.isQueueFull = !!waitUploading.length;
     this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
-    if (this.refreshTokenLimit > this.getTokenValidTime() && !this.isTokenRefreshing) {
+    if ((this.refreshTokenLimit > this.getTokenValidTime()) && !this.isTokenRefreshing) {
       this.refreshToken();
     }
-    if (waitUploading.length && uploading.length < 10 && !this.isTokenRefreshing) {
+    if (waitUploading.length && uploading.length < 10) {
       if (!file) {
         file = waitUploading[0];
       }
