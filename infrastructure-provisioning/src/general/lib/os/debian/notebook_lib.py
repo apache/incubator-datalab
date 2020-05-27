@@ -129,6 +129,9 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo(
                 'sed -i \'/\[Service\]/a Environment=\"HTTPS_PROXY={}\"\'  /etc/systemd/system/rstudio-server.service'.format(
                     https_proxy))
+            java_home = run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").splitlines()[0]
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyter-notebook.service'.format(
+                java_home))
             sudo("systemctl daemon-reload")
             sudo('touch /home/{}/.Renviron'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
