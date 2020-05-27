@@ -228,7 +228,9 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
             this.resetForm();
             this.folderCreating = false;
             this.dataSource._flattenedData.getValue()
-              .splice(this.dataSource._flattenedData.getValue().indexOf(this.dataSource._flattenedData.getValue().filter(v => v.item === '')[0]));
+              .splice(this.dataSource._flattenedData.getValue()
+                .indexOf(this.dataSource._flattenedData
+                  .getValue().filter(v => v.item === '')[0]));
           }
         }, error => {
           this.folderCreating = false;
