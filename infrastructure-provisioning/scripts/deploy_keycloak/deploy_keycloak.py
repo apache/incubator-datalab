@@ -45,10 +45,13 @@ private_ip_address = "127.0.0.1"
 
 def resolving_hosts(os_user):
     if not exists('/home/{}/.hosts_resolved'.format(os_user)):
-        host = sudo('curl http://169.254.169.254/latest/meta-data/local-hostname').replace('\n', ' ').split(' ')[-1:]
-        host_short = host.split('.')[0]
-        private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4').replace('\n', ' ').split(' ')[-1:]
-        sudo('echo "{} {} {}" >> /etc/hosts'.format(private_ip, host, host_short))
+        host = sudo('curl http://169.254.169.254/latest/meta-data/local-hostname')
+        if 'unable to resolve host' in host:
+            host = str(host.replace("\r", " ").replace("\n", " ").split(" ")[-1:]).strip("['']")
+            host_short = host.split('.')[0]
+            private_ip = str(sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4')
+                         .replace("\r", " ").replace("\n", " ").split(" ")[-1:]).strip("['']")
+            sudo('echo "{} {} {}" >> /etc/hosts'.format(private_ip, host, host_short))
         sudo('touch /home/{}/.hosts_resolved'.format(os_user))
 
 def ensure_jre_jdk(os_user):
