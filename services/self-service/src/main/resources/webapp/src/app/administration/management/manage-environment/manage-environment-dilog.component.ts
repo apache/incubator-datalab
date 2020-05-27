@@ -37,6 +37,8 @@ export class ManageEnvironmentComponent implements OnInit {
   public manageTotalsForm: FormGroup;
 
   @Output() manageEnv: EventEmitter<{}> = new EventEmitter();
+  private initialFormState: any;
+  private isFormChanged: boolean = true;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -50,10 +52,12 @@ export class ManageEnvironmentComponent implements OnInit {
     this.setProjectsControl();
     this.manageUsersForm.controls['total'].setValue(this.data.total.conf_max_budget || '');
     this.onFormChange();
+    this.initialFormState = this.manageUsersForm.value;
   }
 
   public onFormChange() {
     this.manageUsersForm.valueChanges.subscribe(value => {
+      this.isFormChanged = JSON.stringify(this.initialFormState) === JSON.stringify(this.manageUsersForm.value);
       if ((this.getCurrentTotalValue() && this.getCurrentTotalValue() >= this.getCurrentUsersTotal())) {
         this.manageUsersForm.controls['projects']['controls'].forEach(v => {
             v.controls['budget'].setErrors(null);
@@ -86,6 +90,7 @@ export class ManageEnvironmentComponent implements OnInit {
   }
 
   public setProjectsControl() {
+    console.log(this.data.projectsList);
     this.manageUsersForm.setControl('projects',
       this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
         project: x.name,

@@ -20,11 +20,18 @@
 <div class="base-retreat">
   <div class="sub-nav">
     <div class="selection">
+      <span
+        matTooltip="{{!healthStatus?.projectAssigned ? 'You are not assigned to any project' : 'You have not any active project'}}"
+        matTooltipPosition="above"
+        matTooltipDisabled="{{healthStatus?.projectAssigned && resourcesGrid.activeProjectsList.length}}"
+        [matTooltipClass]="'bucket-item-tooltip'"
+      >
+        <span>{{resourcesGrid.activeProject}}</span>
       <button mat-raised-button class="butt butt-create" (click)="createEnvironment()"
-        [disabled]="!healthStatus?.projectAssigned">
+        [disabled]="!healthStatus?.projectAssigned || !resourcesGrid.activeProjectsList.length">
         <i class="material-icons">add</i>Create new
       </button>
-
+      </span>
       <div class="mat-reset">
         <div class="control selector-wrapper" *ngIf="projects.length">
           <mat-form-field>
