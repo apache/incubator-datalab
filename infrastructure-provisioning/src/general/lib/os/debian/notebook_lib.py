@@ -202,6 +202,8 @@ def ensure_jre_jdk(os_user):
         try:
             manage_pkg('-y install', 'remote', 'default-jre')
             manage_pkg('-y install', 'remote', 'default-jdk')
+            manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
+            manage_pkg('-y install', 'remote', 'openjdk-8-jre')
             sudo('touch /home/' + os_user + '/.ensure_dir/jre_jdk_ensured')
         except:
             sys.exit(1)
