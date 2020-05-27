@@ -29,12 +29,12 @@ import os
 from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--os_user', required=True, type=str, default='')
 parser.add_argument('--public_ip_address', type=str, default='')
-parser.add_argument('--keyfile', type=str, default='')
-parser.add_argument('--keycloak_realm_name', type=str, default='')
-parser.add_argument('--keycloak_user', type=str, default='')
-parser.add_argument('--keycloak_user_password', type=str, default='')
+parser.add_argument('--keyfile', required=True, type=str, default='')
+parser.add_argument('--keycloak_realm_name', required=True, type=str, default='')
+parser.add_argument('--keycloak_user', required=True, type=str, default='')
+parser.add_argument('--keycloak_user_password', required=True, type=str, default='')
 args = parser.parse_args()
 
 keycloak_version = "8.0.1"
@@ -45,9 +45,9 @@ private_ip_address = "127.0.0.1"
 
 def resolving_hosts(os_user):
     if not exists('/home/{}/.hosts_resolved'.format(os_user)):
-        host = sudo('curl http://169.254.169.254/latest/meta-data/local-hostname').split('\n')[1]
+        host = sudo('curl http://169.254.169.254/latest/meta-data/local-hostname').replace('\n', ' ').split(' ')[-1:]
         host_short = host.split('.')[0]
-        private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4').split('\n')[1]
+        private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4').replace('\n', ' ').split(' ')[-1:]
         sudo('echo "{} {} {}" >> /etc/hosts'.format(private_ip, host, host_short))
         sudo('touch /home/{}/.hosts_resolved'.format(os_user))
 
