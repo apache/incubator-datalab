@@ -150,7 +150,7 @@
           </div>
         </div>
         <ul class="folder-tree">
-          <li *ngFor="let file of folderItems" class="folder-item" >
+          <li *ngFor="let file of folderItems" class="folder-item" [ngClass]="{'events-none': file.isDownloading }">
             <div class="folder-item-wrapper" *ngIf="file.children && file.item" (click)="showItem(file)">
               <div class="name name-folder">
 <!--                <span *ngIf="this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >-->
@@ -173,14 +173,13 @@
             <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file, 'file')" *ngIf="!file.children && file.item !== 'ا'">
               <div class="name name-file">
 
-                 <span class="empty-checkbox" [ngClass]="{'checked': file.isSelected}" (click)="toggleSelectedFile(file, 'file');$event.stopPropagation()" >
+                 <span class="empty-checkbox" [ngClass]="{'checked': file.isSelected, 'not-allowed': file.isDownloading}" (click)="toggleSelectedFile(file, 'file');$event.stopPropagation()" >
                     <span class="checked-checkbox" *ngIf="file.isSelected"></span>
                   </span>
                 <i class="material-icons folder-icon" >description</i>
 
                 <span
                   class="item-name name-wrap"
-
                   matTooltip="{{file.item}}"
                   matTooltipPosition="above"
                   matTooltipShowDelay="1000"

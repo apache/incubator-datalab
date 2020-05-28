@@ -65,7 +65,6 @@ export class DetailDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.data.notebook);
     this.bucketStatus = this.data.bucketStatus;
     this.notebook = this.data.notebook;
     if (this.notebook) {
@@ -136,7 +135,6 @@ export class DetailDialogComponent implements OnInit {
   }
 
   public bucketBrowser(bucketName, endpoint, permition): void {
-    // bucketName = 'ofuks-1304-pr2-local-bucket';
     bucketName = this.isBucketAllowed ? this.notebook.bucket_name : this.data.buckets[0].children[0].name;
     permition && this.dialog.open(BucketBrowserComponent, { data:
         {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.data.buckets},

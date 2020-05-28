@@ -90,7 +90,6 @@ export class ManageEnvironmentComponent implements OnInit {
   }
 
   public setProjectsControl() {
-    console.log(this.data.projectsList);
     this.manageUsersForm.setControl('projects',
       this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
         project: x.name,

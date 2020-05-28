@@ -53,7 +53,6 @@ export class FolderTreeComponent implements OnDestroy {
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
     this.subscriptions.add(this.bucketDataService._bucketData.subscribe(data => {
-
       if (data) {
         this.dataSource.data = data;
         const subject = this.dataSource._flattenedData;
@@ -212,7 +211,7 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
     if (flatObject.indexOf('ا') === flatObject.length - 1) {
       flatObject = flatObject.substring(0, flatParent.object.object.length - 1);
     }
-    const path = `${ flatParent.object ? flatObject : ''}${itemValue}/`;
+    const path = `${ flatParent.object && flatObject !== '/' ? flatObject : ''}${itemValue}/`;
     const bucket = flatParent.object ? flatParent.object.bucket : flatParent.item;
     const formData = new FormData();
     formData.append('file', '');
@@ -223,20 +222,16 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
     this.bucketBrowserService.uploadFile(formData)
       .subscribe((event) => {
           if (event instanceof HttpResponse) {
-            this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
+            this.bucketDataService.insertItem(flatParent, itemValue, false);
+            // this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
             this.toastr.success('Folder successfully created!', 'Success!');
-            this.resetForm();
             this.folderCreating = false;
-            this.dataSource._flattenedData.getValue()
-              .splice(this.dataSource._flattenedData.getValue()
-                .indexOf(this.dataSource._flattenedData
-                  .getValue().filter(v => v.item === '')[0]));
+            this.removeItem(node);
           }
         }, error => {
           this.folderCreating = false;
           this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
-        }
-      );
+        });
   }
 
   private resetForm() {

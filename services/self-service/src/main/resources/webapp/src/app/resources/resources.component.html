@@ -23,12 +23,12 @@
       <span
         matTooltip="{{!healthStatus?.projectAssigned ? 'You are not assigned to any project' : 'You have not any active project'}}"
         matTooltipPosition="above"
-        matTooltipDisabled="{{healthStatus?.projectAssigned && resourcesGrid.activeProjectsList.length}}"
+        matTooltipDisabled="{{healthStatus?.projectAssigned && resourcesGrid.activeProjectsList?.length}}"
         [matTooltipClass]="'bucket-item-tooltip'"
       >
         <span>{{resourcesGrid.activeProject}}</span>
       <button mat-raised-button class="butt butt-create" (click)="createEnvironment()"
-        [disabled]="!healthStatus?.projectAssigned || !resourcesGrid.activeProjectsList.length">
+        [disabled]="!healthStatus?.projectAssigned || !resourcesGrid.activeProjectsList?.length">
         <i class="material-icons">add</i>Create new
       </button>
       </span>

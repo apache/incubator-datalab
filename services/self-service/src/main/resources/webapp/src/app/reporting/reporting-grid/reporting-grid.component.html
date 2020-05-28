@@ -22,7 +22,7 @@
 
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef class="env_name label-header">
-        <div class="label"><span class="text"> Environment name</span></div>
+        <div class="label"><span class="text"> Resource name</span></div>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span *ngIf="filteredReportData.dlab_id.length > 0; else dlab_id_filtered">filter_list</span>
