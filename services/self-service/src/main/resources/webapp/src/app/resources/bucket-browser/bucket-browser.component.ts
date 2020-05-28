@@ -56,8 +56,7 @@ export class BucketBrowserComponent implements OnInit {
   public selectedItems;
   public searchValue: string;
   public isQueueFull: boolean;
-  // public refreshTokenLimit = 900000;
-  public refreshTokenLimit = 3580000;
+  public refreshTokenLimit = 900000;
   private isTokenRefreshing = false;
 
 
