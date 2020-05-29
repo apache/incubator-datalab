@@ -58,8 +58,6 @@ export class BucketBrowserComponent implements OnInit {
   public isQueueFull: boolean;
   public refreshTokenLimit = 900000;
   private isTokenRefreshing = false;
-
-
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   public isSelectionOpened: any;
   isFilterVisible: boolean;
@@ -279,11 +277,11 @@ export class BucketBrowserComponent implements OnInit {
     const path = file.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) : '';
     const fullPath = path ? `${path}/${file.name}` : file.name;
     const formData = new FormData();
-    formData.append('file', file.file);
     formData.append('size', file.file.size);
     formData.append('object', fullPath);
     formData.append('bucket', this.bucketName);
     formData.append('endpoint', this.endpoint);
+    formData.append('file', file.file);
     file.status = 'waiting';
     file.request = this.bucketBrowserService.uploadFile(formData);
     this.sendFile(file);
