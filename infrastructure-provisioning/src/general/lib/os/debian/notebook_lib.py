@@ -460,9 +460,9 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         with cd('/home/{}/pytorch/'.format(os_user)):
             sudo('git submodule update --init')
             with settings(warn_only=True):
-                sudo('git checkout v{}'.format(caffe2_version))
-                sudo('git submodule update --recursive')
-            sudo('mkdir build && cd build && cmake{} .. && make "-j$(nproc)" install'.format(cmake_version))
+                sudo('git checkout release/1.5')
+                sudo('git submodule update --init --recursive')
+            sudo('python3 setup.py install')
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
