@@ -221,7 +221,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed to configure superset.", str(err))
-        #GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions.remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     try:
