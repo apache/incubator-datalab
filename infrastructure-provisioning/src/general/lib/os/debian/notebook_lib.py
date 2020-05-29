@@ -496,10 +496,8 @@ def install_mxnet(os_user, mxnet_version):
 
 def install_torch(os_user):
     if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
-        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
+        run('git clone https://github.com/nagadomi/distro.git ~/torch --recursive')
         with cd('/home/{}/torch/'.format(os_user)):
-            sudo("sed -i 's|sudo apt-get install -y python-software-properties|"
-                 "# sudo apt-get install -y python-software-properties|' /home/{}/torch/install-deps".format(os_user))
             run('bash install-deps;')
             run('./install.sh -b')
         run('source /home/{}/.bashrc'.format(os_user))
