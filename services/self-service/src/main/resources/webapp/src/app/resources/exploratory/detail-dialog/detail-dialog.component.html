@@ -61,20 +61,20 @@
               <p *ngFor="let item of notebook.url">
                 <span class="description">{{item.description}}: &nbsp;</span>
                 <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
-                   target="_blank">
+                  target="_blank">
                   &nbsp;{{item.url}}
                 </a>
               </p>
             </div>
             <p class="flex" *ngIf="notebook.username">Node User: &nbsp;<span
-              class="strong">{{ notebook.username }}</span></p>
+                class="strong">{{ notebook.username }}</span></p>
             <p class="flex" *ngIf="notebook.password">Password: &nbsp;<span
-              class="strong">{{ notebook.password }}</span></p>
+                class="strong">{{ notebook.password }}</span></p>
 
             <p class="m-top-30">{{ 'Project bucket' }}: &nbsp;</p>
             <!--                 (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
             <div class="links_block" (mouseleave)="hideCopyIcon()">
-              <p *ngIf="PROVIDER === 'azure' && notebook.account_name">
+                <p *ngIf="PROVIDER === 'azure' && notebook.account_name">
                   <span
                     class="bucket-info"
                     (mouseover)="showCopyIcon()"
@@ -83,93 +83,93 @@
                     [matTooltipClass]="'bucket-item-tooltip'"
                   >
                     {{notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net'}}
-                    <!--                    rc-22-projecta-conteiner@1ebobsvx7t.blob.core.windows.net-->
+<!--                    rc-22-projecta-conteiner@1ebobsvx7t.blob.core.windows.net-->
                   </span>
 
-                <span  *ngIf="isCopyIconVissible" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
+                  <span  *ngIf="isCopyIconVissible" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
                     <span  class="link-icon" (click)="copyBucketName(notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net');$event.stopPropagation()" >
                     <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
                   </span>
                   </span>
-              </p>
-              <p *ngIf="notebook.bucket_name && PROVIDER !== 'azure'">{{ DICTIONARY[PROVIDER].container }}
-                <span
-                  class="bucket-info"
-                  (mouseover)="showCopyIcon()"
-                >
+                </p>
+                <p *ngIf="notebook.bucket_name && PROVIDER !== 'azure'">{{ DICTIONARY[PROVIDER].container }}
+                  <span
+                    class="bucket-info"
+                    (mouseover)="showCopyIcon()"
+                  >
                     {{ notebook.bucket_name }}
                 </span>
-                <span  *ngIf="isCopyIconVissible" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
+                  <span  *ngIf="isCopyIconVissible" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
                     <span  class="link-icon" (click)="copyBucketName(notebook.bucket_name);$event.stopPropagation()" >
                     <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
                   </span>
                   </span>
-              </p>
+                </p>
             </div>
             <div class="bucket-info bucket-link">
               <span></span>
-              <!--              <button-->
-              <!--                type="button"-->
-              <!--                class="butt"-->
-              <!--                mat-raised-button-->
-              <!--              >-->
-              <!--                Open bucket browser-->
-              <!--              </button>-->
-              <!--              <span class="description open-bucket"-->
-              <!--                 [ngClass]="{'not-allow': !this.bucketStatus.view || !thisdata.buckets.length}"-->
-              <!--                (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view && thisdata.buckets.length)"-->
-              <!--              >-->
-              <span class="description open-bucket"
-                    [matTooltip]="!this.bucketStatus.view
+<!--              <button-->
+<!--                type="button"-->
+<!--                class="butt"-->
+<!--                mat-raised-button-->
+<!--              >-->
+<!--                Open bucket browser-->
+<!--              </button>-->
+<!--              <span class="description open-bucket"-->
+<!--                 [ngClass]="{'not-allow': !this.bucketStatus.view || !thisdata.buckets.length}"-->
+<!--                (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view && thisdata.buckets.length)"-->
+<!--              >-->
+                <span class="description open-bucket"
+                      [matTooltip]="!this.bucketStatus.view
                  ? 'You have not permission to open bucket'
                  : 'You have not any bucket'"
-                    matTooltipDisabled="{{this.bucketStatus.view && this.data.buckets.length}}"
-                    matTooltipPosition="above"
-                    [matTooltipClass]="'bucket-item-tooltip'"
-                    [ngClass]="{'not-allow': !this.bucketStatus.view || !this.data.buckets.length}"
-                    (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view && this.data.buckets.length)"
-              >
+                      matTooltipDisabled="{{this.bucketStatus.view && this.data.buckets.length}}"
+                      matTooltipPosition="above"
+                      [matTooltipClass]="'bucket-item-tooltip'"
+                      [ngClass]="{'not-allow': !this.bucketStatus.view || !this.data.buckets.length}"
+                      (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view && this.data.buckets.length)"
+                >
                   Open bucket browser
                 </span>
             </div>
-            <!--            <p>Shared endpoint bucket: &nbsp;</p>-->
-            <!--            <div class="links_block" (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
-            <!--                 [matTooltip]="'You have not permission to open bucket'"-->
-            <!--                 matTooltipDisabled="{{this.bucketStatus.view}}"-->
-            <!--                 matTooltipPosition="above"-->
-            <!--                 [matTooltipClass]="'bucket-item-tooltip'"-->
-            <!--            >-->
-            <!--              <p *ngIf="DICTIONARY[PROVIDER === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}-->
-            <!--                <span class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus.view}" (mouseover)="showCopyIcon('shared')">{{ notebook.shared_account_name}}</span>-->
-            <!--                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.shared_account_name)">-->
-            <!--                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>-->
-            <!--                </span>-->
-            <!--              </p>-->
-            <!--              <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY[PROVIDER].container }}-->
-            <!--                <span-->
-            <!--                  class="bucket-info bucket-link"-->
-            <!--                  [ngClass]="{'not-allow': !this.bucketStatus.view}"-->
-            <!--                  (mouseover)="showCopyIcon('shared')"-->
-            <!--                  (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
-            <!--                >-->
-            <!--                  {{ notebook.shared_bucket_name }}-->
-            <!--                </span>-->
-            <!--                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.shared_bucket_name)">-->
-            <!--                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>-->
-            <!--                </span>-->
-            <!--              </p>-->
-            <!--            </div>-->
-            <!--            <br />-->
+<!--            <p>Shared endpoint bucket: &nbsp;</p>-->
+<!--            <div class="links_block" (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
+<!--                 [matTooltip]="'You have not permission to open bucket'"-->
+<!--                 matTooltipDisabled="{{this.bucketStatus.view}}"-->
+<!--                 matTooltipPosition="above"-->
+<!--                 [matTooltipClass]="'bucket-item-tooltip'"-->
+<!--            >-->
+<!--              <p *ngIf="DICTIONARY[PROVIDER === 'azure' && notebook.shared_account_name">{{ DICTIONARY[PROVIDER].account }}-->
+<!--                <span class="bucket-info bucket-link" [ngClass]="{'not-allow': !this.bucketStatus.view}" (mouseover)="showCopyIcon('shared')">{{ notebook.shared_account_name}}</span>-->
+<!--                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.shared_account_name)">-->
+<!--                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>-->
+<!--                </span>-->
+<!--              </p>-->
+<!--              <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY[PROVIDER].container }}-->
+<!--                <span-->
+<!--                  class="bucket-info bucket-link"-->
+<!--                  [ngClass]="{'not-allow': !this.bucketStatus.view}"-->
+<!--                  (mouseover)="showCopyIcon('shared')"-->
+<!--                  (click)="bucketBrowser(notebook.shared_bucket_name, notebook.endpoint, this.bucketStatus.view)"-->
+<!--                >-->
+<!--                  {{ notebook.shared_bucket_name }}-->
+<!--                </span>-->
+<!--                <span *ngIf="isCopyIconVissible.shared" class="link-icon" (click)="copyBucketName(notebook.shared_bucket_name)">-->
+<!--                  <span _ngcontent-xpv-c19="" class="material-icons" matTooltip="Copy bucket name" matTooltipPosition="above">content_copy</span>-->
+<!--                </span>-->
+<!--              </p>-->
+<!--            </div>-->
+<!--            <br />-->
 
-            <!--            <div *ngIf="DICTIONARY[PROVIDER === 'azure' && notebook.datalake_name">-->
-            <!--              <p>Data Lake Store: &nbsp;</p>-->
-            <!--              <div class="links_block">-->
-            <!--                <p>Data Lake Store Account: &nbsp;<span class="bucket-info">{{ notebook.datalake_name }}</span></p>-->
-            <!--                <p>Personal folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_directory }}</span></p>-->
-            <!--                <p>Collaboration folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_shared_directory }}</span>-->
-            <!--                </p>-->
-            <!--              </div>-->
-            <!--            </div>-->
+<!--            <div *ngIf="DICTIONARY[PROVIDER === 'azure' && notebook.datalake_name">-->
+<!--              <p>Data Lake Store: &nbsp;</p>-->
+<!--              <div class="links_block">-->
+<!--                <p>Data Lake Store Account: &nbsp;<span class="bucket-info">{{ notebook.datalake_name }}</span></p>-->
+<!--                <p>Personal folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_directory }}</span></p>-->
+<!--                <p>Collaboration folder: &nbsp;<span class="bucket-info">{{ notebook.datalake_shared_directory }}</span>-->
+<!--                </p>-->
+<!--              </div>-->
+<!--            </div>-->
 
             <!-- <p>
               <a href="#/help/accessnotebookguide" target="_blank">
@@ -181,7 +181,7 @@
           </div>
 
           <div class="checkbox-group" *ngIf="notebook.image !== 'docker.dlab-zeppelin'; else not_support"
-               [hidden]="notebook.status !== 'running' || notebook.image === 'docker.dlab-superset' || notebook.image === 'docker.dlab-jupyterlab'">
+            [hidden]="notebook.status !== 'running' || notebook.image === 'docker.dlab-superset' || notebook.image === 'docker.dlab-jupyterlab'">
             <label>
               <input #configurationNode type="checkbox" (change)="selectConfiguration()" /> Cluster configurations
             </label>
@@ -189,9 +189,9 @@
               <form [formGroup]="configurationForm" novalidate>
                 <div class="config-details" *ngIf="configuration?.nativeElement['checked'] || false">
                   <textarea formControlName="configuration_parameters" id="config"
-                            placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
+                    placeholder="Cluster configuration template, JSON" data-gramm_editor="false"></textarea>
                   <span class="danger_color"
-                        *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration
+                    *ngIf="!configurationForm.controls.configuration_parameters.valid && configurationForm.controls['configuration_parameters'].dirty">Configuration
                     parameters is not in a valid format</span>
                 </div>
               </form>
@@ -206,11 +206,11 @@
             </small>
           </ng-template>
           <div [scrollTo]="configuration?.nativeElement['checked'] || false" class="text-center m-top-20 m-bott-10"
-               *ngIf="(configuration?.nativeElement['checked'] || false) && notebook.status === 'running'">
+            *ngIf="(configuration?.nativeElement['checked'] || false) && notebook.status === 'running'">
             <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
             <button mat-raised-button type="submit" [disabled]="!configurationForm.valid"
-                    class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"
-                    (click)="editClusterConfiguration(configurationForm.value)">Update</button>
+              class="butt butt-success action" [ngClass]="{'not-allowed': !configurationForm.valid}"
+              (click)="editClusterConfiguration(configurationForm.value)">Update</button>
           </div>
         </div>
       </div>

@@ -21,7 +21,7 @@ import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import {ApplicationSecurityService, ManageUngitService} from '../../core/services';
+import {ApplicationSecurityService, ManageUngitService, StorageService} from '../../core/services';
 
 import {FolderTreeComponent} from './folder-tree/folder-tree.component';
 import {BucketBrowserService, TodoItemNode} from '../../core/services/bucket-browser.service';
@@ -56,8 +56,8 @@ export class BucketBrowserComponent implements OnInit {
   public selectedItems;
   public searchValue: string;
   public isQueueFull: boolean;
-  date = new Date(2020, 2, 2, 10, 57, 2);
-
+  public refreshTokenLimit = 900000;
+  private isTokenRefreshing = false;
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   public isSelectionOpened: any;
   isFilterVisible: boolean;
@@ -77,7 +77,8 @@ export class BucketBrowserComponent implements OnInit {
     private _fb: FormBuilder,
     private bucketBrowserService: BucketBrowserService,
     private bucketDataService: BucketDataService,
-    private auth: ApplicationSecurityService
+    private auth: ApplicationSecurityService,
+    private storage: StorageService,
   ) {
 
   }
@@ -88,6 +89,20 @@ export class BucketBrowserComponent implements OnInit {
     this.endpoint = this.data.endpoint;
     this.bucketStatus = this.data.bucketStatus;
     this.buckets = this.data.buckets;
+  }
+
+  public getTokenValidTime() {
+    const token = JSON.parse(atob(this.storage.getToken().split('.')[1]));
+    return token.exp * 1000 - new Date().getTime();
+  }
+
+  private refreshToken() {
+    this.isTokenRefreshing = true;
+    this.auth.refreshToken().subscribe(tokens => {
+      this.storage.storeTokens(tokens);
+      this.isTokenRefreshing = false;
+    });
+    this.sendFile();
   }
 
   public showItem(item) {
@@ -132,10 +147,28 @@ export class BucketBrowserComponent implements OnInit {
           items: {toBig: toBigFile, toMany: toMany}, type: 'uploading-error'
           } , width: '550px'})
           .afterClosed().subscribe((res) => {
-            res && this.uploadingQueue(files);
+         if (res) {
+           if (this.refreshTokenLimit > this.getTokenValidTime()) {
+             this.isTokenRefreshing = true;
+             this.auth.refreshToken().subscribe(v => {
+               this.uploadingQueue(files);
+               this.isTokenRefreshing = false;
+             });
+           } else {
+             this.uploadingQueue(files);
+           }
+         }
         });
       } else {
-        this.uploadingQueue(files);
+        if (this.refreshTokenLimit > this.getTokenValidTime()) {
+          this.isTokenRefreshing = true;
+          this.auth.refreshToken().subscribe(v => {
+            this.uploadingQueue(files);
+            this.isTokenRefreshing = false;
+          });
+        } else {
+          this.uploadingQueue(files);
+        }
       }
     }
     event.target.value = '';
@@ -145,7 +178,7 @@ export class BucketBrowserComponent implements OnInit {
     if (files.length) {
       let askForAll = true;
       let skipAll = false;
-      // this.auth.refreshToken().subscribe();
+
       const folderFiles = this.folderItems.filter(v => !v.children).map(v => v.item);
       for (const file of files) {
         const existFile = folderFiles.filter(v => v === file['name'])[0];
@@ -197,7 +230,7 @@ export class BucketBrowserComponent implements OnInit {
     }
     this.folderItems = event.element ? event.element.children : event.children;
     if (this.folderItems) {
-      this.folders = this.folderItems.filter(v => v.children).sort((a, b) => a.item > b.item ? 1 : -1);
+      this.folders = this.folderItems.filter(v => v.children);
       const files = this.folderItems.filter(v => !v.children).sort((a, b) => a.item > b.item ? 1 : -1);
       this.folderItems = [...this.folders, ...files];
       this.objectPath = event.pathObject;
@@ -244,11 +277,11 @@ export class BucketBrowserComponent implements OnInit {
     const path = file.path.indexOf('/') !== -1 ?  this.path.slice(this.path.indexOf('/') + 1) : '';
     const fullPath = path ? `${path}/${file.name}` : file.name;
     const formData = new FormData();
-    formData.append('file', file.file);
     formData.append('size', file.file.size);
     formData.append('object', fullPath);
     formData.append('bucket', this.bucketName);
     formData.append('endpoint', this.endpoint);
+    formData.append('file', file.file);
     file.status = 'waiting';
     file.request = this.bucketBrowserService.uploadFile(formData);
     this.sendFile(file);
@@ -259,6 +292,10 @@ export class BucketBrowserComponent implements OnInit {
     const uploading = this.addedFiles.filter(v => v.status === 'uploading');
     this.isQueueFull = !!waitUploading.length;
     this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
+    console.log((this.getTokenValidTime() / 1000 / 60 ).toFixed(0) + ' minutes');
+    if ((this.refreshTokenLimit > this.getTokenValidTime()) && !this.isTokenRefreshing) {
+      this.refreshToken();
+    }
     if (waitUploading.length && uploading.length < 10) {
       if (!file) {
         file = waitUploading[0];
@@ -315,8 +352,11 @@ export class BucketBrowserComponent implements OnInit {
     const selected = this.folderItems.filter(item => item.isSelected);
     const folderSelected = this.folderItems.filter(item => item.isFolderSelected);
     if (action === 'download') {
-      const path = encodeURIComponent(`${this.pathInsideBucket}${this.selected[0].item}`);
+      this.clearSelection();
+      this.isActionsOpen = false;
+      const path = encodeURIComponent(`${this.pathInsideBucket}${selected[0].item}`);
       selected[0]['isDownloading'] = true;
+      this.folderItems.forEach(item => item.isSelected = false);
       this.bucketBrowserService.downloadFile(`/${this.bucketName}/object/${path}/endpoint/${this.endpoint}/download`)
         .subscribe(event =>  {
             if (event['type'] === HttpEventType.DownloadProgress) {
@@ -328,10 +368,7 @@ export class BucketBrowserComponent implements OnInit {
                 selected[0]['isDownloading'] = false;
                 selected[0].progress = 0;
               }, 1000);
-
-              this.folderItems.forEach(item => item.isSelected = false);
             }
-
         }, error => {
             this.toastr.error(error.message || 'File downloading error!', 'Oops!');
             selected[0]['isDownloading'] = false;
@@ -353,7 +390,7 @@ export class BucketBrowserComponent implements OnInit {
         res && this.bucketBrowserService.deleteFile({
           bucket: this.bucketName, endpoint: this.endpoint, 'objects': dataForServer
         }).subscribe(() => {
-            this.bucketDataService.refreshBucketdata(this.data.bucket, this.data.endpoint);
+            this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
             this.toastr.success('Objects successfully deleted!', 'Success!');
             this.clearSelection();
           }, error => {
@@ -361,7 +398,6 @@ export class BucketBrowserComponent implements OnInit {
           this.clearSelection();
         });
       });
-
 
     }
   }
