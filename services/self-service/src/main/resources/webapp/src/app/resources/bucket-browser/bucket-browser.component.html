@@ -23,7 +23,7 @@
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
 
-  <!--  <div class="dialog-content tabs">-->
+<!--  <div class="dialog-content tabs">-->
   <div class="dialog-content tabs">
     <div class="submit m-bott-10 m-top-10">
       <div class="left-side-butts">
@@ -33,7 +33,7 @@
           Upload files
         </button>
       </span>
-        <span [matTooltip]="'You have not permission to create folder'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
+      <span [matTooltip]="'You have not permission to create folder'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.upload}}">
         <button
           mat-raised-button
           type="button"
@@ -44,7 +44,7 @@
           Create folder
         </button>
       </span>
-        <span [matTooltip]="'You have not permission to delete data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.delete}}">
+      <span [matTooltip]="'You have not permission to delete data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.delete}}">
         <button
           type="button"
           class="butt"
@@ -55,7 +55,7 @@
         Delete
       </button>
       </span>
-        <div class="action-wrapper" >
+      <div class="action-wrapper" >
         <span class="action-button-wrapper">
           <button
             type="button" class="butt actions-btn"
@@ -66,7 +66,7 @@
             Actions <i class="material-icons" >{{ !isActionsOpen ?  'expand_more' : 'expand_less' }}</i>
           </button>
           </span>
-          <div class="action-menu" *ngIf="isActionsOpen">
+        <div class="action-menu" *ngIf="isActionsOpen">
           <span [matTooltip]="'You have not permission to download data'" matTooltipPosition="above" matTooltipDisabled="{{this.bucketStatus.download}}">
           <button
             type="button" class="butt action-menu-item"
@@ -78,15 +78,15 @@
             Download
           </button>
             </span>
-            <button
-              type="button" class="butt action-menu-item"
-              mat-raised-button
-              (click)="copyPath();$event.stopPropagation()"
-            >
-              Copy path
-            </button>
-          </div>
+          <button
+            type="button" class="butt action-menu-item"
+            mat-raised-button
+            (click)="copyPath();$event.stopPropagation()"
+          >
+            Copy path
+          </button>
         </div>
+      </div>
       </div>
       <button
         mat-raised-button
@@ -153,17 +153,17 @@
           <li *ngFor="let file of folderItems" class="folder-item" [ngClass]="{'events-none': file.isDownloading }">
             <div class="folder-item-wrapper" *ngIf="file.children && file.item" (click)="showItem(file)">
               <div class="name name-folder">
-                <!--                <span *ngIf="this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >-->
+<!--                <span *ngIf="this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >-->
                 <span class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >
                     <span class="checked-checkbox" *ngIf="file.isFolderSelected"></span>
                 </span>
-                <i class="material-icons folder-icon folder-name">folder</i>
-                <span class="item-name name-wrap"
-                      matTooltip="{{file.item}}"
-                      matTooltipPosition="above"
-                      matTooltipShowDelay="1000"
-                      [matTooltipClass]="'bucket-item-tooltip'"
-                >
+                  <i class="material-icons folder-icon folder-name">folder</i>
+                  <span class="item-name name-wrap"
+                        matTooltip="{{file.item}}"
+                        matTooltipPosition="above"
+                        matTooltipShowDelay="1000"
+                        [matTooltipClass]="'bucket-item-tooltip'"
+                  >
                     {{file.item}}
                 </span>
               </div>
@@ -190,7 +190,7 @@
               </div>
               <div class="size">{{file.object?.size | convertFileSize}}</div>
               <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>
-              <!--              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>-->
+<!--              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>-->
               <div class="progress-wrapper" *ngIf="file.isDownloading">
                 <div class="progres">
                   <span class="progress-bar-text">{{file.progress || 0}}% Downloading...</span>
