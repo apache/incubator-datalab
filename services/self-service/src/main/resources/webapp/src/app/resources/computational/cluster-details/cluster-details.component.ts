@@ -57,8 +57,6 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   ngOnInit() {
     this.open(this.data.environment, this.data.resource);
-
-    console.log(this.PROVIDER);
   }
 
   public open(environment, resource): void {
