@@ -125,12 +125,12 @@ public class BillingServiceImpl implements BillingService {
         boolean isFull = isFullReport(user);
         BillingReport report = getBillingReport(user, filter);
         StringBuilder reportHead = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
-        String currentStrHeader = BillingUtils.getHeader(isFull);
-        reportHead.append(currentStrHeader);
+        String stringOfAdjustedHeader = BillingUtils.getHeader(isFull);
+        reportHead.append(stringOfAdjustedHeader);
 
         try {
             report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isFull)));
-            reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), currentStrHeader));
+            reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), stringOfAdjustedHeader));
             return reportHead.toString();
         } catch (Exception e) {
             log.error("Cannot write billing data ", e);

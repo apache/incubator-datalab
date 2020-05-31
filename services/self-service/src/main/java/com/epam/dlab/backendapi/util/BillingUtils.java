@@ -230,12 +230,12 @@ public class BillingUtils {
      *
      * @param total -> aumount
      * @param currency -> user's currency
-     * @param currentStrHeader -> filtered report fields list
+     * @param stringOfAdjustedHeader -> filtered report fields list
      * @return formatted line with cost of resources
      */
-    public static String getTotal(Double total, String currency, String currentStrHeader) {
+    public static String getTotal(Double total, String currency, String stringOfAdjustedHeader) {
         List<String> totalLine = new ArrayList<>();
-        String[] headerFieldsList = currentStrHeader.split(",");
+        String[] headerFieldsList = stringOfAdjustedHeader.split(String.valueOf(CSVFormatter.SEPARATOR));
         for (int i = 0; i < headerFieldsList.length - 1; i++) {
             totalLine.add(StringUtils.EMPTY);
         }
