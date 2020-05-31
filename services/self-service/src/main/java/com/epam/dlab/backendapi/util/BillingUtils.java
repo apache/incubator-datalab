@@ -182,6 +182,14 @@ public class BillingUtils {
         return list.stream();
     }
 
+    /**
+     *
+     * @param sbn
+     * @param from date in format  2020-04-07
+     * @param to date in format  2020-05-07
+     * @return formatted line:
+     * "Service base name: SERVICE_BASE_NAME. Available reporting period from: 2020-04-07 to: 2020-04-07"
+     */
     public static String getFirstLine(String sbn, LocalDate from, LocalDate to) {
         return CSVFormatter.formatLine(Lists.newArrayList(String.format(REPORT_FIRST_LINE, sbn,
                 Optional.ofNullable(from).map(date -> date.format(DateTimeFormatter.ISO_DATE)).orElse(StringUtils.EMPTY),
@@ -189,9 +197,15 @@ public class BillingUtils {
                 CSVFormatter.SEPARATOR, '\"');
     }
 
+    /**
+     *
+     * @param isFull -> true of false, if user of the current sessions belongs to billing group
+     * @return formatted line, like DLab ID,User,Project,DLab Resource Type,Status,Shape,Product,Cost
+     */
     public static String getHeader(boolean isFull) {
         List<String> headers = new ArrayList<>(Arrays.asList(BillingUtils.REPORT_HEADERS));
         if (!isFull) {
+            //if 'user' does not belongs to billing group, remove related field from the report header
             headers.remove(1);
         }
         return CSVFormatter.formatLine(headers, CSVFormatter.SEPARATOR);
@@ -212,12 +226,20 @@ public class BillingUtils {
         return CSVFormatter.formatLine(lines, CSVFormatter.SEPARATOR);
     }
 
-    public static String getTotal(Double total, String currency) {
+    /**
+     *
+     * @param total -> aumount
+     * @param currency -> user's currency
+     * @param currentStrHeader -> filtered report fields list
+     * @return formatted line with cost of resources
+     */
+    public static String getTotal(Double total, String currency, String currentStrHeader) {
         List<String> totalLine = new ArrayList<>();
-        for (int i = 0; i < REPORT_HEADERS.length - 1; i++) {
+        String[] headerList = currentStrHeader.split(",");
+        for (int i = 0; i < headerList.length - 1; i++) {
             totalLine.add(StringUtils.EMPTY);
         }
-        totalLine.add(REPORT_HEADERS.length - 1, String.format(TOTAL_LINE, getOrEmpty(String.valueOf(total)), getOrEmpty(currency)));
+        totalLine.add(headerList.length - 1, String.format(TOTAL_LINE, getOrEmpty(String.valueOf(total)), getOrEmpty(currency)));
         return CSVFormatter.formatLine(totalLine, CSVFormatter.SEPARATOR);
 
     }

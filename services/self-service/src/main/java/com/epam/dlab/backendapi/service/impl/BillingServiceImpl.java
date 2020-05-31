@@ -124,12 +124,15 @@ public class BillingServiceImpl implements BillingService {
     public String downloadReport(UserInfo user, BillingFilter filter) {
         boolean isFull = isFullReport(user);
         BillingReport report = getBillingReport(user, filter);
-        StringBuilder builder = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
-        builder.append(BillingUtils.getHeader(isFull));
+        StringBuilder reportHead = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
+        String currentStrHeader = BillingUtils.getHeader(isFull);
+        reportHead.append(currentStrHeader);
+
         try {
-            report.getReportLines().forEach(r -> builder.append(BillingUtils.printLine(r, isFull)));
-            builder.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency()));
-            return builder.toString();
+            report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isFull)));
+            //TODO: O -> BillingReport(sbn=SERVICE_BASE_NAME, name=Billing report, reportLines=[BillingReportLine(dlabId=1, application=null, resourceName=1, project=prj1, endpoint=null, user=test, usageDateFrom=2020-04-07, usageDateTo=2020-04-07, usageDate=null, product=product1, usageType=null, cost=1.0, currency=USD, resourceType=EXPLORATORY, status=terminated, shape=Master: c4.xlarge↵Slave: c5.xlarge, exploratoryName=null)], usageDateFrom=2020-04-07, usageDateTo=2020-04-07, totalCost=1.0, currency=USD, isFull=true)
+            reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), currentStrHeader));
+            return reportHead.toString();
         } catch (Exception e) {
             log.error("Cannot write billing data ", e);
             throw new DlabException("Cannot write billing file ", e);
@@ -304,6 +307,11 @@ public class BillingServiceImpl implements BillingService {
         }
     }
 
+    /**
+     *
+     * @param userInfo - session's user properties
+     * @return tue of false -> if user has be billing role
+     */
     private boolean isFullReport(UserInfo userInfo) {
         return UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing",
                 userInfo.getRoles());
