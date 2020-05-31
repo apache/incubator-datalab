@@ -130,7 +130,6 @@ public class BillingServiceImpl implements BillingService {
 
         try {
             report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isFull)));
-            //TODO: O -> BillingReport(sbn=SERVICE_BASE_NAME, name=Billing report, reportLines=[BillingReportLine(dlabId=1, application=null, resourceName=1, project=prj1, endpoint=null, user=test, usageDateFrom=2020-04-07, usageDateTo=2020-04-07, usageDate=null, product=product1, usageType=null, cost=1.0, currency=USD, resourceType=EXPLORATORY, status=terminated, shape=Master: c4.xlarge↵Slave: c5.xlarge, exploratoryName=null)], usageDateFrom=2020-04-07, usageDateTo=2020-04-07, totalCost=1.0, currency=USD, isFull=true)
             reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), currentStrHeader));
             return reportHead.toString();
         } catch (Exception e) {
