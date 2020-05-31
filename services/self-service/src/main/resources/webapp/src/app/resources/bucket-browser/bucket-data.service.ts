@@ -84,13 +84,19 @@ export class BucketDataService {
     }
 
   public insertItem(parent: TodoItemNode, name, isFile, emptyFolderObj?) {
-      if (parent.children) {
+    if (parent.children) {
         if (isFile) {
-          parent.children.push(name as TodoItemNode);
+          parent.children.unshift(name as TodoItemNode);
         } else {
-          parent.children.push({item: '', children: [], object: {}} as TodoItemNode);
-          this.emptyFolder = emptyFolderObj;
-          this._bucketData.next(this.data);
+          if (name) {
+            const child = {item: name, children: [], object: JSON.parse(JSON.stringify(parent.object))};
+            child.object.object = child.object.object.slice(0, -1) + child.item + '/';
+            parent.children.unshift(child as TodoItemNode);
+          } else {
+            parent.children.unshift({item: '', children: [], object: {}} as TodoItemNode);
+            this.emptyFolder = emptyFolderObj;
+            this._bucketData.next(this.data);
+          }
         }
       }
     }

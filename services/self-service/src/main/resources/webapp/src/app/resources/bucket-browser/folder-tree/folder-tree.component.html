@@ -38,17 +38,17 @@
     </form>
   </mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding  matTreeNodePaddingIndent="17">
+  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding  matTreeNodePaddingIndent="17"  [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
     <button mat-icon-button matTreeNodeToggle
-            [attr.aria-label]="'toggle ' + node.filename">
-      <mat-icon class="mat-icon-rtl-mirror" [ngClass]="{'active-item': selectedFolder === node}">
+            [attr.aria-label]="'toggle ' + node.filename" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">
+      <mat-icon class="mat-icon-rtl-mirror" [ngClass]="{'active-item': (selectedFolder === node && !bucketDataService.emptyFolder)}">
         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
       </mat-icon>
     </button>
     <div
       (click)="showItem(node)"
       class="folder-item-line"
-      [ngClass]="{'active-item': selectedFolder === node}"
+      [ngClass]="{'active-item': (selectedFolder === node && !bucketDataService.emptyFolder), 'not-allowed': bucketDataService.emptyFolder}"
     >
       <i class="material-icons folder-icon">folder</i>
       <span
