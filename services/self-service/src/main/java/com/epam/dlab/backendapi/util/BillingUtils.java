@@ -235,11 +235,11 @@ public class BillingUtils {
      */
     public static String getTotal(Double total, String currency, String currentStrHeader) {
         List<String> totalLine = new ArrayList<>();
-        String[] headerList = currentStrHeader.split(",");
-        for (int i = 0; i < headerList.length - 1; i++) {
+        String[] headerFieldsList = currentStrHeader.split(",");
+        for (int i = 0; i < headerFieldsList.length - 1; i++) {
             totalLine.add(StringUtils.EMPTY);
         }
-        totalLine.add(headerList.length - 1, String.format(TOTAL_LINE, getOrEmpty(String.valueOf(total)), getOrEmpty(currency)));
+        totalLine.add(headerFieldsList.length - 1, String.format(TOTAL_LINE, getOrEmpty(String.valueOf(total)), getOrEmpty(currency)));
         return CSVFormatter.formatLine(totalLine, CSVFormatter.SEPARATOR);
 
     }
