@@ -184,10 +184,10 @@ public class BillingUtils {
 
     /**
      *
-     * @param sbn
-     * @param from date in format  2020-04-07
-     * @param to date in format  2020-05-07
-     * @return formatted line:
+     * @param sbn Service Base Name
+     * @param from formatted date, like 2020-04-07
+     * @param to formatted date, like 2020-05-07
+     * @return line, like:
      * "Service base name: SERVICE_BASE_NAME. Available reporting period from: 2020-04-07 to: 2020-04-07"
      */
     public static String getFirstLine(String sbn, LocalDate from, LocalDate to) {
@@ -199,8 +199,8 @@ public class BillingUtils {
 
     /**
      *
-     * @param isFull -> true of false, if user of the current sessions belongs to billing group
-     * @return formatted line, like DLab ID,User,Project,DLab Resource Type,Status,Shape,Product,Cost
+     * @param isFull true , if user of the current sessions belongs to billing group
+     * @return line, like DLab ID,User,Project,DLab Resource Type,Status,Shape,Product,Cost
      */
     public static String getHeader(boolean isFull) {
         List<String> headers = new ArrayList<>(Arrays.asList(BillingUtils.REPORT_HEADERS));
@@ -228,14 +228,14 @@ public class BillingUtils {
 
     /**
      *
-     * @param total -> aumount
-     * @param currency -> user's currency
-     * @param currentStrHeader -> filtered report fields list
-     * @return formatted line with cost of resources
+     * @param total monetary amount
+     * @param currency user's currency
+     * @param stringOfAdjustedHeader filtered fields of report header
+     * @return line with cost of resources
      */
-    public static String getTotal(Double total, String currency, String currentStrHeader) {
+    public static String getTotal(Double total, String currency, String stringOfAdjustedHeader) {
         List<String> totalLine = new ArrayList<>();
-        String[] headerFieldsList = currentStrHeader.split(",");
+        String[] headerFieldsList = stringOfAdjustedHeader.split(String.valueOf(CSVFormatter.SEPARATOR));
         for (int i = 0; i < headerFieldsList.length - 1; i++) {
             totalLine.add(StringUtils.EMPTY);
         }
