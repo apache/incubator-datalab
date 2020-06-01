@@ -76,7 +76,7 @@ export class BucketBrowserComponent implements OnInit {
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
     private bucketBrowserService: BucketBrowserService,
-    private bucketDataService: BucketDataService,
+    public bucketDataService: BucketDataService,
     private auth: ApplicationSecurityService,
     private storage: StorageService,
   ) {

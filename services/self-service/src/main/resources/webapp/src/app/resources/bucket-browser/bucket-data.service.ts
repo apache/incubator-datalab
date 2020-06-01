@@ -39,21 +39,21 @@ export class BucketDataService {
 
   public refreshBucketdata(bucket, endpoint) {
     let backetData = [];
-     this.bucketBrowserService.getBucketData(bucket, endpoint).subscribe(v => {
-     const copiedData = JSON.parse(JSON.stringify(v));
+    this.bucketBrowserService.getBucketData(bucket, endpoint).subscribe(v => {
+      const copiedData = JSON.parse(JSON.stringify(v));
 
-     this.serverData = v;
-     if (this.emptyFolder) {
-       copiedData.unshift(this.emptyFolder);
-     }
-     backetData = this.convertToFolderTree(copiedData);
-     const data = this.buildFileTree({[bucket]: backetData}, 0);
-     this._bucketData.next(data);
-     });
-      // this.serverData = array;
-      // backetData = this.convertToFolderTree(array);
-      // const data = this.buildFileTree({[bucket]: backetData}, 0);
-      // this._bucketData.next(data);
+      this.serverData = v;
+      if (this.emptyFolder) {
+        copiedData.unshift(this.emptyFolder);
+      }
+      backetData = this.convertToFolderTree(copiedData);
+      const data = this.buildFileTree({[bucket]: backetData}, 0);
+      this._bucketData.next(data);
+    });
+    // this.serverData = array;
+    // backetData = this.convertToFolderTree(array);
+    // const data = this.buildFileTree({[bucket]: backetData}, 0);
+    // this._bucketData.next(data);
   }
 
   public buildFileTree(obj: {[key: string]: any}, level: number): TodoItemNode[] {
