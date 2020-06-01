@@ -34,7 +34,11 @@ export class SortUtils {
 
     Object.keys(shapesJson)
       .sort((a, b) => sortOrder.indexOf(a) - sortOrder.indexOf(b))
-      .forEach(key => { sortedShapes[key] = shapesJson[key]; });
+      .forEach(key => {
+        if (shapesJson[key].length) {
+          sortedShapes[key] = shapesJson[key];
+        }
+      });
 
     return sortedShapes;
   }
@@ -48,5 +52,5 @@ export class SortUtils {
   public static flatDeep(arr, d = 1) {
     return d > 0 ? arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? this.flatDeep(val, d - 1) : val), [])
       : arr.slice();
-  };
+  }
 }
