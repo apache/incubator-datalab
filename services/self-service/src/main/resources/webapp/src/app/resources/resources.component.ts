@@ -53,7 +53,6 @@ export class ResourcesComponent implements OnInit {
   ngOnInit() {
     this.getEnvironmentHealthStatus();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
-
   }
 
   public createEnvironment(): void {

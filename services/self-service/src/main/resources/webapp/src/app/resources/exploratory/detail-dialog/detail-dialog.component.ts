@@ -135,8 +135,12 @@ export class DetailDialogComponent implements OnInit {
   }
 
   public bucketBrowser(bucketName, endpoint, permition): void {
+    if (!permition) {
+      return;
+    }
     bucketName = this.isBucketAllowed ? this.notebook.bucket_name : this.data.buckets[0].children[0].name;
-    permition && this.dialog.open(BucketBrowserComponent, { data:
+    // bucketName = 'ofuks-1304-pr2-local-bucket';
+    this.dialog.open(BucketBrowserComponent, { data:
         {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.data.buckets},
       panelClass: 'modal-fullscreen' })
     .afterClosed().subscribe();
