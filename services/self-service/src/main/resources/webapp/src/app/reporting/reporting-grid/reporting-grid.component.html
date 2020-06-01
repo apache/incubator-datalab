@@ -20,9 +20,9 @@
 <section class="table-wrapper">
   <table mat-table [dataSource]="reportData" class="data-grid reporting mat-elevation-z6">
 
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef class="env_name label-header">
-        <div class="label"><span class="text"> Environment name</span></div>
+    <ng-container matColumnDef="name" sticky>
+      <th mat-header-cell *matHeaderCellDef class="env_name label-header sticky-name" >
+        <div class="label"><span class="text"> Resource name</span></div>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span *ngIf="filteredReportData.dlab_id.length > 0; else dlab_id_filtered">filter_list</span>
@@ -69,6 +69,34 @@
         </button>
       </th>
       <td mat-cell *matCellDef="let element"> {{element.project}} </td>
+      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+    </ng-container>
+
+    <ng-container matColumnDef="endpoint">
+      <th mat-header-cell *matHeaderCellDef class="th_type label-header">
+        <div class="label"><span class="text"> Endpoint</span> </div>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filteredReportData.resource_type.length > 0; else type_filtered">filter_list</span>
+            <ng-template #type_filtered>more_vert</ng-template>
+          </i>
+        </button>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.endpoint | titlecase}} </td>
+      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+    </ng-container>
+
+    <ng-container matColumnDef="cloud">
+      <th mat-header-cell *matHeaderCellDef class="th_type label-header">
+        <div class="label"><span class="text"> Cloud</span> </div>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filteredReportData.resource_type.length > 0; else type_filtered">filter_list</span>
+            <ng-template #type_filtered>more_vert</ng-template>
+          </i>
+        </button>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.cloud | titlecase}} </td>
       <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
     </ng-container>
 
@@ -162,8 +190,8 @@
     </ng-container>
 
     <!-- ----------------FILTER -->
-    <ng-container matColumnDef="name-filter">
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+    <ng-container matColumnDef="name-filter" [sticky]="true">
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item sticky-name">
         <input #nameFilter type="text" placeholder="Filter by environment name" class="form-control filter-field"
           [value]="filtered?.dlab_id" (input)="filteredReportData.dlab_id = $event.target['value']" />
       </th>
@@ -178,6 +206,18 @@
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'projects'"
           [items]="filterConfiguration.projects" [model]="filteredReportData.projects"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="endpoint-filter">
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'endpoints'"
+                               [items]="filterConfiguration.endpoints" [model]="filteredReportData.endpoints"></multi-select-dropdown>
+      </th>
+    </ng-container>
+    <ng-container matColumnDef="cloud-filter">
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'clouds'"
+                               [items]="filterConfiguration.clouds" [model]="filteredReportData.clouds"></multi-select-dropdown>
       </th>
     </ng-container>
     <ng-container matColumnDef="type-filter">

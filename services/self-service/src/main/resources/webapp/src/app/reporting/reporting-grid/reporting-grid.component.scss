@@ -34,6 +34,9 @@
 
   tr {
     th {
+      &.sticky-name{
+        z-index: 3 !important;
+      }
       padding-right: 5px;
       z-index: 2 !important;
       &.th_charges{

@@ -32,13 +32,15 @@ export const DICTIONARY = Object.freeze({
 export class ReportingConfigModel {
 
   static getDefault(): ReportingConfigModel {
-    return new ReportingConfigModel([], [], [], [], [], '', '', '', []);
+    return new ReportingConfigModel([], [], [], [], [], [], [], '', '', '', []);
   }
 
   constructor(
     public users: Array<string>,
     public products: Array<string>,
     public resource_type: Array<string>,
+    public endpoints: Array<string>,
+    public clouds: Array<string>,
     public statuses: Array<string>,
     public shapes: Array<string>,
     public date_start: string,
@@ -51,6 +53,8 @@ export class ReportingConfigModel {
     this.users = [];
     this.products = [];
     this.resource_type = [];
+    this.endpoints = [];
+    this.clouds = [];
     this.statuses = [];
     this.shapes = [];
     this.date_start = '';

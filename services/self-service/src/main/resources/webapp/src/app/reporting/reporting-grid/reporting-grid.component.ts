@@ -30,7 +30,7 @@ import { ReportingConfigModel } from '../../../dictionary/global.dictionary';
 export class ReportingGridComponent implements OnInit {
 
   filterConfiguration: ReportingConfigModel;
-  filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
+  filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], [], [], '', '', '', []);
   collapseFilterRow: boolean = true;
   reportData: Array<any> = [];
   fullReport: Array<any>;
@@ -41,8 +41,8 @@ export class ReportingGridComponent implements OnInit {
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
-  displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'charge'];
-  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
+  displayedColumns: string[] = ['name', 'user', 'project', 'endpoint', 'cloud', 'type', 'status', 'shape', 'service', 'charge'];
+  displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'endpoint-filter', 'cloud-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
   filtered: any;
 
   ngOnInit() {}
