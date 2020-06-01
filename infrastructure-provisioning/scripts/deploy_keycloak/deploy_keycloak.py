@@ -64,7 +64,7 @@ def ensure_jre_jdk(os_user):
         except:
             sys.exit(1)
 
-def configure_keycloak():
+def configure_keycloak(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/keycloak_ensured'):
         try:
             sudo('wget https://downloads.jboss.org/keycloak/' + keycloak_version + '/keycloak-' + keycloak_version + '.tar.gz -O /tmp/keycloak-' + keycloak_version + '.tar.gz')
@@ -86,7 +86,7 @@ def configure_keycloak():
         except:
             sys.exit(1)
 
-def configure_nginx():
+def configure_nginx(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/nginx_ensured'):
         try:
             sudo('apt install -y nginx')
@@ -146,14 +146,14 @@ if __name__ == "__main__":
 
     try:
         print("installing nginx")
-        configure_nginx()
+        configure_nginx(args.os_user)
     except Exception as err:
         print("Failed nginx install: " + str(err))
         sys.exit(1)
 
     try:
         print("installing Keycloak")
-        configure_keycloak()
+        configure_keycloak(args.os_user)
     except Exception as err:
         print("Failed keycloak install: " + str(err))
         sys.exit(1)
