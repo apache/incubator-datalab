@@ -469,7 +469,7 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
 def install_cntk(os_user, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
         sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
-        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
+        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp36-cp36m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 
