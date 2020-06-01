@@ -110,8 +110,13 @@ if __name__ == "__main__":
         for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
             edge_conf['allowed_ip_cidr'].append(cidr.replace(' ', ''))
 
-        edge_conf['instance_hostname'] = dlab.meta_lib.get_instance_hostname(edge_conf['tag_name'],
-                                                                             edge_conf['instance_name'])
+        if edge_conf['network_type'] == 'public':
+            edge_conf['instance_hostname'] = dlab.meta_lib.get_instance_hostname(edge_conf['tag_name'],
+                                                                                 edge_conf['instance_name'])
+        elif edge_conf['network_type'] == 'private':
+            edge_conf['instance_hostname'] = dlab.meta_lib.get_instance_ip_address(
+                edge_conf['tag_name'], edge_conf['instance_name']).get('Private')
+
         edge_conf['keyfile_name'] = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
 
         if os.environ['conf_stepcerts_enabled'] == 'true':
