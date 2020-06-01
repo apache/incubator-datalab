@@ -1741,6 +1741,18 @@ footer {
         display: flex;
         justify-content: space-between;
         border-bottom: 1px solid lightgray;
+        text-aline: left;
+
+        .version{
+            flex: 7;
+            text-align: left;
+        }
+
+        .link{
+            flex: 2;
+            text-align: left;
+        }
+
         &.header{
             font-weight: 700;
         }
