@@ -231,6 +231,9 @@ export class ManagementGridComponent implements OnInit {
   }
 
   openNotebookDetails(data) {
+    if (!data.exploratory_urls || !data.exploratory_urls.length) {
+      return;
+    }
     this.dialog.open(DetailDialogComponent, { data:
         {notebook: data, bucketStatus: {view: true, upload: true, download: true, delete: true},  buckets: [], type: 'environment'},
       panelClass: 'modal-lg'

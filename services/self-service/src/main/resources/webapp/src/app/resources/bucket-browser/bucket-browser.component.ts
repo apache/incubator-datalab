@@ -292,7 +292,7 @@ export class BucketBrowserComponent implements OnInit {
     const uploading = this.addedFiles.filter(v => v.status === 'uploading');
     this.isQueueFull = !!waitUploading.length;
     this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
-    console.log((this.getTokenValidTime() / 1000 / 60 ).toFixed(0) + ' minutes');
+    // console.log((this.getTokenValidTime() / 1000 / 60 ).toFixed(0) + ' minutes');
     if ((this.refreshTokenLimit > this.getTokenValidTime()) && !this.isTokenRefreshing) {
       this.refreshToken();
     }
@@ -301,6 +301,7 @@ export class BucketBrowserComponent implements OnInit {
         file = waitUploading[0];
       }
       file.status = 'uploading';
+      this.isFileUploading = !!this.addedFiles.filter(v => v.status === 'uploading').length;
       this.isQueueFull = !!this.addedFiles.filter(v => v.status === 'waiting').length;
       file.subscr =  file.request.subscribe((event: any) => {
           if (event.type === HttpEventType.UploadProgress) {
