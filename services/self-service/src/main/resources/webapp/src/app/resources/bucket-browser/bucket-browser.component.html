@@ -99,19 +99,19 @@
       </button>
     </div>
     <p class="path"><span>Bucket path:</span>
-      <span class="url ellipsis">
+      <span class="url ellipsis"  [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
        <span *ngFor="let folder of this.objectPath">
          <span class="url-icon" *ngIf="this.objectPath.indexOf(folder) !== 0"> <i class="material-icons">
                chevron_right
             </i> </span>
-         <span class="url-folder" (click)="folderTreeComponent.showItem(folder);">{{folder.item}}</span>
+         <span class="url-folder" (click)="folderTreeComponent.showItem(folder);" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">{{folder.item}}</span>
        </span>
       </span>
     </p>
     <div class="bucket-wrapper" [ngClass]="{'added-upload': addedFiles.length}" id="scrolling">
       <div class="backet-selection" [ngClass]="{'opened': isSelectionOpened}">
-        <div class="button-wrapper">
-          <i (click)="toggleBucketSelection()" class="material-icons close" *ngIf="!isSelectionOpened">chevron_right</i>
+        <div class="button-wrapper" [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
+          <i (click)="toggleBucketSelection()" class="material-icons close" *ngIf="!isSelectionOpened" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">chevron_right</i>
         </div>
         <dlab-bucket-tree
           [hidden] = "!isSelectionOpened"
@@ -132,8 +132,8 @@
       <div class="directory" [ngClass]="{'selection-opened': isSelectionOpened}" [hidden]="!path">
         <div class="folder-item t_header">
           <div class="folder-item-wrapper header-wrapper folder-tree header-item">
-            <div class="name">
-              <span class="th_name" (click)="isFilterVisible = true" *ngIf="!isFilterVisible">Name</span>
+            <div class="name" [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
+              <span class="th_name" (click)="isFilterVisible = true" *ngIf="!isFilterVisible" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">Name</span>
               <div class="filter-files"  *ngIf="isFilterVisible">
                 <input _ngcontent-yns-c13=""
                        [(ngModel)]="searchValue"
@@ -149,8 +149,8 @@
             <div class="date"><span class="th_date">Last modified</span></div>
           </div>
         </div>
-        <ul class="folder-tree">
-          <li *ngFor="let file of folderItems" class="folder-item" [ngClass]="{'events-none': file.isDownloading }">
+        <ul class="folder-tree" [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
+          <li *ngFor="let file of folderItems" class="folder-item" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">
             <div class="folder-item-wrapper" *ngIf="file.children && file.item" (click)="showItem(file)">
               <div class="name name-folder">
 <!--                <span *ngIf="this.bucketStatus.delete" class="empty-checkbox" [ngClass]="{'checked': file.isFolderSelected}" (click)="toggleSelectedFile(file, 'folder');$event.stopPropagation()" >-->

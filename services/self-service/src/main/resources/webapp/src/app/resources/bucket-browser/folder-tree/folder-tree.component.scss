@@ -46,6 +46,9 @@
     height: 25px;
     line-height: 28px;
   }
+}
+
+.mat-tree-node:not(.input-node):not(.cursor-not-allow){
   &:hover{
     color: #00bcd4;
     i{

@@ -104,6 +104,7 @@ export class FolderTreeComponent implements OnDestroy {
   ngOnDestroy() {
     this.bucketDataService._bucketData.next([]);
     this.subscriptions.unsubscribe();
+    this.bucketDataService.emptyFolder = null;
   }
 
   folderFormControl = new FormControl('', [
