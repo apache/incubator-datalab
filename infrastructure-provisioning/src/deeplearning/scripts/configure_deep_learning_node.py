@@ -56,6 +56,7 @@ caffe_version = os.environ['notebook_caffe_version']
 caffe2_version = os.environ['notebook_caffe2_version']
 cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
+cntk2_version = os.environ['notebook_cntk2_version']
 mxnet_version = os.environ['notebook_mxnet_version']
 keras_version = os.environ['notebook_keras_version']
 theano_version = os.environ['notebook_theano_version']
@@ -128,7 +129,7 @@ if __name__ == "__main__":
     print("Installing Torch")
     install_torch(args.os_user)
     print("Install CNTK Python library")
-    install_cntk(args.os_user, cntk_version)
+    install_cntk(args.os_user,cntk2_version, cntk_version)
     print("Installing MXNET")
     install_mxnet(args.os_user, mxnet_version)
 
