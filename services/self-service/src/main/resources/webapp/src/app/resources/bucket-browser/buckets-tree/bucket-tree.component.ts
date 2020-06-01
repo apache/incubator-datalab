@@ -53,7 +53,6 @@ export class BucketTreeComponent implements OnInit {
     this.activeBucketName = this.openedBucket || '';
     this.dataSource.data = this.buckets;
     this.setActiveBucket();
-    console.log(this.treeControl);
   }
 
   public openBucketData(bucket) {

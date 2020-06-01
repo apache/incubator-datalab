@@ -110,13 +110,6 @@ export class ResourcesGridComponent implements OnInit {
   public getUserProjects() {
     this.projectService.getUserProjectsList(true).subscribe((projects: any) => {
       this.activeProjectsList = projects;
-      console.log(projects);
-      // console.log(projects);
-      // const activeProject = projects.find(item => item.name === this.resourceGrid.activeProject);
-      // if (this.resourceGrid.activeProject && activeProject) {
-      //   this.setEndpoints(activeProject);
-      //   this.createExploratoryForm.controls['project'].setValue(activeProject.name);
-      // }
     });
   }
 
@@ -271,7 +264,6 @@ export class ResourcesGridComponent implements OnInit {
 
     if (filteredData.length) this.filtering = true;
     if (config) {
-      console.log(config);
       this.activeProject = config.project;
       filteredData = filteredData
         .filter(project => config.project ? project.project === config.project : project)

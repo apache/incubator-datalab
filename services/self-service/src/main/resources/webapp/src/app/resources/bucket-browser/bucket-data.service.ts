@@ -44,7 +44,7 @@ export class BucketDataService {
 
      this.serverData = v;
      if (this.emptyFolder) {
-       copiedData.push(this.emptyFolder);
+       copiedData.unshift(this.emptyFolder);
      }
      backetData = this.convertToFolderTree(copiedData);
      const data = this.buildFileTree({[bucket]: backetData}, 0);

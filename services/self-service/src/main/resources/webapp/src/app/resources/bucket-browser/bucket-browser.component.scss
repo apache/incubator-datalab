@@ -661,6 +661,10 @@ input[type='file'] {
   }
 }
 
+.events-none{
+  pointer-events: none;
+}
+
 @media only screen and (max-height: 920px) {
   .bucket-wrapper {
     height: 55vh;

@@ -173,14 +173,13 @@
             <div class="folder-item-wrapper"  (click)="toggleSelectedFile(file, 'file')" *ngIf="!file.children && file.item !== 'ا'">
               <div class="name name-file">
 
-                 <span class="empty-checkbox" [ngClass]="{'checked': file.isSelected}" (click)="toggleSelectedFile(file, 'file');$event.stopPropagation()" >
+                 <span class="empty-checkbox" [ngClass]="{'checked': file.isSelected, 'not-allowed': file.isDownloading}" (click)="toggleSelectedFile(file, 'file');$event.stopPropagation()" >
                     <span class="checked-checkbox" *ngIf="file.isSelected"></span>
                   </span>
                 <i class="material-icons folder-icon" >description</i>
 
                 <span
                   class="item-name name-wrap"
-
                   matTooltip="{{file.item}}"
                   matTooltipPosition="above"
                   matTooltipShowDelay="1000"
