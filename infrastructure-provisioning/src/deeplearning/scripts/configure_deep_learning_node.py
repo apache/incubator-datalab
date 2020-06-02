@@ -84,6 +84,9 @@ def install_itorch(os_user):
     if not exists('/home/{}/.ensure_dir/itorch_ensured'.format(os_user)):
         run('git clone https://github.com/facebook/iTorch.git')
         with cd('/home/{}/iTorch/'.format(os_user)):
+            run('luarocks install luacrypto')
+            run('luarocks install uuid')
+            run('luarocks install lzmq')
             run('luarocks make')
         sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(os_user))
         sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(os_user))

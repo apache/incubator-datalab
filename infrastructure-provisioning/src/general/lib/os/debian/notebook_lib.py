@@ -238,10 +238,10 @@ def ensure_python2_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python2_libraries_ensured'):
         try:
             try:
-                manage_pkg('-y install', 'remote', 'libssl-dev python-virtualenv')
+                manage_pkg('-y install', 'remote', 'libssl1.0-dev python-virtualenv')
             except:
                 sudo('pip2 install virtualenv --no-cache-dir')
-                manage_pkg('-y install', 'remote', 'libssl-dev')
+                manage_pkg('-y install', 'remote', 'libssl1.0-dev')
             try:
                 sudo('pip2 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
