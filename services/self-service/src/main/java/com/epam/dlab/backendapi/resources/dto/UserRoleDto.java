@@ -42,6 +42,8 @@ public class UserRoleDto {
 	private Set<String> exploratories;
 	@JsonProperty("exploratory_shapes")
 	private Set<String> exploratoryShapes;
+	@JsonProperty("computational_shapes")
+	private Set<String> computationalShapes;
 	private Set<String> groups;
 
 	private enum Type {
