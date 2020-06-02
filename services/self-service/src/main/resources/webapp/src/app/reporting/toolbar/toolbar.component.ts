@@ -35,8 +35,8 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   readonly DICTIONARY = DICTIONARY;
   value: any;
   reportData: any;
-  availablePeriodFrom: string;
-  availablePeriodTo: string;
+  availablePeriodFrom: [];
+  availablePeriodTo: [];
   subscriptions: Subscription = new Subscription();
   healthStatus: GeneralEnvironmentStatus;
 
