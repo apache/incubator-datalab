@@ -22,7 +22,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from '../../shared/material.module';
-import { ResourcesComponent } from '../resources.component';
 import { ResourcesGridModule } from '../resources-grid';
 import { ExploratoryEnvironmentCreateModule } from '../exploratory/create-environment';
 
@@ -53,6 +52,5 @@ import {ConvertFileSizePipeModule} from '../../core/pipes/convert-file-size';
   ],
   entryComponents: [BucketBrowserComponent, FolderTreeComponent, BucketTreeComponent, BucketConfirmationDialogComponent],
   providers: [BucketDataService],
-  // exports: [ResourcesComponent]
 })
 export class BucketBrowserModule { }
