@@ -255,6 +255,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
             lib.version = 'v.' +  lib.version;
           }
         );
+        this.filterLibs();
         this.changeDetector.markForCheck();
         this.filterConfiguration.group = this.createFilterList(this.notebookLibs.map(v => this.groupsListMap[v.group]));
         this.filterConfiguration.resource = this.createFilterList(this.notebookLibs.map(lib => lib.status.map(status => status.resource)));
@@ -363,12 +364,17 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     <h4 class="modal-title">Library installation error</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
-  <div class="content">{{ data }}</div>
+  <div class="content lib-error" >
+    {{ data }}
+  </div>
   <div class="text-center">
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
   </div>
   `,
-  styles: []
+  styles: [    `
+      .lib-error { max-height: 200px; overflow-x: auto; word-break: break-all; padding: 20px 30px !important; margin: 20px 0;}
+  `
+  ]
 })
 export class ErrorMessageDialogComponent {
   constructor(
