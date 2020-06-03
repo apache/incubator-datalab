@@ -345,6 +345,9 @@ export class ResourcesGridComponent implements OnInit {
   public getBuckets() {
     const bucketsList = this.environments.map(project => {
       return Object.keys(project.projectEndpoints).map(key => {
+        if (project.endpoints.length === 0) {
+          return;
+        }
         const currEndpoint = project.projectEndpoints[key];
         const provider: string =  project.endpoints.filter(endpoint => endpoint['name'] === key)[0]['cloudProvider'];
         const edgeItem = {name: `${project.project} (${key})`, children: []};
@@ -357,8 +360,9 @@ export class ResourcesGridComponent implements OnInit {
           edgeItem.children.push({name: sharedBucket, endpoint: key});
         }
         return edgeItem;
-      });
+      }).filter(v => v);
     });
+
     this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
   }
 
