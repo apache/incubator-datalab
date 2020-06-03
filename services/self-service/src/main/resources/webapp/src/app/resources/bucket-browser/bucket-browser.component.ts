@@ -101,8 +101,9 @@ export class BucketBrowserComponent implements OnInit {
     this.auth.refreshToken().subscribe(tokens => {
       this.storage.storeTokens(tokens);
       this.isTokenRefreshing = false;
+      this.sendFile();
     });
-    this.sendFile();
+
   }
 
   public showItem(item) {
