@@ -25,6 +25,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -54,5 +56,9 @@ public class UserRoleDto {
 		BILLING,
 		BUCKET_BROWSER,
 		ADMINISTRATION
+	}
+
+	public static List<Type> cloudSpecificTypes() {
+		return Arrays.asList(Type.NOTEBOOK, Type.COMPUTATIONAL, Type.NOTEBOOK_SHAPE, Type.COMPUTATIONAL_SHAPE);
 	}
 }
