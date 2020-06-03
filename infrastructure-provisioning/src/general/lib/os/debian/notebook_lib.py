@@ -286,7 +286,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('update-initramfs -u')
             with settings(warn_only=True):
-                reboot(wait=150)
+                reboot(wait=180)
             manage_pkg('-y install', 'remote', 'dkms libglvnd-dev')
             kernel_version = run('uname -r | tr -d "[..0-9-]"')
             if kernel_version == 'azure':
