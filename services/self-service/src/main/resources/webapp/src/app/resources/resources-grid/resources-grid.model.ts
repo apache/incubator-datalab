@@ -58,6 +58,8 @@ export class ExploratoryModel {
       return data.map((value) => {
         return {
           project: value.project,
+          projectEndpoints: value.shared,
+          endpoints: value.endpoints,
           exploratory: value.exploratory.map(el => {
             const provider = el.cloud_provider.toLowerCase();
             const billing = value.exploratoryBilling.filter(res => res.name === el.exploratory_name)[0];
@@ -101,5 +103,7 @@ export class ExploratoryModel {
 
 export interface Exploratory {
   project: string;
+  endpoints: [];
+  projectEndpoints: [];
   exploratory: ExploratoryModel[];
 }

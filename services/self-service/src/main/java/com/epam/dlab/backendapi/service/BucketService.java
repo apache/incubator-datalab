@@ -22,15 +22,16 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.bucket.BucketDTO;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.util.List;
 
 public interface BucketService {
     List<BucketDTO> getObjects(UserInfo userInfo, String bucket, String endpoint);
 
-    void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream);
+    void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize);
 
-    byte[] downloadObject(UserInfo userInfo, String bucket, String object, String endpoint);
+    void downloadObject(UserInfo userInfo, String bucket, String object, String endpoint, HttpServletResponse resp);
 
-    void deleteObject(UserInfo userInfo, String bucket, String object, String endpoint);
+    void deleteObjects(UserInfo userInfo, String bucket, List<String> objects, String endpoint);
 }

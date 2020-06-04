@@ -301,7 +301,7 @@
   },
   {
     "_id": "bucketBrowserView",
-    "description": "Allow to view objects within the bucket",
+    "description": "Allow to view object via bucket browser",
     "type": "BUCKET_BROWSER",
     "cloud": "GCP",
     "pages": [
@@ -313,7 +313,7 @@
   },
   {
     "_id": "bucketBrowserUpload",
-    "description": "Allow to upload object to the bucket",
+    "description": "Allow to upload object via bucket browser",
     "type": "BUCKET_BROWSER",
     "cloud": "GCP",
     "pages": [
@@ -325,7 +325,7 @@
   },
   {
     "_id": "bucketBrowserDownload",
-    "description": "Allow to download object from the bucket",
+    "description": "Allow to download object via bucket browser",
     "type": "BUCKET_BROWSER",
     "cloud": "GCP",
     "pages": [
@@ -337,7 +337,7 @@
   },
   {
     "_id": "bucketBrowserDelete",
-    "description": "Allow to delete object from the bucket",
+    "description": "Allow to delete object via bucket browser",
     "type": "BUCKET_BROWSER",
     "cloud": "GCP",
     "pages": [

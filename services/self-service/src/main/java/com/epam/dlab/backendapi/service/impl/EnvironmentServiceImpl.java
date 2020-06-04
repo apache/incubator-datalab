@@ -194,10 +194,12 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		if (projectDTO.getEndpoints() != null) {
 			final Stream<UserResourceInfo> edges = projectDTO.getEndpoints()
 					.stream()
-					.map(e -> new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-							.withResourceStatus(e.getStatus().toString())
-							.withProject(projectDTO.getName())
-							.withIp(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null));
+					.map(e -> UserResourceInfo.builder()
+							.resourceType(ResourceEnum.EDGE_NODE)
+							.resourceStatus(e.getStatus().toString())
+							.project(projectDTO.getName())
+							.ip(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null)
+							.build());
 			return Stream.concat(edges, userResources).collect(toList());
 		} else {
 			return userResources.collect(toList());
@@ -205,14 +207,17 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private UserResourceInfo toUserResourceInfo(UserInstanceDTO userInstance) {
-		return new UserResourceInfo().withResourceType(ResourceEnum.NOTEBOOK)
-				.withResourceName(userInstance.getExploratoryName())
-				.withResourceShape(userInstance.getShape())
-				.withResourceStatus(userInstance.getStatus())
-				.withCompResources(userInstance.getResources())
-				.withUser(userInstance.getUser())
-				.withProject(userInstance.getProject())
-				.withCloudProvider(userInstance.getCloudProvider());
+		return UserResourceInfo.builder()
+				.resourceType(ResourceEnum.NOTEBOOK)
+				.resourceName(userInstance.getExploratoryName())
+				.resourceShape(userInstance.getShape())
+				.resourceStatus(userInstance.getStatus())
+				.computationalResources(userInstance.getResources())
+				.user(userInstance.getUser())
+				.project(userInstance.getProject())
+				.cloudProvider(userInstance.getCloudProvider())
+				.exploratoryUrls(userInstance.getResourceUrl())
+				.build();
 	}
 
 	private void checkProjectResourceConditions(String project, String action) {

@@ -1,10 +1,21 @@
-import {Component, OnInit, AfterViewInit, Output, EventEmitter, OnDestroy} from '@angular/core';
-import {SelectionModel} from '@angular/cdk/collections';
+import {Component, Output, EventEmitter, OnDestroy, Input, OnInit} from '@angular/core';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BucketBrowserService, TodoItemFlatNode, TodoItemNode} from '../../../core/services/bucket-browser.service';
 import {BucketDataService} from '../bucket-data.service';
 import {Subscription} from 'rxjs';
+import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
+import {ErrorStateMatcher} from '@angular/material/core';
+import {PATTERNS} from '../../../core/util';
+import {ToastrService} from 'ngx-toastr';
+import {HttpResponse} from '@angular/common/http';
+
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const isSubmitted = form && form.submitted;
+    return !!(control && control.invalid && (control.dirty));
+  }
+}
 
 
 
@@ -14,44 +25,57 @@ import {Subscription} from 'rxjs';
   styleUrls: ['./folder-tree.component.scss']
 })
 
-export class FolderTreeComponent implements OnInit, OnDestroy {
+export class FolderTreeComponent implements OnDestroy {
 
   @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
+  @Output() disableAll: EventEmitter<any> = new EventEmitter();
+  @Input() folders;
+  @Input() endpoint;
+
   private folderTreeSubs;
   private path = [];
   private selectedFolder: TodoItemFlatNode;
   private flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
   private nestedNodeMap = new Map<TodoItemNode, TodoItemFlatNode>();
-  private selectedParent: TodoItemFlatNode | null = null;
-  private newItemName = '';
+
+  private folderCreating = false;
   private subscriptions: Subscription = new Subscription();
   public treeControl: FlatTreeControl<TodoItemFlatNode>;
   private treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
   public dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
 
-  private checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
-
   constructor(
+    public toastr: ToastrService,
     private bucketBrowserService: BucketBrowserService,
     private bucketDataService: BucketDataService,
-    ) {
+  ) {
     this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-
-    this.subscriptions.add(bucketDataService._bucketData.subscribe(data => {
-     if (data) {
-       this.dataSource.data = data;
+    this.subscriptions.add(this.bucketDataService._bucketData.subscribe(data => {
+      if (data) {
+        this.dataSource.data = data;
         const subject = this.dataSource._flattenedData;
-       this.folderTreeSubs = subject.subscribe((subjectData) => {
+        const subjectData = subject.getValue();
           if (this.selectedFolder) {
             this.selectedFolder = subjectData.filter(v => v.item === this.selectedFolder.item && v.level === this.selectedFolder.level)[0];
           }
           this.expandAllParents(this.selectedFolder || subjectData[0]);
           this.showItem(this.selectedFolder || subjectData[0]);
-        });
+          if (this.selectedFolder && !this.bucketDataService.emptyFolder) {
+            setTimeout(() => {
+              const element = document.querySelector('.folder-item-line.active-item');
+              element && element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }, 0);
+          } else if (this.selectedFolder && this.bucketDataService.emptyFolder) {
+            setTimeout(() => {
+              const element = document.querySelector('#folder-form');
+              element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+            }, 0);
+          }
       }
     }));
+    this.dataSource._flattenedData.subscribe();
   }
 
   getLevel = (node: TodoItemFlatNode) => node.level;
@@ -62,7 +86,7 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
 
   hasChild = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.expandable;
 
-  hasNoContent = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.item === '';
+  hasNoContent = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.item === '' || _nodeData.item === 'ا';
 
   transformer = (node: TodoItemNode, level: number) => {
     const existingNode = this.nestedNodeMap.get(node);
@@ -77,12 +101,25 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     return flatNode;
   }
 
-
-  ngOnInit() {
-  }
-
   ngOnDestroy() {
     this.bucketDataService._bucketData.next([]);
+    this.subscriptions.unsubscribe();
+    this.bucketDataService.emptyFolder = null;
+  }
+
+  folderFormControl = new FormControl('', [
+    Validators.required,
+    Validators.pattern(PATTERNS.folderRegex),
+    this.duplicate.bind(this)
+  ]);
+
+  matcher = new MyErrorStateMatcher();
+
+  private duplicate(control) {
+    if (control && control.value) {
+      const isDublicat = this.folders.slice(1).some(folder => folder.item === control.value);
+      return isDublicat ? { isDuplicate: true } : null;
+    }
   }
 
   private showItem(el) {
@@ -94,7 +131,8 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
       const data = {
         flatNode: el,
         element: this.flatNodeMap.get(el),
-        path: path.join('/')
+        path: path.map(v => v.item).join('/'),
+        pathObject: path
       };
       this.showFolderContent.emit(data);
     }
@@ -103,10 +141,10 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
   private getPath(el) {
     if (el) {
       if (this.path.length === 0) {
-        this.path.unshift(el.item);
+        this.path.unshift(el);
       }
       if (this.getParentNode(el) !== null) {
-        this.path.unshift(this.getParentNode(el).item);
+        this.path.unshift(this.getParentNode(el));
         this.getPath(this.getParentNode(el));
       }
       return this.path;
@@ -119,63 +157,6 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
       if (this.getParentNode(el) !== null) {
         this.expandAllParents(this.getParentNode(el));
       }
-    }
-  }
-
-  private descendantsAllSelected(node: TodoItemFlatNode): boolean {
-
-    const descendants = this.treeControl.getDescendants(node);
-    const descAllSelected = descendants.every(child =>
-      this.checklistSelection.isSelected(child)
-    );
-    return descAllSelected;
-  }
-
-  private descendantsPartiallySelected(node: TodoItemFlatNode): boolean {
-
-    const descendants = this.treeControl.getDescendants(node);
-    const result = descendants.some(child => this.checklistSelection.isSelected(child));
-    return result && !this.descendantsAllSelected(node);
-  }
-
-  private todoItemSelectionToggle(node: TodoItemFlatNode): void {
-    this.checklistSelection.toggle(node);
-  const descendants = this.treeControl.getDescendants(node);
-  this.checklistSelection.isSelected(node)
-? this.checklistSelection.select(...descendants)
-    : this.checklistSelection.deselect(...descendants);
-
-  // Force update for the parent
-  descendants.every(child =>
-  this.checklistSelection.isSelected(child)
-);
-  this.checkAllParentsSelection(node);
-}
-
-  private todoLeafItemSelectionToggle(node: TodoItemFlatNode): void {
-    this.checklistSelection.toggle(node);
-    this.checkAllParentsSelection(node);
-  }
-
-  private checkAllParentsSelection(node: TodoItemFlatNode): void {
-    let parent: TodoItemFlatNode | null = this.getParentNode(node);
-    while (parent) {
-      this.checkRootNodeSelection(parent);
-      parent = this.getParentNode(parent);
-    }
-  }
-
-
-  private checkRootNodeSelection(node: TodoItemFlatNode): void {
-    const nodeSelected = this.checklistSelection.isSelected(node);
-    const descendants = this.treeControl.getDescendants(node);
-    const descAllSelected = descendants.every(child =>
-      this.checklistSelection.isSelected(child)
-    );
-    if (nodeSelected && !descAllSelected) {
-      this.checklistSelection.deselect(node);
-    } else if (!nodeSelected && descAllSelected) {
-      this.checklistSelection.select(node);
     }
   }
 
@@ -197,15 +178,67 @@ export class FolderTreeComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  private addNewItem(node: TodoItemFlatNode, file, isFile, path) {
-    const parentNode = this.flatNodeMap.get(node);
-    this.bucketDataService.insertItem(parentNode!, file, isFile);
-    this.treeControl.expand(node);
+
+private addNewItem(node: TodoItemFlatNode, file, isFile) {
+  const currNode = this.flatNodeMap.get(node);
+  if (!currNode.object) {
+    currNode.object = {bucket: currNode.item, object: ''};
+  }
+  const emptyFolderObject = currNode.object;
+  if (emptyFolderObject.object.lastIndexOf('ا') !== emptyFolderObject.object.length - 1 || emptyFolderObject.object === '') {
+    emptyFolderObject.object += 'ا';
+  }
+  this.bucketDataService.insertItem(currNode!, file, isFile, emptyFolderObject);
+  this.treeControl.expand(node);
+  setTimeout(() => {
+    const element = document.querySelector('#folder-form');
+    element && element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }, 0);
+  }
+
+  private removeItem(node: TodoItemFlatNode) {
+    const parentNode = this.flatNodeMap.get(this.getParentNode(node));
+    const childNode = this.flatNodeMap.get(node);
+    this.bucketDataService.emptyFolder = null;
+    this.bucketDataService.removeItem(parentNode!, childNode);
+    this.resetForm();
   }
 
   private saveNode(node: TodoItemFlatNode, itemValue: string) {
-    const nestedNode = this.flatNodeMap.get(node);
-    this.bucketDataService.updateItem(nestedNode!, itemValue);
+    this.folderCreating = true;
+    const parent = this.getParentNode(node);
+    const flatParent = this.flatNodeMap.get(parent);
+    let flatObject = flatParent.object.object;
+    if (flatObject.indexOf('ا') === flatObject.length - 1) {
+      flatObject = flatObject.substring(0, flatParent.object.object.length - 1);
+    }
+    const path = `${ flatParent.object && flatObject !== '/' ? flatObject : ''}${itemValue}/`;
+    const bucket = flatParent.object ? flatParent.object.bucket : flatParent.item;
+    const formData = new FormData();
+    formData.append('file', '');
+    formData.append('object', path);
+    formData.append('bucket', bucket);
+    formData.append('endpoint', this.endpoint);
+    this.bucketDataService.emptyFolder = null;
+    this.bucketBrowserService.uploadFile(formData)
+      .subscribe((event) => {
+          if (event instanceof HttpResponse) {
+            this.bucketDataService.insertItem(flatParent, itemValue, false);
+            // this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
+            this.toastr.success('Folder successfully created!', 'Success!');
+            this.folderCreating = false;
+            this.removeItem(node);
+          }
+        }, error => {
+          this.folderCreating = false;
+          this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
+        });
+  }
 
+  private resetForm() {
+    this.folderFormControl.setValue('');
+    this.folderFormControl.updateValueAndValidity();
+    this.folderFormControl.markAsPristine();
+    this.disableAll.emit(false);
   }
 }

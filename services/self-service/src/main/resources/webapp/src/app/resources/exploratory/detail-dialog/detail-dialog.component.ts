@@ -27,6 +27,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { DataengineConfigurationService } from '../../../core/services';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 import {BucketBrowserComponent} from '../../bucket-browser/bucket-browser.component';
+import {CopyPathUtils} from '../../../core/util/copyPathUtils';
 
 @Component({
   selector: 'detail-dialog',
@@ -36,17 +37,21 @@ import {BucketBrowserComponent} from '../../bucket-browser/bucket-browser.compon
 
 export class DetailDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  readonly PROVIDER = this.data.notebook.cloud_provider;
+  readonly PROVIDER = this.data.notebook.cloud_provider.toLowerCase();
+  private isCopied: boolean = true;
   notebook: any;
   upTimeInHours: number;
   upTimeSince: string = '';
   tooltip: boolean = false;
   config: Array<{}> = [];
   bucketStatus: object = {};
+  isBucketAllowed = true;
+  isCopyIconVissible = false;
 
   public configurationForm: FormGroup;
 
   @ViewChild('configurationNode', { static: false }) configuration;
+
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -69,6 +74,11 @@ export class DetailDialogComponent implements OnInit {
       this.upTimeSince = (this.notebook.time) ? new Date(this.notebook.time).toString() : '';
       this.initFormModel();
       this.getClusterConfiguration();
+    if (this.notebook.edgeNodeStatus === 'terminated' ||
+      this.notebook.edgeNodeStatus === 'terminating' ||
+      this.notebook.edgeNodeStatus === 'failed') {
+      this.isBucketAllowed = false;
+    }
     }
   }
 
@@ -125,9 +135,26 @@ export class DetailDialogComponent implements OnInit {
   }
 
   public bucketBrowser(bucketName, endpoint, permition): void {
-    permition && this.dialog.open(BucketBrowserComponent, { data:
-        {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus},
+    if (!permition) {
+      return;
+    }
+    bucketName = this.isBucketAllowed ? this.notebook.bucket_name : this.data.buckets[0].children[0].name;
+    // bucketName = 'ofuks-1304-pr2-local-bucket';
+    this.dialog.open(BucketBrowserComponent, { data:
+        {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.data.buckets},
       panelClass: 'modal-fullscreen' })
     .afterClosed().subscribe();
+  }
+
+  protected showCopyIcon() {
+    this.isCopyIconVissible = true;
+  }
+  protected hideCopyIcon() {
+    this.isCopyIconVissible = false;
+    this.isCopied = true;
+  }
+
+  protected copyBucketName(copyValue) {
+    CopyPathUtils.copyPath(copyValue);
   }
 }

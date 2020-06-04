@@ -42,6 +42,7 @@ export class ResourcesComponent implements OnInit {
 
   @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
 
+  public bucketStatus;
   constructor(
     public toastr: ToastrService,
     private healthStatusService: HealthStatusService,
@@ -65,6 +66,8 @@ export class ResourcesComponent implements OnInit {
     this.exploratoryEnvironments = this.resourcesGrid.environments;
   }
 
+
+
   public toggleFiltering(): void {
     if (this.resourcesGrid.activeFiltering) {
       this.resourcesGrid.resetFilterConfigurations();
@@ -78,9 +81,17 @@ export class ResourcesComponent implements OnInit {
       .afterClosed().subscribe(() => this.refreshGrid());
   }
 
-  public bucketBrowser(): void {
-    this.dialog.open(BucketBrowserComponent, { panelClass: 'modal-fullscreen' })
-      .afterClosed().subscribe(() => this.refreshGrid());
+  public bucketBrowser(permition): void {
+    const defaultBucket = this.resourcesGrid.bucketsList[0].children[0];
+      permition && this.dialog.open(BucketBrowserComponent, { data:
+        {
+          bucket: defaultBucket.name,
+          endpoint: defaultBucket.endpoint,
+          bucketStatus: this.bucketStatus,
+          buckets: this.resourcesGrid.bucketsList
+        },
+      panelClass: 'modal-fullscreen' })
+      .afterClosed().subscribe();
   }
 
   public setActiveProject(project): void {
@@ -106,6 +117,7 @@ export class ResourcesComponent implements OnInit {
       (result: any) => {
         this.healthStatus = result;
         this.resourcesGrid.healthStatus = this.healthStatus;
+        this.bucketStatus = this.healthStatus.bucketBrowser;
       },
       error => this.toastr.error(error.message, 'Oops!'));
   }

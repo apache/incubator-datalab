@@ -25,14 +25,19 @@ import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.bucket.BucketDTO;
+import com.epam.dlab.dto.bucket.BucketDeleteDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -50,7 +55,7 @@ public class BucketServiceImpl implements BucketService {
     private static final String BUCKET_GET_OBJECTS = "%sbucket/%s";
     private static final String BUCKET_UPLOAD_OBJECT = "%sbucket/upload";
     private static final String BUCKET_DOWNLOAD_OBJECT = "%sbucket/%s/object/%s/download";
-    private static final String BUCKET_DELETE_OBJECT = "%sbucket/%s/object/%s";
+    private static final String BUCKET_DELETE_OBJECT = "%sbucket/objects/delete";
 
     private final EndpointService endpointService;
     private final RESTService provisioningService;
@@ -74,10 +79,11 @@ public class BucketServiceImpl implements BucketService {
     }
 
     @Override
-    public void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream) {
+    public void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize) {
+        log.info("Uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
-            FormDataMultiPart formData = getFormDataMultiPart(bucket, object, inputStream);
+            FormDataMultiPart formData = getFormDataMultiPart(bucket, object, inputStream, fileSize);
             Response response = provisioningService.postForm(String.format(BUCKET_UPLOAD_OBJECT, endpointDTO.getUrl()), userInfo.getAccessToken(), formData, Response.class);
             if (response.getStatus() != HttpStatus.SC_OK) {
                 throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
@@ -86,14 +92,17 @@ public class BucketServiceImpl implements BucketService {
             log.error("Cannot upload object {} to bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage());
             throw new DlabException(String.format("Cannot upload object %s to bucket %s for user %s, endpoint %s. Reason %s", object, bucket, userInfo.getName(), endpoint, e.getMessage()));
         }
+        log.info("Finished uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
     }
 
     @Override
-    public byte[] downloadObject(UserInfo userInfo, String bucket, String object, String endpoint) {
-        try {
-            EndpointDTO endpointDTO = endpointService.get(endpoint);
-            return provisioningService.getWithMediaTypes(String.format(BUCKET_DOWNLOAD_OBJECT, endpointDTO.getUrl(), bucket, encodeObject(object)), userInfo.getAccessToken(), byte[].class,
-                    APPLICATION_JSON, APPLICATION_OCTET_STREAM);
+    public void downloadObject(UserInfo userInfo, String bucket, String object, String endpoint, HttpServletResponse resp) {
+        log.info("Downloading file {} for user {} from bucket {}", object, userInfo.getName(), bucket);
+        EndpointDTO endpointDTO = endpointService.get(endpoint);
+        try (InputStream inputStream = provisioningService.getWithMediaTypes(String.format(BUCKET_DOWNLOAD_OBJECT, endpointDTO.getUrl(), bucket, encodeObject(object)), userInfo.getAccessToken(),
+                InputStream.class, APPLICATION_JSON, APPLICATION_OCTET_STREAM); ServletOutputStream outputStream = resp.getOutputStream()) {
+            IOUtils.copyLarge(inputStream, outputStream);
+            log.info("Finished downloading file {} for user {} from bucket {}", object, userInfo.getName(), bucket);
         } catch (Exception e) {
             log.error("Cannot upload object {} from bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage());
             throw new DlabException(String.format("Cannot download object %s from bucket %s for user %s, endpoint %s. Reason %s", object, bucket, userInfo.getName(), endpoint, e.getMessage()));
@@ -101,29 +110,31 @@ public class BucketServiceImpl implements BucketService {
     }
 
     @Override
-    public void deleteObject(UserInfo userInfo, String bucket, String object, String endpoint) {
+    public void deleteObjects(UserInfo userInfo, String bucket, List<String> objects, String endpoint) {
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
-            Response response = provisioningService.delete(String.format(BUCKET_DELETE_OBJECT, endpointDTO.getUrl(), bucket, encodeObject(object)), userInfo.getAccessToken(), Response.class,
-                    APPLICATION_JSON, APPLICATION_JSON);
+            BucketDeleteDTO bucketDeleteDTO = new BucketDeleteDTO(bucket, objects);
+            Response response = provisioningService.post(String.format(BUCKET_DELETE_OBJECT, endpointDTO.getUrl()), userInfo.getAccessToken(), bucketDeleteDTO, Response.class);
             if (response.getStatus() != HttpStatus.SC_OK) {
                 throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
             }
         } catch (Exception e) {
-            log.error("Cannot delete object {} from bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage());
-            throw new DlabException(String.format("Cannot delete object %s from bucket %s for user %s, endpoint %s. Reason %s", object, bucket, userInfo.getName(), endpoint, e.getMessage()));
+            log.error("Cannot delete objects {} from bucket {} for user {}, endpoint {}. Reason {}", objects, bucket, userInfo.getName(), endpoint, e.getMessage());
+            throw new DlabException(String.format("Cannot delete objects %s from bucket %s for user %s, endpoint %s. Reason %s", objects, bucket, userInfo.getName(), endpoint, e.getMessage()));
         }
     }
 
     private String encodeObject(String object) throws UnsupportedEncodingException {
-        return URLEncoder.encode(object, StandardCharsets.UTF_8.toString());
+        return URLEncoder.encode(object, StandardCharsets.UTF_8.toString()).replace("+", "%20");
     }
 
-    private FormDataMultiPart getFormDataMultiPart(String bucket, String object, InputStream inputStream) {
+    private FormDataMultiPart getFormDataMultiPart(String bucket, String object, InputStream inputStream, long fileSize) {
+        StreamDataBodyPart filePart = new StreamDataBodyPart("file", inputStream, object, MediaType.valueOf(APPLICATION_OCTET_STREAM));
         FormDataMultiPart formData = new FormDataMultiPart();
-        formData.field("file", inputStream, MediaType.valueOf(APPLICATION_OCTET_STREAM));
         formData.field("bucket", bucket);
         formData.field("object", object);
+        formData.field("file-size", String.valueOf(fileSize));
+        formData.bodyPart(filePart);
         return formData;
     }
 }

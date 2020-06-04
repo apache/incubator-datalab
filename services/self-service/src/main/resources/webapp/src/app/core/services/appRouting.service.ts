@@ -34,7 +34,6 @@ export class AppRoutingService {
   }
 
   redirectToHomePage(): void {
-    console.log('redirect');
     this.router.navigate(['/resources_list']);
   }
 

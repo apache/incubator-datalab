@@ -24,8 +24,8 @@
         </span><strong>{{ reportData.tag_resource_id }}</strong></div>
       <div class="report-period info_color" *ngIf="availablePeriodFrom && availablePeriodTo">
         <span>Available reporting period from:</span>
-        <strong>{{ availablePeriodFrom | date }} </strong>
-        to: <strong>{{ availablePeriodTo | date }}</strong>
+        <strong>{{ availablePeriodFrom.join('/') | date }} </strong>
+        to: <strong>{{ availablePeriodTo.join('/') | date }}</strong>
       </div>
     </div>
   </div>

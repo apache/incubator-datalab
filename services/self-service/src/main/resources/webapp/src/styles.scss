@@ -155,6 +155,10 @@ mat-chip.mat-chip strong {
   pointer-events: none;
 }
 
+.cursor-not-allow{
+  cursor: not-allowed !important;
+}
+
 .not-active {
   cursor: not-allowed !important;
   opacity: .6;
@@ -311,12 +315,20 @@ input[type='number'] {
   margin-top: 30px;
 }
 
+.m-top-40 {
+  margin-top: 40px;
+}
+
 .m-bott-10 {
   margin-bottom: 10px;
 }
 
+.m-bott-20 {
+  margin-bottom: 20px;
+}
+
 .m-bott-30 {
-  margin-bottom: 10px;
+  margin-bottom: 30px;
 }
 
 .m-top-10p {
