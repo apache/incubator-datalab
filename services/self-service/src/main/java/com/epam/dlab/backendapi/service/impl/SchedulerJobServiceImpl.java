@@ -51,6 +51,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -75,9 +76,8 @@ import static java.util.Date.from;
 @Slf4j
 @Singleton
 public class SchedulerJobServiceImpl implements SchedulerJobService {
-
-	private static final String SCHEDULER_NOT_FOUND_MSG =
-			"Scheduler job data not found for user %s with exploratory %s";
+	private static final String SCHEDULER_NOT_FOUND_MSG = "Scheduler job data not found for user %s with exploratory %s";
+	private static final String AUDIT_MESSAGE = "Scheduled action";
 	private static final long ALLOWED_INACTIVITY_MINUTES = 1L;
 
 	@Inject
@@ -236,7 +236,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String user = job.getUser();
 		final String project = job.getProject();
 		log.debug("Stopping exploratory {} for user {} by scheduler", expName, user);
-		exploratoryService.stop(securityService.getServiceAccountInfo(user), project, expName);
+		exploratoryService.stop(securityService.getServiceAccountInfo(user), user, project, expName, Collections.singletonList(AUDIT_MESSAGE));
 	}
 
 	private List<SchedulerJobData> getExploratorySchedulersForTerminating(OffsetDateTime now) {
@@ -258,7 +258,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String exploratoryName = schedulerJobData.getExploratoryName();
 		final String project = schedulerJobData.getProject();
 		log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
-		exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, project);
+		exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, project, Collections.singletonList(AUDIT_MESSAGE));
 		if (schedulerJobData.getJobDTO().isSyncStartRequired()) {
 			log.trace("Starting computational for exploratory {} for user {} by scheduler", exploratoryName, user);
 			final DataEngineType sparkCluster = DataEngineType.SPARK_STANDALONE;
@@ -277,7 +277,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final String project = job.getProject();
 		final String expName = job.getExploratoryName();
 		log.debug("Terminating exploratory {} for user {} by scheduler", expName, user);
-		exploratoryService.terminate(securityService.getUserInfoOffline(user), project, expName);
+		exploratoryService.terminate(securityService.getUserInfoOffline(user), user, project, expName, Collections.singletonList(AUDIT_MESSAGE));
 	}
 
 	private void startSpark(String user, String expName, String compName, String project) {

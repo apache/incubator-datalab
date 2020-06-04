@@ -115,8 +115,8 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@BudgetLimited
-	@Override
 	@Audit(action = CREATE_PROJECT)
+	@Override
 	public void create(@User UserInfo user, ProjectDTO projectDTO, @ResourceName String resourceName) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
 			projectDAO.create(projectDTO);
@@ -182,7 +182,7 @@ public class ProjectServiceImpl implements ProjectService {
 						.stream()
 						.map(ProjectEndpointDTO::getName)
 						.collect(Collectors.toList()))
-				.forEach(e -> exploratoryService.stop(new UserInfo(e.getUser(), userInfo.getAccessToken()), projectName, e.getExploratoryName()));
+				.forEach(e -> exploratoryService.stop(userInfo, e.getUser(), projectName, e.getExploratoryName(), null));
 
 		endpointDTOs
 				.stream()

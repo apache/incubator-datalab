@@ -92,7 +92,7 @@ public class AuditInterceptor implements MethodInterceptor {
 
     private List<String> getInfo(MethodInvocation mi, Parameter[] parameters) {
         return IntStream.range(0, parameters.length)
-                .filter(i -> Objects.nonNull(parameters[i].getAnnotation(Info.class)))
+                .filter(i -> Objects.nonNull(parameters[i].getAnnotation(Info.class)) && Objects.nonNull(mi.getArguments()[i]))
                 .mapToObj(i -> (List<String>) mi.getArguments()[i])
                 .findAny()
                 .orElseGet(Collections::emptyList);

@@ -34,13 +34,13 @@ import java.util.Set;
 
 public interface ExploratoryService {
 
-    String start(UserInfo userInfo, String exploratoryName, String project);
+    String start(UserInfo userInfo, String exploratoryName, String project, List<String> auditInfo);
 
-    String stop(UserInfo userInfo, String project, String exploratoryName);
+    String stop(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, List<String> auditInfo);
 
-    String terminate(UserInfo userInfo, String project, String exploratoryName);
+    String terminate(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, List<String> auditInfo);
 
-    String create(UserInfo userInfo, Exploratory exploratory, String project);
+    String create(UserInfo userInfo, Exploratory exploratory, String project, String exploratoryName);
 
     void updateProjectExploratoryStatuses(String project, String endpoint, UserInstanceStatus status);
 
