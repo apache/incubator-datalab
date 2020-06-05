@@ -157,4 +157,8 @@ export class DetailDialogComponent implements OnInit {
   protected copyBucketName(copyValue) {
     CopyPathUtils.copyPath(copyValue);
   }
+
+  private logAction(name: any, description: string) {
+    console.log(`${name}: ${description}`);
+  }
 }

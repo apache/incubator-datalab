@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -25,7 +24,7 @@ import { MaterialModule } from '../../shared/material.module';
 import { FormControlsModule } from '../../shared/form-controls';
 import { KeysPipeModule, LineBreaksPipeModule } from '../../core/pipes';
 import {AuditComponent} from './audit.component';
-import {AuditGridComponent} from './audit-grid/audit-grid.component';
+import {AuditGridComponent, AuditInfoDialogComponent} from './audit-grid/audit-grid.component';
 import {AuditToolbarComponent} from './audit-toolbar/audit-toolbar.component';
 
 @NgModule({
@@ -41,8 +40,10 @@ import {AuditToolbarComponent} from './audit-toolbar/audit-toolbar.component';
   declarations: [
     AuditGridComponent,
     AuditToolbarComponent,
-    AuditComponent
+    AuditComponent,
+    AuditInfoDialogComponent
   ],
+  entryComponents: [AuditInfoDialogComponent],
   exports: [AuditComponent]
 })
 export class AuditModule { }

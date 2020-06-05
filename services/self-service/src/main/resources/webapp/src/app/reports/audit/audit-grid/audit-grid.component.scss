@@ -208,6 +208,16 @@
     }
   }
 
+  .action-wrapper{
+    display: flex;
+    align-items: center;
+    .audit-info{
+      color: lightgray;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+  }
+
   .dashboard_table_body {
     td:first-child {
       cursor: default;

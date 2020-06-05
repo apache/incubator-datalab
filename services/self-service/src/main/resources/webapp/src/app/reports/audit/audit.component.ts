@@ -18,13 +18,15 @@
  */
 
 
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild, Inject} from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import {HealthStatusService} from '../../core/services';
 import { DICTIONARY} from '../../../dictionary/global.dictionary';
 import {AuditToolbarComponent} from './audit-toolbar/audit-toolbar.component';
 import {AuditGridComponent} from './audit-grid/audit-grid.component';
 import {AuditService} from '../../core/services/audit.service';
+import {Endpoint} from '../../administration/project/project.component';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 
 @Component({

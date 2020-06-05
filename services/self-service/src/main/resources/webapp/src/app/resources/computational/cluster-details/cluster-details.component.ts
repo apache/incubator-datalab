@@ -115,4 +115,8 @@ export class DetailComputationalResourcesComponent implements OnInit {
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
   }
+
+  private logAction(name: any, description: string) {
+    console.log(`${name}: ${description}`);
+  }
 }
