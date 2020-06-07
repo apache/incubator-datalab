@@ -116,20 +116,18 @@ public class BillingServiceImpl implements BillingService {
                 .usageDateTo(max)
                 .totalCost(new BigDecimal(sum).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(currency)
-                .isFull(isFullReport(user))
+                .headerType(defineReportHeader(user))
                 .build();
     }
 
     @Override
     public String downloadReport(UserInfo user, BillingFilter filter) {
-        boolean isFull = isFullReport(user);
         BillingReport report = getBillingReport(user, filter);
         StringBuilder reportHead = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
-        String stringOfAdjustedHeader = BillingUtils.getHeader(isFull);
+        String stringOfAdjustedHeader = BillingUtils.getHeader(report.getHeaderType());
         reportHead.append(stringOfAdjustedHeader);
-
         try {
-            report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isFull)));
+            report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, report.getHeaderType())));
             reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), stringOfAdjustedHeader));
             return reportHead.toString();
         } catch (Exception e) {
@@ -311,13 +309,24 @@ public class BillingServiceImpl implements BillingService {
      * @param userInfo user's properties for current session
      * @return true, if user has be billing role
      */
-    private boolean isFullReport(UserInfo userInfo) {
-        return UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing",
-                userInfo.getRoles());
+    private boolean hasUserBillingRole(UserInfo userInfo) {
+        return UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing", userInfo.getRoles());
+    }
+
+    /**
+     *
+     * @param userInfo - user properties for current session
+     * @return type of header for particular report
+     */
+    private String defineReportHeader(UserInfo userInfo) {
+        if (!hasUserBillingRole(userInfo)) {
+            return BillingUtils.NON_BILLING_HEADER;
+        }
+        return BillingUtils.BILLING_HEADER;
     }
 
     private void setUserFilter(UserInfo userInfo, BillingFilter filter) {
-        if (!isFullReport(userInfo)) {
+        if (!hasUserBillingRole(userInfo)) {
             filter.setUsers(Lists.newArrayList(userInfo.getName()));
         }
     }

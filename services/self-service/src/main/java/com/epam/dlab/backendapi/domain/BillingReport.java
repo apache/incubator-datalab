@@ -40,6 +40,6 @@ public class BillingReport {
     @JsonProperty("total_cost")
     private double totalCost;
     private String currency;
-    @JsonProperty("is_full")
-    private boolean isFull;
+    @JsonProperty("header_type")
+    private String headerType;
 }
