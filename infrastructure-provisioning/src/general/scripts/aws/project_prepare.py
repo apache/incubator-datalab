@@ -184,33 +184,44 @@ if __name__ == "__main__":
     except KeyError:
         project_conf['vpc2_id'] = project_conf['vpc_id']
 
-
-
-    try:
-        logging.info('[CREATE SUBNET]')
-        print('[CREATE SUBNET]')
-        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --prefix {} " \
-                 "--user_subnets_range '{}' --subnet_name {} --zone {}".format(
-                  project_conf['vpc2_id'], project_conf['tag_name'], project_conf['service_base_name'],
-                  project_conf['private_subnet_prefix'], os.environ['conf_user_subnets_range'],
-                  project_conf['private_subnet_name'],
-                  project_conf['zone'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_subnet', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        dlab.fab.append_result("Failed to create subnet.", str(err))
-        sys.exit(1)
-
     tag = {"Key": project_conf['tag_name'],
            "Value": "{0}-{1}-{2}-subnet".format(project_conf['service_base_name'], project_conf['project_name'],
                                                 project_conf['endpoint_name'])}
-    project_conf['private_subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
-    subnet_id = dlab.meta_lib.get_subnet_by_cidr(project_conf['private_subnet_cidr'], project_conf['vpc2_id'])
-    print('Subnet id: {}'.format(subnet_id))
-    print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
+
+    if os.environ['aws_private_subnet_cidr']:
+        project_conf['private_subnet_cidr'] = os.environ['aws_private_subnet_cidr']
+    else:
+        try:
+            try:
+                logging.info('[CREATE SUBNET]')
+                print('[CREATE SUBNET]')
+                params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --prefix {} " \
+                         "--user_subnets_range '{}' --subnet_name {} --zone {}".format(
+                          project_conf['vpc2_id'], project_conf['tag_name'], project_conf['service_base_name'],
+                          project_conf['private_subnet_prefix'], os.environ['conf_user_subnets_range'],
+                          project_conf['private_subnet_name'],
+                          project_conf['zone'])
+                try:
+                    local("~/scripts/{}.py {}".format('common_create_subnet', params))
+                except:
+                    traceback.print_exc()
+                    raise Exception
+            except Exception as err:
+                dlab.fab.append_result("Failed to create subnet.", str(err))
+                sys.exit(1)
+
+            project_conf['private_subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
+        except Exception as err:
+            dlab.fab.append_result("Failed to create subnet.", str(err))
+            sys.exit(1)
+
+    try:
+        subnet_id = dlab.meta_lib.get_subnet_by_cidr(project_conf['private_subnet_cidr'], project_conf['vpc2_id'])
+        print('Subnet id: {}'.format(subnet_id))
+        print('NEW SUBNET CIDR CREATED: {}'.format(project_conf['private_subnet_cidr']))
+    except Exception as err:
+        dlab.fab.append_result("Failed to assign subnet.", str(err))
+        sys.exit(1)
 
     try:
         logging.info('[CREATE EDGE ROLES]')

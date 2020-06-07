@@ -112,7 +112,10 @@ if __name__ == "__main__":
         tag = {"Key": notebook_config['tag_name'],
                "Value": "{}-{}-{}-subnet".format(notebook_config['service_base_name'], notebook_config['project_name'],
                                                  notebook_config['endpoint_name'])}
-        notebook_config['subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
+        if os.environ['aws_private_subnet_cidr']:
+            notebook_config['subnet_cidr'] = os.environ['aws_private_subnet_cidr']
+        else:
+            notebook_config['subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
         with open('/root/result.json', 'w') as f:

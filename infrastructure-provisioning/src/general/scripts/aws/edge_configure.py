@@ -110,11 +110,9 @@ if __name__ == "__main__":
         for cidr in os.environ['conf_allowed_ip_cidr'].split(','):
             edge_conf['allowed_ip_cidr'].append(cidr.replace(' ', ''))
 
-        if edge_conf['network_type'] == 'public':
-            edge_conf['instance_hostname'] = dlab.meta_lib.get_instance_hostname(edge_conf['tag_name'],
+        edge_conf['instance_hostname'] = dlab.meta_lib.get_instance_hostname(edge_conf['tag_name'],
                                                                                  edge_conf['instance_name'])
-        elif edge_conf['network_type'] == 'private':
-            edge_conf['instance_hostname'] = dlab.meta_lib.get_instance_ip_address(
+        edge_conf['instance_private_ip'] = dlab.meta_lib.get_instance_ip_address(
                 edge_conf['tag_name'], edge_conf['instance_name']).get('Private')
 
         edge_conf['keyfile_name'] = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
@@ -142,7 +140,7 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format(
-            edge_conf['instance_hostname'], os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
+            edge_conf['instance_private_ip'], os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
             edge_conf['initial_user'], edge_conf['dlab_ssh_user'], edge_conf['sudo_group'])
 
         try:
@@ -159,7 +157,7 @@ if __name__ == "__main__":
         print('[INSTALLING PREREQUISITES]')
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(edge_conf['instance_hostname'], edge_conf['keyfile_name'], edge_conf['dlab_ssh_user'],
+            format(edge_conf['instance_private_ip'], edge_conf['keyfile_name'], edge_conf['dlab_ssh_user'],
                    os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -184,7 +182,7 @@ if __name__ == "__main__":
                              "vpc_cidrs": edge_conf['vpc_cidrs'],
                              "allowed_ip_cidr": edge_conf['allowed_ip_cidr']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            edge_conf['instance_hostname'], edge_conf['keyfile_name'], json.dumps(additional_config),
+            edge_conf['instance_private_ip'], edge_conf['keyfile_name'], json.dumps(additional_config),
             edge_conf['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('configure_http_proxy', params))
@@ -204,7 +202,7 @@ if __name__ == "__main__":
                              "user_keydir": os.environ['conf_key_dir'],
                              "user_key": edge_conf['user_key']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            edge_conf['instance_hostname'], edge_conf['keyfile_name'], json.dumps(additional_config),
+            edge_conf['instance_private_ip'], edge_conf['keyfile_name'], json.dumps(additional_config),
             edge_conf['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
@@ -222,7 +220,7 @@ if __name__ == "__main__":
         edge_conf['keycloak_client_secret'] = str(uuid.uuid4())
         params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
                  "--step_cert_sans '{}' ".format(
-                  edge_conf['instance_hostname'], edge_conf['keyfile_name'], edge_conf['dlab_ssh_user'],
+                  edge_conf['instance_private_ip'], edge_conf['keyfile_name'], edge_conf['dlab_ssh_user'],
                   '{}-{}-{}'.format(edge_conf['service_base_name'], edge_conf['project_name'],
                                     edge_conf['endpoint_name']),
                   edge_conf['keycloak_client_secret'], edge_conf['step_cert_sans'])
@@ -237,7 +235,7 @@ if __name__ == "__main__":
                            edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
                            os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
                            os.environ['keycloak_user_password'], edge_conf['keycloak_client_secret'],
-                           edge_conf['instance_hostname'], edge_conf['instance_hostname'], edge_conf['project_name'],
+                           edge_conf['instance_hostname'], edge_conf['instance_private_ip'], edge_conf['project_name'],
                            edge_conf['endpoint_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
