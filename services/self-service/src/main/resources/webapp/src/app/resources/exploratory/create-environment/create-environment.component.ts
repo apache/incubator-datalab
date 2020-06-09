@@ -111,8 +111,24 @@ export class ExploratoryEnvironmentCreateComponent implements OnInit {
 
   public getShapes(template) {
     this.currentTemplate = template;
-    this.shapes = SortUtils.shapesSort(template.exploratory_environment_shapes);
-    this.getImagesList();
+    const allowed: any = ['GPU optimized'];
+    if (template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('tensorflow') === -1
+      && template.exploratory_environment_versions[0].template_name.toLowerCase().indexOf('deep learning') === -1
+    ) {
+      const filtered = Object.keys(
+        SortUtils.shapesSort(template.exploratory_environment_shapes))
+        .filter(key => !(allowed.includes(key)))
+        .reduce((obj, key) => {
+          obj[key] = template.exploratory_environment_shapes[key];
+          return obj;
+        }, {});
+      template.exploratory_environment_shapes.computation_resources_shapes = filtered;
+      this.shapes = SortUtils.shapesSort(template.exploratory_environment_shapes.computation_resources_shapes);
+      this.getImagesList();
+    } else {
+      this.shapes = SortUtils.shapesSort(template.exploratory_environment_shapes);
+      this.getImagesList();
+    }
   }
 
   public createExploratoryEnvironment(data) {

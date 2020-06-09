@@ -76,7 +76,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   ngOnInit() {
     this.loading = true;
     this.notebook_instance = this.data.notebook;
-    console.log(this.data.notebook);
     this.resourcesList = this.data.full_list;
     this.initFormModel();
     this.getTemplates(this.notebook_instance.project, this.notebook_instance.endpoint, this.notebook_instance.cloud_provider);
@@ -84,7 +83,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectImage($event) {
     this.selectedImage = $event;
-    console.log( this.selectedImage);
     this.filterShapes();
     this.getComputationalResourceLimits();
 
@@ -271,9 +269,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     const allowed: any = ['GPU optimized'];
     if (this.notebook_instance.template_name.toLowerCase().indexOf('tensorflow') !== -1
       || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1
-      || this.notebook_instance.shape === 'n1-standard-2'
-      || this.notebook_instance.shape === 'n1-highcpu-8'
-      || this.notebook_instance.shape === 'n1-highmem-32'
     ) {
       const filtered = Object.keys(
         SortUtils.shapesSort(this.selectedImage.computation_resources_shapes))
@@ -282,16 +277,13 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           obj[key] = this.selectedImage.computation_resources_shapes[key];
           return obj;
         }, {});
-      console.log('Only GPU');
       if (this.PROVIDER !== 'azure') {
         const images = this.clusterTypes.filter(image => image.image === 'docker.dlab-dataengine');
         this.clusterTypes = images;
         this.selectedImage = this.clusterTypes[0];
       }
       this.selectedImage.computation_resources_shapes = filtered;
-    } else if (this.notebook_instance.shape !== 'n1-standard-2'
-      && this.notebook_instance.shape !== 'n1-highcpu-8'
-      && this.notebook_instance.shape !== 'n1-highmem-32') {
+    } else {
       const filtered = Object.keys(
         SortUtils.shapesSort(this.selectedImage.computation_resources_shapes))
         .filter(key => !(allowed.includes(key)))
@@ -300,9 +292,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           return obj;
         }, {});
       this.selectedImage.computation_resources_shapes = filtered;
-      console.log('Bez GPU');
-    }else{
-      console.log('On GPU');
     }
   }
 
