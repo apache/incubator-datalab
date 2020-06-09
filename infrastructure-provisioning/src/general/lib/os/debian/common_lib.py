@@ -28,7 +28,7 @@ import os
 import time
 
 
-def manage_pkg(command, environment, requisites):
+def manage_pkg(command, environment, requisites, warn='False'):
     try:
         allow = False
         counter = 0
@@ -47,7 +47,7 @@ def manage_pkg(command, environment, requisites):
                         sudo('sudo dpkg --configure -a')
                         sudo('sudo apt update')
                         try:
-                            sudo('apt-get {0} {1}'.format(command, requisites))
+                            sudo('apt-get {0} {1}'.format(command, requisites), warn_only=warn)
                         except:
                             sudo('lsof /var/lib/dpkg/lock')
                             sudo('lsof /var/lib/apt/lists/lock')

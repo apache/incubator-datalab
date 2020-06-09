@@ -245,7 +245,7 @@ def configure_docker(os_user):
                   stable"')
             manage_pkg('update', 'remote', '')
             sudo('apt-cache policy docker-ce')
-            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
+            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version), 'True')
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))
