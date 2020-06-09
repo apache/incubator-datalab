@@ -87,7 +87,10 @@ if __name__ == "__main__":
         tag = {"Key": edge_conf['tag_name'],
                "Value": "{}-{}-{}-subnet".format(edge_conf['service_base_name'], edge_conf['project_name'],
                                                  edge_conf['endpoint_name'])}
-        edge_conf['private_subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
+        if os.environ['aws_private_subnet_cidr']:
+            edge_conf['private_subnet_cidr'] = os.environ['aws_private_subnet_cidr']
+        else:
+            edge_conf['private_subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
         edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         edge_conf['network_type'] = os.environ['conf_network_type']
         if edge_conf['network_type'] == 'public':
@@ -235,7 +238,7 @@ if __name__ == "__main__":
                            edge_conf['service_base_name'], os.environ['keycloak_auth_server_url'],
                            os.environ['keycloak_realm_name'], os.environ['keycloak_user'],
                            os.environ['keycloak_user_password'], edge_conf['keycloak_client_secret'],
-                           edge_conf['instance_hostname'], edge_conf['instance_private_ip'], edge_conf['project_name'],
+                           edge_conf['edge_public_ip'], edge_conf['instance_hostname'], edge_conf['project_name'],
                            edge_conf['endpoint_name'])
         try:
             local("~/scripts/{}.py {}".format('configure_keycloak', keycloak_params))
