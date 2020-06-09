@@ -19,8 +19,8 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.backendapi.domain.AuditCreateDTO;
+import com.epam.dlab.backendapi.domain.AuditDTO;
 
 public interface AuditDAO {
-    void save(AuditCreateDTO audit);
+    void save(AuditDTO audit);
 }

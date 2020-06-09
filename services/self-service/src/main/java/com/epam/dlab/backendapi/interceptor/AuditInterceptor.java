@@ -25,7 +25,7 @@ import com.epam.dlab.backendapi.annotation.Info;
 import com.epam.dlab.backendapi.annotation.ResourceName;
 import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.domain.AuditActionEnum;
-import com.epam.dlab.backendapi.domain.AuditCreateDTO;
+import com.epam.dlab.backendapi.domain.AuditDTO;
 import com.epam.dlab.backendapi.service.AuditService;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -55,7 +55,7 @@ public class AuditInterceptor implements MethodInterceptor {
         final String resourceName = getResourceName(mi, parameters);
         final List<String> infoMap = getInfo(mi, parameters);
 
-        AuditCreateDTO auditCreateDTO = AuditCreateDTO.builder()
+        AuditDTO auditCreateDTO = AuditDTO.builder()
                 .user(user)
                 .action(action)
                 .resourceName(resourceName)

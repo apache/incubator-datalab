@@ -20,7 +20,9 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.dao.AuditDAO;
+import com.epam.dlab.backendapi.domain.AuditActionEnum;
 import com.epam.dlab.backendapi.domain.AuditCreateDTO;
+import com.epam.dlab.backendapi.domain.AuditDTO;
 import com.epam.dlab.backendapi.service.AuditService;
 import com.google.inject.Inject;
 
@@ -33,7 +35,19 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public void save(AuditCreateDTO audit) {
+    public void save(AuditDTO audit) {
         auditDAO.save(audit);
+    }
+
+    @Override
+    public void save(String user, AuditCreateDTO audit) {
+        AuditDTO auditDTO = AuditDTO.builder()
+                .user(user)
+                .resourceName(audit.getResourceName())
+                .action(AuditActionEnum.FOLLOW_NOTEBOOK_LINK)
+                .info(audit.getInfo())
+                .build();
+
+        auditDAO.save(auditDTO);
     }
 }

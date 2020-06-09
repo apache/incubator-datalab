@@ -19,13 +19,13 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.backendapi.domain.AuditCreateDTO;
+import com.epam.dlab.backendapi.domain.AuditDTO;
 
 public class AuditDAOImpl extends BaseDAO implements AuditDAO {
     private final static String AUDIT_COLLECTION = "audit";
 
     @Override
-    public void save(AuditCreateDTO audit) {
+    public void save(AuditDTO audit) {
         insertOne(AUDIT_COLLECTION, audit);
     }
 }

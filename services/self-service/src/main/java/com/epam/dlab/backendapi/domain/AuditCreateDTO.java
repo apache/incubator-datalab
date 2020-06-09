@@ -19,17 +19,19 @@
 
 package com.epam.dlab.backendapi.domain;
 
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 import java.util.List;
 
 
 @Data
-@Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AuditCreateDTO {
-    private final String user;
-    private final AuditActionEnum action;
+    @NotBlank(message = "field cannot be empty")
+    @JsonProperty("resource_name")
     private final String resourceName;
     private final List<String> info;
 }
