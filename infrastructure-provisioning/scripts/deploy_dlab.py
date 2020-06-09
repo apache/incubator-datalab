@@ -67,6 +67,7 @@ parser.add_argument('--aws_peering_id', type=str, default='', help='Amazon peeri
 parser.add_argument('--azure_vpc_name', type=str, default='', help='Azure VPC Name')
 parser.add_argument('--gcp_vpc_name', type=str, default='', help='GCP VPC Name')
 parser.add_argument('--aws_subnet_id', type=str, default='', help='AWS Subnet ID')
+parser.add_argument('--aws_private_subnet_cidr', type=str, default='', help='AWS Private Subnet CIDR')
 parser.add_argument('--azure_subnet_name', type=str, default='', help='Azure Subnet Name')
 parser.add_argument('--gcp_subnet_name', type=str, default='', help='GCP Subnet Name')
 parser.add_argument('--aws_security_groups_ids', type=str, default='', help='One of more comma-separated Security '
