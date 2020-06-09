@@ -19,16 +19,20 @@
 
 package com.epam.dlab.backendapi.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AuditDTO {
     private final String user;
     private final AuditActionEnum action;
     private final String resourceName;
     private final List<String> info;
+    private Date timestamp;
 }

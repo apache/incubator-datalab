@@ -21,6 +21,10 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.domain.AuditDTO;
 
+import java.util.List;
+
 public interface AuditDAO {
     void save(AuditDTO audit);
+
+    List<AuditDTO> getAudit();
 }

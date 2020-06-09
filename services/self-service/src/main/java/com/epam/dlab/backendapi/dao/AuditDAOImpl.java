@@ -21,11 +21,18 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.domain.AuditDTO;
 
+import java.util.List;
+
 public class AuditDAOImpl extends BaseDAO implements AuditDAO {
     private final static String AUDIT_COLLECTION = "audit";
 
     @Override
     public void save(AuditDTO audit) {
         insertOne(AUDIT_COLLECTION, audit);
+    }
+
+    @Override
+    public List<AuditDTO> getAudit() {
+        return find(AUDIT_COLLECTION, AuditDTO.class);
     }
 }

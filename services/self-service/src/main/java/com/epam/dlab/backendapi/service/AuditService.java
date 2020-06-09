@@ -22,8 +22,12 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.backendapi.domain.AuditCreateDTO;
 import com.epam.dlab.backendapi.domain.AuditDTO;
 
+import java.util.List;
+
 public interface AuditService {
     void save(AuditDTO audit);
 
     void save(String user, AuditCreateDTO audit);
+
+    List<AuditDTO> getAudit();
 }

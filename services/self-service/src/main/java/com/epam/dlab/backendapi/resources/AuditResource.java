@@ -27,8 +27,10 @@ import io.dropwizard.auth.Auth;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -43,8 +45,14 @@ public class AuditResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createEndpoint(@Auth UserInfo userInfo, @Valid AuditCreateDTO auditCreateDTO) {
+    public Response saveAudit(@Auth UserInfo userInfo, @Valid AuditCreateDTO auditCreateDTO) {
         auditService.save(userInfo.getName(), auditCreateDTO);
         return Response.ok().build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAudit(@Auth UserInfo userInfo) {
+        return Response.ok(auditService.getAudit()).build();
     }
 }

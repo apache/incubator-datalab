@@ -26,6 +26,8 @@ import com.epam.dlab.backendapi.domain.AuditDTO;
 import com.epam.dlab.backendapi.service.AuditService;
 import com.google.inject.Inject;
 
+import java.util.List;
+
 public class AuditServiceImpl implements AuditService {
     private final AuditDAO auditDAO;
 
@@ -49,5 +51,10 @@ public class AuditServiceImpl implements AuditService {
                 .build();
 
         auditDAO.save(auditDTO);
+    }
+
+    @Override
+    public List<AuditDTO> getAudit() {
+        return auditDAO.getAudit();
     }
 }
