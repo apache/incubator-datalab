@@ -174,8 +174,8 @@ if __name__ == "__main__":
     if os.environ['application'] == 'deeplearning':
         print("Installing Caffe2")
         install_caffe2(args.os_user, caffe2_version, cmake_version)
-        print("Installing Torch")
-        install_torch(args.os_user)
+        #print("Installing Torch")
+        #install_torch(args.os_user)
         print("Install CNTK Python library")
         install_cntk(args.os_user, cntk2_version, cntk_version)
         print("Installing MXNET")
