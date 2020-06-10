@@ -214,13 +214,13 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	private void stopComputational(SchedulerJobData job) {
-		final String project = job.getProject();
-		final String expName = job.getExploratoryName();
-		final String compName = job.getComputationalName();
-		final String user = job.getUser();
-		log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.stopSparkCluster(securityService.getServiceAccountInfo(user), project, expName, compName);
-	}
+        final String project = job.getProject();
+        final String expName = job.getExploratoryName();
+        final String compName = job.getComputationalName();
+        final String user = job.getUser();
+        log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
+        computationalService.stopSparkCluster(securityService.getServiceAccountInfo(user), user, project, expName, compName, Collections.singletonList(AUDIT_MESSAGE));
+    }
 
 	private void terminateComputational(SchedulerJobData job) {
         final String user = job.getUser();
@@ -281,9 +281,9 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	private void startSpark(String user, String expName, String compName, String project) {
-		log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, project);
-	}
+        log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
+        computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, project, Collections.singletonList(AUDIT_MESSAGE));
+    }
 
 	private boolean shouldClusterBeStarted(DataEngineType sparkCluster, UserComputationalResource compResource) {
 		return Objects.nonNull(compResource.getSchedulerData()) && compResource.getSchedulerData().isSyncStartRequired()

@@ -50,25 +50,25 @@ public interface ComputationalService {
 	 *
 	 * @param userInfo          user info of authenticated user
 	 * @param resourceCreator   username of resource creator
-	 * @param project           project name
-	 * @param exploratoryName   name of exploratory where to terminate computational resources with <code>computationalName</code>
-	 * @param computationalName computational name
-	 * @param auditInfo         additional info for audit
-	 */
-	void terminateComputational(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, String computationalName, List<String> auditInfo);
+     * @param project           project name
+     * @param exploratoryName   name of exploratory where to terminate computational resources with <code>computationalName</code>
+     * @param computationalName computational name
+     * @param auditInfo         additional info for audit
+     */
+    void terminateComputational(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, String computationalName, List<String> auditInfo);
 
-	boolean createDataEngineService(UserInfo userInfo, String resourceName, ComputationalCreateFormDTO formDTO, UserComputationalResource
-			computationalResource, String project, List<String> auditInfo);
+    boolean createDataEngineService(UserInfo userInfo, String resourceName, ComputationalCreateFormDTO formDTO, UserComputationalResource
+            computationalResource, String project, List<String> auditInfo);
 
-	void stopSparkCluster(UserInfo userInfo, String project, String exploratoryName, String computationalName);
+    void stopSparkCluster(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, String computationalName, List<String> auditInfo);
 
-	void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName, String project);
+    void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName, String project, List<String> auditInfo);
 
-	void updateSparkClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName,
-								  List<ClusterConfig> config);
+    void updateSparkClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName,
+                                  List<ClusterConfig> config);
 
-	Optional<UserComputationalResource> getComputationalResource(String user, String project, String exploratoryName,
-																 String computationalName);
+    Optional<UserComputationalResource> getComputationalResource(String user, String project, String exploratoryName,
+                                                                 String computationalName);
 
-	List<ClusterConfig> getClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName);
+    List<ClusterConfig> getClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName);
 }

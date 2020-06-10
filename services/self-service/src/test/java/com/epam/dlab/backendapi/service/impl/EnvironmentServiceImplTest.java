@@ -164,14 +164,15 @@ public class EnvironmentServiceImplTest {
 
 	@Test
 	public void stopComputational() {
-		final UserInfo userInfo = getUserInfo();
-		doNothing().when(computationalService).stopSparkCluster(any(UserInfo.class), anyString(), anyString(), anyString());
+        final UserInfo userInfo = getUserInfo();
+        doNothing().when(computationalService).stopSparkCluster(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyList());
 
-		environmentService.stopComputational(userInfo, USER, PROJECT_NAME, EXPLORATORY_NAME_1, "compName");
+        environmentService.stopComputational(userInfo, USER, PROJECT_NAME, EXPLORATORY_NAME_1, "compName");
 
-		verify(computationalService).stopSparkCluster(refEq(userInfo), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq("compName"));
-		verifyNoMoreInteractions(securityService, computationalService);
-	}
+        verify(computationalService).stopSparkCluster(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq("compName"),
+                eq(Collections.singletonList(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME_1))));
+        verifyNoMoreInteractions(securityService, computationalService);
+    }
 
 	@Test
 	public void terminateExploratory() {

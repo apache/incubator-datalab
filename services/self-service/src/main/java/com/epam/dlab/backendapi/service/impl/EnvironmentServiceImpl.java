@@ -147,12 +147,11 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	@ProjectAdmin
-	@Override
-	public void stopComputational(@User UserInfo userInfo, String user, @Project String project, String exploratoryName,
-								  String computationalName) {
-		computationalService.stopSparkCluster(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName,
-				computationalName);
-	}
+    @Override
+    public void stopComputational(@User UserInfo userInfo, String user, @Project String project, String exploratoryName, String computationalName) {
+        computationalService.stopSparkCluster(userInfo, user, project, exploratoryName, computationalName,
+                Collections.singletonList(String.format(AUDIT_MESSAGE, exploratoryName)));
+    }
 
 	@ProjectAdmin
 	@Override
