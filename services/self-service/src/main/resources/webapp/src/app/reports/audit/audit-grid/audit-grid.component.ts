@@ -53,14 +53,16 @@ export class AuditGridComponent implements OnInit {
     });
   }
 
+  public setAvaliblePeriod(period) {
+    this.filterConfiguration.date_start = period.start_date;
+    this.filterConfiguration.date_end = period.end_date;
+  }
+
   public createFilterData (auditData) {
     const users = [];
     const resource = [];
     const project = [];
     const actions = [];
-    const date_start = '';
-    const date_end = '';
-    console.log(auditData);
     auditData.forEach(auditItem => {
       if (!users.includes(auditItem.user)) {
         users.push(auditItem.user);
@@ -75,8 +77,7 @@ export class AuditGridComponent implements OnInit {
         actions.push(auditItem.action);
       }
     });
-    this.filterConfiguration = new FilterAuditModel(users, resource, project, actions, '', '');
-    console.log(this.filterAuditData);
+    this.filterConfiguration = new FilterAuditModel(users, resource, project || [], actions, '', '');
   }
 
   toggleFilterRow(): void {
@@ -102,7 +103,7 @@ export class AuditGridComponent implements OnInit {
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
           <div mat-dialog-content class="content">
-            <ul info-items-list>
+            <ul info-items-list *ngIf="data.data.length>1;else message">
               <li class="info-item">
                   <span class="info-item-title">Group:</span>
                   <span class="info-item-data"> {{data.data.name}}</span>
@@ -114,6 +115,7 @@ export class AuditGridComponent implements OnInit {
                 </span>
               </li>
             </ul>
+            <ng-template #message>{{data.data[0]}}.</ng-template>
             <div class="text-center m-top-30 m-bott-10">
 <!--               <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>-->
 <!--               <button type="button" class="butt butt-success" mat-raised-button-->

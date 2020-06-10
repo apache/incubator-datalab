@@ -39,7 +39,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 <!--    </dlab-toolbar>-->
 <!--    <mat-divider></mat-divider>-->
 <!--    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>-->
-    <audit-toolbar (rebuildAudit)="rebuildAuditGrid()">
+    <audit-toolbar (rebuildAudit)="rebuildAuditGrid()" (setRangeOption) = setRangeOption($event)>
     </audit-toolbar>
     <mat-divider></mat-divider>
     <dlab-audit-grid></dlab-audit-grid>
@@ -67,11 +67,10 @@ export class AuditComponent implements OnInit, OnDestroy {
   @ViewChild(AuditGridComponent, { static: true }) auditGrid: AuditGridComponent;
   @ViewChild(AuditToolbarComponent, { static: true }) auditToolbar: AuditToolbarComponent;
 
-  public auditData;
+  public availablePeriod: any;
 
   constructor(
     private healthStatusService: HealthStatusService,
-    private auditService: AuditService,
     public toastr: ToastrService,
   ) { }
 
@@ -94,5 +93,9 @@ export class AuditComponent implements OnInit, OnDestroy {
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe((result: any) => {});
+  }
+
+  public setRangeOption(event) {
+    this.auditGrid.setAvaliblePeriod(event)
   }
 }
