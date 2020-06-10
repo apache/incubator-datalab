@@ -84,8 +84,11 @@ export class AuditComponent implements OnInit, OnDestroy {
   }
 
   public buildAuditReport() {
-    this.auditData = this.auditService.getAuditData();
-    this.auditGrid.refreshAudit(this.auditData);
+    this.auditData = this.auditService.getAuditData().subscribe(auditData => {
+      console.log(auditData);
+      // this.auditGrid.refreshAudit(auditData);
+    });
+
 
   }
 

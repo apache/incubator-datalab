@@ -26,6 +26,7 @@ import { DateUtils, CheckUtils } from '../../../core/util';
 import { DataengineConfigurationService } from '../../../core/services';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../computational-resource-create-dialog/cluster-configuration-templates';
+import {AuditService} from '../../../core/services/audit.service';
 
 @Component({
   selector: 'dlab-cluster-details',
@@ -52,7 +53,8 @@ export class DetailComputationalResourcesComponent implements OnInit {
     public toastr: ToastrService,
     public dialogRef: MatDialogRef<DetailComputationalResourcesComponent>,
     private dataengineConfigurationService: DataengineConfigurationService,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private auditService: AuditService
   ) { }
 
   ngOnInit() {
@@ -117,6 +119,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
   }
 
   private logAction(name: any, description: string) {
+    this.auditService.sendDataToAudit({resource_name: name, info: ['User opened link' + description]}).subscribe();
     console.log(`${name}: ${description}`);
   }
 }
