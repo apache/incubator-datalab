@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -222,6 +223,7 @@ public class ProjectServiceImpl implements ProjectService {
 	public void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> dtos) {
 		final List<ProjectDTO> projects = dtos
 				.stream()
+				.filter(dto -> Objects.nonNull(dto.getBudget()))
 				.map(dto -> ProjectDTO.builder().name(dto.getProject()).budget(dto.getBudget()).build())
 				.collect(Collectors.toList());
 
