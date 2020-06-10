@@ -21,6 +21,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {FilterAuditModel} from '../filter-audit.model';
 import {NotificationDialogComponent} from '../../../shared/modal-dialog/notification-dialog';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {AuditService} from '../../../core/services/audit.service';
 
 @Component({
   selector: 'dlab-audit-grid',
@@ -38,14 +39,45 @@ export class AuditGridComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<AuditInfoDialogComponent>,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private auditService: AuditService,
   ) {
   }
 
   ngOnInit() {}
 
-  public refreshAudit(auditData) {
-    this.auditData = auditData;
+  public refreshAudit() {
+    this.auditService.getAuditData().subscribe(auditData => {
+      this.auditData = auditData;
+      this.createFilterData(this.auditData);
+    });
+  }
+
+  public setAvaliblePeriod(period) {
+    this.filterConfiguration.date_start = period.start_date;
+    this.filterConfiguration.date_end = period.end_date;
+  }
+
+  public createFilterData (auditData) {
+    const users = [];
+    const resource = [];
+    const project = [];
+    const actions = [];
+    auditData.forEach(auditItem => {
+      if (!users.includes(auditItem.user)) {
+        users.push(auditItem.user);
+      }
+      if (!resource.includes(auditItem.resourceName)) {
+        resource.push(auditItem.resourceName);
+      }
+      if (!project.includes(auditItem.project)) {
+        project.push(auditItem.project);
+      }
+      if (!actions.includes(auditItem.action)) {
+        actions.push(auditItem.action);
+      }
+    });
+    this.filterConfiguration = new FilterAuditModel(users, resource, project || [], actions, '', '');
   }
 
   toggleFilterRow(): void {
@@ -71,7 +103,7 @@ export class AuditGridComponent implements OnInit {
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
           <div mat-dialog-content class="content">
-            <ul info-items-list>
+            <ul info-items-list *ngIf="data.data.length>1;else message">
               <li class="info-item">
                   <span class="info-item-title">Group:</span>
                   <span class="info-item-data"> {{data.data.name}}</span>
@@ -83,6 +115,7 @@ export class AuditGridComponent implements OnInit {
                 </span>
               </li>
             </ul>
+            <ng-template #message>{{data.data[0]}}.</ng-template>
             <div class="text-center m-top-30 m-bott-10">
 <!--               <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>-->
 <!--               <button type="button" class="butt butt-success" mat-raised-button-->
