@@ -49,7 +49,7 @@ import static com.epam.dlab.dto.billing.BillingResourceType.VOLUME;
 public class BillingUtils {
     private static final String[] AVAILABLE_NOTEBOOKS = {"zeppelin", "tensor-rstudio", "rstudio", "tensor", "superset", "jupyterlab", "jupyter", "deeplearning"};
     private static final String[] BILLING_FILTERED_REPORT_HEADERS = {"DLab ID", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
-    private static final String[] SCALE_REPORT_HEADERS = {"DLab ID", "User", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
+    private static final String[] COMPLETE_REPORT_REPORT_HEADERS = {"DLab ID", "User", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
     private static final String REPORT_FIRST_LINE = "Service base name: %s. Available reporting period from: %s to: %s";
     private static final String TOTAL_LINE = "Total: %s %s";
     private static final String SSN_FORMAT = "%s-ssn";
@@ -208,7 +208,7 @@ public class BillingUtils {
             return CSVFormatter.formatLine(
                     Arrays.asList(BillingUtils.BILLING_FILTERED_REPORT_HEADERS), CSVFormatter.SEPARATOR);
         }
-        return CSVFormatter.formatLine(Arrays.asList(BillingUtils.SCALE_REPORT_HEADERS), CSVFormatter.SEPARATOR);
+        return CSVFormatter.formatLine(Arrays.asList(BillingUtils.COMPLETE_REPORT_REPORT_HEADERS), CSVFormatter.SEPARATOR);
     }
 
     public static String printLine(BillingReportLine line, boolean isReportHeaderCompletable) {
