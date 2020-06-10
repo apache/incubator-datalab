@@ -118,7 +118,7 @@ public class ProjectServiceImpl implements ProjectService {
 	@BudgetLimited
 	@Audit(action = CREATE_PROJECT)
 	@Override
-	public void create(@User UserInfo user, ProjectDTO projectDTO, @ResourceName String resourceName) {
+	public void create(@User UserInfo user, ProjectDTO projectDTO, @Project @ResourceName String resourceName) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
 			projectDAO.create(projectDTO);
 			createProjectOnCloud(user, projectDTO);
@@ -207,7 +207,7 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Audit(action = UPDATE_PROJECT)
-	public void updateProject(@User UserInfo userInfo, @ResourceName String projectName, UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints,
+	public void updateProject(@User UserInfo userInfo, @Project @ResourceName String projectName, UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints,
 							  @Info List<String> projectAudit) {
 		final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints
 				.stream()
@@ -231,7 +231,7 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Audit(action = UPDATE_PROJECT)
-	public void updateBudget(@User UserInfo userInfo, @ResourceName String name, Integer budget, @Info List<String> updateBudgetAudit) {
+	public void updateBudget(@User UserInfo userInfo, @Project @ResourceName String name, Integer budget, @Info List<String> updateBudgetAudit) {
 		projectDAO.updateBudget(name, budget);
 	}
 
