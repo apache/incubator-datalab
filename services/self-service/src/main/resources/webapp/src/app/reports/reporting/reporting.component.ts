@@ -20,13 +20,13 @@
 
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import {ApplicationSecurityService, BillingReportService, HealthStatusService} from '../core/services';
+import {ApplicationSecurityService, BillingReportService, HealthStatusService} from '../../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
-import { FileUtils } from '../core/util';
-import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
-import {ProgressBarService} from '../core/services/progress-bar.service';
+import { FileUtils } from '../../core/util';
+import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dictionary';
+import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'dlab-reporting',
@@ -156,7 +156,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
         types.push(item['resource_type']);
 
       if (item.shape && types.indexOf(item.shape)) {
-        console.log(item);
        if (item.shape.indexOf('Master') > -1) {
           for (let shape of item.shape.split(/(?=Slave)/g)) {
             shape = shape.replace('Master: ', '');

@@ -90,28 +90,13 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
 					.filter(e -> exploratoryGpuIssuesAzureFilter(e, endpointDTO.getCloudProvider()) &&
 							UserRoles.checkAccess(user, RoleType.EXPLORATORY, e.getImage(), roles))
-					.peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes(), RoleType.EXPLORATORY_SHAPES,
-							roles))
+					.peek(e -> filterShapes(user, e.getExploratoryEnvironmentShapes(), RoleType.EXPLORATORY_SHAPES, roles))
 					.collect(Collectors.toList());
 
 		} catch (DlabException e) {
 			log.error("Could not load list of exploratory templates for user: {}", user.getName(), e);
 			throw e;
 		}
-	}
-
-	/**
-	 * Removes shapes for which user does not have an access
-	 *
-	 * @param user              user
-	 * @param environmentShapes shape types
-	 * @param roleType
-	 * @param roles
-	 */
-	private void filterShapes(UserInfo user, Map<String, List<ComputationalResourceShapeDto>> environmentShapes,
-							  RoleType roleType, Set<String> roles) {
-		environmentShapes.forEach((k, v) -> v.removeIf(compResShapeDto ->
-				!UserRoles.checkAccess(user, roleType, compResShapeDto.getType(), roles)));
 	}
 
 	@Override
@@ -129,8 +114,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 
 			return Arrays.stream(array)
 					.peek(e -> e.setImage(getSimpleImageName(e.getImage())))
-					.peek(e -> filterShapes(user, e.getComputationResourceShapes(), RoleType.COMPUTATIONAL_SHAPES,
-							user.getRoles()))
+					.peek(e -> filterShapes(user, e.getComputationResourceShapes(), RoleType.COMPUTATIONAL_SHAPES, roles))
 					.filter(e -> UserRoles.checkAccess(user, RoleType.COMPUTATIONAL, e.getImage(), roles))
 					.map(comp -> fullComputationalTemplate(comp, endpointDTO.getCloudProvider()))
 					.collect(Collectors.toList());
@@ -139,6 +123,21 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 			log.error("Could not load list of computational templates for user: {}", user.getName(), e);
 			throw e;
 		}
+	}
+
+	/**
+	 * Removes shapes for which user does not have an access
+	 *
+	 * @param user              user
+	 * @param environmentShapes shape types
+	 * @param roleType
+	 * @param roles
+	 */
+	private void filterShapes(UserInfo user, Map<String, List<ComputationalResourceShapeDto>> environmentShapes,
+							  RoleType roleType, Set<String> roles) {
+		environmentShapes.forEach((k, v) -> v.removeIf(compResShapeDto ->
+				!UserRoles.checkAccess(user, roleType, compResShapeDto.getType(), roles))
+		);
 	}
 
 	/**

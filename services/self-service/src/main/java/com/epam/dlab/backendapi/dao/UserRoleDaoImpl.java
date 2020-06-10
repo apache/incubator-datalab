@@ -55,6 +55,9 @@ import static java.util.stream.Collectors.toList;
 @Singleton
 public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final String[] DEFAULT_AWS_SHAPES = {"nbShapes_t2.medium_fetching", "compShapes_c4.xlarge_fetching"};
+	private static final String[] DEFAULT_GCP_SHAPES = {"compShapes_n1-standard-2_fetching", "nbShapes_n1-standard-2_fetching"};
+	private static final String[] DEFAULT_AZURE_SHAPES = {"nbShapes_Standard_E4s_v3_fetching", "compShapes_Standard_E4s_v3_fetching"};
 	private static final String ROLES_FILE_FORMAT = "/mongo/%s/mongo_roles.json";
 	private static final String USERS_FIELD = "users";
 	private static final String GROUPS_FIELD = "groups";
@@ -128,13 +131,15 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 		if (remainingProviders.contains(cloudProviderToBeRemoved)) {
 			return;
 		}
-
 		List<UserRoleDto> remainingRoles = new ArrayList<>();
 		remainingProviders.forEach(p -> remainingRoles.addAll(getUserRoleFromFile(p)));
 
-		getUserRoleFromFile(cloudProviderToBeRemoved).stream()
+		getUserRoleFromFile(cloudProviderToBeRemoved)
+				.stream()
+				.filter(role -> UserRoleDto.cloudSpecificTypes().contains(role.getType()))
 				.map(UserRoleDto::getId)
-				.filter(u -> remainingRoles.stream()
+				.filter(u -> remainingRoles
+						.stream()
 						.map(UserRoleDto::getId)
 						.noneMatch(id -> id.equals(u)))
 				.forEach(this::remove);
@@ -178,14 +183,11 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 
 	private Set<String> getDefaultShapes(CloudProvider cloudProvider) {
 		if (cloudProvider == CloudProvider.AWS) {
-			return Stream.of("nbShapes_t2.medium_fetching", "compShapes_c4.xlarge_fetching")
-					.collect(Collectors.toSet());
+			return Stream.of(DEFAULT_AWS_SHAPES).collect(Collectors.toSet());
 		} else if (cloudProvider == CloudProvider.GCP) {
-			return Stream.of("compShapes_n1-standard-2_fetching", "nbShapes_n1-standard-2_fetching")
-					.collect(Collectors.toSet());
+			return Stream.of(DEFAULT_GCP_SHAPES).collect(Collectors.toSet());
 		} else if (cloudProvider == CloudProvider.AZURE) {
-			return Stream.of("nbShapes_Standard_E4s_v3_fetching", "compShapes_Standard_E4s_v3_fetching")
-					.collect(Collectors.toSet());
+			return Stream.of(DEFAULT_AZURE_SHAPES).collect(Collectors.toSet());
 		} else {
 			throw new DlabException("Unsupported cloud provider " + cloudProvider);
 		}

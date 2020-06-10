@@ -28,6 +28,7 @@ import { ConfirmationDialogComponent } from '../../../shared/modal-dialog/confir
 import { EnvironmentsDataService } from '../management-data.service';
 import { EnvironmentModel, ManagementConfigModel } from '../management.model';
 import {ProgressBarService} from '../../../core/services/progress-bar.service';
+import {DetailDialogComponent} from '../../../resources/exploratory/detail-dialog';
 
 export interface ManageAction {
   action: string;
@@ -112,7 +113,9 @@ export class ManagementGridComponent implements OnInit {
     let filteredData = this.getEnvironmentDataCopy();
 
     const containsStatus = (list, selectedItems) => {
-      return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
+      if (list){
+        return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
+      }
     };
 
     if (filteredData.length) this.filtering = true;
@@ -131,8 +134,8 @@ export class ManagementGridComponent implements OnInit {
 
         if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
 
-        if (config.resources.length === 0 && config.type === 'active' ||
-          modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
+        if (config.resources && config.resources.length === 0 && config.type === 'active' ||
+          modifiedResources && modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {
           item.resources = modifiedResources;
           isResources = true;
         }
@@ -216,14 +219,26 @@ export class ManagementGridComponent implements OnInit {
       if (item.status && statuses.indexOf(item.status.toLowerCase()) === -1) statuses.push(item.status.toLowerCase());
       if (item.project && projects.indexOf(item.project) === -1) projects.push(item.project);
       if (item.shape && shapes.indexOf(item.shape) === -1) shapes.push(item.shape);
-
-      item.computational_resources.map((resource: any) => {
-        if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
-        resources.sort(SortUtils.statusSort);
-      });
+      if (item.computational_resources) {
+         item.computational_resources.map((resource: any) => {
+              if (resources.indexOf(resource.status) === -1) resources.push(resource.status);
+              resources.sort(SortUtils.statusSort);
+            });
+      }
     });
 
     this.filterConfiguration = new ManagementConfigModel(users, '', projects, shapes, statuses, resources);
+  }
+
+  openNotebookDetails(data) {
+    if (!data.exploratory_urls || !data.exploratory_urls.length) {
+      return;
+    }
+    this.dialog.open(DetailDialogComponent, { data:
+        {notebook: data, bucketStatus: {view: true, upload: true, download: true, delete: true},  buckets: [], type: 'environment'},
+      panelClass: 'modal-lg'
+    })
+      .afterClosed().subscribe(() => {});
   }
 }
 

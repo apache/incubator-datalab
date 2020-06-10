@@ -19,31 +19,12 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { NgDateRangePickerModule } from 'ng-daterangepicker';
-
-import { MaterialModule } from '../shared/material.module';
-import { FormControlsModule } from '../shared/form-controls';
-import { ReportingComponent } from './reporting.component';
-import { KeysPipeModule, LineBreaksPipeModule } from '../core/pipes';
-import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
-import { ToolbarComponent } from './toolbar/toolbar.component';
+import { ConvertFileSizePipe } from './convert-file-size.pipe';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    FormControlsModule,
-    KeysPipeModule,
-    LineBreaksPipeModule,
-    NgDateRangePickerModule,
-    MaterialModule
-  ],
-  declarations: [
-    ReportingComponent,
-    ReportingGridComponent,
-    ToolbarComponent
-  ],
-  exports: [ReportingComponent]
+  imports: [CommonModule],
+  declarations: [ConvertFileSizePipe],
+  exports: [ConvertFileSizePipe]
 })
-export class ReportingModule { }
+
+export class ConvertFileSizePipeModule { }

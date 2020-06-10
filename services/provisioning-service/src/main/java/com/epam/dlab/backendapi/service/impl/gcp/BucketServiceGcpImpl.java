@@ -29,10 +29,9 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayOutputStream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -58,51 +57,57 @@ public class BucketServiceGcpImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream) {
+    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
+        log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             BlobId blobId = BlobId.of(bucket, object);
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-            storage.create(blobInfo, IOUtils.toByteArray(stream));
+            storage.create(blobInfo, stream);
         } catch (Exception e) {
             log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
+        log.info("Finished uploading file {} to bucket {}", object, bucket);
     }
 
     @Override
-    public byte[] downloadObject(String bucket, String object) {
-        try {
+    public void downloadObject(String bucket, String object, HttpServletResponse resp) {
+        log.info("Downloading file {} from bucket {}", object, bucket);
+        try (ServletOutputStream outputStream = resp.getOutputStream()) {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             Blob blob = storage.get(BlobId.of(bucket, object));
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            blob.downloadTo(outputStream); //todo add check for blob != null and throw exception
-            return outputStream.toByteArray();
+            blob.downloadTo(outputStream);
+            log.info("Finished downloading file {} from bucket {}", object, bucket);
         } catch (Exception e) {
             log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
+        log.info("Finished downloading file {} from bucket {}", object, bucket);
     }
 
     @Override
-    public void deleteObject(String bucket, String object) {
+    public void deleteObjects(String bucket, List<String> objects) {
         try {
             Storage storage = StorageOptions.getDefaultInstance().getService();
-            storage.delete(bucket, object);
+            List<BlobId> blobIds = objects
+                    .stream()
+                    .map(o -> BlobId.of(bucket, o))
+                    .collect(Collectors.toList());
+            storage.delete(blobIds);
         } catch (Exception e) {
-            log.error("Cannot delete object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
-            throw new DlabException(String.format("Cannot delete object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
+            log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage());
+            throw new DlabException(String.format("Cannot delete objects %s from bucket %s. Reason: %s", objects, bucket, e.getMessage()));
         }
     }
 
     private BucketDTO toBucketDTO(BlobInfo blobInfo) {
-        final String size = FileUtils.byteCountToDisplaySize(blobInfo.getSize());
         Date date = new Date(blobInfo.getUpdateTime());
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
         return BucketDTO.builder()
                 .bucket(blobInfo.getBucket())
                 .object(blobInfo.getName())
-                .size(size)
+                .size(String.valueOf(blobInfo.getSize()))
                 .lastModifiedDate(formatter.format(date))
                 .build();
     }

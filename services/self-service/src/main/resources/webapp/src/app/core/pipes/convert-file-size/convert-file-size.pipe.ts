@@ -17,17 +17,23 @@
  * under the License.
  */
 
-package com.epam.dlab.dto.bucket;
+import { Pipe, PipeTransform } from '@angular/core';
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
-import org.hibernate.validator.constraints.NotBlank;
+@Pipe({ name: 'convertFileSize' })
 
-@Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class BucketDownloadDTO {
-    @NotBlank(message = "field cannot be empty")
-    private final String bucket;
-    @NotBlank(message = "field cannot be empty")
-    private final String object;
+export class ConvertFileSizePipe implements PipeTransform {
+  transform(bytes: number): any {
+      const sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+      if (bytes === 0) {
+        return '0 byte';
+      }
+      for (let i = 0; i < sizes.length; i++) {
+        if (bytes <= 1024) {
+          return bytes + ' ' + sizes[i];
+        } else {
+          bytes = parseFloat((bytes / 1024).toFixed(2));
+        }
+      }
+      return bytes;
+    }
 }

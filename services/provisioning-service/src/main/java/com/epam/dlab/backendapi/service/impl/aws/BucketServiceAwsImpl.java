@@ -23,18 +23,19 @@ import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.dto.bucket.BucketDTO;
 import com.epam.dlab.exceptions.DlabException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -64,7 +65,8 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream) {
+    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
+        log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             S3Client s3 = S3Client.create();
             PutObjectRequest uploadRequest = PutObjectRequest
@@ -72,53 +74,64 @@ public class BucketServiceAwsImpl implements BucketService {
                     .bucket(bucket)
                     .key(object)
                     .build();
-            s3.putObject(uploadRequest, RequestBody.fromBytes(IOUtils.toByteArray(stream)));
+            s3.putObject(uploadRequest, RequestBody.fromInputStream(stream, fileSize));
         } catch (Exception e) {
             log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
+        log.info("Finished uploading file {} to bucket {}", object, bucket);
     }
 
     @Override
-    public byte[] downloadObject(String bucket, String object) {
-        try {
+    public void downloadObject(String bucket, String object, HttpServletResponse resp) {
+        log.info("Downloading file {} from bucket {}", object, bucket);
+        try (ServletOutputStream outputStream = resp.getOutputStream()) {
             S3Client s3 = S3Client.create();
             GetObjectRequest downloadRequest = GetObjectRequest
                     .builder()
                     .bucket(bucket)
                     .key(object)
                     .build();
-            return s3.getObject(downloadRequest, ResponseTransformer.toBytes()).asByteArray();
+            s3.getObject(downloadRequest, ResponseTransformer.toOutputStream(outputStream));
         } catch (Exception e) {
             log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
+        log.info("Finished downloading file {} from bucket {}", object, bucket);
     }
 
     @Override
-    public void deleteObject(String bucket, String object) {
+    public void deleteObjects(String bucket, List<String> objects) {
         try {
             S3Client s3 = S3Client.create();
-            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest
-                    .builder()
+            List<ObjectIdentifier> objectsToDelete = objects
+                    .stream()
+                    .map(o -> ObjectIdentifier.builder()
+                            .key(o)
+                            .build())
+                    .collect(Collectors.toList());
+
+            DeleteObjectsRequest deleteObjectsRequests = DeleteObjectsRequest.builder()
                     .bucket(bucket)
-                    .key(object)
+                    .delete(Delete.builder()
+                            .objects(objectsToDelete)
+                            .build())
                     .build();
-            s3.deleteObject(deleteObjectRequest);
-        } catch (AwsServiceException e) {
-            log.error("Cannot delete object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
-            throw new DlabException(String.format("Cannot delete object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
+
+            s3.deleteObjects(deleteObjectsRequests);
+        } catch (Exception e) {
+            log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage());
+            throw new DlabException(String.format("Cannot delete objects %s from bucket %s. Reason: %s", objects, bucket, e.getMessage()));
         }
     }
 
     private BucketDTO toBucketDTO(String bucket, S3Object s3Object) {
-        final String size = FileUtils.byteCountToDisplaySize(s3Object.size());
         Date date = Date.from(s3Object.lastModified());
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
         return BucketDTO.builder()
                 .bucket(bucket)
                 .object(s3Object.key())
-                .size(size)
+                .size(String.valueOf(s3Object.size()))
                 .lastModifiedDate(formatter.format(date))
                 .build();
     }
