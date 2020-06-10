@@ -19,7 +19,10 @@
 
 .data-grid {
   &.management {
-
+    .mat-column-checkbox{
+      padding-left: 10px;
+      padding-right: 10px;
+    }
     .user{
       width: 15%;
     }

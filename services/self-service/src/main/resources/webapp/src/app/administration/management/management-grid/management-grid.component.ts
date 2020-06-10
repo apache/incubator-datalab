@@ -61,8 +61,8 @@ export class ManagementGridComponent implements OnInit {
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
 
-  displayedColumns: string[] = ['user', 'type', 'project', 'shape', 'status', 'resources', 'actions'];
-  displayedFilterColumns: string[] = ['user-filter', 'type-filter', 'project-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
+  displayedColumns: string[] = [ 'checkbox', 'user', 'type', 'project', 'shape', 'status', 'resources', 'actions'];
+  displayedFilterColumns: string[] = ['checkbox-filter', 'user-filter', 'type-filter', 'project-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -113,7 +113,7 @@ export class ManagementGridComponent implements OnInit {
     let filteredData = this.getEnvironmentDataCopy();
 
     const containsStatus = (list, selectedItems) => {
-      if (list){
+      if (list) {
         return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
       }
     };
@@ -239,6 +239,10 @@ export class ManagementGridComponent implements OnInit {
       panelClass: 'modal-lg'
     })
       .afterClosed().subscribe(() => {});
+  }
+
+  toggleActionForAll(element) {
+    element.isSelected = !element.isSelected;
   }
 }
 

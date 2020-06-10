@@ -433,6 +433,31 @@ span.mat-slide-toggle-content {
   }
 }
 
+.empty-checkbox {
+  min-width: 16px;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  border: 2px solid lightgrey;
+  margin-top: 2px;
+  position: relative;
+  cursor: pointer;
+  &.checked {
+    border-color: #35afd5;
+    background-color: #35afd5;
+  }
+  .checked-checkbox {
+    top: 0;
+    left: 4px;
+    width: 5px;
+    height: 10px;
+    border-bottom: 2px solid white;
+    border-right: 2px solid white;
+    position: absolute;
+    transform: rotate(45deg);
+  }
+}
+
 mat-horizontal-stepper {
   .mat-step-header {
     .mat-step-icon {
