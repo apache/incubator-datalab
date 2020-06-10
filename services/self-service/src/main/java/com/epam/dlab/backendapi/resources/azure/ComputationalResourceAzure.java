@@ -81,16 +81,16 @@ public class ComputationalResourceAzure {
 	@Path("dataengine")
 	public Response createDataEngine(@Auth UserInfo userInfo,
 									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
-		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
-		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage(), userInfo.getRoles())) {
-			log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
-			throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
-		}
+        log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
+        if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage(), userInfo.getRoles())) {
+            log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
+            throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
+        }
 
-		return computationalService.createSparkCluster(userInfo, form.getName(), form, form.getProject(), Collections.singletonList(String.format(AUDIT_MESSAGE, form.getNotebookName())))
-				? Response.ok().build()
-				: Response.status(Response.Status.FOUND).build();
-	}
+        return computationalService.createSparkCluster(userInfo, form.getName(), form, form.getProject(), getAuditInfo(form.getNotebookName()))
+                ? Response.ok().build()
+                : Response.status(Response.Status.FOUND).build();
+    }
 
 	/**
 	 * Sends request to provisioning service for termination the computational resource for user.
@@ -107,13 +107,11 @@ public class ComputationalResourceAzure {
 							  @PathParam("exploratoryName") String exploratoryName,
 							  @PathParam("computationalName") String computationalName) {
 
-		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
+        log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputational(userInfo, userInfo.getName(), projectName, exploratoryName,
-				computationalName, Collections.singletonList(String.format(AUDIT_MESSAGE, exploratoryName)));
-
-		return Response.ok().build();
-	}
+        computationalService.terminateComputational(userInfo, userInfo.getName(), projectName, exploratoryName, computationalName, getAuditInfo(exploratoryName));
+        return Response.ok().build();
+    }
 
 	/**
 	 * Sends request to provisioning service for stopping the computational resource for user.
@@ -129,12 +127,11 @@ public class ComputationalResourceAzure {
 						 @PathParam("project") String project,
 						 @PathParam("exploratoryName") String exploratoryName,
 						 @PathParam("computationalName") String computationalName) {
-		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
+        log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.stopSparkCluster(userInfo, project, exploratoryName, computationalName);
-
-		return Response.ok().build();
-	}
+        computationalService.stopSparkCluster(userInfo, userInfo.getName(), project, exploratoryName, computationalName, getAuditInfo(exploratoryName));
+        return Response.ok().build();
+    }
 
 	/**
 	 * Sends request to provisioning service for starting the computational resource for user.
@@ -150,12 +147,11 @@ public class ComputationalResourceAzure {
 						  @PathParam("exploratoryName") String exploratoryName,
 						  @PathParam("computationalName") String computationalName,
 						  @PathParam("project") String project) {
-		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
+        log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName, project);
-
-		return Response.ok().build();
-	}
+        computationalService.startSparkCluster(userInfo, exploratoryName, computationalName, project, getAuditInfo(exploratoryName));
+        return Response.ok().build();
+    }
 
 	@PUT
 	@Path("dataengine/{projectName}/{exploratoryName}/{computationalName}/config")
@@ -167,14 +163,18 @@ public class ComputationalResourceAzure {
 
 		computationalService.updateSparkClusterConfig(userInfo, projectName, exploratoryName, computationalName, config);
 		return Response.ok().build();
-	}
+    }
 
-	@GET
-	@Path("/{projectName}/{exploratoryName}/{computationalName}/config")
-	public Response getClusterConfig(@Auth UserInfo userInfo,
-									 @PathParam("projectName") String projectName,
-									 @PathParam("exploratoryName") String exploratoryName,
-									 @PathParam("computationalName") String computationalName) {
-		return Response.ok(computationalService.getClusterConfig(userInfo, projectName, exploratoryName, computationalName)).build();
-	}
+    @GET
+    @Path("/{projectName}/{exploratoryName}/{computationalName}/config")
+    public Response getClusterConfig(@Auth UserInfo userInfo,
+                                     @PathParam("projectName") String projectName,
+                                     @PathParam("exploratoryName") String exploratoryName,
+                                     @PathParam("computationalName") String computationalName) {
+        return Response.ok(computationalService.getClusterConfig(userInfo, projectName, exploratoryName, computationalName)).build();
+    }
+
+    private List<String> getAuditInfo(String exploratoryName) {
+        return Collections.singletonList(String.format(AUDIT_MESSAGE, exploratoryName));
+    }
 }

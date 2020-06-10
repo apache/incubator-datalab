@@ -505,17 +505,17 @@ public class ComputationalServiceImplTest {
                 .thenReturn(mock(UpdateResult.class));
 
         ComputationalStopDTO computationalStopDTO = new ComputationalStopDTO();
-        when(requestBuilder.newComputationalStop(any(UserInfo.class), any(UserInstanceDTO.class), anyString(),
+        when(requestBuilder.newComputationalStop(anyString(), any(UserInstanceDTO.class), anyString(),
                 any(EndpointDTO.class))).thenReturn(computationalStopDTO);
         when(provisioningService.post(anyString(), anyString(), any(ComputationalBase.class), any()))
                 .thenReturn("someUuid");
         when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
 
-        computationalService.stopSparkCluster(userInfo, PROJECT, EXPLORATORY_NAME, COMP_NAME);
+        computationalService.stopSparkCluster(userInfo, userInfo.getName(), PROJECT, EXPLORATORY_NAME, COMP_NAME, Collections.singletonList(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
 
         verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusStopping, "self"));
         verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME, true);
-        verify(requestBuilder).newComputationalStop(refEq(userInfo), refEq(exploratory), eq(COMP_NAME), refEq(endpointDTO()));
+        verify(requestBuilder).newComputationalStop(eq(userInfo.getName()), refEq(exploratory), eq(COMP_NAME), refEq(endpointDTO()));
         verify(provisioningService)
                 .post(eq(endpointDTO().getUrl() + "computational/stop/spark"), eq(TOKEN), refEq(computationalStopDTO),
                         eq(String.class));
@@ -532,7 +532,7 @@ public class ComputationalServiceImplTest {
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("There is no running dataengine compName for exploratory expName");
 
-        computationalService.stopSparkCluster(userInfo, PROJECT, EXPLORATORY_NAME, COMP_NAME);
+        computationalService.stopSparkCluster(userInfo, userInfo.getName(), PROJECT, EXPLORATORY_NAME, COMP_NAME, Collections.singletonList(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
     }
 
 	@Test
@@ -551,7 +551,7 @@ public class ComputationalServiceImplTest {
                 .thenReturn("someUuid");
         when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
 
-        computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME, PROJECT);
+        computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME, PROJECT, Collections.singletonList(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
 
         verify(computationalDAO).updateComputationalStatus(refEq(computationalStatusDTOWithStatusStarting, "self"));
         verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME, true);
@@ -575,7 +575,7 @@ public class ComputationalServiceImplTest {
         expectedException.expect(IllegalStateException.class);
         expectedException.expectMessage("There is no stopped dataengine compName for exploratory expName");
 
-        computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME, PROJECT);
+        computationalService.startSparkCluster(userInfo, EXPLORATORY_NAME, COMP_NAME, PROJECT, Collections.singletonList(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
     }
 
 	@Test

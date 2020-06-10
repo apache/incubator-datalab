@@ -484,16 +484,16 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComputationalBase<T>> T newComputationalStop(UserInfo userInfo, UserInstanceDTO exploratory,
-																   String computationalName, EndpointDTO endpointDTO) {
-		return (T) newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), ComputationalStopDTO.class)
-				.withExploratoryName(exploratory.getExploratoryName())
-				.withComputationalName(computationalName)
-				.withNotebookInstanceName(exploratory.getExploratoryId())
-				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
-				.withProject(exploratory.getProject())
-				.withEndpoint(endpointDTO.getName());
-	}
+    public <T extends ComputationalBase<T>> T newComputationalStop(String resourceCreator, UserInstanceDTO exploratory,
+                                                                   String computationalName, EndpointDTO endpointDTO) {
+        return (T) newResourceSysBaseDTO(resourceCreator, endpointDTO.getCloudProvider(), ComputationalStopDTO.class)
+                .withExploratoryName(exploratory.getExploratoryName())
+                .withComputationalName(computationalName)
+                .withNotebookInstanceName(exploratory.getExploratoryId())
+                .withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
+                .withProject(exploratory.getProject())
+                .withEndpoint(endpointDTO.getName());
+    }
 
 	@SuppressWarnings("unchecked")
 	public <T extends ComputationalBase<T>> T newComputationalStart(UserInfo userInfo, UserInstanceDTO exploratory,
