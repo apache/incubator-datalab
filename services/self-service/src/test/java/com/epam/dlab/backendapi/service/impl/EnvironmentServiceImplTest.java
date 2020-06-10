@@ -65,6 +65,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class EnvironmentServiceImplTest {
 	private static final String AUDIT_QUOTA_MESSAGE = "Billing quota reached";
+	private static final String AUDIT_MESSAGE = "Notebook name: %s";
 	private static final String DLAB_SYSTEM_USER = "DLab system user";
 	private static final String USER = "test";
 	private static final String EXPLORATORY_NAME_1 = "expName1";
@@ -187,12 +188,12 @@ public class EnvironmentServiceImplTest {
 	public void terminateComputational() {
 		final UserInfo userInfo = getUserInfo();
 		doNothing().when(computationalService)
-				.terminateComputational(any(UserInfo.class), anyString(), anyString(), anyString());
+				.terminateComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyList());
 
 		environmentService.terminateComputational(userInfo, USER, PROJECT_NAME, EXPLORATORY_NAME_1, "compName");
 
-		verify(computationalService)
-				.terminateComputational(refEq(userInfo), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq("compName"));
+		verify(computationalService).terminateComputational(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq("compName"),
+				eq(Collections.singletonList(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME_1))));
 		verifyNoMoreInteractions(securityService, computationalService);
 	}
 

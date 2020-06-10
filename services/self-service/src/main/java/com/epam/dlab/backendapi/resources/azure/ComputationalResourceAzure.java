@@ -42,7 +42,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
+
+import static com.epam.dlab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
 
 /**
  * Provides the REST API for the computational resource on Azure.
@@ -79,16 +82,14 @@ public class ComputationalResourceAzure {
 	public Response createDataEngine(@Auth UserInfo userInfo,
 									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
-
 		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage(), userInfo.getRoles())) {
 			log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
 			throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
 		}
 
-		return computationalService.createSparkCluster(userInfo, form, form.getProject())
+		return computationalService.createSparkCluster(userInfo, form.getName(), form, form.getProject(), Collections.singletonList(String.format(AUDIT_MESSAGE, form.getNotebookName())))
 				? Response.ok().build()
 				: Response.status(Response.Status.FOUND).build();
-
 	}
 
 	/**
@@ -108,7 +109,8 @@ public class ComputationalResourceAzure {
 
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputational(userInfo, projectName, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, userInfo.getName(), projectName, exploratoryName,
+				computationalName, Collections.singletonList(String.format(AUDIT_MESSAGE, exploratoryName)));
 
 		return Response.ok().build();
 	}

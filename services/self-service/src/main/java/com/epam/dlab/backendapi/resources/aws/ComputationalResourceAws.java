@@ -48,6 +48,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
 
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
@@ -106,8 +107,8 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					.config(form.getConfig())
 					.version(form.getVersion())
 					.build();
-			boolean resourceAdded = computationalService.createDataEngineService(userInfo, form,
-					awsComputationalResource, form.getProject());
+			boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, awsComputationalResource,
+					form.getProject(), Collections.singletonList(String.format(AUDIT_MESSAGE, form.getNotebookName())));
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
 		}
 
@@ -129,7 +130,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
 		validate(form);
-		return computationalService.createSparkCluster(userInfo, form, form.getProject())
+		return computationalService.createSparkCluster(userInfo, form.getName(), form, form.getProject(), Collections.singletonList(String.format(AUDIT_MESSAGE, form.getNotebookName())))
 				? Response.ok().build()
 				: Response.status(Response.Status.FOUND).build();
 	}
@@ -150,7 +151,8 @@ public class ComputationalResourceAws implements ComputationalAPI {
 							  @PathParam("computationalName") String computationalName) {
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputational(userInfo, projectName, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, userInfo.getName(), projectName, exploratoryName,
+				computationalName, Collections.singletonList(String.format(AUDIT_MESSAGE, exploratoryName)));
 
 		return Response.ok().build();
 	}

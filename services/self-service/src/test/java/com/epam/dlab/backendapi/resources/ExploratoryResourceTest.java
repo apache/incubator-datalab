@@ -144,22 +144,6 @@ public class ExploratoryResourceTest extends TestBase {
 	}
 
 	@Test
-	public void startWithFailedAuth() throws AuthenticationException {
-        authFailSetup();
-        when(exploratoryService.start(any(UserInfo.class), anyString(), anyString(), anyList())).thenReturn("someUuid");
-        final Response response = resources.getJerseyTest()
-                .target("/infrastructure_provision/exploratory_environment")
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .post(Entity.json(getEmptyExploratoryActionFormDTO()));
-
-        assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-        verifyZeroInteractions(exploratoryService);
-	}
-
-	@Test
 	public void stop() {
 		when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyList())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()

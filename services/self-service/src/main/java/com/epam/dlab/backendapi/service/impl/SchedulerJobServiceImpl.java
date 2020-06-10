@@ -223,13 +223,13 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	private void terminateComputational(SchedulerJobData job) {
-		final String user = job.getUser();
-		final String expName = job.getExploratoryName();
-		final String compName = job.getComputationalName();
-		final UserInfo userInfo = securityService.getServiceAccountInfo(user);
-		log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-		computationalService.terminateComputational(userInfo, job.getProject(), expName, compName);
-	}
+        final String user = job.getUser();
+        final String expName = job.getExploratoryName();
+        final String compName = job.getComputationalName();
+        final UserInfo userInfo = securityService.getServiceAccountInfo(user);
+        log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
+        computationalService.terminateComputational(userInfo, user, job.getProject(), expName, compName, Collections.singletonList(AUDIT_MESSAGE));
+    }
 
 	private void stopExploratory(SchedulerJobData job) {
 		final String expName = job.getExploratoryName();

@@ -444,36 +444,36 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComputationalBase<T>> T newComputationalTerminate(UserInfo userInfo,
-																		UserInstanceDTO userInstanceDTO,
-																		UserComputationalResource computationalResource,
-																		EndpointDTO endpointDTO) {
-		T computationalTerminate;
-		CloudProvider cloudProvider = endpointDTO.getCloudProvider();
-		switch (cloudProvider) {
-			case AWS:
-				AwsComputationalTerminateDTO terminateDTO = newResourceSysBaseDTO(userInfo.getName(), cloudProvider,
-						AwsComputationalTerminateDTO.class);
-				if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE) {
-					terminateDTO.setClusterName(computationalResource.getComputationalId());
-				}
-				computationalTerminate = (T) terminateDTO;
-				break;
-			case AZURE:
-				computationalTerminate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ComputationalTerminateDTO.class);
-				break;
-			case GCP:
-				GcpComputationalTerminateDTO gcpTerminateDTO = newResourceSysBaseDTO(userInfo.getName(), cloudProvider,
-						GcpComputationalTerminateDTO.class);
-				if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE) {
-					gcpTerminateDTO.setClusterName(computationalResource.getComputationalId());
-				}
-				computationalTerminate = (T) gcpTerminateDTO;
-				break;
+    public <T extends ComputationalBase<T>> T newComputationalTerminate(String resourceCreator,
+                                                                        UserInstanceDTO userInstanceDTO,
+                                                                        UserComputationalResource computationalResource,
+                                                                        EndpointDTO endpointDTO) {
+        T computationalTerminate;
+        CloudProvider cloudProvider = endpointDTO.getCloudProvider();
+        switch (cloudProvider) {
+            case AWS:
+                AwsComputationalTerminateDTO terminateDTO = newResourceSysBaseDTO(resourceCreator, cloudProvider,
+                        AwsComputationalTerminateDTO.class);
+                if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE) {
+                    terminateDTO.setClusterName(computationalResource.getComputationalId());
+                }
+                computationalTerminate = (T) terminateDTO;
+                break;
+            case AZURE:
+                computationalTerminate = (T) newResourceSysBaseDTO(resourceCreator, cloudProvider, ComputationalTerminateDTO.class);
+                break;
+            case GCP:
+                GcpComputationalTerminateDTO gcpTerminateDTO = newResourceSysBaseDTO(resourceCreator, cloudProvider,
+                        GcpComputationalTerminateDTO.class);
+                if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE) {
+                    gcpTerminateDTO.setClusterName(computationalResource.getComputationalId());
+                }
+                computationalTerminate = (T) gcpTerminateDTO;
+                break;
 
-			default:
-				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider);
-		}
+            default:
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider);
+        }
 
 		return computationalTerminate
 				.withExploratoryName(userInstanceDTO.getExploratoryName())

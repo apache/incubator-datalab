@@ -866,27 +866,28 @@ public class SchedulerJobServiceImplTest {
 
 	@Test
 	public void testTerminateComputationalByScheduler() {
-		final List<DayOfWeek> stopDays = Arrays.asList(DayOfWeek.values());
-		final List<DayOfWeek> startDays = Arrays.asList(DayOfWeek.values());
-		final LocalDateTime terminateDateTime = LocalDateTime.of(LocalDate.now(),
-				LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
-		final LocalDate finishDate = LocalDate.now().plusDays(1);
-		final SchedulerJobData schedulerJobData = getSchedulerJobData(LocalDate.now(), finishDate, startDays, stopDays
-				, terminateDateTime, false, USER, LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
-		);
-		when(schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(any(UserInstanceStatus.class),
-				anyVararg())).thenReturn(singletonList(schedulerJobData));
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(getUserInfo());
+        final List<DayOfWeek> stopDays = Arrays.asList(DayOfWeek.values());
+        final List<DayOfWeek> startDays = Arrays.asList(DayOfWeek.values());
+        final LocalDateTime terminateDateTime = LocalDateTime.of(LocalDate.now(),
+                LocalTime.now().truncatedTo(ChronoUnit.MINUTES));
+        final LocalDate finishDate = LocalDate.now().plusDays(1);
+        final SchedulerJobData schedulerJobData = getSchedulerJobData(LocalDate.now(), finishDate, startDays, stopDays
+                , terminateDateTime, false, USER, LocalTime.now().truncatedTo(ChronoUnit.MINUTES)
+        );
+        when(schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(any(UserInstanceStatus.class),
+                anyVararg())).thenReturn(singletonList(schedulerJobData));
+        UserInfo userInfo = getUserInfo();
+        when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
 
-		schedulerJobService.terminateComputationalByScheduler();
+        schedulerJobService.terminateComputationalByScheduler();
 
-		verify(securityService).getServiceAccountInfo(USER);
-		verify(schedulerJobDAO)
-				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING);
-		verify(computationalService).terminateComputational(refEq(getUserInfo()), eq(PROJECT),
-				eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME));
-		verifyNoMoreInteractions(securityService, schedulerJobDAO, computationalService);
-	}
+        verify(securityService).getServiceAccountInfo(USER);
+        verify(schedulerJobDAO)
+                .getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING);
+        verify(computationalService).terminateComputational(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT), eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME),
+                eq(Collections.singletonList(AUDIT_MESSAGE)));
+        verifyNoMoreInteractions(securityService, schedulerJobDAO, computationalService);
+    }
 
 	@Test
 	public void testTerminateComputationalBySchedulerWhenSchedulerIsNotConfigured() {

@@ -48,6 +48,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
 
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
@@ -82,7 +83,7 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	 * Asynchronously creates Dataproc cluster
 	 *
 	 * @param userInfo user info.
-	 * @param formDTO  DTO info about creation of the computational resource.
+	 * @param form     DTO info about creation of the computational resource.
 	 * @return 200 OK - if request success, 302 Found - for duplicates.
 	 * @throws IllegalArgumentException if docker image name is malformed
 	 */
@@ -90,30 +91,30 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	@Path("dataengine-service")
 	@Operation(tags = "computational", summary = "Create dataproc cluster")
 	public Response createDataEngineService(@Auth @Parameter(hidden = true) UserInfo userInfo,
-											@Valid @NotNull @Parameter GcpComputationalCreateForm formDTO) {
+											@Valid @NotNull @Parameter GcpComputationalCreateForm form) {
 
-		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), formDTO);
+		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
-		if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(formDTO.getImage())) {
-			validate(userInfo, formDTO);
+		if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(form.getImage())) {
+			validate(userInfo, form);
 			GcpComputationalResource gcpComputationalResource = GcpComputationalResource.builder().computationalName
-					(formDTO.getName())
-					.imageName(formDTO.getImage())
-					.templateName(formDTO.getTemplateName())
+					(form.getName())
+					.imageName(form.getImage())
+					.templateName(form.getTemplateName())
 					.status(CREATING.toString())
-					.masterShape(formDTO.getMasterInstanceType())
-					.slaveShape(formDTO.getSlaveInstanceType())
-					.slaveNumber(formDTO.getSlaveInstanceCount())
-					.masterNumber(formDTO.getMasterInstanceCount())
-					.preemptibleNumber(formDTO.getPreemptibleCount())
-					.version(formDTO.getVersion())
+					.masterShape(form.getMasterInstanceType())
+					.slaveShape(form.getSlaveInstanceType())
+					.slaveNumber(form.getSlaveInstanceCount())
+					.masterNumber(form.getMasterInstanceCount())
+					.preemptibleNumber(form.getPreemptibleCount())
+					.version(form.getVersion())
 					.build();
-			boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO,
-					gcpComputationalResource, formDTO.getProject());
+			boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, gcpComputationalResource,
+					form.getProject(), Collections.singletonList(String.format(AUDIT_MESSAGE, form.getNotebookName())));
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
 		}
 
-		throw new IllegalArgumentException("Malformed image " + formDTO.getImage());
+		throw new IllegalArgumentException("Malformed image " + form.getImage());
 	}
 
 
@@ -135,7 +136,7 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 			throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
 		}
 
-		return computationalService.createSparkCluster(userInfo, form, form.getProject())
+		return computationalService.createSparkCluster(userInfo, form.getName(), form, form.getProject(), Collections.singletonList(String.format(AUDIT_MESSAGE, form.getNotebookName())))
 				? Response.ok().build()
 				: Response.status(Response.Status.FOUND).build();
 	}
@@ -157,7 +158,8 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 							  @PathParam("computationalName") String computationalName) {
 		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputational(userInfo, projectName, exploratoryName, computationalName);
+		computationalService.terminateComputational(userInfo, userInfo.getName(), projectName, exploratoryName,
+				computationalName, Collections.singletonList(String.format(AUDIT_MESSAGE, exploratoryName)));
 
 		return Response.ok().build();
 	}

@@ -51,6 +51,7 @@ import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.ACTIVE;
 import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.NOT_ACTIVE;
+import static com.epam.dlab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
@@ -161,10 +162,9 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
 	@ProjectAdmin
 	@Override
-	public void terminateComputational(@User UserInfo userInfo, String user, @Project String project,
-									   String exploratoryName, String computationalName) {
-		computationalService.terminateComputational(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName,
-				computationalName);
+	public void terminateComputational(@User UserInfo userInfo, String user, @Project String project, String exploratoryName, String computationalName) {
+		computationalService.terminateComputational(userInfo, user, project, exploratoryName, computationalName,
+				Collections.singletonList(String.format(AUDIT_MESSAGE, exploratoryName)));
 	}
 
 	private UserDTO toUserDTO(String u, UserDTO.Status status) {
