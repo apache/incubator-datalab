@@ -19,14 +19,12 @@
 
 package com.epam.dlab.backendapi.util;
 
-import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.google.common.collect.ImmutableMap;
 import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,12 +47,9 @@ import static com.epam.dlab.dto.billing.BillingResourceType.SSN;
 import static com.epam.dlab.dto.billing.BillingResourceType.VOLUME;
 
 public class BillingUtils {
-    public static final String BILLING_HEADER = "billing";
-    public static final String NON_BILLING_HEADER = "non_billing";
     private static final String[] AVAILABLE_NOTEBOOKS = {"zeppelin", "tensor-rstudio", "rstudio", "tensor", "superset", "jupyterlab", "jupyter", "deeplearning"};
-    private static final String[] REPORT_HEADERS_NON_BILLING = {"DLab ID", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
-    private static final String[] REPORT_HEADERS_BILLING = {"DLab ID", "User", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
-    private static final ImmutableMap<String, String[]> REPORT_HEADERS = ImmutableMap.of(BILLING_HEADER, REPORT_HEADERS_BILLING, NON_BILLING_HEADER, REPORT_HEADERS_NON_BILLING);
+    private static final String[] BILLING_FILTERED_REPORT_HEADERS = {"DLab ID", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
+    private static final String[] SCALE_REPORT_HEADERS = {"DLab ID", "User", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
     private static final String REPORT_FIRST_LINE = "Service base name: %s. Available reporting period from: %s to: %s";
     private static final String TOTAL_LINE = "Total: %s %s";
     private static final String SSN_FORMAT = "%s-ssn";
@@ -206,17 +201,21 @@ public class BillingUtils {
     /**
      * headerType there are two types of header according user role
      * @return line, like DLab ID,User,Project,DLab Resource Type,Status,Shape,Product,Cost
+     * in case of additional header type, the ENUM object will be propagated from the Service Impl Class
      */
-    public static String getHeader(String headerType) {
-        List<String> reportHeader = Arrays.asList(BillingUtils.REPORT_HEADERS.get(headerType));
-        return CSVFormatter.formatLine(reportHeader, CSVFormatter.SEPARATOR);
+    public static String getHeader(boolean isReportHeaderCompletable) {
+        if (!isReportHeaderCompletable){
+            return CSVFormatter.formatLine(
+                    Arrays.asList(BillingUtils.BILLING_FILTERED_REPORT_HEADERS), CSVFormatter.SEPARATOR);
+        }
+        return CSVFormatter.formatLine(Arrays.asList(BillingUtils.SCALE_REPORT_HEADERS), CSVFormatter.SEPARATOR);
     }
 
-    public static String printLine(BillingReportLine line, String headerType) {
+    public static String printLine(BillingReportLine line, boolean isReportHeaderCompletable) {
         List<String> lines = new ArrayList<>();
         lines.add(getOrEmpty(line.getDlabId()));
         //if user does not have the billing role, the User field should not be present in report
-        if (headerType.equals(BILLING_HEADER)) {
+        if (isReportHeaderCompletable) {
             lines.add(getOrEmpty(line.getUser()));
         }
         lines.add(getOrEmpty(line.getProject()));

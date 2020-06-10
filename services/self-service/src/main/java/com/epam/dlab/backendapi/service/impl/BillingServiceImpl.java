@@ -116,7 +116,7 @@ public class BillingServiceImpl implements BillingService {
                 .usageDateTo(max)
                 .totalCost(new BigDecimal(sum).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(currency)
-                .headerType(defineReportHeader(user))
+                .isReportHeaderCompletable(hasUserBillingRole(user))
                 .build();
     }
 
@@ -124,10 +124,10 @@ public class BillingServiceImpl implements BillingService {
     public String downloadReport(UserInfo user, BillingFilter filter) {
         BillingReport report = getBillingReport(user, filter);
         StringBuilder reportHead = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
-        String stringOfAdjustedHeader = BillingUtils.getHeader(report.getHeaderType());
+        String stringOfAdjustedHeader = BillingUtils.getHeader(report.isReportHeaderCompletable());
         reportHead.append(stringOfAdjustedHeader);
         try {
-            report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, report.getHeaderType())));
+            report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, report.isReportHeaderCompletable())));
             reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), stringOfAdjustedHeader));
             return reportHead.toString();
         } catch (Exception e) {
@@ -311,18 +311,6 @@ public class BillingServiceImpl implements BillingService {
      */
     private boolean hasUserBillingRole(UserInfo userInfo) {
         return UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing", userInfo.getRoles());
-    }
-
-    /**
-     *
-     * @param userInfo - user properties for current session
-     * @return type of header for particular report
-     */
-    private String defineReportHeader(UserInfo userInfo) {
-        if (!hasUserBillingRole(userInfo)) {
-            return BillingUtils.NON_BILLING_HEADER;
-        }
-        return BillingUtils.BILLING_HEADER;
     }
 
     private void setUserFilter(UserInfo userInfo, BillingFilter filter) {
