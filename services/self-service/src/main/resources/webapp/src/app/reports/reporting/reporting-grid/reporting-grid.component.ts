@@ -18,13 +18,13 @@
  */
 
 import {Component, OnInit, Output, EventEmitter, ViewChild, Input} from '@angular/core';
-import { ReportingConfigModel } from '../../../dictionary/global.dictionary';
+import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
   styleUrls: ['./reporting-grid.component.scss',
-    '../../resources/resources-grid/resources-grid.component.scss'],
+    '../../../resources/resources-grid/resources-grid.component.scss'],
 
 })
 export class ReportingGridComponent implements OnInit {
@@ -67,15 +67,15 @@ export class ReportingGridComponent implements OnInit {
   let report: Array<object>;
   if (direction === 'down') {
     report = this.reportData.sort((a, b) => {
-      if (a[sortItem] === null) a = '';
-      if (b[sortItem] === null) b = '';
+      if (a[sortItem] === null) a[sortItem] = '';
+      if (b[sortItem] === null) b[sortItem] = '';
      return (a[sortItem] > b[sortItem]) ? 1 : -1;
     });
   }
   if (direction === 'up') {
     report = this.reportData.sort((a, b) => {
-      if (a[sortItem] === null) a = '';
-      if (b[sortItem] === null) b = '';
+      if (a[sortItem] === null) a[sortItem] = '';
+      if (b[sortItem] === null) b[sortItem] = '';
       return (a[sortItem] < b[sortItem]) ? 1 : -1 ;
     });
   }

@@ -23,7 +23,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 
-import { UserResourceService } from '../../core/services';
+import {ProjectService, UserResourceService} from '../../core/services';
 
 import { ExploratoryModel, Exploratory } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
@@ -89,6 +89,9 @@ export class ResourcesGridComponent implements OnInit {
 
   public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
   public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
+  public bucketsList;
+  public activeProjectsList: any;
+
 
 
   constructor(
@@ -96,10 +99,18 @@ export class ResourcesGridComponent implements OnInit {
     private userResourceService: UserResourceService,
     private dialog: MatDialog,
     private progressBarService: ProgressBarService,
+    private projectService: ProjectService,
   ) { }
 
   ngOnInit(): void {
     this.buildGrid();
+    this.getUserProjects();
+  }
+
+  public getUserProjects() {
+    this.projectService.getUserProjectsList(true).subscribe((projects: any) => {
+      this.activeProjectsList = projects;
+    });
   }
 
   public buildGrid(): void {
@@ -107,6 +118,7 @@ export class ResourcesGridComponent implements OnInit {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
+        this.getBuckets();
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
@@ -169,7 +181,7 @@ export class ResourcesGridComponent implements OnInit {
 
   public printDetailEnvironmentModal(data): void {
     this.dialog.open(DetailDialogComponent, { data:
-        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser},
+        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser, buckets: this.bucketsList, type: 'resource'},
       panelClass: 'modal-lg'
     })
       .afterClosed().subscribe(() => this.buildGrid());
@@ -328,6 +340,30 @@ export class ResourcesGridComponent implements OnInit {
 
     for (const index in filterConfig)
       if (filterConfig[index].length) this.activeFiltering = true;
+  }
+
+  public getBuckets() {
+    const bucketsList = this.environments.map(project => {
+      return Object.keys(project.projectEndpoints).map(key => {
+        if (project.endpoints.length === 0) {
+          return;
+        }
+        const currEndpoint = project.projectEndpoints[key];
+        const provider: string =  project.endpoints.filter(endpoint => endpoint['name'] === key)[0]['cloudProvider'];
+        const edgeItem = {name: `${project.project} (${key})`, children: []};
+        const projectBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].bucket_name];
+        const sharedBucket = currEndpoint[this.DICTIONARY[provider.toLowerCase()].shared_bucket_name];
+        if (projectBucket && currEndpoint.status !== 'terminated' && currEndpoint.status !== 'terminating' && currEndpoint.status !== 'failed') {
+          edgeItem.children.push({name: projectBucket, endpoint: key});
+        }
+        if (sharedBucket) {
+          edgeItem.children.push({name: sharedBucket, endpoint: key});
+        }
+        return edgeItem;
+      }).filter(v => v);
+    });
+
+    this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
   }
 
   private getUserPreferences(): void {

@@ -97,7 +97,7 @@
             </div>
             <div class="text-center m-top-30">
               <button mat-raised-button type="button" (click)="dialogRef.close()" class="butt action">Cancel</button>
-              <button mat-raised-button type="submit" [disabled]="!manageUsersForm.valid" class="butt butt-success"
+              <button mat-raised-button type="submit" [disabled]="!manageUsersForm.valid || isFormChanged" class="butt butt-success"
                 [ngClass]="{'not-allowed': !manageUsersForm.valid}">Apply</button>
             </div>
           </mat-list>

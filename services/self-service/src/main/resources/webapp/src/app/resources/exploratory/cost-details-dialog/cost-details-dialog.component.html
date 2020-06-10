@@ -50,8 +50,8 @@
                 </div>
                 <div class="service">{{ item.product }}</div>
 <!--                <div class="resource-type" >{{ item.resourse_type }}</div>-->
-                <div class="usage-date-start">{{ item.from | date }}</div>
-                <div class="usage-date-end">{{ item.to | date }}</div>
+                <div class="usage-date-start">{{ item.from.join('/') | date }}</div>
+                <div class="usage-date-end">{{ item.to.join('/') | date }}</div>
                 <div class="cost-currency">{{ item.cost }} {{ item.currency }}</div>
               </mat-list-item>
             </div>

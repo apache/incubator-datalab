@@ -20,7 +20,6 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
@@ -34,7 +33,6 @@ import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -100,7 +98,6 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 * @return Invocation response as JSON string.
 	 */
 	@POST
-	@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
 	public String start(@Auth UserInfo userInfo,
 						@Valid @NotNull ExploratoryActionFormDTO formDTO) {
 		log.debug("Starting exploratory environment {} for user {}", formDTO.getNotebookInstanceName(),

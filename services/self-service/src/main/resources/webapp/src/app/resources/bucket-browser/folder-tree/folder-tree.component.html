@@ -1,32 +1,65 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding [ngStyle]="{'display': 'none'}">
-  <button mat-icon-button disabled></button>
-  <!--    <mat-checkbox class="checklist-leaf-node"-->
-  <!--                  [checked]="checklistSelection.isSelected(node)"-->
-  <!--                  (change)="todoLeafItemSelectionToggle(node)"></mat-checkbox>-->
-  {{node.item}}
-</mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding>
+  <mat-tree-node
+    *matTreeNodeDef="let node"
+    matTreeNodeToggle matTreeNodePadding
+    matTreeNodePaddingIndent="17"
+    [ngStyle]="{'display': 'none'}"
+  >
     <button mat-icon-button disabled></button>
-    <mat-form-field>
-      <mat-label>New folder</mat-label>
-      <input matInput #itemValue>
-    </mat-form-field>
-    <button mat-button (click)="saveNode(node, itemValue.value)">Save</button>
+    {{node.item}}
   </mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+  <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding matTreeNodePaddingIndent="17" class="input-node">
+    <form class="add-folder-form" id="folder-form">
+      <mat-form-field>
+        <mat-label>New folder</mat-label>
+        <input matInput #itemValue [formControl]="folderFormControl" [errorStateMatcher]="matcher">
+        <mat-error *ngIf="!folderFormControl.hasError('required') && !folderFormControl.hasError('isDuplicate')">
+          The folder name can only contain Latin letters, numbers and special characters except for #, ?, /, \, "
+        </mat-error>
+        <mat-error *ngIf="folderFormControl.hasError('required')">
+          Folder name is <strong>required</strong>
+        </mat-error>
+        <mat-error *ngIf="folderFormControl.hasError('isDuplicate')">
+          Folder with this name already exists
+        </mat-error>
+      </mat-form-field>
+      <button (click)="saveNode(node, itemValue.value)"
+              [ngClass]="{'check': folderFormControl.valid && folderFormControl.dirty && !folderCreating}"
+              mat-icon-button class="btn action-btn"
+              [disabled]="!folderFormControl.valid || !folderFormControl.dirty"
+              matTooltip="Please wait! Folder is creating."
+              [matTooltipDisabled]="!folderCreating"
+              matTooltipPosition="above"
+      >
+        <span><i class="material-icons ">check</i></span></button>
+      <button (click)="removeItem(node)" mat-icon-button class="btn close action-btn"><span ><i class="material-icons ">close</i></span></button>
+    </form>
+  </mat-tree-node>
+
+  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding  matTreeNodePaddingIndent="17"  [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
     <button mat-icon-button matTreeNodeToggle
-            [attr.aria-label]="'toggle ' + node.filename">
-      <mat-icon class="mat-icon-rtl-mirror" [ngClass]="{'active-item': selectedFolder === node}">
+            [attr.aria-label]="'toggle ' + node.filename" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">
+      <mat-icon class="mat-icon-rtl-mirror" [ngClass]="{'active-item': (selectedFolder === node && !bucketDataService.emptyFolder)}">
         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
       </mat-icon>
     </button>
-<!--    <mat-checkbox [checked]="descendantsAllSelected(node)"-->
-<!--                  [indeterminate]="descendantsPartiallySelected(node)"-->
-<!--                  (change)="todoItemSelectionToggle(node)"></mat-checkbox>-->
-    <div (click)="showItem(node)" class="folder-item-line"  [ngClass]="{'active-item': selectedFolder === node}"><i class="material-icons folder-icon">folder</i> <span class="folder">{{node.item}}</span></div>
-<!--    <button mat-icon-button (click)="addNewItem(node)"><mat-icon>add</mat-icon></button>-->
+    <div
+      (click)="showItem(node)"
+      class="folder-item-line"
+      [ngClass]="{'active-item': (selectedFolder === node && !bucketDataService.emptyFolder), 'not-allowed': bucketDataService.emptyFolder}"
+    >
+      <i class="material-icons folder-icon">folder</i>
+      <span
+        class="folder"
+        matTooltip="{{node.item}}"
+        matTooltipPosition="above"
+        matTooltipShowDelay="1000"
+        [matTooltipClass]="'bucket-item-tooltip'"
+      >
+        {{node.item}}
+      </span>
+    </div>
   </mat-tree-node>
 </mat-tree>

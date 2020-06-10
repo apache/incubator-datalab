@@ -21,17 +21,18 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.dto.bucket.BucketDTO;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.util.List;
 
 public interface BucketService {
-    String DATE_FORMAT = "dd-M-yyyy hh:mm:ss";
+    String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     List<BucketDTO> getObjects(String bucket);
 
-    void uploadObject(String bucket, String object, InputStream stream);
+    void uploadObject(String bucket, String object, InputStream stream, long fileSize);
 
-    byte[] downloadObject(String bucket, String object);
+    void downloadObject(String bucket, String object, HttpServletResponse resp);
 
-    void deleteObject(String bucket, String object);
+    void deleteObjects(String bucket, List<String> objects);
 }

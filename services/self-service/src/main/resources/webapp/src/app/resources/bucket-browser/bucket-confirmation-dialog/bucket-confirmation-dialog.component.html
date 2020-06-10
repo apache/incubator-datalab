@@ -1,0 +1,122 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<div id="dialog-box" class="confirmation-dialog">
+
+  <header class="dialog-header">
+    <h4 class="modal-title">
+        <span *ngIf="data.type === 'delete'">Delete</span>
+        <span *ngIf="data.type === 'upload-dublicat'">Resolve conflicts</span>
+        <span *ngIf="data.type === 'cancel-uploading'">Cancel</span>
+        <span *ngIf="data.type === 'uploading-error'">Upload limitation</span>
+    </h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </header>
+
+  <div class="dialog-content">
+    <div class="content-box">
+      <div *ngIf="data.type === 'delete'">
+        <mat-list class="resources">
+
+          <mat-list-item class="list-header">
+            <div class="object">Object</div>
+            <div class="size">Size</div>
+          </mat-list-item>
+
+          <div class="scrolling-content delete-list" id="scrolling">
+
+            <mat-list-item *ngFor="let object of data.items" class="delete-item">
+              <div class="object">
+                <span *ngIf="object['children']"><i class="material-icons folder-icon" >folder</i></span>
+                <span *ngIf="!object['children']"><i class="material-icons folder-icon file-icon" >description</i></span>
+                <div class="ellipsis"
+                     matTooltip="{{object['item']}}"
+                     matTooltipPosition="above"
+                     matTooltipShowDelay="1000"
+                     [matTooltipClass]="'bucket-item-tooltip'">{{object['item']}}</div>
+              </div>
+              <div  class="size">{{object['children'] ? '-' : object['object'].size | convertFileSize}}</div>
+            </mat-list-item>
+
+          </div>
+        </mat-list>
+
+        <div mat-dialog-content class="bottom-message" *ngIf="data.type === 'delete'">
+          <span class="confirm-message" *ngIf="isFolders">All affected objects will be deleted.</span>
+          <span class="confirm-message" *ngIf="!isFolders"><span *ngIf="data.items.length > 1">These objects</span><span *ngIf="data.items.length === 1">This object</span> will be deleted.</span>
+        </div>
+
+        <div class="text-center m-top-20">
+          <p class="strong">Do you want to proceed?</p>
+        </div>
+      </div>
+
+      <div *ngIf="data.type === 'upload-dublicat'">
+        <p>
+          <span
+          class="strong upload-item-name ellipsis"
+          matTooltip="{{data.items}}"
+          matTooltipPosition="above"
+          matTooltipShowDelay="1000"
+          [matTooltipClass]="'bucket-item-tooltip'"
+        >{{data.items}}</span> already exists in selected folder. How would you like to resolve this conflict?</p>
+        <mat-radio-group
+          aria-labelledby="upload-radio-group-label"
+          class="upload-radio-group"
+          [(ngModel)]="fileAction">
+          <mat-radio-button class="upload-radio-button" *ngFor="let action of uploadActions" [value]="action">
+            {{action}}
+          </mat-radio-button>
+        </mat-radio-group>
+        <div class="repeat-for-all" >
+          <div class="empty-checkbox" [ngClass]="{'checked': actionForAll}" (click)="toggleActionForAll();$event.stopPropagation()" >
+            <span class="checked-checkbox" *ngIf="actionForAll"></span>
+          </div>
+          <span class="repeat-message" (click)="toggleActionForAll();$event.stopPropagation()">Repeat for all remaining conflicts</span>
+        </div>
+      </div>
+
+      <div *ngIf="data.type === 'cancel-uploading'">
+        <p class="upload-message"><span>Cancel uploading file </span> <span class="strong ellipsis upload-item-name">{{data.items.name}}.</span></p>
+        <div class="text-center m-top-20">
+          <span class="strong">Do you want to proceed?</span>
+        </div>
+      </div>
+
+      <div *ngIf="data.type === 'uploading-error'">
+        <p class="upload-limit-message" *ngIf="data.items.toMany">Only the first fifty objects will be uploaded.</p>
+        <p class="upload-limit-message" *ngIf="data.items.toBig">Only file(s) within 4 GB will be uploaded.</p>
+        <div class="text-center m-top-20">
+          <span class="strong">Do you want to proceed?</span>
+        </div>
+      </div>
+
+      <div class="text-center m-top-20" *ngIf="data.type === 'delete' || data.type === 'cancel-uploading' || data.type === 'uploading-error'">
+        <button  mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">No</button>
+        <button mat-raised-button type="button" class="butt butt-success action" (click)="dialogRef.close(true)">Yes</button>
+      </div>
+
+      <div class="text-center m-top-20" *ngIf="data.type === 'upload-dublicat'">
+        <button  mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Cancel</button>
+        <button mat-raised-button type="button" class="butt butt-success action" (click)="submitResolving()">Continue</button>
+      </div>
+
+    </div>
+  </div>
+</div>

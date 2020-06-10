@@ -60,7 +60,10 @@
             <span [hidden]="filtering && filterForm.type.length > 0 && !collapsedFilterRow">more_vert</span>
           </i>
         </button> </th>
-      <td type mat-cell *matCellDef="let element">{{ element.name || element.type }}</td>
+      <td type mat-cell *matCellDef="let element">
+        <span *ngIf="element.name"  class="computation" (click)="openNotebookDetails(element)">{{element.name}}</span>
+        <span *ngIf="!element.name">{{element.type}}</span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="shape">
