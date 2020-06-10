@@ -44,7 +44,7 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
   options: NgDateRangePickerOptions;
   rangeLabels: any;
 
-  @Output() rebuildReport: EventEmitter<{}> = new EventEmitter();
+  @Output() rebuildAudit: EventEmitter<{}> = new EventEmitter();
   @Output() exportReport: EventEmitter<{}> = new EventEmitter();
   @Output() setRangeOption: EventEmitter<{}> = new EventEmitter();
 
@@ -104,10 +104,12 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
   }
 
   rebuild($event): void {
-    this.rebuildReport.emit($event);
+    this.rebuildAudit.emit($event);
   }
 
   // export($event): void {
   //   this.exportReport.emit($event);
   // }
+
+
 }

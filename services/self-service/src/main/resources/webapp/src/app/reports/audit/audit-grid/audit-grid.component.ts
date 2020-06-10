@@ -21,6 +21,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {FilterAuditModel} from '../filter-audit.model';
 import {NotificationDialogComponent} from '../../../shared/modal-dialog/notification-dialog';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {AuditService} from '../../../core/services/audit.service';
 
 @Component({
   selector: 'dlab-audit-grid',
@@ -38,14 +39,44 @@ export class AuditGridComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<AuditInfoDialogComponent>,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private auditService: AuditService,
   ) {
   }
 
   ngOnInit() {}
 
-  public refreshAudit(auditData) {
-    this.auditData = auditData;
+  public refreshAudit() {
+    this.auditService.getAuditData().subscribe(auditData => {
+      this.auditData = auditData;
+      this.createFilterData(this.auditData);
+    });
+  }
+
+  public createFilterData (auditData) {
+    const users = [];
+    const resource = [];
+    const project = [];
+    const actions = [];
+    const date_start = '';
+    const date_end = '';
+    console.log(auditData);
+    auditData.forEach(auditItem => {
+      if (!users.includes(auditItem.user)) {
+        users.push(auditItem.user);
+      }
+      if (!resource.includes(auditItem.resourceName)) {
+        resource.push(auditItem.resourceName);
+      }
+      if (!project.includes(auditItem.project)) {
+        project.push(auditItem.project);
+      }
+      if (!actions.includes(auditItem.action)) {
+        actions.push(auditItem.action);
+      }
+    });
+    this.filterConfiguration = new FilterAuditModel(users, resource, project, actions, '', '');
+    console.log(this.filterAuditData);
   }
 
   toggleFilterRow(): void {

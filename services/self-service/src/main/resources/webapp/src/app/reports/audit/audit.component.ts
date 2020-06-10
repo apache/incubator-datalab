@@ -39,7 +39,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 <!--    </dlab-toolbar>-->
 <!--    <mat-divider></mat-divider>-->
 <!--    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>-->
-    <audit-toolbar>
+    <audit-toolbar (rebuildAudit)="rebuildAuditGrid()">
     </audit-toolbar>
     <mat-divider></mat-divider>
     <dlab-audit-grid></dlab-audit-grid>
@@ -84,12 +84,11 @@ export class AuditComponent implements OnInit, OnDestroy {
   }
 
   public buildAuditReport() {
-    this.auditData = this.auditService.getAuditData().subscribe(auditData => {
-      console.log(auditData);
-      // this.auditGrid.refreshAudit(auditData);
-    });
+    this.auditGrid.refreshAudit();
+  }
 
-
+  public rebuildAuditGrid() {
+    this.buildAuditReport();
   }
 
   private getEnvironmentHealthStatus() {
