@@ -1,10 +1,14 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.Audit;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.annotation.Info;
 import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.annotation.ProjectAdmin;
+import com.epam.dlab.backendapi.annotation.ResourceName;
 import com.epam.dlab.backendapi.annotation.User;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
@@ -12,12 +16,12 @@ import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.domain.UpdateProjectBudgetDTO;
 import com.epam.dlab.backendapi.domain.UpdateProjectDTO;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
-import com.epam.dlab.backendapi.service.SecurityService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceStatus;
@@ -28,13 +32,20 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE_PROJECT;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.START_PROJECT;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.STOP_PROJECT;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.TERMINATE_PROJECT;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE_PROJECT;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
 
@@ -46,7 +57,11 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String START_PRJ_API = "infrastructure/project/start";
 	private static final String STOP_PRJ_API = "infrastructure/project/stop";
 	private static final String STOP_ACTION = "stop";
-	private static final String TERMINATE_ACTION = "terminate";
+
+	private static final String AUDIT_ADD_ENDPOINT = "Added endpoint(s) %s";
+	private static final String AUDIT_ADD_GROUP = "Added group(s) %s";
+	private static final String AUDIT_REMOVE_GROUP = "Removed group(s) %s";
+	private static final String AUDIT_UPDATE_BUDGET = "Update budget %d->%d";
 
 	private final ProjectDAO projectDAO;
 	private final ExploratoryService exploratoryService;
@@ -56,14 +71,15 @@ public class ProjectServiceImpl implements ProjectService {
 	private final RequestBuilder requestBuilder;
 	private final EndpointService endpointService;
 	private final ExploratoryDAO exploratoryDAO;
-	private final SecurityService securityService;
+	private final SelfServiceApplicationConfiguration configuration;
+
 
 	@Inject
 	public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
 							  UserGroupDao userGroupDao,
 							  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
 							  RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService,
-							  ExploratoryDAO exploratoryDAO, SecurityService securityService) {
+							  ExploratoryDAO exploratoryDAO, SelfServiceApplicationConfiguration configuration) {
 		this.projectDAO = projectDAO;
 		this.exploratoryService = exploratoryService;
 		this.userGroupDao = userGroupDao;
@@ -72,7 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
 		this.requestBuilder = requestBuilder;
 		this.endpointService = endpointService;
 		this.exploratoryDAO = exploratoryDAO;
-		this.securityService = securityService;
+		this.configuration = configuration;
 	}
 
 	@Override
@@ -100,7 +116,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@BudgetLimited
 	@Override
-	public void create(UserInfo user, ProjectDTO projectDTO) {
+	@Audit(action = CREATE_PROJECT)
+	public void create(@User UserInfo user, ProjectDTO projectDTO, @ResourceName String resourceName) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
 			projectDAO.create(projectDTO);
 			createProjectOnCloud(user, projectDTO);
@@ -123,9 +140,9 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@ProjectAdmin
+	@Audit(action = TERMINATE_PROJECT)
 	@Override
-	public void terminateEndpoint(@User UserInfo userInfo, List<String> endpoints, @Project String name) {
-		System.out.println("sd");
+	public void terminateEndpoint(@User UserInfo userInfo, List<String> endpoints, @ResourceName @Project String name) {
 		endpoints.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
 	}
 
@@ -137,8 +154,9 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@ProjectAdmin
+	@Audit(action = START_PROJECT)
 	@Override
-	public void start(@User UserInfo userInfo, List<String> endpoints, @Project String name) {
+	public void start(@User UserInfo userInfo, List<String> endpoints, @ResourceName @Project String name) {
 		endpoints.forEach(endpoint -> start(userInfo, endpoint, name));
 	}
 
@@ -149,8 +167,9 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@ProjectAdmin
+	@Audit(action = STOP_PROJECT)
 	@Override
-	public void stopWithResources(@User UserInfo userInfo, List<String> endpoints, @Project String projectName) {
+	public void stopWithResources(@User UserInfo userInfo, List<String> endpoints, @ResourceName @Project String projectName) {
 		List<ProjectEndpointDTO> endpointDTOs = get(projectName)
 				.getEndpoints()
 				.stream()
@@ -178,9 +197,17 @@ public class ProjectServiceImpl implements ProjectService {
 				.stream()
 				.map(ProjectEndpointDTO::getName)
 				.collect(toSet());
-		final HashSet<String> newEndpoints = new HashSet<>(projectDTO.getEndpoints());
+		final Set<String> newEndpoints = new HashSet<>(projectDTO.getEndpoints());
 		newEndpoints.removeAll(endpoints);
-		final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints.stream()
+		final List<String> projectAudit = configuration.isAuditEnabled() ? updateProjectAudit(projectDTO, project, newEndpoints) : null;
+		updateProject(userInfo, projectName, projectDTO, project, newEndpoints, projectAudit);
+	}
+
+	@Audit(action = UPDATE_PROJECT)
+	public void updateProject(@User UserInfo userInfo, @ResourceName String projectName, UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints,
+							  @Info List<String> projectAudit) {
+		final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints
+				.stream()
 				.map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
 				.collect(Collectors.toList());
 		project.getEndpoints().addAll(endpointsToBeCreated);
@@ -190,8 +217,18 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public void updateBudget(List<ProjectDTO> projects) {
-		projects.forEach(p -> projectDAO.updateBudget(p.getName(), p.getBudget()));
+	public void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> dtos) {
+		final List<ProjectDTO> projects = dtos
+				.stream()
+				.map(dto -> ProjectDTO.builder().name(dto.getProject()).budget(dto.getBudget()).build())
+				.collect(Collectors.toList());
+
+		projects.forEach(p -> updateBudget(userInfo, p.getName(), p.getBudget(), getUpdateBudgetAudit(p)));
+	}
+
+	@Audit(action = UPDATE_PROJECT)
+	public void updateBudget(@User UserInfo userInfo, @ResourceName String name, Integer budget, @Info List<String> updateBudgetAudit) {
+		projectDAO.updateBudget(name, budget);
 	}
 
 	@Override
@@ -243,15 +280,39 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private void checkProjectRelatedResourcesInProgress(String projectName, List<ProjectEndpointDTO> endpoints, String action) {
-        boolean edgeProgress = endpoints.stream().anyMatch(e ->
-                Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
-                        UserInstanceStatus.TERMINATING).contains(e.getStatus()));
+		boolean edgeProgress = endpoints
+				.stream().anyMatch(e ->
+						Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
+								UserInstanceStatus.TERMINATING).contains(e.getStatus()));
 
 		List<String> endpointsName = endpoints.stream().map(ProjectEndpointDTO::getName).collect(Collectors.toList());
 		if (edgeProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointsName)) {
 			throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
 					"resource is in processing stage", action)));
 		}
+	}
+
+	private List<String> updateProjectAudit(UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints) {
+		final List<String> audit = new ArrayList<>();
+		final Set<String> newGroups = new HashSet<>(projectDTO.getGroups());
+		newGroups.removeAll(project.getGroups());
+		final Set<String> removedGroups = new HashSet<>(project.getGroups());
+		removedGroups.removeAll(projectDTO.getGroups());
+
+		if (!newEndpoints.isEmpty()) {
+			audit.add(String.format(AUDIT_ADD_ENDPOINT, String.join(", ", newEndpoints)));
+		}
+		if (!newGroups.isEmpty()) {
+			audit.add(String.format(AUDIT_ADD_GROUP, String.join(", ", newGroups)));
+		}
+		if (!removedGroups.isEmpty()) {
+			audit.add(String.format(AUDIT_REMOVE_GROUP, String.join(", ", removedGroups)));
+		}
+		return audit;
+	}
+
+	private List<String> getUpdateBudgetAudit(ProjectDTO p) {
+		return Collections.singletonList(String.format(AUDIT_UPDATE_BUDGET, get(p.getName()).getBudget(), p.getBudget()));
 	}
 
 	private Supplier<ResourceNotFoundException> projectNotFound() {

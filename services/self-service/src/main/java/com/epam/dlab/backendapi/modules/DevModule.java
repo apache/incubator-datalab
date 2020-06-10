@@ -23,6 +23,8 @@ import com.epam.dlab.ModuleBase;
 import com.epam.dlab.auth.contract.SecurityAPI;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.AuditDAO;
+import com.epam.dlab.backendapi.dao.AuditDAOImpl;
 import com.epam.dlab.backendapi.dao.BackupDao;
 import com.epam.dlab.backendapi.dao.BackupDaoImpl;
 import com.epam.dlab.backendapi.dao.BaseBillingDAO;
@@ -40,6 +42,7 @@ import com.epam.dlab.backendapi.dao.UserRoleDaoImpl;
 import com.epam.dlab.backendapi.service.AccessKeyService;
 import com.epam.dlab.backendapi.service.ApplicationSettingService;
 import com.epam.dlab.backendapi.service.ApplicationSettingServiceImpl;
+import com.epam.dlab.backendapi.service.AuditService;
 import com.epam.dlab.backendapi.service.BackupService;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.backendapi.service.ComputationalService;
@@ -68,6 +71,7 @@ import com.epam.dlab.backendapi.service.UserRoleServiceImpl;
 import com.epam.dlab.backendapi.service.UserSettingService;
 import com.epam.dlab.backendapi.service.UserSettingServiceImpl;
 import com.epam.dlab.backendapi.service.impl.AccessKeyServiceImpl;
+import com.epam.dlab.backendapi.service.impl.AuditServiceImpl;
 import com.epam.dlab.backendapi.service.impl.BackupServiceImpl;
 import com.epam.dlab.backendapi.service.impl.BucketServiceImpl;
 import com.epam.dlab.backendapi.service.impl.ComputationalServiceImpl;
@@ -170,8 +174,10 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(EndpointService.class).to(EndpointServiceImpl.class);
 		bind(EndpointDAO.class).to(EndpointDAOImpl.class);
 		bind(ProjectService.class).to(ProjectServiceImpl.class);
+		bind(AuditService.class).to(AuditServiceImpl.class);
 		bind(ProjectDAO.class).to(ProjectDAOImpl.class);
 		bind(BillingDAO.class).to(BaseBillingDAO.class);
+		bind(AuditDAO.class).to(AuditDAOImpl.class);
 		bind(BucketService.class).to(BucketServiceImpl.class);
 	}
 
