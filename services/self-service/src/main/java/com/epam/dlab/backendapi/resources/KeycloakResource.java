@@ -13,7 +13,12 @@ import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import org.keycloak.representations.AccessTokenResponse;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -45,17 +50,15 @@ public class KeycloakResource {
 		this.securityService = securityService;
 		this.keycloakService = keycloakService;
 
-		loginUri =
-				format(LOGIN_URI_FORMAT,
-						keycloakConfiguration.getAuthServerUrl(),
-						keycloakConfiguration.getRealm(),
-						keycloakConfiguration.getResource(),
-						redirectUri);
-		logoutUri =
-				format(KEYCLOAK_LOGOUT_URI_FORMAT,
-						keycloakConfiguration.getAuthServerUrl(),
-						keycloakConfiguration.getRealm(),
-						redirectUri);
+		loginUri = format(LOGIN_URI_FORMAT,
+				keycloakConfiguration.getAuthServerUrl(),
+				keycloakConfiguration.getRealm(),
+				keycloakConfiguration.getResource(),
+				redirectUri);
+		logoutUri = format(KEYCLOAK_LOGOUT_URI_FORMAT,
+				keycloakConfiguration.getAuthServerUrl(),
+				keycloakConfiguration.getRealm(),
+				redirectUri);
 	}
 
 	@GET
