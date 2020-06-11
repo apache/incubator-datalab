@@ -32,6 +32,8 @@ import os
 if __name__ == "__main__":
     try:
         image_conf = dict()
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         image_conf['image_name'] = os.environ['notebook_image_name']
         image_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
             os.environ['conf_service_base_name'][:20], '-', True)
@@ -39,16 +41,16 @@ if __name__ == "__main__":
         image_conf['endpoint_tag'] = image_conf['endpoint_name']
         image_conf['project_name'] = os.environ['project_name']
         image_conf['project_tag'] = os.environ['project_name']
-        image_conf['expected_primary_image_name'] = '{}-{}-{}-{}-primary-{}'.format(
+        image_conf['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image-{}'.format(
             image_conf['service_base_name'], image_conf['project_name'], image_conf['endpoint_name'],
             os.environ['application'], image_conf['image_name'])
-        image_conf['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-{}'.format(
+        image_conf['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-image-{}'.format(
             image_conf['service_base_name'], image_conf['project_name'], image_conf['endpoint_name'],
             os.environ['application'], image_conf['image_name'])
-        primary_image_id = dlab.meta_lib.GCPMeta.get_image_by_name(image_conf['expected_primary_image_name'])
+        primary_image_id = GCPMeta.get_image_by_name(image_conf['expected_primary_image_name'])
         if primary_image_id != '':
-            dlab.actions_lib.GCPActions.remove_image(notebook_config['expected_primary_image_name'])
-            dlab.actions_lib.GCPActions.remove_image(notebook_config['expected_secondary_image_name'])
+            GCPActions.remove_image(notebook_config['expected_primary_image_name'])
+            GCPActions.remove_image(notebook_config['expected_secondary_image_name'])
             with open("/root/result.json", 'w') as result:
                 res = {"notebook_image_name": image_conf['full_image_name'],
                        "status": "terminated",
