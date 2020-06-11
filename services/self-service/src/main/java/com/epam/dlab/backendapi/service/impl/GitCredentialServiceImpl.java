@@ -20,6 +20,8 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.Audit;
+import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
@@ -41,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.stream.Collectors;
 
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.MANAGE_GIT_ACCOUNT;
 import static com.epam.dlab.rest.contracts.ExploratoryAPI.EXPLORATORY_GIT_CREDS;
 
 @Slf4j
@@ -62,8 +65,9 @@ public class GitCredentialServiceImpl implements GitCredentialService {
 	@Inject
 	private EndpointService endpointService;
 
+	@Audit(action = MANAGE_GIT_ACCOUNT)
 	@Override
-	public void updateGitCredentials(UserInfo userInfo, ExploratoryGitCredsDTO formDTO) {
+	public void updateGitCredentials(@User UserInfo userInfo, ExploratoryGitCredsDTO formDTO) {
 		log.debug("Updating GIT creds for user {} to {}", userInfo.getName(), formDTO);
 		try {
 			gitCredsDAO.updateGitCreds(userInfo.getName(), formDTO);

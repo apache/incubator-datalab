@@ -97,7 +97,7 @@ public class AuditInterceptor implements MethodInterceptor {
                 .filter(i -> Objects.nonNull(parameters[i].getAnnotation(ResourceName.class)))
                 .mapToObj(i -> (String) mi.getArguments()[i])
                 .findAny()
-                .orElseThrow(() -> new DlabException("Resource name parameter wanted!"));
+                .orElse(StringUtils.EMPTY);
     }
 
     private String getInfo(MethodInvocation mi, Parameter[] parameters) {

@@ -29,7 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -42,26 +46,25 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class GitCredsResource implements ExploratoryAPI {
 
-	private GitCredentialService gitCredentialService;
+    private final GitCredentialService gitCredentialService;
 
-	@Inject
-	public GitCredsResource(GitCredentialService gitCredentialService) {
-		this.gitCredentialService = gitCredentialService;
-	}
+    @Inject
+    public GitCredsResource(GitCredentialService gitCredentialService) {
+        this.gitCredentialService = gitCredentialService;
+    }
 
-	/**
-	 * Update GIT credentials for user.
-	 *
-	 * @param userInfo user info.
-	 * @param formDTO  the list of credentials.
-	 * @return {@link Response.Status#OK} request for provisioning service has been accepted.<br>
-	 */
-	@PUT
-	public Response updateGitCreds(@Auth UserInfo userInfo,
-								   @Valid @NotNull ExploratoryGitCredsDTO formDTO) {
-		gitCredentialService.updateGitCredentials(userInfo, formDTO);
-		return Response.ok().build();
-	}
+    /**
+     * Update GIT credentials for user.
+     *
+     * @param userInfo user info.
+     * @param formDTO  the list of credentials.
+     * @return {@link Response.Status#OK} request for provisioning service has been accepted.<br>
+     */
+    @PUT
+    public Response updateGitCreds(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGitCredsDTO formDTO) {
+        gitCredentialService.updateGitCredentials(userInfo, formDTO);
+        return Response.ok().build();
+    }
 
 	/**
 	 * Returns info about GIT credentials for user.
