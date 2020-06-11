@@ -116,20 +116,21 @@ public class BillingServiceImpl implements BillingService {
                 .usageDateTo(max)
                 .totalCost(new BigDecimal(sum).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(currency)
-                .isFull(isFullReport(user))
+                .isReportHeaderCompletable(hasUserBillingRole(user))
                 .build();
     }
 
     @Override
     public String downloadReport(UserInfo user, BillingFilter filter) {
-        boolean isFull = isFullReport(user);
         BillingReport report = getBillingReport(user, filter);
-        StringBuilder builder = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
-        builder.append(BillingUtils.getHeader(isFull));
+        boolean isReportComplete =report.isReportHeaderCompletable();
+        StringBuilder reportHead = new StringBuilder(BillingUtils.getFirstLine(report.getSbn(), report.getUsageDateFrom(), report.getUsageDateTo()));
+        String stringOfAdjustedHeader = BillingUtils.getHeader(isReportComplete);
+        reportHead.append(stringOfAdjustedHeader);
         try {
-            report.getReportLines().forEach(r -> builder.append(BillingUtils.printLine(r, isFull)));
-            builder.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency()));
-            return builder.toString();
+            report.getReportLines().forEach(r -> reportHead.append(BillingUtils.printLine(r, isReportComplete)));
+            reportHead.append(BillingUtils.getTotal(report.getTotalCost(), report.getCurrency(), stringOfAdjustedHeader));
+            return reportHead.toString();
         } catch (Exception e) {
             log.error("Cannot write billing data ", e);
             throw new DlabException("Cannot write billing file ", e);
@@ -304,13 +305,17 @@ public class BillingServiceImpl implements BillingService {
         }
     }
 
-    private boolean isFullReport(UserInfo userInfo) {
-        return UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing",
-                userInfo.getRoles());
+    /**
+     *
+     * @param userInfo user's properties for current session
+     * @return true, if user has be billing role
+     */
+    private boolean hasUserBillingRole(UserInfo userInfo) {
+        return UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing", userInfo.getRoles());
     }
 
     private void setUserFilter(UserInfo userInfo, BillingFilter filter) {
-        if (!isFullReport(userInfo)) {
+        if (!hasUserBillingRole(userInfo)) {
             filter.setUsers(Lists.newArrayList(userInfo.getName()));
         }
     }
