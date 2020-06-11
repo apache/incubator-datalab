@@ -297,7 +297,9 @@ export class RolesComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p *ngIf="data.user">User <span class="strong">{{ data.user }}</span> will be deleted from <span class="strong">{{ data.group }}</span> group.</p>
+
+    <p *ngIf="data.user">User <span class="strong">{{ data.user }}</span> will be deleted from <span class="strong">{{ data.group }}</span> group.
+    </p>
     <p *ngIf="data.id">Group <span class="ellipsis group-name strong">{{ data.group }}</span> will be decommissioned.</p>
     <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
   </div>

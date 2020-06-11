@@ -124,6 +124,9 @@ export class ConfirmationDialogModel {
             error => fnProcessErrors(error));
       }
         break;
+      case ConfirmationDialogType.deleteGroup: {
+      }
+        break;
       default: {
         this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesTerminateMessage : defaultTerminateMessage;
         this.notebook = notebook;
