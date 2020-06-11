@@ -37,9 +37,17 @@ args = parser.parse_args()
 
 def resolving_hosts(initial_user):
     if not exists('/home/{}/.hosts_resolved'.format(initial_user)):
-        host = sudo('curl http://169.254.169.254/latest/meta-data/local-hostname').split('\n')[1]
+        host = sudo('curl http://169.254.169.254/latest/meta-data/local-hostname').split('\n')
+        if len(host) > 1:
+            host = host[1]
+        else:
+            host = host[0]
         host_short = host.split('.')[0]
-        private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4').split('\n')[1]
+        private_ip = sudo('curl http://169.254.169.254/latest/meta-data/local-ipv4').split('\n')
+        if len(private_ip) > 1:
+            private_ip = private_ip[1]
+        else:
+            private_ip = private_ip[0]
         sudo('echo "{} {} {}" >> /etc/hosts'.format(private_ip, host, host_short))
         sudo('touch /home/{}/.hosts_resolved'.format(initial_user))
 

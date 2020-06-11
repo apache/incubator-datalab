@@ -221,12 +221,17 @@ if __name__ == "__main__":
         print('[INSTALLING NGINX REVERSE PROXY]')
         logging.info('[INSTALLING NGINX REVERSE PROXY]')
         edge_conf['keycloak_client_secret'] = str(uuid.uuid4())
-        params = "--hostname {} --keyfile {} --user {} --keycloak_client_id {} --keycloak_client_secret {} " \
-                 "--step_cert_sans '{}' ".format(
-                  edge_conf['instance_private_ip'], edge_conf['keyfile_name'], edge_conf['dlab_ssh_user'],
-                  '{}-{}-{}'.format(edge_conf['service_base_name'], edge_conf['project_name'],
-                                    edge_conf['endpoint_name']),
-                  edge_conf['keycloak_client_secret'], edge_conf['step_cert_sans'])
+        params = "--instance_private_ip {} --hostname {} --keyfile {} --user {} --keycloak_client_id {} \
+                --keycloak_client_secret {} --step_cert_sans '{}' ".format(edge_conf['instance_private_ip'],
+                                                                           edge_conf['instance_hostname'],
+                                                                           edge_conf['keyfile_name'],
+                                                                           edge_conf['dlab_ssh_user'],
+                                                                           '{}-{}-{}'.format(
+                                                                               edge_conf['service_base_name'],
+                                                                               edge_conf['project_name'],
+                                                                               edge_conf['endpoint_name']),
+                                                                           edge_conf['keycloak_client_secret'],
+                                                                           edge_conf['step_cert_sans'])
         try:
             local("~/scripts/{}.py {}".format('configure_nginx_reverse_proxy', params))
         except:

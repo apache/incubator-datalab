@@ -30,6 +30,7 @@ from dlab.common_lib import ensure_step
 from dlab.edge_lib import install_nginx_lua
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--instance_private_ip', type=str, default='')
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--user', type=str, default='')
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     try:
         env['connection_attempts'] = 100
         env.key_filename = [args.keyfile]
-        env.host_string = '{}@{}'.format(args.user, args.hostname)
+        env.host_string = '{}@{}'.format(args.user, args.instance_private_ip)
     except Exception as err:
         print("Failed establish connection. Excpeption: " + str(err))
         sys.exit(1)

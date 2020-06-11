@@ -184,10 +184,6 @@ if __name__ == "__main__":
     except KeyError:
         project_conf['vpc2_id'] = project_conf['vpc_id']
 
-    tag = {"Key": project_conf['tag_name'],
-           "Value": "{0}-{1}-{2}-subnet".format(project_conf['service_base_name'], project_conf['project_name'],
-                                                project_conf['endpoint_name'])}
-
     if os.environ['aws_private_subnet_cidr']:
         project_conf['private_subnet_cidr'] = os.environ['aws_private_subnet_cidr']
     else:
@@ -209,7 +205,9 @@ if __name__ == "__main__":
             except Exception as err:
                 dlab.fab.append_result("Failed to create subnet.", str(err))
                 sys.exit(1)
-
+            tag = {"Key": project_conf['tag_name'],
+                   "Value": "{0}-{1}-{2}-subnet".format(project_conf['service_base_name'], project_conf['project_name'],
+                                                        project_conf['endpoint_name'])}
             project_conf['private_subnet_cidr'] = dlab.meta_lib.get_subnet_by_tag(tag)
         except Exception as err:
             dlab.fab.append_result("Failed to create subnet.", str(err))
