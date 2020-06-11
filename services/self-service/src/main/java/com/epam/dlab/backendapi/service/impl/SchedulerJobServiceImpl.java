@@ -51,7 +51,6 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -219,7 +218,7 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
         final String compName = job.getComputationalName();
         final String user = job.getUser();
         log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-        computationalService.stopSparkCluster(securityService.getServiceAccountInfo(user), user, project, expName, compName, Collections.singletonList(AUDIT_MESSAGE));
+        computationalService.stopSparkCluster(securityService.getServiceAccountInfo(user), user, project, expName, compName, AUDIT_MESSAGE);
     }
 
 	private void terminateComputational(SchedulerJobData job) {
@@ -228,16 +227,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
         final String compName = job.getComputationalName();
         final UserInfo userInfo = securityService.getServiceAccountInfo(user);
         log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-        computationalService.terminateComputational(userInfo, user, job.getProject(), expName, compName, Collections.singletonList(AUDIT_MESSAGE));
+        computationalService.terminateComputational(userInfo, user, job.getProject(), expName, compName, AUDIT_MESSAGE);
     }
 
 	private void stopExploratory(SchedulerJobData job) {
-		final String expName = job.getExploratoryName();
-		final String user = job.getUser();
-		final String project = job.getProject();
-		log.debug("Stopping exploratory {} for user {} by scheduler", expName, user);
-		exploratoryService.stop(securityService.getServiceAccountInfo(user), user, project, expName, Collections.singletonList(AUDIT_MESSAGE));
-	}
+        final String expName = job.getExploratoryName();
+        final String user = job.getUser();
+        final String project = job.getProject();
+        log.debug("Stopping exploratory {} for user {} by scheduler", expName, user);
+        exploratoryService.stop(securityService.getServiceAccountInfo(user), user, project, expName, AUDIT_MESSAGE);
+    }
 
 	private List<SchedulerJobData> getExploratorySchedulersForTerminating(OffsetDateTime now) {
 		return schedulerJobDAO.getExploratorySchedulerDataWithOneOfStatus(RUNNING, STOPPED)
@@ -254,35 +253,35 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	private void startExploratory(SchedulerJobData schedulerJobData) {
-		final String user = schedulerJobData.getUser();
-		final String exploratoryName = schedulerJobData.getExploratoryName();
-		final String project = schedulerJobData.getProject();
-		log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
-		exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, project, Collections.singletonList(AUDIT_MESSAGE));
-		if (schedulerJobData.getJobDTO().isSyncStartRequired()) {
-			log.trace("Starting computational for exploratory {} for user {} by scheduler", exploratoryName, user);
-			final DataEngineType sparkCluster = DataEngineType.SPARK_STANDALONE;
-			final List<UserComputationalResource> compToBeStarted =
-					computationalDAO.findComputationalResourcesWithStatus(user, project, exploratoryName, STOPPED);
+        final String user = schedulerJobData.getUser();
+        final String exploratoryName = schedulerJobData.getExploratoryName();
+        final String project = schedulerJobData.getProject();
+        log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
+        exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, project, AUDIT_MESSAGE);
+        if (schedulerJobData.getJobDTO().isSyncStartRequired()) {
+            log.trace("Starting computational for exploratory {} for user {} by scheduler", exploratoryName, user);
+            final DataEngineType sparkCluster = DataEngineType.SPARK_STANDALONE;
+            final List<UserComputationalResource> compToBeStarted =
+                    computationalDAO.findComputationalResourcesWithStatus(user, project, exploratoryName, STOPPED);
 
-			compToBeStarted
-					.stream()
-					.filter(compResource -> shouldClusterBeStarted(sparkCluster, compResource))
-					.forEach(comp -> startSpark(user, exploratoryName, comp.getComputationalName(), project));
+            compToBeStarted
+                    .stream()
+                    .filter(compResource -> shouldClusterBeStarted(sparkCluster, compResource))
+                    .forEach(comp -> startSpark(user, exploratoryName, comp.getComputationalName(), project));
 		}
 	}
 
 	private void terminateExploratory(SchedulerJobData job) {
-		final String user = job.getUser();
-		final String project = job.getProject();
-		final String expName = job.getExploratoryName();
-		log.debug("Terminating exploratory {} for user {} by scheduler", expName, user);
-		exploratoryService.terminate(securityService.getUserInfoOffline(user), user, project, expName, Collections.singletonList(AUDIT_MESSAGE));
-	}
+        final String user = job.getUser();
+        final String project = job.getProject();
+        final String expName = job.getExploratoryName();
+        log.debug("Terminating exploratory {} for user {} by scheduler", expName, user);
+        exploratoryService.terminate(securityService.getUserInfoOffline(user), user, project, expName, AUDIT_MESSAGE);
+    }
 
 	private void startSpark(String user, String expName, String compName, String project) {
         log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-        computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, project, Collections.singletonList(AUDIT_MESSAGE));
+        computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, project, AUDIT_MESSAGE);
     }
 
 	private boolean shouldClusterBeStarted(DataEngineType sparkCluster, UserComputationalResource compResource) {

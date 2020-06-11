@@ -28,7 +28,7 @@ public interface ProjectService {
 
     void start(UserInfo userInfo, List<String> endpoints, String name);
 
-    void stop(UserInfo userInfo, String endpoint, String name, List<String> auditInfo);
+    void stop(UserInfo userInfo, String endpoint, String name, String auditInfo);
 
     void stopWithResources(UserInfo userInfo, List<String> endpoints, String projectName);
 

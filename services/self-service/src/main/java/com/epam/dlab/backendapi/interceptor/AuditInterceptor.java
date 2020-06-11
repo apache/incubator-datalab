@@ -38,8 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
@@ -56,14 +54,14 @@ public class AuditInterceptor implements MethodInterceptor {
         final AuditActionEnum action = getAuditActionEnum(method);
         final String project = getProject(mi, parameters);
         final String resourceName = getResourceName(mi, parameters);
-        final List<String> infoMap = getInfo(mi, parameters);
+        final String auditInfo = getInfo(mi, parameters);
 
         AuditDTO auditCreateDTO = AuditDTO.builder()
                 .user(user)
                 .action(action)
                 .project(project)
                 .resourceName(resourceName)
-                .info(infoMap)
+                .info(auditInfo)
                 .build();
         auditService.save(auditCreateDTO);
         return mi.proceed();
@@ -102,11 +100,11 @@ public class AuditInterceptor implements MethodInterceptor {
                 .orElseThrow(() -> new DlabException("Resource name parameter wanted!"));
     }
 
-    private List<String> getInfo(MethodInvocation mi, Parameter[] parameters) {
+    private String getInfo(MethodInvocation mi, Parameter[] parameters) {
         return IntStream.range(0, parameters.length)
                 .filter(i -> Objects.nonNull(parameters[i].getAnnotation(Info.class)) && Objects.nonNull(mi.getArguments()[i]))
-                .mapToObj(i -> (List<String>) mi.getArguments()[i])
+                .mapToObj(i -> (String) mi.getArguments()[i])
                 .findAny()
-                .orElseGet(Collections::emptyList);
+                .orElse(StringUtils.EMPTY);
     }
 }

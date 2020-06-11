@@ -32,9 +32,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -161,11 +159,11 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Audit(action = STOP_EDGE_NODE)
-	@Override
-	public void stop(@User UserInfo userInfo, @ResourceName String endpoint, @Project String name, @Info List<String> auditInfo) {
-		projectActionOnCloud(userInfo, name, STOP_PRJ_API, endpoint);
-		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STOPPING);
-	}
+    @Override
+    public void stop(@User UserInfo userInfo, @ResourceName String endpoint, @Project String name, @Info String auditInfo) {
+        projectActionOnCloud(userInfo, name, STOP_PRJ_API, endpoint);
+        projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STOPPING);
+    }
 
 	@ProjectAdmin
 	@Override
@@ -194,29 +192,29 @@ public class ProjectServiceImpl implements ProjectService {
 	@ProjectAdmin
 	@Override
 	public void update(@User UserInfo userInfo, UpdateProjectDTO projectDTO, @Project String projectName) {
-		final ProjectDTO project = projectDAO.get(projectDTO.getName()).orElseThrow(projectNotFound());
-		final Set<String> endpoints = project.getEndpoints()
-				.stream()
-				.map(ProjectEndpointDTO::getName)
-				.collect(toSet());
-		final Set<String> newEndpoints = new HashSet<>(projectDTO.getEndpoints());
-		newEndpoints.removeAll(endpoints);
-		final List<String> projectAudit = updateProjectAudit(projectDTO, project, newEndpoints);
-		updateProject(userInfo, projectName, projectDTO, project, newEndpoints, projectAudit);
-	}
+        final ProjectDTO project = projectDAO.get(projectDTO.getName()).orElseThrow(projectNotFound());
+        final Set<String> endpoints = project.getEndpoints()
+                .stream()
+                .map(ProjectEndpointDTO::getName)
+                .collect(toSet());
+        final Set<String> newEndpoints = new HashSet<>(projectDTO.getEndpoints());
+        newEndpoints.removeAll(endpoints);
+        final String projectUpdateAudit = updateProjectAudit(projectDTO, project, newEndpoints);
+        updateProject(userInfo, projectName, projectDTO, project, newEndpoints, projectUpdateAudit);
+    }
 
-	@Audit(action = UPDATE_PROJECT)
-	public void updateProject(@User UserInfo userInfo, @Project @ResourceName String projectName, UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints,
-							  @Info List<String> projectAudit) {
-		final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints
-				.stream()
-				.map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
-				.collect(Collectors.toList());
-		project.getEndpoints().addAll(endpointsToBeCreated);
-		projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
-				project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
-		endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, projectName, project, e.getName()));
-	}
+    @Audit(action = UPDATE_PROJECT)
+    public void updateProject(@User UserInfo userInfo, @Project @ResourceName String projectName, UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints,
+                              @Info String projectAudit) {
+        final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints
+                .stream()
+                .map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
+                .collect(Collectors.toList());
+        project.getEndpoints().addAll(endpointsToBeCreated);
+        projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
+                project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
+        endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, projectName, project, e.getName()));
+    }
 
 	@Override
 	public void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> dtos) {
@@ -229,10 +227,10 @@ public class ProjectServiceImpl implements ProjectService {
 		projects.forEach(p -> updateBudget(userInfo, p.getName(), p.getBudget(), getUpdateBudgetAudit(p)));
 	}
 
-	@Audit(action = UPDATE_PROJECT)
-	public void updateBudget(@User UserInfo userInfo, @Project @ResourceName String name, Integer budget, @Info List<String> updateBudgetAudit) {
-		projectDAO.updateBudget(name, budget);
-	}
+    @Audit(action = UPDATE_PROJECT)
+    public void updateBudget(@User UserInfo userInfo, @Project @ResourceName String name, Integer budget, @Info String updateBudgetAudit) {
+        projectDAO.updateBudget(name, budget);
+    }
 
 	@Override
 	public boolean isAnyProjectAssigned(UserInfo userInfo) {
@@ -285,43 +283,43 @@ public class ProjectServiceImpl implements ProjectService {
 	private void checkProjectRelatedResourcesInProgress(String projectName, List<ProjectEndpointDTO> endpoints, String action) {
 		boolean edgeProgress = endpoints
 				.stream().anyMatch(e ->
-						Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
-								UserInstanceStatus.TERMINATING).contains(e.getStatus()));
+                        Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
+                                UserInstanceStatus.TERMINATING).contains(e.getStatus()));
 
-		List<String> endpointsName = endpoints.stream().map(ProjectEndpointDTO::getName).collect(Collectors.toList());
-		if (edgeProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointsName)) {
-			throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
-					"resource is in processing stage", action)));
-		}
-	}
+        List<String> endpointsName = endpoints.stream().map(ProjectEndpointDTO::getName).collect(Collectors.toList());
+        if (edgeProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointsName)) {
+            throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
+                    "resource is in processing stage", action)));
+        }
+    }
 
-	private List<String> updateProjectAudit(UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints) {
-		if (configuration.isAuditEnabled()) {
-			return null;
-		}
-		final List<String> audit = new ArrayList<>();
-		final Set<String> newGroups = new HashSet<>(projectDTO.getGroups());
-		newGroups.removeAll(project.getGroups());
-		final Set<String> removedGroups = new HashSet<>(project.getGroups());
-		removedGroups.removeAll(projectDTO.getGroups());
+    private String updateProjectAudit(UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints) {
+        if (configuration.isAuditEnabled()) {
+            return null;
+        }
+        StringBuilder audit = new StringBuilder();
+        final Set<String> newGroups = new HashSet<>(projectDTO.getGroups());
+        newGroups.removeAll(project.getGroups());
+        final Set<String> removedGroups = new HashSet<>(project.getGroups());
+        removedGroups.removeAll(projectDTO.getGroups());
 
-		if (!newEndpoints.isEmpty()) {
-			audit.add(String.format(AUDIT_ADD_ENDPOINT, String.join(", ", newEndpoints)));
-		}
-		if (!newGroups.isEmpty()) {
-			audit.add(String.format(AUDIT_ADD_GROUP, String.join(", ", newGroups)));
-		}
-		if (!removedGroups.isEmpty()) {
-			audit.add(String.format(AUDIT_REMOVE_GROUP, String.join(", ", removedGroups)));
-		}
-		return audit;
-	}
+        if (!newEndpoints.isEmpty()) {
+            audit.append(String.format(AUDIT_ADD_ENDPOINT, String.join(", ", newEndpoints)));
+        }
+        if (!newGroups.isEmpty()) {
+            audit.append(String.format(AUDIT_ADD_GROUP, String.join(", ", newGroups)));
+        }
+        if (!removedGroups.isEmpty()) {
+            audit.append(String.format(AUDIT_REMOVE_GROUP, String.join(", ", removedGroups)));
+        }
+        return audit.toString();
+    }
 
-	private List<String> getUpdateBudgetAudit(ProjectDTO p) {
-		return Collections.singletonList(String.format(AUDIT_UPDATE_BUDGET, get(p.getName()).getBudget(), p.getBudget()));
-	}
+    private String getUpdateBudgetAudit(ProjectDTO p) {
+        return String.format(AUDIT_UPDATE_BUDGET, get(p.getName()).getBudget(), p.getBudget());
+    }
 
-	private Supplier<ResourceNotFoundException> projectNotFound() {
-		return () -> new ResourceNotFoundException("Project with passed name not found");
-	}
+    private Supplier<ResourceNotFoundException> projectNotFound() {
+        return () -> new ResourceNotFoundException("Project with passed name not found");
+    }
 }

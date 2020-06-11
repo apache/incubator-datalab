@@ -24,7 +24,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Builder
@@ -34,6 +33,6 @@ public class AuditDTO {
     private final AuditActionEnum action;
     private final String project;
     private final String resourceName;
-    private final List<String> info;
+    private final String info;
     private Date timestamp;
 }

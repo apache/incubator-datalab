@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anySet;
 import static org.mockito.Mockito.anyString;
@@ -132,18 +131,18 @@ public class EnvironmentServiceImplTest {
         final ProjectDTO projectDTO = getProjectDTO();
         when(exploratoryDAO.fetchRunningExploratoryFieldsForProject(anyString())).thenReturn(getUserInstances());
         when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
-        when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyList())).thenReturn(UUID);
+        when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyString())).thenReturn(UUID);
         when(projectService.get(anyString())).thenReturn(projectDTO);
-        doNothing().when(projectService).stop(any(UserInfo.class), anyString(), anyString(), anyList());
+        doNothing().when(projectService).stop(any(UserInfo.class), anyString(), anyString(), anyString());
 
         environmentService.stopProjectEnvironment(PROJECT_NAME);
 
         verify(exploratoryDAO).fetchRunningExploratoryFieldsForProject(PROJECT_NAME);
-        verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq(Collections.singletonList(AUDIT_QUOTA_MESSAGE)));
-        verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_2), eq(Collections.singletonList(AUDIT_QUOTA_MESSAGE)));
+        verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq(AUDIT_QUOTA_MESSAGE));
+        verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_2), eq(AUDIT_QUOTA_MESSAGE));
         verify(securityService, times(3)).getServiceAccountInfo(DLAB_SYSTEM_USER);
         verify(projectService).get(eq(PROJECT_NAME));
-        verify(projectService).stop(refEq(userInfo), eq(ENDPOINT_NAME), eq(PROJECT_NAME), eq(Collections.singletonList(AUDIT_QUOTA_MESSAGE)));
+        verify(projectService).stop(refEq(userInfo), eq(ENDPOINT_NAME), eq(PROJECT_NAME), eq(AUDIT_QUOTA_MESSAGE));
         verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusIn(PROJECT_NAME, Arrays.asList(UserInstanceStatus.CREATING,
                 UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
                 UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
@@ -152,49 +151,49 @@ public class EnvironmentServiceImplTest {
 
 	@Test
 	public void stopExploratory() {
-		final UserInfo userInfo = getUserInfo();
-		when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyList())).thenReturn(UUID);
+        final UserInfo userInfo = getUserInfo();
+        when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyString())).thenReturn(UUID);
 
-		environmentService.stopExploratory(userInfo, USER, PROJECT_NAME, EXPLORATORY_NAME_1);
+        environmentService.stopExploratory(userInfo, USER, PROJECT_NAME, EXPLORATORY_NAME_1);
 
-		verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq(null));
-		verifyNoMoreInteractions(securityService, exploratoryService);
-	}
+        verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq(null));
+        verifyNoMoreInteractions(securityService, exploratoryService);
+    }
 
 	@Test
 	public void stopComputational() {
         final UserInfo userInfo = getUserInfo();
-        doNothing().when(computationalService).stopSparkCluster(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyList());
+        doNothing().when(computationalService).stopSparkCluster(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyString());
 
         environmentService.stopComputational(userInfo, USER, PROJECT_NAME, EXPLORATORY_NAME_1, "compName");
 
         verify(computationalService).stopSparkCluster(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq("compName"),
-                eq(Collections.singletonList(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME_1))));
+                eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME_1)));
         verifyNoMoreInteractions(securityService, computationalService);
     }
 
 	@Test
 	public void terminateExploratory() {
-		final UserInfo userInfo = getUserInfo();
-		when(exploratoryService.terminate(any(UserInfo.class), anyString(), anyString(), anyString(), anyList())).thenReturn(UUID);
+        final UserInfo userInfo = getUserInfo();
+        when(exploratoryService.terminate(any(UserInfo.class), anyString(), anyString(), anyString(), anyString())).thenReturn(UUID);
 
-		environmentService.terminateExploratory(userInfo, USER, PROJECT_NAME, EXPLORATORY_NAME_1);
+        environmentService.terminateExploratory(userInfo, USER, PROJECT_NAME, EXPLORATORY_NAME_1);
 
-		verify(exploratoryService).terminate(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq(null));
-		verifyNoMoreInteractions(securityService, exploratoryService);
-	}
+        verify(exploratoryService).terminate(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq(null));
+        verifyNoMoreInteractions(securityService, exploratoryService);
+    }
 
 	@Test
 	public void terminateComputational() {
 		final UserInfo userInfo = getUserInfo();
-		doNothing().when(computationalService)
-				.terminateComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyList());
+        doNothing().when(computationalService)
+                .terminateComputational(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyString());
 
 		environmentService.terminateComputational(userInfo, USER, PROJECT_NAME, EXPLORATORY_NAME_1, "compName");
 
-		verify(computationalService).terminateComputational(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq("compName"),
-				eq(Collections.singletonList(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME_1))));
-		verifyNoMoreInteractions(securityService, computationalService);
+        verify(computationalService).terminateComputational(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq("compName"),
+                eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME_1)));
+        verifyNoMoreInteractions(securityService, computationalService);
 	}
 
 	private UserInfo getUserInfo() {

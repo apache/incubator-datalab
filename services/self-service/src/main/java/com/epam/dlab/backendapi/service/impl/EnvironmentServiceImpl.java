@@ -44,7 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -137,7 +136,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
                 .stream()
                 .filter(e -> UserInstanceStatus.RUNNING == e.getStatus())
                 .forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo(DLAB_SYSTEM_USER),
-                        endpoint.getName(), project, Collections.singletonList(AUDIT_QUOTA_MESSAGE)));
+                        endpoint.getName(), project, AUDIT_QUOTA_MESSAGE));
 	}
 
 	@ProjectAdmin
@@ -150,7 +149,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
     @Override
     public void stopComputational(@User UserInfo userInfo, String user, @Project String project, String exploratoryName, String computationalName) {
         computationalService.stopSparkCluster(userInfo, user, project, exploratoryName, computationalName,
-                Collections.singletonList(String.format(AUDIT_MESSAGE, exploratoryName)));
+                String.format(AUDIT_MESSAGE, exploratoryName));
     }
 
 	@ProjectAdmin
@@ -162,9 +161,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@ProjectAdmin
 	@Override
 	public void terminateComputational(@User UserInfo userInfo, String user, @Project String project, String exploratoryName, String computationalName) {
-		computationalService.terminateComputational(userInfo, user, project, exploratoryName, computationalName,
-				Collections.singletonList(String.format(AUDIT_MESSAGE, exploratoryName)));
-	}
+        computationalService.terminateComputational(userInfo, user, project, exploratoryName, computationalName, String.format(AUDIT_MESSAGE, exploratoryName));
+    }
 
 	private UserDTO toUserDTO(String u, UserDTO.Status status) {
 		return new UserDTO(u, settingsDAO.getAllowedBudget(u).orElse(null), status);
@@ -184,9 +182,9 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private void stopNotebookWithServiceAccount(UserInstanceDTO instance) {
-		final UserInfo userInfo = securityService.getServiceAccountInfo(DLAB_SYSTEM_USER);
-		exploratoryService.stop(userInfo, instance.getUser(), instance.getProject(), instance.getExploratoryName(), Collections.singletonList(AUDIT_QUOTA_MESSAGE));
-	}
+        final UserInfo userInfo = securityService.getServiceAccountInfo(DLAB_SYSTEM_USER);
+        exploratoryService.stop(userInfo, instance.getUser(), instance.getProject(), instance.getExploratoryName(), AUDIT_QUOTA_MESSAGE);
+    }
 
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
 		final Stream<UserResourceInfo> userResources = allInstances

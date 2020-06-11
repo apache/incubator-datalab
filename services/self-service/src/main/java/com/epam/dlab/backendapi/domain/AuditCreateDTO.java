@@ -24,8 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
-import java.util.List;
-
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -33,5 +31,5 @@ public class AuditCreateDTO {
     @NotBlank(message = "field cannot be empty")
     @JsonProperty("resource_name")
     private final String resourceName;
-    private final List<String> info;
+    private final String info;
 }

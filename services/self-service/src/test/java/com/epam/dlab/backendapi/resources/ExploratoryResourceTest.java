@@ -46,7 +46,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
@@ -112,7 +111,7 @@ public class ExploratoryResourceTest extends TestBase {
 	@Test
 	public void start() {
         ExploratoryActionFormDTO exploratoryDTO = getExploratoryActionFormDTO();
-        when(exploratoryService.start(any(UserInfo.class), anyString(), anyString(), anyList())).thenReturn("someUuid");
+        when(exploratoryService.start(any(UserInfo.class), anyString(), anyString(), anyString())).thenReturn("someUuid");
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment")
                 .request()
@@ -130,7 +129,7 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void startUnprocessableEntity() {
-        when(exploratoryService.start(any(UserInfo.class), anyString(), anyString(), anyList())).thenReturn("someUuid");
+        when(exploratoryService.start(any(UserInfo.class), anyString(), anyString(), anyString())).thenReturn("someUuid");
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment")
                 .request()
@@ -145,16 +144,16 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void stop() {
-		when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyList())).thenReturn("someUuid");
-		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/project/someName/stop")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.delete();
+        when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyString())).thenReturn("someUuid");
+        final Response response = resources.getJerseyTest()
+                .target("/infrastructure_provision/exploratory_environment/project/someName/stop")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .delete();
 
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals("someUuid", response.readEntity(String.class));
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals("someUuid", response.readEntity(String.class));
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(exploratoryService).stop(getUserInfo(), getUserInfo().getName(), "project", "someName", null);
 		verifyNoMoreInteractions(exploratoryService);
@@ -162,17 +161,17 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void stopWithFailedAuth() throws AuthenticationException {
-		authFailSetup();
-		when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyList())).thenReturn("someUuid");
-		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/project/someName/stop")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.delete();
+        authFailSetup();
+        when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyString())).thenReturn("someUuid");
+        final Response response = resources.getJerseyTest()
+                .target("/infrastructure_provision/exploratory_environment/project/someName/stop")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .delete();
 
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals("someUuid", response.readEntity(String.class));
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals("someUuid", response.readEntity(String.class));
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(exploratoryService).stop(getUserInfo(), getUserInfo().getName(), "project", "someName", null);
 		verifyNoMoreInteractions(exploratoryService);
@@ -180,8 +179,8 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void stopWithException() {
-		doThrow(new DlabException("Could not stop exploratory environment"))
-				.when(exploratoryService).stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyList());
+        doThrow(new DlabException("Could not stop exploratory environment"))
+                .when(exploratoryService).stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/project/someName/stop")
 				.request()
@@ -201,16 +200,16 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void terminate() {
-		when(exploratoryService.terminate(any(UserInfo.class), anyString(), anyString(), anyString(), anyList())).thenReturn("someUuid");
-		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/project/someName/terminate")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.delete();
+        when(exploratoryService.terminate(any(UserInfo.class), anyString(), anyString(), anyString(), anyString())).thenReturn("someUuid");
+        final Response response = resources.getJerseyTest()
+                .target("/infrastructure_provision/exploratory_environment/project/someName/terminate")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .delete();
 
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals("someUuid", response.readEntity(String.class));
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals("someUuid", response.readEntity(String.class));
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(exploratoryService).terminate(getUserInfo(), getUserInfo().getName(), "project", "someName", null);
 		verifyNoMoreInteractions(exploratoryService);
@@ -218,17 +217,17 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void terminateWithFailedAuth() throws AuthenticationException {
-		authFailSetup();
-		when(exploratoryService.terminate(any(UserInfo.class), anyString(), anyString(), anyString(), anyList())).thenReturn("someUuid");
-		final Response response = resources.getJerseyTest()
-				.target("/infrastructure_provision/exploratory_environment/project/someName/terminate")
-				.request()
-				.header("Authorization", "Bearer " + TOKEN)
-				.delete();
+        authFailSetup();
+        when(exploratoryService.terminate(any(UserInfo.class), anyString(), anyString(), anyString(), anyString())).thenReturn("someUuid");
+        final Response response = resources.getJerseyTest()
+                .target("/infrastructure_provision/exploratory_environment/project/someName/terminate")
+                .request()
+                .header("Authorization", "Bearer " + TOKEN)
+                .delete();
 
-		assertEquals(HttpStatus.SC_OK, response.getStatus());
-		assertEquals("someUuid", response.readEntity(String.class));
-		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals("someUuid", response.readEntity(String.class));
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(exploratoryService).terminate(getUserInfo(), getUserInfo().getName(), "project", "someName", null);
 		verifyNoMoreInteractions(exploratoryService);
@@ -236,8 +235,8 @@ public class ExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void terminateWithException() {
-		doThrow(new DlabException("Could not terminate exploratory environment"))
-				.when(exploratoryService).terminate(any(UserInfo.class), anyString(), anyString(), anyString(), anyList());
+        doThrow(new DlabException("Could not terminate exploratory environment"))
+                .when(exploratoryService).terminate(any(UserInfo.class), anyString(), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/project/someName/terminate")
 				.request()

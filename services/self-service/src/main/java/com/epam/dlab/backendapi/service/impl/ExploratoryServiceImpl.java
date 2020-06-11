@@ -116,23 +116,23 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	@BudgetLimited
-	@Audit(action = START_NOTEBOOK)
-	@Override
-	public String start(@User UserInfo userInfo, @ResourceName String exploratoryName, @Project String project, @Info List<String> auditInfo) {
-		return action(userInfo, userInfo.getName(), project, exploratoryName, EXPLORATORY_START, STARTING);
-	}
+    @Audit(action = START_NOTEBOOK)
+    @Override
+    public String start(@User UserInfo userInfo, @ResourceName String exploratoryName, @Project String project, @Info String auditInfo) {
+        return action(userInfo, userInfo.getName(), project, exploratoryName, EXPLORATORY_START, STARTING);
+    }
 
-	@Audit(action = STOP_NOTEBOOK)
-	@Override
-	public String stop(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info List<String> auditInfo) {
-		return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_STOP, STOPPING);
-	}
+    @Audit(action = STOP_NOTEBOOK)
+    @Override
+    public String stop(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
+        return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_STOP, STOPPING);
+    }
 
-	@Audit(action = TERMINATE_NOTEBOOK)
-	@Override
-	public String terminate(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info List<String> auditInfo) {
-		return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_TERMINATE, TERMINATING);
-	}
+    @Audit(action = TERMINATE_NOTEBOOK)
+    @Override
+    public String terminate(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
+        return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_TERMINATE, TERMINATING);
+    }
 
 	@BudgetLimited
 	@Audit(action = CREATE_NOTEBOOK)

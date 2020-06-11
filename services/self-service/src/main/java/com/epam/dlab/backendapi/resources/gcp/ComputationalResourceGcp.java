@@ -48,7 +48,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 import java.util.List;
 
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
@@ -252,7 +251,7 @@ public class ComputationalResourceGcp implements ComputationalAPI {
         }
     }
 
-    private List<String> getAuditInfo(String exploratoryName) {
-        return Collections.singletonList(String.format(AUDIT_MESSAGE, exploratoryName));
+    private String getAuditInfo(String exploratoryName) {
+        return String.format(AUDIT_MESSAGE, exploratoryName);
     }
 }
