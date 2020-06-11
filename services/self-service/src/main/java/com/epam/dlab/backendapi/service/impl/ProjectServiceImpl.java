@@ -42,10 +42,10 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE_PROJECT;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.START_PROJECT;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.STOP_PROJECT;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.TERMINATE_PROJECT;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE_EDGE_NODE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.START_EDGE_NODE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.STOP_EDGE_NODE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.TERMINATE_EDGE_NODE;
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE_PROJECT;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
@@ -116,9 +116,8 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@BudgetLimited
-	@Audit(action = CREATE_PROJECT)
 	@Override
-	public void create(@User UserInfo user, ProjectDTO projectDTO, @Project @ResourceName String resourceName) {
+	public void create(UserInfo user, ProjectDTO projectDTO, @Project String resourceName) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
 			projectDAO.create(projectDTO);
 			createProjectOnCloud(user, projectDTO);
@@ -133,42 +132,42 @@ public class ProjectServiceImpl implements ProjectService {
 				.orElseThrow(projectNotFound());
 	}
 
+	@Audit(action = TERMINATE_EDGE_NODE)
 	@Override
-	public void terminateEndpoint(UserInfo userInfo, String endpoint, String name) {
+	public void terminateEndpoint(@User UserInfo userInfo, @ResourceName String endpoint, @Project String name) {
 		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
 		exploratoryService.updateProjectExploratoryStatuses(name, endpoint, UserInstanceStatus.TERMINATING);
 	}
 
 	@ProjectAdmin
-	@Audit(action = TERMINATE_PROJECT)
 	@Override
 	public void terminateEndpoint(@User UserInfo userInfo, List<String> endpoints, @ResourceName @Project String name) {
 		endpoints.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
 	}
 
 	@BudgetLimited
+	@Audit(action = START_EDGE_NODE)
 	@Override
-	public void start(UserInfo userInfo, String endpoint, @Project String name) {
+	public void start(@User UserInfo userInfo, @ResourceName String endpoint, @Project String name) {
 		projectActionOnCloud(userInfo, name, START_PRJ_API, endpoint);
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STARTING);
 	}
 
 	@ProjectAdmin
-	@Audit(action = START_PROJECT)
 	@Override
-	public void start(@User UserInfo userInfo, List<String> endpoints, @ResourceName @Project String name) {
+	public void start(UserInfo userInfo, List<String> endpoints, @Project String name) {
 		endpoints.forEach(endpoint -> start(userInfo, endpoint, name));
 	}
 
+	@Audit(action = STOP_EDGE_NODE)
 	@Override
-	public void stop(UserInfo userInfo, String endpoint, String name) {
+	public void stop(@User UserInfo userInfo, @ResourceName String endpoint, @Project String name, @Info List<String> auditInfo) {
 		projectActionOnCloud(userInfo, name, STOP_PRJ_API, endpoint);
 		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.STOPPING);
 	}
 
 	@ProjectAdmin
-	@Audit(action = STOP_PROJECT)
 	@Override
 	public void stopWithResources(@User UserInfo userInfo, List<String> endpoints, @ResourceName @Project String projectName) {
 		List<ProjectEndpointDTO> endpointDTOs = get(projectName)
@@ -178,18 +177,18 @@ public class ProjectServiceImpl implements ProjectService {
 				.collect(Collectors.toList());
 		checkProjectRelatedResourcesInProgress(projectName, endpointDTOs, STOP_ACTION);
 
+		endpointDTOs
+				.stream()
+				.filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED,
+						UserInstanceStatus.FAILED).contains(e.getStatus()))
+				.forEach(e -> stop(userInfo, e.getName(), projectName, null));
+
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName,
 				endpointDTOs
 						.stream()
 						.map(ProjectEndpointDTO::getName)
 						.collect(Collectors.toList()))
 				.forEach(e -> exploratoryService.stop(userInfo, e.getUser(), projectName, e.getExploratoryName(), null));
-
-		endpointDTOs
-				.stream()
-				.filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED,
-						UserInstanceStatus.FAILED).contains(e.getStatus()))
-				.forEach(e -> stop(userInfo, e.getName(), projectName));
 	}
 
 	@ProjectAdmin
@@ -216,7 +215,7 @@ public class ProjectServiceImpl implements ProjectService {
 		project.getEndpoints().addAll(endpointsToBeCreated);
 		projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
 				project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
-		endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, project, e.getName()));
+		endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, projectName, project, e.getName()));
 	}
 
 	@Override
@@ -256,18 +255,18 @@ public class ProjectServiceImpl implements ProjectService {
 
 	private void createProjectOnCloud(UserInfo user, ProjectDTO projectDTO) {
 		try {
-			projectDTO.getEndpoints().forEach(endpoint -> createEndpoint(user, projectDTO,
-					endpoint.getName()));
+			projectDTO.getEndpoints().forEach(endpoint -> createEndpoint(user, projectDTO.getName(), projectDTO, endpoint.getName()));
 		} catch (Exception e) {
 			log.error("Can not create project due to: {}", e.getMessage());
 			projectDAO.updateStatus(projectDTO.getName(), ProjectDTO.Status.FAILED);
 		}
 	}
 
-	private void createEndpoint(UserInfo user, ProjectDTO projectDTO, String endpointName) {
+	@Audit(action = CREATE_EDGE_NODE)
+	public void createEndpoint(@User UserInfo user, @Project String projectName, ProjectDTO projectDTO, @ResourceName String endpointName) {
 		EndpointDTO endpointDTO = endpointService.get(endpointName);
 		String uuid = provisioningService.post(endpointDTO.getUrl() + CREATE_PRJ_API, user.getAccessToken(),
-						requestBuilder.newProjectCreate(user, projectDTO, endpointDTO), String.class);
+				requestBuilder.newProjectCreate(user, projectDTO, endpointDTO), String.class);
 		requestId.put(user.getName(), uuid);
 	}
 

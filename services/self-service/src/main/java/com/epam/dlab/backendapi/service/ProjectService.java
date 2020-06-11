@@ -18,25 +18,25 @@ public interface ProjectService {
 
 	void create(UserInfo userInfo, ProjectDTO projectDTO, String resourceName);
 
-	ProjectDTO get(String name);
+    ProjectDTO get(String name);
 
-	void terminateEndpoint(UserInfo userInfo, String endpoint, String name);
+    void terminateEndpoint(UserInfo userInfo, String endpoint, String name);
 
-	void terminateEndpoint(UserInfo userInfo, List<String> endpoints, String name);
+    void terminateEndpoint(UserInfo userInfo, List<String> endpoints, String name);
 
-	void start(UserInfo userInfo, String endpoint, String name);
+    void start(UserInfo userInfo, String endpoint, String name);
 
-	void start(UserInfo userInfo, List<String> endpoints, String name);
+    void start(UserInfo userInfo, List<String> endpoints, String name);
 
-	void stop(UserInfo userInfo, String endpoint, String name);
+    void stop(UserInfo userInfo, String endpoint, String name, List<String> auditInfo);
 
-	void stopWithResources(UserInfo userInfo, List<String> endpoints, String projectName);
+    void stopWithResources(UserInfo userInfo, List<String> endpoints, String projectName);
 
-	void update(UserInfo userInfo, UpdateProjectDTO projectDTO, String projectName);
+    void update(UserInfo userInfo, UpdateProjectDTO projectDTO, String projectName);
 
-	void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> projects);
+    void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> projects);
 
-	boolean isAnyProjectAssigned(UserInfo userInfo);
+    boolean isAnyProjectAssigned(UserInfo userInfo);
 
-	boolean checkExploratoriesAndComputationalProgress(String projectName, List<String> endpoints);
+    boolean checkExploratoriesAndComputationalProgress(String projectName, List<String> endpoints);
 }

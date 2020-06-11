@@ -128,28 +128,27 @@ public class EnvironmentServiceImplTest {
 
 	@Test
 	public void stopProjectEnvironment() {
-		final UserInfo userInfo = getUserInfo();
-		final ProjectDTO projectDTO = getProjectDTO();
-		when(exploratoryDAO.fetchRunningExploratoryFieldsForProject(anyString())).thenReturn(getUserInstances());
-		when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
-		when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyList())).thenReturn(UUID);
-		when(projectService.get(anyString())).thenReturn(projectDTO);
-		doNothing().when(projectService).stop(any(UserInfo.class), anyString(), anyString());
+        final UserInfo userInfo = getUserInfo();
+        final ProjectDTO projectDTO = getProjectDTO();
+        when(exploratoryDAO.fetchRunningExploratoryFieldsForProject(anyString())).thenReturn(getUserInstances());
+        when(securityService.getServiceAccountInfo(anyString())).thenReturn(userInfo);
+        when(exploratoryService.stop(any(UserInfo.class), anyString(), anyString(), anyString(), anyList())).thenReturn(UUID);
+        when(projectService.get(anyString())).thenReturn(projectDTO);
+        doNothing().when(projectService).stop(any(UserInfo.class), anyString(), anyString(), anyList());
 
-		environmentService.stopProjectEnvironment(PROJECT_NAME);
+        environmentService.stopProjectEnvironment(PROJECT_NAME);
 
-		verify(exploratoryDAO).fetchRunningExploratoryFieldsForProject(PROJECT_NAME);
-		verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq(Collections.singletonList(AUDIT_QUOTA_MESSAGE)));
-		verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_2), eq(Collections.singletonList(AUDIT_QUOTA_MESSAGE)));
-		verify(securityService, times(2)).getServiceAccountInfo(DLAB_SYSTEM_USER);
-		verify(securityService).getServiceAccountInfo(ADMIN);
-		verify(projectService).get(eq(PROJECT_NAME));
-		verify(projectService).stop(refEq(userInfo), eq(ENDPOINT_NAME), eq(PROJECT_NAME));
-		verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusIn(PROJECT_NAME, Arrays.asList(UserInstanceStatus.CREATING,
-				UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
-				UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
-		verifyNoMoreInteractions(exploratoryDAO, exploratoryService, projectService);
-	}
+        verify(exploratoryDAO).fetchRunningExploratoryFieldsForProject(PROJECT_NAME);
+        verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_1), eq(Collections.singletonList(AUDIT_QUOTA_MESSAGE)));
+        verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT_NAME), eq(EXPLORATORY_NAME_2), eq(Collections.singletonList(AUDIT_QUOTA_MESSAGE)));
+        verify(securityService, times(3)).getServiceAccountInfo(DLAB_SYSTEM_USER);
+        verify(projectService).get(eq(PROJECT_NAME));
+        verify(projectService).stop(refEq(userInfo), eq(ENDPOINT_NAME), eq(PROJECT_NAME), eq(Collections.singletonList(AUDIT_QUOTA_MESSAGE)));
+        verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusIn(PROJECT_NAME, Arrays.asList(UserInstanceStatus.CREATING,
+                UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE),
+                UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.CREATING_IMAGE);
+        verifyNoMoreInteractions(exploratoryDAO, exploratoryService, projectService);
+    }
 
 	@Test
 	public void stopExploratory() {

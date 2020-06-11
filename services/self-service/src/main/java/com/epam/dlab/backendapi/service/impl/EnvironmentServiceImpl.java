@@ -134,10 +134,10 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 				.forEach(this::stopNotebookWithServiceAccount);
 
 		projectService.get(project).getEndpoints()
-				.stream()
-				.filter(e -> UserInstanceStatus.RUNNING == e.getStatus())
-				.forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo("admin"),
-						endpoint.getName(), project));
+                .stream()
+                .filter(e -> UserInstanceStatus.RUNNING == e.getStatus())
+                .forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo(DLAB_SYSTEM_USER),
+                        endpoint.getName(), project, Collections.singletonList(AUDIT_QUOTA_MESSAGE)));
 	}
 
 	@ProjectAdmin
