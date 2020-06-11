@@ -161,6 +161,6 @@ export class DetailDialogComponent implements OnInit {
   }
 
   private logAction(name: any, description: string) {
-    this.auditService.sendDataToAudit({resource_name: name, info: [`User followed ${description} link`]}).subscribe();
+    this.auditService.sendDataToAudit({resource_name: name, info: `User followed ${description} link`}).subscribe();
   }
 }

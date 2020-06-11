@@ -81,7 +81,7 @@
       <td mat-cell *matCellDef=" let element">
         <div class="action-wrapper">
           <span>{{element.action}}</span>
-          <div class="audit-info" (click)="openActionInfo(element)" *ngIf="element.info.length">
+          <div class="audit-info" (click)="openActionInfo(element)" *ngIf="element.info">
             <i class="material-icons">info</i>
           </div>
         </div>

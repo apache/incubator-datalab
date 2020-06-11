@@ -103,19 +103,20 @@ export class AuditGridComponent implements OnInit {
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
           <div mat-dialog-content class="content">
-            <ul info-items-list *ngIf="data.data.length>1;else message">
-              <li class="info-item">
-                  <span class="info-item-title">Group:</span>
-                  <span class="info-item-data"> {{data.data.name}}</span>
-              </li>
-              <li class="info-item">
-                <span class="info-item-title">Users:</span>
-                <span class="info-item-data">
-                    <span>{{data.data.objects}}</span>
-                </span>
-              </li>
-            </ul>
-            <ng-template #message>{{data.data[0]}}.</ng-template>
+<!--            <ul info-items-list *ngIf=" dattypeofa.data.length>1;else message">-->
+<!--              <li class="info-item">-->
+<!--                  <span class="info-item-title">Group:</span>-->
+<!--                  <span class="info-item-data"> {{data.data.name}}</span>-->
+<!--              </li>-->
+<!--              <li class="info-item">-->
+<!--                <span class="info-item-title">Users:</span>-->
+<!--                <span class="info-item-data">-->
+<!--                    <span>{{data.data.objects}}</span>-->
+<!--                </span>-->
+<!--              </li>-->
+<!--            </ul>-->
+<!--            <ng-template #message>{{data.data}}.</ng-template>-->
+            <p>{{data.data}}.</p>
             <div class="text-center m-top-30 m-bott-10">
 <!--               <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>-->
 <!--               <button type="button" class="butt butt-success" mat-raised-button-->
