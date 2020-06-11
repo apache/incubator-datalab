@@ -20,6 +20,11 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.Audit;
+import com.epam.dlab.backendapi.annotation.Info;
+import com.epam.dlab.backendapi.annotation.ResourceName;
+import com.epam.dlab.backendapi.annotation.User;
+import com.epam.dlab.backendapi.domain.AuditActionEnum;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.backendapi.service.EndpointService;
@@ -78,8 +83,9 @@ public class BucketServiceImpl implements BucketService {
         }
     }
 
+    @Audit(action = AuditActionEnum.BUCKET_UPLOAD_OBJECT)
     @Override
-    public void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize) {
+    public void uploadObjects(@User UserInfo userInfo, @ResourceName String bucket, String object, String endpoint, InputStream inputStream, long fileSize, @Info String auditInfo) {
         log.info("Uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
@@ -95,8 +101,9 @@ public class BucketServiceImpl implements BucketService {
         log.info("Finished uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
     }
 
+    @Audit(action = AuditActionEnum.BUCKET_DOWNLOAD_OBJECT)
     @Override
-    public void downloadObject(UserInfo userInfo, String bucket, String object, String endpoint, HttpServletResponse resp) {
+    public void downloadObject(@User UserInfo userInfo, @ResourceName String bucket, String object, String endpoint, HttpServletResponse resp, @Info String auditInfo) {
         log.info("Downloading file {} for user {} from bucket {}", object, userInfo.getName(), bucket);
         EndpointDTO endpointDTO = endpointService.get(endpoint);
         try (InputStream inputStream = provisioningService.getWithMediaTypes(String.format(BUCKET_DOWNLOAD_OBJECT, endpointDTO.getUrl(), bucket, encodeObject(object)), userInfo.getAccessToken(),
@@ -109,8 +116,9 @@ public class BucketServiceImpl implements BucketService {
         }
     }
 
+    @Audit(action = AuditActionEnum.BUCKET_DELETE_OBJECT)
     @Override
-    public void deleteObjects(UserInfo userInfo, String bucket, List<String> objects, String endpoint) {
+    public void deleteObjects(@User UserInfo userInfo, @ResourceName String bucket, List<String> objects, String endpoint, @Info String auditInfo) {
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
             BucketDeleteDTO bucketDeleteDTO = new BucketDeleteDTO(bucket, objects);

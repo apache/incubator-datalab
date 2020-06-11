@@ -29,9 +29,9 @@ import java.util.List;
 public interface BucketService {
     List<BucketDTO> getObjects(UserInfo userInfo, String bucket, String endpoint);
 
-    void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize);
+    void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize, String auditInfo);
 
-    void downloadObject(UserInfo userInfo, String bucket, String object, String endpoint, HttpServletResponse resp);
+    void downloadObject(UserInfo userInfo, String bucket, String object, String endpoint, HttpServletResponse resp, String auditInfo);
 
-    void deleteObjects(UserInfo userInfo, String bucket, List<String> objects, String endpoint);
+    void deleteObjects(UserInfo userInfo, String bucket, List<String> objects, String endpoint, String auditInfo);
 }
