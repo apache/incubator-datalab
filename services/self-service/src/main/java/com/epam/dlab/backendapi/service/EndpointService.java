@@ -17,13 +17,13 @@ public interface EndpointService {
 
 	EndpointDTO get(String name);
 
-	void create(UserInfo userInfo, EndpointDTO endpointDTO);
+	void create(UserInfo userInfo, String resourceName, EndpointDTO endpointDTO);
 
 	void updateEndpointStatus(String name, EndpointDTO.EndpointStatus status);
 
-	void remove(UserInfo userInfo, String name, boolean withResources);
+	void remove(UserInfo userInfo, String name);
 
 	void removeEndpointInAllProjects(UserInfo userInfo, String endpointName, List<ProjectDTO> projects);
 
-    CloudProvider checkUrl(UserInfo userInfo, String url);
+	CloudProvider checkUrl(UserInfo userInfo, String url);
 }

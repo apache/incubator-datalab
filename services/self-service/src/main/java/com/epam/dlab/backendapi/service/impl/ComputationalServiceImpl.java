@@ -189,7 +189,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@Audit(action = TERMINATE_COMPUTATIONAL)
 	@Override
-	public void terminateComputational(@User UserInfo userInfo, String resourceCreator, String project, String exploratoryName, @ResourceName String computationalName,
+	public void terminateComputational(@User UserInfo userInfo, String resourceCreator, @Project String project, String exploratoryName, @ResourceName String computationalName,
 									   @Info List<String> auditInfo) {
 		try {
 			updateComputationalStatus(resourceCreator, project, exploratoryName, computationalName, TERMINATING);
@@ -257,7 +257,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@Audit(action = STOP_COMPUTATIONAL)
 	@Override
-	public void stopSparkCluster(@User UserInfo userInfo, String resourceCreator, String project, String expName, @ResourceName String compName, @Info List<String> auditInfo) {
+	public void stopSparkCluster(@User UserInfo userInfo, String resourceCreator, @Project String project, String expName, @ResourceName String compName, @Info List<String> auditInfo) {
 		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(resourceCreator, project, expName, true);
 		final UserInstanceStatus requiredStatus = UserInstanceStatus.RUNNING;
 		if (computationalWithStatusResourceExist(compName, userInstance, requiredStatus)) {
@@ -297,7 +297,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@Audit(action = UPDATE_DATA_ENGINE_CONFIG)
 	@Override
-	public void updateSparkClusterConfig(@User UserInfo userInfo, String project, String exploratoryName, @ResourceName String computationalName, List<ClusterConfig> config) {
+	public void updateSparkClusterConfig(@User UserInfo userInfo, @Project String project, String exploratoryName, @ResourceName String computationalName, List<ClusterConfig> config) {
 		final String userName = userInfo.getName();
 		final String token = userInfo.getAccessToken();
 		final UserInstanceDTO userInstanceDTO = exploratoryDAO

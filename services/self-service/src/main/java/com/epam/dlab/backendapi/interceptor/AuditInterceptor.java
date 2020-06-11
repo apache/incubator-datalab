@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.interceptor;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.Audit;
 import com.epam.dlab.backendapi.annotation.Info;
+import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.annotation.ResourceName;
 import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.domain.AuditActionEnum;
@@ -32,6 +33,7 @@ import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -52,12 +54,14 @@ public class AuditInterceptor implements MethodInterceptor {
         final Parameter[] parameters = mi.getMethod().getParameters();
         final String user = getUserInfo(mi, parameters);
         final AuditActionEnum action = getAuditActionEnum(method);
+        final String project = getProject(mi, parameters);
         final String resourceName = getResourceName(mi, parameters);
         final List<String> infoMap = getInfo(mi, parameters);
 
         AuditDTO auditCreateDTO = AuditDTO.builder()
                 .user(user)
                 .action(action)
+                .project(project)
                 .resourceName(resourceName)
                 .info(infoMap)
                 .build();
@@ -80,6 +84,14 @@ public class AuditInterceptor implements MethodInterceptor {
                 .mapToObj(i -> ((Audit) declaredAnnotations[i]).action())
                 .findAny()
                 .orElseThrow(() -> new DlabException("'Audit' annotation wanted!"));
+    }
+
+    private String getProject(MethodInvocation mi, Parameter[] parameters) {
+        return IntStream.range(0, parameters.length)
+                .filter(i -> Objects.nonNull(parameters[i].getAnnotation(Project.class)))
+                .mapToObj(i -> (String) mi.getArguments()[i])
+                .findAny()
+                .orElse(StringUtils.EMPTY);
     }
 
     private String getResourceName(MethodInvocation mi, Parameter[] parameters) {

@@ -73,10 +73,11 @@ public class ProjectResource {
 	@RolesAllowed("/api/project/create")
 	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								  @Valid CreateProjectDTO projectDTO) {
-		projectService.create(userInfo, new ProjectDTO(projectDTO.getName(), projectDTO.getGroups(),
+		ProjectDTO project = new ProjectDTO(projectDTO.getName(), projectDTO.getGroups(),
 				projectDTO.getKey(), projectDTO.getTag(), null,
 				projectDTO.getEndpoints().stream().map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING,
-						null)).collect(Collectors.toList()), projectDTO.isSharedImageEnabled()), projectDTO.getName());
+						null)).collect(Collectors.toList()), projectDTO.isSharedImageEnabled());
+		projectService.create(userInfo, project, projectDTO.getName());
 		final URI uri = uriInfo.getRequestUriBuilder().path(projectDTO.getName()).build();
 		return Response
 				.ok()

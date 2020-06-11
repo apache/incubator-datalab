@@ -124,13 +124,13 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 
 	@Audit(action = STOP_NOTEBOOK)
 	@Override
-	public String stop(@User UserInfo userInfo, String resourceCreator, String project, @ResourceName String exploratoryName, @Info List<String> auditInfo) {
+	public String stop(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info List<String> auditInfo) {
 		return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_STOP, STOPPING);
 	}
 
 	@Audit(action = TERMINATE_NOTEBOOK)
 	@Override
-	public String terminate(@User UserInfo userInfo, String resourceCreator, String project, @ResourceName String exploratoryName, @Info List<String> auditInfo) {
+	public String terminate(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info List<String> auditInfo) {
 		return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_TERMINATE, TERMINATING);
 	}
 
@@ -174,7 +174,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 
 	@Audit(action = UPDATE_CLUSTER_CONFIG)
 	@Override
-	public void updateClusterConfig(@User UserInfo userInfo, String project, @ResourceName String exploratoryName, List<ClusterConfig> config) {
+	public void updateClusterConfig(@User UserInfo userInfo, @Project String project, @ResourceName String exploratoryName, List<ClusterConfig> config) {
 		final String userName = userInfo.getName();
 		final String token = userInfo.getAccessToken();
 		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchRunningExploratoryFields(userName, project, exploratoryName);

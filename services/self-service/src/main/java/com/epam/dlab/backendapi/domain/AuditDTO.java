@@ -32,6 +32,7 @@ import java.util.List;
 public class AuditDTO {
     private final String user;
     private final AuditActionEnum action;
+    private final String project;
     private final String resourceName;
     private final List<String> info;
     private Date timestamp;
