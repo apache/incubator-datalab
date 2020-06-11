@@ -50,6 +50,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
@@ -66,7 +67,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class LibExploratoryResourceTest extends TestBase {
-
+    private static final String AUDIT_MESSAGE = "Installed libs: %s";
     private static final String LIB_GROUP = "group";
     private static final String LIB_NAME = "name";
     private static final String LIB_VERSION = "version";
@@ -288,13 +289,14 @@ public class LibExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void libInstall() {
+        List<LibInstallDTO> libInstallDTOS = singletonList(new LibInstallDTO(LIB_GROUP, LIB_NAME, LIB_VERSION));
         when(libraryService.installComputationalLibs(any(UserInfo.class), anyString(), anyString(),
-                anyString(), anyListOf(LibInstallDTO.class))).thenReturn(UUID);
+                anyString(), anyListOf(LibInstallDTO.class), anyString())).thenReturn(UUID);
         LibInstallFormDTO libInstallFormDTO = new LibInstallFormDTO();
         libInstallFormDTO.setComputationalName(COMPUTATIONAL_NAME);
         libInstallFormDTO.setNotebookName(EXPLORATORY_NAME);
         libInstallFormDTO.setProject(PROJECT);
-        libInstallFormDTO.setLibs(singletonList(new LibInstallDTO(LIB_GROUP, LIB_NAME, LIB_VERSION)));
+        libInstallFormDTO.setLibs(libInstallDTOS);
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/lib_install")
                 .request()
@@ -306,7 +308,7 @@ public class LibExploratoryResourceTest extends TestBase {
         assertEquals(UUID, response.readEntity(String.class));
 
         verify(libraryService).installComputationalLibs(refEq(getUserInfo()), eq(PROJECT),
-                eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME), eq(singletonList(new LibInstallDTO(LIB_GROUP, LIB_NAME, LIB_VERSION))));
+                eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME), eq(libInstallDTOS), eq(getAuditInfo(libInstallDTOS)));
         verifyNoMoreInteractions(libraryService);
         verifyZeroInteractions(provisioningService, requestId);
     }
@@ -314,10 +316,11 @@ public class LibExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void libInstallWithoutComputational() {
-        when(libraryService.installExploratoryLibs(any(UserInfo.class), anyString(), anyString(), anyListOf(LibInstallDTO.class))).thenReturn(UUID);
+        List<LibInstallDTO> libInstallDTOS = singletonList(new LibInstallDTO(LIB_GROUP, LIB_NAME, LIB_VERSION));
+        when(libraryService.installExploratoryLibs(any(UserInfo.class), anyString(), anyString(), anyListOf(LibInstallDTO.class), anyString())).thenReturn(UUID);
         LibInstallFormDTO libInstallFormDTO = new LibInstallFormDTO();
         libInstallFormDTO.setNotebookName(EXPLORATORY_NAME);
-        libInstallFormDTO.setLibs(singletonList(new LibInstallDTO(LIB_GROUP, LIB_NAME, LIB_VERSION)));
+        libInstallFormDTO.setLibs(libInstallDTOS);
         libInstallFormDTO.setProject(PROJECT);
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/lib_install")
@@ -330,7 +333,7 @@ public class LibExploratoryResourceTest extends TestBase {
         assertEquals(UUID, response.readEntity(String.class));
 
         verify(libraryService).installExploratoryLibs(refEq(getUserInfo()), eq(PROJECT),
-                eq(EXPLORATORY_NAME), eq(singletonList(new LibInstallDTO(LIB_GROUP, LIB_NAME, LIB_VERSION))));
+                eq(EXPLORATORY_NAME), eq(libInstallDTOS), eq(getAuditInfo(libInstallDTOS)));
         verifyNoMoreInteractions(libraryService);
         verifyZeroInteractions(provisioningService, requestId);
     }
@@ -450,7 +453,7 @@ public class LibExploratoryResourceTest extends TestBase {
 				"test", "1.0");
 	}
 
-	private UserInstanceDTO getUserInstanceDto() {
+    private UserInstanceDTO getUserInstanceDto() {
         UserComputationalResource ucResource = new UserComputationalResource();
         ucResource.setComputationalName("compName");
         return new UserInstanceDTO()
@@ -460,16 +463,23 @@ public class LibExploratoryResourceTest extends TestBase {
                 .withResources(singletonList(ucResource));
     }
 
-	private List<Document> getDocuments() {
-		return singletonList(new Document());
-	}
+    private List<Document> getDocuments() {
+        return singletonList(new Document());
+    }
 
-	private List<LibInfoRecord> getLibInfoRecords() {
-		return singletonList(new LibInfoRecord(
-				new LibKey(), singletonList(new LibraryStatus())));
-	}
+    private List<LibInfoRecord> getLibInfoRecords() {
+        return singletonList(new LibInfoRecord(
+                new LibKey(), singletonList(new LibraryStatus())));
+    }
 
-	private LibraryInstallDTO getLibraryInstallDTO() {
-		return new LibraryInstallDTO().withComputationalName("compName");
-	}
+    private LibraryInstallDTO getLibraryInstallDTO() {
+        return new LibraryInstallDTO().withComputationalName("compName");
+    }
+
+    private String getAuditInfo(List<LibInstallDTO> libs) {
+        return String.format(AUDIT_MESSAGE, libs
+                .stream()
+                .map(LibInstallDTO::getName)
+                .collect(Collectors.joining(", ")));
+    }
 }

@@ -60,12 +60,12 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class LibExploratoryResource {
-
-
 	private static final String DROPWIZARD_ARTIFACT = "io.dropwizard:dropwizard-core:1.3.5";
+	private static final String AUDIT_MESSAGE = "Installed libs: %s";
+
 	private final ExternalLibraryService externalLibraryService;
-	private ExploratoryDAO exploratoryDAO;
-	private LibraryService libraryService;
+	private final ExploratoryDAO exploratoryDAO;
+	private final LibraryService libraryService;
 
 	@Inject
 	public LibExploratoryResource(ExploratoryDAO exploratoryDAO, LibraryService libraryService,
@@ -186,12 +186,13 @@ public class LibExploratoryResource {
 		final String exploratoryName = formDTO.getNotebookName();
 		final List<LibInstallDTO> libs = formDTO.getLibs();
 		final String computationalName = formDTO.getComputationalName();
+		final String auditInfo = getAuditInfo(libs);
 		String uuid = StringUtils.isEmpty(computationalName) ?
-				libraryService.installExploratoryLibs(userInfo, project, exploratoryName, libs) :
-				libraryService.installComputationalLibs(userInfo, project, exploratoryName, computationalName, libs);
+				libraryService.installExploratoryLibs(userInfo, project, exploratoryName, libs, auditInfo) :
+				libraryService.installComputationalLibs(userInfo, project, exploratoryName, computationalName, libs, auditInfo);
 		return Response.ok(uuid)
 				.build();
-    }
+	}
 
 	/**
 	 * Returns the list of available libraries for exploratory basing on search conditions provided in @formDTO.
@@ -239,5 +240,12 @@ public class LibExploratoryResource {
 										 @LibNameValid @QueryParam("artifact") String artifact) {
 		final String[] libNameParts = artifact.split(":");
 		return Response.ok(externalLibraryService.getLibrary(libNameParts[0], libNameParts[1], libNameParts[2])).build();
+	}
+
+	private String getAuditInfo(List<LibInstallDTO> libs) {
+		return String.format(AUDIT_MESSAGE, libs
+				.stream()
+				.map(LibInstallDTO::getName)
+				.collect(Collectors.joining(", ")));
 	}
 }

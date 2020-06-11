@@ -20,6 +20,11 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.Audit;
+import com.epam.dlab.backendapi.annotation.Info;
+import com.epam.dlab.backendapi.annotation.Project;
+import com.epam.dlab.backendapi.annotation.ResourceName;
+import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.BaseDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
@@ -59,6 +64,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.INSTALL_COMPUTATIONAL_LIBS;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.INSTALL_NOTEBOOK_LIBS;
+
 @Slf4j
 @Singleton
 public class LibraryServiceImpl implements LibraryService {
@@ -80,6 +88,7 @@ public class LibraryServiceImpl implements LibraryService {
 
 	@Inject
 	private RequestId requestId;
+
 	@Inject
 	private EndpointService endpointService;
 
@@ -119,42 +128,40 @@ public class LibraryServiceImpl implements LibraryService {
 			populateComputational(computationalLibs, model, "cluster");
 		}
 
-		List<LibInfoRecord> libInfoRecords = new ArrayList<>();
+        List<LibInfoRecord> libInfoRecords = new ArrayList<>();
 
-		for (Map.Entry<LibKey, List<LibraryStatus>> entry : model.entrySet()) {
-			libInfoRecords.add(new LibInfoRecord(entry.getKey(), entry.getValue()));
+        for (Map.Entry<LibKey, List<LibraryStatus>> entry : model.entrySet()) {
+            libInfoRecords.add(new LibInfoRecord(entry.getKey(), entry.getValue()));
 
-		}
+        }
 
-		return libInfoRecords;
-	}
+        return libInfoRecords;
+    }
 
-	@Override
-	public String installComputationalLibs(UserInfo ui, String project, String expName, String compName,
-										   List<LibInstallDTO> libs) {
+    @Audit(action = INSTALL_COMPUTATIONAL_LIBS)
+    @Override
+    public String installComputationalLibs(@User UserInfo ui, @Project String project, String expName, @ResourceName String compName, List<LibInstallDTO> libs, @Info String auditInfo) {
+        final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(ui.getName(), project, expName, compName);
+        EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
+        final String uuid = provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_LIB_INSTALL,
+                ui.getAccessToken(),
+                toComputationalLibraryInstallDto(ui, project, expName, compName, libs, userInstance, endpointDTO),
+                String.class);
+        requestId.put(ui.getName(), uuid);
+        return uuid;
+    }
 
-		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(ui.getName(), project, expName, compName);
-		EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
-		final String uuid =
-				provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_LIB_INSTALL,
-						ui.getAccessToken(),
-						toComputationalLibraryInstallDto(ui, project, expName, compName, libs, userInstance, endpointDTO),
-						String.class);
-		requestId.put(ui.getName(), uuid);
-		return uuid;
-	}
-
-	@Override
-	public String installExploratoryLibs(UserInfo ui, String project, String expName, List<LibInstallDTO> libs) {
-		final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), project, expName);
-		EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
-		final String uuid =
-				provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_LIB_INSTALL,
-						ui.getAccessToken(), toExploratoryLibraryInstallDto(ui, project, expName, libs, userInstance, endpointDTO),
-						String.class);
-		requestId.put(ui.getName(), uuid);
-		return uuid;
-	}
+    @Audit(action = INSTALL_NOTEBOOK_LIBS)
+    @Override
+    public String installExploratoryLibs(@User UserInfo ui, @Project String project, @ResourceName String expName, List<LibInstallDTO> libs, @Info String auditInfo) {
+        final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), project, expName);
+        EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
+        final String uuid = provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_LIB_INSTALL,
+                ui.getAccessToken(), toExploratoryLibraryInstallDto(ui, project, expName, libs, userInstance, endpointDTO),
+                String.class);
+        requestId.put(ui.getName(), uuid);
+        return uuid;
+    }
 
 	private LibraryInstallDTO toExploratoryLibraryInstallDto(UserInfo userInfo, String project, String exploratoryName,
 															 List<LibInstallDTO> libs, UserInstanceDTO userInstance, EndpointDTO endpointDTO) {
