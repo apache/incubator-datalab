@@ -20,6 +20,11 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.Audit;
+import com.epam.dlab.backendapi.annotation.Info;
+import com.epam.dlab.backendapi.annotation.Project;
+import com.epam.dlab.backendapi.annotation.ResourceName;
+import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
@@ -53,10 +58,11 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE_IMAGE;
+
 @Singleton
 @Slf4j
 public class ImageExploratoryServiceImpl implements ImageExploratoryService {
-
 	private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist in project %s";
 	private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
 
@@ -76,8 +82,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	@Inject
 	private ProjectService projectService;
 
+	@Audit(action = CREATE_IMAGE)
 	@Override
-	public String createImage(UserInfo user, String project, String exploratoryName, String imageName, String imageDescription) {
+	public String createImage(@User UserInfo user, @Project String project, @ResourceName String exploratoryName, String imageName, String imageDescription, @Info String info) {
 		ProjectDTO projectDTO = projectService.get(project);
 		UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), project, exploratoryName);
 
