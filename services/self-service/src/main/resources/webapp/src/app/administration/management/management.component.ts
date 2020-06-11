@@ -39,6 +39,8 @@ import { ExploratoryModel } from '../../resources/resources-grid/resources-grid.
 
 import { EnvironmentsDataService } from './management-data.service';
 import { ProjectService } from '../../core/services';
+import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
+import {ReconfirmationDialogComponent} from './management-grid/management-grid.component';
 
 @Component({
   selector: 'environments-management',
@@ -50,6 +52,10 @@ export class ManagementComponent implements OnInit {
   public healthStatus: GeneralEnvironmentStatus;
   // public anyEnvInProgress: boolean = false;
   public dialogRef: any;
+  private selected: any[] = [];
+  public isActionsOpen: boolean = false;
+  public selectedRunning: any[];
+  public selectedStopped: any[];
 
   constructor(
     public toastr: ToastrService,
@@ -170,5 +176,63 @@ export class ManagementComponent implements OnInit {
 
   private getTotalBudgetData() {
     return this.healthStatusService.getTotalBudgetData();
+  }
+
+  public selectedList($event) {
+    this.selected = $event;
+    if (this.selected.length === 0) {
+      this.isActionsOpen = false;
+    }
+
+    this.selectedRunning = this.selected.filter(item => item.status === 'running');
+    this.selectedStopped = this.selected.filter(item => item.status === 'stopped');
+
+    console.log(this.selectedRunning.length, this.selectedStopped.length);
+  }
+
+  public toogleActions() {
+    this.isActionsOpen = !this.isActionsOpen;
+  }
+
+  toggleResourceAction($event): void {
+    const {environment, action, resource} = $event;
+    if (resource) {
+      const resource_name = resource ? resource.computational_name : environment.name;
+      this.dialog.open(ReconfirmationDialogComponent, {
+        data: { action, resource_name, user: environment.user },
+        width: '550px', panelClass: 'error-modalbox'
+      }).afterClosed().subscribe(result => {
+        result && this.manageEnvironmentAction({ action, environment, resource });
+      });
+    } else {
+      const type = (environment.type.toLowerCase() === 'edge node')
+        ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory;
+
+      if (action === 'stop') {
+        this.dialog.open(ConfirmationDialogComponent, {
+          data: { notebook: environment, type: type, manageAction: true }, panelClass: 'modal-md'
+        }).afterClosed().subscribe(() => this.buildGrid());
+      } else if (action === 'terminate') {
+        this.dialog.open(ConfirmationDialogComponent, {
+          data: { notebook: environment, type: ConfirmationDialogType.TerminateExploratory, manageAction: true }, panelClass: 'modal-md'
+        }).afterClosed().subscribe(() => this.buildGrid());
+      } else if (action === 'run') {
+        this.healthStatusService.runEdgeNode().subscribe(() => {
+          this.buildGrid();
+          this.toastr.success('Edge node is starting!', 'Processing!');
+        }, () => this.toastr.error('Edge Node running failed!', 'Oops!'));
+      } else if (action === 'recreate') {
+        this.healthStatusService.recreateEdgeNode().subscribe(() => {
+          this.buildGrid();
+          this.toastr.success('Edge Node recreation is processing!', 'Processing!');
+        }, () => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
+      }
+    }
+  }
+
+  public resourseAction(action) {
+    this.selected.forEach(resource => {
+      this.toggleResourceAction({environment: resource, action: action});
+    })
   }
 }

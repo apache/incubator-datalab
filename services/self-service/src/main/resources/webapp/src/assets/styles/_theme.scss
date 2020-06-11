@@ -458,6 +458,56 @@ span.mat-slide-toggle-content {
   }
 }
 
+.action-wrapper{
+  position: relative;
+  display: block !important;
+
+  .action-button-wrapper{
+    position: relative;
+    width: 160px;
+  }
+
+  .mat-raised-button.butt{
+    margin-bottom: 0;
+
+    &.actions-btn{
+      padding-right: 38px;
+
+      .material-icons{
+        transition: ease-in-out 1s;
+        font-size: 25px;
+        position: absolute;
+        top: 7px;
+        right: 30px;
+      }
+    }
+  }
+
+  .action-menu{
+    position: absolute;
+    text-align: center;
+    display: block;
+    background-color: #fff;
+
+    &-item.mat-raised-button.butt{
+      z-index: 101;
+      margin: 0;
+      box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 0px 0px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+      width: 160px;
+      padding: 0 20px;
+      border-radius: 0;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 15px;
+      font-family: 'Open Sans', sans-serif;
+      color: #577289;
+      position: relative;
+      overflow: hidden;
+      line-height: 36px;
+    }
+  }
+}
+
 mat-horizontal-stepper {
   .mat-step-header {
     .mat-step-icon {

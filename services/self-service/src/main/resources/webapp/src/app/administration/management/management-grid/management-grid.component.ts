@@ -60,9 +60,11 @@ export class ManagementGridComponent implements OnInit {
   @Input() currentUser: string = '';
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
+  @Output() emitSelectedList: EventEmitter<ManageAction> = new EventEmitter();
 
   displayedColumns: string[] = [ 'checkbox', 'user', 'type', 'project', 'shape', 'status', 'resources', 'actions'];
   displayedFilterColumns: string[] = ['checkbox-filter', 'user-filter', 'type-filter', 'project-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
+  private selected;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -151,38 +153,7 @@ export class ManagementGridComponent implements OnInit {
   }
 
   toggleResourceAction(environment: any, action: string, resource?): void {
-    if (resource) {
-      const resource_name = resource ? resource.computational_name : environment.name;
-      this.dialog.open(ReconfirmationDialogComponent, {
-        data: { action, resource_name, user: environment.user },
-        width: '550px', panelClass: 'error-modalbox'
-      }).afterClosed().subscribe(result => {
-        result && this.actionToggle.emit({ action, environment, resource });
-      });
-    } else {
-      const type = (environment.type.toLowerCase() === 'edge node')
-        ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory;
-
-      if (action === 'stop') {
-        this.dialog.open(ConfirmationDialogComponent, {
-          data: { notebook: environment, type: type, manageAction: true }, panelClass: 'modal-md'
-        }).afterClosed().subscribe(() => this.buildGrid());
-      } else if (action === 'terminate') {
-        this.dialog.open(ConfirmationDialogComponent, {
-          data: { notebook: environment, type: ConfirmationDialogType.TerminateExploratory, manageAction: true }, panelClass: 'modal-md'
-        }).afterClosed().subscribe(() => this.buildGrid());
-      } else if (action === 'run') {
-        this.healthStatusService.runEdgeNode().subscribe(() => {
-          this.buildGrid();
-          this.toastr.success('Edge node is starting!', 'Processing!');
-        }, () => this.toastr.error('Edge Node running failed!', 'Oops!'));
-      } else if (action === 'recreate') {
-        this.healthStatusService.recreateEdgeNode().subscribe(() => {
-          this.buildGrid();
-          this.toastr.success('Edge Node recreation is processing!', 'Processing!');
-        }, () => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
-      }
-    }
+    this.actionToggle.emit({ action, environment, resource });
   }
 
   isResourcesInProgress(notebook) {
@@ -243,6 +214,9 @@ export class ManagementGridComponent implements OnInit {
 
   toggleActionForAll(element) {
     element.isSelected = !element.isSelected;
+    this.selected = this.allFilteredEnvironmentData.filter(item => !!item.isSelected);
+    console.log(this.selected);
+    this.emitSelectedList.emit(this.selected)
   }
 }
 
