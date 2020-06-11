@@ -33,6 +33,8 @@ import os
 if __name__ == "__main__":
     try:
         image_conf = dict()
+        GCPMeta = dlab.meta_lib.GCPMeta()
+        GCPActions = dlab.actions_lib.GCPActions()
         try:
             image_conf['exploratory_name'] = (os.environ['exploratory_name']).replace('_', '-').lower()
         except:
@@ -46,11 +48,11 @@ if __name__ == "__main__":
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['instance_tag'] = '{}-tag'.format(image_conf['service_base_name'])
         image_conf['application'] = os.environ['application']
-        image_conf['image_name'] = os.environ['notebook_image_name']
-        image_conf['expected_primary_image_name'] = '{}-{}-{}-{}-primary-{}'.format(
+        image_conf['image_name'] = os.environ['notebook_image_name'].replace('_', '-').lower()
+        image_conf['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image-{}'.format(
             image_conf['service_base_name'], image_conf['project_name'], image_conf['endpoint_name'],
             os.environ['application'], image_conf['image_name'])
-        image_conf['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-{}'.format(
+        image_conf['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-image-{}'.format(
             image_conf['service_base_name'], image_conf['project_name'], image_conf['endpoint_name'],
             os.environ['application'], image_conf['image_name'])
         image_conf['image_labels'] = {"sbn": image_conf['service_base_name'],
