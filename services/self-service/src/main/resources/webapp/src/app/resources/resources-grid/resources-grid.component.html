@@ -199,9 +199,9 @@
                   </li>
                 </div>
                 <li (click)="exploratoryAction(element, 'ami')"
-                  *ngIf="element.status === 'running' && element.cloud_provider !== 'gcp' && element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
+                  *ngIf="element.status === 'running'  && element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
                   <i class="material-icons">view_module</i>
-                  <span>Create {{ DICTIONARY[element.cloud_provider].image }}</span>
+                  <span>Create AMI</span>
                 </li>
                 <li (click)="exploratoryAction(element, 'install')"
                   *ngIf="element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
