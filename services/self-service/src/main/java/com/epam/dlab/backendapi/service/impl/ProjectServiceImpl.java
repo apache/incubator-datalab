@@ -154,7 +154,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@ProjectAdmin
 	@Override
-	public void start(UserInfo userInfo, List<String> endpoints, @Project String name) {
+	public void start(@User UserInfo userInfo, List<String> endpoints, @Project String name) {
 		endpoints.forEach(endpoint -> start(userInfo, endpoint, name));
 	}
 
