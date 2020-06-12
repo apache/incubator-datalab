@@ -155,6 +155,10 @@ mat-chip.mat-chip strong {
   pointer-events: none;
 }
 
+.cursor-not-allow{
+  cursor: not-allowed !important;
+}
+
 .not-active {
   cursor: not-allowed !important;
   opacity: .6;

@@ -41,5 +41,5 @@ public class BillingReport {
     private double totalCost;
     private String currency;
     @JsonProperty("is_full")
-    private boolean isFull;
+    private boolean isReportHeaderCompletable;
 }

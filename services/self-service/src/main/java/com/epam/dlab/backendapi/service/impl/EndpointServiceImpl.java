@@ -137,9 +137,9 @@ public class EndpointServiceImpl implements EndpointService {
 			response = provisioningService.get(url + HEALTH_CHECK, userInfo.getAccessToken(), Response.class);
 			cloudProvider = response.readEntity(CloudProvider.class);
 		} catch (Exception e) {
-			log.error("Cannot connect to url '{}'. {}", url, e.getMessage());
-			throw new DlabException(String.format("Cannot connect to url '%s'. %s", url, e.getMessage()));
-		}
+            log.error("Cannot connect to url '{}'. {}", url, e.getMessage());
+            throw new DlabException(String.format("Cannot connect to url '%s'.", url));
+        }
 		if (response.getStatus() != 200) {
 			log.warn("Endpoint url {} is not valid", url);
 			throw new ResourceNotFoundException(String.format("Endpoint url '%s' is not valid", url));

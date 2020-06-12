@@ -56,7 +56,7 @@
             <p>Edge Node IP Address {{notebook.node_ip}}</p>
             <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since
               {{upTimeSince || "not specified."}}</p>
-            <p>Open following URL(s) in your browser to access this box:</p>
+            <p *ngIf="notebook.url?.length">Open following URL(s) in your browser to access this box:</p>
             <div class="links_block">
               <p *ngFor="let item of notebook.url">
                 <span class="description">{{item.description}}: &nbsp;</span>
