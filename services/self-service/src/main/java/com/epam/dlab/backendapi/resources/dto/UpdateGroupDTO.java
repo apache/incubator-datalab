@@ -17,18 +17,22 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.domain;
+package com.epam.dlab.backendapi.resources.dto;
 
-public enum AuditActionEnum {
-    CREATE_EDGE_NODE, START_EDGE_NODE, STOP_EDGE_NODE, TERMINATE_EDGE_NODE, UPDATE_PROJECT,
-    CREATE_NOTEBOOK, START_NOTEBOOK, STOP_NOTEBOOK, TERMINATE_NOTEBOOK, UPDATE_CLUSTER_CONFIG, CREATE_NOTEBOOK_SCHEDULER,
-    CREATE_DATA_ENGINE, CREATE_DATA_ENGINE_SERVICE, START_COMPUTATIONAL, STOP_COMPUTATIONAL, TERMINATE_COMPUTATIONAL, UPDATE_DATA_ENGINE_CONFIG, CREATE_COMPUTATIONAL_SCHEDULER,
-    BUCKET_UPLOAD_OBJECT, BUCKET_DOWNLOAD_OBJECT, BUCKET_DELETE_OBJECT,
-    CREATE_ENDPOINT, DELETE_ENDPOINT,
-    INSTALL_NOTEBOOK_LIBS, INSTALL_COMPUTATIONAL_LIBS,
-    CREATE_GROUP, UPDATE_GROUP, DELETE_GROUP,
-    CREATE_IMAGE,
-    MANAGE_GIT_ACCOUNT,
-    FOLLOW_NOTEBOOK_LINK,
-    LOG_IN
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
+@Getter
+@Setter
+public class UpdateGroupDTO {
+    @NotEmpty
+    private String name;
+    @NotEmpty
+    private Map<String, String> roles;
+    private Set<String> users = Collections.emptySet();
 }

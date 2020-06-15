@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.GroupDTO;
+import com.epam.dlab.backendapi.resources.dto.UpdateGroupDTO;
 import com.epam.dlab.backendapi.service.UserGroupService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -56,15 +57,15 @@ public class UserGroupResource {
 	@RolesAllowed("/roleManagement/create")
 	public Response createGroup(@Auth UserInfo userInfo, @Valid GroupDTO dto) {
 		log.debug("Creating new group {}", dto.getName());
-		userGroupService.createGroup(dto.getName(), dto.getRoleIds(), dto.getUsers());
+		userGroupService.createGroup(userInfo, dto.getName(), dto.getRoleIds(), dto.getUsers());
 		return Response.ok().build();
 	}
 
 	@PUT
 	@RolesAllowed("/roleManagement")
-	public Response updateGroup(@Auth UserInfo userInfo, @Valid GroupDTO dto) {
+	public Response updateGroup(@Auth UserInfo userInfo, @Valid UpdateGroupDTO dto) {
 		log.debug("Updating group {}", dto.getName());
-		userGroupService.updateGroup(userInfo, dto.getName(), dto.getRoleIds(), dto.getUsers());
+		userGroupService.updateGroup(userInfo, dto.getName(), dto.getRoles(), dto.getUsers());
 		return Response.ok().build();
 	}
 
@@ -80,7 +81,7 @@ public class UserGroupResource {
 	@RolesAllowed("/roleManagement/delete")
 	public Response deleteGroup(@Auth UserInfo userInfo, @PathParam("id") String group) {
 		log.info("Admin {} is trying to delete group {} from application", userInfo.getName(), group);
-		userGroupService.removeGroup(group);
+		userGroupService.removeGroup(userInfo, group);
 		return Response.ok().build();
 	}
 }
