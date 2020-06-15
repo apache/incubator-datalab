@@ -102,14 +102,14 @@ table {
 
   .status-col,
   .shape-col {
-    width: 14%;
+    width: 15%;
     .label{
       padding-top: 14px;
     }
   }
 
   .tag-col {
-    width: 10%;
+    width: 13%;
 
     mat-chip {
       min-height: 20px;
@@ -125,7 +125,7 @@ table {
   }
 
   .resources-col {
-    width: 28%;
+    width: 32%;
     .label{
       padding-top: 14px;
     }
@@ -293,7 +293,8 @@ tr.detail-row {
 .settings {
   position: relative;
   text-align: right;
-  min-width: 5%;
+  min-width: 7%;
+  padding-right: 15px !important;
 
   .actions {
     background-image: url(../../../assets/svg/settings_icon.svg);
