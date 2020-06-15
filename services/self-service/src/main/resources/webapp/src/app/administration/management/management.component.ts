@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
@@ -40,7 +40,8 @@ import { ExploratoryModel } from '../../resources/resources-grid/resources-grid.
 import { EnvironmentsDataService } from './management-data.service';
 import { ProjectService } from '../../core/services';
 import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
-import {ReconfirmationDialogComponent} from './management-grid/management-grid.component';
+import {ManagementGridComponent, ReconfirmationDialogComponent} from './management-grid/management-grid.component';
+import {FolderTreeComponent} from '../../resources/bucket-browser/folder-tree/folder-tree.component';
 
 @Component({
   selector: 'environments-management',
@@ -56,6 +57,9 @@ export class ManagementComponent implements OnInit {
   public isActionsOpen: boolean = false;
   public selectedRunning: any[];
   public selectedStopped: any[];
+
+  @ViewChild(ManagementGridComponent, {static: true}) managementGrid;
+
 
   constructor(
     public toastr: ToastrService,
@@ -186,8 +190,6 @@ export class ManagementComponent implements OnInit {
 
     this.selectedRunning = this.selected.filter(item => item.status === 'running');
     this.selectedStopped = this.selected.filter(item => item.status === 'stopped');
-
-    console.log(this.selectedRunning.length, this.selectedStopped.length);
   }
 
   public toogleActions() {
@@ -199,40 +201,75 @@ export class ManagementComponent implements OnInit {
     if (resource) {
       const resource_name = resource ? resource.computational_name : environment.name;
       this.dialog.open(ReconfirmationDialogComponent, {
-        data: { action, resource_name, user: environment.user },
+        data: { action, resource_name, user: environment.user, type: 'cluster'},
         width: '550px', panelClass: 'error-modalbox'
       }).afterClosed().subscribe(result => {
         result && this.manageEnvironmentAction({ action, environment, resource });
       });
     } else {
-      const type = (environment.type.toLowerCase() === 'edge node')
-        ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory;
-
+      const notebooks = this.selected.length ? this.selected : [environment];
       if (action === 'stop') {
-        this.dialog.open(ConfirmationDialogComponent, {
-          data: { notebook: environment, type: type, manageAction: true }, panelClass: 'modal-md'
-        }).afterClosed().subscribe(() => this.buildGrid());
+        this.dialog.open(ReconfirmationDialogComponent, {
+          data: { notebooks: notebooks, type: 'notebook', action },
+          width: '550px', panelClass: 'error-modalbox'
+        }).afterClosed().subscribe((res) => {
+          if (res) {
+            notebooks.forEach((env) => {
+              this.manageEnvironmentsService.environmentManagement(env.user, 'stop', env.project, env.name)
+                .subscribe(
+                  response => {
+                    console.log(response);
+                    this.buildGrid();
+                  },
+                  error => console.log(error)
+                );
+            });
+          }
+          this.clearSelection();
+        });
       } else if (action === 'terminate') {
-        this.dialog.open(ConfirmationDialogComponent, {
-          data: { notebook: environment, type: ConfirmationDialogType.TerminateExploratory, manageAction: true }, panelClass: 'modal-md'
-        }).afterClosed().subscribe(() => this.buildGrid());
-      } else if (action === 'run') {
-        this.healthStatusService.runEdgeNode().subscribe(() => {
-          this.buildGrid();
-          this.toastr.success('Edge node is starting!', 'Processing!');
-        }, () => this.toastr.error('Edge Node running failed!', 'Oops!'));
-      } else if (action === 'recreate') {
-        this.healthStatusService.recreateEdgeNode().subscribe(() => {
-          this.buildGrid();
-          this.toastr.success('Edge Node recreation is processing!', 'Processing!');
-        }, () => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
+        this.dialog.open(ReconfirmationDialogComponent, {
+          data: { notebooks: notebooks, type: 'notebook', action }, width: '550px', panelClass: 'error-modalbox'
+        }).afterClosed().subscribe((res) => {
+          if (res) {
+            notebooks.forEach((env) => {
+              this.manageEnvironmentsService.environmentManagement(env.user, 'terminate', env.project, env.name)
+                .subscribe(
+                  response => {
+                    this.buildGrid();
+
+                  },
+                  error => console.log(error)
+                );
+            });
+          }
+          this.clearSelection();
+        });
+      // } else if (action === 'run') {
+      //   this.healthStatusService.runEdgeNode().subscribe(() => {
+      //     this.buildGrid();
+      //     this.toastr.success('Edge node is starting!', 'Processing!');
+      //   }, () => this.toastr.error('Edge Node running failed!', 'Oops!'));
+      // } else if (action === 'recreate') {
+      //   this.healthStatusService.recreateEdgeNode().subscribe(() => {
+      //     this.buildGrid();
+      //     this.toastr.success('Edge Node recreation is processing!', 'Processing!');
+      //   }, () => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
       }
     }
   }
 
+  private clearSelection() {
+    this.selected = [];
+    this.isActionsOpen = false;
+    if (this.managementGrid.selected && this.managementGrid.selected.length !== 0) {
+      this.managementGrid.selected.forEach(item => item.isSelected = false);
+      this.managementGrid.selected = [];
+    }
+  }
+
+
   public resourseAction(action) {
-    this.selected.forEach(resource => {
-      this.toggleResourceAction({environment: resource, action: action});
-    })
+      this.toggleResourceAction({environment: this.selected, action: action});
   }
 }
