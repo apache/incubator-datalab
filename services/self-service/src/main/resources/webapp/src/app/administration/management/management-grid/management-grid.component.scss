@@ -19,7 +19,16 @@
 
 .data-grid {
   &.management {
+    .mat-column-checkbox{
+      padding-left: 10px;
+      padding-right: 10px;
+      &.label-header{
+        width: 65px;
+        display: flex;
+        align-items: center;
+      }
 
+    }
     .user{
       width: 15%;
     }
@@ -45,7 +54,7 @@
     }
 
     .resources {
-      width: 22%;
+      width: 21%;
       padding: 5px;
     }
 
