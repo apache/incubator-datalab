@@ -205,7 +205,7 @@
 <!--          <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">-->
 <!--            <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>-->
 <!--          </div>-->
-          <mat-list-item  *ngFor="let lib of filtredNotebookLibs">
+          <mat-list-item class="table-item" *ngFor="let lib of filtredNotebookLibs" (click)="showlibinfo(lib)">
             <div class="lib-name ellipsis">
               <strong>{{ lib.name }}</strong>&nbsp;
               <span *ngIf="lib.version  && lib.version !== 'N/A'">{{ lib.version }}</span>
@@ -231,7 +231,31 @@
                         <i class="material-icons">error_outline</i>
                       </div>
                     </div>
+                    <div class="warn-action">
+                        <span class="info-icon" (click)="openLibInfo(lib);$event.stopPropagation() ">
+                          <i class="material-icons">info</i>
+                        </span>
+                    </div>
                   </div>
+                </div>
+                <div class="lib-info" *ngIf="isLibInfoOpened[lib.name]">
+                  <ul class="resources">
+
+                    <li class="dependency-list-header">
+                      Added dependencies:
+                    </li>
+
+                    <div class="scrolling-content delete-list" id="scrolling">
+
+                      <li *ngFor="let object of [1,2,3]" class="delete-item list-item">
+<!--                        <div class="object">-->
+                          {{lib.name+lib.version}}
+<!--                        </div>-->
+<!--                        <div class="size">v2.3.4</div>-->
+                      </li>
+
+                    </div>
+                  </ul>
                 </div>
               </ng-template>
             </div>

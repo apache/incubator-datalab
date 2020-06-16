@@ -76,6 +76,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   @ViewChild('groupSelect', { static: false }) group_select;
   @ViewChild('resourceSelect', { static: false }) resource_select;
+  public isLibInfoOpened = {  };
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -355,6 +356,16 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.filtredNotebookLibs = [...this.notebookLibs];
     this.filterModel.resetFilterLibs();
   }
+
+  public openLibInfo(lib) {
+    this.dialog.open(
+      LibInfoDialogComponent, { data: lib, width: '550px', panelClass: 'error-modalbox' });
+  }
+
+  showlibinfo(lib: any) {
+    console.log(lib);
+    this.isLibInfoOpened[lib.name] = !this.isLibInfoOpened[lib.name];
+  }
 }
 
 @Component({
@@ -380,5 +391,83 @@ export class ErrorMessageDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ErrorMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { }
+  ) {
+    console.log(data);
+  }
+}
+
+@Component({
+  selector: 'lib-info-dialog',
+  template: `
+  <div class="dialog-header">
+    <h4 class="modal-title">Library info</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
+  <mat-list class="resources">
+
+    <mat-list-item class="list-header">
+      <div class="object">Name</div>
+      <div class="size">Version</div>
+    </mat-list-item>
+
+    <div class="scrolling-content delete-list" id="scrolling">
+
+      <mat-list-item *ngFor="let object of [1,2,3]" class="delete-item">
+        <div class="object">
+         {{data.name}}
+        </div>
+        <div class="size">v2.3.4</div>
+      </mat-list-item>
+
+    </div>
+  </mat-list>
+  <div class="text-center">
+    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
+  </div>
+  `,
+  styles: [    `
+    .mat-list-base {
+      padding: 40px 30px;
+    }
+
+    .object {
+      width: 70%;
+      display: flex;
+      align-items: center;
+      padding-right: 10px;
+    }
+
+    .size {
+      width: 30%;
+    }
+    .scrolling-content.delete-list {
+      max-height: 200px;
+      overflow-y: auto;
+      padding-top: 11px;
+    }
+
+    .empty-list {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+      color: #35afd5;
+      padding: 15px;
+    }
+
+    .list-header {
+      border-top: 1px solid #edf1f5;
+      border-bottom: 1px solid #edf1f5;
+      color: #577289;
+      width: 100%;
+    }
+  `
+  ]
+})
+export class LibInfoDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<ErrorMessageDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    console.log(data);
+  }
 }
