@@ -57,7 +57,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
-            sudo('ln -s /bin/pip3.5 /bin/pip3')
+            sudo('ln -s /bin/pip3.6 /bin/pip3')
         sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
