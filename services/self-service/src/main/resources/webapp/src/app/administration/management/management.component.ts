@@ -216,16 +216,15 @@ export class ManagementComponent implements OnInit {
           if (res) {
             notebooks.forEach((env) => {
               this.manageEnvironmentsService.environmentManagement(env.user, 'stop', env.project, env.name)
-                .subscribe(
-                  response => {
-                    console.log(response);
+                .subscribe(response => {
                     this.buildGrid();
                   },
                   error => console.log(error)
                 );
             });
+            this.clearSelection();
           }
-          this.clearSelection();
+          this.isActionsOpen = false;
         });
       } else if (action === 'terminate') {
         this.dialog.open(ReconfirmationDialogComponent, {
@@ -237,13 +236,13 @@ export class ManagementComponent implements OnInit {
                 .subscribe(
                   response => {
                     this.buildGrid();
-
                   },
                   error => console.log(error)
                 );
             });
+            this.clearSelection();
           }
-          this.clearSelection();
+          this.isActionsOpen = false;
         });
       // } else if (action === 'run') {
       //   this.healthStatusService.runEdgeNode().subscribe(() => {
