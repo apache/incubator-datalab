@@ -1,0 +1,17 @@
+{
+   "status": "ok",
+   "response": {
+      "result": {
+         "notebook_image_name": "${CONF_SERVICE_BASE_NAME}-${IMAGE_NAME}",
+         "full_image_name": "${IMAGE_NAME}-${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-${APPLICATION}-${IMAGE_NAME}-${REQUEST_ID}",
+         "user_name": "${EDGE_USER_NAME}",
+         "application": "${APPLICATION}",
+         "image_id": "${IMAGE_NAME}-${REQUEST_ID}",
+         "status": "created",
+         "ip": "102.011.10.3",
+         "Action": "Create image from notebook"
+      },
+      "log": "/var/log/dlab/notebook/notebook_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+   },
+   "request_id": "${REQUEST_ID}"
+}
