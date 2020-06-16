@@ -95,9 +95,17 @@ table {
     padding-right: 5px;
     padding-left: 24px;
     background-color: inherit;
+    &.notebook-name{
+
+    }
     .label{
       padding-top: 14px;
     }
+  }
+
+  .project-name{
+    font-weight: 600;
+    color: #577289;
   }
 
   .status-col,
@@ -105,6 +113,12 @@ table {
     width: 15%;
     .label{
       padding-top: 14px;
+    }
+  }
+  .shape-col{
+    color: #577289;
+    .label{
+      color: rgba(0,0,0,.54);
     }
   }
 

@@ -124,7 +124,6 @@ export class ManagementGridComponent implements OnInit {
     if (filteredData.length) this.filtering = true;
     if (config) {
       filteredData = filteredData.filter(item => {
-
         const isUser = config.users.length > 0 ? (config.users.indexOf(item.user) !== -1) : true;
         const isTypeName = item.name ? item.name.toLowerCase()
           .indexOf(config.type.toLowerCase()) !== -1 : item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
@@ -208,7 +207,7 @@ export class ManagementGridComponent implements OnInit {
       return;
     }
     this.dialog.open(DetailDialogComponent, { data:
-        {notebook: data, bucketStatus: {view: true, upload: true, download: true, delete: true},  buckets: [], type: 'environment'},
+        {notebook: data, buckets: [], type: 'environment'},
       panelClass: 'modal-lg'
     })
       .afterClosed().subscribe(() => {});
@@ -251,7 +250,7 @@ export class ManagementGridComponent implements OnInit {
         <div class="resource-name">Notebook</div>
         <div class="clusters-list">
           <div class="clusters-list-item">
-            <div class="cluster">Cluster</div>
+            <div class="cluster"><span *ngIf="isClusterLength">Cluster</span></div>
             <div class="status">Further status</div>
           </div>
         </div>
@@ -304,7 +303,7 @@ export class ManagementGridComponent implements OnInit {
       header a:hover i { color: #35afd5; cursor: pointer; }
       .plur { font-style: normal; }
       .scrolling-content{overflow-y: auto; max-height: 200px; }
-      .cluster { width: 50%; text-align: left; color: #577289;}
+      .cluster { width: 50%; text-align: left;}
       .status { width: 50%;text-align: left;}
       .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
       .node { font-weight: 300;}
@@ -325,6 +324,7 @@ export class ManagementGridComponent implements OnInit {
 
 export class ReconfirmationDialogComponent {
   private notebooks;
+  private isClusterLength;
   constructor(
     public dialogRef: MatDialogRef<ReconfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
@@ -333,6 +333,9 @@ export class ReconfirmationDialogComponent {
       this.notebooks = JSON.parse(JSON.stringify(data.notebooks));
       this.notebooks = this.notebooks.map(notebook => {
         notebook.resources = notebook.resources.filter(res => res.status !== 'terminated' && res.status.slice(0, 4) !== data.action);
+        if (notebook.resources.length) {
+          this.isClusterLength = true;
+        }
         return notebook;
       });
     }

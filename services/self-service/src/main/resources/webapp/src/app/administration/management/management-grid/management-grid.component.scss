@@ -21,11 +21,10 @@
   &.management {
     .mat-column-checkbox{
       padding-left: 10px;
-      padding-right: 10px;
+      padding-right: 0px;
+      min-width: 68px;
       &.label-header{
-        width: 65px;
-        display: flex;
-        align-items: center;
+
       }
 
     }
@@ -130,4 +129,5 @@ table.management {
 
 .computation{
   cursor: pointer;
+  color: #35afd5;
 }
