@@ -26,14 +26,18 @@ import com.epam.dlab.backendapi.annotation.Info;
 import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.annotation.ResourceName;
 import com.epam.dlab.backendapi.annotation.User;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.domain.AuditActionEnum;
+import com.epam.dlab.backendapi.domain.AuditDTO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreatePopUp;
+import com.epam.dlab.backendapi.service.AuditService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -45,6 +49,7 @@ import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryReconfigureSparkClusterActionDTO;
@@ -61,6 +66,7 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,6 +80,7 @@ import static com.epam.dlab.backendapi.domain.AuditActionEnum.TERMINATE_NOTEBOOK
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE_CLUSTER_CONFIG;
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
+import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 import static com.epam.dlab.dto.UserInstanceStatus.STARTING;
 import static com.epam.dlab.dto.UserInstanceStatus.STOPPED;
 import static com.epam.dlab.dto.UserInstanceStatus.STOPPING;
@@ -98,11 +105,14 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private final RequestId requestId;
 	private final TagService tagService;
 	private final EndpointService endpointService;
+	private final AuditService auditService;
+	private final SelfServiceApplicationConfiguration configuration;
 
 	@Inject
 	public ExploratoryServiceImpl(ProjectService projectService, ExploratoryDAO exploratoryDAO, ComputationalDAO computationalDAO, GitCredsDAO gitCredsDAO,
 								  ImageExploratoryDao imageExploratoryDao, @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-								  RequestBuilder requestBuilder, RequestId requestId, TagService tagService, EndpointService endpointService) {
+								  RequestBuilder requestBuilder, RequestId requestId, TagService tagService, EndpointService endpointService, AuditService auditService,
+								  SelfServiceApplicationConfiguration configuration) {
 		this.projectService = projectService;
 		this.exploratoryDAO = exploratoryDAO;
 		this.computationalDAO = computationalDAO;
@@ -113,6 +123,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		this.requestId = requestId;
 		this.tagService = tagService;
 		this.endpointService = endpointService;
+		this.auditService = auditService;
+		this.configuration = configuration;
 	}
 
 	@BudgetLimited
@@ -291,12 +303,30 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		updateExploratoryStatus(user, project, exploratoryName, status);
 
 		if (status == STOPPING) {
+			if (configuration.isAuditEnabled()) {
+				saveAudit(project, exploratoryName, user, AuditActionEnum.STOP_COMPUTATIONAL);
+			}
 			updateComputationalStatuses(user, project, exploratoryName, STOPPING, TERMINATING, FAILED, TERMINATED, STOPPED);
 		} else if (status == TERMINATING) {
+			if (configuration.isAuditEnabled()) {
+				saveAudit(project, exploratoryName, user, AuditActionEnum.TERMINATE_COMPUTATIONAL);
+			}
 			updateComputationalStatuses(user, project, exploratoryName, TERMINATING, TERMINATING, TERMINATED, FAILED);
 		} else if (status == TERMINATED) {
 			updateComputationalStatuses(user, project, exploratoryName, TERMINATED, TERMINATED, TERMINATED, FAILED);
 		}
+	}
+
+	private void saveAudit(String project, String exploratoryName, String user, AuditActionEnum action) {
+		computationalDAO.getComputationalResourcesWhereStatusIn(user, project, Arrays.asList(DataEngineType.SPARK_STANDALONE, DataEngineType.CLOUD_SERVICE),
+				exploratoryName, RUNNING)
+				.forEach(comp -> auditService.save(AuditDTO.builder()
+						.user(user)
+						.resourceName(comp)
+						.project(project)
+						.action(action)
+						.build())
+				);
 	}
 
 	private ExploratoryActionDTO<?> getExploratoryActionDto(UserInfo userInfo, String resourceCreator, UserInstanceStatus status, UserInstanceDTO userInstance,
