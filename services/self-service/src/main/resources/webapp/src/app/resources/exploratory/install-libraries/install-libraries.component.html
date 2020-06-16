@@ -206,9 +206,14 @@
 <!--            <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>-->
 <!--          </div>-->
           <mat-list-item  *ngFor="let lib of filtredNotebookLibs">
-            <div class="lib-name ellipsis">
-              <strong>{{ lib.name }}</strong>&nbsp;
-              <span *ngIf="lib.version  && lib.version !== 'N/A'">{{ lib.version }}</span>
+
+            <div class="lib-name ellipsis pr-20" >
+              <div class="d-flex">
+              <span class="ellipsis lib-name-wrapper" [matTooltip]="lib.name + (lib.version !== 'N/A' ? lib.version : '')" matTooltipPosition="above">
+                <strong >{{ lib.name }}</strong>&nbsp;
+                <span *ngIf="lib.version && lib.version !== 'N/A'">{{ lib.version }}</span>
+              </span>
+              </div>
             </div>
             <div class="lib-group-col">{{ groupsListMap[lib.group] }}</div>
             <div class="st-group">
