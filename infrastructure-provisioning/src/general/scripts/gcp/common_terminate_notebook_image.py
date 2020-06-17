@@ -43,10 +43,10 @@ if __name__ == "__main__":
         image_conf['project_tag'] = os.environ['project_name']
         image_conf['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image-{}'.format(
             image_conf['service_base_name'], image_conf['project_name'], image_conf['endpoint_name'],
-            os.environ['application'], image_conf['image_name'])
+            os.environ['application'], image_conf['image_name']).lower()
         image_conf['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-image-{}'.format(
             image_conf['service_base_name'], image_conf['project_name'], image_conf['endpoint_name'],
-            os.environ['application'], image_conf['image_name'])
+            os.environ['application'], image_conf['image_name']).lower()
         primary_image_id = GCPMeta.get_image_by_name(image_conf['expected_primary_image_name'])
         if primary_image_id != '':
             GCPActions.remove_image(notebook_config['expected_primary_image_name'])
