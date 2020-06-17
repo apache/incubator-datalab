@@ -24,6 +24,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.dto.bucket.BucketDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -67,6 +68,11 @@ public class BucketServiceAzureImpl implements BucketService {
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
         log.info("Finished uploading file {} to bucket {}", object, bucket);
+    }
+
+    @Override
+    public void uploadFolder(UserInfo userInfo, String bucket, String folder) {
+
     }
 
     @Override
