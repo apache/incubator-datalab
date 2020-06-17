@@ -26,6 +26,7 @@ import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.bucket.BucketDTO;
 import com.epam.dlab.dto.bucket.BucketDeleteDTO;
+import com.epam.dlab.dto.bucket.FolderUploadDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -54,6 +55,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 public class BucketServiceImpl implements BucketService {
     private static final String BUCKET_GET_OBJECTS = "%sbucket/%s";
     private static final String BUCKET_UPLOAD_OBJECT = "%sbucket/upload";
+    private static final String BUCKET_UPLOAD_FOLDER = "%sbucket/folder/upload";
     private static final String BUCKET_DOWNLOAD_OBJECT = "%sbucket/%s/object/%s/download";
     private static final String BUCKET_DELETE_OBJECT = "%sbucket/objects/delete";
 
@@ -79,7 +81,7 @@ public class BucketServiceImpl implements BucketService {
     }
 
     @Override
-    public void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize) {
+    public void uploadObject(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize) {
         log.info("Uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
@@ -93,6 +95,23 @@ public class BucketServiceImpl implements BucketService {
             throw new DlabException(String.format("Cannot upload object %s to bucket %s for user %s, endpoint %s. Reason %s", object, bucket, userInfo.getName(), endpoint, e.getMessage()));
         }
         log.info("Finished uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
+    }
+
+    @Override
+    public void uploadFolder(UserInfo userInfo, String bucket, String folder, String endpoint) {
+        log.info("Uploading folder {} for user {} to bucket {}", folder, userInfo.getName(), bucket);
+        try {
+            EndpointDTO endpointDTO = endpointService.get(endpoint);
+            FolderUploadDTO dto = new FolderUploadDTO(bucket, folder);
+            Response response = provisioningService.post(String.format(BUCKET_UPLOAD_FOLDER, endpointDTO.getUrl()), userInfo.getAccessToken(), dto, Response.class);
+            if (response.getStatus() != HttpStatus.SC_OK) {
+                throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
+            }
+        } catch (Exception e) {
+            log.error("Cannot upload folder {} to bucket {} for user {}, endpoint {}. Reason {}", folder, bucket, userInfo.getName(), endpoint, e.getMessage());
+            throw new DlabException(String.format("Cannot upload object %s to bucket %s for user %s, endpoint %s. Reason %s", folder, bucket, userInfo.getName(), endpoint, e.getMessage()));
+        }
+        log.info("Finished uploading folder {} for user {} to bucket {}", folder, userInfo.getName(), bucket);
     }
 
     @Override

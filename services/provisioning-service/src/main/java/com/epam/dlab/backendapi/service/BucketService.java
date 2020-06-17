@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.bucket.BucketDTO;
 
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +32,8 @@ public interface BucketService {
     List<BucketDTO> getObjects(String bucket);
 
     void uploadObject(String bucket, String object, InputStream stream, long fileSize);
+
+    void uploadFolder(UserInfo userInfo, String bucket, String folder);
 
     void downloadObject(String bucket, String object, HttpServletResponse resp);
 
