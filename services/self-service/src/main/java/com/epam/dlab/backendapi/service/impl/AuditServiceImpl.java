@@ -54,7 +54,7 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public List<AuditDTO> getAudit() {
-        return auditDAO.getAudit();
+    public List<AuditDTO> getAudit(int pageNumber, int pageSize) {
+        return auditDAO.getAudit(pageNumber, pageSize);
     }
 }

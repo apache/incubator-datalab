@@ -317,6 +317,24 @@ public class BaseDAO {
 	}
 
 	/**
+	 * Finds and returns all documents from the collection converted to resulted type with pagination.
+	 *
+	 * @param collection    collection name.
+	 * @param pageNumber    page number
+	 * @param pageSize      size of page
+	 * @param resultedClass type of class for deserialization.
+	 */
+	protected <T> List<T> find(String collection, int pageNumber, int pageSize, Class<T> resultedClass) {
+		return find(collection)
+				.skip(pageSize * (pageNumber - 1))
+				.limit(pageSize)
+				.into(new ArrayList<>())
+				.stream()
+				.map(d -> convertFromDocument(d, resultedClass))
+				.collect(Collectors.toList());
+	}
+
+	/**
 	 * Finds and returns documents from the collection by condition.
 	 *
 	 * @param collection    collection name.

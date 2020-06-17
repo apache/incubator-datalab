@@ -29,5 +29,5 @@ public interface AuditService {
 
     void save(String user, AuditCreateDTO audit);
 
-    List<AuditDTO> getAudit();
+    List<AuditDTO> getAudit(int pageNumber, int pageSize);
 }

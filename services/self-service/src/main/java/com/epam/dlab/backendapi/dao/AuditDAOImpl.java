@@ -32,7 +32,7 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
     }
 
     @Override
-    public List<AuditDTO> getAudit() {
-        return find(AUDIT_COLLECTION, AuditDTO.class);
+    public List<AuditDTO> getAudit(int pageNumber, int pageSize) {
+        return find(AUDIT_COLLECTION, pageNumber, pageSize, AuditDTO.class);
     }
 }

@@ -26,5 +26,5 @@ import java.util.List;
 public interface AuditDAO {
     void save(AuditDTO audit);
 
-    List<AuditDTO> getAudit();
+    List<AuditDTO> getAudit(int pageNumber, int pageSize);
 }
