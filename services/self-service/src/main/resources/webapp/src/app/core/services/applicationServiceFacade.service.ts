@@ -266,6 +266,12 @@ export class ApplicationServiceFacade {
       data, { reportProgress: true, observe: 'events' });
   }
 
+  public buildCreateFolderInBucket(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/folder/upload',
+      data);
+  }
+
   public buildDownloadFileFromBucket(data) {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
