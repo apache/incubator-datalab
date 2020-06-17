@@ -40,21 +40,21 @@ if __name__ == "__main__":
         except:
             image_conf['exploratory_name'] = ''
         image_conf['service_base_name'] = os.environ['conf_service_base_name'] = dlab.fab.replace_multi_symbols(
-            os.environ['conf_service_base_name'][:20], '-', True)
+            os.environ['conf_service_base_name'][:20], '-', True).lower()
         image_conf['endpoint_name'] = (os.environ['endpoint_name']).replace('_', '-').lower()
         image_conf['endpoint_tag'] = image_conf['endpoint_name']
-        image_conf['project_name'] = os.environ['project_name']
-        image_conf['project_tag'] = os.environ['project_name']
+        image_conf['project_name'] = os.environ['project_name'].lower()
+        image_conf['project_tag'] = image_conf['project_name']
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['instance_tag'] = '{}-tag'.format(image_conf['service_base_name'])
         image_conf['application'] = os.environ['application']
         image_conf['image_name'] = os.environ['notebook_image_name'].replace('_', '-').lower()
         image_conf['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image-{}'.format(
             image_conf['service_base_name'], image_conf['project_name'], image_conf['endpoint_name'],
-            os.environ['application'], image_conf['image_name']).lower()
+            os.environ['application'], image_conf['image_name'])
         image_conf['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-image-{}'.format(
             image_conf['service_base_name'], image_conf['project_name'], image_conf['endpoint_name'],
-            os.environ['application'], image_conf['image_name']).lower()
+            os.environ['application'], image_conf['image_name'])
         image_conf['image_labels'] = {"sbn": image_conf['service_base_name'],
                                            "endpoint_tag": image_conf['endpoint_tag'],
                                            "project_tag": image_conf['project_tag'],
