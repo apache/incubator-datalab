@@ -25,7 +25,7 @@
           Folder with this name already exists
         </mat-error>
       </mat-form-field>
-      <button (click)="saveNode(node, itemValue.value)"
+      <button (click)="createFolder(node, itemValue.value)"
               [ngClass]="{'check': folderFormControl.valid && folderFormControl.dirty && !folderCreating}"
               mat-icon-button class="btn action-btn"
               [disabled]="!folderFormControl.valid || !folderFormControl.dirty"

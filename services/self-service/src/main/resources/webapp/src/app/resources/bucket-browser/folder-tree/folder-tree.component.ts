@@ -8,7 +8,6 @@ import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/form
 import {ErrorStateMatcher} from '@angular/material/core';
 import {PATTERNS} from '../../../core/util';
 import {ToastrService} from 'ngx-toastr';
-import {HttpResponse} from '@angular/common/http';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -204,7 +203,7 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
     this.resetForm();
   }
 
-  private saveNode(node: TodoItemFlatNode, itemValue: string) {
+  private createFolder(node: TodoItemFlatNode, itemValue: string) {
     this.folderCreating = true;
     const parent = this.getParentNode(node);
     const flatParent = this.flatNodeMap.get(parent);
@@ -214,21 +213,24 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
     }
     const path = `${ flatParent.object && flatObject !== '/' ? flatObject : ''}${itemValue}/`;
     const bucket = flatParent.object ? flatParent.object.bucket : flatParent.item;
-    const formData = new FormData();
-    formData.append('file', '');
-    formData.append('object', path);
-    formData.append('bucket', bucket);
-    formData.append('endpoint', this.endpoint);
+    // const formData = new FormData();
+    // formData.append('file', '');
+    // formData.append('object', path);
+    // formData.append('bucket', bucket);
+    // formData.append('endpoint', this.endpoint);
+
     this.bucketDataService.emptyFolder = null;
-    this.bucketBrowserService.uploadFile(formData)
-      .subscribe((event) => {
-          if (event instanceof HttpResponse) {
-            this.bucketDataService.insertItem(flatParent, itemValue, false);
-            // this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
-            this.toastr.success('Folder successfully created!', 'Success!');
-            this.folderCreating = false;
-            this.removeItem(node);
-          }
+    this.bucketBrowserService.createFolder({
+      'bucket': bucket,
+      'folder': path,
+      'endpoint': this.endpoint
+    })
+      .subscribe(_ => {
+          this.bucketDataService.insertItem(flatParent, itemValue, false);
+          // this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
+          this.toastr.success('Folder successfully created!', 'Success!');
+          this.folderCreating = false;
+          this.removeItem(node);
         }, error => {
           this.folderCreating = false;
           this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
