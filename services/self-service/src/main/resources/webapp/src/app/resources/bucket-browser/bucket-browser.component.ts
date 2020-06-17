@@ -56,7 +56,7 @@ export class BucketBrowserComponent implements OnInit {
   public selectedItems;
   public searchValue: string;
   public isQueueFull: boolean;
-  public refreshTokenLimit = 900000;
+  public refreshTokenLimit = 1500000;
   private isTokenRefreshing = false;
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   public isSelectionOpened: any;
