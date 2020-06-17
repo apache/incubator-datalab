@@ -17,9 +17,14 @@
  * under the License.
  */
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
-export * from './replace-breaks-pipe';
-export * from './highlight.pipe';
-export * from './convert-action-pipe';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {ConvertActionPipe} from './convert-action.pipe';
+
+@NgModule({
+  imports: [CommonModule],
+  declarations: [ConvertActionPipe],
+  exports: [ConvertActionPipe]
+})
+
+export class ConvertActionPipeModule { }
