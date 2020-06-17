@@ -52,8 +52,8 @@ import java.nio.file.Paths;
 @Path("/bucket")
 @Slf4j
 public class BucketResource {
-    private static final String AUDIT_UPLOAD_MESSAGE = "File name: %s. File size: %d.";
-    private static final String AUDIT_MESSAGE = "File name: %s.";
+    private static final String AUDIT_UPLOAD_MESSAGE = "File(s): %s";
+    private static final String AUDIT_MESSAGE = "File(s): %s";
     private static final String OBJECT_FORM_FIELD = "object";
     private static final String BUCKET_FORM_FIELD = "bucket";
     private static final String ENDPOINT_FORM_FIELD = "endpoint";

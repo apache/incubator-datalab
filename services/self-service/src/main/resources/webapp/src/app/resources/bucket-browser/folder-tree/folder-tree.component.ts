@@ -222,7 +222,7 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
     this.bucketDataService.emptyFolder = null;
     this.bucketBrowserService.createFolder({
       'bucket': bucket,
-      'folder': path,
+      'folder': path.replace(/ا/g, ''),
       'endpoint': this.endpoint
     })
       .subscribe(_ => {

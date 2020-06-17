@@ -33,14 +33,21 @@
     tr {
       .th_user {
         width: 19%;
+
       }
 
       .th_action {
         width: 11%;
+        .label{
+          padding-bottom: 10px;
+        }
       }
 
       .th_date {
         width: 14%;
+        .label{
+          padding-bottom: 10px;
+        }
       }
 
       .th_project{
