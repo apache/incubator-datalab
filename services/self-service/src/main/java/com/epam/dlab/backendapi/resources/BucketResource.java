@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.BucketDeleteDTO;
+import com.epam.dlab.backendapi.resources.dto.FolderUploadDTO;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -84,6 +85,16 @@ public class BucketResource {
         return Response.ok().build();
     }
 
+    @POST
+    @Path("/folder/upload")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("/api/bucket/upload")
+    public Response uploadFolder(@Auth UserInfo userInfo, @Valid FolderUploadDTO dto) {
+        bucketService.uploadFolder(userInfo, dto.getBucket(), dto.getFolder(), dto.getEndpoint());
+        return Response.ok().build();
+    }
+
     @GET
     @Path("/{bucket}/object/{object}/endpoint/{endpoint}/download")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -124,18 +135,15 @@ public class BucketResource {
                     if (item.isFormField()) {
                         if (OBJECT_FORM_FIELD.equals(item.getFieldName())) {
                             object = Streams.asString(stream);
-                        }
-                        if (BUCKET_FORM_FIELD.equals(item.getFieldName())) {
+                        } else if (BUCKET_FORM_FIELD.equals(item.getFieldName())) {
                             bucket = Streams.asString(stream);
-                        }
-                        if (ENDPOINT_FORM_FIELD.equals(item.getFieldName())) {
+                        } else if (ENDPOINT_FORM_FIELD.equals(item.getFieldName())) {
                             endpoint = Streams.asString(stream);
-                        }
-                        if (SIZE_FORM_FIELD.equals(item.getFieldName())) {
+                        } else if (SIZE_FORM_FIELD.equals(item.getFieldName())) {
                             fileSize = Long.parseLong(Streams.asString(stream));
                         }
                     } else {
-                        bucketService.uploadObjects(userInfo, bucket, object, endpoint, stream, fileSize);
+                        bucketService.uploadObject(userInfo, bucket, object, endpoint, stream, fileSize);
                     }
                 } catch (Exception e) {
                     log.error("Cannot upload object {} to bucket {}. {}", object, bucket, e.getMessage(), e);
