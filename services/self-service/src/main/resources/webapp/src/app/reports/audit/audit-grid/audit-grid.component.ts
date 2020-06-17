@@ -64,16 +64,16 @@ export class AuditGridComponent implements OnInit {
     const project = [];
     const actions = [];
     auditData.forEach(auditItem => {
-      if (!users.includes(auditItem.user)) {
+      if (auditItem.user && !users.includes(auditItem.user)) {
         users.push(auditItem.user);
       }
-      if (!resource.includes(auditItem.resourceName)) {
+      if (auditItem.resourceName && !resource.includes(auditItem.resourceName)) {
         resource.push(auditItem.resourceName);
       }
-      if (!project.includes(auditItem.project)) {
+      if (auditItem.project && !project.includes(auditItem.project)) {
         project.push(auditItem.project);
       }
-      if (!actions.includes(auditItem.action)) {
+      if (auditItem.action && !actions.includes(auditItem.action)) {
         actions.push(auditItem.action);
       }
     });
@@ -99,7 +99,7 @@ export class AuditGridComponent implements OnInit {
   template: `
       <div id="dialog-box">
           <header class="dialog-header">
-              <h4 class="modal-title">{{data.action}}</h4>
+              <h4 class="modal-title">{{data.action | convertaction}}</h4>
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
           <div mat-dialog-content class="content">
@@ -116,7 +116,7 @@ export class AuditGridComponent implements OnInit {
 <!--              </li>-->
 <!--            </ul>-->
 <!--            <ng-template #message>{{data.data}}.</ng-template>-->
-            <p>{{data.data}}.</p>
+            <p>{{data.data}}</p>
             <div class="text-center m-top-30 m-bott-10">
 <!--               <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>-->
 <!--               <button type="button" class="butt butt-success" mat-raised-button-->

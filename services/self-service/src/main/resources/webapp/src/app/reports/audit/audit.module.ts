@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { NgDateRangePickerModule } from 'ng-daterangepicker';
 import { MaterialModule } from '../../shared/material.module';
 import { FormControlsModule } from '../../shared/form-controls';
-import { KeysPipeModule, LineBreaksPipeModule } from '../../core/pipes';
+import { KeysPipeModule, LineBreaksPipeModule, ConvertActionPipeModule } from '../../core/pipes';
 import {AuditComponent} from './audit.component';
 import {AuditGridComponent, AuditInfoDialogComponent} from './audit-grid/audit-grid.component';
 import {AuditToolbarComponent} from './audit-toolbar/audit-toolbar.component';
@@ -32,6 +32,7 @@ import {AuditToolbarComponent} from './audit-toolbar/audit-toolbar.component';
     CommonModule,
     FormsModule,
     FormControlsModule,
+    ConvertActionPipeModule,
     KeysPipeModule,
     LineBreaksPipeModule,
     NgDateRangePickerModule,

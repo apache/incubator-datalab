@@ -17,9 +17,12 @@
  * under the License.
  */
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
-export * from './replace-breaks-pipe';
-export * from './highlight.pipe';
-export * from './convert-action-pipe';
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({ name: 'convertaction' })
+
+export class ConvertActionPipe implements PipeTransform {
+  transform(value: string): any {
+    return value.charAt(0) + value.slice(1).toLowerCase().replace(/_/g, ' ');
+  }
+}
