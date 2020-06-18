@@ -146,7 +146,10 @@ export class ManagementGridComponent implements OnInit {
       });
     }
     this.allFilteredEnvironmentData = filteredData;
-    this.allActiveNotebooks = this.allFilteredEnvironmentData.filter(v => v.name && (v.status === 'running' || v.status === 'stopped'));
+    this.allActiveNotebooks = this.allFilteredEnvironmentData
+      .filter(v => v.name &&
+      (v.status === 'running' || v.status === 'stopped') &&
+      !this.clustersInProgress(v.resources));
   }
 
   getEnvironmentDataCopy() {
