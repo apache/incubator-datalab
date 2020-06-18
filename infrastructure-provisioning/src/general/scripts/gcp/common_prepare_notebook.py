@@ -104,15 +104,15 @@ if __name__ == "__main__":
         if notebook_config['shared_image_enabled'] == 'false':
             notebook_config['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image'.format(
                 notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_tag'],
-                os.environ['application'])
+                os.environ['application']).lower()
             notebook_config['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-image'.format(
                 notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_tag'],
-                os.environ['application'])
+                os.environ['application']).lower()
         else:
             notebook_config['expected_primary_image_name'] = '{}-{}-{}-primary-image'.format(
-                notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application'])
+                notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application']).lower()
             notebook_config['expected_secondary_image_name'] = '{}-{}-{}-secondary-image'.format(
-                notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application'])
+                notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application']).lower()
         notebook_config['notebook_primary_image_name'] = (lambda x: '{0}-{1}-{2}-{3}-primary-image-{4}'.format(
             notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
             os.environ['application'], os.environ['notebook_image_name'].replace('_', '-').lower()) if (x != 'None' and x != '')
