@@ -228,6 +228,11 @@ export class ManagementGridComponent implements OnInit {
     this.selected = this.allFilteredEnvironmentData.filter(item => !!item.isSelected);
     this.emitSelectedList.emit(this.selected);
   }
+
+  public clustersInProgress(resources: any) {
+    const statuses = ['terminating', 'stopping', 'starting', 'creating', 'configuring', 'reconfiguring'];
+    return resources.filter(resource => statuses.includes(resource.status)).length;
+  }
 }
 
 
@@ -332,7 +337,7 @@ export class ReconfirmationDialogComponent {
     if (data.notebooks && data.notebooks.length) {
       this.notebooks = JSON.parse(JSON.stringify(data.notebooks));
       this.notebooks = this.notebooks.map(notebook => {
-        notebook.resources = notebook.resources.filter(res => res.status !== 'terminated' && res.status.slice(0, 4) !== data.action);
+        notebook.resources = notebook.resources.filter(res => res.status !== 'failed' && res.status !== 'terminated' && res.status.slice(0, 4) !== data.action);
         if (notebook.resources.length) {
           this.isClusterLength = true;
         }
