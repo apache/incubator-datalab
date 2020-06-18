@@ -92,7 +92,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     except Exception as err:
         append_result("Failed to install {} packages".format(pip_version), str(err))
         print("Failed to install {} packages".format(pip_version))
-        sys.exit(1)
+        return "Failed to install {} packages".format(pip_version)
 
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
