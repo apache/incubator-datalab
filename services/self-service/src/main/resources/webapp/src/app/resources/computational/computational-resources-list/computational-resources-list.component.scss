@@ -30,7 +30,7 @@
      align-items: center;
 
      .resource-name {
-       width: 55%;
+       width: 50%;
        white-space: nowrap;
        overflow: hidden;
        text-overflow: ellipsis;
@@ -43,7 +43,7 @@
      }
 
      .resource-status {
-       width: 30%;
+       width: 35%;
        text-transform: capitalize;
      }
 
@@ -115,11 +115,11 @@
      .source {
        .resource-wrap {
          .resource-name {
-           width: 45%;
+           width: 42%;
          }
 
          .resource-status {
-           width: 40%;
+           width: 43%;
          }
 
          .resource-actions {
