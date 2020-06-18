@@ -144,21 +144,24 @@
           <div *ngIf="element.resources?.length">
             <div *ngFor="let resource of element.resources" class="resource-wrap">
               <div class="resource-name">
-                <a class="detailed-link">
+                <a>
                   {{ resource.computational_name }}
                 </a>
               </div>
               <span ngClass="{{resource.status || ''}}" class="resource-status">{{ resource.status }}</span>
               <div class="resource-actions">
-                <a class="start-stop-action" *ngIf="resource.image === 'docker.dlab-dataengine'">
-                  <i class="material-icons" (click)="toggleResourceAction(element, 'stop', resource)"
-                    [ngClass]="{'not-allowed' : resource.status !== 'running' }">pause_circle_outline</i>
-                </a>
-
-                <a class="remove_butt" (click)="toggleResourceAction(element, 'terminate', resource)"
-                  [ngClass]="{ 'disabled' : element.status !== 'running' || resource.status !== 'running' && resource.status !== 'stopped' }">
-                  <i class="material-icons">highlight_off</i>
-                </a>
+                <span class="not-allow">
+                  <a class="start-stop-action" *ngIf="resource.image === 'docker.dlab-dataengine'">
+                    <i class="material-icons" (click)="toggleResourceAction(element, 'stop', resource)"
+                      [ngClass]="{'not-allowed' : resource.status !== 'running' || selected?.length }">pause_circle_outline</i>
+                  </a>
+                </span>
+                <span class="not-allow">
+                  <a class="remove_butt" (click)="toggleResourceAction(element, 'terminate', resource)"
+                    [ngClass]="{ 'disabled' : element.status !== 'running' || (resource.status !== 'running' && resource.status !== 'stopped') || selected?.length }">
+                    <i class="material-icons">highlight_off</i>
+                  </a>
+                </span>
               </div>
             </div>
           </div>
