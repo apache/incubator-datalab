@@ -39,6 +39,7 @@ import re
 def enable_proxy(proxy_host, proxy_port):
     try:
         proxy_string = "http://%s:%s" % (proxy_host, proxy_port)
+        proxy_https_string = "http://%s:%s" % (proxy_host, proxy_port)
         sudo('sed -i "/^export http_proxy/d" /etc/profile')
         sudo('sed -i "/^export https_proxy/d" /etc/profile')
         sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
@@ -46,9 +47,10 @@ def enable_proxy(proxy_host, proxy_port):
         if exists('/etc/apt/apt.conf'):
             sudo("sed -i '/^Acquire::http::Proxy/d' /etc/apt/apt.conf")
         sudo("echo 'Acquire::http::Proxy \"" + proxy_string + "\";' >> /etc/apt/apt.conf")
+        sudo("echo 'Acquire::http::Proxy \"" + proxy_https_string + "\";' >> /etc/apt/apt.conf")
 
-        print("Renewing gpg key")
-        renew_gpg_key()
+        #print("Renewing gpg key")
+        #renew_gpg_key()
     except:
         sys.exit(1)
 
