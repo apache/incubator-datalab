@@ -49,8 +49,8 @@ def enable_proxy(proxy_host, proxy_port):
         sudo("echo 'Acquire::http::Proxy \"" + proxy_string + "\";' >> /etc/apt/apt.conf")
         sudo("echo 'Acquire::http::Proxy \"" + proxy_https_string + "\";' >> /etc/apt/apt.conf")
 
-        #print("Renewing gpg key")
-        #renew_gpg_key()
+        print("Renewing gpg key")
+        renew_gpg_key()
     except:
         sys.exit(1)
 
