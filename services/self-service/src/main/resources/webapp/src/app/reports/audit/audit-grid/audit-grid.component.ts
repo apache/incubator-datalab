@@ -95,7 +95,7 @@ export class AuditGridComponent implements OnInit {
 
   openActionInfo(element) {
     // console.log('Open audit info ' + action.action);
-    this.dialog.open(AuditInfoDialogComponent, { data: {data: element.info, action: element.action}, panelClass: 'modal-sm' });
+    this.dialog.open(AuditInfoDialogComponent, { data: {data: element.info, action: element.action}, panelClass: 'modal-xl-s' });
   }
 
   public setItemsPrPage(item: number) {
@@ -127,21 +127,28 @@ export class AuditGridComponent implements OnInit {
               <h4 class="modal-title">{{data.action | convertaction}}</h4>
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
-          <div mat-dialog-content class="content">
+          <div mat-dialog-content class="content audit-info-content">
 <!--            <ul info-items-list *ngIf=" dattypeofa.data.length>1;else message">-->
+            <mat-list *ngIf="actionList[0].length > 1;else message">
 <!--              <li class="info-item">-->
-<!--                  <span class="info-item-title">Group:</span>-->
-<!--                  <span class="info-item-data"> {{data.data.name}}</span>-->
+<!--                  <span class="info-item-title">Action</span>-->
+<!--                  <span class="info-item-data"> Description </span>-->
 <!--              </li>-->
-<!--              <li class="info-item">-->
-<!--                <span class="info-item-title">Users:</span>-->
-<!--                <span class="info-item-data">-->
-<!--                    <span>{{data.data.objects}}</span>-->
-<!--                </span>-->
-<!--              </li>-->
-<!--            </ul>-->
-<!--            <ng-template #message>{{data.data}}.</ng-template>-->
-            <p>{{data.data}}</p>
+              <mat-list-item class="list-header">
+                <div class="info-item-title">Action</div>
+                <div class="info-item-data"> Description </div>
+              </mat-list-item>
+              <div class="scrolling-content mat-list-wrapper" id="scrolling">
+                <mat-list-item class="list-item" *ngFor="let action of actionList">
+                  <div class="info-item-title">{{action[0]}}</div>
+                  <div class="info-item-data" >
+                      <div *ngFor="let description of action[1]?.split(',')">{{description}}</div>
+                  </div>
+                </mat-list-item>
+              </div>
+            </mat-list>
+            <ng-template #message><p>{{data.data}}.</p></ng-template>
+<!--            <p >{{data.data}}</p>-->
             <div class="text-center m-top-30 m-bott-10">
 <!--               <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>-->
 <!--               <button type="button" class="butt butt-success" mat-raised-button-->
@@ -176,19 +183,22 @@ export class AuditGridComponent implements OnInit {
     label{cursor: pointer}
     .bottom-message{padding-top: 15px;}
     .table-header{padding-bottom: 10px;}
-    .info-item{display: flex; justify-content: space-between; padding: 10px 0; width: 100%}
-    .info-item-title{width: 50%}
-    .info-item-data{width: 50%; text-align: left;}
+    .mat-list-wrapper{padding-top: 5px;}
+    .list-item{color: #718ba6; height: auto;}
+    .info-item-title{width: 40%; padding: 10px 0}
+    .info-item-data{width: 60%; text-align: left; padding: 10px 0}
 
 
   `]
 })
 export class AuditInfoDialogComponent {
+  actionList;
   constructor(
     public dialogRef: MatDialogRef<AuditInfoDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    console.log(data);
+    this.actionList = data.data.split('.').map(v => v.split(':')).filter(v => v[0] !== '');
+    console.log(this.actionList);
   }
 
 }
