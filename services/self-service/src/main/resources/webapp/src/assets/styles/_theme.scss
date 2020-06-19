@@ -86,11 +86,13 @@
   }
 }
 
+
+
 .selector-wrapper {
   display: flex;
   align-self: center;
   width: 100%;
-  height: 36px;
+  height: 25px;
   padding-left: 10px;
   font-family: 'Open Sans', sans-serif;
   font-size: 15px;
@@ -130,6 +132,24 @@
   }
 }
 
+
+.audit{
+  .select-wrapper {
+    .mat-reset{
+      .selector-wrapper{
+        height: 25px;
+      .mat-form-field .mat-form-field-wrapper .mat-form-field-infix{
+        padding-top: 5px;
+      }
+        .caret {
+          width: 25px;
+          height: 31px;
+
+        }
+      }
+    }
+  }
+}
 .multiple-select {
   border-bottom: 1px solid #dedbdb;
   padding: 0;
@@ -319,7 +339,8 @@ span.mat-slide-toggle-content {
 
 .manage-roles,
 .project-form,
-.selection {
+.selection,
+.audit{
   .mat-form-field {
     width: 100%;
   }

@@ -86,7 +86,27 @@
           </div>
         </div>
       </td>
-      <td mat-footer-cell *matFooterCellDef  class="table-footer"></td>
+      <td mat-footer-cell *matFooterCellDef  class="table-footer">
+        <div class="selected-items-wrapper">
+         <span>Items per page:</span>
+          <div class="select-wrapper">
+            <div class="mat-reset">
+              <div class="control selector-wrapper">
+                <mat-form-field>
+                  <mat-label></mat-label>
+                  <mat-select [(value)]="showItemsPrPage">
+                   <mat-option *ngFor="let item of itemsPrPage" [value]="item" (click)="setItemsPrPage(item)">
+                      {{ item }}</mat-option>
+                   </mat-select>
+                  <button class="caret">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                  </button>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="date">
@@ -98,7 +118,27 @@
         <div class="label"><span class="text">Date</span></div>
       </th>
       <td mat-cell *matCellDef="let element"> {{element.timestamp | date: 'dd/MM/yyyy hh:mm:ss aa'}} </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+      <td mat-footer-cell *matFooterCellDef class="table-footer">
+        <div class="pagination-wrapper">
+          <span>
+            <span>{{firstItem}}</span> - <span>{{lastItem}}</span> of <span>{{auditData?.length}}</span>
+          </span>
+          <span>
+            <span class="navigation-butts" [ngClass]="{'not-active': firstItem === 1}" (click)="loadItems('first')">
+              <i class="material-icons">first_page</i>
+            </span>
+            <span class="navigation-butts" [ngClass]="{'not-active': firstItem === 1}" (click)="loadItems('previous')">
+              <i class="material-icons">keyboard_arrow_left</i>
+            </span>
+            <span class="navigation-butts" [ngClass]="{'not-active': lastItem >= auditData?.length}" (click)="loadItems('next')">
+              <i class="material-icons">keyboard_arrow_right</i>
+            </span>
+            <span class="navigation-butts" [ngClass]="{'not-active': lastItem >= auditData?.length}" (click)="loadItems('last')">
+              <i class="material-icons">last_page</i>
+            </span>
+          </span>
+        </div>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="user-filter">
@@ -139,6 +179,7 @@
     <tr [hidden]="!collapseFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
       class="filter-row"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="content-row"></tr>
+    <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
 
 <!--    <tr [hidden]="!auditData?.length" mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"-->
 <!--      class="header-row"></tr>-->

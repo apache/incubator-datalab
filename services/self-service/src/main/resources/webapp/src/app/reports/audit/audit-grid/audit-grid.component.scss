@@ -235,3 +235,24 @@
     padding-left: 5px;
   }
 }
+
+.selected-items-wrapper{
+  display: flex;
+  align-items: center;
+  .select-wrapper{
+    margin-left: 20px;
+    width: 80px;
+  }
+}
+
+.pagination-wrapper{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .navigation-butts{
+    cursor: pointer;
+    .not-active{
+      color: lightgray;
+    }
+  }
+}

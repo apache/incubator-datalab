@@ -36,6 +36,11 @@ export class AuditGridComponent implements OnInit {
   public collapseFilterRow: boolean = true;
   public filterConfiguration: FilterAuditModel = new FilterAuditModel([], [], [], [], '', '');
   public filterAuditData: FilterAuditModel = new FilterAuditModel([], [], [], [], '', '');
+  public itemsPrPage: Number[] = [25, 50, 100];
+  public showItemsPrPage: number = 25;
+  public firstItem: number = 1;
+  public lastItem: number = this.showItemsPrPage;
+
 
   constructor(
     public dialogRef: MatDialogRef<AuditInfoDialogComponent>,
@@ -91,6 +96,26 @@ export class AuditGridComponent implements OnInit {
   openActionInfo(element) {
     // console.log('Open audit info ' + action.action);
     this.dialog.open(AuditInfoDialogComponent, { data: {data: element.info, action: element.action}, panelClass: 'modal-sm' });
+  }
+
+  public setItemsPrPage(item: number) {
+    this.lastItem = item;
+  }
+
+  public loadItems(action) {
+    if (action === 'first') {
+      this.firstItem = 1;
+      this.lastItem = this.showItemsPrPage;
+    } else if (action === 'previous') {
+      this.firstItem = this.firstItem - this.showItemsPrPage;
+      this.lastItem = this.lastItem % this.showItemsPrPage === 0 ? this.lastItem - this.showItemsPrPage : this.lastItem - (this.lastItem % this.showItemsPrPage);
+    } else if (action === 'next') {
+      this.firstItem = this.firstItem + this.showItemsPrPage;
+      this.lastItem = (this.lastItem + this.showItemsPrPage) > this.auditData.length ? this.auditData.length : this.lastItem + this.showItemsPrPage;
+    } else if (action === 'last') {
+      this.firstItem = this.auditData.length % this.showItemsPrPage === 0 ? this.auditData.length - this.showItemsPrPage : this.auditData.length - (this.auditData.length % this.showItemsPrPage) + 1;
+      this.lastItem = this.auditData.length;
+    }
   }
 }
 
