@@ -17,18 +17,18 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.domain;
 
-import com.epam.dlab.backendapi.domain.AuditCreateDTO;
-import com.epam.dlab.backendapi.domain.AuditDTO;
-import com.epam.dlab.backendapi.domain.AuditPaginationDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.List;
 
-public interface AuditService {
-    void save(AuditDTO audit);
-
-    void save(String user, AuditCreateDTO audit);
-
-    List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, String dateStart, String dateEnd, int pageNumber, int pageSize);
+@Data
+@Builder
+public class AuditPaginationDTO {
+    @JsonProperty("page-count")
+    private final int totalPageCount;
+    private final List<AuditDTO> audit;
 }

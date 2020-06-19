@@ -17,18 +17,28 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.model;
 
-import com.epam.dlab.backendapi.domain.AuditCreateDTO;
-import com.epam.dlab.backendapi.domain.AuditDTO;
-import com.epam.dlab.backendapi.domain.AuditPaginationDTO;
+import javax.ws.rs.WebApplicationException;
+import java.util.ArrayList;
 
-import java.util.List;
+public class StringList extends ArrayList<String> {
+    public StringList(String s) {
+        super();
 
-public interface AuditService {
-    void save(AuditDTO audit);
+        for (String v : s.split(",")) {
+            try {
+                add(v.trim());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                throw new WebApplicationException(400);
+            }
+        }
+        if (isEmpty())
+            throw new WebApplicationException(400);
+    }
 
-    void save(String user, AuditCreateDTO audit);
-
-    List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, String dateStart, String dateEnd, int pageNumber, int pageSize);
+    public static String valueOf(String s) {
+        return s;
+    }
 }

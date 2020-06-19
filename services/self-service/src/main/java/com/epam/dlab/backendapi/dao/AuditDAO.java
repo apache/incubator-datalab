@@ -20,11 +20,12 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.domain.AuditDTO;
+import com.epam.dlab.backendapi.domain.AuditPaginationDTO;
 
 import java.util.List;
 
 public interface AuditDAO {
     void save(AuditDTO audit);
 
-    List<AuditDTO> getAudit(int pageNumber, int pageSize);
+    List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, String dateStart, String dateEnd, int pageNumber, int pageSize);
 }

@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.domain.AuditCreateDTO;
 import com.epam.dlab.backendapi.service.AuditService;
+import com.epam.dlab.model.StringList;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
@@ -53,8 +54,16 @@ public class AuditResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAudit(@Auth UserInfo userInfo, @QueryParam("page-number") int pageNumber,
+    public Response getAudit(@Auth UserInfo userInfo,
+                             @QueryParam("users") StringList users,
+                             @QueryParam("projects") StringList projects,
+                             @QueryParam("resource-names") StringList resourceNames,
+                             @QueryParam("date-start") String dateStart,
+                             @QueryParam("date-end") String dateEnd,
+                             @QueryParam("page-number") int pageNumber,
                              @QueryParam("page-size") int pageSize) {
-        return Response.ok(auditService.getAudit(pageNumber, pageSize)).build();
+        return Response
+                .ok(auditService.getAudit(users, projects, resourceNames, dateStart, dateEnd, pageNumber, pageSize))
+                .build();
     }
 }
