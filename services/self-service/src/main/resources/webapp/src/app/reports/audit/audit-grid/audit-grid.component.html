@@ -121,20 +121,28 @@
       <td mat-footer-cell *matFooterCellDef class="table-footer">
         <div class="pagination-wrapper">
           <span>
-            <span>{{firstItem}}</span> - <span>{{lastItem}}</span> of <span>{{auditData?.length}}</span>
+            <span>{{firstItem}}</span> - <span>{{(lastItem < allItems) ? lastItem: allItems}}</span> of <span>{{allItems}}</span>
           </span>
           <span>
-            <span class="navigation-butts" [ngClass]="{'not-active': firstItem === 1}" (click)="loadItems('first')">
-              <i class="material-icons">first_page</i>
+            <span [ngClass]="{'not-active': firstItem === 1}">
+              <span class="navigation-butts" (click)="loadItems('first')" [ngClass]="{'not-allowed': firstItem === 1}">
+                <i class="material-icons">first_page</i>
+              </span>
             </span>
-            <span class="navigation-butts" [ngClass]="{'not-active': firstItem === 1}" (click)="loadItems('previous')">
-              <i class="material-icons">keyboard_arrow_left</i>
+            <span [ngClass]="{'not-active': firstItem === 1}">
+              <span class="navigation-butts" (click)="loadItems('previous')" [ngClass]="{'not-allowed': firstItem === 1}">
+                <i class="material-icons">keyboard_arrow_left</i>
+              </span>
             </span>
-            <span class="navigation-butts" [ngClass]="{'not-active': lastItem >= auditData?.length}" (click)="loadItems('next')">
-              <i class="material-icons">keyboard_arrow_right</i>
+            <span [ngClass]="{'not-active': lastItem >= allItems}">
+              <span class="navigation-butts" (click)="loadItems('next')" [ngClass]="{'not-allowed': lastItem >= allItems}">
+                <i class="material-icons">keyboard_arrow_right</i>
+              </span>
             </span>
-            <span class="navigation-butts" [ngClass]="{'not-active': lastItem >= auditData?.length}" (click)="loadItems('last')">
-              <i class="material-icons">last_page</i>
+            <span [ngClass]="{'not-active': lastItem >= allItems}">
+              <span class="navigation-butts" (click)="loadItems('last')" [ngClass]="{'not-allowed': lastItem >= allItems}">
+                <i class="material-icons">last_page</i>
+              </span>
             </span>
           </span>
         </div>
@@ -162,15 +170,30 @@
       </th>
     </ng-container>
 
-    <ng-container matColumnDef="action-filter">
+    <ng-container matColumnDef="actions-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
 <!--        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'actions'"-->
 <!--                               [items]="filterConfiguration.actions" [model]="filterAuditData.actions"></multi-select-dropdown>-->
       </th>
     </ng-container>
-    <ng-container matColumnDef="date-filter">
-      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+<!--    <ng-container matColumnDef="date-filter">-->
+<!--      <th mat-header-cell *matHeaderCellDef class="filter-row-item">-->
 
+<!--      </th>-->
+<!--    </ng-container>-->
+    <ng-container matColumnDef="action-filter" stickyEnd>
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="actions audit-actions">
+<!--          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()" [disabled]="filteredEnvironments.length == 0 && !filtering">-->
+          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+            <i class="material-icons">close</i>
+          </button>
+
+          <button mat-icon-button class="btn apply" (click)="refreshAudit()">
+<!--                  [disabled]="filteredEnvironments.length == 0 && !filtering">-->
+            <i class="material-icons">done</i>
+          </button>
+        </div>
       </th>
     </ng-container>
 

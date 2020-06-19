@@ -628,10 +628,10 @@ export class ApplicationServiceFacade {
       null);
   }
 
-  public getAuditList(): Observable<any> {
+  public getAuditList(data): Observable<any> {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.AUDIT),
-      null);
+      data);
   }
 
   public postActionToAudit(data): Observable<any> {
