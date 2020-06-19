@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -45,6 +46,7 @@ import java.util.stream.StreamSupport;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.PROJECT;
 import static com.mongodb.client.model.Aggregates.count;
 import static com.mongodb.client.model.Aggregates.facet;
+import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Aggregates.limit;
 import static com.mongodb.client.model.Aggregates.match;
 import static com.mongodb.client.model.Aggregates.skip;
@@ -57,8 +59,11 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
     private static final String RESOURCE_NAME_FIELD = "resourceName";
     private static final String TIMESTAMP_FIELD = "timestamp";
     private static final String COUNT_FIELD = "count";
-    private static final String AUDIT_FACET = "audit";
-    private static final String TOTAL_COUNT_FACET = "totalCount";
+    private static final String AUDIT_FACET = "auditFacet";
+    private static final String TOTAL_COUNT_FACET = "totalCountFacet";
+    private static final String RESOURCE_NAME_FACET = "resourceNameFacet";
+    private static final String USER_FACET = "userFacet";
+    private static final String PROJECT_FACET = "projectFacet";
 
     @Override
     public void save(AuditDTO audit) {
@@ -79,9 +84,14 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
         countPipeline.add(count());
         valuesPipeline.addAll(Arrays.asList(skip(pageSize * (pageNumber - 1)), limit(pageSize)));
 
-        List<Bson> facets = Collections.singletonList(facet(new Facet(AUDIT_FACET, valuesPipeline), new Facet(TOTAL_COUNT_FACET, countPipeline)));
+        List<Bson> userFilter = Collections.singletonList(group(getGroupingFields(USER)));
+        List<Bson> projectFilter = Collections.singletonList(group(getGroupingFields(PROJECT)));
+        List<Bson> resourceNameFilter = Collections.singletonList(group(getGroupingFields(RESOURCE_NAME_FIELD)));
+
+        List<Bson> facets = Collections.singletonList(facet(new Facet(AUDIT_FACET, valuesPipeline), new Facet(TOTAL_COUNT_FACET, countPipeline),
+                new Facet(RESOURCE_NAME_FACET, resourceNameFilter), new Facet(USER_FACET, userFilter), new Facet(PROJECT_FACET, projectFilter)));
         return StreamSupport.stream(aggregate(AUDIT_COLLECTION, facets).spliterator(), false)
-                .map(this::toAuditDTO)
+                .map(this::toAuditPaginationDTO)
                 .collect(Collectors.toList());
     }
 
@@ -101,14 +111,28 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
         return searchCriteria;
     }
 
-    private AuditPaginationDTO toAuditDTO(Document document) {
-        List<Document> documents = (List<Document>) (document.get(TOTAL_COUNT_FACET));
-        final int count = documents.isEmpty() ? 0 : documents.get(0).getInteger(COUNT_FIELD);
+    private AuditPaginationDTO toAuditPaginationDTO(Document document) {
+        List<Document> countDocuments = (List<Document>) document.get(TOTAL_COUNT_FACET);
+        final int count = countDocuments.isEmpty() ? 0 : countDocuments.get(0).getInteger(COUNT_FIELD);
+        Set<String> userFilter = getFilter(document, USER_FACET, USER);
+        Set<String> projectFilter = getFilter(document, PROJECT_FACET, PROJECT);
+        Set<String> resourceNameFilter = getFilter(document, RESOURCE_NAME_FACET, RESOURCE_NAME_FIELD);
         List<AuditDTO> auditDTOs = (List<AuditDTO>) document.get(AUDIT_FACET);
         return AuditPaginationDTO.builder()
                 .totalPageCount(count)
                 .audit(auditDTOs)
+                .userFilter(userFilter)
+                .resourceNameFilter(resourceNameFilter)
+                .projectFilter(projectFilter)
                 .build();
+    }
+
+    private Set<String> getFilter(Document document, String facet, String field) {
+        return ((List<Document>) document.get(facet))
+                .stream()
+                .map(d -> (Document) d.get(ID))
+                .map(d -> d.getString(field))
+                .collect(Collectors.toSet());
     }
 
     private Instant getInstant(String dateStart) {
