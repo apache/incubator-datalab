@@ -57,7 +57,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
-            sudo('ln -s /bin/pip3.6 /bin/pip3')
+            sudo('ln -s /bin/pip3.7 /bin/pip3')
         sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
@@ -92,7 +92,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     except Exception as err:
         append_result("Failed to install {} packages".format(pip_version), str(err))
         print("Failed to install {} packages".format(pip_version))
-        sys.exit(1)
+        return "Failed to install {} packages".format(pip_version)
 
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
@@ -645,7 +645,10 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile):
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
     if not exists('/usr/bin/pip2'):
-        sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
+        if not exists('/usr/bin/pip-2.7'):
+            manage_pkg('-y install', 'remote', 'python2-pip')
+        else:
+            sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
     if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
         manage_pkg('-y install', 'remote', 'python3-pip')
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
@@ -658,6 +661,8 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile):
     elif not exists('/usr/bin/pip3') and sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
         manage_pkg('-y install', 'remote', 'python3-pip')
         sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
+    sudo('sudo pip3 install -U pip=={} setuptools'.format(os.environ['conf_pip_version']))
+    sudo('sudo pip2 install -U pip=={} setuptools'.format(os.environ['conf_pip_version']))
     sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     sudo('source /etc/profile')
     run('source /etc/profile')
