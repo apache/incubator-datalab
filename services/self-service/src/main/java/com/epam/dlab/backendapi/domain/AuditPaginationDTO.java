@@ -24,11 +24,18 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
 public class AuditPaginationDTO {
-    @JsonProperty("page-count")
+    @JsonProperty("page_count")
     private final int totalPageCount;
     private final List<AuditDTO> audit;
+    @JsonProperty("user_filter")
+    private final Set<String> userFilter;
+    @JsonProperty("project_filter")
+    private final Set<String> projectFilter;
+    @JsonProperty("resource_name_filter")
+    private final Set<String> resourceNameFilter;
 }
