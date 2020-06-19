@@ -57,7 +57,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:|requires"
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
-            sudo('ln -s /bin/pip3.7 /bin/pip3')
+            for v in range(4, 8):
+                if exists('/bin/pip3.{}'.format(v)):
+                    sudo('ln -s /bin/pip3.{} /bin/pip3'.format(v))
         sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
@@ -724,8 +726,8 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile):
     elif not exists('/usr/bin/pip3') and sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
         manage_pkg('-y install', 'remote', 'python3-pip')
         sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
-    sudo('sudo pip3 install -U pip=={} setuptools'.format(os.environ['conf_pip_version']))
-    sudo('sudo pip2 install -U pip=={} setuptools'.format(os.environ['conf_pip_version']))
+    #sudo('sudo pip3 install -U pip=={} setuptools'.format(os.environ['conf_pip_version']))
+    #sudo('sudo pip2 install -U pip=={} setuptools'.format(os.environ['conf_pip_version']))
     sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     sudo('source /etc/profile')
     run('source /etc/profile')
