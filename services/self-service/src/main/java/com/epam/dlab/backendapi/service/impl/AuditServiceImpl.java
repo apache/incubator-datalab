@@ -23,6 +23,7 @@ import com.epam.dlab.backendapi.dao.AuditDAO;
 import com.epam.dlab.backendapi.domain.AuditActionEnum;
 import com.epam.dlab.backendapi.domain.AuditCreateDTO;
 import com.epam.dlab.backendapi.domain.AuditDTO;
+import com.epam.dlab.backendapi.domain.AuditPaginationDTO;
 import com.epam.dlab.backendapi.service.AuditService;
 import com.google.inject.Inject;
 
@@ -54,7 +55,7 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public List<AuditDTO> getAudit(int pageNumber, int pageSize) {
-        return auditDAO.getAudit(pageNumber, pageSize);
+    public List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, String dateStart, String dateEnd, int pageNumber, int pageSize) {
+        return auditDAO.getAudit(users, projects, resourceNames, dateStart, dateEnd, pageNumber, pageSize);
     }
 }
