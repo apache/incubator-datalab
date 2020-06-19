@@ -103,8 +103,8 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
 
 def renew_gpg_key():
     try:
-        if exists('/etc/apt/trusted.gpg'):
-            sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
+#        if exists('/etc/apt/trusted.gpg'):
+#            sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
         sudo('apt-key update')
     except:
         sys.exit(1)
