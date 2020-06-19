@@ -19,7 +19,15 @@
 
 .data-grid {
   &.management {
+    .mat-column-checkbox{
+      padding-left: 10px;
+      padding-right: 0px;
+      min-width: 68px;
+      &.label-header{
 
+      }
+
+    }
     .user{
       width: 15%;
     }
@@ -33,19 +41,19 @@
     }
 
     .shape {
-      width: 19% !important;
+      width: 17% !important;
     }
 
     .status {
-      width: 13% !important;
+      width: 12% !important;
     }
 
     .type {
-      width: 14%;
+      width: 13%;
     }
 
     .resources {
-      width: 22%;
+      width: 24%;
       padding: 5px;
     }
 
@@ -121,4 +129,5 @@ table.management {
 
 .computation{
   cursor: pointer;
+  color: #35afd5;
 }

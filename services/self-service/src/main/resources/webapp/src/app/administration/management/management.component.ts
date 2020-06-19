@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 
@@ -39,6 +39,9 @@ import { ExploratoryModel } from '../../resources/resources-grid/resources-grid.
 
 import { EnvironmentsDataService } from './management-data.service';
 import { ProjectService } from '../../core/services';
+import {ConfirmationDialogComponent, ConfirmationDialogType} from '../../shared/modal-dialog/confirmation-dialog';
+import {ManagementGridComponent, ReconfirmationDialogComponent} from './management-grid/management-grid.component';
+import {FolderTreeComponent} from '../../resources/bucket-browser/folder-tree/folder-tree.component';
 
 @Component({
   selector: 'environments-management',
@@ -50,6 +53,13 @@ export class ManagementComponent implements OnInit {
   public healthStatus: GeneralEnvironmentStatus;
   // public anyEnvInProgress: boolean = false;
   public dialogRef: any;
+  private selected: any[] = [];
+  public isActionsOpen: boolean = false;
+  public selectedRunning: any[];
+  public selectedStopped: any[];
+
+  @ViewChild(ManagementGridComponent, {static: true}) managementGrid;
+
 
   constructor(
     public toastr: ToastrService,
@@ -170,5 +180,95 @@ export class ManagementComponent implements OnInit {
 
   private getTotalBudgetData() {
     return this.healthStatusService.getTotalBudgetData();
+  }
+
+  public selectedList($event) {
+    this.selected = $event;
+    if (this.selected.length === 0) {
+      this.isActionsOpen = false;
+    }
+
+    this.selectedRunning = this.selected.filter(item => item.status === 'running');
+    this.selectedStopped = this.selected.filter(item => item.status === 'stopped');
+  }
+
+  public toogleActions() {
+    this.isActionsOpen = !this.isActionsOpen;
+  }
+
+  toggleResourceAction($event): void {
+    const {environment, action, resource} = $event;
+    if (resource) {
+      const resource_name = resource ? resource.computational_name : environment.name;
+      this.dialog.open(ReconfirmationDialogComponent, {
+        data: { action, resource_name, user: environment.user, type: 'cluster'},
+        width: '550px', panelClass: 'error-modalbox'
+      }).afterClosed().subscribe(result => {
+        result && this.manageEnvironmentAction({ action, environment, resource });
+      });
+    } else {
+      const notebooks = this.selected.length ? this.selected : [environment];
+      if (action === 'stop') {
+        this.dialog.open(ReconfirmationDialogComponent, {
+          data: { notebooks: notebooks, type: 'notebook', action },
+          width: '550px', panelClass: 'error-modalbox'
+        }).afterClosed().subscribe((res) => {
+          if (res) {
+            notebooks.forEach((env) => {
+              this.manageEnvironmentsService.environmentManagement(env.user, 'stop', env.project, env.name)
+                .subscribe(response => {
+                    this.buildGrid();
+                  },
+                  error => console.log(error)
+                );
+            });
+            this.clearSelection();
+          }
+          this.isActionsOpen = false;
+        });
+      } else if (action === 'terminate') {
+        this.dialog.open(ReconfirmationDialogComponent, {
+          data: { notebooks: notebooks, type: 'notebook', action }, width: '550px', panelClass: 'error-modalbox'
+        }).afterClosed().subscribe((res) => {
+          if (res) {
+            notebooks.forEach((env) => {
+              this.manageEnvironmentsService.environmentManagement(env.user, 'terminate', env.project, env.name)
+                .subscribe(
+                  response => {
+                    this.buildGrid();
+                  },
+                  error => console.log(error)
+                );
+            });
+            this.clearSelection();
+          }
+          this.isActionsOpen = false;
+        });
+      // } else if (action === 'run') {
+      //   this.healthStatusService.runEdgeNode().subscribe(() => {
+      //     this.buildGrid();
+      //     this.toastr.success('Edge node is starting!', 'Processing!');
+      //   }, () => this.toastr.error('Edge Node running failed!', 'Oops!'));
+      // } else if (action === 'recreate') {
+      //   this.healthStatusService.recreateEdgeNode().subscribe(() => {
+      //     this.buildGrid();
+      //     this.toastr.success('Edge Node recreation is processing!', 'Processing!');
+      //   }, () => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
+      }
+    }
+  }
+
+  private clearSelection() {
+    this.selected = [];
+    this.isActionsOpen = false;
+    if (this.managementGrid.selected && this.managementGrid.selected.length !== 0) {
+      this.managementGrid.selected.forEach(item => item.isSelected = false);
+      this.managementGrid.selected = [];
+    }
+  }
+
+
+  public resourseAction(action) {
+      this.toggleResourceAction({environment: this.selected, action: action});
   }
 }

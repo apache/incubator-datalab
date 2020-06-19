@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.dto.bucket.BucketDeleteDTO;
+import com.epam.dlab.dto.bucket.FolderUploadDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -33,6 +34,7 @@ import org.apache.commons.fileupload.util.Streams;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -73,6 +75,15 @@ public class BucketResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response uploadObject(@Auth UserInfo userInfo, @Context HttpServletRequest request) {
         upload(request);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/folder/upload")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response uploadFolder(@Auth UserInfo userInfo, @Valid FolderUploadDTO dto) {
+        bucketService.uploadFolder(userInfo, dto.getBucket(), dto.getFolder());
         return Response.ok().build();
     }
 

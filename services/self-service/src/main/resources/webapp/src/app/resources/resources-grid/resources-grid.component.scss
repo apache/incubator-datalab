@@ -95,21 +95,35 @@ table {
     padding-right: 5px;
     padding-left: 24px;
     background-color: inherit;
+    &.notebook-name{
+
+    }
     .label{
       padding-top: 14px;
     }
+  }
+
+  .project-name{
+    font-weight: 600;
+    color: #577289;
   }
 
   .status-col,
   .shape-col {
-    width: 14%;
+    width: 15%;
     .label{
       padding-top: 14px;
     }
   }
+  .shape-col{
+    color: #577289;
+    .label{
+      color: rgba(0,0,0,.54);
+    }
+  }
 
   .tag-col {
-    width: 10%;
+    width: 13%;
 
     mat-chip {
       min-height: 20px;
@@ -125,7 +139,7 @@ table {
   }
 
   .resources-col {
-    width: 28%;
+    width: 32%;
     .label{
       padding-top: 14px;
     }
@@ -293,7 +307,8 @@ tr.detail-row {
 .settings {
   position: relative;
   text-align: right;
-  min-width: 5%;
+  min-width: 7%;
+  padding-right: 15px !important;
 
   .actions {
     background-image: url(../../../assets/svg/settings_icon.svg);

@@ -117,16 +117,16 @@
           [hidden] = "!isSelectionOpened"
           (emitActiveBucket)=openBucket($event)
           [buckets]='buckets'
-          [openedBucket] = this.bucketName
+          [openedBucket]=this.bucketName
         >
         </dlab-bucket-tree>
       </div>
       <div class="navigation" [ngClass]="{'selection-opened': isSelectionOpened}" [hidden]="!path">
         <dlab-folder-tree
           (showFolderContent)=onFolderClick($event)
-          (disableAll) = dissableAll($event)
-          [folders] = folders
-          [endpoint] = endpoint
+          (disableAll)=dissableAll($event)
+          [folders]=folders
+          [endpoint]=endpoint
         > </dlab-folder-tree>
       </div>
       <div class="directory" [ngClass]="{'selection-opened': isSelectionOpened}" [hidden]="!path">

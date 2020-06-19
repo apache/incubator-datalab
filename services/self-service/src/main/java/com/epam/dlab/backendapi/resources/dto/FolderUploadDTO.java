@@ -17,23 +17,19 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.resources.dto;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.dto.bucket.BucketDTO;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
-import java.util.List;
-
-public interface BucketService {
-    List<BucketDTO> getObjects(UserInfo userInfo, String bucket, String endpoint);
-
-    void uploadObject(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize);
-
-    void uploadFolder(UserInfo userInfo, String bucket, String folder, String endpoint);
-
-    void downloadObject(UserInfo userInfo, String bucket, String object, String endpoint, HttpServletResponse resp);
-
-    void deleteObjects(UserInfo userInfo, String bucket, List<String> objects, String endpoint);
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class FolderUploadDTO {
+    @NotBlank(message = "field cannot be empty")
+    private final String bucket;
+    @NotBlank(message = "field cannot be empty")
+    private final String folder;
+    @NotBlank(message = "field cannot be empty")
+    private final String endpoint;
 }

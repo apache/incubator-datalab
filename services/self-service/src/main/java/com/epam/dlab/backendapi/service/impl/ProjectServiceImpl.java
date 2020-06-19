@@ -125,7 +125,8 @@ public class ProjectServiceImpl implements ProjectService {
 	@ProjectAdmin
 	@Override
 	public void terminateEndpoint(@User UserInfo userInfo, List<String> endpoints, @Project String name) {
-		System.out.println("sd");
+		List<ProjectEndpointDTO> endpointDTOs = getProjectEndpointDTOS(endpoints, name);
+		checkProjectRelatedResourcesInProgress(name, endpointDTOs, TERMINATE_ACTION);
 		endpoints.forEach(endpoint -> terminateEndpoint(userInfo, endpoint, name));
 	}
 
@@ -151,11 +152,7 @@ public class ProjectServiceImpl implements ProjectService {
 	@ProjectAdmin
 	@Override
 	public void stopWithResources(@User UserInfo userInfo, List<String> endpoints, @Project String projectName) {
-		List<ProjectEndpointDTO> endpointDTOs = get(projectName)
-				.getEndpoints()
-				.stream()
-				.filter(projectEndpointDTO -> endpoints.contains(projectEndpointDTO.getName()))
-				.collect(Collectors.toList());
+		List<ProjectEndpointDTO> endpointDTOs = getProjectEndpointDTOS(endpoints, projectName);
 		checkProjectRelatedResourcesInProgress(projectName, endpointDTOs, STOP_ACTION);
 
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName,
@@ -243,15 +240,28 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private void checkProjectRelatedResourcesInProgress(String projectName, List<ProjectEndpointDTO> endpoints, String action) {
-        boolean edgeProgress = endpoints.stream().anyMatch(e ->
-                Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
-                        UserInstanceStatus.TERMINATING).contains(e.getStatus()));
+		boolean edgeProgress = endpoints
+				.stream()
+				.anyMatch(e ->
+						Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
+								UserInstanceStatus.TERMINATING).contains(e.getStatus()));
 
-		List<String> endpointsName = endpoints.stream().map(ProjectEndpointDTO::getName).collect(Collectors.toList());
-		if (edgeProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointsName)) {
+		List<String> endpointNames = endpoints
+				.stream()
+				.map(ProjectEndpointDTO::getName)
+				.collect(Collectors.toList());
+		if (edgeProgress || !checkExploratoriesAndComputationalProgress(projectName, endpointNames)) {
 			throw new ResourceConflictException((String.format("Can not %s environment because one of project " +
 					"resource is in processing stage", action)));
 		}
+	}
+
+	private List<ProjectEndpointDTO> getProjectEndpointDTOS(List<String> endpoints, @Project String name) {
+		return get(name)
+				.getEndpoints()
+				.stream()
+				.filter(projectEndpointDTO -> endpoints.contains(projectEndpointDTO.getName()))
+				.collect(Collectors.toList());
 	}
 
 	private Supplier<ResourceNotFoundException> projectNotFound() {

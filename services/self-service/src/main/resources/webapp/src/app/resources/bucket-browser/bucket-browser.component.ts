@@ -56,17 +56,14 @@ export class BucketBrowserComponent implements OnInit {
   public selectedItems;
   public searchValue: string;
   public isQueueFull: boolean;
-  public refreshTokenLimit = 900000;
+  public refreshTokenLimit = 1500000;
   private isTokenRefreshing = false;
-  @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
   public isSelectionOpened: any;
-  isFilterVisible: boolean;
+  public isFilterVisible: boolean;
   public buckets;
   private isFileUploading: boolean;
-  private isFileUploaded: boolean;
 
-
-
+  @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -85,8 +82,8 @@ export class BucketBrowserComponent implements OnInit {
 
   ngOnInit() {
     this.bucketName = this.data.bucket;
-    this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
     this.endpoint = this.data.endpoint;
+    this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
     this.bucketStatus = this.data.bucketStatus;
     this.buckets = this.data.buckets;
   }
@@ -319,7 +316,7 @@ export class BucketBrowserComponent implements OnInit {
             file.status = 'uploaded';
             delete file.request;
             this.sendFile(this.addedFiles.filter(v => v.status === 'waiting')[0]);
-            this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
+            this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
           }
         }, error => {
         window.clearInterval(file.interval);
@@ -334,14 +331,15 @@ export class BucketBrowserComponent implements OnInit {
 
   public refreshBucket() {
     this.path = '';
-    this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
+    this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
     this.isSelectionOpened = false;
   }
 
   public openBucket($event) {
     this.bucketName = $event.name;
+    this.endpoint = $event.endpoint;
     this.path = '';
-    this.bucketDataService.refreshBucketdata(this.bucketName, $event.endpoint);
+    this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
     this.isSelectionOpened = false;
   }
 
@@ -392,7 +390,7 @@ export class BucketBrowserComponent implements OnInit {
         res && this.bucketBrowserService.deleteFile({
           bucket: this.bucketName, endpoint: this.endpoint, 'objects': dataForServer
         }).subscribe(() => {
-            this.bucketDataService.refreshBucketdata(this.bucketName, this.data.endpoint);
+            this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
             this.toastr.success('Objects successfully deleted!', 'Success!');
             this.clearSelection();
           }, error => {
@@ -435,9 +433,6 @@ export class BucketBrowserComponent implements OnInit {
     return new Date(utcDate.setTime( utcDate.getTime() - utcDate.getTimezoneOffset() * 60 * 1000 ));
   }
 
-  // public toggleFileUploaded($event: any) {
-  //   this.isFileUploaded = $event;
-  // }
 }
 
 

@@ -60,9 +60,12 @@ export class ManagementGridComponent implements OnInit {
   @Input() currentUser: string = '';
   @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();
   @Output() actionToggle: EventEmitter<ManageAction> = new EventEmitter();
+  @Output() emitSelectedList: EventEmitter<ManageAction> = new EventEmitter();
 
-  displayedColumns: string[] = ['user', 'type', 'project', 'shape', 'status', 'resources', 'actions'];
-  displayedFilterColumns: string[] = ['user-filter', 'type-filter', 'project-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
+  displayedColumns: string[] = [ 'checkbox', 'user', 'type', 'project', 'shape', 'status', 'resources', 'actions'];
+  displayedFilterColumns: string[] = ['checkbox-filter', 'user-filter', 'type-filter', 'project-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
+  private selected;
+  private allActiveNotebooks: any;
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -113,7 +116,7 @@ export class ManagementGridComponent implements OnInit {
     let filteredData = this.getEnvironmentDataCopy();
 
     const containsStatus = (list, selectedItems) => {
-      if (list){
+      if (list) {
         return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
       }
     };
@@ -121,10 +124,9 @@ export class ManagementGridComponent implements OnInit {
     if (filteredData.length) this.filtering = true;
     if (config) {
       filteredData = filteredData.filter(item => {
-
         const isUser = config.users.length > 0 ? (config.users.indexOf(item.user) !== -1) : true;
-        const isTypeName = item.name ?
-          item.name.toLowerCase().indexOf(config.type.toLowerCase()) !== -1 : item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
+        const isTypeName = item.name ? item.name.toLowerCase()
+          .indexOf(config.type.toLowerCase()) !== -1 : item.type.toLowerCase().indexOf(config.type.toLowerCase()) !== -1;
         const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
         const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
         const isProject = config.projects.length > 0 ? (config.projects.indexOf(item.project) !== -1) : true;
@@ -144,6 +146,10 @@ export class ManagementGridComponent implements OnInit {
       });
     }
     this.allFilteredEnvironmentData = filteredData;
+    this.allActiveNotebooks = this.allFilteredEnvironmentData
+      .filter(v => v.name &&
+      (v.status === 'running' || v.status === 'stopped') &&
+      !this.clustersInProgress(v.resources));
   }
 
   getEnvironmentDataCopy() {
@@ -151,38 +157,7 @@ export class ManagementGridComponent implements OnInit {
   }
 
   toggleResourceAction(environment: any, action: string, resource?): void {
-    if (resource) {
-      const resource_name = resource ? resource.computational_name : environment.name;
-      this.dialog.open(ReconfirmationDialogComponent, {
-        data: { action, resource_name, user: environment.user },
-        width: '550px', panelClass: 'error-modalbox'
-      }).afterClosed().subscribe(result => {
-        result && this.actionToggle.emit({ action, environment, resource });
-      });
-    } else {
-      const type = (environment.type.toLowerCase() === 'edge node')
-        ? ConfirmationDialogType.StopEdgeNode : ConfirmationDialogType.StopExploratory;
-
-      if (action === 'stop') {
-        this.dialog.open(ConfirmationDialogComponent, {
-          data: { notebook: environment, type: type, manageAction: true }, panelClass: 'modal-md'
-        }).afterClosed().subscribe(() => this.buildGrid());
-      } else if (action === 'terminate') {
-        this.dialog.open(ConfirmationDialogComponent, {
-          data: { notebook: environment, type: ConfirmationDialogType.TerminateExploratory, manageAction: true }, panelClass: 'modal-md'
-        }).afterClosed().subscribe(() => this.buildGrid());
-      } else if (action === 'run') {
-        this.healthStatusService.runEdgeNode().subscribe(() => {
-          this.buildGrid();
-          this.toastr.success('Edge node is starting!', 'Processing!');
-        }, () => this.toastr.error('Edge Node running failed!', 'Oops!'));
-      } else if (action === 'recreate') {
-        this.healthStatusService.recreateEdgeNode().subscribe(() => {
-          this.buildGrid();
-          this.toastr.success('Edge Node recreation is processing!', 'Processing!');
-        }, () => this.toastr.error('Edge Node recreation failed!', 'Oops!'));
-      }
-    }
+    this.actionToggle.emit({ environment, action, resource });
   }
 
   isResourcesInProgress(notebook) {
@@ -235,10 +210,31 @@ export class ManagementGridComponent implements OnInit {
       return;
     }
     this.dialog.open(DetailDialogComponent, { data:
-        {notebook: data, bucketStatus: {view: true, upload: true, download: true, delete: true},  buckets: [], type: 'environment'},
+        {notebook: data, buckets: [], type: 'environment'},
       panelClass: 'modal-lg'
     })
       .afterClosed().subscribe(() => {});
+  }
+
+  toggleActionForAll(element) {
+    element.isSelected = !element.isSelected;
+    this.selected = this.allFilteredEnvironmentData.filter(item => !!item.isSelected);
+    this.emitSelectedList.emit(this.selected);
+  }
+
+  toggleSelectionAll() {
+    if (this.selected && this.selected.length === this.allActiveNotebooks.length) {
+      this.allActiveNotebooks.forEach(notebook => notebook.isSelected = false);
+    } else {
+      this.allActiveNotebooks.forEach(notebook => notebook.isSelected = true);
+    }
+    this.selected = this.allFilteredEnvironmentData.filter(item => !!item.isSelected);
+    this.emitSelectedList.emit(this.selected);
+  }
+
+  public clustersInProgress(resources: any) {
+    const statuses = ['terminating', 'stopping', 'starting', 'creating', 'configuring', 'reconfiguring'];
+    return resources.filter(resource => statuses.includes(resource.status)).length;
   }
 }
 
@@ -251,23 +247,105 @@ export class ManagementGridComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
+    <div *ngIf="data.type === 'cluster'">
       <p>Resource <span class="strong"> {{ data.resource_name }}</span> of user <span class="strong"> {{ data.user }} </span> will be
       <span *ngIf="data.action === 'terminate'"> decommissioned.</span>
       <span *ngIf="data.action === 'stop'">stopped.</span>
     </p>
-    <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
+    </div>
+    <div class="resource-list" *ngIf="data.type === 'notebook'">
+      <div class="resource-list-header">
+        <div class="resource-name">Notebook</div>
+        <div class="clusters-list">
+          <div class="clusters-list-item">
+            <div class="cluster"><span *ngIf="isClusterLength">Cluster</span></div>
+            <div class="status">Further status</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="scrolling-content resource-heigth">
+        <div class="resource-list-row sans node" *ngFor="let notebook of notebooks">
+          <div class="resource-name ellipsis">
+            {{notebook.name}}
+          </div>
+
+          <div class="clusters-list">
+            <div class="clusters-list-item">
+              <div class="cluster"></div>
+              <div class="status"
+                   [ngClass]="{
+                   'stopped': data.action==='stop', 'terminated': data.action === 'terminate'
+                    }"
+              >
+                {{data.action  === 'stop' ? 'Stopped' : 'Terminated'}}
+              </div>
+            </div>
+            <div class="clusters-list-item" *ngFor="let cluster of notebook?.resources">
+              <div class="cluster">{{cluster.computational_name}}</div>
+              <div class="status" [ngClass]="{
+              'stopped': (data.action==='stop' && cluster.image==='docker.dlab-dataengine'), 'terminated': data.action === 'terminate' || (data.action==='stop' && cluster.image!=='docker.dlab-dataengine')
+              }">{{data.action  === 'stop' && cluster.image === "docker.dlab-dataengine" ? 'Stopped' : 'Terminated'}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="text-center">
+  <div class="text-center ">
+    <p class="strong">Do you want to proceed?</p>
+  </div>
+  <div class="text-center m-top-20">
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
     <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
   `,
   styles: [
+    `
+      .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400; margin: 0; }
+      .info { color: #35afd5; }
+      .info .confirm-dialog { color: #607D8B; }
+      header { display: flex; justify-content: space-between; color: #607D8B; }
+      header h4 i { vertical-align: bottom; }
+      header a i { font-size: 20px; }
+      header a:hover i { color: #35afd5; cursor: pointer; }
+      .plur { font-style: normal; }
+      .scrolling-content{overflow-y: auto; max-height: 200px; }
+      .cluster { width: 50%; text-align: left;}
+      .status { width: 50%;text-align: left;}
+      .label { font-size: 15px; font-weight: 500; font-family: "Open Sans",sans-serif;}
+      .node { font-weight: 300;}
+      .resource-name { width: 40%;text-align: left; padding: 10px 0;line-height: 26px;}
+      .clusters-list { width: 60%;text-align: left; padding: 10px 0;line-height: 26px;}
+      .clusters-list-item { width: 100%;text-align: left;display: flex}
+      .resource-list{max-width: 100%; margin: 0 auto;margin-top: 20px; }
+      .resource-list-header{display: flex; font-weight: 600; font-size: 16px;height: 48px; border-top: 1px solid #edf1f5; border-bottom: 1px solid #edf1f5; padding: 0 20px;}
+      .resource-list-row{display: flex; border-bottom: 1px solid #edf1f5;padding: 0 20px;}
+      .confirm-resource-terminating{text-align: left; padding: 10px 20px;}
+      .confirm-message{color: #ef5c4b;font-size: 13px;min-height: 18px; text-align: center; padding-top: 20px}
+      .checkbox{margin-right: 5px;vertical-align: middle; margin-bottom: 3px;}
+      label{cursor: pointer}
+      .bottom-message{padding-top: 15px;}
+      .table-header{padding-bottom: 10px;}`
   ]
 })
+
 export class ReconfirmationDialogComponent {
+  private notebooks;
+  private isClusterLength;
   constructor(
     public dialogRef: MatDialogRef<ReconfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { }
+  ) {
+    if (data.notebooks && data.notebooks.length) {
+      this.notebooks = JSON.parse(JSON.stringify(data.notebooks));
+      this.notebooks = this.notebooks.map(notebook => {
+        notebook.resources = notebook.resources.filter(res => res.status !== 'failed' && res.status !== 'terminated' && res.status.slice(0, 4) !== data.action);
+        if (notebook.resources.length) {
+          this.isClusterLength = true;
+        }
+        return notebook;
+      });
+    }
+  }
 }

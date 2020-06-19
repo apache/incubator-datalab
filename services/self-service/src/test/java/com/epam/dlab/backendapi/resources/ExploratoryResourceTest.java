@@ -153,7 +153,7 @@ public class ExploratoryResourceTest extends TestBase {
 				.header("Authorization", "Bearer " + TOKEN)
 				.post(Entity.json(getEmptyExploratoryActionFormDTO()));
 
-		assertEquals(HttpStatus.SC_FORBIDDEN, response.getStatus());
+		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verifyZeroInteractions(exploratoryService);

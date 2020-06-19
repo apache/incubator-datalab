@@ -104,21 +104,22 @@ if __name__ == "__main__":
         if notebook_config['shared_image_enabled'] == 'false':
             notebook_config['expected_primary_image_name'] = '{}-{}-{}-{}-primary-image'.format(
                 notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_tag'],
-                os.environ['application'])
+                os.environ['application']).lower()
             notebook_config['expected_secondary_image_name'] = '{}-{}-{}-{}-secondary-image'.format(
                 notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_tag'],
-                os.environ['application'])
+                os.environ['application']).lower()
         else:
             notebook_config['expected_primary_image_name'] = '{}-{}-{}-primary-image'.format(
-                notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application'])
+                notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application']).lower()
             notebook_config['expected_secondary_image_name'] = '{}-{}-{}-secondary-image'.format(
-                notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application'])
-        notebook_config['notebook_primary_image_name'] = \
-            (lambda x: os.environ['notebook_primary_image_name'] if x != 'None'
-             else notebook_config['expected_primary_image_name'])(str(os.environ.get('notebook_primary_image_name')))
+                notebook_config['service_base_name'], notebook_config['endpoint_name'], os.environ['application']).lower()
+        notebook_config['notebook_primary_image_name'] = (lambda x: '{0}-{1}-{2}-{3}-primary-image-{4}'.format(
+            notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
+            os.environ['application'], os.environ['notebook_image_name'].replace('_', '-').lower()) if (x != 'None' and x != '')
+            else notebook_config['expected_primary_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         notebook_config['primary_image_name'] = GCPMeta.get_image_by_name(
-            notebook_config['expected_primary_image_name'])
+            notebook_config['notebook_primary_image_name'])
         if notebook_config['primary_image_name'] == '':
             notebook_config['primary_image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
         else:
@@ -126,9 +127,12 @@ if __name__ == "__main__":
                 notebook_config['primary_image_name'].get('name')))
             notebook_config['primary_image_name'] = 'global/images/{}'.format(
                 notebook_config['primary_image_name'].get('name'))
-
+        notebook_config['notebook_secondary_image_name'] = (lambda x: '{0}-{1}-{2}-{3}-secondary-image-{4}'.format(
+            notebook_config['service_base_name'], notebook_config['project_name'], notebook_config['endpoint_name'],
+            os.environ['application'], os.environ['notebook_image_name'].replace('_', '-').lower()) if (x != 'None' and x != '')
+            else notebook_config['expected_secondary_image_name'])(str(os.environ.get('notebook_image_name')))
         notebook_config['secondary_image_name'] = GCPMeta.get_image_by_name(
-            notebook_config['expected_secondary_image_name'])
+            notebook_config['notebook_secondary_image_name'])
         if notebook_config['secondary_image_name'] == '':
             notebook_config['secondary_image_name'] = 'None'
         else:
