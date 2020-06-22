@@ -31,7 +31,7 @@ public interface BucketService {
 
     List<BucketDTO> getObjects(String bucket);
 
-    void uploadObject(String bucket, String object, InputStream stream, long fileSize);
+    void uploadObject(String bucket, String object, InputStream stream, String contentType, long fileSize);
 
     void uploadFolder(UserInfo userInfo, String bucket, String folder);
 

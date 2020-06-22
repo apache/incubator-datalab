@@ -66,7 +66,7 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
+    public void uploadObject(String bucket, String object, InputStream stream, String contentType, long fileSize) {
         log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             S3Client s3 = S3Client.create();
@@ -74,6 +74,7 @@ public class BucketServiceAwsImpl implements BucketService {
                     .builder()
                     .bucket(bucket)
                     .key(object)
+                    .contentType(contentType)
                     .build();
             s3.putObject(uploadRequest, RequestBody.fromInputStream(stream, fileSize));
         } catch (Exception e) {

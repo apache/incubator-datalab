@@ -143,7 +143,7 @@ public class BucketResource {
                             fileSize = Long.parseLong(Streams.asString(stream));
                         }
                     } else {
-                        bucketService.uploadObject(userInfo, bucket, object, endpoint, stream, fileSize);
+                        bucketService.uploadObject(userInfo, bucket, object, endpoint, stream, item.getContentType(), fileSize);
                     }
                 } catch (Exception e) {
                     log.error("Cannot upload object {} to bucket {}. {}", object, bucket, e.getMessage(), e);
