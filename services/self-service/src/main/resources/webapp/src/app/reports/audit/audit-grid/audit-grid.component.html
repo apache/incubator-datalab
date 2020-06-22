@@ -22,7 +22,7 @@
 
     <ng-container matColumnDef="user">
       <th mat-header-cell *matHeaderCellDef class="th_user label-header">
-        <div class="label"><span> User</span></div>
+        <div class="label"><span class="audit-user"> User</span></div>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span *ngIf="filterAuditData.users.length > 0; else user_filtered">filter_list</span>
@@ -30,7 +30,7 @@
           </i>
         </button>
       </th>
-      <td mat-cell *matCellDef="let element"><span class="table-item user-col">{{element.user}}</span></td>
+      <td mat-cell *matCellDef="let element"><span class="table-item user-col">{{element.user || 'N/A'}}</span></td>
       <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
     </ng-container>
 
@@ -44,7 +44,7 @@
           </i>
         </button>
       </th>
-      <td mat-cell *matCellDef="let element"><span class="table-item">{{element.project}}</span></td>
+      <td mat-cell *matCellDef="let element"><span class="table-item">{{element.project || 'N/A'}}</span></td>
       <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
     </ng-container>
 
@@ -58,25 +58,15 @@
           </i>
         </button>
       </th>
-      <td mat-cell *matCellDef="let element"><span class="table-item">{{element.resourceName}}</span></td>
+      <td mat-cell *matCellDef="let element"><span class="table-item">{{element.resourceName || 'N/A'}}</span></td>
       <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
     </ng-container>
 
     <ng-container matColumnDef="action">
       <th mat-header-cell *matHeaderCellDef class="th_action label-header">
-<!--        <div class="sort">-->
-<!--          <div class="sort-arrow up" (click)="sortBy('user', 'down')" [ngClass]="{'active': !!this.active['userdown']}"></div>-->
-<!--          <div class="sort-arrow down" (click)="sortBy('user', 'up')" [ngClass]="{'active': !!this.active['userup']}"></div>-->
-<!--        </div>-->
         <div class="label">
           <span class="text"> Action </span>
         </div>
-<!--        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">-->
-<!--          <i class="material-icons">-->
-<!--            <span *ngIf="filterAuditData.actions.length > 0; else action_filtered">filter_list</span>-->
-<!--            <ng-template #action_filtered>more_vert</ng-template>-->
-<!--          </i>-->
-<!--        </button>-->
       </th>
       <td mat-cell *matCellDef=" let element">
         <div class="action-wrapper">
@@ -111,10 +101,6 @@
 
     <ng-container matColumnDef="date">
       <th mat-header-cell *matHeaderCellDef class="th_date label-header">
-<!--        <div class="sort">-->
-<!--          <div class="sort-arrow up" (click)="sortBy('project', 'down')" [ngClass]="{'active': !!this.active['projectdown']}"></div>-->
-<!--          <div class="sort-arrow down" (click)="sortBy('project', 'up')" [ngClass]="{'active': !!this.active['projectup']}"></div>-->
-<!--        </div>-->
         <div class="label"><span class="text">Date</span></div>
       </th>
       <td mat-cell *matCellDef="let element"> {{element.timestamp | date: 'dd/MM/yyyy hh:mm:ss aa'}} </td>
@@ -124,23 +110,23 @@
             <span>{{firstItem}}</span> - <span>{{(lastItem < allItems) ? lastItem: allItems}}</span> of <span>{{allItems}}</span>
           </span>
           <span>
-            <span [ngClass]="{'not-active': firstItem === 1}">
-              <span class="navigation-butts" (click)="loadItems('first')" [ngClass]="{'not-allowed': firstItem === 1}">
+            <span [ngClass]="{'not-active':  isNavigationDisabled || firstItem === 1}">
+              <span class="navigation-butts" (click)="loadItemsForPage('first')" [ngClass]="{'not-allowed': firstItem === 1 || isNavigationDisabled}">
                 <i class="material-icons">first_page</i>
               </span>
             </span>
-            <span [ngClass]="{'not-active': firstItem === 1}">
-              <span class="navigation-butts" (click)="loadItems('previous')" [ngClass]="{'not-allowed': firstItem === 1}">
+            <span [ngClass]="{'not-active': firstItem === 1 || isNavigationDisabled}">
+              <span class="navigation-butts" (click)="loadItemsForPage('previous')" [ngClass]="{'not-allowed': firstItem === 1 || isNavigationDisabled}">
                 <i class="material-icons">keyboard_arrow_left</i>
               </span>
             </span>
-            <span [ngClass]="{'not-active': lastItem >= allItems}">
-              <span class="navigation-butts" (click)="loadItems('next')" [ngClass]="{'not-allowed': lastItem >= allItems}">
+            <span [ngClass]="{'not-active': lastItem >= allItems || isNavigationDisabled}">
+              <span class="navigation-butts" (click)="loadItemsForPage('next')" [ngClass]="{'not-allowed': lastItem >= allItems || isNavigationDisabled}">
                 <i class="material-icons">keyboard_arrow_right</i>
               </span>
             </span>
-            <span [ngClass]="{'not-active': lastItem >= allItems}">
-              <span class="navigation-butts" (click)="loadItems('last')" [ngClass]="{'not-allowed': lastItem >= allItems}">
+            <span [ngClass]="{'not-active': lastItem >= allItems || isNavigationDisabled}">
+              <span class="navigation-butts" (click)="loadItemsForPage('last')" [ngClass]="{'not-allowed': lastItem >= allItems || isNavigationDisabled}">
                 <i class="material-icons">last_page</i>
               </span>
             </span>
@@ -172,29 +158,29 @@
 
     <ng-container matColumnDef="actions-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-<!--        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'actions'"-->
-<!--                               [items]="filterConfiguration.actions" [model]="filterAuditData.actions"></multi-select-dropdown>-->
       </th>
     </ng-container>
-<!--    <ng-container matColumnDef="date-filter">-->
-<!--      <th mat-header-cell *matHeaderCellDef class="filter-row-item">-->
-
-<!--      </th>-->
-<!--    </ng-container>-->
     <ng-container matColumnDef="action-filter" stickyEnd>
       <th mat-header-cell *matHeaderCellDef>
         <div class="actions audit-actions">
-<!--          <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()" [disabled]="filteredEnvironments.length == 0 && !filtering">-->
           <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
             <i class="material-icons">close</i>
           </button>
 
-          <button mat-icon-button class="btn apply" (click)="refreshAudit()">
-<!--                  [disabled]="filteredEnvironments.length == 0 && !filtering">-->
+          <button mat-icon-button class="btn apply" (click)="refreshAudit(true)" [disabled]="!didFilterChanged()">
             <i class="material-icons">done</i>
           </button>
         </div>
       </th>
+    </ng-container>
+
+    <ng-container matColumnDef="placeholder">
+      <td mat-footer-cell *matFooterCellDef colspan="5" class="info">
+        <span *ngIf="!filterConfiguration.users?.length;else noMatch">No data available</span>
+        <ng-template #noMatch>
+          <span>No matches found</span>
+        </ng-template>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
@@ -202,10 +188,8 @@
     <tr [hidden]="!collapseFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
       class="filter-row"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="content-row"></tr>
-    <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+    <tr [hidden]="!auditData?.length" mat-footer-row *matFooterRowDef="displayedColumns"></tr>
 
-<!--    <tr [hidden]="!auditData?.length" mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"-->
-<!--      class="header-row"></tr>-->
-<!--    <tr [hidden]="reportData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>-->
+    <tr [hidden]="auditData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
   </table>
 </section>

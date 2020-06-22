@@ -40,6 +40,8 @@ export class AuditGridComponent implements OnInit {
   public firstItem: number = 1;
   public lastItem: number;
   public allItems: number;
+  private copiedFilterAuditData: FilterAuditModel;
+  public isNavigationDisabled;
 
 
   constructor(
@@ -51,7 +53,7 @@ export class AuditGridComponent implements OnInit {
 
   ngOnInit() {}
 
-  public refreshAudit() {
+  public refreshAudit(filter?) {
     if (!this.showItemsPrPage) {
       if (window.localStorage.getItem('audit_per_page')) {
         this.showItemsPrPage = +window.localStorage.getItem('audit_per_page');
@@ -60,18 +62,20 @@ export class AuditGridComponent implements OnInit {
       }
       this.lastItem = this.showItemsPrPage;
     }
-   this.getAuditData();
+   this.getAuditData(filter);
   }
 
-  public getAuditData() {
-    const page = Math.ceil(this.lastItem / this.showItemsPrPage);
+  public getAuditData(filter?) {
+    const page = filter ? 1 : Math.ceil(this.lastItem / this.showItemsPrPage);
+    this.copiedFilterAuditData = JSON.parse(JSON.stringify(this.filterAuditData));
     this.auditService.getAuditData(this.filterAuditData, page, this.showItemsPrPage).subscribe(auditData => {
+      if (filter) this.changePage('first');
       this.auditData = auditData[0].audit;
       this.allItems = auditData[0]['page_count'];
       this.filterConfiguration = new FilterAuditModel(
-        auditData[0].user_filter,
-        auditData[0].resource_name_filter,
-        auditData[0].project_filter,
+        auditData[0].user_filter.filter(v => v),
+        auditData[0].resource_name_filter.filter(v => v),
+        auditData[0].project_filter.filter(v => v),
         [],
         '',
         ''
@@ -105,7 +109,7 @@ export class AuditGridComponent implements OnInit {
     }
   }
 
-  public loadItems(action) {
+  private changePage(action) {
     if (action === 'first') {
       this.firstItem = 1;
       this.lastItem = this.showItemsPrPage;
@@ -119,15 +123,24 @@ export class AuditGridComponent implements OnInit {
       this.firstItem = this.allItems % this.showItemsPrPage === 0 ? this.allItems - this.showItemsPrPage : this.allItems - (this.allItems % this.showItemsPrPage) + 1;
       this.lastItem = this.allItems;
     }
+  }
+
+  public loadItemsForPage(action) {
+    this.changePage(action);
     this.refreshAudit();
   }
 
-  resetFilterConfigurations() {
+  public resetFilterConfigurations() {
     this.filterAuditData = FilterAuditModel.getDefault();
-    this.refreshAudit();
-    console.log(this.filterAuditData);
+    this.refreshAudit(true);
+  }
+
+  public didFilterChanged() {
+    this.isNavigationDisabled = JSON.stringify(this.copiedFilterAuditData) !== JSON.stringify(this.filterAuditData);
+    return this.isNavigationDisabled;
   }
 }
+
 
 @Component({
   selector: 'audit-info-dialog',
@@ -137,7 +150,7 @@ export class AuditGridComponent implements OnInit {
               <h4 class="modal-title">{{data.action | convertaction}}</h4>
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
-          <div mat-dialog-content class="content audit-info-content">
+          <div mat-dialog-content class="content audit-info-content" [ngClass]="{'pb-40': actionList[0].length > 1}">
             <mat-list *ngIf="actionList[0].length > 1;else message">
               <mat-list-item class="list-header">
                 <div class="info-item-title">Action</div>
@@ -156,13 +169,12 @@ export class AuditGridComponent implements OnInit {
               <div class="message-wrapper">
                 <p>{{data.data}}.</p>
               </div>
-            </ng-template>
-          </div>
+          </ng-template></div>
       </div>
   `,
   styles: [`
-    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400; margin: 0; }
-    .info { color: #35afd5; }
+    .content { color: #718ba6; padding: 20px 30px; font-size: 14px; font-weight: 400; margin: 0; }
+    .pb-40 {  padding-bottom: 40px; }
     .info .confirm-dialog { color: #607D8B; }
     header { display: flex; justify-content: space-between; color: #607D8B; }
     header h4 i { vertical-align: bottom; }
@@ -170,10 +182,11 @@ export class AuditGridComponent implements OnInit {
     header a:hover i { color: #35afd5; cursor: pointer; }
     .scrolling-content{overflow-y: auto; max-height: 200px; }
     label{cursor: pointer}
-    .message-wrapper{height: 100%; display: flex; align-items: center}
+    .message-wrapper{min-height: 70px;; display: flex; align-items: center}
     .mat-list-wrapper{padding-top: 5px;}
     .list-item{color: #718ba6; height: auto; line-height: 20px;}
     .info-item-title{width: 35%; padding: 10px 0}
+    .list-header {padding-top: 5px;}
     .info-item-data{width: 65%; text-align: left; padding: 10px 0}
 
 
