@@ -28,7 +28,6 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.EnvDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SchedulerJobDAO;
-import com.epam.dlab.backendapi.domain.AuditActionEnum;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
@@ -64,6 +63,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL_SCHEDULER;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK_SCHEDULER;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.dto.UserInstanceStatus.CONFIGURING;
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
@@ -109,60 +111,60 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private RequestId requestId;
 
 	@Inject
-	@Named(PROVISIONING_SERVICE_NAME)
-	private RESTService provisioningService;
+    @Named(PROVISIONING_SERVICE_NAME)
+    private RESTService provisioningService;
 
-	@Override
-	public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String project, String exploratoryName) {
-		return schedulerJobDAO.fetchSingleSchedulerJobByUserAndExploratory(user, project, exploratoryName)
-				.orElseThrow(() -> new ResourceNotFoundException(String.format(SCHEDULER_NOT_FOUND_MSG, user,
-						exploratoryName)));
-	}
+    @Override
+    public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String project, String exploratoryName) {
+        return schedulerJobDAO.fetchSingleSchedulerJobByUserAndExploratory(user, project, exploratoryName)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SCHEDULER_NOT_FOUND_MSG, user,
+                        exploratoryName)));
+    }
 
-	@Override
-	public SchedulerJobDTO fetchSchedulerJobForComputationalResource(String user, String project, String exploratoryName,
-																	 String computationalName) {
-		return schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, project, exploratoryName, computationalName)
-				.orElseThrow(() -> new ResourceNotFoundException(String.format(SCHEDULER_NOT_FOUND_MSG, user,
-						exploratoryName) + " with computational resource " + computationalName));
-	}
+    @Override
+    public SchedulerJobDTO fetchSchedulerJobForComputationalResource(String user, String project, String exploratoryName,
+                                                                     String computationalName) {
+        return schedulerJobDAO.fetchSingleSchedulerJobForCluster(user, project, exploratoryName, computationalName)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(SCHEDULER_NOT_FOUND_MSG, user,
+                        exploratoryName) + " with computational resource " + computationalName));
+    }
 
-	@Audit(action = AuditActionEnum.CREATE_NOTEBOOK_SCHEDULER)
-	@Override
-	public void updateExploratorySchedulerData(@User UserInfo user, @Project String project, @ResourceName String exploratoryName, SchedulerJobDTO dto) {
-		validateExploratoryStatus(user.getName(), project, exploratoryName);
-		populateDefaultSchedulerValues(dto);
-		log.debug("Updating exploratory {} for user {} with new scheduler job data: {}...", exploratoryName, user,
-				dto);
-		exploratoryDAO.updateSchedulerDataForUserAndExploratory(user.getName(), project, exploratoryName, dto);
+    @Audit(action = CREATE, type = NOTEBOOK_SCHEDULER)
+    @Override
+    public void updateExploratorySchedulerData(@User UserInfo user, @Project String project, @ResourceName String exploratoryName, SchedulerJobDTO dto) {
+        validateExploratoryStatus(user.getName(), project, exploratoryName);
+        populateDefaultSchedulerValues(dto);
+        log.debug("Updating exploratory {} for user {} with new scheduler job data: {}...", exploratoryName, user,
+                dto);
+        exploratoryDAO.updateSchedulerDataForUserAndExploratory(user.getName(), project, exploratoryName, dto);
 
-		if (!dto.inactivityScheduler() && dto.isSyncStartRequired()) {
-			shareSchedulerJobDataToSparkClusters(user.getName(), project, exploratoryName, dto);
-		} else if (!dto.inactivityScheduler()) {
-			computationalDAO.updateSchedulerSyncFlag(user.getName(), project, exploratoryName, dto.isSyncStartRequired());
-		}
-	}
+        if (!dto.inactivityScheduler() && dto.isSyncStartRequired()) {
+            shareSchedulerJobDataToSparkClusters(user.getName(), project, exploratoryName, dto);
+        } else if (!dto.inactivityScheduler()) {
+            computationalDAO.updateSchedulerSyncFlag(user.getName(), project, exploratoryName, dto.isSyncStartRequired());
+        }
+    }
 
-	@Audit(action = AuditActionEnum.CREATE_COMPUTATIONAL_SCHEDULER)
-	@Override
-	public void updateComputationalSchedulerData(@User UserInfo user, @Project String project, String exploratoryName, @ResourceName String computationalName, SchedulerJobDTO dto) {
-		validateExploratoryStatus(user.getName(), project, exploratoryName);
-		validateComputationalStatus(user.getName(), project, exploratoryName, computationalName);
-		populateDefaultSchedulerValues(dto);
-		log.debug("Updating computational resource {} affiliated with exploratory {} for user {} with new scheduler " +
-				"job data {}...", computationalName, exploratoryName, user, dto);
-		computationalDAO.updateSchedulerDataForComputationalResource(user.getName(), project, exploratoryName, computationalName, dto);
-	}
+    @Audit(action = CREATE, type = COMPUTATIONAL_SCHEDULER)
+    @Override
+    public void updateComputationalSchedulerData(@User UserInfo user, @Project String project, String exploratoryName, @ResourceName String computationalName, SchedulerJobDTO dto) {
+        validateExploratoryStatus(user.getName(), project, exploratoryName);
+        validateComputationalStatus(user.getName(), project, exploratoryName, computationalName);
+        populateDefaultSchedulerValues(dto);
+        log.debug("Updating computational resource {} affiliated with exploratory {} for user {} with new scheduler " +
+                "job data {}...", computationalName, exploratoryName, user, dto);
+        computationalDAO.updateSchedulerDataForComputationalResource(user.getName(), project, exploratoryName, computationalName, dto);
+    }
 
-	@Override
-	public void stopComputationalByScheduler() {
-		getComputationalSchedulersForStopping(OffsetDateTime.now(), true)
-				.forEach(this::stopComputational);
-	}
+    @Override
+    public void stopComputationalByScheduler() {
+        getComputationalSchedulersForStopping(OffsetDateTime.now(), true)
+                .forEach(this::stopComputational);
+    }
 
-	@Override
-	public void stopExploratoryByScheduler() {
-		getExploratorySchedulersForStopping(OffsetDateTime.now(), true)
+    @Override
+    public void stopExploratoryByScheduler() {
+        getExploratorySchedulersForStopping(OffsetDateTime.now(), true)
 				.forEach(this::stopExploratory);
 	}
 

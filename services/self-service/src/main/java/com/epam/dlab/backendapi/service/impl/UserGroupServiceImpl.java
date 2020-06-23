@@ -50,9 +50,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE_GROUP;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.DELETE_GROUP;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE_GROUP;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.DELETE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.GROUP;
 
 @Singleton
 @Slf4j
@@ -83,7 +84,7 @@ public class UserGroupServiceImpl implements UserGroupService {
 		this.configuration = configuration;
 	}
 
-	@Audit(action = CREATE_GROUP)
+	@Audit(action = CREATE, type = GROUP)
 	@Override
 	public void createGroup(@User UserInfo userInfo, @ResourceName String group, Set<String> roleIds, Set<String> users) {
 		checkAnyRoleFound(roleIds, userRoleDao.addGroupToRole(Collections.singleton(group), roleIds));
@@ -109,7 +110,7 @@ public class UserGroupServiceImpl implements UserGroupService {
 		}
 	}
 
-	@Audit(action = DELETE_GROUP)
+	@Audit(action = DELETE, type = GROUP)
 	@Override
 	public void removeGroup(@User UserInfo userInfo, @ResourceName String groupId) {
 		if (projectDAO.getProjectsWithEndpointStatusNotIn(UserInstanceStatus.TERMINATED,
@@ -169,7 +170,8 @@ public class UserGroupServiceImpl implements UserGroupService {
 		AuditDTO auditDTO = AuditDTO.builder()
 				.user(user)
 				.resourceName(group)
-				.action(UPDATE_GROUP)
+				.action(UPDATE)
+				.type(GROUP)
 				.info(auditInfo)
 				.build();
 		auditService.save(auditDTO);

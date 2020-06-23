@@ -33,6 +33,7 @@ import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.domain.AuditActionEnum;
 import com.epam.dlab.backendapi.domain.AuditDTO;
+import com.epam.dlab.backendapi.domain.AuditResourceTypeEnum;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -73,11 +74,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE_NOTEBOOK;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.START_NOTEBOOK;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.STOP_NOTEBOOK;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.TERMINATE_NOTEBOOK;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE_CLUSTER_CONFIG;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.START;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.STOP;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.TERMINATE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK_CONFIG;
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
 import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
@@ -128,26 +132,26 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	@BudgetLimited
-    @Audit(action = START_NOTEBOOK)
-    @Override
-    public String start(@User UserInfo userInfo, @ResourceName String exploratoryName, @Project String project, @Info String auditInfo) {
-        return action(userInfo, userInfo.getName(), project, exploratoryName, EXPLORATORY_START, STARTING);
-    }
+	@Audit(action = START, type = NOTEBOOK)
+	@Override
+	public String start(@User UserInfo userInfo, @ResourceName String exploratoryName, @Project String project, @Info String auditInfo) {
+		return action(userInfo, userInfo.getName(), project, exploratoryName, EXPLORATORY_START, STARTING);
+	}
 
-    @Audit(action = STOP_NOTEBOOK)
-    @Override
-    public String stop(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
-        return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_STOP, STOPPING);
-    }
+	@Audit(action = STOP, type = NOTEBOOK)
+	@Override
+	public String stop(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
+		return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_STOP, STOPPING);
+	}
 
-    @Audit(action = TERMINATE_NOTEBOOK)
-    @Override
-    public String terminate(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
-        return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_TERMINATE, TERMINATING);
-    }
+	@Audit(action = TERMINATE, type = NOTEBOOK)
+	@Override
+	public String terminate(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
+		return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_TERMINATE, TERMINATING);
+	}
 
 	@BudgetLimited
-	@Audit(action = CREATE_NOTEBOOK)
+	@Audit(action = CREATE, type = NOTEBOOK)
 	@Override
 	public String create(@User UserInfo userInfo, Exploratory exploratory, @Project String project, @ResourceName String exploratoryName) {
 		boolean isAdded = false;
@@ -184,7 +188,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.forEach(ui -> updateExploratoryStatus(project, ui.getExploratoryName(), status, ui.getUser()));
 	}
 
-	@Audit(action = UPDATE_CLUSTER_CONFIG)
+	@Audit(action = UPDATE, type = NOTEBOOK_CONFIG)
 	@Override
 	public void updateClusterConfig(@User UserInfo userInfo, @Project String project, @ResourceName String exploratoryName, List<ClusterConfig> config) {
 		final String userName = userInfo.getName();
@@ -304,12 +308,12 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 
 		if (status == STOPPING) {
 			if (configuration.isAuditEnabled()) {
-				saveAudit(project, exploratoryName, user, AuditActionEnum.STOP_COMPUTATIONAL);
+				saveAudit(project, exploratoryName, user, STOP, COMPUTATIONAL);
 			}
 			updateComputationalStatuses(user, project, exploratoryName, STOPPING, TERMINATING, FAILED, TERMINATED, STOPPED);
 		} else if (status == TERMINATING) {
 			if (configuration.isAuditEnabled()) {
-				saveAudit(project, exploratoryName, user, AuditActionEnum.TERMINATE_COMPUTATIONAL);
+				saveAudit(project, exploratoryName, user, TERMINATE, COMPUTATIONAL);
 			}
 			updateComputationalStatuses(user, project, exploratoryName, TERMINATING, TERMINATING, TERMINATED, FAILED);
 		} else if (status == TERMINATED) {
@@ -317,15 +321,17 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		}
 	}
 
-	private void saveAudit(String project, String exploratoryName, String user, AuditActionEnum action) {
+	private void saveAudit(String project, String exploratoryName, String user, AuditActionEnum action, AuditResourceTypeEnum type) {
 		computationalDAO.getComputationalResourcesWhereStatusIn(user, project, Arrays.asList(DataEngineType.SPARK_STANDALONE, DataEngineType.CLOUD_SERVICE),
 				exploratoryName, RUNNING)
-				.forEach(comp -> auditService.save(AuditDTO.builder()
-						.user(user)
-						.resourceName(comp)
-						.project(project)
-						.action(action)
-						.build())
+				.forEach(comp -> auditService.save(
+						AuditDTO.builder()
+								.user(user)
+								.resourceName(comp)
+								.project(project)
+								.action(action)
+								.type(type)
+								.build())
 				);
 	}
 

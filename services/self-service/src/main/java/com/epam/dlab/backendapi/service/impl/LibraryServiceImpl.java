@@ -64,8 +64,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.INSTALL_COMPUTATIONAL_LIBS;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.INSTALL_NOTEBOOK_LIBS;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.INSTALL;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL_LIBS;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK_LIBS;
 
 @Slf4j
 @Singleton
@@ -138,7 +139,7 @@ public class LibraryServiceImpl implements LibraryService {
         return libInfoRecords;
     }
 
-    @Audit(action = INSTALL_COMPUTATIONAL_LIBS)
+    @Audit(action = INSTALL, type = COMPUTATIONAL_LIBS)
     @Override
     public String installComputationalLibs(@User UserInfo ui, @Project String project, String expName, @ResourceName String compName, List<LibInstallDTO> libs, @Info String auditInfo) {
         final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(ui.getName(), project, expName, compName);
@@ -151,7 +152,7 @@ public class LibraryServiceImpl implements LibraryService {
         return uuid;
     }
 
-    @Audit(action = INSTALL_NOTEBOOK_LIBS)
+    @Audit(action = INSTALL, type = NOTEBOOK_LIBS)
     @Override
     public String installExploratoryLibs(@User UserInfo ui, @Project String project, @ResourceName String expName, List<LibInstallDTO> libs, @Info String auditInfo) {
         final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), project, expName);

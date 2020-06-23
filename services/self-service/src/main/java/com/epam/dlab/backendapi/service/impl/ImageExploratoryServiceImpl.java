@@ -58,51 +58,52 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE_IMAGE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.IMAGE;
 
 @Singleton
 @Slf4j
 public class ImageExploratoryServiceImpl implements ImageExploratoryService {
-	private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist in project %s";
-	private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
+    private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist in project %s";
+    private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
 
-	@Inject
-	private ExploratoryDAO exploratoryDAO;
-	@Inject
-	private ImageExploratoryDao imageExploratoryDao;
-	@Inject
-	private ExploratoryLibDAO libDAO;
-	@Inject
-	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-	private RESTService provisioningService;
-	@Inject
-	private RequestBuilder requestBuilder;
-	@Inject
-	private EndpointService endpointService;
-	@Inject
-	private ProjectService projectService;
+    @Inject
+    private ExploratoryDAO exploratoryDAO;
+    @Inject
+    private ImageExploratoryDao imageExploratoryDao;
+    @Inject
+    private ExploratoryLibDAO libDAO;
+    @Inject
+    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
+    private RESTService provisioningService;
+    @Inject
+    private RequestBuilder requestBuilder;
+    @Inject
+    private EndpointService endpointService;
+    @Inject
+    private ProjectService projectService;
 
-	@Audit(action = CREATE_IMAGE)
-	@Override
-	public String createImage(@User UserInfo user, @Project String project, @ResourceName String exploratoryName, String imageName, String imageDescription, @Info String info) {
-		ProjectDTO projectDTO = projectService.get(project);
-		UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), project, exploratoryName);
+    @Audit(action = CREATE, type = IMAGE)
+    @Override
+    public String createImage(@User UserInfo user, @Project String project, @ResourceName String exploratoryName, String imageName, String imageDescription, @Info String info) {
+        ProjectDTO projectDTO = projectService.get(project);
+        UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), project, exploratoryName);
 
-		if (imageExploratoryDao.exist(imageName, userInstance.getProject())) {
-			log.error(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
-			throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
-		}
-		final List<Library> libraries = libDAO.getLibraries(user.getName(), project, exploratoryName);
+        if (imageExploratoryDao.exist(imageName, userInstance.getProject())) {
+            log.error(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
+            throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName, userInstance.getProject()));
+        }
+        final List<Library> libraries = libDAO.getLibraries(user.getName(), project, exploratoryName);
 
-		imageExploratoryDao.save(Image.builder()
-				.name(imageName)
-				.description(imageDescription)
-				.status(ImageStatus.CREATING)
-				.user(user.getName())
-				.libraries(fetchExploratoryLibs(libraries))
-				.computationalLibraries(fetchComputationalLibs(libraries))
-				.dockerImage(userInstance.getImageName())
-				.exploratoryId(userInstance.getId())
+        imageExploratoryDao.save(Image.builder()
+                .name(imageName)
+                .description(imageDescription)
+                .status(ImageStatus.CREATING)
+                .user(user.getName())
+                .libraries(fetchExploratoryLibs(libraries))
+                .computationalLibraries(fetchComputationalLibs(libraries))
+                .dockerImage(userInstance.getImageName())
+                .exploratoryId(userInstance.getId())
 				.project(userInstance.getProject())
 				.endpoint(userInstance.getEndpoint())
 				.build());

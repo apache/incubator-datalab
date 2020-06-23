@@ -20,6 +20,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
@@ -104,31 +105,32 @@ public class ExploratoryServiceImplTest {
     private ComputationalDAO computationalDAO;
     @Mock
     private GitCredsDAO gitCredsDAO;
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
     @Mock
-	private RESTService provisioningService;
-	@Mock
-	private RequestBuilder requestBuilder;
-	@Mock
-	private RequestId requestId;
-	@Mock
-	private TagService tagService;
-	@Mock
-	private EndpointService endpointService;
+    private RESTService provisioningService;
+    @Mock
+    private RequestBuilder requestBuilder;
+    @Mock
+    private RequestId requestId;
+    @Mock
+    private TagService tagService;
+    @Mock
+    private EndpointService endpointService;
+    @Mock
+    private SelfServiceApplicationConfiguration configuration;
+    @InjectMocks
+    private ExploratoryServiceImpl exploratoryService;
 
-	@InjectMocks
-	private ExploratoryServiceImpl exploratoryService;
+    @Before
+    public void setUp() {
+        when(configuration.isAuditEnabled()).thenReturn(false);
+        userInfo = getUserInfo();
+        userInstance = getUserInstanceDto();
+    }
 
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
-
-	@Before
-	public void setUp() {
-		userInfo = getUserInfo();
-		userInstance = getUserInstanceDto();
-	}
-
-	@Test
-	public void start() {
+    @Test
+    public void start() {
         when(endpointService.get(anyString())).thenReturn(endpointDTO());
         when(exploratoryDAO.updateExploratoryStatus(any(StatusEnvBaseDTO.class))).thenReturn(mock(UpdateResult.class));
         when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(userInstance);

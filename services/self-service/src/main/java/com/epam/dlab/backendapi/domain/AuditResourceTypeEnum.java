@@ -19,21 +19,7 @@
 
 package com.epam.dlab.backendapi.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
-import lombok.Data;
-
-import java.util.Date;
-
-@Data
-@Builder
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class AuditDTO {
-    private final String user;
-    private final AuditActionEnum action;
-    private final AuditResourceTypeEnum type;
-    private final String project;
-    private final String resourceName;
-    private final String info;
-    private Date timestamp;
+public enum AuditResourceTypeEnum {
+    PROJECT, EDGE_NODE, NOTEBOOK, NOTEBOOK_SCHEDULER, NOTEBOOK_CONFIG, COMPUTATIONAL, COMPUTATIONAL_LIBS, COMPUTATIONAL_SCHEDULER, COMPUTATIONAL_CONFIG,
+    BUCKET, ENDPOINT, NOTEBOOK_LIBS, GROUP, IMAGE, GIT_ACCOUNT, LOG_IN
 }

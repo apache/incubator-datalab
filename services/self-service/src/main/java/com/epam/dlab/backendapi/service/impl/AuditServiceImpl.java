@@ -20,7 +20,6 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.dao.AuditDAO;
-import com.epam.dlab.backendapi.domain.AuditActionEnum;
 import com.epam.dlab.backendapi.domain.AuditCreateDTO;
 import com.epam.dlab.backendapi.domain.AuditDTO;
 import com.epam.dlab.backendapi.domain.AuditPaginationDTO;
@@ -28,6 +27,9 @@ import com.epam.dlab.backendapi.service.AuditService;
 import com.google.inject.Inject;
 
 import java.util.List;
+
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.FOLLOW_LINK;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
 
 public class AuditServiceImpl implements AuditService {
     private final AuditDAO auditDAO;
@@ -47,10 +49,10 @@ public class AuditServiceImpl implements AuditService {
         AuditDTO auditDTO = AuditDTO.builder()
                 .user(user)
                 .resourceName(audit.getResourceName())
-                .action(AuditActionEnum.FOLLOW_NOTEBOOK_LINK)
+                .action(FOLLOW_LINK)
+                .type(NOTEBOOK)
                 .info(audit.getInfo())
                 .build();
-
         auditDAO.save(auditDTO);
     }
 

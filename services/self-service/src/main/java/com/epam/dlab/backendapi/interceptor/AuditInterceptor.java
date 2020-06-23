@@ -27,6 +27,7 @@ import com.epam.dlab.backendapi.annotation.ResourceName;
 import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.domain.AuditActionEnum;
 import com.epam.dlab.backendapi.domain.AuditDTO;
+import com.epam.dlab.backendapi.domain.AuditResourceTypeEnum;
 import com.epam.dlab.backendapi.service.AuditService;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -51,7 +52,8 @@ public class AuditInterceptor implements MethodInterceptor {
         Method method = mi.getMethod();
         final Parameter[] parameters = mi.getMethod().getParameters();
         final String user = getUserInfo(mi, parameters);
-        final AuditActionEnum action = getAuditActionEnum(method);
+        final AuditActionEnum action = getAuditAction(method);
+        final AuditResourceTypeEnum resourceType = getResourceType(method);
         final String project = getProject(mi, parameters);
         final String resourceName = getResourceName(mi, parameters);
         final String auditInfo = getInfo(mi, parameters);
@@ -59,6 +61,7 @@ public class AuditInterceptor implements MethodInterceptor {
         AuditDTO auditCreateDTO = AuditDTO.builder()
                 .user(user)
                 .action(action)
+                .type(resourceType)
                 .project(project)
                 .resourceName(resourceName)
                 .info(auditInfo)
@@ -75,11 +78,20 @@ public class AuditInterceptor implements MethodInterceptor {
                 .orElseThrow(() -> new DlabException("UserInfo parameter wanted!"));
     }
 
-    private AuditActionEnum getAuditActionEnum(Method method) {
+    private AuditActionEnum getAuditAction(Method method) {
         Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
         return IntStream.range(0, method.getDeclaredAnnotations().length)
                 .filter(i -> declaredAnnotations[i] instanceof Audit)
                 .mapToObj(i -> ((Audit) declaredAnnotations[i]).action())
+                .findAny()
+                .orElseThrow(() -> new DlabException("'Audit' annotation wanted!"));
+    }
+
+    private AuditResourceTypeEnum getResourceType(Method method) {
+        Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
+        return IntStream.range(0, method.getDeclaredAnnotations().length)
+                .filter(i -> declaredAnnotations[i] instanceof Audit)
+                .mapToObj(i -> ((Audit) declaredAnnotations[i]).type())
                 .findAny()
                 .orElseThrow(() -> new DlabException("'Audit' annotation wanted!"));
     }

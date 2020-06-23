@@ -63,17 +63,17 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvironmentServiceImplTest {
-	private static final String AUDIT_QUOTA_MESSAGE = "Billing quota reached";
-	private static final String AUDIT_MESSAGE = "Notebook name: %s";
-	private static final String DLAB_SYSTEM_USER = "DLab system user";
-	private static final String USER = "test";
-	private static final String EXPLORATORY_NAME_1 = "expName1";
-	private static final String EXPLORATORY_NAME_2 = "expName2";
-	private static final String TOKEN = "token";
-	private static final String UUID = "213-12312-321";
-	private static final String PROJECT_NAME = "projectName";
-	private static final String ENDPOINT_NAME = "endpointName";
-	private static final String ADMIN = "admin";
+    private static final String AUDIT_QUOTA_MESSAGE = "Billing quota reached";
+    private static final String AUDIT_MESSAGE = "Notebook name %s";
+    private static final String DLAB_SYSTEM_USER = "DLab system user";
+    private static final String USER = "test";
+    private static final String EXPLORATORY_NAME_1 = "expName1";
+    private static final String EXPLORATORY_NAME_2 = "expName2";
+    private static final String TOKEN = "token";
+    private static final String UUID = "213-12312-321";
+    private static final String PROJECT_NAME = "projectName";
+    private static final String ENDPOINT_NAME = "endpointName";
+    private static final String ADMIN = "admin";
 
 	@Mock
 	private EnvDAO envDAO;

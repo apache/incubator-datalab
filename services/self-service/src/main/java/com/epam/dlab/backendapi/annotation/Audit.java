@@ -20,6 +20,7 @@
 package com.epam.dlab.backendapi.annotation;
 
 import com.epam.dlab.backendapi.domain.AuditActionEnum;
+import com.epam.dlab.backendapi.domain.AuditResourceTypeEnum;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -30,4 +31,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Audit {
     AuditActionEnum action();
+
+    AuditResourceTypeEnum type();
 }
