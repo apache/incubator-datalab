@@ -107,16 +107,8 @@ public class ExploratoryDAO extends BaseDAO {
 						eq(COMPUTATIONAL_RESOURCES + "." + STATUS, UserInstanceStatus.RUNNING.toString())));
 	}
 
-	/**
-	 * Finds and returns the list of user resources.
-	 *
-	 * @param user name
-	 * @return list of user resources
-	 */
-	public Iterable<Document> findExploratories(String user, String project) {
-		return find(USER_INSTANCES, and(eq(USER, user), eq(PROJECT, project)),
-				fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS, ExploratoryLibDAO.COMPUTATIONAL_LIBS, SCHEDULER_DATA,
-						EXPLORATORY_USER, EXPLORATORY_PASS)));
+	public List<UserInstanceDTO> findExploratories(String user, String project) {
+		return getUserInstances(and(eq(USER, user), eq(PROJECT, project)), true);
 	}
 
 	/**
