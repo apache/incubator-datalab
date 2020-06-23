@@ -11,11 +11,14 @@ export class AuditService {
 
   public getAuditData(filterData, page, itemsPrPage) {
     let queryString = `?page-number=${page}&page-size=${itemsPrPage}`;
-    if (filterData.project.length) {
-      queryString += `&projects=${filterData.project.join(',')}`;
+    if (filterData.projects.length) {
+      queryString += `&projects=${filterData.projects.join(',')}`;
     }
-    if (filterData.resource.length) {
-      queryString += `&resource-names=${filterData.resource.join(',')}`;
+    if (filterData.resources.length) {
+      queryString += `&resource-names=${filterData.resources.join(',')}`;
+    }
+    if (filterData.resource_types.length) {
+      queryString += `&resource_types=${filterData.resource_types.map(v => v.toLowerCase()).join(',')}`;
     }
     if (filterData.users.length) {
       queryString += `&users=${filterData.users.join(',')}`;

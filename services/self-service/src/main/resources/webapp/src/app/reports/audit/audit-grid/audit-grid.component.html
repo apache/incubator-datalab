@@ -39,7 +39,7 @@
         <div class="label"><span class="text">Project</span></div>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filterAuditData.project.length > 0; else user_filtered">filter_list</span>
+            <span *ngIf="filterAuditData.projects.length > 0; else user_filtered">filter_list</span>
             <ng-template #user_filtered>more_vert</ng-template>
           </i>
         </button>
@@ -53,73 +53,33 @@
         <div class="label"><span class="text">Resource type</span></div>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
-            <span *ngIf="filterAuditData.resource.length > 0; else user_filtered">filter_list</span>
+            <span *ngIf="filterAuditData.resource_types.length > 0; else user_filtered">filter_list</span>
             <ng-template #user_filtered>more_vert</ng-template>
           </i>
         </button>
       </th>
-      <td mat-cell *matCellDef="let element"><span class="table-item">{{element.resourceName || 'N/A'}}</span></td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
-    </ng-container>
-
-    <ng-container matColumnDef="resource">
-      <th mat-header-cell *matHeaderCellDef class="th_resource label-header">
-        <div class="label"><span class="text">Resource</span></div>
-        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
-          <i class="material-icons">
-            <span *ngIf="filterAuditData.resource.length > 0; else user_filtered">filter_list</span>
-            <ng-template #user_filtered>more_vert</ng-template>
-          </i>
-        </button>
-      </th>
-      <td mat-cell *matCellDef="let element"><span class="table-item">{{element.resourceName || 'N/A'}}</span></td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
-    </ng-container>
-
-    <ng-container matColumnDef="action">
-      <th mat-header-cell *matHeaderCellDef class="th_action label-header">
-        <div class="label">
-          <span class="text"> Action </span>
-        </div>
-      </th>
-      <td mat-cell *matCellDef=" let element">
-        <div class="action-wrapper">
-          <span>{{element.action | convertaction }}</span>
-          <div class="audit-info" (click)="openActionInfo(element)" *ngIf="element.info">
-            <i class="material-icons">info</i>
-          </div>
-        </div>
-      </td>
-      <td mat-footer-cell *matFooterCellDef  class="table-footer">
-        <div class="selected-items-wrapper">
-         <span>Items per page:</span>
-          <div class="select-wrapper">
-            <div class="mat-reset">
-              <div class="control selector-wrapper">
-                <mat-form-field>
-                  <mat-label></mat-label>
-                  <mat-select [(value)]="showItemsPrPage">
-                   <mat-option *ngFor="let item of itemsPrPage" [value]="item" (click)="setItemsPrPage(item)">
-                      {{ item }}</mat-option>
-                   </mat-select>
-                  <button class="caret">
-                    <i class="material-icons">keyboard_arrow_down</i>
-                  </button>
-                </mat-form-field>
+      <td mat-cell *matCellDef="let element"><span class="table-item">{{element.type ? (element.type | convertaction) : 'N/A'}}</span></td>
+      <td mat-footer-cell *matFooterCellDef class="table-footer" [colSpan]="3" >
+        <div class="pagination-wrapper">
+          <div class="selected-items-wrapper">
+            <span>Items per page:</span>
+            <div class="select-wrapper">
+              <div class="mat-reset">
+                <div class="control selector-wrapper">
+                  <mat-form-field>
+                    <mat-label></mat-label>
+                    <mat-select [(value)]="showItemsPrPage">
+                      <mat-option *ngFor="let item of itemsPrPage" [value]="item" (click)="setItemsPrPage(item)">
+                        {{ item }}</mat-option>
+                    </mat-select>
+                    <button class="caret">
+                      <i class="material-icons">keyboard_arrow_down</i>
+                    </button>
+                  </mat-form-field>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef class="th_date label-header">
-        <div class="label"><span class="text">Date</span></div>
-      </th>
-      <td mat-cell *matCellDef="let element"> {{element.timestamp | date: 'dd/MM/yyyy hh:mm:ss aa'}} </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer">
-        <div class="pagination-wrapper">
           <span>
             <span>{{firstItem}}</span> - <span>{{(lastItem < allItems) ? lastItem: allItems}}</span> of <span>{{allItems}}</span>
           </span>
@@ -149,12 +109,56 @@
       </td>
     </ng-container>
 
+    <ng-container matColumnDef="resource">
+      <th mat-header-cell *matHeaderCellDef class="th_resource label-header">
+        <div class="label"><span class="text">Resource</span></div>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span *ngIf="filterAuditData.resources.length > 0; else user_filtered">filter_list</span>
+            <ng-template #user_filtered>more_vert</ng-template>
+          </i>
+        </button>
+      </th>
+      <td mat-cell *matCellDef="let element"><span class="table-item">{{element.resourceName || 'N/A'}}</span></td>
+      <td mat-footer-cell *matFooterCellDef class="table-footer" [hidden]="true">
+
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef class="th_action label-header">
+        <div class="label">
+          <span class="text"> Action </span>
+        </div>
+      </th>
+      <td mat-cell *matCellDef=" let element">
+        <div class="action-wrapper">
+          <span>{{element.action | convertaction }}</span>
+          <div class="audit-info" (click)="openActionInfo(element)" *ngIf="element.info">
+            <i class="material-icons">info</i>
+          </div>
+        </div>
+      </td>
+      <td mat-footer-cell *matFooterCellDef  class="table-footer"></td>
+    </ng-container>
+
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef class="th_date label-header">
+        <div class="label"><span class="text">Date</span></div>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.timestamp | date: 'dd/MM/yyyy hh:mm:ss aa'}} </td>
+      <td mat-footer-cell *matFooterCellDef class="table-footer">
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="buttons">
       <th mat-header-cell *matHeaderCellDef class="th_buttons label-header"></th>
       <td mat-cell *matCellDef="let element"></td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+      <td mat-footer-cell *matFooterCellDef class="table-footer" [hidden]="true">
+      </td>
     </ng-container>
 
+<!--   AUDIT FILTER-->
     <ng-container matColumnDef="user-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'users'"
@@ -165,21 +169,21 @@
     <ng-container matColumnDef="project-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'projects'"
-                               [items]="filterConfiguration.project" [model]="filterAuditData.project"></multi-select-dropdown>
+                               [items]="filterConfiguration.projects" [model]="filterAuditData.projects"></multi-select-dropdown>
       </th>
     </ng-container>
 
     <ng-container matColumnDef="resource-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'resources'"
-                               [items]="filterConfiguration.resource" [model]="filterAuditData.resource"></multi-select-dropdown>
+                               [items]="filterConfiguration.resources" [model]="filterAuditData.resources"></multi-select-dropdown>
       </th>
     </ng-container>
 
     <ng-container matColumnDef="resource-type-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'resources'"
-                               [items]="filterConfiguration.resource" [model]="filterAuditData.resource"></multi-select-dropdown>
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'resource_types'"
+                               [items]="filterConfiguration.resource_types" [model]="filterAuditData.resource_types"></multi-select-dropdown>
       </th>
     </ng-container>
 
@@ -208,7 +212,7 @@
     </ng-container>
 
     <ng-container matColumnDef="placeholder">
-      <td mat-footer-cell *matFooterCellDef colspan="5" class="info">
+      <td mat-footer-cell *matFooterCellDef colspan="7" class="info">
         <span *ngIf="!filterConfiguration.users?.length;else noMatch">No data available</span>
         <ng-template #noMatch>
           <span>No matches found</span>

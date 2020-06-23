@@ -33,8 +33,8 @@ export class AuditGridComponent implements OnInit {
   public displayedColumns: string[] = ['date', 'user', 'action', 'project', 'resource-type', 'resource', 'buttons'];
   public displayedFilterColumns: string[] = ['action-filter', 'user-filter', 'actions-filter',  'project-filter', 'resource-type-filter', 'resource-filter', 'filter-buttons'];
   public collapseFilterRow: boolean = true;
-  public filterConfiguration: FilterAuditModel = new FilterAuditModel([], [], [], [], '', '');
-  public filterAuditData: FilterAuditModel = new FilterAuditModel([], [], [], [], '', '');
+  public filterConfiguration: FilterAuditModel = new FilterAuditModel([], [], [], [], [], '', '');
+  public filterAuditData: FilterAuditModel = new FilterAuditModel([], [], [], [], [], '', '');
   public itemsPrPage: Number[] = [25, 50, 100];
   public showItemsPrPage: number;
   public firstItem: number = 1;
@@ -75,6 +75,7 @@ export class AuditGridComponent implements OnInit {
       this.filterConfiguration = new FilterAuditModel(
         auditData[0].user_filter.filter(v => v),
         auditData[0].resource_name_filter.filter(v => v),
+        auditData[0].resource_type_filter.filter(v => v),
         auditData[0].project_filter.filter(v => v),
         [],
         '',
@@ -188,9 +189,9 @@ export class AuditGridComponent implements OnInit {
     .message-wrapper{min-height: 70px;; display: flex; align-items: center}
     .mat-list-wrapper{padding-top: 5px;}
     .list-item{color: #718ba6; height: auto; line-height: 20px;}
-    .info-item-title{width: 35%; padding: 10px 0}
+    .info-item-title{width: 40%; padding: 10px 0}
     .list-header {padding-top: 5px;}
-    .info-item-data{width: 65%; text-align: left; padding: 10px 0}
+    .info-item-data{width: 60%; text-align: left; padding: 10px 0}
 
 
   `]

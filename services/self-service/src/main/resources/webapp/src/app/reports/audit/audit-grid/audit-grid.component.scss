@@ -32,27 +32,27 @@
 
     tr {
       .th_user {
-        width: 18%;
+        width: 19%;
       }
 
       .th_action {
-        width: 10%;
+        width: 11%;
       }
 
       .th_date {
-        width: 13%;
+        width: 14%;
       }
 
       .th_project{
-        width: 10%;
+        width: 11%;
       }
 
       .th_resource{
-        width: 10%;
+        width: 11%;
       }
 
       .th_resource-type{
-        width: 13%;
+        width: 14%;
       }
 
       .th_buttons{
@@ -257,6 +257,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-right: 30px;
   .navigation-butts{
     cursor: pointer;
     .not-active{
@@ -272,3 +273,4 @@
 .audit-user{
   padding-left: 14px;
 }
+
