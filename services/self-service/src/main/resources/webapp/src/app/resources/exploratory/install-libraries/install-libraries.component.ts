@@ -101,8 +101,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    clearTimeout(this.loadLibsTimer);
-    clearTimeout(this.clear);
+    window.clearTimeout(this.loadLibsTimer);
+    window.clearTimeout(this.clear);
   }
 
   uploadLibGroups(): void {
@@ -217,8 +217,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
  }
 
   public showErrorMessage(item): void {
-    const dialogRef: MatDialogRef<ErrorMessageDialogComponent> = this.dialog.open(
-      ErrorMessageDialogComponent, { data: item.error, width: '550px', panelClass: 'error-modalbox' });
+    const dialogRef: MatDialogRef<ErrorLibMessageDialogComponent> = this.dialog.open(
+      ErrorLibMessageDialogComponent, { data: item.error, width: '550px', panelClass: 'error-modalbox' });
   }
 
   public isInstallingInProgress(): void {
@@ -376,9 +376,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   `
   ]
 })
-export class ErrorMessageDialogComponent {
+export class ErrorLibMessageDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ErrorMessageDialogComponent>,
+    public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 }

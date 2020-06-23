@@ -61,7 +61,7 @@ export class BucketBrowserComponent implements OnInit {
   public isSelectionOpened: any;
   public isFilterVisible: boolean;
   public buckets;
-  private isFileUploading: boolean;
+  public isFileUploading: boolean;
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
 
