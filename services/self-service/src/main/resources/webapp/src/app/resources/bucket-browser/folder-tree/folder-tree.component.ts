@@ -33,11 +33,11 @@ export class FolderTreeComponent implements OnDestroy {
 
   private folderTreeSubs;
   private path = [];
-  private selectedFolder: TodoItemFlatNode;
+  public selectedFolder: TodoItemFlatNode;
   private flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
   private nestedNodeMap = new Map<TodoItemNode, TodoItemFlatNode>();
 
-  private folderCreating = false;
+  public folderCreating = false;
   private subscriptions: Subscription = new Subscription();
   public treeControl: FlatTreeControl<TodoItemFlatNode>;
   private treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
@@ -46,7 +46,7 @@ export class FolderTreeComponent implements OnDestroy {
   constructor(
     public toastr: ToastrService,
     private bucketBrowserService: BucketBrowserService,
-    private bucketDataService: BucketDataService,
+    public bucketDataService: BucketDataService,
   ) {
     this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel, this.isExpandable, this.getChildren);
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);

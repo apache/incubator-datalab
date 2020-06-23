@@ -29,7 +29,6 @@ import { LibrariesInstallationService } from '../../../core/services';
 import { SortUtils, HTTP_STATUS_CODES } from '../../../core/util';
 import {FilterLibsModel} from './filter-libs.model';
 
-
 @Component({
   selector: 'install-libraries',
   templateUrl: './install-libraries.component.html',
@@ -101,8 +100,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    clearTimeout(this.loadLibsTimer);
-    clearTimeout(this.clear);
+    window.clearTimeout(this.loadLibsTimer);
+    window.clearTimeout(this.clear);
   }
 
   uploadLibGroups(): void {
@@ -217,8 +216,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
  }
 
   public showErrorMessage(item): void {
-    const dialogRef: MatDialogRef<ErrorMessageDialogComponent> = this.dialog.open(
-      ErrorMessageDialogComponent, { data: item.error, width: '550px', panelClass: 'error-modalbox' });
+    const dialogRef: MatDialogRef<ErrorLibMessageDialogComponent> = this.dialog.open(
+      ErrorLibMessageDialogComponent, { data: item.error, width: '550px', panelClass: 'error-modalbox' });
   }
 
   public isInstallingInProgress(): void {
@@ -367,12 +366,11 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   <div class="text-center">
     <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>
   </div>
-  `,
-  styles: []
+  `
 })
-export class ErrorMessageDialogComponent {
+export class ErrorLibMessageDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<ErrorMessageDialogComponent>,
+    public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 }
