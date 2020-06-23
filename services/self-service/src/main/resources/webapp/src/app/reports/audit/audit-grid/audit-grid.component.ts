@@ -30,8 +30,8 @@ import {AuditService} from '../../../core/services/audit.service';
 })
 export class AuditGridComponent implements OnInit {
   public auditData: Array<object>;
-  public displayedColumns: string[] = ['user', 'project', 'resource', 'action', 'date'];
-  public displayedFilterColumns: string[] = ['user-filter', 'project-filter', 'resource-filter', 'actions-filter', 'action-filter'];
+  public displayedColumns: string[] = ['date', 'user', 'action', 'project', 'resource-type', 'resource', 'buttons'];
+  public displayedFilterColumns: string[] = ['action-filter', 'user-filter', 'actions-filter',  'project-filter', 'resource-type-filter', 'resource-filter', 'filter-buttons'];
   public collapseFilterRow: boolean = true;
   public filterConfiguration: FilterAuditModel = new FilterAuditModel([], [], [], [], '', '');
   public filterAuditData: FilterAuditModel = new FilterAuditModel([], [], [], [], '', '');
@@ -115,12 +115,15 @@ export class AuditGridComponent implements OnInit {
       this.lastItem = this.showItemsPrPage;
     } else if (action === 'previous') {
       this.firstItem = this.firstItem - this.showItemsPrPage;
-      this.lastItem = this.lastItem % this.showItemsPrPage === 0 ? this.lastItem - this.showItemsPrPage : this.lastItem - (this.lastItem % this.showItemsPrPage);
+      this.lastItem = this.lastItem % this.showItemsPrPage === 0 ?
+        this.lastItem - this.showItemsPrPage : this.lastItem - (this.lastItem % this.showItemsPrPage);
     } else if (action === 'next') {
       this.firstItem = this.firstItem + this.showItemsPrPage;
-      this.lastItem = (this.lastItem + this.showItemsPrPage) > this.allItems ? this.allItems : this.lastItem + this.showItemsPrPage;
+      this.lastItem = (this.lastItem + this.showItemsPrPage) > this.allItems ?
+        this.allItems : this.lastItem + this.showItemsPrPage;
     } else if (action === 'last') {
-      this.firstItem = this.allItems % this.showItemsPrPage === 0 ? this.allItems - this.showItemsPrPage : this.allItems - (this.allItems % this.showItemsPrPage) + 1;
+      this.firstItem = this.allItems % this.showItemsPrPage === 0 ?
+        this.allItems - this.showItemsPrPage : this.allItems - (this.allItems % this.showItemsPrPage) + 1;
       this.lastItem = this.allItems;
     }
   }
