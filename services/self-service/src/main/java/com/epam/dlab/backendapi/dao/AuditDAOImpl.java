@@ -57,6 +57,7 @@ import static com.mongodb.client.model.Filters.lte;
 public class AuditDAOImpl extends BaseDAO implements AuditDAO {
     private final static String AUDIT_COLLECTION = "audit";
     private static final String RESOURCE_NAME_FIELD = "resourceName";
+    private static final String RESOURCE_TYPE_FIELD = "type";
     private static final String TIMESTAMP_FIELD = "timestamp";
     private static final String COUNT_FIELD = "count";
     private static final String AUDIT_FACET = "auditFacet";
@@ -64,6 +65,7 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
     private static final String RESOURCE_NAME_FACET = "resourceNameFacet";
     private static final String USER_FACET = "userFacet";
     private static final String PROJECT_FACET = "projectFacet";
+    private static final String RESOURCE_TYPE_FACET = "typeFacet";
 
     @Override
     public void save(AuditDTO audit) {
@@ -87,9 +89,11 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
         List<Bson> userFilter = Collections.singletonList(group(getGroupingFields(USER)));
         List<Bson> projectFilter = Collections.singletonList(group(getGroupingFields(PROJECT)));
         List<Bson> resourceNameFilter = Collections.singletonList(group(getGroupingFields(RESOURCE_NAME_FIELD)));
+        List<Bson> resourceTypeFilter = Collections.singletonList(group(getGroupingFields(RESOURCE_TYPE_FIELD)));
 
         List<Bson> facets = Collections.singletonList(facet(new Facet(AUDIT_FACET, valuesPipeline), new Facet(TOTAL_COUNT_FACET, countPipeline),
-                new Facet(RESOURCE_NAME_FACET, resourceNameFilter), new Facet(USER_FACET, userFilter), new Facet(PROJECT_FACET, projectFilter)));
+                new Facet(RESOURCE_NAME_FACET, resourceNameFilter), new Facet(USER_FACET, userFilter), new Facet(PROJECT_FACET, projectFilter),
+                new Facet(RESOURCE_TYPE_FACET, resourceTypeFilter)));
         return StreamSupport.stream(aggregate(AUDIT_COLLECTION, facets).spliterator(), false)
                 .map(this::toAuditPaginationDTO)
                 .collect(Collectors.toList());
@@ -117,12 +121,14 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
         Set<String> userFilter = getFilter(document, USER_FACET, USER);
         Set<String> projectFilter = getFilter(document, PROJECT_FACET, PROJECT);
         Set<String> resourceNameFilter = getFilter(document, RESOURCE_NAME_FACET, RESOURCE_NAME_FIELD);
+        Set<String> resourceTypeFilter = getFilter(document, RESOURCE_TYPE_FACET, RESOURCE_TYPE_FIELD);
         List<AuditDTO> auditDTOs = (List<AuditDTO>) document.get(AUDIT_FACET);
         return AuditPaginationDTO.builder()
                 .totalPageCount(count)
                 .audit(auditDTOs)
                 .userFilter(userFilter)
                 .resourceNameFilter(resourceNameFilter)
+                .resourceTypeFilter(resourceTypeFilter)
                 .projectFilter(projectFilter)
                 .build();
     }

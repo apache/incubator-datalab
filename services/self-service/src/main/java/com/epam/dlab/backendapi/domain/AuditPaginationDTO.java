@@ -38,4 +38,6 @@ public class AuditPaginationDTO {
     private final Set<String> projectFilter;
     @JsonProperty("resource_name_filter")
     private final Set<String> resourceNameFilter;
+    @JsonProperty("resource_type_filter")
+    private final Set<String> resourceTypeFilter;
 }
