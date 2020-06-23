@@ -101,6 +101,9 @@ public class BucketServiceImpl implements BucketService {
     public void uploadFolder(UserInfo userInfo, String bucket, String folder, String endpoint) {
         log.info("Uploading folder {} for user {} to bucket {}", folder, userInfo.getName(), bucket);
         try {
+            if (!folder.endsWith("/")) {
+                throw new DlabException("Folder doesn't end with '/'");
+            }
             EndpointDTO endpointDTO = endpointService.get(endpoint);
             FolderUploadDTO dto = new FolderUploadDTO(bucket, folder);
             Response response = provisioningService.post(String.format(BUCKET_UPLOAD_FOLDER, endpointDTO.getUrl()), userInfo.getAccessToken(), dto, Response.class);
