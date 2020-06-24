@@ -82,7 +82,7 @@ def configure_dataengine_service(instance, emr_conf):
         print('[CONFIGURE DATAENGINE SERVICE]')
         try:
             dlab.fab.configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'],
-                                                       emr_conf['key_path'])
+                                                       emr_conf['key_path'], True)
             env['connection_attempts'] = 100
             env.key_filename = emr_conf['key_path']
             env.host_string = emr_conf['os_user'] + '@' + emr_conf['instance_ip']
