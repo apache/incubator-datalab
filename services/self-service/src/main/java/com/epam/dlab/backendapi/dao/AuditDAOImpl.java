@@ -73,11 +73,11 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
     }
 
     @Override
-    public List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, String dateStart, String dateEnd,
+    public List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes, String dateStart, String dateEnd,
                                              int pageNumber, int pageSize) {
         List<Bson> valuesPipeline = new ArrayList<>();
         List<Bson> countPipeline = new ArrayList<>();
-        List<Bson> matchCriteria = matchCriteria(users, projects, resourceNames, dateStart, dateEnd);
+        List<Bson> matchCriteria = matchCriteria(users, projects, resourceNames, resourceTypes, dateStart, dateEnd);
         if (!matchCriteria.isEmpty()) {
             Bson match = match(Filters.and(matchCriteria));
             valuesPipeline.add(match);
@@ -99,11 +99,12 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
                 .collect(Collectors.toList());
     }
 
-    private List<Bson> matchCriteria(List<String> users, List<String> projects, List<String> resourceNames, String dateStart, String dateEnd) {
+    private List<Bson> matchCriteria(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes, String dateStart, String dateEnd) {
         List<Bson> searchCriteria = new ArrayList<>();
         inCriteria(searchCriteria, users, USER);
         inCriteria(searchCriteria, projects, PROJECT);
         inCriteria(searchCriteria, resourceNames, RESOURCE_NAME_FIELD);
+        inCriteria(searchCriteria, resourceTypes, RESOURCE_TYPE_FIELD);
         if (StringUtils.isNotEmpty(dateStart)) {
             Instant from = getInstant(dateStart);
             searchCriteria.add(gte(TIMESTAMP_FIELD, from));

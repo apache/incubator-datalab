@@ -30,5 +30,5 @@ public interface AuditService {
 
     void save(String user, AuditCreateDTO audit);
 
-    List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, String dateStart, String dateEnd, int pageNumber, int pageSize);
+    List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes, String dateStart, String dateEnd, int pageNumber, int pageSize);
 }

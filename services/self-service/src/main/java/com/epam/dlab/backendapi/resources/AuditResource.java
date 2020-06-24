@@ -58,12 +58,13 @@ public class AuditResource {
                              @QueryParam("users") StringList users,
                              @QueryParam("projects") StringList projects,
                              @QueryParam("resource-names") StringList resourceNames,
+                             @QueryParam("resource-types") StringList resourceTypes,
                              @QueryParam("date-start") String dateStart,
                              @QueryParam("date-end") String dateEnd,
                              @QueryParam("page-number") int pageNumber,
                              @QueryParam("page-size") int pageSize) {
         return Response
-                .ok(auditService.getAudit(users, projects, resourceNames, dateStart, dateEnd, pageNumber, pageSize))
+                .ok(auditService.getAudit(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize))
                 .build();
     }
 }

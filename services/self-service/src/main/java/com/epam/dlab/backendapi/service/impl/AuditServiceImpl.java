@@ -57,7 +57,8 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, String dateStart, String dateEnd, int pageNumber, int pageSize) {
-        return auditDAO.getAudit(users, projects, resourceNames, dateStart, dateEnd, pageNumber, pageSize);
+    public List<AuditPaginationDTO> getAudit(List<String> users, List<String> projects, List<String> resourceNames, List<String> resourceTypes,
+                                             String dateStart, String dateEnd, int pageNumber, int pageSize) {
+        return auditDAO.getAudit(users, projects, resourceNames, resourceTypes, dateStart, dateEnd, pageNumber, pageSize);
     }
 }
