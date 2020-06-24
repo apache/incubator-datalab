@@ -33,6 +33,7 @@ import os
 import logging
 import argparse
 import multiprocessing
+from dlab.common_lib import manage_pkg
 
 
 parser = argparse.ArgumentParser()
@@ -87,6 +88,7 @@ def configure_dataengine_service(instance, emr_conf):
             env.host_string = emr_conf['os_user'] + '@' + emr_conf['instance_ip']
             sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> '
                  '/etc/yum/pluginconf.d/priorities.conf')
+            manage_pkg('-y install', 'remote', 'R-devel')
         except:
             traceback.print_exc()
             raise Exception
