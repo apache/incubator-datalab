@@ -21,8 +21,12 @@ package com.epam.dlab.backendapi.service.impl;
 
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.Audit;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.annotation.Info;
 import com.epam.dlab.backendapi.annotation.Project;
+import com.epam.dlab.backendapi.annotation.ResourceName;
+import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
@@ -65,6 +69,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.START;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.STOP;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.TERMINATE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL_CONFIG;
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
 import static com.epam.dlab.dto.UserInstanceStatus.RECONFIGURING;
@@ -142,19 +153,20 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	@BudgetLimited
+	@Audit(action = CREATE, type = COMPUTATIONAL)
 	@Override
-	public boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form, @Project String project) {
-
-		final ProjectDTO projectDTO = projectService.get(project);
-		final UserInstanceDTO instance =
-				exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project, form.getNotebookName());
-		final SparkStandaloneClusterResource compResource = createInitialComputationalResource(form);
-		compResource.setTags(tagService.getResourceTags(userInfo, instance.getEndpoint(), project,
-				form.getCustomTag()));
-		if (computationalDAO.addComputational(userInfo.getName(), form.getNotebookName(), project, compResource)) {
-			try {
-				EndpointDTO endpointDTO = endpointService.get(instance.getEndpoint());
-				ComputationalBase<?> dto = requestBuilder.newComputationalCreate(userInfo, projectDTO, instance, form, endpointDTO);
+	public boolean createSparkCluster(@User UserInfo userInfo, @ResourceName String resourceName, SparkStandaloneClusterCreateForm form, @Project String project,
+                                      @Info String auditInfo) {
+        final ProjectDTO projectDTO = projectService.get(project);
+        final UserInstanceDTO instance =
+                exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project, form.getNotebookName());
+        final SparkStandaloneClusterResource compResource = createInitialComputationalResource(form);
+        compResource.setTags(tagService.getResourceTags(userInfo, instance.getEndpoint(), project,
+                form.getCustomTag()));
+        if (computationalDAO.addComputational(userInfo.getName(), form.getNotebookName(), project, compResource)) {
+            try {
+                EndpointDTO endpointDTO = endpointService.get(instance.getEndpoint());
+                ComputationalBase<?> dto = requestBuilder.newComputationalCreate(userInfo, projectDTO, instance, form, endpointDTO);
 
 				String uuid =
 						provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_CREATE_SPARK,
@@ -176,44 +188,39 @@ public class ComputationalServiceImpl implements ComputationalService {
 		}
 	}
 
+	@Audit(action = TERMINATE, type = COMPUTATIONAL)
 	@Override
-	public void terminateComputational(UserInfo userInfo, String project, String exploratoryName, String computationalName) {
+	public void terminateComputational(@User UserInfo userInfo, String resourceCreator, @Project String project, String exploratoryName, @ResourceName String computationalName,
+									   @Info String auditInfo) {
 		try {
+			updateComputationalStatus(resourceCreator, project, exploratoryName, computationalName, TERMINATING);
 
-			updateComputationalStatus(userInfo.getName(), project, exploratoryName, computationalName, TERMINATING);
-
-			final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project,
-					exploratoryName);
-			UserComputationalResource compResource = computationalDAO.fetchComputationalFields(userInfo.getName(), project,
-					exploratoryName, computationalName);
+			final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchExploratoryFields(resourceCreator, project, exploratoryName);
+			UserComputationalResource compResource = computationalDAO.fetchComputationalFields(resourceCreator, project, exploratoryName, computationalName);
 
 			final DataEngineType dataEngineType = compResource.getDataEngineType();
 			EndpointDTO endpointDTO = endpointService.get(userInstanceDTO.getEndpoint());
-			ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(userInfo, userInstanceDTO, compResource, endpointDTO);
+            ComputationalTerminateDTO dto = requestBuilder.newComputationalTerminate(resourceCreator, userInstanceDTO, compResource, endpointDTO);
 
 			final String provisioningUrl = Optional.ofNullable(DATA_ENGINE_TYPE_TERMINATE_URLS.get(dataEngineType))
 					.orElseThrow(UnsupportedOperationException::new);
-			String uuid =
-					provisioningService.post(endpointDTO.getUrl() + provisioningUrl,
-							userInfo.getAccessToken(), dto, String.class);
-			requestId.put(userInfo.getName(), uuid);
+			final String uuid = provisioningService.post(endpointDTO.getUrl() + provisioningUrl, userInfo.getAccessToken(), dto, String.class);
+			requestId.put(resourceCreator, uuid);
 		} catch (RuntimeException re) {
-
 			try {
-				updateComputationalStatus(userInfo.getName(), project, exploratoryName, computationalName, FAILED);
+				updateComputationalStatus(resourceCreator, project, exploratoryName, computationalName, FAILED);
 			} catch (DlabException e) {
-				log.error(COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT, computationalName, userInfo.getName(), e);
+				log.error(COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT, computationalName, resourceCreator, e);
 			}
-
 			throw re;
 		}
 	}
 
 	@BudgetLimited
+	@Audit(action = CREATE, type = COMPUTATIONAL)
 	@Override
-	public boolean createDataEngineService(UserInfo userInfo, ComputationalCreateFormDTO formDTO,
-										   UserComputationalResource computationalResource, @Project String project) {
-
+	public boolean createDataEngineService(@User UserInfo userInfo, @ResourceName String resourceName, ComputationalCreateFormDTO formDTO,
+										   UserComputationalResource computationalResource, @Project String project, @Info String auditInfo) {
 		final ProjectDTO projectDTO = projectService.get(project);
 		final UserInstanceDTO instance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project, formDTO
 				.getNotebookName());
@@ -223,7 +230,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 		boolean isAdded = computationalDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(), project,
 				computationalResource);
 
-		if (isAdded) {
+        if (isAdded) {
 			try {
 				EndpointDTO endpointDTO = endpointService.get(instance.getEndpoint());
 				String uuid =
@@ -249,52 +256,49 @@ public class ComputationalServiceImpl implements ComputationalService {
 		}
 	}
 
+	@Audit(action = STOP, type = COMPUTATIONAL)
 	@Override
-	public void stopSparkCluster(UserInfo userInfo, String project, String expName, String compName) {
-		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project, expName, true);
+	public void stopSparkCluster(@User UserInfo userInfo, String resourceCreator, @Project String project, String expName, @ResourceName String compName, @Info String auditInfo) {
+		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(resourceCreator, project, expName, true);
 		final UserInstanceStatus requiredStatus = UserInstanceStatus.RUNNING;
 		if (computationalWithStatusResourceExist(compName, userInstance, requiredStatus)) {
 			log.debug("{} spark cluster {} for userInstance {}", STOPPING.toString(), compName, expName);
-			updateComputationalStatus(userInfo.getName(), project, expName, compName, STOPPING);
+			updateComputationalStatus(resourceCreator, project, expName, compName, STOPPING);
 			EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
-			final String uuid =
-					provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_STOP_SPARK,
-							userInfo.getAccessToken(),
-							requestBuilder.newComputationalStop(userInfo, userInstance, compName, endpointDTO),
-							String.class);
-			requestId.put(userInfo.getName(), uuid);
+			final String uuid = provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_STOP_SPARK,
+					userInfo.getAccessToken(),
+					requestBuilder.newComputationalStop(resourceCreator, userInstance, compName, endpointDTO),
+					String.class);
+			requestId.put(resourceCreator, uuid);
 		} else {
-			throw new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT,
-					requiredStatus.toString(), compName, expName));
+			throw new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT, requiredStatus.toString(), compName, expName));
 		}
 
 	}
 
 	@BudgetLimited
+	@Audit(action = START, type = COMPUTATIONAL)
 	@Override
-	public void startSparkCluster(UserInfo userInfo, String expName, String compName, @Project String project) {
-		final UserInstanceDTO userInstance =
-				exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project, expName, true);
+	public void startSparkCluster(@User UserInfo userInfo, String expName, @ResourceName String compName, @Project String project, @Info String auditInfo) {
+		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project, expName, true);
 		final UserInstanceStatus requiredStatus = UserInstanceStatus.STOPPED;
 		if (computationalWithStatusResourceExist(compName, userInstance, requiredStatus)) {
 			log.debug("{} spark cluster {} for userInstance {}", STARTING.toString(), compName, expName);
 			updateComputationalStatus(userInfo.getName(), project, expName, compName, STARTING);
 			EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
-			final String uuid =
-					provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_START_SPARK,
-							userInfo.getAccessToken(),
-							requestBuilder.newComputationalStart(userInfo, userInstance, compName, endpointDTO),
-							String.class);
+			final String uuid = provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_START_SPARK,
+					userInfo.getAccessToken(),
+					requestBuilder.newComputationalStart(userInfo, userInstance, compName, endpointDTO),
+					String.class);
 			requestId.put(userInfo.getName(), uuid);
 		} else {
-			throw new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT,
-					requiredStatus.toString(), compName, expName));
+			throw new IllegalStateException(String.format(DATAENGINE_NOT_PRESENT_FORMAT, requiredStatus.toString(), compName, expName));
 		}
 	}
 
+	@Audit(action = UPDATE, type = COMPUTATIONAL_CONFIG)
 	@Override
-	public void updateSparkClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName,
-										 List<ClusterConfig> config) {
+	public void updateSparkClusterConfig(@User UserInfo userInfo, @Project String project, String exploratoryName, @ResourceName String computationalName, List<ClusterConfig> config) {
 		final String userName = userInfo.getName();
 		final String token = userInfo.getAccessToken();
 		final UserInstanceDTO userInstanceDTO = exploratoryDAO
@@ -333,8 +337,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	 * @return corresponding computational resource's data or empty data if resource doesn't exist.
 	 */
 	@Override
-	public Optional<UserComputationalResource> getComputationalResource(String user, String project, String exploratoryName,
-																		String computationalName) {
+	public Optional<UserComputationalResource> getComputationalResource(String user, String project, String exploratoryName, String computationalName) {
 		try {
 			return Optional.of(computationalDAO.fetchComputationalFields(user, project, exploratoryName, computationalName));
 		} catch (DlabException e) {
@@ -358,8 +361,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	 * @param computationalName name of computational resource.
 	 * @param status            status
 	 */
-	private void updateComputationalStatus(String user, String project, String exploratoryName, String computationalName,
-										   UserInstanceStatus status) {
+	private void updateComputationalStatus(String user, String project, String exploratoryName, String computationalName, UserInstanceStatus status) {
 		ComputationalStatusDTO computationalStatus = new ComputationalStatusDTO()
 				.withUser(user)
 				.withProject(project)
@@ -371,7 +373,6 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	private SparkStandaloneClusterResource createInitialComputationalResource(SparkStandaloneClusterCreateForm form) {
-
 		return SparkStandaloneClusterResource.builder()
 				.computationalName(form.getName())
 				.imageName(form.getImage())
@@ -383,15 +384,13 @@ public class ComputationalServiceImpl implements ComputationalService {
 				.build();
 	}
 
-	private boolean computationalWithStatusResourceExist(String compName,
-														 UserInstanceDTO ui, UserInstanceStatus status) {
+	private boolean computationalWithStatusResourceExist(String compName, UserInstanceDTO ui, UserInstanceStatus status) {
 		return ui.getResources()
 				.stream()
 				.anyMatch(c -> computationalWithNameAndStatus(compName, c, status));
 	}
 
-	private boolean computationalWithNameAndStatus(String computationalName, UserComputationalResource compResource,
-												   UserInstanceStatus status) {
+	private boolean computationalWithNameAndStatus(String computationalName, UserComputationalResource compResource, UserInstanceStatus status) {
 		return compResource.getStatus().equals(status.toString()) &&
 				compResource.getDataEngineType() == SPARK_STANDALONE &&
 				compResource.getComputationalName().equals(computationalName);

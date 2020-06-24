@@ -2,6 +2,8 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
+import com.epam.dlab.backendapi.domain.AuditActionEnum;
+import com.epam.dlab.backendapi.domain.AuditDTO;
 import com.epam.dlab.backendapi.util.KeycloakUtil;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -10,11 +12,13 @@ import org.keycloak.representations.AccessTokenResponse;
 public class SecurityServiceImpl implements SecurityService {
 	private final KeycloakService keycloakService;
 	private final SecurityDAO securityDAO;
+	private final AuditService auditService;
 
 	@Inject
-	public SecurityServiceImpl(KeycloakService keycloakService, SecurityDAO securityDAO) {
+	public SecurityServiceImpl(KeycloakService keycloakService, SecurityDAO securityDAO, AuditService auditService) {
 		this.keycloakService = keycloakService;
 		this.securityDAO = securityDAO;
+		this.auditService = auditService;
 	}
 
 	@Override
@@ -24,6 +28,7 @@ public class SecurityServiceImpl implements SecurityService {
 		securityDAO.saveUser(username, token);
 		UserInfo userInfo = new UserInfo(username, token.getToken());
 		userInfo.setRefreshToken(token.getRefreshToken());
+		saveLogInAudit(username);
 		return userInfo;
 	}
 
@@ -41,5 +46,13 @@ public class SecurityServiceImpl implements SecurityService {
 	public UserInfo getServiceAccountInfo(String username) {
 		AccessTokenResponse accessTokenResponse = keycloakService.generateServiceAccountToken();
 		return new UserInfo(username, accessTokenResponse.getToken());
+	}
+
+	private void saveLogInAudit(String username) {
+		AuditDTO auditDTO = AuditDTO.builder()
+				.user(username)
+				.action(AuditActionEnum.LOG_IN)
+				.build();
+		auditService.save(auditDTO);
 	}
 }

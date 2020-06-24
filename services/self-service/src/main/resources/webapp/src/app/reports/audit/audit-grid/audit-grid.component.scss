@@ -1,0 +1,276 @@
+/*!
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.audit-table-wrapper {
+  width: 100%;
+
+  .audit {
+    width: 100%;
+    min-width: 1100px;
+    overflow: auto;
+    border-collapse: inherit;
+
+    .mat-cell {
+      vertical-align: middle;
+    }
+
+    tr {
+      .th_user {
+        width: 19%;
+      }
+
+      .th_action {
+        width: 11%;
+      }
+
+      .th_date {
+        width: 14%;
+      }
+
+      .th_project{
+        width: 11%;
+      }
+
+      .th_resource{
+        width: 11%;
+      }
+
+      .th_resource-type{
+        width: 14%;
+      }
+
+      .th_buttons{
+        width: 6%;
+      }
+
+      th {
+        padding-right: 5px;
+        z-index: 2 !important;
+
+        &.th_charges {
+          z-index: 3 !important;
+        }
+      }
+
+      td {
+        font-size: 13px;
+        padding-left: 15px;
+
+        &.info {
+          z-index: 1 !important;
+          text-align: center;
+          padding: 40px;
+        }
+      }
+
+      &.filter-row {
+        th {
+          padding: 5px;
+          font-size: 13px;
+        }
+
+        .filter-field {
+          font-size: 13px;
+        }
+
+      }
+
+      &.header-row {
+        th {
+          font-size: 11px;
+
+          .label {
+            padding-left: 0;
+          }
+        }
+      }
+    }
+
+
+    .tags {
+      .label {
+        padding-top: 0;
+      }
+    }
+
+    .service {
+      min-width: 175px;
+    }
+
+    .env_name {
+      width: 16%;
+      min-width: 200px;
+    }
+
+    .th_project {
+      width: 12%;
+    }
+
+    .th_type {
+      width: 10%;
+      min-width: 150px;
+    }
+
+    .th_status {
+      width: 8%;
+      min-width: 150px;
+    }
+
+    .th_charges {
+      width: 10%;
+      min-width: 155px;
+      text-align: right;
+
+      .label {
+        padding-top: 0;
+      }
+    }
+
+    .th_project {
+      min-width: 150px;
+    }
+
+    .tags-col {
+      padding: 5px;
+
+      mat-chip {
+        min-height: 20px;
+        padding: 5px 10px;
+        font-size: 13px;
+        max-width: 110px !important;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        line-height: 10px;
+        margin: 2px;
+      }
+    }
+
+    .mat-column-charge {
+      text-align: right;
+    }
+
+    .header-row {
+      position: unset;
+
+      .th_charges {
+        padding-top: 0;
+
+        .label {
+          padding-top: 12px;
+        }
+      }
+
+      .label {
+        display: inline-block;
+        padding-top: 13px;
+        vertical-align: super !important;
+
+        .text {
+          padding-left: 15px;
+        }
+      }
+
+      .sort {
+        position: absolute;
+        bottom: 20px;
+
+        &-arrow {
+          width: 6px;
+          height: 6px;
+          border: 3px solid transparent;
+          border-bottom: 3px solid rgba(0, 0, 0, .54);
+          border-left: 3px solid rgba(0, 0, 0, .54);
+          cursor: pointer;
+
+          &.active {
+            border-bottom: 3px solid #35afd5;
+            border-left: 3px solid #35afd5;
+          }
+        }
+
+        .down {
+          transform: rotate(-45deg);
+        }
+
+        .up {
+          transform: rotate(135deg);
+        }
+      }
+    }
+  }
+
+  .action-wrapper{
+    display: flex;
+    align-items: center;
+    .audit-info{
+      color: lightgray;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+  }
+
+  .dashboard_table_body {
+    td:first-child {
+      cursor: default;
+    }
+
+    .dropdown-multiselect {
+      button {
+        font-size: 14px;
+        height: 34px;
+        padding: 7px 20px;
+      }
+    }
+  }
+  .user-col{
+    padding-left: 5px;
+  }
+}
+
+.selected-items-wrapper{
+  display: flex;
+  align-items: center;
+  .select-wrapper{
+    margin-left: 20px;
+    width: 80px;
+  }
+}
+
+.pagination-wrapper{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 30px;
+  .navigation-butts{
+    cursor: pointer;
+    .not-active{
+      color: lightgray;
+    }
+  }
+}
+
+.audit-actions{
+  text-align: right;
+}
+
+.audit-user{
+  padding-left: 14px;
+}
+

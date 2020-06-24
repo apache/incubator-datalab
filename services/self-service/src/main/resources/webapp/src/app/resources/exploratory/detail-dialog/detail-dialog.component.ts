@@ -28,6 +28,7 @@ import { DataengineConfigurationService } from '../../../core/services';
 import { CLUSTER_CONFIGURATION } from '../../computational/computational-resource-create-dialog/cluster-configuration-templates';
 import {BucketBrowserComponent} from '../../bucket-browser/bucket-browser.component';
 import {CopyPathUtils} from '../../../core/util/copyPathUtils';
+import {AuditService} from '../../../core/services/audit.service';
 
 @Component({
   selector: 'detail-dialog',
@@ -60,6 +61,7 @@ export class DetailDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<DetailDialogComponent>,
     private dialog: MatDialog,
     public toastr: ToastrService,
+    public auditService: AuditService
   ) {
 
   }
@@ -156,5 +158,9 @@ export class DetailDialogComponent implements OnInit {
 
   protected copyBucketName(copyValue) {
     CopyPathUtils.copyPath(copyValue);
+  }
+
+  private logAction(name: any, description: string) {
+    this.auditService.sendDataToAudit({resource_name: name, info: `User followed ${description} link`}).subscribe();
   }
 }

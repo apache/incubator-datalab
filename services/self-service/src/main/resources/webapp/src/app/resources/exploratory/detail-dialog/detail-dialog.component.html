@@ -45,8 +45,8 @@
             <p *ngFor="let item of notebook.exploratory_urls">
               <span class="description">{{item.description}}: &nbsp;</span>
               <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
-                 target="_blank">
-                &nbsp;{{item.url}}
+                 target="_blank" (click)="logAction(notebook.name, item.description)">
+                &nbsp;{{item.url}}{{notebook.name}}
               </a>
             </p>
           </div>
@@ -60,7 +60,7 @@
             <div class="links_block">
               <p *ngFor="let item of notebook.url">
                 <span class="description">{{item.description}}: &nbsp;</span>
-                <a class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
+                <a  (click)="logAction(notebook.name, item.description)" class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
                   target="_blank">
                   &nbsp;{{item.url}}
                 </a>

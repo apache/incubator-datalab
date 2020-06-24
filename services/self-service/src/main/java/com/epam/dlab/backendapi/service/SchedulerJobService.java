@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 
@@ -56,7 +57,7 @@ public interface SchedulerJobService {
      * @param exploratoryName name of exploratory resource
      * @param dto             scheduler job data
      */
-    void updateExploratorySchedulerData(String user, String project, String exploratoryName, SchedulerJobDTO dto);
+    void updateExploratorySchedulerData(UserInfo user, String project, String exploratoryName, SchedulerJobDTO dto);
 
     /**
      * Updates scheduler job data for computational resource <code>computationalName<code/> affiliated with
@@ -68,7 +69,7 @@ public interface SchedulerJobService {
      * @param computationalName name of computational resource
      * @param dto               scheduler job data
      */
-    void updateComputationalSchedulerData(String user, String project, String exploratoryName,
+    void updateComputationalSchedulerData(UserInfo user, String project, String exploratoryName,
                                           String computationalName, SchedulerJobDTO dto);
 
     void stopComputationalByScheduler();

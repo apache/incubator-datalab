@@ -33,39 +33,42 @@ public interface ComputationalService {
 	ComputationalTemplatesDTO getComputationalNamesAndTemplates(UserInfo user, String project, String endpoint);
 
 	/**
-	 * Asynchronously triggers creation of Spark cluster
-	 *
-	 * @param userInfo user authentication info
-	 * @param form     input cluster parameters
-	 * @return <code>true</code> if action is successfully triggered, <code>false</code>false if cluster with the same
-	 * name already exists
-	 * @throws IllegalArgumentException if input parameters exceed limits or docker image name is malformed
-	 */
-	boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form, String project);
+     * Asynchronously triggers creation of Spark cluster
+     *
+     * @param userInfo     user authentication info
+     * @param resourceName name of computational resource
+     * @param form         input cluster parameters
+     * @param auditInfo    additional info for audit
+     * @return <code>true</code> if action is successfully triggered, <code>false</code>false if cluster with the same
+     * name already exists
+     * @throws IllegalArgumentException if input parameters exceed limits or docker image name is malformed
+     */
+    boolean createSparkCluster(UserInfo userInfo, String resourceName, SparkStandaloneClusterCreateForm form, String project, String auditInfo);
 
-	/**
-	 * Asynchronously triggers termination of computational resources
-	 *
-	 * @param userInfo          user info of authenticated user
-	 * @param project           project name
-	 * @param exploratoryName   name of exploratory where to terminate computational resources with
-	 *                          <code>computationalName</code>
-	 * @param computationalName computational name
-	 */
-	void terminateComputational(UserInfo userInfo, String project, String exploratoryName, String computationalName);
+    /**
+     * Asynchronously triggers termination of computational resources
+     *
+     * @param userInfo          user info of authenticated user
+     * @param resourceCreator   username of resource creator
+     * @param project           project name
+     * @param exploratoryName   name of exploratory where to terminate computational resources with <code>computationalName</code>
+     * @param computationalName computational name
+     * @param auditInfo         additional info for audit
+     */
+    void terminateComputational(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, String computationalName, String auditInfo);
 
-	boolean createDataEngineService(UserInfo userInfo, ComputationalCreateFormDTO formDTO, UserComputationalResource
-			computationalResource, String project);
+    boolean createDataEngineService(UserInfo userInfo, String resourceName, ComputationalCreateFormDTO formDTO, UserComputationalResource
+            computationalResource, String project, String auditInfo);
 
-	void stopSparkCluster(UserInfo userInfo, String project, String exploratoryName, String computationalName);
+    void stopSparkCluster(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, String computationalName, String auditInfo);
 
-	void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName, String project);
+    void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName, String project, String auditInfo);
 
-	void updateSparkClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName,
-								  List<ClusterConfig> config);
+    void updateSparkClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName,
+                                  List<ClusterConfig> config);
 
-	Optional<UserComputationalResource> getComputationalResource(String user, String project, String exploratoryName,
-																 String computationalName);
+    Optional<UserComputationalResource> getComputationalResource(String user, String project, String exploratoryName,
+                                                                 String computationalName);
 
-	List<ClusterConfig> getClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName);
+    List<ClusterConfig> getClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName);
 }

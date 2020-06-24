@@ -37,15 +37,16 @@ import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.epam.dlab.dto.InfrastructureMetaInfoDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import com.jcabi.manifests.Manifests;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Slf4j
 public class InfrastructureInfoServiceImpl implements InfrastructureInfoService {
@@ -90,7 +90,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 			return projectService.getUserProjects(user, false)
 					.stream()
 					.map(p -> {
-						Iterable<Document> exploratories = expDAO.findExploratories(user.getName(), p.getName());
+						List<UserInstanceDTO> exploratories = expDAO.findExploratories(user.getName(), p.getName());
 						return new ProjectInfrastructureInfo(p.getName(), billingDAO.getBillingProjectQuoteUsed(p.getName()),
 								getSharedInfo(p.getName()), exploratories, getExploratoryBillingData(exploratories),
 								getEndpoints(allEndpoints, p));
@@ -111,6 +111,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 					.status(HealthStatusEnum.OK.toString())
 					.listResources(Collections.emptyList())
 					.billingEnabled(configuration.isBillingSchedulerEnabled())
+					.auditEnabled(configuration.isAuditEnabled())
 					.projectAdmin(UserRoles.isProjectAdmin(userInfo))
 					.admin(UserRoles.isAdmin(userInfo))
 					.projectAssigned(projectService.isAnyProjectAssigned(userInfo))
@@ -140,16 +141,15 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 				.build();
 	}
 
-	private List<BillingReport> getExploratoryBillingData(Iterable<Document> exploratories) {
-		return StreamSupport.stream(exploratories.spliterator(), false)
-				.map(exp ->
-						billingService.getExploratoryBillingData(exp.getString("project"), exp.getString("endpoint"),
-								exp.getString("exploratory_name"),
-								Optional.ofNullable(exp.get("computational_resources")).map(cr -> (List<Document>) cr).get()
-										.stream()
-										.map(cr -> cr.getString("computational_name"))
-										.collect(Collectors.toList()))
-				)
+	private List<BillingReport> getExploratoryBillingData(List<UserInstanceDTO> exploratories) {
+		return exploratories
+				.stream()
+				.map(exp -> billingService.getExploratoryBillingData(exp.getProject(), exp.getEndpoint(),
+						exp.getExploratoryName(), exp.getResources()
+								.stream()
+								.map(UserComputationalResource::getComputationalName)
+								.collect(Collectors.toList())
+				))
 				.collect(Collectors.toList());
 	}
 

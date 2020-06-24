@@ -36,7 +36,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -72,7 +78,7 @@ public class EndpointResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@POST
 	public Response createEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo, @Valid EndpointDTO endpointDTO) {
-		endpointService.create(userInfo, endpointDTO);
+		endpointService.create(userInfo, endpointDTO.getName(), endpointDTO);
 		final URI uri = uriInfo.getRequestUriBuilder().path(endpointDTO.getName()).build();
 		return Response
 				.ok()
@@ -136,10 +142,8 @@ public class EndpointResource {
 	@Path("{name}")
 	public Response removeEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo,
 								   @Parameter(description = "Endpoint name")
-								   @PathParam("name") String name,
-								   @Parameter(description = "Delete endpoint only or with related resources")
-								   @QueryParam("with-resources") @DefaultValue("false") boolean withResources) {
-		endpointService.remove(userInfo, name, withResources);
+								   @PathParam("name") String name) {
+		endpointService.remove(userInfo, name);
 		return Response.ok().build();
 	}
 

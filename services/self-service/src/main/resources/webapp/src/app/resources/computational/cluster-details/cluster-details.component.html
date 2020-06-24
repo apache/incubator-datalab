@@ -100,7 +100,7 @@
           <div class="m-top-10">
             <p *ngFor="let item of resource.computational_url" class="ellipsis flex">
               <span class="strong">{{ item.description }}:</span>&nbsp;
-              <a href="{{item.url}}" target="_blank" matTooltip="{{item.url}}"
+              <a (click)="logAction(resource.computational_name, item.description)" href="{{item.url}}" target="_blank" matTooltip="{{item.url}}"
                 matTooltipPosition="above">{{ item.url }}</a>
             </p>
           </div>

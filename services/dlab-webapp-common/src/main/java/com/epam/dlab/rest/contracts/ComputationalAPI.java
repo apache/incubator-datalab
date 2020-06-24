@@ -20,6 +20,7 @@
 package com.epam.dlab.rest.contracts;
 
 public interface ComputationalAPI {
+	String AUDIT_MESSAGE = "Notebook name %s";
 	String LIBRARY = "library/";
 	String COMPUTATIONAL = "computational";
 	String COMPUTATIONAL_CREATE = COMPUTATIONAL + "/create";

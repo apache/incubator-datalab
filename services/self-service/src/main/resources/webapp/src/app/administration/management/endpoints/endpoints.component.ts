@@ -86,8 +86,7 @@ export class EndpointsComponent implements OnInit {
            type: 'confirmation', item: data, list:  resource
            }, panelClass: 'modal-sm' })
          .afterClosed().subscribe(result => {
-         result === 'noTerminate' && this.deleteEndpointOption(data, false);
-         result === 'terminate' && this.deleteEndpointOption(data, true);
+         result && this.deleteEndpointOption(data);
        });
     });
   }
@@ -112,9 +111,9 @@ export class EndpointsComponent implements OnInit {
     });
   }
 
-  private deleteEndpointOption(data, option): void {
-    this.endpointService.deleteEndpoint(`${data.name}?with-resources=${option}`).subscribe(() => {
-      this.toastr.success(option ? 'Endpoint successfully disconnected. All related resources are terminating!' : 'Endpoint successfully disconnected!' , 'Success!');
+  private deleteEndpointOption(data): void {
+    this.endpointService.deleteEndpoint(`${data.name}`).subscribe(() => {
+      this.toastr.success( 'Endpoint successfully disconnected. All related resources are terminating!', 'Success!');
       this.getEndpointList();
     }, error => this.toastr.error(error.message || 'Endpoint creation failed!', 'Oops!'));
   }

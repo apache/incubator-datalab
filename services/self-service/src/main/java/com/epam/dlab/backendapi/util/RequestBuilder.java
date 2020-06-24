@@ -96,38 +96,38 @@ public class RequestBuilder {
 	@Inject
 	private SettingsDAO settingsDAO;
 
-	private CloudSettings cloudSettings(UserInfo userInfo, CloudProvider cloudProvider) {
+	private CloudSettings cloudSettings(String user, CloudProvider cloudProvider) {
 		switch (cloudProvider) {
 			case AWS:
 				return AwsCloudSettings.builder()
-						.awsIamUser(userInfo.getName())
+						.awsIamUser(user)
 						.build();
 			case AZURE:
 				return AzureCloudSettings.builder()
-						.azureIamUser(userInfo.getName()).build();
+						.azureIamUser(user).build();
 			case GCP:
 				return GcpCloudSettings.builder()
-						.gcpIamUser(userInfo.getName()).build();
+						.gcpIamUser(user).build();
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends ResourceBaseDTO<?>> T newResourceBaseDTO(UserInfo userInfo, CloudProvider cloudProvider,
+	private <T extends ResourceBaseDTO<?>> T newResourceBaseDTO(String user, CloudProvider cloudProvider,
 																Class<T> resourceClass) {
 		try {
 			return (T) resourceClass.newInstance()
-					.withEdgeUserName(getEdgeUserName(userInfo, cloudProvider))
-					.withCloudSettings(cloudSettings(userInfo, cloudProvider));
+					.withEdgeUserName(getEdgeUserName(user, cloudProvider))
+					.withCloudSettings(cloudSettings(user, cloudProvider));
 		} catch (Exception e) {
 			throw new DlabException("Cannot create instance of resource class " + resourceClass.getName() + ". " +
 					e.getLocalizedMessage(), e);
 		}
 	}
 
-	private String getEdgeUserName(UserInfo userInfo, CloudProvider cloudProvider) {
-		String edgeUser = UsernameUtils.replaceWhitespaces(userInfo.getSimpleName());
+	private String getEdgeUserName(String user, CloudProvider cloudProvider) {
+		String edgeUser = UsernameUtils.removeDomain(user);
 		switch (cloudProvider) {
 			case GCP:
 				return adjustUserName(configuration.getMaxUserNameLength(), edgeUser);
@@ -145,9 +145,9 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, CloudProvider cloudProvider,
+	private <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(String user, CloudProvider cloudProvider,
 																	  Class<T> resourceClass) {
-		return newResourceBaseDTO(userInfo, cloudProvider, resourceClass);
+		return newResourceBaseDTO(user, cloudProvider, resourceClass);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -160,11 +160,11 @@ public class RequestBuilder {
 		CloudProvider cloudProvider = endpointDTO.getCloudProvider();
 		switch (cloudProvider) {
 			case AWS:
-				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, cloudProvider, ExploratoryCreateAws.class)
+				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ExploratoryCreateAws.class)
 						.withNotebookInstanceType(exploratory.getShape());
 				break;
 			case AZURE:
-				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, cloudProvider, ExploratoryCreateAzure.class)
+				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ExploratoryCreateAzure.class)
 						.withNotebookInstanceSize(exploratory.getShape());
 				if (settingsDAO.isAzureDataLakeEnabled()) {
 					((ExploratoryCreateAzure) exploratoryCreate)
@@ -175,7 +175,7 @@ public class RequestBuilder {
 						.withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
 				break;
 			case GCP:
-				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, cloudProvider, ExploratoryCreateGcp.class)
+				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ExploratoryCreateGcp.class)
 						.withNotebookInstanceType(exploratory.getShape());
 				break;
 			default:
@@ -204,7 +204,7 @@ public class RequestBuilder {
 		switch (cloudProvider) {
 			case AWS:
 			case GCP:
-				return (T) newResourceSysBaseDTO(userInfo, cloudProvider, ExploratoryGitCredsUpdateDTO.class)
+				return (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ExploratoryGitCredsUpdateDTO.class)
 						.withNotebookInstanceName(userInstance.getExploratoryId())
 						.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 						.withNotebookImage(userInstance.getImageName())
@@ -213,7 +213,7 @@ public class RequestBuilder {
 						.withProject(userInstance.getProject())
 						.withEndpoint(userInstance.getEndpoint());
 			case AZURE:
-				T exploratoryStart = (T) newResourceSysBaseDTO(userInfo, cloudProvider, ExploratoryActionStartAzure.class)
+				T exploratoryStart = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ExploratoryActionStartAzure.class)
 						.withNotebookInstanceName(userInstance.getExploratoryId())
 						.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
 						.withNotebookImage(userInstance.getImageName())
@@ -237,7 +237,7 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ExploratoryActionDTO<T>> T newExploratoryStop(UserInfo userInfo, UserInstanceDTO userInstance, EndpointDTO endpointDTO) {
+	public <T extends ExploratoryActionDTO<T>> T newExploratoryStop(String user, UserInstanceDTO userInstance, EndpointDTO endpointDTO) {
 
 		T exploratoryStop;
 		CloudProvider cloudProvider = endpointDTO.getCloudProvider();
@@ -245,10 +245,10 @@ public class RequestBuilder {
 		switch (cloudProvider) {
 			case AWS:
 			case GCP:
-				exploratoryStop = (T) newResourceSysBaseDTO(userInfo, cloudProvider, ExploratoryActionDTO.class);
+				exploratoryStop = (T) newResourceSysBaseDTO(user, cloudProvider, ExploratoryActionDTO.class);
 				break;
 			case AZURE:
-				exploratoryStop = (T) newResourceSysBaseDTO(userInfo, cloudProvider, ExploratoryActionStopAzure.class);
+				exploratoryStop = (T) newResourceSysBaseDTO(user, cloudProvider, ExploratoryActionStopAzure.class);
 				break;
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider);
@@ -268,7 +268,7 @@ public class RequestBuilder {
 																EndpointDTO endpointDTO,
 																ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
-		return newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), ExploratoryGitCredsUpdateDTO.class)
+		return newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), ExploratoryGitCredsUpdateDTO.class)
 				.withNotebookImage(instanceDTO.getImageName())
 				.withApplicationName(getApplicationNameFromImage(instanceDTO.getImageName()))
 				.withProject(instanceDTO.getProject())
@@ -281,7 +281,7 @@ public class RequestBuilder {
 	public LibraryInstallDTO newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
 										   EndpointDTO endpointDTO, List<LibInstallDTO> libs) {
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
-		return newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), LibraryInstallDTO.class)
+		return newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), LibraryInstallDTO.class)
 				.withNotebookImage(userInstance.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
 				.withNotebookInstanceName(userInstance.getExploratoryId())
@@ -296,7 +296,7 @@ public class RequestBuilder {
 																	   UserInstanceDTO userInstance,
 																	   EndpointDTO endpointDTO) {
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
-		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), ExploratoryActionDTO.class)
+		return (T) newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), ExploratoryActionDTO.class)
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withProject(userInstance.getProject())
 				.withEndpoint(endpointDTO.getName())
@@ -310,7 +310,7 @@ public class RequestBuilder {
 														 UserComputationalResource computationalResource,
 														 List<LibInstallDTO> libs, EndpointDTO endpointDTO) {
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
-		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), LibraryInstallDTO.class)
+		return (T) newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), LibraryInstallDTO.class)
 				.withComputationalId(computationalResource.getComputationalId())
 				.withComputationalName(computationalResource.getComputationalName())
 				.withExploratoryName(userInstance.getExploratoryName())
@@ -329,7 +329,7 @@ public class RequestBuilder {
 																		 EndpointDTO endpointDTO) {
 
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
-		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), LibListComputationalDTO.class)
+		return (T) newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), LibListComputationalDTO.class)
 				.withComputationalId(computationalResource.getComputationalId())
 				.withProject(userInstance.getProject())
 				.withEndpoint(endpointDTO.getName())
@@ -350,7 +350,7 @@ public class RequestBuilder {
 				throw new UnsupportedOperationException("Creating dataengine service is not supported yet");
 			case AWS:
 				AwsComputationalCreateForm awsForm = (AwsComputationalCreateForm) form;
-				computationalCreate = (T) newResourceSysBaseDTO(userInfo, cloudProvider, ComputationalCreateAws.class)
+				computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ComputationalCreateAws.class)
 						.withInstanceCount(awsForm.getInstanceCount())
 						.withMasterInstanceType(awsForm.getMasterInstanceType())
 						.withSlaveInstanceType(awsForm.getSlaveInstanceType())
@@ -362,7 +362,7 @@ public class RequestBuilder {
 				break;
 			case GCP:
 				GcpComputationalCreateForm gcpForm = (GcpComputationalCreateForm) form;
-				computationalCreate = (T) newResourceSysBaseDTO(userInfo, cloudProvider, ComputationalCreateGcp.class)
+				computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ComputationalCreateGcp.class)
 						.withMasterInstanceCount(gcpForm.getMasterInstanceCount())
 						.withSlaveInstanceCount(gcpForm.getSlaveInstanceCount())
 						.withPreemptibleCount(gcpForm.getPreemptibleCount())
@@ -397,7 +397,7 @@ public class RequestBuilder {
 		CloudProvider cloudProvider = endpointDTO.getCloudProvider();
 		switch (cloudProvider) {
 			case AWS:
-				computationalCreate = (T) newResourceSysBaseDTO(userInfo, cloudProvider, SparkComputationalCreateAws.class)
+				computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, SparkComputationalCreateAws.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterShape(form.getDataEngineInstanceShape())
 						.withDataEngineSlaveShape(form.getDataEngineInstanceShape())
@@ -405,7 +405,7 @@ public class RequestBuilder {
 						.withSharedImageEnabled(String.valueOf(projectDTO.isSharedImageEnabled()));
 				break;
 			case AZURE:
-				computationalCreate = (T) newResourceSysBaseDTO(userInfo, cloudProvider, SparkComputationalCreateAzure.class)
+				computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, SparkComputationalCreateAzure.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
 						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
@@ -421,7 +421,7 @@ public class RequestBuilder {
 
 				break;
 			case GCP:
-				computationalCreate = (T) newResourceSysBaseDTO(userInfo, cloudProvider, SparkComputationalCreateGcp.class)
+				computationalCreate = (T) newResourceSysBaseDTO(userInfo.getName(), cloudProvider, SparkComputationalCreateGcp.class)
 						.withDataEngineInstanceCount(form.getDataEngineInstanceCount())
 						.withDataEngineMasterSize(form.getDataEngineInstanceShape())
 						.withDataEngineSlaveSize(form.getDataEngineInstanceShape())
@@ -444,36 +444,36 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComputationalBase<T>> T newComputationalTerminate(UserInfo userInfo,
-																		UserInstanceDTO userInstanceDTO,
-																		UserComputationalResource computationalResource,
-																		EndpointDTO endpointDTO) {
-		T computationalTerminate;
-		CloudProvider cloudProvider = endpointDTO.getCloudProvider();
-		switch (cloudProvider) {
-			case AWS:
-				AwsComputationalTerminateDTO terminateDTO = newResourceSysBaseDTO(userInfo, cloudProvider,
-						AwsComputationalTerminateDTO.class);
-				if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE) {
-					terminateDTO.setClusterName(computationalResource.getComputationalId());
-				}
-				computationalTerminate = (T) terminateDTO;
-				break;
-			case AZURE:
-				computationalTerminate = (T) newResourceSysBaseDTO(userInfo, cloudProvider, ComputationalTerminateDTO.class);
-				break;
-			case GCP:
-				GcpComputationalTerminateDTO gcpTerminateDTO = newResourceSysBaseDTO(userInfo, cloudProvider,
-						GcpComputationalTerminateDTO.class);
-				if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE) {
-					gcpTerminateDTO.setClusterName(computationalResource.getComputationalId());
-				}
-				computationalTerminate = (T) gcpTerminateDTO;
-				break;
+    public <T extends ComputationalBase<T>> T newComputationalTerminate(String resourceCreator,
+                                                                        UserInstanceDTO userInstanceDTO,
+                                                                        UserComputationalResource computationalResource,
+                                                                        EndpointDTO endpointDTO) {
+        T computationalTerminate;
+        CloudProvider cloudProvider = endpointDTO.getCloudProvider();
+        switch (cloudProvider) {
+            case AWS:
+                AwsComputationalTerminateDTO terminateDTO = newResourceSysBaseDTO(resourceCreator, cloudProvider,
+                        AwsComputationalTerminateDTO.class);
+                if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE) {
+                    terminateDTO.setClusterName(computationalResource.getComputationalId());
+                }
+                computationalTerminate = (T) terminateDTO;
+                break;
+            case AZURE:
+                computationalTerminate = (T) newResourceSysBaseDTO(resourceCreator, cloudProvider, ComputationalTerminateDTO.class);
+                break;
+            case GCP:
+                GcpComputationalTerminateDTO gcpTerminateDTO = newResourceSysBaseDTO(resourceCreator, cloudProvider,
+                        GcpComputationalTerminateDTO.class);
+                if (computationalResource.getDataEngineType() == DataEngineType.CLOUD_SERVICE) {
+                    gcpTerminateDTO.setClusterName(computationalResource.getComputationalId());
+                }
+                computationalTerminate = (T) gcpTerminateDTO;
+                break;
 
-			default:
-				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider);
-		}
+            default:
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider);
+        }
 
 		return computationalTerminate
 				.withExploratoryName(userInstanceDTO.getExploratoryName())
@@ -484,21 +484,21 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComputationalBase<T>> T newComputationalStop(UserInfo userInfo, UserInstanceDTO exploratory,
-																   String computationalName, EndpointDTO endpointDTO) {
-		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), ComputationalStopDTO.class)
-				.withExploratoryName(exploratory.getExploratoryName())
-				.withComputationalName(computationalName)
-				.withNotebookInstanceName(exploratory.getExploratoryId())
-				.withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
-				.withProject(exploratory.getProject())
-				.withEndpoint(endpointDTO.getName());
-	}
+    public <T extends ComputationalBase<T>> T newComputationalStop(String resourceCreator, UserInstanceDTO exploratory,
+                                                                   String computationalName, EndpointDTO endpointDTO) {
+        return (T) newResourceSysBaseDTO(resourceCreator, endpointDTO.getCloudProvider(), ComputationalStopDTO.class)
+                .withExploratoryName(exploratory.getExploratoryName())
+                .withComputationalName(computationalName)
+                .withNotebookInstanceName(exploratory.getExploratoryId())
+                .withApplicationName(getApplicationNameFromImage(exploratory.getImageName()))
+                .withProject(exploratory.getProject())
+                .withEndpoint(endpointDTO.getName());
+    }
 
 	@SuppressWarnings("unchecked")
 	public <T extends ComputationalBase<T>> T newComputationalStart(UserInfo userInfo, UserInstanceDTO exploratory,
 																	String computationalName, EndpointDTO endpointDTO) {
-		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), ComputationalStartDTO.class)
+		return (T) newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), ComputationalStartDTO.class)
 				.withExploratoryName(exploratory.getExploratoryName())
 				.withComputationalName(computationalName)
 				.withNotebookInstanceName(exploratory.getExploratoryId())
@@ -511,7 +511,7 @@ public class RequestBuilder {
 	public <T extends ExploratoryImageDTO> T newExploratoryImageCreate(UserInfo userInfo, UserInstanceDTO userInstance,
 																	   String imageName, EndpointDTO endpointDTO, ProjectDTO projectDTO) {
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
-		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), ExploratoryImageDTO.class)
+		return (T) newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), ExploratoryImageDTO.class)
 				.withProject(userInstance.getProject())
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withExploratoryName(userInstance.getExploratoryName())
@@ -527,7 +527,7 @@ public class RequestBuilder {
 	public <T extends ComputationalBase<T>> T newComputationalCheckInactivity(UserInfo userInfo,
 																			  UserInstanceDTO exploratory,
 																			  UserComputationalResource cr, EndpointDTO endpointDTO) {
-		return (T) newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(), ComputationalCheckInactivityDTO.class)
+		return (T) newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), ComputationalCheckInactivityDTO.class)
 				.withExploratoryName(exploratory.getExploratoryName())
 				.withComputationalName(cr.getComputationalName())
 				.withNotebookInstanceName(exploratory.getExploratoryId())
@@ -558,7 +558,7 @@ public class RequestBuilder {
 																UserComputationalResource compRes,
 																List<ClusterConfig> config, EndpointDTO endpointDTO) {
 		CloudProvider cloudProvider = endpointDTO.getCloudProvider();
-		final ComputationalClusterConfigDTO clusterConfigDTO = newResourceSysBaseDTO(userInfo, cloudProvider,
+		final ComputationalClusterConfigDTO clusterConfigDTO = newResourceSysBaseDTO(userInfo.getName(), cloudProvider,
 				ComputationalClusterConfigDTO.class)
 				.withExploratoryName(userInstanceDTO.getExploratoryName())
 				.withNotebookInstanceName(userInstanceDTO.getExploratoryId())
@@ -582,7 +582,7 @@ public class RequestBuilder {
 
 		CloudProvider cloudProvider = endpointDTO.getCloudProvider();
 		final ExploratoryReconfigureSparkClusterActionDTO dto =
-				newResourceSysBaseDTO(userInfo, cloudProvider, ExploratoryReconfigureSparkClusterActionDTO.class)
+				newResourceSysBaseDTO(userInfo.getName(), cloudProvider, ExploratoryReconfigureSparkClusterActionDTO.class)
 						.withNotebookInstanceName(userInstance.getExploratoryId())
 						.withExploratoryName(userInstance.getExploratoryName())
 						.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
@@ -600,7 +600,7 @@ public class RequestBuilder {
 	public ExploratoryCheckInactivityAction newExploratoryCheckInactivityAction(UserInfo userInfo,
 																				UserInstanceDTO userInstance,
 																				EndpointDTO endpointDTO) {
-		final ExploratoryCheckInactivityAction dto = newResourceSysBaseDTO(userInfo, endpointDTO.getCloudProvider(),
+		final ExploratoryCheckInactivityAction dto = newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(),
 				ExploratoryCheckInactivityAction.class);
 		dto.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withNotebookImage(userInstance.getImageName())
@@ -618,12 +618,12 @@ public class RequestBuilder {
 				.tag(projectDTO.getTag())
 				.endpoint(endpointDTO.getName())
 				.build()
-				.withCloudSettings(cloudSettings(userInfo, endpointDTO.getCloudProvider()));
+				.withCloudSettings(cloudSettings(userInfo.getName(), endpointDTO.getCloudProvider()));
 	}
 
 	public ProjectActionDTO newProjectAction(UserInfo userInfo, String project, EndpointDTO endpointDTO) {
 		return new ProjectActionDTO(project, endpointDTO.getName())
-				.withCloudSettings(cloudSettings(userInfo, endpointDTO.getCloudProvider()));
+				.withCloudSettings(cloudSettings(userInfo.getName(), endpointDTO.getCloudProvider()));
 	}
 
 	/**
