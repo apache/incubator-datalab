@@ -34,9 +34,6 @@
     <ng-daterangepicker [(ngModel)]="value" [options]="options" (ngModelChange)="onChange($event)"></ng-daterangepicker>
   </div>
   <div class="action-butt">
-<!--    <button mat-raised-button class="butt" (click)="export($event)" [disabled]="!reportData?.report_lines.length">-->
-<!--      <i class="material-icons">file_download</i>Export-->
-<!--    </button>-->
     <button mat-raised-button class="butt" (click)="rebuild($event)">
       <i class="material-icons">autorenew</i>Refresh
     </button>

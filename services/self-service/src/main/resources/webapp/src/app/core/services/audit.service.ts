@@ -18,7 +18,7 @@ export class AuditService {
       queryString += `&resource-names=${filterData.resources.join(',')}`;
     }
     if (filterData.resource_types.length) {
-      queryString += `&resource_types=${filterData.resource_types.map(v => v.toLowerCase()).join(',')}`;
+      queryString += `&resource-types=${filterData.resource_types.join(',')}`;
     }
     if (filterData.users.length) {
       queryString += `&users=${filterData.users.join(',')}`;
