@@ -53,7 +53,7 @@ export class AuditGridComponent implements OnInit {
 
   ngOnInit() {}
 
-  public refreshAudit(filter?) {
+  public buildAuditGrid(filter?) {
     if (!this.showItemsPrPage) {
       if (window.localStorage.getItem('audit_per_page')) {
         this.showItemsPrPage = +window.localStorage.getItem('audit_per_page');
@@ -84,6 +84,11 @@ export class AuditGridComponent implements OnInit {
     });
   }
 
+  public refreshAuditPage() {
+    this.filterAuditData = this.copiedFilterAuditData;
+    this.getAuditData();
+  }
+
   public setAvaliblePeriod(period) {
     this.filterAuditData.date_start = period.start_date;
     this.filterAuditData.date_end = period.end_date;
@@ -106,7 +111,7 @@ export class AuditGridComponent implements OnInit {
     this.firstItem = 1;
     if (this.lastItem !== item) {
       this.lastItem = item;
-      this.refreshAudit();
+      this.buildAuditGrid();
     }
   }
 
@@ -131,12 +136,12 @@ export class AuditGridComponent implements OnInit {
 
   public loadItemsForPage(action) {
     this.changePage(action);
-    this.refreshAudit();
+    this.buildAuditGrid();
   }
 
   public resetFilterConfigurations() {
     this.filterAuditData = FilterAuditModel.getDefault();
-    this.refreshAudit(true);
+    this.buildAuditGrid(true);
   }
 
   public didFilterChanged() {

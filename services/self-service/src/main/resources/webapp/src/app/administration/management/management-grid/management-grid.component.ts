@@ -107,7 +107,7 @@ export class ManagementGridComponent implements OnInit {
   }
 
   public resetFilterConfigurations(): void {
-    this.filterForm.defaultConfigurations();
+    // this.filterForm.defaultConfigurations();
     this.applyFilter(this.filterForm);
     this.buildGrid();
   }

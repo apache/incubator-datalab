@@ -83,16 +83,16 @@ export class AuditComponent implements OnInit, OnDestroy {
   }
 
   public buildAuditReport() {
-    this.auditGrid.refreshAudit();
+    this.auditGrid.buildAuditGrid();
   }
 
   public rebuildAuditGrid() {
-    this.buildAuditReport();
+    this.auditGrid.refreshAuditPage();
   }
 
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
-      .subscribe((result: any) => {});
+      .subscribe();
   }
 
   public setRangeOption(event) {

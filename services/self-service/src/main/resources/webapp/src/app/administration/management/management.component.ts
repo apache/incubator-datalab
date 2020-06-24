@@ -83,6 +83,10 @@ export class ManagementComponent implements OnInit {
     this.environmentsDataService.updateEnvironmentData();
   }
 
+  public refreshGrid() {
+     this.buildGrid();
+  }
+
   public manageEnvironmentAction($event) {
     this.manageEnvironmentsService
       .environmentManagement(

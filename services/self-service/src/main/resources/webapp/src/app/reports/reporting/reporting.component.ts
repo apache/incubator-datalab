@@ -37,7 +37,7 @@ import {ProgressBarService} from '../../core/services/progress-bar.service';
                   (setRangeOption)="setRangeOption($event)">
     </dlab-toolbar>
     <mat-divider></mat-divider>
-    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
+    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()" [filteredReportData]="reportData" ></dlab-reporting-grid>
   </div>
 
   `,
@@ -62,11 +62,12 @@ export class ReportingComponent implements OnInit, OnDestroy {
   @ViewChild(ReportingGridComponent, { static: false }) reportingGrid: ReportingGridComponent;
   @ViewChild(ToolbarComponent, { static: true }) reportingToolbar: ToolbarComponent;
 
-  reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
+  reportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
   data: any;
   billingEnabled: boolean;
   admin: boolean;
+  private cashedFilterData: any;
 
   constructor(
     private billingReportService: BillingReportService,
@@ -87,12 +88,13 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   getGeneralBillingData() {
     setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
+    this.cashedFilterData = JSON.parse(JSON.stringify(this.reportData));
+    Object.setPrototypeOf(this.cashedFilterData, Object.getPrototypeOf(this.reportData));
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
         this.reportingGrid.refreshData(this.data, this.data.report_lines);
         this.reportingGrid.setFullReport(this.data.is_full);
-
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
           localStorage.setItem('report_period', JSON.stringify({
@@ -114,14 +116,14 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   rebuildBillingReport(): void {
     this.checkAutorize();
+    console.log(this.cashedFilterData);
+    this.reportData = this.cashedFilterData;
     this.buildBillingReport();
-
   }
 
   buildBillingReport() {
     this.clearStorage();
     this.resetRangePicker();
-    this.reportData.defaultConfigurations();
     this.getGeneralBillingData();
   }
 
