@@ -31,6 +31,8 @@ public interface BucketService {
 
     void uploadObject(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, String contentType, long fileSize, String auditInfo);
 
+    void uploadFolder(UserInfo userInfo, String bucket, String folder, String endpoint);
+
     void downloadObject(UserInfo userInfo, String bucket, String object, String endpoint, HttpServletResponse resp, String auditInfo);
 
     void deleteObjects(UserInfo userInfo, String bucket, List<String> objects, String endpoint, String auditInfo);

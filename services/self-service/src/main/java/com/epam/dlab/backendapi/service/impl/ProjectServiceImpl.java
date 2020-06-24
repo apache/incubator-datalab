@@ -58,6 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String START_PRJ_API = "infrastructure/project/start";
 	private static final String STOP_PRJ_API = "infrastructure/project/stop";
 	private static final String STOP_ACTION = "stop";
+	private static final String TERMINATE_ACTION = "terminate";
 
 	private static final String AUDIT_ADD_ENDPOINT = "Added endpoint(s) %s";
 	private static final String AUDIT_ADD_GROUP = "Added group(s) %s";
@@ -117,7 +118,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@BudgetLimited
 	@Override
-	public void create(UserInfo user, ProjectDTO projectDTO) {
+	public void create(UserInfo user, ProjectDTO projectDTO, String resourceName) {
 		if (!projectDAO.get(projectDTO.getName()).isPresent()) {
 			projectDAO.create(projectDTO);
 			createProjectOnCloud(user, projectDTO);
