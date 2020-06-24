@@ -97,14 +97,15 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					.computationalName(form.getName())
 					.imageName(form.getImage())
 					.templateName(form.getTemplateName())
-                    .status(CREATING.toString())
-                    .masterShape(form.getMasterInstanceType())
-                    .slaveShape(form.getSlaveInstanceType())
-                    .slaveSpot(form.getSlaveInstanceSpot())
-                    .slaveSpotPctPrice(form.getSlaveInstanceSpotPctPrice())
-                    .slaveNumber(form.getInstanceCount())
-                    .config(form.getConfig())
-                    .version(form.getVersion())
+					.status(CREATING.toString())
+					.masterShape(form.getMasterInstanceType())
+					.slaveShape(form.getSlaveInstanceType())
+					.slaveSpot(form.getSlaveInstanceSpot())
+					.slaveSpotPctPrice(form.getSlaveInstanceSpotPctPrice())
+					.slaveNumber(form.getInstanceCount())
+					.config(form.getConfig())
+					.version(form.getVersion())
+					.totalInstanceCount(form.getInstanceCount())
                     .build();
             boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, awsComputationalResource,
                     form.getProject(), getAuditInfo(form.getNotebookName()));

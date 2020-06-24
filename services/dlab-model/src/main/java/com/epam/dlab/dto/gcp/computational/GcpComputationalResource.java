@@ -63,9 +63,9 @@ public class GcpComputationalResource extends UserComputationalResource {
 									String instanceId, String masterShape, String slaveShape, String slaveNumber,
 									String masterNumber, String preemptibleNumber, String version,
 									List<ResourceURL> resourceURL, LocalDateTime lastActivity,
-									Map<String, String> tags) {
+									Map<String, String> tags, String totalInstanceCount) {
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL, lastActivity, tags);
+				reuploadKeyRequired, resourceURL, lastActivity, tags, totalInstanceCount);
 		this.instanceId = instanceId;
 		this.masterShape = masterShape;
 		this.slaveShape = slaveShape;

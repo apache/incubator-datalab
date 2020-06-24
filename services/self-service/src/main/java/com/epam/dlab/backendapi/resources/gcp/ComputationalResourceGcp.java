@@ -95,10 +95,10 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
 		if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(form.getImage())) {
-			validate(userInfo, form);
-			GcpComputationalResource gcpComputationalResource = GcpComputationalResource.builder().computationalName
-					(form.getName())
-					.imageName(form.getImage())
+            validate(userInfo, form);
+            GcpComputationalResource gcpComputationalResource = GcpComputationalResource.builder()
+                    .computationalName(form.getName())
+                    .imageName(form.getImage())
                     .templateName(form.getTemplateName())
                     .status(CREATING.toString())
                     .masterShape(form.getMasterInstanceType())
@@ -107,6 +107,7 @@ public class ComputationalResourceGcp implements ComputationalAPI {
                     .masterNumber(form.getMasterInstanceCount())
                     .preemptibleNumber(form.getPreemptibleCount())
                     .version(form.getVersion())
+                    .totalInstanceCount(form.getMasterInstanceCount() + form.getSlaveInstanceCount())
                     .build();
             boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, gcpComputationalResource,
                     form.getProject(), getAuditInfo(form.getNotebookName()));
