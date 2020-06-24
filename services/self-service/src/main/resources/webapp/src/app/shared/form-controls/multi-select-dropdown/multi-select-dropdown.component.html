@@ -19,7 +19,7 @@
 
 <div class="dropdown-multiselect btn-group" ngClass="{{type || ''}}">
   <button type="button" #list (click)="multiactions.toggle($event, list)">
-    <span class="ellipsis" *ngIf="model.length === 0">Select {{ type | convertaction }}</span>
+    <span class="ellipsis" *ngIf="model.length === 0 && type">Select {{ type  }}</span>
     <span class="selected-items ellipsis" *ngIf="model.length !== 0">
       Selected {{model.length}} item<strong *ngIf="model.length > 1">s</strong>
     </span>
