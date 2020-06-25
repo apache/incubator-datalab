@@ -104,7 +104,7 @@ export class BucketDataService {
   public updateItem(node: TodoItemNode, file) {
       node.item = file;
       this._bucketData.next(this.data);
-    }
+  }
 
   public removeItem(parent, child) {
      parent.children.splice( parent.children.indexOf(child), 1);

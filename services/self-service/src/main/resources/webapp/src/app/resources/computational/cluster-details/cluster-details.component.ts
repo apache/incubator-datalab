@@ -120,6 +120,5 @@ export class DetailComputationalResourcesComponent implements OnInit {
 
   private logAction(name: any, description: string) {
     this.auditService.sendDataToAudit({resource_name: name, info: `User followed ${description} link`}).subscribe();
-    console.log(`${name}: ${description}`);
   }
 }

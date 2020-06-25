@@ -31,7 +31,7 @@ export class ReportingGridComponent implements OnInit {
 
   filterConfiguration: ReportingConfigModel;
   // filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
-  collapseFilterRow: boolean = true;
+  collapseFilterRow: boolean = false;
   reportData: Array<any> = [];
   fullReport: Array<any>;
   isFiltered: boolean = false;
