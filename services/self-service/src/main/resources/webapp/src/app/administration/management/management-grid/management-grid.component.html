@@ -266,7 +266,7 @@
             <i class="material-icons">close</i>
           </button>
 
-          <button mat-icon-button class="btn apply" (click)="applyFnoilter(filterForm)"
+          <button mat-icon-button class="btn apply" (click)="applyFilter(filterForm)"
             [disabled]="allFilteredEnvironmentData?.length == 0 && !filtering">
             <i class="material-icons"
               [ngClass]="{'not-allowed': allFilteredEnvironmentData?.length == 0 && !filtering}">done</i>
