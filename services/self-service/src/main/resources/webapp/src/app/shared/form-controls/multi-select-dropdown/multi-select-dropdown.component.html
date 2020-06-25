@@ -19,7 +19,11 @@
 
 <div class="dropdown-multiselect btn-group" ngClass="{{type || ''}}">
   <button type="button" #list (click)="multiactions.toggle($event, list)">
-    <span class="ellipsis" *ngIf="model.length === 0 && type">Select {{ type  }}</span>
+    <span class="ellipsis" *ngIf="model.length === 0 && type">
+      <ng-container *ngIf="type === 'resource_type' || type === 'resource_types';else noResourceTypeSelect">Select {{ type | convertaction}}</ng-container>
+         <ng-template #noResourceTypeSelect>Select {{ type  }}</ng-template>
+
+    </span>
     <span class="selected-items ellipsis" *ngIf="model.length !== 0">
       Selected {{model.length}} item<strong *ngIf="model.length > 1">s</strong>
     </span>
@@ -41,14 +45,15 @@
             <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
               <span class="material-icons" *ngIf="model.indexOf(item) >= 0">done</span>
               <ng-container *ngIf="type !== 'resource_type' && type !== 'resource_types'">{{item}}</ng-container>
-              <ng-container *ngIf="type === 'resource_type' || type === 'resource_types'">{{item | titlecase}}</ng-container>
+              <ng-container *ngIf="type === 'resource_type' || type === 'resource_types'">{{item | convertaction}}</ng-container>
             </a>
           </li>
         </ng-template>
       <li *ngIf="items?.length == 0">
         <a role="menuitem" class="list-item">
           <span class="material-icons">visibility_off</span>
-          No {{type}}
+         <ng-container *ngIf="type === 'resource_type' || type === 'resource_types';else noResourceType">No {{type | convertaction}}</ng-container>
+         <ng-template #noResourceType>No {{type}}</ng-template>
         </a>
       </li>
     </ul>

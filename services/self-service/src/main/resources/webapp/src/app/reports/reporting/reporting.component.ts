@@ -116,7 +116,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   rebuildBillingReport(): void {
     this.checkAutorize();
-    console.log(this.cashedFilterData);
     this.reportData = this.cashedFilterData;
     this.buildBillingReport();
   }

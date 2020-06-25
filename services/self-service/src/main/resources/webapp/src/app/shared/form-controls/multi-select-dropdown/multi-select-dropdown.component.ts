@@ -56,7 +56,6 @@ export class MultiSelectDropdownComponent {
   }
 
   onUpdate($event): void {
-    console.log(this.type);
     this.selectionChange.emit({ model: this.model, type: this.type, $event });
   }
 }
