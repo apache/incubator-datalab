@@ -71,6 +71,7 @@ export class BackupOptionsModel {
 
 export interface GeneralEnvironmentStatus {
   admin: boolean;
+  auditEnabled: boolean;
   projectAdmin: boolean;
   billingEnabled: boolean;
   billingQuoteUsed: number;
