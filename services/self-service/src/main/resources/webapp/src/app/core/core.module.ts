@@ -48,6 +48,7 @@ import { NoCacheInterceptor } from './interceptors/nocache.interceptor';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {AuditGuard} from './services';
 
 @NgModule({
   imports: [CommonModule],
@@ -65,6 +66,7 @@ export class CoreModule {
         ApplicationSecurityService,
         AuthorizationGuard,
         AdminGuard,
+        AuditGuard,
         CloudProviderGuard,
         CheckParamsGuard,
         AppRoutingService,

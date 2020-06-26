@@ -62,7 +62,7 @@ export class BucketBrowserComponent implements OnInit {
   public isFilterVisible: boolean;
   public buckets;
   public isFileUploading: boolean;
-  public uploadingQueueLength: number = 5;
+  public uploadingQueueLength: number = 4;
   public maxFileSize: number = 4294967296;
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
