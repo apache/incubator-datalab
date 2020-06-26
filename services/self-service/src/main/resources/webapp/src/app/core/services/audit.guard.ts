@@ -17,29 +17,15 @@
  * under the License.
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { MaterialModule } from '../material.module';
-import { ProgressDialogModule, BubbleModule } from '../index';
+import { Injectable } from '@angular/core';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { HealthStatusService } from './healthStatus.service';
 
-import { NavbarComponent } from './navbar.component';
-import { NotificationDialogModule } from '../modal-dialog/notification-dialog';
-import {EdgeActionDialogModule} from '../modal-dialog/edge-action-dialog';
+@Injectable()
+export class AuditGuard implements CanActivate {
+  constructor(private _healthStatus: HealthStatusService) { }
 
-export * from './navbar.component';
-
-@NgModule({
-  imports: [
-    CommonModule,
-    RouterModule,
-    MaterialModule,
-    NotificationDialogModule,
-    EdgeActionDialogModule,
-    ProgressDialogModule,
-    BubbleModule,
-  ],
-  declarations: [NavbarComponent],
-  exports: [NavbarComponent, RouterModule]
-})
-export class NavbarModule { }
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    return this._healthStatus.isPassageway('audit');
+  }
+}

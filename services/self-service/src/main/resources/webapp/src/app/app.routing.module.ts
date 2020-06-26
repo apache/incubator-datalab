@@ -33,7 +33,7 @@ import { ProjectComponent } from './administration/project/project.component';
 import { RolesComponent } from './administration/roles/roles.component';
 import { SwaggerComponent } from './swagger/swagger.component';
 
-import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard } from './core/services';
+import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard, AuditGuard } from './core/services';
 import {AuditComponent} from './reports/audit/audit.component';
 
 const routes: Routes = [{
@@ -84,7 +84,7 @@ const routes: Routes = [{
     {
       path: 'audit',
       component: AuditComponent,
-      canActivate: [AuthorizationGuard, AdminGuard],
+      canActivate: [AuthorizationGuard, AuditGuard],
     },
   ]
 }, {
