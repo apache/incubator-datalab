@@ -106,8 +106,9 @@ public class BucketServiceImpl implements BucketService {
         log.info("Finished uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
     }
 
+    @Audit(action = UPLOAD, type = BUCKET)
     @Override
-    public void uploadFolder(UserInfo userInfo, String bucket, String folder, String endpoint) {
+    public void uploadFolder(@User UserInfo userInfo, @ResourceName String bucket, String folder, String endpoint, @Info String auditInfo) {
         log.info("Uploading folder {} for user {} to bucket {}", folder, userInfo.getName(), bucket);
         try {
             if (!folder.endsWith("/")) {

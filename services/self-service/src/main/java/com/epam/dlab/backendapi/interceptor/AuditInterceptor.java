@@ -25,6 +25,7 @@ import com.epam.dlab.backendapi.annotation.Info;
 import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.annotation.ResourceName;
 import com.epam.dlab.backendapi.annotation.User;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.domain.AuditActionEnum;
 import com.epam.dlab.backendapi.domain.AuditDTO;
 import com.epam.dlab.backendapi.domain.AuditResourceTypeEnum;
@@ -46,27 +47,31 @@ import java.util.stream.IntStream;
 public class AuditInterceptor implements MethodInterceptor {
     @Inject
     private AuditService auditService;
+    @Inject
+    private SelfServiceApplicationConfiguration configuration;
 
     @Override
     public Object invoke(MethodInvocation mi) throws Throwable {
-        Method method = mi.getMethod();
-        final Parameter[] parameters = mi.getMethod().getParameters();
-        final String user = getUserInfo(mi, parameters);
-        final AuditActionEnum action = getAuditAction(method);
-        final AuditResourceTypeEnum resourceType = getResourceType(method);
-        final String project = getProject(mi, parameters);
-        final String resourceName = getResourceName(mi, parameters);
-        final String auditInfo = getInfo(mi, parameters);
+        if (configuration.isAuditEnabled()) {
+            Method method = mi.getMethod();
+            final Parameter[] parameters = mi.getMethod().getParameters();
+            final String user = getUserInfo(mi, parameters);
+            final AuditActionEnum action = getAuditAction(method);
+            final AuditResourceTypeEnum resourceType = getResourceType(method);
+            final String project = getProject(mi, parameters);
+            final String resourceName = getResourceName(mi, parameters);
+            final String auditInfo = getInfo(mi, parameters);
 
-        AuditDTO auditCreateDTO = AuditDTO.builder()
-                .user(user)
-                .action(action)
-                .type(resourceType)
-                .project(project)
-                .resourceName(resourceName)
-                .info(auditInfo)
-                .build();
-        auditService.save(auditCreateDTO);
+            AuditDTO auditCreateDTO = AuditDTO.builder()
+                    .user(user)
+                    .action(action)
+                    .type(resourceType)
+                    .project(project)
+                    .resourceName(resourceName)
+                    .info(auditInfo)
+                    .build();
+            auditService.save(auditCreateDTO);
+        }
         return mi.proceed();
     }
 
