@@ -76,7 +76,7 @@ import {ProgressBarService} from '../../core/services/progress-bar.service';
 })
 export class NavbarComponent implements OnInit, OnDestroy {
 
-  private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 55000;
+  private readonly CHECK_ACTIVE_SCHEDULE_TIMEOUT: number = 300000;
   private readonly CHECK_ACTIVE_SCHEDULE_PERIOD: number = 15;
 
   currentUserName: string;

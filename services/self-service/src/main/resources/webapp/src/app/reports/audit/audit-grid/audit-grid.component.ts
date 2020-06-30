@@ -168,8 +168,13 @@ export class AuditGridComponent implements OnInit {
               <div class="scrolling-content mat-list-wrapper" id="scrolling">
                 <mat-list-item class="list-item" *ngFor="let action of actionList">
                   <div class="info-item-title">{{action[0]}}</div>
-                  <div class="info-item-data" >
-                      <div *ngFor="let description of action[1]?.split(',')">{{description}}</div>
+                  <div class="info-item-data" *ngIf="action[0] === 'File(s)'">
+                    <div class="file-description ellipsis" *ngFor="let description of action[1]?.split(',')" [matTooltip]="description" matTooltipPosition="above">
+                      {{description}}
+                    </div>
+                  </div>
+                  <div class="info-item-data" *ngIf="action[0] !== 'File(s)'">
+                     <div *ngFor="let description of action[1]?.split(',')">{{description}}</div>
                   </div>
                 </mat-list-item>
               </div>
@@ -197,6 +202,10 @@ export class AuditGridComponent implements OnInit {
     .info-item-title{width: 40%; padding: 10px 0}
     .list-header {padding-top: 5px;}
     .info-item-data{width: 60%; text-align: left; padding: 10px 0}
+    .file-description{ overflow: hidden; display: block; direction: rtl;}
+
+
+
 
 
   `]

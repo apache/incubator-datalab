@@ -54,7 +54,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                           will be stopped
                       </p>
                   </div>
-                  <span class="strong">by a schedule in 15 minutes.</span>
+                  <span class="strong">by a schedule in less than 15 minutes.</span>
               </div>
               <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
               <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
