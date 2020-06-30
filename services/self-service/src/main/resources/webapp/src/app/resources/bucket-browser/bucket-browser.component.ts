@@ -381,11 +381,11 @@ export class BucketBrowserComponent implements OnInit {
     if (action === 'delete') {
       const itemsForDeleting = [...folderSelected, ...selected];
       const objects = itemsForDeleting.map(obj => obj.object.object);
-      const dataForServer = [];
+      let dataForServer = [];
       objects.forEach(object => {
         dataForServer.push(...this.bucketDataService.serverData.map(v => v.object).filter(v => v.indexOf(object) === 0));
       });
-
+      dataForServer = [...dataForServer, ...objects].filter((v, i, arr) => i === arr.indexOf(v));
       this.dialog.open(BucketConfirmationDialogComponent, {data: {items: itemsForDeleting, type: 'delete'} , width: '550px'})
         .afterClosed().subscribe((res) => {
         !res && this.clearSelection();

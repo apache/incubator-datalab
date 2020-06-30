@@ -227,7 +227,6 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
     })
       .subscribe(_ => {
           this.bucketDataService.insertItem(flatParent, itemValue, false);
-          // this.bucketDataService.refreshBucketdata(bucket, this.endpoint);
           this.toastr.success('Folder successfully created!', 'Success!');
           this.folderCreating = false;
           this.removeItem(node);
