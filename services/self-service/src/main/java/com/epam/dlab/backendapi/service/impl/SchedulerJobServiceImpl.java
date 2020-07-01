@@ -209,11 +209,11 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		final OffsetDateTime desiredDateTime = OffsetDateTime.now().plusMinutes(minutesOffset);
 		final Predicate<SchedulerJobData> userPredicate = s -> user.equals(s.getUser());
 		final Stream<SchedulerJobData> computationalSchedulersStream =
-				getComputationalSchedulersForStopping(desiredDateTime, false)
+				getComputationalSchedulersForStopping(desiredDateTime)
 						.stream()
 						.filter(userPredicate);
 		final Stream<SchedulerJobData> exploratorySchedulersStream =
-				getExploratorySchedulersForStopping(desiredDateTime, false)
+				getExploratorySchedulersForStopping(desiredDateTime)
 						.stream()
 						.filter(userPredicate);
 		return Stream.concat(computationalSchedulersStream, exploratorySchedulersStream)
@@ -320,15 +320,21 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 		}
 	}
 
+	private List<SchedulerJobData> getExploratorySchedulersForStopping(OffsetDateTime currentDateTime) {
+		return schedulerJobDAO.getExploratorySchedulerDataWithStatus(RUNNING)
+				.stream()
+				.filter(canSchedulerForStoppingBeApplied(currentDateTime, true))
+				.collect(Collectors.toList());
+	}
+
 	private List<SchedulerJobData> getExploratorySchedulersForStopping(OffsetDateTime currentDateTime,
 																	   boolean checkInactivity) {
-
 		final Date clusterMaxInactivityAllowedDate =
 				from(LocalDateTime.now().minusMinutes(ALLOWED_INACTIVITY_MINUTES).atZone(systemDefault()).toInstant());
 		return schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(RUNNING,
 				clusterMaxInactivityAllowedDate)
 				.stream()
-				.filter(canSchedulerForStoppingBeApplied(currentDateTime)
+				.filter(canSchedulerForStoppingBeApplied(currentDateTime, false)
 						.or(schedulerJobData -> checkInactivity && exploratoryInactivityCondition(schedulerJobData)))
 				.collect(Collectors.toList());
 	}
@@ -348,16 +354,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 				.collect(Collectors.toList());
 	}
 
-	private Predicate<SchedulerJobData> canSchedulerForStoppingBeApplied(OffsetDateTime currentDateTime) {
+	private Predicate<SchedulerJobData> canSchedulerForStoppingBeApplied(OffsetDateTime currentDateTime, boolean usingOffset) {
 		return schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
 				currentDateTime, schedulerJobData.getJobDTO().getStopDaysRepeat(),
-				schedulerJobData.getJobDTO().getEndTime());
+				schedulerJobData.getJobDTO().getEndTime(), usingOffset);
 	}
 
 	private Predicate<SchedulerJobData> canSchedulerForStartingBeApplied(OffsetDateTime currentDateTime) {
 		return schedulerJobData -> shouldSchedulerBeExecuted(schedulerJobData.getJobDTO(),
 				currentDateTime, schedulerJobData.getJobDTO().getStartDaysRepeat(),
-				schedulerJobData.getJobDTO().getStartTime());
+				schedulerJobData.getJobDTO().getStartTime(), false);
 	}
 
 	private Predicate<SchedulerJobData> canSchedulerForTerminatingBeApplied(OffsetDateTime currentDateTime) {
@@ -373,12 +379,20 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 				convertedCurrentTime.equals(terminateDateTime.atOffset(timeZoneOffset).toLocalDateTime());
 	}
 
+	private List<SchedulerJobData> getComputationalSchedulersForStopping(OffsetDateTime currentDateTime) {
+		return schedulerJobDAO
+				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, RUNNING)
+				.stream()
+				.filter(canSchedulerForStoppingBeApplied(currentDateTime, true))
+				.collect(Collectors.toList());
+	}
+
 	private List<SchedulerJobData> getComputationalSchedulersForStopping(OffsetDateTime currentDateTime,
 																		 boolean checkInactivity) {
 		return schedulerJobDAO
 				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, RUNNING)
 				.stream()
-				.filter(canSchedulerForStoppingBeApplied(currentDateTime)
+				.filter(canSchedulerForStoppingBeApplied(currentDateTime, false)
 						.or(schedulerJobData -> checkInactivity && computationalInactivityCondition(schedulerJobData)))
 				.collect(Collectors.toList());
 	}
@@ -455,12 +469,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
 	}
 
 	private boolean shouldSchedulerBeExecuted(SchedulerJobDTO dto, OffsetDateTime dateTime, List<DayOfWeek> daysRepeat,
-											  LocalTime time) {
+											  LocalTime time, boolean usingOffset) {
 		LocalDateTime convertedDateTime = localDateTimeAtZone(dateTime, dto.getTimeZoneOffset());
-
 		return isSchedulerActive(dto, convertedDateTime)
 				&& daysRepeat.contains(convertedDateTime.toLocalDate().getDayOfWeek())
-				&& convertedDateTime.toLocalTime().equals(time);
+				&& timeFilter(time, convertedDateTime.toLocalTime(), usingOffset);
+	}
+
+	private boolean timeFilter(LocalTime time, LocalTime convertedDateTime, boolean usingOffset) {
+		return usingOffset ? (time.isBefore(convertedDateTime) && time.isAfter(LocalDateTime.now().toLocalTime())) :
+				convertedDateTime.equals(time);
 	}
 
 	private boolean isSchedulerActive(SchedulerJobDTO dto, LocalDateTime convertedDateTime) {

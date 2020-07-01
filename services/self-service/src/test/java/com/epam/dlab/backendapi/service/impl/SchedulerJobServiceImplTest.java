@@ -1053,7 +1053,7 @@ public class SchedulerJobServiceImplTest {
 		final LocalDate now = LocalDate.now();
 		final DayOfWeek[] weekDays = DayOfWeek.values();
 		final LocalTime currentTime = LocalTime.now();
-		final LocalTime offsetTime = LocalTime.now().plusMinutes(minutesOffset);
+		final LocalTime offsetTime = LocalTime.now().plusMinutes(1);
 		final SchedulerJobData schedulerJobData = getSchedulerJobData(now,
 				now.plusDays(1), Arrays.asList(weekDays), Arrays.asList(weekDays),
 				LocalDateTime.of(now, currentTime.plusMinutes(minutesOffset).truncatedTo(ChronoUnit.MINUTES)), false,
@@ -1064,7 +1064,7 @@ public class SchedulerJobServiceImplTest {
 				LocalDateTime.of(now, currentTime.plusMinutes(minutesOffset).truncatedTo(ChronoUnit.MINUTES)),
 				false, "user123", offsetTime.truncatedTo(ChronoUnit.MINUTES));
 
-		when(schedulerJobDAO.getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(any(UserInstanceStatus.class), any(Date.class))).thenReturn(Arrays.asList(schedulerJobData, secondScheduler));
+		when(schedulerJobDAO.getExploratorySchedulerDataWithStatus(any(UserInstanceStatus.class))).thenReturn(Arrays.asList(schedulerJobData, secondScheduler));
 		when(securityService.getUserInfoOffline(anyString())).thenReturn(getUserInfo());
 		when(schedulerJobDAO.getComputationalSchedulerDataWithOneOfStatus(any(UserInstanceStatus.class),
 				any(DataEngineType.class), anyVararg())).thenReturn(singletonList(schedulerJobData));
