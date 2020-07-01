@@ -52,11 +52,8 @@ import java.nio.file.Paths;
 @Path("/bucket")
 @Slf4j
 public class BucketResource {
-  
-    private static final String AUDIT_UPLOAD_MESSAGE = "File(s): %s";
+    private static final String AUDIT_UPLOAD_FOLDER_MESSAGE = "Folder: %s";
     private static final String AUDIT_MESSAGE = "File(s): %s";
-    private static final String AUDIT_UPLOAD_FOLDER_MESSAGE = "Folder(s): %s.";
-
     private static final String OBJECT_FORM_FIELD = "object";
     private static final String BUCKET_FORM_FIELD = "bucket";
     private static final String ENDPOINT_FORM_FIELD = "endpoint";
@@ -149,7 +146,7 @@ public class BucketResource {
                             fileSize = Long.parseLong(Streams.asString(stream));
                         }
                     } else {
-                        bucketService.uploadObject(userInfo, bucket, object, endpoint, stream, item.getContentType(), fileSize, String.format(AUDIT_UPLOAD_OBJECT_MESSAGE, object, fileSize));
+                        bucketService.uploadObject(userInfo, bucket, object, endpoint, stream, item.getContentType(), fileSize, String.format(AUDIT_MESSAGE, object));
                     }
                 } catch (Exception e) {
                     log.error("Cannot upload object {} to bucket {}. {}", object, bucket, e.getMessage(), e);
