@@ -170,7 +170,7 @@ public class BillingServiceImpl implements BillingService {
             try {
                 updateBillingData(endpointDTO, billingData);
             } catch (Exception e) {
-                log.error("Something went wrong while trying to update billing for {}. {}", endpointDTO.getName(), e.getMessage());
+                log.error("Something went wrong while trying to update billing for {}. {}", endpointDTO.getName(), e.getMessage(), e);
             }
         });
     }
