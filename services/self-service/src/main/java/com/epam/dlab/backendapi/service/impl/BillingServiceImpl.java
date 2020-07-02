@@ -142,7 +142,6 @@ public class BillingServiceImpl implements BillingService {
         resourceNames.add(exploratoryName);
         List<BillingReportLine> billingReportLines = billingDAO.findBillingData(project, endpoint, resourceNames);
         final double sum = billingReportLines.stream().mapToDouble(BillingReportLine::getCost).sum();
-        //Scale the resource costs for WEB UI
         List<BillingReportLine> billingData = billingReportLines
                 .stream()
                 .peek(bd -> bd.setCost(BigDecimal.valueOf(bd.getCost()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()))
