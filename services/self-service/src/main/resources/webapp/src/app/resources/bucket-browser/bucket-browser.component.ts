@@ -61,7 +61,9 @@ export class BucketBrowserComponent implements OnInit {
   public isSelectionOpened: any;
   public isFilterVisible: boolean;
   public buckets;
-  private isFileUploading: boolean;
+  public isFileUploading: boolean;
+  public uploadingQueueLength: number = 4;
+  public maxFileSize: number = 4294967296;
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
 
@@ -134,7 +136,7 @@ export class BucketBrowserComponent implements OnInit {
   public handleFileInput(event) {
     const fullFilesList = Object['values'](event.target.files);
     if (fullFilesList.length > 0) {
-      const files = fullFilesList.filter(v => v.size < 4294967296);
+      const files = fullFilesList.filter(v => v.size < this.maxFileSize);
       const toBigFile = fullFilesList.length !== files.length;
       const toMany = files.length > 50;
       if (files.length > 50) {
@@ -294,7 +296,7 @@ export class BucketBrowserComponent implements OnInit {
     if ((this.refreshTokenLimit > this.getTokenValidTime()) && !this.isTokenRefreshing) {
       this.refreshToken();
     }
-    if (waitUploading.length && uploading.length < 10) {
+    if (waitUploading.length && uploading.length < this.uploadingQueueLength) {
       if (!file) {
         file = waitUploading[0];
       }
@@ -379,11 +381,11 @@ export class BucketBrowserComponent implements OnInit {
     if (action === 'delete') {
       const itemsForDeleting = [...folderSelected, ...selected];
       const objects = itemsForDeleting.map(obj => obj.object.object);
-      const dataForServer = [];
+      let dataForServer = [];
       objects.forEach(object => {
         dataForServer.push(...this.bucketDataService.serverData.map(v => v.object).filter(v => v.indexOf(object) === 0));
       });
-
+      dataForServer = [...dataForServer, ...objects].filter((v, i, arr) => i === arr.indexOf(v));
       this.dialog.open(BucketConfirmationDialogComponent, {data: {items: itemsForDeleting, type: 'delete'} , width: '550px'})
         .afterClosed().subscribe((res) => {
         !res && this.clearSelection();

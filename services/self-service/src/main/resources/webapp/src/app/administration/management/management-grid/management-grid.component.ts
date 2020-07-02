@@ -66,6 +66,7 @@ export class ManagementGridComponent implements OnInit {
   displayedFilterColumns: string[] = ['checkbox-filter', 'user-filter', 'type-filter', 'project-filter', 'shape-filter', 'status-filter', 'resource-filter', 'actions-filter'];
   private selected;
   private allActiveNotebooks: any;
+  private cashedFilterForm: ManagementConfigModel = new ManagementConfigModel([], '', [], [], [], []);
 
   constructor(
     private healthStatusService: HealthStatusService,
@@ -85,7 +86,7 @@ export class ManagementGridComponent implements OnInit {
       if (data) {
         this.allEnvironmentData = EnvironmentModel.loadEnvironments(data);
         this.getDefaultFilterConfiguration(data);
-        this.applyFilter(this.filterForm);
+        this.applyFilter(this.cashedFilterForm || this.filterForm);
       }
       this.progressBarService.stopProgressBar();
     }, () => {
@@ -113,6 +114,13 @@ export class ManagementGridComponent implements OnInit {
   }
 
   public applyFilter(config) {
+    if (config) {
+      this.filterForm = JSON.parse(JSON.stringify(config));
+      Object.setPrototypeOf(this.filterForm, Object.getPrototypeOf(config));
+      this.cashedFilterForm = JSON.parse(JSON.stringify(config));
+      Object.setPrototypeOf(this.cashedFilterForm, Object.getPrototypeOf(config));
+    }
+
     let filteredData = this.getEnvironmentDataCopy();
 
     const containsStatus = (list, selectedItems) => {
@@ -132,9 +140,8 @@ export class ManagementGridComponent implements OnInit {
         const isProject = config.projects.length > 0 ? (config.projects.indexOf(item.project) !== -1) : true;
 
         const modifiedResources = containsStatus(item.resources, config.resources);
-        let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
-
-        if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
+        let isResources = config.resources.length > 0 ? (modifiedResources && modifiedResources.length > 0) : true;
+        if (config.resources.length > 0 && modifiedResources && modifiedResources.length > 0) { item.resources = modifiedResources; }
 
         if (config.resources && config.resources.length === 0 && config.type === 'active' ||
           modifiedResources && modifiedResources.length >= 0 && config.resources.length > 0 && config.type === 'active') {

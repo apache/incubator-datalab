@@ -52,10 +52,9 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
 										  SchedulerJobDTO schedulerJobData, boolean reuploadKeyRequired,
 										  String dataEngineInstanceCount, String dataEngineInstanceShape,
 										  List<ResourceURL> resourceURL, LocalDateTime lastActivity,
-										  List<ClusterConfig> config, Map<String, String> tags) {
-
+										  List<ClusterConfig> config, Map<String, String> tags, int totalInstanceCount) {
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
-				reuploadKeyRequired, resourceURL, lastActivity, tags);
+				reuploadKeyRequired, resourceURL, lastActivity, tags, totalInstanceCount);
 		this.dataEngineInstanceCount = dataEngineInstanceCount;
 		this.dataEngineInstanceShape = dataEngineInstanceShape;
 		this.config = config;

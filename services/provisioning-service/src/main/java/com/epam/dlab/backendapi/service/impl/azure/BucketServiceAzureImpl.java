@@ -56,7 +56,7 @@ public class BucketServiceAzureImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
+    public void uploadObject(String bucket, String object, InputStream stream, String contentType, long fileSize) {
         log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(System.getenv("AZURE_STORAGE_CONNECTION_STRING")).buildClient();

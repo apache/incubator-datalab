@@ -58,12 +58,14 @@ public class BucketServiceGcpImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
+    public void uploadObject(String bucket, String object, InputStream stream, String contentType, long fileSize) {
         log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             BlobId blobId = BlobId.of(bucket, object);
-            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+                    .setContentType(contentType)
+                    .build();
             storage.create(blobInfo, stream);
         } catch (Exception e) {
             log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage());

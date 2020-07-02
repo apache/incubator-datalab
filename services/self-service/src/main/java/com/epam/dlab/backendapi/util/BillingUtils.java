@@ -70,7 +70,7 @@ public class BillingUtils {
     private static final String IMAGE_NAME = "Image";
 
     private static final String DATAENGINE_NAME_FORMAT = "%d x %s";
-    private static final String DATAENGINE_SERVICE_NAME_FORMAT = "Master: %sSlave: %s";
+    private static final String DATAENGINE_SERVICE_NAME_FORMAT = "Master: %sSlave: %d x %s";
 
     public static Stream<BillingReportLine> edgeBillingDataStream(String project, String sbn, String endpoint) {
         final String userEdgeId = String.format(EDGE_FORMAT, sbn, project, endpoint).toLowerCase();
@@ -160,7 +160,7 @@ public class BillingUtils {
     public static String getComputationalShape(UserComputationalResource resource) {
         return DataEngineType.fromDockerImageName(resource.getImageName()) == DataEngineType.SPARK_STANDALONE ?
                 String.format(DATAENGINE_NAME_FORMAT, resource.getDataengineInstanceCount(), resource.getDataengineShape()) :
-                String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), resource.getSlaveNodeShape());
+                String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), resource.getTotalInstanceCount() - 1, resource.getSlaveNodeShape());
     }
 
     private static Stream<BillingReportLine> standardImageBillingDataStream(String sbn, String endpoint) {

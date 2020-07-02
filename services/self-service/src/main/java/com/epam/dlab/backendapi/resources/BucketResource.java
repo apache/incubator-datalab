@@ -52,6 +52,8 @@ import java.nio.file.Paths;
 @Path("/bucket")
 @Slf4j
 public class BucketResource {
+    private static final String AUDIT_UPLOAD_FOLDER_MESSAGE = "Folder: %s";
+    private static final String AUDIT_MESSAGE = "File(s): %s";
     private static final String OBJECT_FORM_FIELD = "object";
     private static final String BUCKET_FORM_FIELD = "bucket";
     private static final String ENDPOINT_FORM_FIELD = "endpoint";
@@ -91,7 +93,7 @@ public class BucketResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("/api/bucket/upload")
     public Response uploadFolder(@Auth UserInfo userInfo, @Valid FolderUploadDTO dto) {
-        bucketService.uploadFolder(userInfo, dto.getBucket(), dto.getFolder(), dto.getEndpoint());
+        bucketService.uploadFolder(userInfo, dto.getBucket(), dto.getFolder(), dto.getEndpoint(), String.format(AUDIT_UPLOAD_FOLDER_MESSAGE, dto.getFolder()));
         return Response.ok().build();
     }
 
@@ -104,7 +106,7 @@ public class BucketResource {
                                    @PathParam("bucket") String bucket,
                                    @PathParam("object") String object,
                                    @PathParam("endpoint") String endpoint) {
-        bucketService.downloadObject(userInfo, bucket, object, endpoint, resp);
+        bucketService.downloadObject(userInfo, bucket, object, endpoint, resp, String.format(AUDIT_MESSAGE, object));
         return Response.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Paths.get(object).getFileName() + "\"")
                 .build();
@@ -116,7 +118,8 @@ public class BucketResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("/api/bucket/delete")
     public Response deleteObject(@Auth UserInfo userInfo, @Valid BucketDeleteDTO bucketDto) {
-        bucketService.deleteObjects(userInfo, bucketDto.getBucket(), bucketDto.getObjects(), bucketDto.getEndpoint());
+        final String listOfDeletedObject = String.join(", ", bucketDto.getObjects());
+        bucketService.deleteObjects(userInfo, bucketDto.getBucket(), bucketDto.getObjects(), bucketDto.getEndpoint(), String.format(AUDIT_MESSAGE, listOfDeletedObject));
         return Response.ok().build();
     }
 
@@ -143,7 +146,7 @@ public class BucketResource {
                             fileSize = Long.parseLong(Streams.asString(stream));
                         }
                     } else {
-                        bucketService.uploadObject(userInfo, bucket, object, endpoint, stream, fileSize);
+                        bucketService.uploadObject(userInfo, bucket, object, endpoint, stream, item.getContentType(), fileSize, String.format(AUDIT_MESSAGE, object));
                     }
                 } catch (Exception e) {
                     log.error("Cannot upload object {} to bucket {}. {}", object, bucket, e.getMessage(), e);

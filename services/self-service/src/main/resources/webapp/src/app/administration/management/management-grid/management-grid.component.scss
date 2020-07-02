@@ -100,7 +100,7 @@ table.management {
     background: transparent !important;
   }
 
-  td {
+  td:not(.info) {
     padding: 5px;
   }
 

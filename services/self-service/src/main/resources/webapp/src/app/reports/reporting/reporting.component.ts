@@ -20,13 +20,13 @@
 
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import {ApplicationSecurityService, BillingReportService, HealthStatusService} from '../core/services';
+import {ApplicationSecurityService, BillingReportService, HealthStatusService} from '../../core/services';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
-import { FileUtils } from '../core/util';
-import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictionary';
-import {ProgressBarService} from '../core/services/progress-bar.service';
+import { FileUtils } from '../../core/util';
+import { DICTIONARY, ReportingConfigModel } from '../../../dictionary/global.dictionary';
+import {ProgressBarService} from '../../core/services/progress-bar.service';
 
 @Component({
   selector: 'dlab-reporting',
@@ -37,7 +37,7 @@ import {ProgressBarService} from '../core/services/progress-bar.service';
                   (setRangeOption)="setRangeOption($event)">
     </dlab-toolbar>
     <mat-divider></mat-divider>
-    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()"></dlab-reporting-grid>
+    <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker()" [filteredReportData]="reportData" ></dlab-reporting-grid>
   </div>
 
   `,
@@ -62,11 +62,12 @@ export class ReportingComponent implements OnInit, OnDestroy {
   @ViewChild(ReportingGridComponent, { static: false }) reportingGrid: ReportingGridComponent;
   @ViewChild(ToolbarComponent, { static: true }) reportingToolbar: ToolbarComponent;
 
-  reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
+  reportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
   data: any;
   billingEnabled: boolean;
   admin: boolean;
+  private cashedFilterData: any;
 
   constructor(
     private billingReportService: BillingReportService,
@@ -87,12 +88,13 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   getGeneralBillingData() {
     setTimeout(() => {this.progressBarService.startProgressBar(); } , 0);
+    this.cashedFilterData = JSON.parse(JSON.stringify(this.reportData));
+    Object.setPrototypeOf(this.cashedFilterData, Object.getPrototypeOf(this.reportData));
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
         this.reportingGrid.refreshData(this.data, this.data.report_lines);
         this.reportingGrid.setFullReport(this.data.is_full);
-
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
           localStorage.setItem('report_period', JSON.stringify({
@@ -113,23 +115,14 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   rebuildBillingReport(): void {
-    this.checkAutorize();
-    this.buildBillingReport();
-
+    this.reportData = this.cashedFilterData;
+    this.getGeneralBillingData();
   }
 
   buildBillingReport() {
     this.clearStorage();
     this.resetRangePicker();
-    this.reportData.defaultConfigurations();
     this.getGeneralBillingData();
-  }
-
-  private checkAutorize() {
-    this.applicationSecurityService.isLoggedIn().subscribe( () => {
-        this.getEnvironmentHealthStatus();
-      }
-    );
   }
 
   exportBillingReport(): void {
@@ -161,6 +154,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
             shape = shape.replace('Master: ', '');
             shape = shape.replace(/Slave: /, '');
             shape = shape.replace(/\s+/g, '');
+            shape = shape.replace(/[0-9]?[0-9]x/g, '');
+
             shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
         } else if (item.shape.match(/\d x \S+/)) {

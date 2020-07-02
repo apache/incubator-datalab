@@ -18,20 +18,20 @@
  */
 
 import {Component, OnInit, Output, EventEmitter, ViewChild, Input} from '@angular/core';
-import { ReportingConfigModel } from '../../../dictionary/global.dictionary';
+import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
   styleUrls: ['./reporting-grid.component.scss',
-    '../../resources/resources-grid/resources-grid.component.scss'],
+    '../../../resources/resources-grid/resources-grid.component.scss'],
 
 })
 export class ReportingGridComponent implements OnInit {
 
   filterConfiguration: ReportingConfigModel;
-  filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
-  collapseFilterRow: boolean = true;
+  // filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
+  collapseFilterRow: boolean = false;
   reportData: Array<any> = [];
   fullReport: Array<any>;
   isFiltered: boolean = false;
@@ -41,6 +41,7 @@ export class ReportingGridComponent implements OnInit {
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
+  @Input() filteredReportData: ReportingConfigModel;
   displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'charge'];
   displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter', 'service-filter', 'actions'];
   filtered: any;

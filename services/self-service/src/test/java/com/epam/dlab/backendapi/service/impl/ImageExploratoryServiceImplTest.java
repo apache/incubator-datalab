@@ -71,7 +71,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ImageExploratoryServiceImplTest {
-
+	private final static String AUDIT_MESSAGE = "Image name: %s";
 	private final String USER = "test";
 	private final String TOKEN = "token";
 	private final String EXPLORATORY_NAME = "expName";
@@ -130,7 +130,7 @@ public class ImageExploratoryServiceImplTest {
 
 		String imageName = "someImageName", imageDescription = "someDescription";
 		String actualUuid = imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME,
-				imageName, imageDescription);
+				imageName, imageDescription, String.format(AUDIT_MESSAGE, imageName));
 		assertNotNull(actualUuid);
 		assertEquals(expectedUuid, actualUuid);
 
@@ -154,7 +154,7 @@ public class ImageExploratoryServiceImplTest {
 		String imageName = "someImageName", imageDescription = "someDescription";
 
 		try {
-			imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME, imageName, imageDescription);
+			imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME, imageName, imageDescription, String.format(AUDIT_MESSAGE, imageName));
 		} catch (DlabException e) {
 			assertEquals("Running exploratory instance for user with name not found.", e.getMessage());
 		}
@@ -171,7 +171,7 @@ public class ImageExploratoryServiceImplTest {
 		expectedException.expectMessage("Image with name someImageName is already exist");
 
 		String imageName = "someImageName", imageDescription = "someDescription";
-		imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME, imageName, imageDescription);
+		imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME, imageName, imageDescription, String.format(AUDIT_MESSAGE, imageName));
 	}
 
 	@Test
@@ -190,7 +190,7 @@ public class ImageExploratoryServiceImplTest {
 
 		String imageName = "someImageName", imageDescription = "someDescription";
 		try {
-			imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME, imageName, imageDescription);
+			imageExploratoryService.createImage(userInfo, PROJECT, EXPLORATORY_NAME, imageName, imageDescription, String.format(AUDIT_MESSAGE, imageName));
 		} catch (DlabException e) {
 			assertEquals("Cannot create instance of resource class", e.getMessage());
 		}

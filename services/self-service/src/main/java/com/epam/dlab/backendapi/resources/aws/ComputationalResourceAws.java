@@ -105,9 +105,10 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					.slaveNumber(form.getInstanceCount())
 					.config(form.getConfig())
 					.version(form.getVersion())
-					.build();
-			boolean resourceAdded = computationalService.createDataEngineService(userInfo, form,
-					awsComputationalResource, form.getProject());
+					.totalInstanceCount(Integer.parseInt(form.getInstanceCount()))
+                    .build();
+            boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, awsComputationalResource,
+                    form.getProject(), getAuditInfo(form.getNotebookName()));
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
 		}
 
@@ -126,13 +127,13 @@ public class ComputationalResourceAws implements ComputationalAPI {
 	@Path("dataengine")
 	public Response createDataEngine(@Auth UserInfo userInfo,
 									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
-		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
+        log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
-		validate(form);
-		return computationalService.createSparkCluster(userInfo, form, form.getProject())
-				? Response.ok().build()
-				: Response.status(Response.Status.FOUND).build();
-	}
+        validate(form);
+        return computationalService.createSparkCluster(userInfo, form.getName(), form, form.getProject(), getAuditInfo(form.getNotebookName()))
+                ? Response.ok().build()
+                : Response.status(Response.Status.FOUND).build();
+    }
 
 	/**
 	 * Sends request to provisioning service for termination the computational resource for user.
@@ -148,12 +149,12 @@ public class ComputationalResourceAws implements ComputationalAPI {
 							  @PathParam("projectName") String projectName,
 							  @PathParam("exploratoryName") String exploratoryName,
 							  @PathParam("computationalName") String computationalName) {
-		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
+        log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputational(userInfo, projectName, exploratoryName, computationalName);
+        computationalService.terminateComputational(userInfo, userInfo.getName(), projectName, exploratoryName, computationalName, getAuditInfo(exploratoryName));
 
-		return Response.ok().build();
-	}
+        return Response.ok().build();
+    }
 
 	/**
 	 * Sends request to provisioning service for stopping the computational resource for user.
@@ -169,11 +170,10 @@ public class ComputationalResourceAws implements ComputationalAPI {
 						 @PathParam("project") String project,
 						 @PathParam("exploratoryName") String exploratoryName,
 						 @PathParam("computationalName") String computationalName) {
-		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
+        log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.stopSparkCluster(userInfo, project, exploratoryName, computationalName);
-
-		return Response.ok().build();
+        computationalService.stopSparkCluster(userInfo, userInfo.getName(), project, exploratoryName, computationalName, getAuditInfo(exploratoryName));
+        return Response.ok().build();
     }
 
 	/**
@@ -190,12 +190,11 @@ public class ComputationalResourceAws implements ComputationalAPI {
 						  @PathParam("exploratoryName") String exploratoryName,
 						  @PathParam("computationalName") String computationalName,
 						  @PathParam("project") String project) {
-		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
+        log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName, project);
-
-		return Response.ok().build();
-	}
+        computationalService.startSparkCluster(userInfo, exploratoryName, computationalName, project, getAuditInfo(exploratoryName));
+        return Response.ok().build();
+    }
 
 	@PUT
 	@Path("dataengine/{projectName}/{exploratoryName}/{computationalName}/config")
@@ -204,7 +203,6 @@ public class ComputationalResourceAws implements ComputationalAPI {
 										   @PathParam("exploratoryName") String exploratoryName,
 										   @PathParam("computationalName") String computationalName,
 										   @Valid @NotNull List<ClusterConfig> config) {
-
 		computationalService.updateSparkClusterConfig(userInfo, projectName, exploratoryName, computationalName, config);
 		return Response.ok().build();
 	}
@@ -256,14 +254,18 @@ public class ComputationalResourceAws implements ComputationalAPI {
 			if (formDTO.getSlaveInstanceSpot() && (slaveSpotInstanceBidPct < configuration.getMinEmrSpotInstanceBidPct()
 					|| slaveSpotInstanceBidPct > configuration.getMaxEmrSpotInstanceBidPct())) {
 				log.debug("Creating computational resource {} for user {} fail: Spot instances bidding percentage " +
-								"value " +
-								"out of the boundaries. Minimum is {}, maximum is {}",
-						formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(),
-						configuration.getMaxEmrSpotInstanceBidPct());
-				throw new DlabException("Spot instances bidding percentage value out of the boundaries. Minimum is " +
-						configuration.getMinEmrSpotInstanceBidPct() + ", maximum is " +
-						configuration.getMaxEmrSpotInstanceBidPct() + ".");
-			}
-		}
-	}
+                                "value " +
+                                "out of the boundaries. Minimum is {}, maximum is {}",
+                        formDTO.getName(), userInfo.getName(), configuration.getMinEmrSpotInstanceBidPct(),
+                        configuration.getMaxEmrSpotInstanceBidPct());
+                throw new DlabException("Spot instances bidding percentage value out of the boundaries. Minimum is " +
+                        configuration.getMinEmrSpotInstanceBidPct() + ", maximum is " +
+                        configuration.getMaxEmrSpotInstanceBidPct() + ".");
+            }
+        }
+    }
+
+    private String getAuditInfo(String exploratoryName) {
+        return String.format(AUDIT_MESSAGE, exploratoryName);
+    }
 }

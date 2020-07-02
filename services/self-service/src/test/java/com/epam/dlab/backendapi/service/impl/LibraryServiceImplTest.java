@@ -163,7 +163,7 @@ public class LibraryServiceImplTest {
 
 
         final String uuid = libraryService.installComputationalLibs(user, PROJECT, EXPLORATORY_NAME,
-                COMPUTATIONAL_NAME, getLibs(null));
+                COMPUTATIONAL_NAME, getLibs(null), null);
 
         assertEquals(UUID, uuid);
 
@@ -198,8 +198,7 @@ public class LibraryServiceImplTest {
         expectedException.expect(DlabException.class);
         expectedException.expectMessage("Computational with name " + COMPUTATIONAL_NAME + "X was not found");
 
-        libraryService.installComputationalLibs(user, PROJECT, EXPLORATORY_NAME,
-                COMPUTATIONAL_NAME + "X", getLibs(null));
+        libraryService.installComputationalLibs(user, PROJECT, EXPLORATORY_NAME, COMPUTATIONAL_NAME + "X", getLibs(null), null);
     }
 
 	@Test
@@ -219,7 +218,7 @@ public class LibraryServiceImplTest {
         when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLED));
 
         final String uuid = libraryService.installComputationalLibs(user, PROJECT, EXPLORATORY_NAME,
-                COMPUTATIONAL_NAME, getLibs(null));
+                COMPUTATIONAL_NAME, getLibs(null), null);
 
         assertEquals(UUID, uuid);
 
@@ -256,7 +255,7 @@ public class LibraryServiceImplTest {
 
         try {
             libraryService.installComputationalLibs(user, PROJECT, EXPLORATORY_NAME,
-                    COMPUTATIONAL_NAME, getLibs(null));
+                    COMPUTATIONAL_NAME, getLibs(null), null);
         } catch (DlabException e) {
             assertEquals("Library name is already installing", e.getMessage());
         }
@@ -279,7 +278,7 @@ public class LibraryServiceImplTest {
                 anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
 
 
-        final String uuid = libraryService.installExploratoryLibs(user, PROJECT, EXPLORATORY_NAME, getLibs(null));
+        final String uuid = libraryService.installExploratoryLibs(user, PROJECT, EXPLORATORY_NAME, getLibs(null), null);
 
         assertEquals(UUID, uuid);
 
@@ -307,7 +306,7 @@ public class LibraryServiceImplTest {
                 anyListOf(LibInstallDTO.class))).thenReturn(libraryInstallDTO);
         when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLED));
 
-        final String uuid = libraryService.installExploratoryLibs(user, PROJECT, EXPLORATORY_NAME, getLibs(null));
+        final String uuid = libraryService.installExploratoryLibs(user, PROJECT, EXPLORATORY_NAME, getLibs(null), null);
 
         assertEquals(UUID, uuid);
 
@@ -337,7 +336,7 @@ public class LibraryServiceImplTest {
         when(libraryDAO.getLibrary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(getLibrary(LibStatus.INSTALLING));
 
         try {
-            libraryService.installExploratoryLibs(user, PROJECT, EXPLORATORY_NAME, getLibs(null));
+            libraryService.installExploratoryLibs(user, PROJECT, EXPLORATORY_NAME, getLibs(null), null);
         } catch (DlabException e) {
             assertEquals("Library name is already installing", e.getMessage());
         }

@@ -23,6 +23,6 @@ FROM openjdk:8-alpine
 
 USER root
 
-COPY billing-azure-2.2.jar /root/
+COPY billing-azure-2.4.jar /root/
 
-CMD java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 /root/billing-azure-2.2.jar --conf /root/billing.yml
+CMD java -Xmx1024M -jar -Duser.timezone=UTC -Dfile.encoding=UTF-8 /root/billing-azure-2.4.jar --conf /root/billing.yml

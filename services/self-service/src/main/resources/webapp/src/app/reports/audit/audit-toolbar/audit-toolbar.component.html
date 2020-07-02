@@ -17,15 +17,15 @@
   ~ under the License.
   -->
 <section class="toolbar">
-  <div class="info_color" *ngIf="reportData">
-    <div class="general">
+  <div class="info_color">
+    <div class="general" *ngIf="reportData">
       <div><span>Service base name: </span><strong>{{ reportData.sbn }}</strong></div>
       <div *ngIf="reportData.tag_resource_id"><span>Resource tag ID:
         </span><strong>{{ reportData.tag_resource_id }}</strong></div>
       <div class="report-period info_color" *ngIf="availablePeriodFrom && availablePeriodTo">
         <span>Available reporting period from:</span>
-        <strong>{{ availablePeriodFrom.join('/') | date }} </strong>
-        to: <strong>{{ availablePeriodTo.join('/') | date }}</strong>
+        <strong>{{ availablePeriodFrom | date }} </strong>
+        to: <strong>{{ availablePeriodTo | date }}</strong>
       </div>
     </div>
   </div>
@@ -34,9 +34,6 @@
     <ng-daterangepicker [(ngModel)]="value" [options]="options" (ngModelChange)="onChange($event)"></ng-daterangepicker>
   </div>
   <div class="action-butt">
-    <button mat-raised-button class="butt" (click)="export($event)" [disabled]="!reportData?.report_lines.length">
-      <i class="material-icons">file_download</i>Export
-    </button>
     <button mat-raised-button class="butt" (click)="rebuild($event)">
       <i class="material-icons">autorenew</i>Refresh
     </button>

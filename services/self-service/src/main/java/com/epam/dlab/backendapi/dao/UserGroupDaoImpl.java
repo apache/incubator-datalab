@@ -18,9 +18,12 @@
  */
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Singleton;
 import org.bson.Document;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,14 +48,21 @@ public class UserGroupDaoImpl extends BaseDAO implements UserGroupDao {
 
 	@Override
 	public void removeGroup(String groupId) {
-		deleteOne(USER_GROUPS, eq(ID, groupId));
-	}
+        deleteOne(USER_GROUPS, eq(ID, groupId));
+    }
 
-	@Override
-	public Set<String> getUserGroups(String user) {
-		return stream(find(USER_GROUPS, elemMatch(USERS_FIELD, new Document("$regex", "^" + user + "$")
-				.append("$options", "i"))))
-				.map(document -> document.getString(ID))
-				.collect(Collectors.toSet());
-	}
+    @Override
+    public Set<String> getUserGroups(String user) {
+        return stream(find(USER_GROUPS, elemMatch(USERS_FIELD, new Document("$regex", "^" + user + "$")
+                .append("$options", "i"))))
+                .map(document -> document.getString(ID))
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<String> getUsers(String group) {
+        return new HashSet<>(findOne(USER_GROUPS, eq(ID, group))
+                .map(document -> (List<String>) document.get(USERS_FIELD))
+                .orElseThrow(() -> new DlabException(String.format("Group %s not found", group))));
+    }
 }

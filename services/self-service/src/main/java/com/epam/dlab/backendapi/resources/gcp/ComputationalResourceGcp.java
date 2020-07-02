@@ -82,7 +82,7 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	 * Asynchronously creates Dataproc cluster
 	 *
 	 * @param userInfo user info.
-	 * @param formDTO  DTO info about creation of the computational resource.
+	 * @param form     DTO info about creation of the computational resource.
 	 * @return 200 OK - if request success, 302 Found - for duplicates.
 	 * @throws IllegalArgumentException if docker image name is malformed
 	 */
@@ -90,30 +90,31 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	@Path("dataengine-service")
 	@Operation(tags = "computational", summary = "Create dataproc cluster")
 	public Response createDataEngineService(@Auth @Parameter(hidden = true) UserInfo userInfo,
-											@Valid @NotNull @Parameter GcpComputationalCreateForm formDTO) {
+											@Valid @NotNull @Parameter GcpComputationalCreateForm form) {
 
-		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), formDTO);
+		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
-		if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(formDTO.getImage())) {
-			validate(userInfo, formDTO);
-			GcpComputationalResource gcpComputationalResource = GcpComputationalResource.builder().computationalName
-					(formDTO.getName())
-					.imageName(formDTO.getImage())
-					.templateName(formDTO.getTemplateName())
+		if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(form.getImage())) {
+            validate(userInfo, form);
+            GcpComputationalResource gcpComputationalResource = GcpComputationalResource.builder()
+					.computationalName(form.getName())
+					.imageName(form.getImage())
+					.templateName(form.getTemplateName())
 					.status(CREATING.toString())
-					.masterShape(formDTO.getMasterInstanceType())
-					.slaveShape(formDTO.getSlaveInstanceType())
-					.slaveNumber(formDTO.getSlaveInstanceCount())
-					.masterNumber(formDTO.getMasterInstanceCount())
-					.preemptibleNumber(formDTO.getPreemptibleCount())
-					.version(formDTO.getVersion())
-					.build();
-			boolean resourceAdded = computationalService.createDataEngineService(userInfo, formDTO,
-					gcpComputationalResource, formDTO.getProject());
+					.masterShape(form.getMasterInstanceType())
+					.slaveShape(form.getSlaveInstanceType())
+					.slaveNumber(form.getSlaveInstanceCount())
+					.masterNumber(form.getMasterInstanceCount())
+					.preemptibleNumber(form.getPreemptibleCount())
+					.version(form.getVersion())
+					.totalInstanceCount(Integer.parseInt(form.getMasterInstanceCount()) + Integer.parseInt(form.getSlaveInstanceCount()))
+                    .build();
+            boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, gcpComputationalResource,
+                    form.getProject(), getAuditInfo(form.getNotebookName()));
 			return resourceAdded ? Response.ok().build() : Response.status(Response.Status.FOUND).build();
 		}
 
-		throw new IllegalArgumentException("Malformed image " + formDTO.getImage());
+		throw new IllegalArgumentException("Malformed image " + form.getImage());
 	}
 
 
@@ -128,17 +129,17 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 	@Path("dataengine")
 	public Response createDataEngine(@Auth UserInfo userInfo,
 									 @Valid @NotNull SparkStandaloneClusterCreateForm form) {
-		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
+        log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
-		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage(), userInfo.getRoles())) {
-			log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
-			throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
-		}
+        if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage(), userInfo.getRoles())) {
+            log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
+            throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
+        }
 
-		return computationalService.createSparkCluster(userInfo, form, form.getProject())
-				? Response.ok().build()
-				: Response.status(Response.Status.FOUND).build();
-	}
+        return computationalService.createSparkCluster(userInfo, form.getName(), form, form.getProject(), getAuditInfo(form.getNotebookName()))
+                ? Response.ok().build()
+                : Response.status(Response.Status.FOUND).build();
+    }
 
 
 	/**
@@ -155,12 +156,11 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 							  @PathParam("projectName") String projectName,
 							  @PathParam("exploratoryName") String exploratoryName,
 							  @PathParam("computationalName") String computationalName) {
-		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
+        log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.terminateComputational(userInfo, projectName, exploratoryName, computationalName);
-
-		return Response.ok().build();
-	}
+        computationalService.terminateComputational(userInfo, userInfo.getName(), projectName, exploratoryName, computationalName, getAuditInfo(exploratoryName));
+        return Response.ok().build();
+    }
 
 	/**
 	 * Sends request to provisioning service for stopping the computational resource for user.
@@ -176,11 +176,10 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 						 @PathParam("project") String project,
 						 @PathParam("exploratoryName") String exploratoryName,
 						 @PathParam("computationalName") String computationalName) {
-		log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
+        log.debug("Stopping computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.stopSparkCluster(userInfo, project, exploratoryName, computationalName);
-
-		return Response.ok().build();
+        computationalService.stopSparkCluster(userInfo, userInfo.getName(), project, exploratoryName, computationalName, getAuditInfo(exploratoryName));
+        return Response.ok().build();
     }
 
 	/**
@@ -197,12 +196,11 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 						  @PathParam("exploratoryName") String exploratoryName,
 						  @PathParam("computationalName") String computationalName,
 						  @PathParam("project") String project) {
-		log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
+        log.debug("Starting computational resource {} for user {}", computationalName, userInfo.getName());
 
-		computationalService.startSparkCluster(userInfo, exploratoryName, computationalName, project);
-
-		return Response.ok().build();
-	}
+        computationalService.startSparkCluster(userInfo, exploratoryName, computationalName, project, getAuditInfo(exploratoryName));
+        return Response.ok().build();
+    }
 
 	@PUT
 	@Path("dataengine/{projectName}/{exploratoryName}/{computationalName}/config")
@@ -243,14 +241,18 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 					.getMinInstanceCount() + ", maximum is " + configuration.getMaxInstanceCount());
 		}
 
-		final int preemptibleInstanceCount = Integer.parseInt(formDTO.getPreemptibleCount());
-		if (preemptibleInstanceCount < configuration.getMinDataprocPreemptibleCount()) {
-			log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation preemptible " +
-							"instances. Minimum is {}",
-					formDTO.getName(), userInfo.getName(), configuration.getMinDataprocPreemptibleCount());
-			throw new DlabException("Limit exceeded to creation preemptible instances. " +
-					"Minimum is " + configuration.getMinDataprocPreemptibleCount());
+        final int preemptibleInstanceCount = Integer.parseInt(formDTO.getPreemptibleCount());
+        if (preemptibleInstanceCount < configuration.getMinDataprocPreemptibleCount()) {
+            log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation preemptible " +
+                            "instances. Minimum is {}",
+                    formDTO.getName(), userInfo.getName(), configuration.getMinDataprocPreemptibleCount());
+            throw new DlabException("Limit exceeded to creation preemptible instances. " +
+                    "Minimum is " + configuration.getMinDataprocPreemptibleCount());
 
-		}
-	}
+        }
+    }
+
+    private String getAuditInfo(String exploratoryName) {
+        return String.format(AUDIT_MESSAGE, exploratoryName);
+    }
 }

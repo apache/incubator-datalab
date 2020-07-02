@@ -38,6 +38,8 @@ public class HealthStatusPageDTO {
 	@JsonProperty
 	private boolean billingEnabled;
 	@JsonProperty
+	private boolean auditEnabled;
+	@JsonProperty
 	private boolean admin;
 	@JsonProperty
 	private boolean projectAdmin;

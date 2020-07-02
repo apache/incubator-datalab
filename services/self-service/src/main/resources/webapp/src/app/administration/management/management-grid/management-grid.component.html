@@ -277,11 +277,11 @@
 
 
     <ng-container matColumnDef="placeholder">
-      <td mat-footer-cell *matFooterCellDef colspan="6" class="info">
-        <span
+      <td mat-footer-cell *matFooterCellDef colspan="8" class="info">
+        <div
           *ngIf="(!allFilteredEnvironmentData) && !filtering || (allFilteredEnvironmentData?.length == 0) && !filtering">
-          To start working, please, create new environment</span>
-        <span *ngIf="(allFilteredEnvironmentData?.length == 0) && filtering">No matches found</span>
+          To start working, please, create new environment</div>
+        <div *ngIf="(allFilteredEnvironmentData?.length == 0) && filtering">No matches found</div>
       </td>
     </ng-container>
 
@@ -291,7 +291,7 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
 
-    <tr [hidden]="allFilteredEnvironmentData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
+    <tr [hidden]="allFilteredEnvironmentData?.length" mat-footer-row *matFooterRowDef="['placeholder']" class="info"></tr>
   </table>
 
 </div>

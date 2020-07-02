@@ -71,14 +71,14 @@
               <p>Total instance number:</p>
             </div>
           </ng-template>
-          <div class="col"><span>{{ resource[DICTIONARY[PROVIDER][resource.image].total_instance_number] }}</span></div>
+          <div class="col"><span>{{ resource[DICTIONARY[PROVIDER][resource.image].total_instance_number] || 1}}</span></div>
         </div>
         <div class="row-wrap"
           *ngIf="DICTIONARY[PROVIDER].cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'">
           <div class="col">
             <p>Slave instance number:</p>
           </div>
-          <div class="col"><span>{{ resource[DICTIONARY[PROVIDER][resource.image].total_slave_instance_number] }}</span></div>
+          <div class="col"><span>{{ resource.totalInstanceCount - 1}}</span></div>
         </div>
         <div class="row-wrap">
           <div class="col">
@@ -100,7 +100,7 @@
           <div class="m-top-10">
             <p *ngFor="let item of resource.computational_url" class="ellipsis flex">
               <span class="strong">{{ item.description }}:</span>&nbsp;
-              <a href="{{item.url}}" target="_blank" matTooltip="{{item.url}}"
+              <a (click)="logAction(resource.computational_name, item.description)" href="{{item.url}}" target="_blank" matTooltip="{{item.url}}"
                 matTooltipPosition="above">{{ item.url }}</a>
             </p>
           </div>

@@ -20,6 +20,8 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.Audit;
+import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
@@ -41,47 +43,50 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.stream.Collectors;
 
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.GIT_ACCOUNT;
 import static com.epam.dlab.rest.contracts.ExploratoryAPI.EXPLORATORY_GIT_CREDS;
 
 @Slf4j
 @Singleton
 public class GitCredentialServiceImpl implements GitCredentialService {
 
-	private static final boolean CLEAR_USER_PASSWORD = true;
-	@Inject
-	private GitCredsDAO gitCredsDAO;
-	@Inject
-	private ExploratoryDAO exploratoryDAO;
-	@Inject
-	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-	private RESTService provisioningService;
-	@Inject
-	private RequestBuilder requestBuilder;
-	@Inject
-	private RequestId requestId;
-	@Inject
-	private EndpointService endpointService;
+    private static final boolean CLEAR_USER_PASSWORD = true;
+    @Inject
+    private GitCredsDAO gitCredsDAO;
+    @Inject
+    private ExploratoryDAO exploratoryDAO;
+    @Inject
+    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
+    private RESTService provisioningService;
+    @Inject
+    private RequestBuilder requestBuilder;
+    @Inject
+    private RequestId requestId;
+    @Inject
+    private EndpointService endpointService;
 
-	@Override
-	public void updateGitCredentials(UserInfo userInfo, ExploratoryGitCredsDTO formDTO) {
-		log.debug("Updating GIT creds for user {} to {}", userInfo.getName(), formDTO);
-		try {
-			gitCredsDAO.updateGitCreds(userInfo.getName(), formDTO);
-			final String failedNotebooks = exploratoryDAO.fetchRunningExploratoryFields(userInfo.getName())
-					.stream()
-					.filter(ui -> !updateNotebookGitCredentials(userInfo, formDTO, ui))
-					.map(UserInstanceDTO::getExploratoryName)
-					.collect(Collectors.joining(","));
-			if (StringUtils.isNotEmpty(failedNotebooks)) {
-				throw new DlabException("Requests for notebooks failed: " + failedNotebooks);
-			}
-		} catch (Exception t) {
-			log.error("Cannot update the GIT creds for user {}", userInfo.getName(), t);
-			throw new DlabException("Cannot update the GIT credentials: " + t.getLocalizedMessage(), t);
-		}
-	}
+    @Audit(action = UPDATE, type = GIT_ACCOUNT)
+    @Override
+    public void updateGitCredentials(@User UserInfo userInfo, ExploratoryGitCredsDTO formDTO) {
+        log.debug("Updating GIT creds for user {} to {}", userInfo.getName(), formDTO);
+        try {
+            gitCredsDAO.updateGitCreds(userInfo.getName(), formDTO);
+            final String failedNotebooks = exploratoryDAO.fetchRunningExploratoryFields(userInfo.getName())
+                    .stream()
+                    .filter(ui -> !updateNotebookGitCredentials(userInfo, formDTO, ui))
+                    .map(UserInstanceDTO::getExploratoryName)
+                    .collect(Collectors.joining(","));
+            if (StringUtils.isNotEmpty(failedNotebooks)) {
+                throw new DlabException("Requests for notebooks failed: " + failedNotebooks);
+            }
+        } catch (Exception t) {
+            log.error("Cannot update the GIT creds for user {}", userInfo.getName(), t);
+            throw new DlabException("Cannot update the GIT credentials: " + t.getLocalizedMessage(), t);
+        }
+    }
 
-	@Override
+    @Override
 	public ExploratoryGitCredsDTO getGitCredentials(String user) {
 		log.debug("Loading GIT creds for user {}", user);
 		try {

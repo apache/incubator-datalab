@@ -190,7 +190,6 @@
               </div>
               <div class="size">{{file.object?.size | convertFileSize}}</div>
               <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>
-<!--              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate }}</div>-->
               <div class="progress-wrapper" *ngIf="file.isDownloading">
                 <div class="progres">
                   <span class="progress-bar-text">{{file.progress || 0}}% Downloading...</span>
@@ -215,7 +214,6 @@
         <span class="close" matTooltip="Upload is still in progress, please wait." matTooltipPosition="above" [ngClass]="{'not-allow': isFileUploading}" [matTooltipDisabled]="!isFileUploading">
            <button type="button" class="close" (click)="closeUploadWindow()" [disabled]="isFileUploading" [ngClass]="{'not-allow': isFileUploading}" >&times;</button>
         </span>
-
       </header>
       <ul class="upload-files">
         <li class="file upload-table-header" *ngIf="addedFiles.length">
@@ -245,8 +243,6 @@
             </div>
             <div class="size">{{file.size | convertFileSize}} </div>
             <div class="state">
-              <!--           <button mat-raised-button (click)="uploadNewFile(file)" *ngIf="!file.isUploading && !file.uploaded && !file.errorUploading">Upload</button>-->
-              <!--           <mat-progress-bar mode="indeterminate" *ngIf="file.isUploading"></mat-progress-bar>-->
               <span *ngIf="file.status === 'uploaded'" class="running">Uploaded</span>
               <div class="progres" *ngIf="file.status === 'uploading'">
                 <span class="progress-bar-text">{{file.progress || 0}}% Uploading...</span>

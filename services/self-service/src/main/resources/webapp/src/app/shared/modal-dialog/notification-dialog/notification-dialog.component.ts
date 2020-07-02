@@ -54,7 +54,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                           will be stopped
                       </p>
                   </div>
-                  <span class="strong">by a schedule in 15 minutes.</span>
+                  <span class="strong">by a schedule in less than 15 minutes.</span>
               </div>
               <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
               <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
@@ -112,11 +112,8 @@ import {Endpoint} from '../../../administration/project/project.component';
                 <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
                   <div class="text-center m-top-30 m-bott-10">
                       <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
-                      <button *ngIf="!this.willNotTerminate" type="button" class="butt butt-success" mat-raised-button
-                              (click)="dialogRef.close('terminate')">Yes
-                      </button>
-                      <button *ngIf="this.willNotTerminate" type="button" class="butt butt-success" mat-raised-button
-                              (click)="dialogRef.close('noTerminate')">Yes
+                      <button type="button" class="butt butt-success" mat-raised-button
+                              (click)="dialogRef.close(true)">Yes
                       </button>
                   </div>
               </div>

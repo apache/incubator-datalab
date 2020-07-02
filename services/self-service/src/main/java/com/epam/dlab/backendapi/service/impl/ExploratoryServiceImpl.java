@@ -20,16 +20,25 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.Audit;
 import com.epam.dlab.backendapi.annotation.BudgetLimited;
+import com.epam.dlab.backendapi.annotation.Info;
 import com.epam.dlab.backendapi.annotation.Project;
+import com.epam.dlab.backendapi.annotation.ResourceName;
+import com.epam.dlab.backendapi.annotation.User;
+import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.domain.AuditActionEnum;
+import com.epam.dlab.backendapi.domain.AuditDTO;
+import com.epam.dlab.backendapi.domain.AuditResourceTypeEnum;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreatePopUp;
+import com.epam.dlab.backendapi.service.AuditService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.service.ProjectService;
@@ -41,7 +50,7 @@ import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.aws.computational.ClusterConfig;
-import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryReconfigureSparkClusterActionDTO;
@@ -58,14 +67,24 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.START;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.STOP;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.TERMINATE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK_CONFIG;
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
+import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 import static com.epam.dlab.dto.UserInstanceStatus.STARTING;
 import static com.epam.dlab.dto.UserInstanceStatus.STOPPED;
 import static com.epam.dlab.dto.UserInstanceStatus.STOPPING;
@@ -80,48 +99,61 @@ import static com.epam.dlab.rest.contracts.ExploratoryAPI.EXPLORATORY_TERMINATE;
 @Slf4j
 @Singleton
 public class ExploratoryServiceImpl implements ExploratoryService {
+	private final ProjectService projectService;
+	private final ExploratoryDAO exploratoryDAO;
+	private final ComputationalDAO computationalDAO;
+	private final GitCredsDAO gitCredsDAO;
+	private final ImageExploratoryDao imageExploratoryDao;
+	private final RESTService provisioningService;
+	private final RequestBuilder requestBuilder;
+	private final RequestId requestId;
+	private final TagService tagService;
+	private final EndpointService endpointService;
+	private final AuditService auditService;
+	private final SelfServiceApplicationConfiguration configuration;
 
 	@Inject
-	private ProjectService projectService;
-	@Inject
-	private ExploratoryDAO exploratoryDAO;
-	@Inject
-	private ComputationalDAO computationalDAO;
-	@Inject
-	private GitCredsDAO gitCredsDAO;
-	@Inject
-	private ImageExploratoryDao imageExploratoryDao;
-	@Inject
-	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-	private RESTService provisioningService;
-	@Inject
-	private RequestBuilder requestBuilder;
-	@Inject
-	private RequestId requestId;
-	@Inject
-	private TagService tagService;
-	@Inject
-	private EndpointService endpointService;
-
-	@BudgetLimited
-	@Override
-	public String start(UserInfo userInfo, String exploratoryName, @Project String project) {
-		return action(userInfo, project, exploratoryName, EXPLORATORY_START, STARTING);
-	}
-
-	@Override
-	public String stop(UserInfo userInfo, String project, String exploratoryName) {
-		return action(userInfo, project, exploratoryName, EXPLORATORY_STOP, STOPPING);
-	}
-
-	@Override
-	public String terminate(UserInfo userInfo, String project, String exploratoryName) {
-		return action(userInfo, project, exploratoryName, EXPLORATORY_TERMINATE, TERMINATING);
+	public ExploratoryServiceImpl(ProjectService projectService, ExploratoryDAO exploratoryDAO, ComputationalDAO computationalDAO, GitCredsDAO gitCredsDAO,
+								  ImageExploratoryDao imageExploratoryDao, @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
+								  RequestBuilder requestBuilder, RequestId requestId, TagService tagService, EndpointService endpointService, AuditService auditService,
+								  SelfServiceApplicationConfiguration configuration) {
+		this.projectService = projectService;
+		this.exploratoryDAO = exploratoryDAO;
+		this.computationalDAO = computationalDAO;
+		this.gitCredsDAO = gitCredsDAO;
+		this.imageExploratoryDao = imageExploratoryDao;
+		this.provisioningService = provisioningService;
+		this.requestBuilder = requestBuilder;
+		this.requestId = requestId;
+		this.tagService = tagService;
+		this.endpointService = endpointService;
+		this.auditService = auditService;
+		this.configuration = configuration;
 	}
 
 	@BudgetLimited
+	@Audit(action = START, type = NOTEBOOK)
 	@Override
-	public String create(UserInfo userInfo, Exploratory exploratory, @Project String project) {
+	public String start(@User UserInfo userInfo, @ResourceName String exploratoryName, @Project String project, @Info String auditInfo) {
+		return action(userInfo, userInfo.getName(), project, exploratoryName, EXPLORATORY_START, STARTING);
+	}
+
+	@Audit(action = STOP, type = NOTEBOOK)
+	@Override
+	public String stop(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
+		return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_STOP, STOPPING);
+	}
+
+	@Audit(action = TERMINATE, type = NOTEBOOK)
+	@Override
+	public String terminate(@User UserInfo userInfo, String resourceCreator, @Project String project, @ResourceName String exploratoryName, @Info String auditInfo) {
+		return action(userInfo, resourceCreator, project, exploratoryName, EXPLORATORY_TERMINATE, TERMINATING);
+	}
+
+	@BudgetLimited
+	@Audit(action = CREATE, type = NOTEBOOK)
+	@Override
+	public String create(@User UserInfo userInfo, Exploratory exploratory, @Project String project, @ResourceName String exploratoryName) {
 		boolean isAdded = false;
 		try {
 			final ProjectDTO projectDTO = projectService.get(project);
@@ -156,8 +188,9 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.forEach(ui -> updateExploratoryStatus(project, ui.getExploratoryName(), status, ui.getUser()));
 	}
 
+	@Audit(action = UPDATE, type = NOTEBOOK_CONFIG)
 	@Override
-	public void updateClusterConfig(UserInfo userInfo, String project, String exploratoryName, List<ClusterConfig> config) {
+	public void updateClusterConfig(@User UserInfo userInfo, @Project String project, @ResourceName String exploratoryName, List<ClusterConfig> config) {
 		final String userName = userInfo.getName();
 		final String token = userInfo.getAccessToken();
 		final UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchRunningExploratoryFields(userName, project, exploratoryName);
@@ -237,39 +270,32 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 				.collect(Collectors.toList());
 	}
 
-
-	private List<UserComputationalResource> computationalResourcesWithStatus(UserInstanceDTO userInstance,
-																			 UserInstanceStatus computationalStatus) {
-		return userInstance.getResources().stream()
-				.filter(resource -> resource.getStatus().equals(computationalStatus.toString()))
-				.collect(Collectors.toList());
-	}
-
 	/**
 	 * Sends the post request to the provisioning service and update the status of exploratory environment.
 	 *
 	 * @param userInfo        user info.
+	 * @param resourceCreator username of person who has created the resource
 	 * @param project         name of project
 	 * @param exploratoryName name of exploratory environment.
 	 * @param action          action for exploratory environment.
 	 * @param status          status for exploratory environment.
 	 * @return Invocation request as JSON string.
 	 */
-	private String action(UserInfo userInfo, String project, String exploratoryName, String action, UserInstanceStatus status) {
+	private String action(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, String action, UserInstanceStatus status) {
 		try {
-			updateExploratoryStatus(project, exploratoryName, status, userInfo.getName());
+			updateExploratoryStatus(project, exploratoryName, status, resourceCreator);
 
-			UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project, exploratoryName);
+			UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(resourceCreator, project, exploratoryName);
 			EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 			final String uuid =
 					provisioningService.post(endpointDTO.getUrl() + action, userInfo.getAccessToken(),
-							getExploratoryActionDto(userInfo, status, userInstance, endpointDTO), String.class);
-			requestId.put(userInfo.getName(), uuid);
+							getExploratoryActionDto(userInfo, resourceCreator, status, userInstance, endpointDTO), String.class);
+			requestId.put(resourceCreator, uuid);
 			return uuid;
 		} catch (Exception t) {
 			log.error("Could not {} exploratory environment {} for user {}",
-					StringUtils.substringAfter(action, "/"), exploratoryName, userInfo.getName(), t);
-			updateExploratoryStatusSilent(userInfo.getName(), project, exploratoryName, FAILED);
+					StringUtils.substringAfter(action, "/"), exploratoryName, resourceCreator, t);
+			updateExploratoryStatusSilent(resourceCreator, project, exploratoryName, FAILED);
 			final String errorMsg = String.format("Could not %s exploratory environment %s: %s",
 					StringUtils.substringAfter(action, "/"), exploratoryName,
 					Optional.ofNullable(t.getCause()).map(Throwable::getMessage).orElse(t.getMessage()));
@@ -281,23 +307,41 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		updateExploratoryStatus(user, project, exploratoryName, status);
 
 		if (status == STOPPING) {
+			if (configuration.isAuditEnabled()) {
+				saveAudit(project, exploratoryName, user, STOP, COMPUTATIONAL);
+			}
 			updateComputationalStatuses(user, project, exploratoryName, STOPPING, TERMINATING, FAILED, TERMINATED, STOPPED);
 		} else if (status == TERMINATING) {
+			if (configuration.isAuditEnabled()) {
+				saveAudit(project, exploratoryName, user, TERMINATE, COMPUTATIONAL);
+			}
 			updateComputationalStatuses(user, project, exploratoryName, TERMINATING, TERMINATING, TERMINATED, FAILED);
 		} else if (status == TERMINATED) {
 			updateComputationalStatuses(user, project, exploratoryName, TERMINATED, TERMINATED, TERMINATED, FAILED);
 		}
 	}
 
-	private ExploratoryActionDTO<?> getExploratoryActionDto(UserInfo userInfo, UserInstanceStatus status,
-															UserInstanceDTO userInstance, EndpointDTO endpointDTO) {
+	private void saveAudit(String project, String exploratoryName, String user, AuditActionEnum action, AuditResourceTypeEnum type) {
+		computationalDAO.getComputationalResourcesWhereStatusIn(user, project, Arrays.asList(DataEngineType.SPARK_STANDALONE, DataEngineType.CLOUD_SERVICE),
+				exploratoryName, RUNNING)
+				.forEach(comp -> auditService.save(
+						AuditDTO.builder()
+								.user(user)
+								.resourceName(comp)
+								.project(project)
+								.action(action)
+								.type(type)
+								.build())
+				);
+	}
+
+	private ExploratoryActionDTO<?> getExploratoryActionDto(UserInfo userInfo, String resourceCreator, UserInstanceStatus status, UserInstanceDTO userInstance,
+															EndpointDTO endpointDTO) {
 		ExploratoryActionDTO<?> dto;
 		if (status != UserInstanceStatus.STARTING) {
-			dto = requestBuilder.newExploratoryStop(userInfo, userInstance, endpointDTO);
+			dto = requestBuilder.newExploratoryStop(resourceCreator, userInstance, endpointDTO);
 		} else {
-			dto = requestBuilder.newExploratoryStart(
-					userInfo, userInstance, endpointDTO, gitCredsDAO.findGitCreds(userInfo.getName()));
-
+			dto = requestBuilder.newExploratoryStart(userInfo, userInstance, endpointDTO, gitCredsDAO.findGitCreds(userInfo.getName()));
 		}
 		return dto;
 	}

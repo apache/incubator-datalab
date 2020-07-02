@@ -32,7 +32,7 @@ public interface LibraryService {
     List<LibInfoRecord> getLibInfo(String user, String project, String exploratoryName);
 
     String installComputationalLibs(UserInfo userInfo, String project, String exploratoryName, String computationalName,
-                                    List<LibInstallDTO> libs);
+                                    List<LibInstallDTO> libs, String auditInfo);
 
-    String installExploratoryLibs(UserInfo userInfo, String project, String exploratoryName, List<LibInstallDTO> libs);
+    String installExploratoryLibs(UserInfo userInfo, String project, String exploratoryName, List<LibInstallDTO> libs, String auditInfo);
 }
