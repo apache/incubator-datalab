@@ -140,10 +140,7 @@ public class BillingServiceImpl implements BillingService {
     public BillingReport getExploratoryBillingData(String project, String endpoint, String exploratoryName, List<String> compNames) {
         List<String> resourceNames = new ArrayList<>(compNames);
         resourceNames.add(exploratoryName);
-        List<BillingReportLine> billingData = billingDAO.findBillingData(project, endpoint, resourceNames)
-                .stream()
-                .peek(bd -> bd.setCost(BigDecimal.valueOf(bd.getCost()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()))
-                .collect(Collectors.toList());
+        List<BillingReportLine> billingData = billingDAO.findBillingData(project, endpoint, resourceNames);
         final double sum = billingData.stream().mapToDouble(BillingReportLine::getCost).sum();
         final String currency = billingData.stream().map(BillingReportLine::getCurrency).distinct().count() == 1 ? billingData.get(0).getCurrency() : null;
         return BillingReport.builder()
