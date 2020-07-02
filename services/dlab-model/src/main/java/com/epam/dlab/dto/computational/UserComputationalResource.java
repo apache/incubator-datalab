@@ -67,14 +67,14 @@ public class UserComputationalResource {
 	private int dataengineInstanceCount;
 	@JsonProperty("instance_id")
 	private String instanceId;
-	private String totalInstanceCount;
+	private int totalInstanceCount;
 	protected List<ClusterConfig> config;
 	private Map<String, String> tags;
 
 	public UserComputationalResource(String computationalName, String computationalId, String imageName,
 									 String templateName, String status, Date uptime, SchedulerJobDTO schedulerData,
 									 boolean reuploadKeyRequired, List<ResourceURL> resourceUrl,
-									 LocalDateTime lastActivity, Map<String, String> tags, String totalInstanceCount) {
+									 LocalDateTime lastActivity, Map<String, String> tags, int totalInstanceCount) {
 		this.computationalName = computationalName;
 		this.computationalId = computationalId;
 		this.imageName = imageName;

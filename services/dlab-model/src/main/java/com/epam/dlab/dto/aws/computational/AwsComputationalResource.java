@@ -63,7 +63,7 @@ public class AwsComputationalResource extends UserComputationalResource {
 									String instanceId, String masterShape, String slaveShape, Boolean slaveSpot,
 									Integer slaveSpotPctPrice, String slaveNumber, String version,
 									List<ResourceURL> resourceURL, LocalDateTime lastActivity,
-									List<ClusterConfig> config, Map<String, String> tags, String totalInstanceCount) {
+									List<ClusterConfig> config, Map<String, String> tags, int totalInstanceCount) {
 		super(computationalName, computationalId, imageName, templateName, status, uptime, schedulerJobData,
 				reuploadKeyRequired, resourceURL, lastActivity, tags, totalInstanceCount);
 		this.instanceId = instanceId;

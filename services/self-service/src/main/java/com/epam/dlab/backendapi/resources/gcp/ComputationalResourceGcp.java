@@ -97,17 +97,17 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 		if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(form.getImage())) {
             validate(userInfo, form);
             GcpComputationalResource gcpComputationalResource = GcpComputationalResource.builder()
-                    .computationalName(form.getName())
-                    .imageName(form.getImage())
-                    .templateName(form.getTemplateName())
-                    .status(CREATING.toString())
-                    .masterShape(form.getMasterInstanceType())
-                    .slaveShape(form.getSlaveInstanceType())
-                    .slaveNumber(form.getSlaveInstanceCount())
-                    .masterNumber(form.getMasterInstanceCount())
-                    .preemptibleNumber(form.getPreemptibleCount())
-                    .version(form.getVersion())
-                    .totalInstanceCount(form.getMasterInstanceCount() + form.getSlaveInstanceCount())
+					.computationalName(form.getName())
+					.imageName(form.getImage())
+					.templateName(form.getTemplateName())
+					.status(CREATING.toString())
+					.masterShape(form.getMasterInstanceType())
+					.slaveShape(form.getSlaveInstanceType())
+					.slaveNumber(form.getSlaveInstanceCount())
+					.masterNumber(form.getMasterInstanceCount())
+					.preemptibleNumber(form.getPreemptibleCount())
+					.version(form.getVersion())
+					.totalInstanceCount(Integer.parseInt(form.getMasterInstanceCount()) + Integer.parseInt(form.getSlaveInstanceCount()))
                     .build();
             boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, gcpComputationalResource,
                     form.getProject(), getAuditInfo(form.getNotebookName()));

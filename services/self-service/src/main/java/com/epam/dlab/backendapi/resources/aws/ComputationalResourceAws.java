@@ -105,7 +105,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 					.slaveNumber(form.getInstanceCount())
 					.config(form.getConfig())
 					.version(form.getVersion())
-					.totalInstanceCount(form.getInstanceCount())
+					.totalInstanceCount(Integer.parseInt(form.getInstanceCount()))
                     .build();
             boolean resourceAdded = computationalService.createDataEngineService(userInfo, form.getName(), form, awsComputationalResource,
                     form.getProject(), getAuditInfo(form.getNotebookName()));
