@@ -167,7 +167,10 @@ export class AuditGridComponent implements OnInit {
               </mat-list-item>
               <div class="scrolling-content mat-list-wrapper" id="scrolling">
                 <mat-list-item class="list-item" *ngFor="let action of actionList">
-                  <div class="info-item-title">{{action[0]}}</div>
+                  <div *ngIf="(data.action === 'upload' && action[0] === 'File(s)') || (data.action === 'download' && action[0] === 'File(s)');else multiAction" class="info-item-title">File</div>
+                  <ng-template #multiAction>
+                     <div class="info-item-title">{{action[0]}}</div>
+                  </ng-template>
                   <div class="info-item-data" *ngIf="action[0] === 'File(s)'">
                     <div class="file-description ellipsis" *ngFor="let description of action[1]?.split(',')" [matTooltip]="description" matTooltipPosition="above">
                       {{description}}

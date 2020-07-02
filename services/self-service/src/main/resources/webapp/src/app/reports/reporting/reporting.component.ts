@@ -115,22 +115,14 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   rebuildBillingReport(): void {
-    this.checkAutorize();
     this.reportData = this.cashedFilterData;
-    this.buildBillingReport();
+    this.getGeneralBillingData();
   }
 
   buildBillingReport() {
     this.clearStorage();
     this.resetRangePicker();
     this.getGeneralBillingData();
-  }
-
-  private checkAutorize() {
-    this.applicationSecurityService.isLoggedIn().subscribe( () => {
-        this.getEnvironmentHealthStatus();
-      }
-    );
   }
 
   exportBillingReport(): void {
@@ -162,6 +154,8 @@ export class ReportingComponent implements OnInit, OnDestroy {
             shape = shape.replace('Master: ', '');
             shape = shape.replace(/Slave: /, '');
             shape = shape.replace(/\s+/g, '');
+            shape = shape.replace(/[0-9]?[0-9]x/g, '');
+
             shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
         } else if (item.shape.match(/\d x \S+/)) {
