@@ -93,9 +93,8 @@ export class ManageEnvironmentComponent implements OnInit {
     this.manageUsersForm.setControl('projects',
       this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
         project: x.name,
-        budget: [x.budget, [ this.userValidityCheck.bind(this)]],
-        canBeStopped: x.canBeStopped,
-        canBeTerminated: x.canBeTerminated
+        budget: [x.budget.value, [ this.userValidityCheck.bind(this)]],
+        is_monthly_budget: x.budget.is_monthly_budget,
       }))));
   }
 
