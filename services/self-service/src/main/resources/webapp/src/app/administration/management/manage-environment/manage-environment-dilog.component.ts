@@ -94,6 +94,7 @@ export class ManageEnvironmentComponent implements OnInit {
       this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
         project: x.name,
         budget: [x.budget, [ this.userValidityCheck.bind(this)]],
+        setPerMonth: x.setPerMonth || true,
         canBeStopped: x.canBeStopped,
         canBeTerminated: x.canBeTerminated
       }))));
