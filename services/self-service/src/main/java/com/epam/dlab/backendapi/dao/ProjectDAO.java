@@ -34,7 +34,7 @@ public interface ProjectDAO {
 
 	Optional<Integer> getAllowedBudget(String project);
 
-	void updateBudget(String project, Integer budget);
+	void updateBudget(String project, Integer budget, boolean monthlyBudget);
 
 	boolean isAnyProjectAssigned(Set<String> groups);
 }

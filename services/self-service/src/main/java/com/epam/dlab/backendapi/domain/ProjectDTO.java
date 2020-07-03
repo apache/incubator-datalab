@@ -25,7 +25,7 @@ public class ProjectDTO {
 	private final String key;
 	@NotNull
 	private final String tag;
-	private final Integer budget;
+	private final BudgetDTO budget;
 	private final List<ProjectEndpointDTO> endpoints;
 	private final boolean sharedImageEnabled;
 
