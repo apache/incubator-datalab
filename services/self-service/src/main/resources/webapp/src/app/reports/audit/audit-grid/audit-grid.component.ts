@@ -22,6 +22,18 @@ import {FilterAuditModel} from '../filter-audit.model';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {AuditService} from '../../../core/services/audit.service';
 
+
+export interface AuditItem {
+  action: string;
+  info: string;
+  project: string;
+  resourceName: string;
+  timestamp: number;
+  type: string;
+  user: string;
+  _id: string;
+}
+
 @Component({
   selector: 'dlab-audit-grid',
   templateUrl: './audit-grid.component.html',
@@ -29,7 +41,7 @@ import {AuditService} from '../../../core/services/audit.service';
 
 })
 export class AuditGridComponent implements OnInit {
-  public auditData: Array<object>;
+  public auditData: Array<AuditItem>;
   public displayedColumns: string[] = ['date', 'user', 'action', 'project', 'resource-type', 'resource', 'buttons'];
   public displayedFilterColumns: string[] = ['action-filter', 'user-filter', 'actions-filter',  'project-filter', 'resource-type-filter', 'resource-filter', 'filter-buttons'];
   public collapseFilterRow: boolean = false;
@@ -41,7 +53,7 @@ export class AuditGridComponent implements OnInit {
   public lastItem: number;
   public allItems: number;
   private copiedFilterAuditData: FilterAuditModel;
-  public isNavigationDisabled;
+  public isNavigationDisabled: boolean;
 
 
   constructor(
@@ -53,7 +65,7 @@ export class AuditGridComponent implements OnInit {
 
   ngOnInit() {}
 
-  public buildAuditGrid(filter?) {
+  public buildAuditGrid(filter?: boolean): void {
     if (!this.showItemsPrPage) {
       if (window.localStorage.getItem('audit_per_page')) {
         this.showItemsPrPage = +window.localStorage.getItem('audit_per_page');
@@ -65,7 +77,7 @@ export class AuditGridComponent implements OnInit {
    this.getAuditData(filter);
   }
 
-  public getAuditData(filter?) {
+  public getAuditData(filter?: boolean): void {
     const page = filter ? 1 : Math.ceil(this.lastItem / this.showItemsPrPage);
     this.copiedFilterAuditData = JSON.parse(JSON.stringify(this.filterAuditData));
     this.auditService.getAuditData(this.filterAuditData, page, this.showItemsPrPage).subscribe(auditData => {
@@ -84,29 +96,33 @@ export class AuditGridComponent implements OnInit {
     });
   }
 
-  public refreshAuditPage() {
+  public refreshAuditPage(): void {
     this.filterAuditData = this.copiedFilterAuditData;
     this.getAuditData();
   }
 
-  public setAvaliblePeriod(period) {
+  public setAvaliblePeriod(period): void {
     this.filterAuditData.date_start = period.start_date;
     this.filterAuditData.date_end = period.end_date;
   }
 
-  toggleFilterRow(): void {
+  public toggleFilterRow(): void {
     this.collapseFilterRow = !this.collapseFilterRow;
   }
 
-  onUpdate($event): void {
+  public onUpdate($event): void {
     this.filterAuditData[$event.type] = $event.model;
   }
 
-  openActionInfo(element) {
-    this.dialog.open(AuditInfoDialogComponent, { data: {data: element.info, action: element.action}, panelClass: 'modal-xl-m' });
+  public openActionInfo(element: AuditItem): void {
+    if (element.type === 'GROUP' && element.info.indexOf('role') !== -1 || element.type === 'BUCKET') {
+      this.dialog.open(AuditInfoDialogComponent, { data: {element, dialogSize: 'big'}, panelClass: 'modal-xl-m' });
+    } else {
+      this.dialog.open(AuditInfoDialogComponent, { data: {element, dialogSize: 'small'}, panelClass: 'modal-md' });
+    }
   }
 
-  public setItemsPrPage(item: number) {
+  private setItemsPrPage(item: number): void {
     window.localStorage.setItem('audit_per_page', item.toString());
     this.firstItem = 1;
     if (this.lastItem !== item) {
@@ -115,7 +131,7 @@ export class AuditGridComponent implements OnInit {
     }
   }
 
-  private changePage(action) {
+  private changePage(action: string): void {
     if (action === 'first') {
       this.firstItem = 1;
       this.lastItem = this.showItemsPrPage;
@@ -134,17 +150,17 @@ export class AuditGridComponent implements OnInit {
     }
   }
 
-  public loadItemsForPage(action) {
+  public loadItemsForPage(action: string): void {
     this.changePage(action);
     this.buildAuditGrid();
   }
 
-  public resetFilterConfigurations() {
+  public resetFilterConfigurations(): void {
     this.filterAuditData = FilterAuditModel.getDefault();
     this.buildAuditGrid(true);
   }
 
-  public didFilterChanged() {
+  public didFilterChanged(): boolean {
     this.isNavigationDisabled = JSON.stringify(this.copiedFilterAuditData) !== JSON.stringify(this.filterAuditData);
     return this.isNavigationDisabled;
   }
@@ -156,35 +172,59 @@ export class AuditGridComponent implements OnInit {
   template: `
       <div id="dialog-box">
           <header class="dialog-header">
-              <h4 class="modal-title">{{data.action | convertaction}}</h4>
+              <h4 class="modal-title">{{data.element.action | convertaction}}</h4>
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
           <div mat-dialog-content class="content audit-info-content" [ngClass]="{'pb-40': actionList[0].length > 1}">
-            <mat-list *ngIf="actionList[0].length > 1;else message">
-              <mat-list-item class="list-header">
-                <div class="info-item-title">Action</div>
-                <div class="info-item-data"> Description </div>
-              </mat-list-item>
-              <div class="scrolling-content mat-list-wrapper" id="scrolling">
-                <mat-list-item class="list-item" *ngFor="let action of actionList">
-                  <div *ngIf="(data.action === 'upload' && action[0] === 'File(s)') || (data.action === 'download' && action[0] === 'File(s)');else multiAction" class="info-item-title">File</div>
-                  <ng-template #multiAction>
-                     <div class="info-item-title">{{action[0]}}</div>
-                  </ng-template>
-                  <div class="info-item-data" *ngIf="action[0] === 'File(s)'">
-                    <div class="file-description ellipsis" *ngFor="let description of action[1]?.split(',')" [matTooltip]="description" matTooltipPosition="above">
-                      {{description}}
-                    </div>
-                  </div>
-                  <div class="info-item-data" *ngIf="action[0] !== 'File(s)'">
-                     <div *ngFor="let description of action[1]?.split(',')">{{description}}</div>
-                  </div>
+            <mat-list *ngIf="actionList[0].length > 1 || data.element.info.indexOf('Update budget') !== -1;else message">
+              <ng-container *ngIf="data.element.info.indexOf('Update budget') === -1;else quotas">
+                <mat-list-item class="list-header">
+                  <div class="info-item-title" [ngClass]="{'same-column-width': data.dialogSize === 'small'}">Action</div>
+                  <div class="info-item-data" [ngClass]="{'same-column-width': data.dialogSize === 'small'}"> Description </div>
                 </mat-list-item>
-              </div>
+                <div class="scrolling-content mat-list-wrapper" id="scrolling">
+                  <mat-list-item class="list-item" *ngFor="let action of actionList">
+                    <div *ngIf="(data.element.action === 'upload' && action[0] === 'File(s)') || (data.element.action === 'download' && action[0] === 'File(s)');else multiAction" class="info-item-title">File</div>
+                    <ng-template #multiAction>
+                       <div class="info-item-title" [ngClass]="{'same-column-width': data.dialogSize === 'small'}">{{action[0]}}</div>
+                    </ng-template>
+                    <div class="info-item-data" [ngClass]="{'same-column-width': data.dialogSize === 'small'}" *ngIf="action[0] === 'File(s)'">
+                      <div class="file-description ellipsis" *ngFor="let description of action[1]?.split(',')" [matTooltip]="description" matTooltipPosition="above">
+                        {{description}}
+                      </div>
+                    </div>
+                    <div class="info-item-data" [ngClass]="{'same-column-width': data.dialogSize === 'small'}" *ngIf="action[0] !== 'File(s)'">
+                       <div *ngFor="let description of action[1]?.split(',')">{{description}}</div>
+                    </div>
+                  </mat-list-item>
+                </div>
+              </ng-container>
+
+              <ng-template #quotas>
+                <mat-list-item class="list-header">
+                  <div class="same-column-width" >Action</div>
+                  <div class="info-item-quota-first" > Previous value </div>
+                  <div class="info-item-quota-last" > New value </div>
+                </mat-list-item>
+                <div class="scrolling-content mat-list-wrapper" id="scrolling">
+                  <mat-list-item class="list-item" *ngFor="let action of actionList">
+                    <div class="same-column-width">{{updateBudget[0]}}</div>
+                    <div class="info-item-quota-first">
+                      {{updateBudget[1]}}
+                    </div>
+                    <div class="info-item-quota-last">
+                      {{updateBudget[2]}}
+                    </div>
+                  </mat-list-item>
+                </div>
+              </ng-template>
             </mat-list>
             <ng-template #message>
               <div class="message-wrapper">
-                <p>{{data.data}}.</p>
+                <p *ngIf="data.element.type !== 'COMPUTATIONAL'; else computation">{{data.element.info}}.</p>
+                <ng-template #computation>
+                  <p > {{data.element.action | titlecase}} computational resource <span class="strong">{{data.element.resourceName}}</span>, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span></p>
+                </ng-template>
               </div>
           </ng-template></div>
       </div>
@@ -203,23 +243,31 @@ export class AuditGridComponent implements OnInit {
     .mat-list-wrapper{padding-top: 5px;}
     .list-item{color: #718ba6; height: auto; line-height: 20px;}
     .info-item-title{width: 40%; padding: 10px 0}
+    .info-item-quota-first{width: 30%; padding: 10px 0}
+    .info-item-quota-last{width: 20%; padding: 10px 0}
     .list-header {padding-top: 5px;}
     .info-item-data{width: 60%; text-align: left; padding: 10px 0}
     .file-description{ overflow: hidden; display: block; direction: rtl;}
-
-
-
-
-
+    .same-column-width{width: 50%; padding: 10px 0}
   `]
 })
 export class AuditInfoDialogComponent {
-  actionList;
+  actionList: string[][];
+  updateBudget: string[] = [];
   constructor(
     public dialogRef: MatDialogRef<AuditInfoDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    this.actionList = data.data.split('\n').map(v => v.split(':')).filter(v => v[0] !== '');
+    if (data.element.info.indexOf('Update budget') !== -1) {
+      this.data.element.info.replace('->', ' ').split(' ').forEach((v, i, arr) => {
+        if (i === 1) {
+          this.updateBudget.push(`${arr[0]} ${arr[1]}`);
+        }
+        if (i > 1) {
+          this.updateBudget.push(arr[i]);
+        }
+      });
+    }
+    this.actionList = data.element.info.split('\n').map(v => v.split(':')).filter(v => v[0] !== '');
   }
-
 }
