@@ -67,7 +67,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class LibExploratoryResourceTest extends TestBase {
-    private static final String AUDIT_MESSAGE = "Installed libs: %s";
+    private static final String AUDIT_MESSAGE = "Install libs: %s";
     private static final String LIB_GROUP = "group";
     private static final String LIB_NAME = "name";
     private static final String LIB_VERSION = "version";

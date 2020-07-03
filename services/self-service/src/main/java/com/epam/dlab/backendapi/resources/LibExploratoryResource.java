@@ -61,7 +61,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LibExploratoryResource {
 	private static final String DROPWIZARD_ARTIFACT = "io.dropwizard:dropwizard-core:1.3.5";
-	private static final String AUDIT_MESSAGE = "Installed libs: %s";
+	private static final String AUDIT_MESSAGE = "Install libs: %s";
 
 	private final ExternalLibraryService externalLibraryService;
 	private final ExploratoryDAO exploratoryDAO;
