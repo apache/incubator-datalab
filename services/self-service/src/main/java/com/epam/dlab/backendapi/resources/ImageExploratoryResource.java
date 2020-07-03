@@ -53,7 +53,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ImageExploratoryResource {
-	private final static String AUDIT_MESSAGE = "Image name: %s";
+	private final static String AUDIT_MESSAGE = "Create image: %s";
 
 	private final ImageExploratoryService imageExploratoryService;
 	private final RequestId requestId;
