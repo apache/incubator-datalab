@@ -29,8 +29,8 @@
           <mat-list>
             <mat-list-item class="list-header">
               <div class="username">Project</div>
+              <div class="period">Set per month</div>
               <div class="quotes">Limit</div>
-<!--              <div class="action">Actions</div>-->
             </mat-list-item>
             <div class="scrolling-content" id="scrolling" formArrayName="projects">
               <mat-list-item *ngFor="let item of usersEnvironments.controls; let i=index" [formGroupName]="i"
@@ -40,6 +40,12 @@
                   matTooltip="{{ manageUsersForm.controls['projects']['controls'][i].value['project'] }}"
                   matTooltipPosition="above">{{ manageUsersForm.controls['projects']['controls'][i].value['project'] }}
                     </span>
+                </div>
+                <div class="period">
+<!--                  <mat-slide-toggle formControlName="shared_image_enabled" labelPosition="after">-->
+                  <mat-slide-toggle formControlName="is_monthly_budget">
+<!--                    <span class="hold-label">Per month</span>-->
+                  </mat-slide-toggle>
                 </div>
                 <div class="quotes">
                   <input type="number" (keypress)="CheckUtils.numberOnly($event)" min="0"

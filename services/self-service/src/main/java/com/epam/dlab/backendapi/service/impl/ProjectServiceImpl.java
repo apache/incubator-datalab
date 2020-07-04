@@ -12,6 +12,7 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.UserGroupDao;
+import com.epam.dlab.backendapi.domain.BudgetDTO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
@@ -36,6 +37,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -219,19 +221,19 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> dtos) {
-        final List<ProjectDTO> projects = dtos
-                .stream()
-                .filter(dto -> Objects.nonNull(dto.getBudget()))
-                .map(dto -> ProjectDTO.builder().name(dto.getProject()).budget(dto.getBudget()).build())
-                .collect(Collectors.toList());
+	    final List<ProjectDTO> projects = dtos
+			    .stream()
+			    .filter(dto -> Objects.nonNull(dto.getBudget()))
+			    .map(this::getUpdateProjectDTO)
+			    .collect(Collectors.toList());
 
-        projects.forEach(p -> updateBudget(userInfo, p.getName(), p.getBudget(), getUpdateBudgetAudit(p)));
+	    projects.forEach(p -> updateBudget(userInfo, p.getName(), p.getBudget(), getUpdateBudgetAudit(p)));
     }
 
-    @Audit(action = UPDATE, type = PROJECT)
-    public void updateBudget(@User UserInfo userInfo, @Project @ResourceName String name, Integer budget, @Info String updateBudgetAudit) {
-        projectDAO.updateBudget(name, budget);
-    }
+	@Audit(action = UPDATE, type = PROJECT)
+	public void updateBudget(@User UserInfo userInfo, @Project @ResourceName String name, BudgetDTO budget, @Info String updateBudgetAudit) {
+		projectDAO.updateBudget(name, budget.getValue(), budget.isMonthlyBudget());
+	}
 
 	@Override
 	public boolean isAnyProjectAssigned(UserInfo userInfo) {
@@ -321,7 +323,10 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private String getUpdateBudgetAudit(ProjectDTO p) {
-		return String.format(AUDIT_UPDATE_BUDGET, get(p.getName()).getBudget(), p.getBudget());
+		Integer value = Optional.ofNullable(get(p.getName()).getBudget())
+				.map(BudgetDTO::getValue)
+				.orElse(null);
+		return String.format(AUDIT_UPDATE_BUDGET, value, p.getBudget().getValue());
 	}
 
 	private List<ProjectEndpointDTO> getProjectEndpointDTOS(List<String> endpoints, @Project String name) {
@@ -330,6 +335,17 @@ public class ProjectServiceImpl implements ProjectService {
 				.stream()
 				.filter(projectEndpointDTO -> endpoints.contains(projectEndpointDTO.getName()))
 				.collect(Collectors.toList());
+	}
+
+	private ProjectDTO getUpdateProjectDTO(UpdateProjectBudgetDTO dto) {
+		BudgetDTO budgetDTO = BudgetDTO.builder()
+				.value(dto.getBudget())
+				.isMonthlyBudget(dto.isMonthlyBudget())
+				.build();
+		return ProjectDTO.builder()
+				.name(dto.getProject())
+				.budget(budgetDTO)
+				.build();
 	}
 
 	private Supplier<ResourceNotFoundException> projectNotFound() {

@@ -1,6 +1,7 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.BudgetDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
@@ -30,6 +31,9 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String GROUPS = "groups";
 	private static final String ENDPOINTS = "endpoints";
 	private static final String STATUS_FIELD = "status";
+	private static final String BUDGET_FIELD = "budget";
+	private static final String VALUE_FIELD = "value";
+	private static final String IS_MONTHLY_BUDGET_FIELD = "isMonthlyBudget";
 	private static final String SHARED_IMAGE_FIELD = "sharedImageEnabled";
 	private static final String ENDPOINT_STATUS_FIELD = "endpoints." + STATUS_FIELD;
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
@@ -121,12 +125,17 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 
 	@Override
 	public Optional<Integer> getAllowedBudget(String project) {
-		return get(project).map(ProjectDTO::getBudget);
+		return get(project)
+				.flatMap(p -> Optional.ofNullable(p.getBudget())
+						.map(BudgetDTO::getValue));
 	}
 
 	@Override
-	public void updateBudget(String project, Integer budget) {
-		updateOne(PROJECTS_COLLECTION, projectCondition(project), new Document(SET, new Document("budget", budget)));
+	public void updateBudget(String project, Integer budget, boolean isMonthlyBudget) {
+		BasicDBObject updateBudget = new BasicDBObject();
+		updateBudget.put(VALUE_FIELD, budget);
+		updateBudget.put(IS_MONTHLY_BUDGET_FIELD, isMonthlyBudget);
+		updateOne(PROJECTS_COLLECTION, projectCondition(project), new Document(SET, new Document(BUDGET_FIELD, updateBudget)));
 	}
 
 	@Override

@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.backendapi.domain.BillingReportLine;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface BillingDAO {
@@ -29,6 +30,8 @@ public interface BillingDAO {
 	Double getUserCost(String user);
 
 	Double getProjectCost(String project);
+
+	Double getProjectCost(String project, LocalDate date);
 
 	int getBillingQuoteUsed();
 
