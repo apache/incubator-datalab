@@ -223,6 +223,7 @@ export class AuditGridComponent implements OnInit {
               <div class="message-wrapper">
                 <p *ngIf="data.element.type !== 'COMPUTE'; else computation">
                   <span *ngIf="data.element.info.indexOf('Scheduled') !== -1;else notScheduledNotebook">{{data.element.action | titlecase}} by scheduler.</span>
+
                   <ng-template #notScheduledNotebook>
                     <span>{{data.element.info}}.</span>
                   </ng-template>

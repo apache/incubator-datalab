@@ -33,7 +33,7 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String STATUS_FIELD = "status";
 	private static final String BUDGET_FIELD = "budget";
 	private static final String VALUE_FIELD = "value";
-	private static final String IS_MONTHLY_BUDGET_FIELD = "isMonthlyBudget";
+	private static final String MONTHLY_BUDGET_FIELD = "monthlyBudget";
 	private static final String SHARED_IMAGE_FIELD = "sharedImageEnabled";
 	private static final String ENDPOINT_STATUS_FIELD = "endpoints." + STATUS_FIELD;
 	private static final String EDGE_INFO_FIELD = "edgeInfo";
@@ -131,10 +131,10 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	}
 
 	@Override
-	public void updateBudget(String project, Integer budget, boolean isMonthlyBudget) {
+	public void updateBudget(String project, Integer budget, boolean monthlyBudget) {
 		BasicDBObject updateBudget = new BasicDBObject();
 		updateBudget.put(VALUE_FIELD, budget);
-		updateBudget.put(IS_MONTHLY_BUDGET_FIELD, isMonthlyBudget);
+		updateBudget.put(MONTHLY_BUDGET_FIELD, monthlyBudget);
 		updateOne(PROJECTS_COLLECTION, projectCondition(project), new Document(SET, new Document(BUDGET_FIELD, updateBudget)));
 	}
 

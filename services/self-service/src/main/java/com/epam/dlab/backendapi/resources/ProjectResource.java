@@ -1,6 +1,7 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.BudgetDTO;
 import com.epam.dlab.backendapi.domain.CreateProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
@@ -78,7 +79,7 @@ public class ProjectResource {
 				.map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
 				.collect(Collectors.toList());
 		ProjectDTO project = new ProjectDTO(projectDTO.getName(), projectDTO.getGroups(), projectDTO.getKey(), projectDTO.getTag(),
-				null, projectEndpointDTOS, projectDTO.isSharedImageEnabled());
+				new BudgetDTO(), projectEndpointDTOS, projectDTO.isSharedImageEnabled());
 		projectService.create(userInfo, project, projectDTO.getName());
 		final URI uri = uriInfo.getRequestUriBuilder().path(projectDTO.getName()).build();
 		return Response
