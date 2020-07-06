@@ -42,9 +42,7 @@
                     </span>
                 </div>
                 <div class="period">
-<!--                  <mat-slide-toggle formControlName="shared_image_enabled" labelPosition="after">-->
-                  <mat-slide-toggle formControlName="is_monthly_budget">
-<!--                    <span class="hold-label">Per month</span>-->
+                  <mat-slide-toggle formControlName="monthlyBudget">
                   </mat-slide-toggle>
                 </div>
                 <div class="quotes">
@@ -54,32 +52,6 @@
                     *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('overrun')">Per-user
                     quotes cannot be greater than total budget</span>
                 </div>
-<!--                <div class="action">-->
-<!--                  <span-->
-<!--                    *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['canBeStopped'].value; else not_allowed_stop"-->
-<!--                    matTooltip="Stop" matTooltipPosition="above" (click)="applyAction('stop', item)">-->
-<!--                    <i class="material-icons">pause_circle_outline</i>-->
-<!--                  </span>-->
-<!--                  <ng-template #not_allowed_stop>-->
-<!--                    <span matTooltip="Unable to stop project because all resources are already stopped'"-->
-<!--                      matTooltipPosition="above" class="not-active">-->
-<!--                      <i class="material-icons">pause_circle_outline</i>-->
-<!--                    </span>-->
-<!--                  </ng-template>-->
-
-<!--                  <span-->
-<!--                    *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['canBeTerminated'].value; else not_allowed_terminate"-->
-<!--                    matTooltip="Terminate" matTooltipPosition="above" (click)="applyAction('terminate', item)">-->
-<!--                    <i class="material-icons">phonelink_off</i>-->
-<!--                  </span>-->
-<!--                  <ng-template #not_allowed_terminate>-->
-<!--                    <span matTooltip="Unable to terminate project because all resources are already terminated"-->
-<!--                      matTooltipPosition="above" class="not-active">-->
-<!--                      <i class="material-icons">phonelink_off</i>-->
-<!--                    </span>-->
-<!--                  </ng-template>-->
-
-<!--                </div>-->
               </mat-list-item>
             </div>
             <div class="control-group total-budget">
@@ -93,12 +65,6 @@
                          placeholder="Enter total budget, in USD">
                   <span class="error" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')">Total budget cannot be lower than a sum of users quotes</span>
                 </div>
-<!--              <label class="username">Total budget</label>-->
-<!--              <div class="quotes">-->
-<!--                <input type="number" (keypress)="CheckUtils.numberOnly($event)" formControlName="total"-->
-<!--                  placeholder="Enter total budget, in USD">-->
-<!--                <span class="error" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')">Total budget cannot be lower than a sum of users quotes</span>-->
-<!--              </div>-->
               </mat-list-item>
             </div>
             <div class="text-center m-top-30">

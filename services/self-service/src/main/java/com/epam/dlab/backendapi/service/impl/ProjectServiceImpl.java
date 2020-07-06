@@ -340,7 +340,7 @@ public class ProjectServiceImpl implements ProjectService {
 	private ProjectDTO getUpdateProjectDTO(UpdateProjectBudgetDTO dto) {
 		BudgetDTO budgetDTO = BudgetDTO.builder()
 				.value(dto.getBudget())
-				.isMonthlyBudget(dto.isMonthlyBudget())
+				.monthlyBudget(dto.isMonthlyBudget())
 				.build();
 		return ProjectDTO.builder()
 				.name(dto.getProject())

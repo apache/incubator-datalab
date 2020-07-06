@@ -221,9 +221,17 @@ export class AuditGridComponent implements OnInit {
             </mat-list>
             <ng-template #message>
               <div class="message-wrapper">
-                <p *ngIf="data.element.type !== 'COMPUTATIONAL'; else computation">{{data.element.info}}.</p>
+                <p *ngIf="data.element.type !== 'COMPUTATIONAL'; else computation">
+                  <span *ngIf="data.element.info === 'Scheduled action.';else notScheduledNotebook">{{data.element.action | titlecase}} by scheduler.</span>
+                  <ng-template #notScheduledNotebook>
+                    <span>{{data.element.info}}.</span>
+                  </ng-template>
+                </p>
                 <ng-template #computation>
-                  <p > {{data.element.action | titlecase}} computational resource <span class="strong">{{data.element.resourceName}}</span>, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span></p>
+                  <p *ngIf="data.element.info.indexOf('Scheduled') !== -1;else notScheduled"> {{data.element.action | titlecase}} by scheduler, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span></p>
+                    <ng-template #notScheduled>
+                      <p> {{data.element.action | titlecase}} computational resource <span class="strong">{{data.element.resourceName}}</span>, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span></p>
+                    </ng-template>
                 </ng-template>
               </div>
           </ng-template></div>
