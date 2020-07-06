@@ -70,12 +70,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.RECONFIGURE;
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.START;
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.STOP;
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.TERMINATE;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE;
-import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL;
-import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL_CONFIG;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTE;
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
 import static com.epam.dlab.dto.UserInstanceStatus.RECONFIGURING;
@@ -153,7 +152,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	@BudgetLimited
-	@Audit(action = CREATE, type = COMPUTATIONAL)
+	@Audit(action = CREATE, type = COMPUTE)
 	@Override
 	public boolean createSparkCluster(@User UserInfo userInfo, @ResourceName String resourceName, SparkStandaloneClusterCreateForm form, @Project String project,
                                       @Info String auditInfo) {
@@ -179,19 +178,19 @@ public class ComputationalServiceImpl implements ComputationalService {
 				} catch (DlabException d) {
 					log.error(COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT, form.getName(), userInfo.getName(), d);
 				}
-				throw e;
-			}
-		} else {
-			log.debug("Computational with name {} is already existing for user {}", form.getName(),
-					userInfo.getName());
-			return false;
-		}
+	            throw e;
+            }
+        } else {
+	        log.debug("Computational with name {} is already existing for user {}", form.getName(),
+			        userInfo.getName());
+	        return false;
+        }
 	}
 
-	@Audit(action = TERMINATE, type = COMPUTATIONAL)
+	@Audit(action = TERMINATE, type = COMPUTE)
 	@Override
 	public void terminateComputational(@User UserInfo userInfo, String resourceCreator, @Project String project, String exploratoryName, @ResourceName String computationalName,
-									   @Info String auditInfo) {
+	                                   @Info String auditInfo) {
 		try {
 			updateComputationalStatus(resourceCreator, project, exploratoryName, computationalName, TERMINATING);
 
@@ -217,7 +216,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	@BudgetLimited
-	@Audit(action = CREATE, type = COMPUTATIONAL)
+	@Audit(action = CREATE, type = COMPUTE)
 	@Override
 	public boolean createDataEngineService(@User UserInfo userInfo, @ResourceName String resourceName, ComputationalCreateFormDTO formDTO,
 										   UserComputationalResource computationalResource, @Project String project, @Info String auditInfo) {
@@ -250,13 +249,13 @@ public class ComputationalServiceImpl implements ComputationalService {
 				throw new DlabException("Could not send request for creation the computational resource " + formDTO
 						.getName() + ": " + t.getLocalizedMessage(), t);
 			}
-		} else {
-			log.debug("Used existing computational resource {} for user {}", formDTO.getName(), userInfo.getName());
-			return false;
-		}
+        } else {
+	        log.debug("Used existing computational resource {} for user {}", formDTO.getName(), userInfo.getName());
+	        return false;
+        }
 	}
 
-	@Audit(action = STOP, type = COMPUTATIONAL)
+	@Audit(action = STOP, type = COMPUTE)
 	@Override
 	public void stopSparkCluster(@User UserInfo userInfo, String resourceCreator, @Project String project, String expName, @ResourceName String compName, @Info String auditInfo) {
 		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(resourceCreator, project, expName, true);
@@ -277,7 +276,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 	}
 
 	@BudgetLimited
-	@Audit(action = START, type = COMPUTATIONAL)
+	@Audit(action = START, type = COMPUTE)
 	@Override
 	public void startSparkCluster(@User UserInfo userInfo, String expName, @ResourceName String compName, @Project String project, @Info String auditInfo) {
 		final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), project, expName, true);
@@ -296,7 +295,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 		}
 	}
 
-	@Audit(action = UPDATE, type = COMPUTATIONAL_CONFIG)
+	@Audit(action = RECONFIGURE, type = COMPUTE)
 	@Override
 	public void updateSparkClusterConfig(@User UserInfo userInfo, @Project String project, String exploratoryName, @ResourceName String computationalName, List<ClusterConfig> config) {
 		final String userName = userInfo.getName();

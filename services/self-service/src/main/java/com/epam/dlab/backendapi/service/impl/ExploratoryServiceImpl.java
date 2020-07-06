@@ -67,7 +67,7 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -75,13 +75,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.RECONFIGURE;
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.START;
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.STOP;
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.TERMINATE;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPDATE;
-import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL;
 import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
-import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK_CONFIG;
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 import static com.epam.dlab.dto.UserInstanceStatus.FAILED;
 import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
@@ -183,12 +181,18 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	@Override
+	public void updateProjectExploratoryStatuses(UserInfo userInfo, String project, String endpoint, UserInstanceStatus status) {
+		exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(project, endpoint, TERMINATED, FAILED)
+				.forEach(ui -> updateExploratoryStatus(userInfo, project, ui.getExploratoryName(), status, ui.getUser()));
+	}
+
+	@Override
 	public void updateProjectExploratoryStatuses(String project, String endpoint, UserInstanceStatus status) {
 		exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(project, endpoint, TERMINATED, FAILED)
 				.forEach(ui -> updateExploratoryStatus(project, ui.getExploratoryName(), status, ui.getUser()));
 	}
 
-	@Audit(action = UPDATE, type = NOTEBOOK_CONFIG)
+	@Audit(action = RECONFIGURE, type = NOTEBOOK)
 	@Override
 	public void updateClusterConfig(@User UserInfo userInfo, @Project String project, @ResourceName String exploratoryName, List<ClusterConfig> config) {
 		final String userName = userInfo.getName();
@@ -303,17 +307,26 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		}
 	}
 
+	@Audit(action = TERMINATE, type = NOTEBOOK)
+	public void updateExploratoryStatus(@User UserInfo userInfo, @Project String project, @ResourceName String exploratoryName, UserInstanceStatus status, String user) {
+		updateExploratoryStatus(user, project, exploratoryName, status);
+		updateComputationalStatuses(project, exploratoryName, status, user);
+	}
+
 	private void updateExploratoryStatus(String project, String exploratoryName, UserInstanceStatus status, String user) {
 		updateExploratoryStatus(user, project, exploratoryName, status);
+		updateComputationalStatuses(project, exploratoryName, status, user);
+	}
 
+	private void updateComputationalStatuses(String project, String exploratoryName, UserInstanceStatus status, String user) {
 		if (status == STOPPING) {
 			if (configuration.isAuditEnabled()) {
-				saveAudit(project, exploratoryName, user, STOP, COMPUTATIONAL);
+				saveAudit(project, exploratoryName, user, STOP);
 			}
 			updateComputationalStatuses(user, project, exploratoryName, STOPPING, TERMINATING, FAILED, TERMINATED, STOPPED);
 		} else if (status == TERMINATING) {
 			if (configuration.isAuditEnabled()) {
-				saveAudit(project, exploratoryName, user, TERMINATE, COMPUTATIONAL);
+				saveAudit(project, exploratoryName, user, TERMINATE);
 			}
 			updateComputationalStatuses(user, project, exploratoryName, TERMINATING, TERMINATING, TERMINATED, FAILED);
 		} else if (status == TERMINATED) {
@@ -321,8 +334,13 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		}
 	}
 
-	private void saveAudit(String project, String exploratoryName, String user, AuditActionEnum action, AuditResourceTypeEnum type) {
-		computationalDAO.getComputationalResourcesWhereStatusIn(user, project, Arrays.asList(DataEngineType.SPARK_STANDALONE, DataEngineType.CLOUD_SERVICE),
+	private void saveAudit(String project, String exploratoryName, String user, AuditActionEnum action) {
+		saveAuditForComputational(project, exploratoryName, user, action, DataEngineType.SPARK_STANDALONE);
+		saveAuditForComputational(project, exploratoryName, user, TERMINATE, DataEngineType.CLOUD_SERVICE);
+	}
+
+	private void saveAuditForComputational(String project, String exploratoryName, String user, AuditActionEnum action, DataEngineType cloudService) {
+		computationalDAO.getComputationalResourcesWhereStatusIn(user, project, Collections.singletonList(cloudService),
 				exploratoryName, RUNNING)
 				.forEach(comp -> auditService.save(
 						AuditDTO.builder()
@@ -330,7 +348,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 								.resourceName(comp)
 								.project(project)
 								.action(action)
-								.type(type)
+								.type(AuditResourceTypeEnum.COMPUTE)
 								.build())
 				);
 	}
