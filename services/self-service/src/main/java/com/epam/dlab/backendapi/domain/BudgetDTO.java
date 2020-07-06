@@ -20,15 +20,17 @@
 package com.epam.dlab.backendapi.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BudgetDTO {
     private Integer value;
-    @JsonProperty("is_monthly_budget")
-    private boolean isMonthlyBudget;
+    private boolean monthlyBudget;
 }

@@ -13,7 +13,8 @@ public class CreateProjectDTO {
 	private final String name;
 	@NotNull
 	private final Set<String> groups;
-	@NotNull final Set<String> endpoints;
+	@NotNull
+	final Set<String> endpoints;
 	@NotNull
 	@Pattern(regexp = "^ssh-.*\\n?", message = "format is incorrect. Please use the openSSH format")
 	private final String key;
