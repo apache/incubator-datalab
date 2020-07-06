@@ -280,3 +280,12 @@
   padding-left: 19px;
 }
 
+.table-footer{
+  position: sticky;
+  bottom: 0;
+  background: inherit;
+  border-top: 1px solid #E0E0E0;
+  transform: translateY(-1px);
+  border-bottom: none;
+}
+
