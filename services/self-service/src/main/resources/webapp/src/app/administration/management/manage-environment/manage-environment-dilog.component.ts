@@ -74,6 +74,12 @@ export class ManageEnvironmentComponent implements OnInit {
 
   public setBudgetLimits(value) {
     if (this.getCurrentTotalValue() >= this.getCurrentUsersTotal() || !this.getCurrentTotalValue()) {
+      value.projects = value.projects.filter((v, i) =>
+        this.initialFormState.projects[i].budget !== v.budget ||
+        this.initialFormState.projects[i].monthlyBudget !== v.monthlyBudget);
+      if (this.initialFormState.total === value.total) {
+        delete value.total;
+      }
       this.dialogRef.close(value);
     } else {
       this.manageUsersForm.controls['total'].setErrors({ overrun: true });
@@ -94,7 +100,7 @@ export class ManageEnvironmentComponent implements OnInit {
       this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
         project: x.name,
         budget: [x.budget.value, [ this.userValidityCheck.bind(this)]],
-        is_monthly_budget: x.budget.is_monthly_budget,
+        monthlyBudget: x.budget.monthlyBudget,
       }))));
   }
 
