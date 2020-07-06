@@ -39,8 +39,8 @@ import {Endpoint} from '../../../administration/project/project.component';
             </div>
               <div *ngIf="data.type === 'list'" class="info">
                   <div *ngIf="data.template.notebook.length > 0">
-                      Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
-                      <span *ngFor="let item of data.template.notebook">
+                      Following notebook server<span *ngIf="data.template.notebook.length>1">s</span>
+                    <span *ngFor="let item of data.template.notebook">&nbsp;
                         <span class="strong">{{ item.exploratory_name }}</span>
                         <span *ngIf="data.template.notebook.length > 1">, </span>
                       </span> will be stopped and all computational resources will be stopped/terminated
