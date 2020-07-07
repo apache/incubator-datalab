@@ -208,7 +208,7 @@
                   <i class="material-icons">developer_board</i>
                   <span>Manage libraries</span>
                 </li>
-                <li *ngIf="element.status === 'running'">
+                <li *ngIf="element.status === 'running'" (click)="logAction(element.name)">
                   <a target="_blank" [attr.href]="'/#/terminal/' + element.private_ip + '/' + element.endpoint"
                     class="navigate">
                     <i class="material-icons">laptop</i>

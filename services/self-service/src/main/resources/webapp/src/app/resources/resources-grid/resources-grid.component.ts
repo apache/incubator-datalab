@@ -39,6 +39,7 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ComputationModel} from '../computational/computational-resource.model';
 import {NotebookModel} from '../exploratory/notebook.model';
+import {AuditService} from '../../core/services/audit.service';
 
 export interface SharedEndpoint {
   edge_node_ip: string;
@@ -123,6 +124,7 @@ export class ResourcesGridComponent implements OnInit {
     private dialog: MatDialog,
     private progressBarService: ProgressBarService,
     private projectService: ProjectService,
+    private auditService: AuditService,
   ) { }
 
   ngOnInit(): void {
@@ -412,5 +414,9 @@ export class ResourcesGridComponent implements OnInit {
     this.userResourceService.updateUserPreferences(filterConfiguration)
       .subscribe(() => { },
         (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
+  }
+
+  logAction(name) {
+    this.auditService.sendDataToAudit({resource_name: name, info: `Open terminal on notebook ${name}`, type: 'WEB_TERMINAL'}).subscribe();
   }
 }
