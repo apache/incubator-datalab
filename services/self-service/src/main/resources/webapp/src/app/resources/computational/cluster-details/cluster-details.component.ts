@@ -119,6 +119,6 @@ export class DetailComputationalResourcesComponent implements OnInit {
   }
 
   private logAction(name: any, description: string) {
-    this.auditService.sendDataToAudit({resource_name: name, info: `Follow ${description} link`}).subscribe();
+    this.auditService.sendDataToAudit({resource_name: name, info: `Follow ${description} link`, type: 'COMPUTE'}).subscribe();
   }
 }

@@ -183,13 +183,16 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	@Override
 	public void updateProjectExploratoryStatuses(UserInfo userInfo, String project, String endpoint, UserInstanceStatus status) {
 		exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(project, endpoint, TERMINATED, FAILED)
-				.forEach(ui -> updateExploratoryStatus(userInfo, project, ui.getExploratoryName(), status, ui.getUser()));
+				.forEach(ui -> updateExploratoryComputeStatuses(userInfo, project, ui.getExploratoryName(), status, ui.getUser()));
 	}
 
 	@Override
 	public void updateProjectExploratoryStatuses(String project, String endpoint, UserInstanceStatus status) {
 		exploratoryDAO.fetchProjectExploratoriesWhereStatusNotIn(project, endpoint, TERMINATED, FAILED)
-				.forEach(ui -> updateExploratoryStatus(project, ui.getExploratoryName(), status, ui.getUser()));
+				.forEach(ui -> {
+					updateExploratoryStatus(ui.getUser(), project, ui.getExploratoryName(), status);
+					updateComputationalStatuses(ui.getUser(), project, ui.getExploratoryName(), TERMINATED, TERMINATED, TERMINATED, FAILED);
+				});
 	}
 
 	@Audit(action = RECONFIGURE, type = NOTEBOOK)
@@ -287,7 +290,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	 */
 	private String action(UserInfo userInfo, String resourceCreator, String project, String exploratoryName, String action, UserInstanceStatus status) {
 		try {
-			updateExploratoryStatus(project, exploratoryName, status, resourceCreator);
+			updateExploratoryComputeStatuses(userInfo.getName(), project, exploratoryName, status, resourceCreator);
 
 			UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(resourceCreator, project, exploratoryName);
 			EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
@@ -308,40 +311,39 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	}
 
 	@Audit(action = TERMINATE, type = NOTEBOOK)
-	public void updateExploratoryStatus(@User UserInfo userInfo, @Project String project, @ResourceName String exploratoryName, UserInstanceStatus status, String user) {
-		updateExploratoryStatus(user, project, exploratoryName, status);
-		updateComputationalStatuses(project, exploratoryName, status, user);
+	public void updateExploratoryComputeStatuses(@User UserInfo userInfo, @Project String project, @ResourceName String exploratoryName, UserInstanceStatus status, String resourceCreator) {
+		updateExploratoryStatus(resourceCreator, project, exploratoryName, status);
+		updateComputationalStatuses(userInfo.getName(), resourceCreator, project, exploratoryName, status);
 	}
 
-	private void updateExploratoryStatus(String project, String exploratoryName, UserInstanceStatus status, String user) {
-		updateExploratoryStatus(user, project, exploratoryName, status);
-		updateComputationalStatuses(project, exploratoryName, status, user);
+	private void updateExploratoryComputeStatuses(String user, String project, String exploratoryName, UserInstanceStatus status, String resourceCreator) {
+		updateExploratoryStatus(resourceCreator, project, exploratoryName, status);
+		updateComputationalStatuses(user, resourceCreator, project, exploratoryName, status);
 	}
 
-	private void updateComputationalStatuses(String project, String exploratoryName, UserInstanceStatus status, String user) {
+	private void updateComputationalStatuses(String user, String resourceCreator, String project, String exploratoryName, UserInstanceStatus status) {
 		if (status == STOPPING) {
 			if (configuration.isAuditEnabled()) {
-				saveAudit(project, exploratoryName, user, STOP);
+				saveAudit(user, resourceCreator, project, exploratoryName, STOP, RUNNING);
 			}
-			updateComputationalStatuses(user, project, exploratoryName, STOPPING, TERMINATING, FAILED, TERMINATED, STOPPED);
+			updateComputationalStatuses(resourceCreator, project, exploratoryName, STOPPING, TERMINATING, FAILED, TERMINATED, STOPPED);
 		} else if (status == TERMINATING) {
 			if (configuration.isAuditEnabled()) {
-				saveAudit(project, exploratoryName, user, TERMINATE);
+				saveAudit(user, resourceCreator, project, exploratoryName, TERMINATE, RUNNING, STOPPED);
 			}
-			updateComputationalStatuses(user, project, exploratoryName, TERMINATING, TERMINATING, TERMINATED, FAILED);
-		} else if (status == TERMINATED) {
-			updateComputationalStatuses(user, project, exploratoryName, TERMINATED, TERMINATED, TERMINATED, FAILED);
+			updateComputationalStatuses(resourceCreator, project, exploratoryName, TERMINATING, TERMINATING, TERMINATED, FAILED);
 		}
 	}
 
-	private void saveAudit(String project, String exploratoryName, String user, AuditActionEnum action) {
-		saveAuditForComputational(project, exploratoryName, user, action, DataEngineType.SPARK_STANDALONE);
-		saveAuditForComputational(project, exploratoryName, user, TERMINATE, DataEngineType.CLOUD_SERVICE);
+	private void saveAudit(String user, String resourceCreator, String project, String exploratoryName, AuditActionEnum action, UserInstanceStatus... sparkStatuses) {
+		saveAuditForComputational(user, resourceCreator, project, exploratoryName, action, DataEngineType.SPARK_STANDALONE, sparkStatuses);
+		saveAuditForComputational(user, resourceCreator, project, exploratoryName, TERMINATE, DataEngineType.CLOUD_SERVICE, RUNNING, STOPPED);
 	}
 
-	private void saveAuditForComputational(String project, String exploratoryName, String user, AuditActionEnum action, DataEngineType cloudService) {
-		computationalDAO.getComputationalResourcesWhereStatusIn(user, project, Collections.singletonList(cloudService),
-				exploratoryName, RUNNING)
+	private void saveAuditForComputational(String user, String resourceCreator, String project, String exploratoryName, AuditActionEnum action, DataEngineType cloudService,
+	                                       UserInstanceStatus... computationalStatuses) {
+		computationalDAO.getComputationalResourcesWhereStatusIn(resourceCreator, project, Collections.singletonList(cloudService),
+				exploratoryName, computationalStatuses)
 				.forEach(comp -> auditService.save(
 						AuditDTO.builder()
 								.user(user)

@@ -399,18 +399,18 @@ public class ExploratoryServiceImplTest {
 				anyString(), any(UserInstanceStatus.class), any(UserInstanceStatus.class), anyVararg());
 
 		exploratoryService.updateProjectExploratoryStatuses(userInfo, "project",
-				"endpoint", UserInstanceStatus.TERMINATED);
-		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminated");
+				"endpoint", UserInstanceStatus.TERMINATING);
+		statusEnvBaseDTO = getStatusEnvBaseDTOWithStatus("terminating");
 
 		verify(exploratoryDAO).fetchProjectExploratoriesWhereStatusNotIn("project", "endpoint",
 				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
 		verify(exploratoryDAO).updateExploratoryStatus(refEq(statusEnvBaseDTO, "self"));
 		verify(computationalDAO).updateComputationalStatusesForExploratory(USER, PROJECT,
-				EXPLORATORY_NAME, UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATED,
+				EXPLORATORY_NAME, UserInstanceStatus.TERMINATING, UserInstanceStatus.TERMINATING,
 				UserInstanceStatus.TERMINATED, UserInstanceStatus.FAILED);
 
 		verifyNoMoreInteractions(exploratoryDAO, computationalDAO);
-    }
+	}
 
 	@Test
 	public void getUserInstance() {
