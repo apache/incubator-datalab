@@ -76,7 +76,7 @@ public class UserGroupResourceTest extends TestBase {
 				.target("/group")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getCreateGroupDto(GROUP, Collections.singleton(ROLE_ID))));
+				.post(Entity.json(getCreateGroupDto(GROUP, Collections.singletonMap(ROLE_ID, ROLE_DESCRIPTION))));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
@@ -91,7 +91,7 @@ public class UserGroupResourceTest extends TestBase {
 				.target("/group")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getCreateGroupDto("", Collections.singleton(ROLE_ID))));
+				.post(Entity.json(getCreateGroupDto("", Collections.singletonMap(ROLE_ID, ROLE_DESCRIPTION))));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
@@ -105,7 +105,7 @@ public class UserGroupResourceTest extends TestBase {
 				.target("/group")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getCreateGroupDto(GROUP, Collections.emptySet())));
+				.post(Entity.json(getCreateGroupDto(GROUP, Collections.<String, String>emptyMap())));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
@@ -168,7 +168,7 @@ public class UserGroupResourceTest extends TestBase {
 		return new UserGroupDto(GROUP, Collections.emptyList(), Collections.emptySet());
 	}
 
-	private GroupDTO getCreateGroupDto(String group, Set<String> roleIds) {
+	private GroupDTO getCreateGroupDto(String group, Map<String, String> roleIds) {
 		final GroupDTO dto = new GroupDTO();
 		dto.setName(group);
 		dto.setRoleIds(roleIds);
