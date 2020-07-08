@@ -64,7 +64,7 @@
               <mat-form-field>
                 <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
                 <mat-datepicker-toggle
-                  [ngClass]="{'not-allowed' : destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule }"
+
                   matSuffix [for]="startDate"></mat-datepicker-toggle>
                 <mat-datepicker #startDate></mat-datepicker>
               </mat-form-field>
@@ -72,9 +72,9 @@
             <div class="col-3">
               <mat-form-field>
                 <input matInput [matDatepicker]="finishDate" placeholder="Choose finish date"
-                  formControlName="finishDate" [disabled]="destination.type === 'СOMPUTATIONAL' && inherit ||!enableSchedule">
-                <mat-datepicker-toggle matSuffix [for]="finishDate" [disabled]="destination.type === 'СOMPUTATIONAL' && inherit ||!enableSchedule"></mat-datepicker-toggle>
-                <mat-datepicker #finishDate [disabled]="destination.type === 'СOMPUTATIONAL' && inherit ||!enableSchedule"></mat-datepicker>
+                  formControlName="finishDate">
+                <mat-datepicker-toggle matSuffix [for]="finishDate" [ngClass]="{'not-allowed' : destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule }"></mat-datepicker-toggle>
+                <mat-datepicker #finishDate ></mat-datepicker>
               </mat-form-field>
             </div>
             <div class="col-3" *ngIf="destination.type === 'СOMPUTATIONAL'; else timezone">
@@ -103,11 +103,11 @@
             <div class="control-group col-3 time-range">
               <dlab-time-picker [(pickTime)]="startTime" [label]="'Choose start time'"
                 [disable]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule">
+                {{destination.type}}
               </dlab-time-picker>
             </div>
             <div class="control-group col-3 time-range">
-<!--              <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'" [disable]="destination.type === 'СOMPUTATIONAL' && inherit ||!enableSchedule">-->
-              <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'" [disable]="true">
+              <dlab-time-picker [(pickTime)]="endTime" [label]="'Choose finish time'" [disable]="destination.type === 'СOMPUTATIONAL' && inherit ||!enableSchedule">
               </dlab-time-picker>
             </div>
             <div class="control-group col-3 time-range" *ngIf="destination.type === 'СOMPUTATIONAL'">
@@ -141,7 +141,7 @@
               <label>Start date:</label>
               <mat-button-toggle *ngFor="let day of weekdays; let i = index" value="{{ day }}"
                 (change)="onDaySelect($event, day, 'start')"
-                [disabled]="(destination.type === 'СOMPUTATIONAL' && inherit) || !enableSchedule"
+                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
                 [checked]="selectedStartWeekDays[day.toLowerCase()]">{{ day[0] }}
               </mat-button-toggle>
             </div>
@@ -149,7 +149,7 @@
               <label>Stop date:</label>
               <mat-button-toggle *ngFor="let day of weekdays; let i = index" value="{{ day }}"
                 (change)="onDaySelect($event, day, 'stop')"
-                [disabled]="(destination.type === 'СOMPUTATIONAL' && inherit) || !enableSchedule"
+                [disabled]="destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule"
                 [checked]="selectedStopWeekDays[day.toLowerCase()]">{{ day[0] }}
               </mat-button-toggle>
             </div>

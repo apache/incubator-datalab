@@ -137,7 +137,7 @@
             </computational-resources-list>
           </td>
           <td *ngIf="healthStatus?.billingEnabled" class="cost-col">
-            <span class="total_cost">{{ element.cost || 'N/A' }} {{ element.currency_code || '' }}</span>
+            <span class="total_cost">{{ element.billing.report_lines.length ? element.cost : 'N/A' }} {{ element.currency_code || '' }}</span>
             <span (click)="element.billing && printCostDetails(element)" class="currency_details"
               [ngClass]="{ 'not-allowed' : !element.billing.report_lines.length }">
               <i class="material-icons">help_outline</i>
