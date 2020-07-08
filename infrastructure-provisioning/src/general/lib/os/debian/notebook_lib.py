@@ -384,7 +384,7 @@ def install_os_pkg(requisites):
             dep = sudo('cat /tmp/os_install_{}_dep.log'.format(os_pkg))
             dep = dep[len(add_pkgs_parser):dep.find("Suggested packages:")].replace('\r', '').replace('\n', '').replace('  ', ' ').strip()
             if dep == '':
-                dep = "N/A"
+                dep = "none"
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
             res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
             if res:

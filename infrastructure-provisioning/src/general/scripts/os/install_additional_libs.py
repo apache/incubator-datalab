@@ -58,6 +58,9 @@ if __name__ == "__main__":
                 pkgs['libraries'][data[row]['group']].append(
                     [data[row]['name'].split(':')[0], data[row]['name'].split(':')[1],
                      data[row]['version'], data[row]['override']])
+            elif data[row]['group'] == "pip2" or data[row]['group'] == "pip3" or data[row]['group'] == "os_pkg":
+                pkgs['libraries'][data[row]['group']].append(
+                    [data[row]['name'], data[row]['version']])
             else:
                 pkgs['libraries'][data[row]['group']].append(data[row]['name'])
     except Exception as err:
