@@ -105,7 +105,7 @@ public class UserGroupResourceTest extends TestBase {
 				.target("/group")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getCreateGroupDto(GROUP, Collections.<String, String>emptyMap())));
+				.post(Entity.json(getCreateGroupDto(GROUP, Collections.emptyMap())));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
