@@ -40,7 +40,7 @@ import {Endpoint} from '../../../administration/project/project.component';
               <div *ngIf="data.type === 'list'" class="info">
                   <div *ngIf="data.template.notebook.length > 0">
                       Following notebook server<span *ngIf="data.template.notebook.length>1">s</span>
-                    <span *ngFor="let item of data.template.notebook">&nbsp;
+                    <span *ngFor="let item of data.template.notebook">
                         <span class="strong info">{{ item.exploratory_name}}</span> on project <span
                         class="strong info">{{ item.project }}</span>
                         <span *ngIf="data.template.notebook.length > 1"> , </span>
