@@ -365,22 +365,35 @@ def install_nodejs(os_user):
 
 def install_os_pkg(requisites):
     status = list()
-    error_parser = "Could not|No matching|Error:|failed|Requires:"
+    error_parser = "Could not|No matching|Error:|E:|failed|Requires:"
+    add_pkgs_parser = "The following additional packages will be installed:"
     try:
         print("Updating repositories and installing requested tools: {}".format(requisites))
         manage_pkg('update', 'remote', '')
         for os_pkg in requisites:
-            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
-            err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
-            sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{0}.list; then  echo "" > /tmp/os_install_{0}.list;fi'.format(os_pkg))
+            if os_pkg[1] != '':
+                os_pkg = "{}={}".format(os_pkg[0], os_pkg[1])
+            else:
+                os_pkg = os_pkg[0]
+            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 > /tmp/os_install_{0}.log'.format(os_pkg))
+            sudo('cat /tmp/os_install_{0}.log | if ! grep -w -E "({1})" /tmp/os_install_{0}.log > '
+                 '/tmp/os_install_{0}_err.log; then echo "" > /tmp/os_install_{0}_err.log;fi'.format(os_pkg, error_parser))
+            sudo('cat /tmp/os_install_{0}.log | if ! grep -w -E -A 10 "({1})" /tmp/os_install_{0}.log > '
+                 '/tmp/os_install_{0}_dep.log; then echo "" > /tmp/os_install_{0}_dep.log;fi'.format(os_pkg, add_pkgs_parser))
+            err = sudo('cat /tmp/os_install_{}_err.log'.format(os_pkg)).replace('"', "'")
+            dep = sudo('cat /tmp/os_install_{}_dep.log'.format(os_pkg))
+            dep = dep[len(add_pkgs_parser):dep.find("Suggested packages:")].replace('\r', '').replace('\n', '').replace('  ', ' ').strip()
+            if dep == '':
+                dep = "N/A"
+            sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
             res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
             if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
-                version = [i for i in ver if os_pkg in i][0].split(' ')[1]
-                status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
+                version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
+                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
-                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": err})
+                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "status": "failed", "error_message": err})
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
         return status
@@ -401,7 +414,7 @@ def get_available_os_pkgs():
         os_pkgs = dict()
         ansi_escape = re.compile(r'\x1b[^m]*m')
         manage_pkg('update', 'remote', '')
-        apt_raw = sudo("apt list")
+        apt_raw = sudo("apt list -a")
         apt_list = ansi_escape.sub('', apt_raw).split("\r\n")
         for pkg in apt_list:
             if "/" in pkg:
