@@ -96,6 +96,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                         '==')[1]
                 dep = sudo('{0} show {1} 2>&1 | grep "Requires: "'.format(pip_version, pip_pkg.split("=")[0])).replace(
                     '\r', '').replace('\n', '').replace('Requires: ', '').strip().split(' ')
+                if dep == '':
+                    dep = "none"
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("=")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("=")[0], "status": "failed", "error_message": err})
