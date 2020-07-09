@@ -65,7 +65,7 @@
                 <input matInput [matDatepicker]="startDate" placeholder="Choose start date" formControlName="startDate">
                 <mat-datepicker-toggle
 
-                  matSuffix [for]="startDate"></mat-datepicker-toggle>
+                  matSuffix [for]="startDate" [ngClass]="{'not-allowed' : destination.type === 'СOMPUTATIONAL' && inherit || !enableSchedule }"></mat-datepicker-toggle>
                 <mat-datepicker #startDate></mat-datepicker>
               </mat-form-field>
             </div>
