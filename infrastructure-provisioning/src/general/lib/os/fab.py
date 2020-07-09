@@ -97,6 +97,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             else:
                 if "Could not find a version that satisfies the requirement" in err:
                     versions = [err[err.find("(from versions: ") + 16: err.find(")\r\n")]].split(' ')
+                    if versions == '':
+                        versions = "none"
                     status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("=")[0], "status": "failed",
                                    "error_message": err, "available_versions": versions})
                 else:
