@@ -92,7 +92,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 if dep == '':
                     dep = []
                 else:
-                    dep.split(' ')
+                    dep = dep.split(', ')
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
                 versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
