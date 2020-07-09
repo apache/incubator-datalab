@@ -71,11 +71,6 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
             res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
             changed_pip_pkg = False
-            if "Could not find a version that satisfies the requirement" in err:
-                versions = [err[err.find("(from versions: ") + 16:err.find(")\r\n")]]
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("=")[0], "status": "failed",
-                               "error_message": err, "available_versions": versions})
-                return status
             if res == '':
                 changed_pip_pkg = pip_pkg.split("=")[0].replace("_", "-").split('-')
                 changed_pip_pkg = changed_pip_pkg[0]
@@ -100,7 +95,12 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     dep = "none"
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("=")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("=")[0], "status": "failed", "error_message": err})
+                if "Could not find a version that satisfies the requirement" in err:
+                    versions = [err[err.find("(from versions: ") + 16: err.find(")\r\n")]].split(' ')
+                    status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("=")[0], "status": "failed",
+                                   "error_message": err, "available_versions": versions})
+                else:
+                    status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("=")[0], "status": "failed", "error_message": err})
         return status
     except Exception as err:
         append_result("Failed to install {} packages".format(pip_version), str(err))
