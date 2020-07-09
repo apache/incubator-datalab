@@ -366,7 +366,7 @@ def install_nodejs(os_user):
 def install_os_pkg(requisites):
     status = list()
     error_parser = "Could not|No matching|Error:|E:|failed|Requires:"
-    add_pkgs_parser = "The following additional packages will be installed:"
+    new_pkgs_parser = "The following NEW packages will be installed:"
     try:
         print("Updating repositories and installing requested tools: {}".format(requisites))
         manage_pkg('update', 'remote', '')
@@ -378,13 +378,16 @@ def install_os_pkg(requisites):
             sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 > /tmp/os_install_{0}.log'.format(os_pkg))
             sudo('cat /tmp/os_install_{0}.log | if ! grep -w -E "({1})" /tmp/os_install_{0}.log > '
                  '/tmp/os_install_{0}_err.log; then echo "" > /tmp/os_install_{0}_err.log;fi'.format(os_pkg, error_parser))
-            sudo('cat /tmp/os_install_{0}.log | if ! grep -w -E -A 10 "({1})" /tmp/os_install_{0}.log > '
-                 '/tmp/os_install_{0}_dep.log; then echo "" > /tmp/os_install_{0}_dep.log;fi'.format(os_pkg, add_pkgs_parser))
+            sudo('cat /tmp/os_install_{0}.log | if ! grep -w -E -A 20 "({1})" /tmp/os_install_{0}.log > '
+                 '/tmp/os_install_{0}_dep.log; then echo "" > /tmp/os_install_{0}_dep.log;fi'.format(os_pkg, new_pkgs_parser))
             err = sudo('cat /tmp/os_install_{}_err.log'.format(os_pkg)).replace('"', "'")
             dep = sudo('cat /tmp/os_install_{}_dep.log'.format(os_pkg))
-            dep = dep[len(add_pkgs_parser):dep.find("Suggested packages:")].replace('\r', '').replace('\n', '').replace('  ', ' ').strip().split(' ')
+            dep = dep[len(new_pkgs_parser) : dep.find(" upgraded, ") -1].replace('\r', '')\
+                .replace('\n', '').replace('  ', ' ').replace(os_pkg.split("=")[0], '').strip()
             if dep == '':
                 dep = "none"
+            else:
+                dep.split(' ')
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
             res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
             if res:
