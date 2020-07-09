@@ -383,11 +383,11 @@ def install_os_pkg(requisites):
             err = sudo('cat /tmp/os_install_{}_err.log'.format(os_pkg)).replace('"', "'")
             dep = sudo('cat /tmp/os_install_{}_dep.log'.format(os_pkg))
             dep = dep[len(new_pkgs_parser) : dep.find(" upgraded, ") -1].replace('\r', '')\
-                .replace('\n', '').replace('  ', ' ').replace(os_pkg.split("=")[0], '').strip()
-            if dep == '':
+                .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]), ' ').strip()
+            if dep == '' or dep == os_pkg.split("=")[0]:
                 dep = "none"
             else:
-                dep.split(' ')
+                dep = dep.split(' ')
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
             res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
             if res:

@@ -100,7 +100,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     if versions == '':
                         versions = "none"
                     else:
-                        versions.split(' ')
+                        versions = versions.split(' ')
                     status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "status": "failed",
                                    "error_message": err, "available_versions": versions})
                 else:
