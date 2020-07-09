@@ -385,7 +385,7 @@ def install_os_pkg(requisites):
             dep = dep[len(new_pkgs_parser) : dep.find(" upgraded, ") -1].replace('\r', '')\
                 .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]), ' ').strip()
             if dep == '' or dep == os_pkg.split("=")[0]:
-                dep = "none"
+                dep = []
             else:
                 dep = dep.split(' ')
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
@@ -396,7 +396,7 @@ def install_os_pkg(requisites):
                 version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
                 status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
-                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "status": "failed", "error_message": err})
+                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "status": "failed", "error_message": err, "available_versions": []})
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
         return status

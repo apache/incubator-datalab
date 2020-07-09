@@ -90,21 +90,18 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 dep = sudo('{0} show {1} 2>&1 | grep "Requires: "'.format(pip_version, pip_pkg.split("==")[0])).replace(
                     '\r', '').replace('\n', '').replace('Requires:', '').strip()
                 if dep == '':
-                    dep = "none"
+                    dep = []
                 else:
                     dep.split(' ')
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
-                if "Could not find a version that satisfies the requirement" in err:
-                    versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
-                    if versions == '':
-                        versions = "none"
-                    else:
-                        versions = versions.split(' ')
-                    status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "status": "failed",
-                                   "error_message": err, "available_versions": versions})
+                versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
+                if versions == '':
+                    versions = []
                 else:
-                    status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "status": "failed", "error_message": err})
+                    versions = versions.split(', ')
+                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "status": "failed",
+                                   "error_message": err, "available_versions": versions})
         return status
     except Exception as err:
         append_result("Failed to install {} packages".format(pip_version), str(err))
