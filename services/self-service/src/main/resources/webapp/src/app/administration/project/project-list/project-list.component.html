@@ -51,12 +51,12 @@
           </div>
           <div class="resource-status">
             <span [ngClass]="{'active' : endpoint.endpointStatus === 'ACTIVE', 'failed': endpoint.endpointStatus === 'INACTIVE'}">
-              {{ endpoint.endpointStatus | titlecase }}
+              {{ (endpoint.endpointStatus | titlecase) || 'N/A'}}
             </span>
           </div>
 
           <span class="status resource-status"
-            ngClass="{{endpoint.status.toLowerCase() || ''}}">{{ endpoint.status.toLowerCase() }}</span>
+            [ngClass]="endpoint?.status.toLowerCase() || ''">{{ endpoint?.status.toLowerCase() }}</span>
         </div>
       </ng-template>
     </td>

@@ -57,7 +57,7 @@ public class UserGroupResource {
 	@RolesAllowed("/roleManagement/create")
 	public Response createGroup(@Auth UserInfo userInfo, @Valid GroupDTO dto) {
 		log.debug("Creating new group {}", dto.getName());
-		userGroupService.createGroup(userInfo, dto.getName(), dto.getRoleIds(), dto.getUsers());
+		userGroupService.createGroup(userInfo, dto.getName(), dto.getRoleIds().keySet(), dto.getUsers());
 		return Response.ok().build();
 	}
 

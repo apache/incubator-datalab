@@ -29,7 +29,6 @@ import com.google.inject.Inject;
 import java.util.List;
 
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.FOLLOW_LINK;
-import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
 
 public class AuditServiceImpl implements AuditService {
     private final AuditDAO auditDAO;
@@ -50,7 +49,7 @@ public class AuditServiceImpl implements AuditService {
                 .user(user)
                 .resourceName(audit.getResourceName())
                 .action(FOLLOW_LINK)
-                .type(NOTEBOOK)
+                .type(audit.getType())
                 .info(audit.getInfo())
                 .build();
         auditDAO.save(auditDTO);
