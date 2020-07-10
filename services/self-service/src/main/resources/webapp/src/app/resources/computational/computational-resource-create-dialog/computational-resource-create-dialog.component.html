@@ -145,7 +145,7 @@
         </div>
 
         <div class="preemptible checkbox-group control-group m-top-30 m-bott-10"
-          *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.dlab-dataengine-service1'">
+          *ngIf="PROVIDER === 'gcp' && selectedImage?.image === 'docker.dlab-dataengine-service'">
           <label class="label">
             <input #preemptibleNode type="checkbox" (change)="selectPreemptibleNodes($event)" />
             <span>Preemptible node</span>

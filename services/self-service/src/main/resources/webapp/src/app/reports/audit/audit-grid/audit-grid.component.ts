@@ -176,8 +176,8 @@ export class AuditGridComponent implements OnInit {
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
           <div mat-dialog-content class="content audit-info-content" [ngClass]="{'pb-40': actionList[0].length > 1}">
-            <mat-list *ngIf="actionList[0].length > 1 || data.element.info.indexOf('Update budget') !== -1;else message">
-              <ng-container *ngIf="data.element.info.indexOf('Update budget') === -1;else quotas">
+            <mat-list *ngIf="actionList[0].length > 1 && data.element.type === 'FOLLOW_LINK'|| data.element.info.indexOf('Update quota') !== -1;else message">
+              <ng-container *ngIf="data.element.info.indexOf('Update quota') === -1;else quotas">
                 <mat-list-item class="list-header">
                   <div class="info-item-title" [ngClass]="{'same-column-width': data.dialogSize === 'small'}">Action</div>
                   <div class="info-item-data" [ngClass]="{'same-column-width': data.dialogSize === 'small'}"> Description </div>
@@ -203,17 +203,17 @@ export class AuditGridComponent implements OnInit {
               <ng-template #quotas>
                 <mat-list-item class="list-header">
                   <div class="same-column-width" >Action</div>
-                  <div class="info-item-quota-first" > Previous value </div>
-                  <div class="info-item-quota-last" > New value </div>
+                  <div class="info-item-title"> Previous value </div>
+                  <div class="info-item-quota"> New value </div>
                 </mat-list-item>
                 <div class="scrolling-content mat-list-wrapper" id="scrolling">
-                  <mat-list-item class="list-item" *ngFor="let action of actionList">
-                    <div class="same-column-width">{{updateBudget[0]}}</div>
-                    <div class="info-item-quota-first">
-                      {{updateBudget[1]}}
+                  <mat-list-item class="list-item" *ngFor="let action of updateBudget">
+                    <div class="same-column-width">{{action[0]}}</div>
+                    <div class="info-item-title">
+                      {{action[1]}}
                     </div>
-                    <div class="info-item-quota-last">
-                      {{updateBudget[2]}}
+                    <div class="info-item-quota">
+                      {{action[2]}}
                     </div>
                   </mat-list-item>
                 </div>
@@ -222,22 +222,30 @@ export class AuditGridComponent implements OnInit {
             <ng-template #message>
               <div class="message-wrapper">
                 <p *ngIf="data.element.type !== 'COMPUTE'; else computation">
-                  <span *ngIf="data.element.info.indexOf('Scheduled') !== -1;else notScheduledNotebook">{{data.element.action | titlecase}} by scheduler.</span>
+                  <span *ngIf="data.element.info.indexOf('Scheduled') !== -1;else notScheduledNotebook">{{data.element.action | titlecase}} by scheduler.1</span>
 
                   <ng-template #notScheduledNotebook>
-                    <span>{{data.element.info}}.</span>
+                    <span *ngIf="data.element.type === 'WEB_TERMINAL'">{{data.element.info}} <span class="strong">{{data.element.resourceName}}</span>.2</span>
+                    <span *ngIf="data.element.type !== 'WEB_TERMINAL' && data.element.type !== 'FOLLOW_LINK' && data.element.type !== 'EDGE_NODE'" >{{data.element.info}}.</span>
+                    <span *ngIf="data.element.type === 'EDGE_NODE' && data.element.action === 'CREATE'">
+                      Create edge node for endpoint <span class="strong">{{data.element.resourceName}}</span>, requested in project <span class="strong">{{data.element.project}}</span>
+                      .</span>
                   </ng-template>
                 </p>
                 <ng-template #computation>
-                  <p *ngIf="data.element.info.indexOf('Scheduled') !== -1;else notScheduled"> {{data.element.action | titlecase}} by scheduler, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}.</span></p>
-                    <ng-template #notScheduled>
-                      <p> {{data.element.action | titlecase}} computational resource <span class="strong">{{data.element.resourceName}}</span>, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}.</span></p>
+                  <p *ngIf="data.element.info.indexOf('Scheduled') !== -1;else notScheduled"> {{data.element.action | titlecase}} by scheduler, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span>.</p>
+                  <ng-template #notScheduled>
+                    <p>
+                      <span *ngIf="data.element.action === 'FOLLOW_LINK'">Follow compute <span class="strong">{{info.cluster}}</span>&nbsp;<span>{{info.custerType}}</span> link, requested for notebook <span class="strong">{{info.notebook}}</span>.</span>
+                      <span *ngIf="data.element.action !== 'FOLLOW_LINK'">{{data.element.action | titlecase}} computational resource <span class="strong">{{data.element.resourceName}}</span>, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span>.</span>
+                    </p>
                     </ng-template>
                 </ng-template>
               </div>
           </ng-template></div>
       </div>
   `,
+
   styles: [`
     .content { color: #718ba6; padding: 20px 30px; font-size: 14px; font-weight: 400; margin: 0; }
     .pb-40 {  padding-bottom: 40px; }
@@ -250,33 +258,47 @@ export class AuditGridComponent implements OnInit {
     label{cursor: pointer}
     .message-wrapper{min-height: 70px;; display: flex; align-items: center}
     .mat-list-wrapper{padding-top: 5px;}
-    .list-item{color: #718ba6; height: auto; line-height: 20px;}
-    .info-item-title{width: 40%; padding: 10px 0}
-    .info-item-quota-first{width: 30%; padding: 10px 0}
-    .info-item-quota-last{width: 20%; padding: 10px 0}
+    .list-item{color: #718ba6; height: auto; line-height: 20px; font-size: 14px}
+    .info-item-title{width: 40%; padding: 10px 0;font-size: 14px;}
+    .info-item-quota{width: 30%; padding: 10px 0;font-size: 14px;}
     .list-header {padding-top: 5px;}
-    .info-item-data{width: 60%; text-align: left; padding: 10px 0}
-    .file-description{ overflow: hidden; display: block; direction: rtl;}
-    .same-column-width{width: 50%; padding: 10px 0}
+    .info-item-data{width: 60%; text-align: left; padding: 10px 0; font-size: 14px;}
+    .file-description{ overflow: hidden; display: block; direction: rtl; font-size: 14px;}
+    .same-column-width{width: 50%; padding: 10px 0; font-size: 14px;}
   `]
 })
 export class AuditInfoDialogComponent {
   actionList: string[][];
-  updateBudget: string[] = [];
+  updateBudget: string[][] = [];
+  info;
   constructor(
     public dialogRef: MatDialogRef<AuditInfoDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    if (data.element.info.indexOf('Update budget') !== -1) {
-      this.data.element.info.replace('->', ' ').split(' ').forEach((v, i, arr) => {
-        if (i === 1) {
-          this.updateBudget.push(`${arr[0]} ${arr[1]}`);
-        }
-        if (i > 1) {
-          this.updateBudget.push(arr[i]);
-        }
+    if (data.element.action === 'FOLLOW_LINK' && data.element.type === 'COMPUTE') {
+      this.info = JSON.parse(data.element.info);
+    }
+    if (data.element.info.indexOf('Update quota') !== -1) {
+      this.data.element.info.replace(/->/g, ' ').split('/n').forEach( (val, j) => {
+        this.updateBudget[j] = [];
+        val.split(' ')
+          .forEach((v, i, arr) => {
+            if (arr[0] === 'Update') {
+              if (i === 1) {
+                this.updateBudget[j].push(`${arr[0]} ${arr[1]}`);
+              }
+              if (i > 1) {
+                this.updateBudget[j].push(arr[i]);
+              }
+            } else {
+              this.updateBudget[j].push(arr[i]);
+            }
+
+          });
       });
     }
     this.actionList = data.element.info.split('\n').map(v => v.split(':')).filter(v => v[0] !== '');
   }
 }
+
+
