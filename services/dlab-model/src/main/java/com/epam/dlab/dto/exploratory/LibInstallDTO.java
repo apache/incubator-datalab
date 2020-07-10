@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * Stores info about libraries.
  */
@@ -48,6 +50,12 @@ public class LibInstallDTO {
 
 	@JsonProperty
 	private boolean override;
+
+	@JsonProperty("available_versions")
+	private List<String> availableVersions;
+
+	@JsonProperty("add_pkgs")
+	private List<String> transitiveDependencies;
 
 	public LibInstallDTO(String group, String name, String version) {
 		this.group = group;
