@@ -87,8 +87,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     version = \
                     [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split(
                         '==')[1]
-                dep = sudo('cat /tmp/tee.tmp | grep "Installing collected packages: "').replace('\r\n', '').replace(pip_pkg[0], '').strip()
-                if dep == '':
+                dep = sudo('cat /tmp/tee.tmp | grep "Installing collected packages: "').replace('\r\n', '').strip()[31:]
+                if dep == '' or dep == pip_pkg.split("==")[0]:
                     dep = []
                 else:
                     dep = dep.split(', ')
