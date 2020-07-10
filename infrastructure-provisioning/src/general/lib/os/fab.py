@@ -402,21 +402,49 @@ def ensure_ciphers():
 
 def install_r_pkg(requisites):
     status = list()
-    error_parser = "ERROR:|error:|Cannot|failed|Please run|requires"
+    error_parser = "ERROR:|error:|Cannot|failed|Please run|requires|Error"
     try:
         for r_pkg in requisites:
-            if r_pkg == 'sparklyr':
-                run('sudo -i R -e \'install.packages("{0}", repos="https://cloud.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
-            sudo('R -e \'install.packages("{0}", repos="https://cloud.r-project.org", dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+            if r_pkg[1] == '':
+                r_pkg = pip_pkg[0]
+                if r_pkg == 'sparklyr':
+                    run('sudo -i R -e \'install.packages("{0}", repos="https://cloud.r-project.org", dep=TRUE)\' 2>&1 | '
+                        'tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" >'
+                        ' /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+                else:
+                    sudo('R -e \'install.packages("{0}", repos="https://cloud.r-project.org", dep=TRUE)\' 2>&1 | '
+                         'tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" >'
+                         ' /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+            else:
+                if r_pkg == 'sparklyr':
+                    run('sudo -i R -e \'devtools::install_version("{0}", version = "{1}", repos = "http://cran.us.r-project.org", '
+                        'dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; '
+                        'then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg[0], r_pkg[1], error_parser))
+                else:
+                    sudo('R -e \'devtools::install_version("{0}", version = "{1}", repos = "http://cran.us.r-project.org", '
+                         'dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; '
+                         'then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg[0], r_pkg[1], args.version))
+            dep = sudo('grep "(NA -> " /tmp/tee.tmp | awk \'{print $1}\'').replace('\r\n', ' ')
+            if dep == r_pkg or dep == '':
+                dep = []
+            else:
+                dep = dep.split(' ')
             err = sudo('cat /tmp/install_{0}.log'.format(r_pkg)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(r_pkg))
             res = sudo('cat /tmp/install_{0}.list'.format(r_pkg))
             if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
-                status.append({"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed"})
+                status.append({"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed", "add_pkgs": dep})
             else:
-                status.append({"group": "r_pkg", "name": r_pkg, "status": "failed", "error_message": err})
+                if 'Error in download_version_url(package, version, repos, type) :' in err:
+                    versions = sudo('R -e \'library(versions); available.versions("' + r_pkg + '")\' 2>&1 | grep -A 50 '
+                                    '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:]
+                    if versions == '':
+                        versions = []
+                    else:
+                        versions = versions.split(' ')
+                status.append({"group": "r_pkg", "name": r_pkg, "status": "failed", "error_message": err, "available_versions": versions})
         return status
     except:
         return "Fail to install R packages"
@@ -614,6 +642,7 @@ def install_r_packages(os_user):
         sudo('R -e "install.packages(\'ggplot2\', repos = \'https://cloud.r-project.org\')"')
         sudo('R -e "install.packages(c(\'devtools\',\'mplot\', \'googleVis\'), '
              'repos = \'https://cloud.r-project.org\'); require(devtools); install_github(\'ramnathv/rCharts\')"')
+        sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
         sudo('touch /home/' + os_user + '/.ensure_dir/r_packages_ensured')
 
 

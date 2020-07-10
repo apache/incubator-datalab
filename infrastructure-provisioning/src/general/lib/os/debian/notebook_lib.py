@@ -417,7 +417,7 @@ def get_available_os_pkgs():
         os_pkgs = dict()
         ansi_escape = re.compile(r'\x1b[^m]*m')
         manage_pkg('update', 'remote', '')
-        apt_raw = sudo("apt list -a")
+        apt_raw = sudo("apt list")
         apt_list = ansi_escape.sub('', apt_raw).split("\r\n")
         for pkg in apt_list:
             if "/" in pkg:
