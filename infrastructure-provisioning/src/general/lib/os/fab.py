@@ -66,7 +66,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 pip_pkg = pip_pkg[0]
             else:
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
-            sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -i -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
+            sudo('{0} install {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
             sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
             res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
@@ -87,8 +87,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     version = \
                     [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split(
                         '==')[1]
-                dep = sudo('{0} show {1} 2>&1 | grep "Requires: "'.format(pip_version, pip_pkg.split("==")[0])).replace(
-                    '\r', '').replace('\n', '').replace('Requires:', '').strip()
+                dep = sudo('cat /tmp/tee.tmp | grep "Installing collected packages: "').replace('\r\n', '').replace(pip_pkg[0], '').strip()
                 if dep == '':
                     dep = []
                 else:
