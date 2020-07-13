@@ -62,7 +62,15 @@
                 [value]="query"
                 [matAutocomplete]="auto"
               >
-              <mat-icon matSuffix (click)="addLibrary(query)" class="add-icon">add</mat-icon>
+              <span class="add-icon" [matTooltip]="!isLibExist ? 'Current library dosen\'t exist' : 'You have already added or installed current library'"
+              matTooltipPosition="above"
+              [matTooltipDisabled] = "isLibExist && (isInSelectedList || isInstalled)"
+              >
+                <button  mat-icon-button class="btn" [disabled]="!isLibExist || query.length < 1 ||
+                isDuplicated({name: query.slice(0, query.indexOf(':')), version: query.slice(query.indexOf(':') + 1) || 'N/A'})" (click)="addLibrary(query);$event.stopPropagation()">
+                  <mat-icon matSuffix >add</mat-icon>
+                </button>
+              </span>
 
               <mat-autocomplete #auto="matAutocomplete" class="suggestions" >
                 <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index" *ngIf="query.indexOf(':') === -1">

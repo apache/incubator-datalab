@@ -29,6 +29,11 @@ import { LibrariesInstallationService } from '../../../core/services';
 import { SortUtils, HTTP_STATUS_CODES } from '../../../core/util';
 import {FilterLibsModel} from './filter-libs.model';
 
+interface Library {
+  name: string;
+  version: string;
+}
+
 
 @Component({
   selector: 'install-libraries',
@@ -77,6 +82,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   @ViewChild('groupSelect', { static: false }) group_select;
   @ViewChild('resourceSelect', { static: false }) resource_select;
   public isLibInfoOpened = {  };
+  private isLibExist: boolean;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -91,14 +97,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.open(this.data);
-    this.uploadLibGroups();
     this.libSearch.valueChanges.pipe(
       debounceTime(1000))
       .subscribe(newValue => {
         this.query = newValue || '';
         this.filterList();
       });
-    this.getInstalledLibsByResource();
   }
 
   ngOnDestroy() {
@@ -161,7 +165,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       this.destination && this.destination.type === 'СOMPUTATIONAL'
         ? this.model.computational_name = this.destination.name
         : this.model.computational_name = null;
-
       this.uploadLibGroups();
       this.getInstalledLibsByResource();
     }
@@ -313,7 +316,10 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
           });
     } else {
       this.model.getLibrariesList(this.group, this.query)
-        .subscribe(libs => {
+        .subscribe((libs: Library[]) => {
+          console.log('libs', libs);
+          console.log(this.query.slice(0, this.query.indexOf(':')));
+          this.isLibExist = libs.some(v => v.name === this.query.slice(0, this.query.indexOf(':')));
           this.filteredList = libs;
         });
     }
