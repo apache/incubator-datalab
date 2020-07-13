@@ -87,7 +87,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     version = \
                     [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split(
                         '==')[1]
-                dep = sudo('cat /tmp/tee.tmp | grep "Installing collected packages: "').replace('\r\n', '').strip()[31:]
+                sudo('if grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
+                dep = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
                 if dep == '' or dep == pip_pkg.split("==")[0]:
                     dep = []
                 else:
@@ -401,52 +402,49 @@ def ensure_ciphers():
 
 def install_r_pkg(requisites):
     status = list()
-    error_parser = "ERROR:|error:|Cannot|failed|Please run|requires|Error"
+    error_parser = "ERROR:|error:|Cannot|failed|Please run|requires|Error|Skipping"
     try:
         for r_pkg in requisites:
-            if r_pkg[1] == '':
-                r_pkg = pip_pkg[0]
-                if r_pkg == 'sparklyr':
+            name, vers = r_pkg
+            if vers == '':
+                if name == 'sparklyr':
                     run('sudo -i R -e \'install.packages("{0}", repos="https://cloud.r-project.org", dep=TRUE)\' 2>&1 | '
-                        'tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" >'
-                        ' /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+                        'tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, error_parser))
                 else:
                     sudo('R -e \'install.packages("{0}", repos="https://cloud.r-project.org", dep=TRUE)\' 2>&1 | '
-                         'tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" >'
-                         ' /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+                         'tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, error_parser))
             else:
-                if r_pkg == 'sparklyr':
-                    run('sudo -i R -e \'devtools::install_version("{0}", version = "{1}", repos = "http://cran.us.r-project.org", '
-                        'dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; '
-                        'then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg[0], r_pkg[1], error_parser))
+                if name == 'sparklyr':
+                    run('sudo -i R -e \'devtools::install_version("{0}", version = "{1}", repos = "http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | '
+                        'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
                 else:
-                    sudo('R -e \'devtools::install_version("{0}", version = "{1}", repos = "http://cran.us.r-project.org", '
-                         'dep=TRUE)\' 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; '
-                         'then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg[0], r_pkg[1], args.version))
+                    sudo('R -e \'devtools::install_version("{0}", version = "{1}", repos = "http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | '
+                         'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
             dep = sudo('grep "(NA -> " /tmp/tee.tmp | awk \'{print $1}\'').replace('\r\n', ' ')
-            if dep == r_pkg or dep == '':
+            if dep == name or dep == '':
                 dep = []
             else:
                 dep = dep.split(' ')
-            err = sudo('cat /tmp/install_{0}.log'.format(r_pkg)).replace('"', "'")
-            sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(r_pkg))
-            res = sudo('cat /tmp/install_{0}.list'.format(r_pkg))
+            err = sudo('cat /tmp/install_{0}.log'.format(name)).replace('"', "'")
+            sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
+            res = sudo('cat /tmp/install_{0}.list'.format(name))
             if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
-                status.append({"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed", "add_pkgs": dep})
+                status.append({"group": "r_pkg", "name": name, "version": version, "status": "installed", "add_pkgs": dep})
             else:
                 if 'Error in download_version_url(package, version, repos, type) :' in err:
-                    versions = sudo('R -e \'library(versions); available.versions("' + r_pkg + '")\' 2>&1 | grep -A 50 '
-                                    '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:]
-                    if versions == '':
-                        versions = []
-                    else:
-                        versions = versions.split(' ')
-                status.append({"group": "r_pkg", "name": r_pkg, "status": "failed", "error_message": err, "available_versions": versions})
+                    sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
+                    versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
+                                    '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:].split(' ')
+                else:
+                    versions = []
+                status.append({"group": "r_pkg", "name": name, "status": "failed", "error_message": err, "available_versions": versions})
         return status
-    except:
-        return "Fail to install R packages"
+    except Exception as err:
+        append_result("Failed to install R packages", str(err))
+        print("Failed to install R packages")
+        sys.exit(1)
 
 
 def update_spark_jars(jars_dir='/opt/jars'):
