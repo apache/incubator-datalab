@@ -26,7 +26,7 @@ import { BubbleModule } from '../../../shared';
 import { FormControlsModule } from '../../../shared/form-controls';
 
 import { KeysPipeModule, LibSortPipeModule, HighLightPipeModule } from '../../../core/pipes';
-import {InstallLibrariesComponent, ErrorMessageDialogComponent, LibInfoDialogComponent} from './install-libraries.component';
+import {InstallLibrariesComponent, ErrorLibMessageDialogComponent, LibInfoDialogComponent} from './install-libraries.component';
 export * from './install-libraries.component';
 
 @NgModule({
@@ -41,8 +41,8 @@ export * from './install-libraries.component';
     MaterialModule,
     BubbleModule
   ],
-  declarations: [InstallLibrariesComponent, ErrorMessageDialogComponent, LibInfoDialogComponent],
-  entryComponents: [InstallLibrariesComponent, ErrorMessageDialogComponent, LibInfoDialogComponent],
+  declarations: [InstallLibrariesComponent, ErrorLibMessageDialogComponent, LibInfoDialogComponent],
+  entryComponents: [InstallLibrariesComponent, ErrorLibMessageDialogComponent, LibInfoDialogComponent],
   exports: [InstallLibrariesComponent]
 })
 export class InstallLibrariesModule {}
