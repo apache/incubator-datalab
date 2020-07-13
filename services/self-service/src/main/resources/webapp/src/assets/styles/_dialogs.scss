@@ -39,6 +39,10 @@
   width: 660px;
 }
 
+.modal-xl-m {
+  width: 715px;
+}
+
 .modal-xl {
   width: 900px;
 }
@@ -370,6 +374,10 @@ mat-dialog-container {
   display: none !important;
 }
 
+.d-flex{
+  display: flex !important;
+}
+
 .progres{
   border: 1px solid rgba(0,0,0,.12);
   height: 17px;
@@ -401,6 +409,12 @@ mat-dialog-container {
   cursor: not-allowed !important;
   &.open-bucket{
     color: $blue-grey-color !important;
+  }
+}
+
+.audit-info-content{
+  .mat-list-item-content{
+    align-items: start !important;
   }
 }
 

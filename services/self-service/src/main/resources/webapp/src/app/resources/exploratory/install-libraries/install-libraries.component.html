@@ -104,7 +104,7 @@
             </div>
           </div>
         </div>
-  </div>
+      </div>
     </div>
     <div class="libs-info">
       <mat-list>
@@ -246,7 +246,7 @@
 
           <mat-list-item  *ngIf="isLibInfoOpened[lib.name]">
             <div class="lib-info">
-              <ul class="resources">
+              <ul class="libs-version">
 
                 <li class="dependency-list-header">
                   List of available version:
@@ -259,7 +259,7 @@
                     {{lib.name+lib.version}}
                     <!--                        </div>-->
                     <!--                        <div class="size">v2.3.4</div>-->
-                    <button>Install</button>
+                    <button mat-raised-button type="button"  class="butt action">Install</button>
                   </li>
 
 <!--                </div>-->

@@ -153,9 +153,10 @@ ul.resources{
   //border-bottom: 1px solid #edf1f5;
   color: #577289;
   width: 100%;
-  padding-top: 5px;
+  padding: 15px 0 5px 0;
   font-weight: 600;
 }
+
 .search-box {
   display: flex;
   padding: 20px 25px 10px;
@@ -339,6 +340,10 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
     }
 
+    .lib-name-wrapper{
+      display: block;
+    }
+
     strong {
       font-weight: 400;
     }
@@ -392,8 +397,8 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
         .warn-action {
           position: absolute;
-          top: 0;
-          right: -10px;
+          top: -3px;
+          right: -50px;
 
           div {
             display: inline-block;
@@ -504,11 +509,23 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   cursor: pointer;
 }
 
-.delete-item {
-  display: flex;
-  justify-content: space-between;
+.lib-info{
+  width: 100%;
+  .delete-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 5px 10px;
+    .butt.action{
+      line-height: 26px;
+    }
+  }
 }
 
+.btn{
+  line-height: 26px;
+}
   @media screen and (min-width: 1281px) {
   .libs-info {
     height: 60%;
