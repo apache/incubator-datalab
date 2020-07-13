@@ -189,7 +189,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public addLibrary(item): void {
     const lib = item.split(':').filter(v => !!v);
-    console.log(lib);
     this.model.selectedLibs.push({ group: this.group, name: lib[0], version: lib[1] || 'N/A' });
     this.query = '';
     this.libSearch.setValue('');
@@ -315,7 +314,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     } else {
       this.model.getLibrariesList(this.group, this.query)
         .subscribe(libs => {
-          console.log(libs);
           this.filteredList = libs;
         });
     }
@@ -375,7 +373,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   showlibinfo(lib: any) {
-    console.log(lib);
     this.isLibInfoOpened[lib.name] = !this.isLibInfoOpened[lib.name];
   }
 }
