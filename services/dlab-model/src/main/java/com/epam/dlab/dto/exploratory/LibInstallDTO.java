@@ -55,7 +55,7 @@ public class LibInstallDTO {
 	private List<String> availableVersions;
 
 	@JsonProperty("add_pkgs")
-	private List<String> transitiveDependencies;
+	private List<String> addedPackages;
 
 	public LibInstallDTO(String group, String name, String version) {
 		this.group = group;
