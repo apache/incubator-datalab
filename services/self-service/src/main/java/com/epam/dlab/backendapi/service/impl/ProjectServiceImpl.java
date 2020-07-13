@@ -224,7 +224,6 @@ public class ProjectServiceImpl implements ProjectService {
     public void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> dtos) {
 	    final List<ProjectDTO> projects = dtos
 			    .stream()
-			    .filter(dto -> Objects.nonNull(dto.getBudget()))
 			    .map(this::getUpdateProjectDTO)
 			    .collect(Collectors.toList());
 
