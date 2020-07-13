@@ -115,7 +115,7 @@ export class AuditGridComponent implements OnInit {
   }
 
   public openActionInfo(element: AuditItem): void {
-    if (element.type === 'GROUP' && element.info.indexOf('role') !== -1 || element.type === 'BUCKET') {
+    if (element.type === 'GROUP' && element.info.indexOf('role') !== -1) {
       this.dialog.open(AuditInfoDialogComponent, { data: {element, dialogSize: 'big'}, panelClass: 'modal-xl-m' });
     } else {
       this.dialog.open(AuditInfoDialogComponent, { data: {element, dialogSize: 'small'}, panelClass: 'modal-md' });
@@ -176,12 +176,14 @@ export class AuditGridComponent implements OnInit {
               <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
           </header>
           <div mat-dialog-content class="content audit-info-content" [ngClass]="{'pb-40': actionList[0].length > 1}">
-            <mat-list *ngIf="actionList[0].length > 1 && data.element.type === 'FOLLOW_LINK'|| data.element.info.indexOf('Update quota') !== -1;else message">
+            <mat-list *ngIf="actionList[0].length > 1 && data.element.action !== 'FOLLOW_LINK'|| data.element.info.indexOf('Update quota') !== -1;else message">
               <ng-container *ngIf="data.element.info.indexOf('Update quota') === -1;else quotas">
+
                 <mat-list-item class="list-header">
                   <div class="info-item-title" [ngClass]="{'same-column-width': data.dialogSize === 'small'}">Action</div>
                   <div class="info-item-data" [ngClass]="{'same-column-width': data.dialogSize === 'small'}"> Description </div>
                 </mat-list-item>
+
                 <div class="scrolling-content mat-list-wrapper" id="scrolling">
                   <mat-list-item class="list-item" *ngFor="let action of actionList">
                     <div *ngIf="(data.element.action === 'upload' && action[0] === 'File(s)') || (data.element.action === 'download' && action[0] === 'File(s)');else multiAction" class="info-item-title">File</div>
@@ -189,7 +191,10 @@ export class AuditGridComponent implements OnInit {
                        <div class="info-item-title" [ngClass]="{'same-column-width': data.dialogSize === 'small'}">{{action[0]}}</div>
                     </ng-template>
                     <div class="info-item-data" [ngClass]="{'same-column-width': data.dialogSize === 'small'}" *ngIf="action[0] === 'File(s)'">
-                      <div class="file-description ellipsis" *ngFor="let description of action[1]?.split(',')" [matTooltip]="description" matTooltipPosition="above">
+                      <div class="file-description ellipsis"
+                           *ngFor="let description of action[1]?.split(',')"
+                           [matTooltip]="description"
+                           matTooltipPosition="above">
                         {{description}}
                       </div>
                     </div>
@@ -222,22 +227,21 @@ export class AuditGridComponent implements OnInit {
             <ng-template #message>
               <div class="message-wrapper">
                 <p *ngIf="data.element.type !== 'COMPUTE'; else computation">
-                  <span *ngIf="data.element.info.indexOf('Scheduled') !== -1;else notScheduledNotebook">{{data.element.action | titlecase}} by scheduler.1</span>
-
+                  <span *ngIf="data.element.info.indexOf('Scheduled') !== -1;else notScheduledNotebook">{{data.element.action | titlecase}} by scheduler.</span>
                   <ng-template #notScheduledNotebook>
-                    <span *ngIf="data.element.type === 'WEB_TERMINAL'">{{data.element.info}} <span class="strong">{{data.element.resourceName}}</span>.2</span>
-                    <span *ngIf="data.element.type !== 'WEB_TERMINAL' && data.element.type !== 'FOLLOW_LINK' && data.element.type !== 'EDGE_NODE'" >{{data.element.info}}.</span>
+                    <span *ngIf="data.element.type === 'WEB_TERMINAL'">{{data.element.info}} <span class="strong">{{data.element.resourceName}}</span>.</span>
+                    <span *ngIf="data.element.type !== 'WEB_TERMINAL' && data.element.type !== 'EDGE_NODE'">{{data.element.info}}.</span>
                     <span *ngIf="data.element.type === 'EDGE_NODE' && data.element.action === 'CREATE'">
-                      Create edge node for endpoint <span class="strong">{{data.element.resourceName}}</span>, requested in project <span class="strong">{{data.element.project}}</span>
-                      .</span>
+                      Create edge node for endpoint <span class="strong">{{data.element.resourceName}}</span>, requested in project <span class="strong">{{data.element.project}}</span>.
+                    </span>
                   </ng-template>
                 </p>
                 <ng-template #computation>
                   <p *ngIf="data.element.info.indexOf('Scheduled') !== -1;else notScheduled"> {{data.element.action | titlecase}} by scheduler, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span>.</p>
                   <ng-template #notScheduled>
                     <p>
-                      <span *ngIf="data.element.action === 'FOLLOW_LINK'">Follow compute <span class="strong">{{info.cluster}}</span>&nbsp;<span>{{info.custerType}}</span> link, requested for notebook <span class="strong">{{info.notebook}}</span>.</span>
-                      <span *ngIf="data.element.action !== 'FOLLOW_LINK'">{{data.element.action | titlecase}} computational resource <span class="strong">{{data.element.resourceName}}</span>, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span>.</span>
+                      <span *ngIf="data.element.action === 'FOLLOW_LINK'">Follow compute <span class="strong">{{info.cluster}}</span>&nbsp;<span>{{info.clusterType}}</span> link, requested for notebook <span class="strong">{{info.notebook}}</span>.</span>
+                      <span *ngIf="data.element.action !== 'FOLLOW_LINK'">{{data.element.action | titlecase}} compute <span class="strong">{{data.element.resourceName}}</span>, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span>.</span>
                     </p>
                     </ng-template>
                 </ng-template>

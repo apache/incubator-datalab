@@ -19,6 +19,9 @@
 
 .data-grid {
   &.management {
+    .settings{
+      min-width: 7%;
+    }
     .mat-column-checkbox{
       padding-left: 10px;
       padding-right: 0px;
