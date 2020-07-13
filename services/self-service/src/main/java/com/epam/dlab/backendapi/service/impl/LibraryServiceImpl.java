@@ -238,6 +238,8 @@ public class LibraryServiceImpl implements LibraryService {
 		String version = document.getString(ExploratoryLibDAO.LIB_VERSION);
 		String group = document.getString(ExploratoryLibDAO.LIB_GROUP);
 		String status = document.getString(ExploratoryLibDAO.STATUS);
+		List<String> availableVersions = (List<String>) document.get(ExploratoryLibDAO.LIB_AVAILABLE_VERSION);
+		List<String> addedPackages = (List<String>) document.get(ExploratoryLibDAO.LIB_ADDED_PACKAGES);
 		String error = document.getString(ExploratoryLibDAO.ERROR_MESSAGE);
 
 		LibKey libKey = new LibKey(name, version, group);
@@ -247,7 +249,7 @@ public class LibraryServiceImpl implements LibraryService {
 			model.put(libKey, statuses);
 		}
 
-		statuses.add(new LibraryStatus(exploratoryName, resourceType, status, error));
+		statuses.add(new LibraryStatus(exploratoryName, resourceType, status, error, availableVersions, addedPackages));
 	}
 
 	@SuppressWarnings("unchecked")

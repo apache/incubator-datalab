@@ -59,10 +59,10 @@ public class ExploratoryLibDAO extends BaseDAO {
 	public static final String LIB_GROUP = "group";
 	public static final String LIB_NAME = "name";
 	public static final String LIB_VERSION = "version";
+	public static final String LIB_AVAILABLE_VERSION = "available_versions";
+	public static final String LIB_ADDED_PACKAGES = "add_pkgs";
 	private static final String LIB_INSTALL_DATE = "install_date";
 	private static final String LIB_ERROR_MESSAGE = "error_message";
-	private static final String LIB_AVAILABLE_VERSION = "available_versions";
-	private static final String LIB_ADDED_PACKAGES = "add_pkgs";
 	private static final String COMPUTATIONAL_NAME_FIELD = "computational_name";
 
 	/**
