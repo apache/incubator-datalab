@@ -61,6 +61,8 @@ public class ExploratoryLibDAO extends BaseDAO {
 	public static final String LIB_VERSION = "version";
 	private static final String LIB_INSTALL_DATE = "install_date";
 	private static final String LIB_ERROR_MESSAGE = "error_message";
+	private static final String LIB_AVAILABLE_VERSION = "available_versions";
+	private static final String LIB_ADDED_PACKAGES = "add_pkgs";
 	private static final String COMPUTATIONAL_NAME_FIELD = "computational_name";
 
 	/**
@@ -204,7 +206,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 					push(EXPLORATORY_LIBS, convertToBson(library)));
 			return true;
 		} else {
-			Document values = updateLibraryFields(library, null);
+			Document values = addLibraryFields(library);
 			if (reinstall) {
 				values.append(libraryFieldFilter(LIB_INSTALL_DATE), null);
 				values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), null);
@@ -242,7 +244,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 					push(COMPUTATIONAL_LIBS + "." + computationalName, convertToBson(library)));
 			return true;
 		} else {
-			Document values = updateComputationalLibraryFields(computationalName, library, null);
+			Document values = addComputationalLibraryFields(computationalName, library);
 			if (reinstall) {
 				values.append(computationalLibraryFieldFilter(computationalName, LIB_INSTALL_DATE), null);
 				values.append(computationalLibraryFieldFilter(computationalName, LIB_ERROR_MESSAGE), null);
@@ -313,6 +315,15 @@ public class ExploratoryLibDAO extends BaseDAO {
 		return and(eq(LIB_GROUP, group), eq(LIB_NAME, name));
 	}
 
+	private Document addLibraryFields(LibInstallDTO lib) {
+		Document values = new Document(libraryFieldFilter(STATUS), lib.getStatus());
+		if (lib.getVersion() != null) {
+			values.append(libraryFieldFilter(LIB_VERSION), lib.getVersion());
+		}
+
+		return values;
+	}
+
 	private Document updateLibraryFields(LibInstallDTO lib, Date uptime) {
 		Document values = new Document(libraryFieldFilter(STATUS), lib.getStatus());
 		if (lib.getVersion() != null) {
@@ -321,10 +332,24 @@ public class ExploratoryLibDAO extends BaseDAO {
 		if (uptime != null) {
 			values.append(libraryFieldFilter(LIB_INSTALL_DATE), uptime);
 		}
-
+		if (lib.getAvailableVersions() != null) {
+			values.append(libraryFieldFilter(LIB_AVAILABLE_VERSION), lib.getAvailableVersions());
+		}
+		if (lib.getAddedPackages() != null) {
+			values.append(libraryFieldFilter(LIB_ADDED_PACKAGES), lib.getAddedPackages());
+		}
 		if (lib.getErrorMessage() != null) {
 			values.append(libraryFieldFilter(LIB_ERROR_MESSAGE),
 					DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
+		}
+
+		return values;
+	}
+
+	private Document addComputationalLibraryFields(String computational, LibInstallDTO lib) {
+		Document values = new Document(computationalLibraryFieldFilter(computational, STATUS), lib.getStatus());
+		if (lib.getVersion() != null) {
+			values.append(computationalLibraryFieldFilter(computational, LIB_VERSION), lib.getVersion());
 		}
 
 		return values;
@@ -338,7 +363,12 @@ public class ExploratoryLibDAO extends BaseDAO {
 		if (uptime != null) {
 			values.append(computationalLibraryFieldFilter(computational, LIB_INSTALL_DATE), uptime);
 		}
-
+		if (lib.getAvailableVersions() != null) {
+			values.append(computationalLibraryFieldFilter(computational, LIB_AVAILABLE_VERSION), lib.getAvailableVersions());
+		}
+		if (lib.getAddedPackages() != null) {
+			values.append(computationalLibraryFieldFilter(computational, LIB_ADDED_PACKAGES), lib.getAddedPackages());
+		}
 		if (lib.getErrorMessage() != null) {
 			values.append(computationalLibraryFieldFilter(computational, LIB_ERROR_MESSAGE),
 					DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
