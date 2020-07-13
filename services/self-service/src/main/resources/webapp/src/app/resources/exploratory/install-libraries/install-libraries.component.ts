@@ -187,10 +187,19 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     return this.isInSelectedList || this.isInstalled;
   }
 
-  public selectLibrary(item): void {
-    this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
+  public addLibrary(item): void {
+    const lib = item.split(':').filter(v => !!v);
+    console.log(lib);
+    this.model.selectedLibs.push({ group: this.group, name: lib[0], version: lib[1] || 'N/A' });
     this.query = '';
     this.libSearch.setValue('');
+    this.filteredList = null;
+  }
+
+  public selectLibrary(item): void {
+    // this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
+    // this.query = '';
+    this.libSearch.setValue(item.name + ':');
     this.filteredList = null;
   }
 
@@ -305,7 +314,10 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
           });
     } else {
       this.model.getLibrariesList(this.group, this.query)
-        .subscribe(libs => this.filteredList = libs);
+        .subscribe(libs => {
+          console.log(libs);
+          this.filteredList = libs;
+        });
     }
   }
 
