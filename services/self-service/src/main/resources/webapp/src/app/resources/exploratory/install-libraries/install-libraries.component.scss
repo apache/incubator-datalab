@@ -504,7 +504,12 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   cursor: pointer;
 }
 
-@media screen and (min-width: 1281px) {
+.delete-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+  @media screen and (min-width: 1281px) {
   .libs-info {
     height: 60%;
 

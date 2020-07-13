@@ -400,7 +400,7 @@ export class ErrorMessageDialogComponent {
   selector: 'lib-info-dialog',
   template: `
   <div class="dialog-header">
-    <h4 class="modal-title">Library info</h4>
+    <h4 class="modal-title">Installed dependency</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <mat-list class="resources">
