@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE;
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.DELETE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.CONNECT;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.DISCONNECT;
 import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.ENDPOINT;
 
 
@@ -92,7 +92,7 @@ public class EndpointServiceImpl implements EndpointService {
      * @param resourceName name of the endpoint
      * @param endpointDTO  object with endpoint fields
      */
-    @Audit(action = CREATE, type = ENDPOINT)
+    @Audit(action = CONNECT, type = ENDPOINT)
     @Override
     public void create(@User UserInfo userInfo, @ResourceName String resourceName, EndpointDTO endpointDTO) {
         if (endpointDAO.get(endpointDTO.getName()).isPresent()) {
@@ -124,7 +124,7 @@ public class EndpointServiceImpl implements EndpointService {
         removeEndpoint(userInfo, name, cloudProvider, projects);
     }
 
-    @Audit(action = DELETE, type = ENDPOINT)
+	@Audit(action = DISCONNECT, type = ENDPOINT)
     public void removeEndpoint(@User UserInfo userInfo, @ResourceName String name, CloudProvider cloudProvider, List<ProjectDTO> projects) {
         removeEndpointInAllProjects(userInfo, name, projects);
         endpointDAO.remove(name);

@@ -31,5 +31,7 @@ public class AuditCreateDTO {
     @NotBlank(message = "field cannot be empty")
     @JsonProperty("resource_name")
     private final String resourceName;
+    @NotBlank(message = "field cannot be empty")
     private final String info;
+    private final AuditResourceTypeEnum type;
 }

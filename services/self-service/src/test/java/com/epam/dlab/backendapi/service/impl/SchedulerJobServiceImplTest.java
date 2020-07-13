@@ -80,7 +80,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SchedulerJobServiceImplTest {
-	private static final String AUDIT_MESSAGE = "Scheduled action";
+	private static final String AUDIT_MESSAGE = "Scheduled action, requested for notebook %s";
 	private final String USER = "test";
 	private final String EXPLORATORY_NAME = "explName";
 	private final String COMPUTATIONAL_NAME = "compName";
@@ -416,10 +416,10 @@ public class SchedulerJobServiceImplTest {
 
 		verify(securityService).getServiceAccountInfo(USER);
 		verify(schedulerJobDAO)
-                .getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, STOPPED);
-        verify(computationalService).startSparkCluster(refEq(getUserInfo()), eq(EXPLORATORY_NAME),
-                eq(COMPUTATIONAL_NAME), eq(PROJECT), eq(AUDIT_MESSAGE));
-        verifyNoMoreInteractions(securityService, schedulerJobDAO, computationalService);
+				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, STOPPED);
+		verify(computationalService).startSparkCluster(refEq(getUserInfo()), eq(EXPLORATORY_NAME),
+				eq(COMPUTATIONAL_NAME), eq(PROJECT), eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verifyNoMoreInteractions(securityService, schedulerJobDAO, computationalService);
 	}
 
 	@Test
@@ -516,11 +516,11 @@ public class SchedulerJobServiceImplTest {
         schedulerJobService.stopComputationalByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
-        verify(schedulerJobDAO)
-                .getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, RUNNING);
-        verify(computationalService).stopSparkCluster(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT),
-                eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME), eq(AUDIT_MESSAGE));
-        verifyNoMoreInteractions(securityService, schedulerJobDAO, computationalService);
+		verify(schedulerJobDAO)
+				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, DataEngineType.SPARK_STANDALONE, RUNNING);
+		verify(computationalService).stopSparkCluster(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT),
+				eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME), eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verifyNoMoreInteractions(securityService, schedulerJobDAO, computationalService);
     }
 
 	@Test
@@ -615,10 +615,10 @@ public class SchedulerJobServiceImplTest {
         schedulerJobService.stopExploratoryByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
-        verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
-                any(Date.class));
-        verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT), eq(EXPLORATORY_NAME), eq(AUDIT_MESSAGE));
-        verifyNoMoreInteractions(securityService, schedulerJobDAO, exploratoryService);
+		verify(schedulerJobDAO).getExploratorySchedulerWithStatusAndClusterLastActivityLessThan(eq(RUNNING),
+				any(Date.class));
+		verify(exploratoryService).stop(refEq(userInfo), eq(USER), eq(PROJECT), eq(EXPLORATORY_NAME), eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verifyNoMoreInteractions(securityService, schedulerJobDAO, exploratoryService);
     }
 
 	@Test
@@ -710,11 +710,11 @@ public class SchedulerJobServiceImplTest {
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
-        verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
-        verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT), eq(AUDIT_MESSAGE));
-        verifyNoMoreInteractions(securityService, schedulerJobDAO, exploratoryService);
-        verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT), eq(AUDIT_MESSAGE));
-        verifyNoMoreInteractions(schedulerJobDAO, exploratoryService);
+		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
+		verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT), eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verifyNoMoreInteractions(securityService, schedulerJobDAO, exploratoryService);
+		verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT), eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verifyNoMoreInteractions(schedulerJobDAO, exploratoryService);
         verifyZeroInteractions(computationalService, computationalDAO);
     }
 
@@ -736,13 +736,13 @@ public class SchedulerJobServiceImplTest {
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService, times(2)).getServiceAccountInfo(USER);
-        verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
-        verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT), eq(AUDIT_MESSAGE));
-        verify(computationalDAO).findComputationalResourcesWithStatus(USER, PROJECT, EXPLORATORY_NAME, STOPPED);
-        verify(computationalService).startSparkCluster(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME),
-                eq(PROJECT), eq(AUDIT_MESSAGE));
-        verifyNoMoreInteractions(securityService, schedulerJobDAO, exploratoryService, computationalService,
-                computationalDAO);
+		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
+		verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT), eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verify(computationalDAO).findComputationalResourcesWithStatus(USER, PROJECT, EXPLORATORY_NAME, STOPPED);
+		verify(computationalService).startSparkCluster(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME),
+				eq(PROJECT), eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verifyNoMoreInteractions(securityService, schedulerJobDAO, exploratoryService, computationalService,
+				computationalDAO);
     }
 
 	@Test
@@ -763,9 +763,9 @@ public class SchedulerJobServiceImplTest {
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
-        verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
-        verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT), eq(AUDIT_MESSAGE));
-        verify(computationalDAO).findComputationalResourcesWithStatus(USER, PROJECT, EXPLORATORY_NAME, STOPPED);
+		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
+		verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT), eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verify(computationalDAO).findComputationalResourcesWithStatus(USER, PROJECT, EXPLORATORY_NAME, STOPPED);
         verifyNoMoreInteractions(securityService, schedulerJobDAO, exploratoryService, computationalDAO);
         verifyZeroInteractions(computationalService);
     }
@@ -788,9 +788,9 @@ public class SchedulerJobServiceImplTest {
         schedulerJobService.startExploratoryByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
-        verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
-        verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT), eq(AUDIT_MESSAGE));
-        verify(computationalDAO).findComputationalResourcesWithStatus(USER, PROJECT, EXPLORATORY_NAME, STOPPED);
+		verify(schedulerJobDAO).getExploratorySchedulerDataWithStatus(STOPPED);
+		verify(exploratoryService).start(refEq(getUserInfo()), eq(EXPLORATORY_NAME), eq(PROJECT), eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verify(computationalDAO).findComputationalResourcesWithStatus(USER, PROJECT, EXPLORATORY_NAME, STOPPED);
         verifyNoMoreInteractions(securityService, schedulerJobDAO, exploratoryService, computationalDAO);
         verifyZeroInteractions(computationalService);
     }
@@ -880,11 +880,11 @@ public class SchedulerJobServiceImplTest {
         schedulerJobService.terminateComputationalByScheduler();
 
         verify(securityService).getServiceAccountInfo(USER);
-        verify(schedulerJobDAO)
-                .getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING);
-        verify(computationalService).terminateComputational(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT), eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME),
-                eq(AUDIT_MESSAGE));
-        verifyNoMoreInteractions(securityService, schedulerJobDAO, computationalService);
+		verify(schedulerJobDAO)
+				.getComputationalSchedulerDataWithOneOfStatus(RUNNING, STOPPED, RUNNING);
+		verify(computationalService).terminateComputational(refEq(userInfo), eq(userInfo.getName()), eq(PROJECT), eq(EXPLORATORY_NAME), eq(COMPUTATIONAL_NAME),
+				eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verifyNoMoreInteractions(securityService, schedulerJobDAO, computationalService);
     }
 
 	@Test
@@ -974,9 +974,9 @@ public class SchedulerJobServiceImplTest {
         schedulerJobService.terminateExploratoryByScheduler();
 
         verify(securityService).getUserInfoOffline(USER);
-        verify(schedulerJobDAO).getExploratorySchedulerDataWithOneOfStatus(RUNNING, STOPPED);
-        verify(exploratoryService).terminate(refEq(getUserInfo()), eq(USER), eq(PROJECT), eq(EXPLORATORY_NAME), eq(AUDIT_MESSAGE));
-        verifyNoMoreInteractions(securityService, schedulerJobDAO, computationalService, exploratoryService);
+		verify(schedulerJobDAO).getExploratorySchedulerDataWithOneOfStatus(RUNNING, STOPPED);
+		verify(exploratoryService).terminate(refEq(getUserInfo()), eq(USER), eq(PROJECT), eq(EXPLORATORY_NAME), eq(String.format(AUDIT_MESSAGE, EXPLORATORY_NAME)));
+		verifyNoMoreInteractions(securityService, schedulerJobDAO, computationalService, exploratoryService);
     }
 
 	@Test
