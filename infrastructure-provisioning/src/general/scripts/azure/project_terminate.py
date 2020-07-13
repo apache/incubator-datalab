@@ -33,7 +33,7 @@ import requests
 import traceback
 
 
-def terminate_edge_node(resource_group_name, service_base_name, project_tag, subnet_name, vpc_name):
+def terminate_edge_node(resource_group_name, service_base_name, project_tag, subnet_name, vpc_name, endpoint_name):
     print("Terminating EDGE, notebook and dataengine virtual machines")
     try:
         for vm in AzureMeta.compute_client.virtual_machines.list(resource_group_name):
@@ -115,8 +115,8 @@ def terminate_edge_node(resource_group_name, service_base_name, project_tag, sub
     print("Removing project specific images")
     try:
         for image in AzureMeta.list_images():
-            if service_base_name == image.tags["SBN"] and 'project_tag' in image.tags \
-                    and project_tag == image.tags["project_tag"]:
+            if service_base_name == image.tags["SBN"] and project_tag == image.tags["project_tag"] \
+                    and endpoint_name == image.tags["endpoint_tag"]:
                 AzureActions.remove_image(resource_group_name, image.name)
                 print("Image {} has been removed".format(image.name))
     except Exception as err:
@@ -174,7 +174,7 @@ if __name__ == "__main__":
         try:
             terminate_edge_node(project_conf['resource_group_name'], project_conf['service_base_name'],
                                 project_conf['project_tag'], project_conf['private_subnet_name'],
-                                project_conf['vpc_name'])
+                                project_conf['vpc_name'], project_conf['endpoint_name'])
         except Exception as err:
             traceback.print_exc()
             dlab.fab.append_result("Failed to terminate edge.", str(err))
