@@ -50,6 +50,7 @@ def configure_notebook(args):
     templates_dir = '/root/templates/'
     files_dir = '/root/files/'
     scripts_dir = '/root/scripts/'
+    put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
     put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
     put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
     put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
@@ -92,9 +93,13 @@ if __name__ == "__main__":
             print(r_version)
     else:
         r_version = 'false'
+    cluster_id = get_emr_id_by_name(args.cluster_name)
+    master_instances = get_emr_instances_list(cluster_id, 'MASTER')
+    master_ip = master_instances[0].get('PrivateIpAddress')
     sudo("/usr/bin/python /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket
          + " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version "
          + spark_version + " --scala_version " + scala_version + " --r_version " + r_version + " --hadoop_version "
          + hadoop_version + " --region " + args.region + " --excluded_lines '" + args.emr_excluded_spark_properties
          + "' --project_name " + args.project_name + " --os_user " + args.os_user + " --pip_mirror "
-         + args.pip_mirror + " --numpy_version " + numpy_version + " --application " + args.application)
+         + args.pip_mirror + " --numpy_version " + numpy_version + " --application "
+         + args.application + " --master_ip " + master_ip)

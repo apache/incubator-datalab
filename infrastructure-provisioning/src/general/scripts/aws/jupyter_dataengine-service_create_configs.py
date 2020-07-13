@@ -52,6 +52,7 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--numpy_version', type=str, default='')
 parser.add_argument('--application', type=str, default='')
+parser.add_argument('--master_ip', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -162,11 +163,27 @@ def add_breeze_library_emr(args):
     local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/s/$/:\/opt\/""" + args.emr_version +
           """\/jars\/usr\/other\/*/' """ + spark_defaults_path + """" """)
 
+def install_sparkamagic_kernels(args):
+    try:
+        local('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension')
+        sparkmagic_dir = local("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture=True)
+        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir))
+        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir))
+        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --user'.format(sparkmagic_dir))
+        local('mkdir -p /home/' + args.os_user + '/.sparkmagic')
+        local('cp -f /tmp/sparkmagic_config_template.json /home/' + args.os_user + '/.sparkmagic/config.json')
+        local('sed -i \'s|LIVY_HOST|{0}|g\' /home/{1}/.sparkmagic/config.json'.format(
+                args.master_ip, args.os_user))
+    except:
+        sys.exit(1)
+
+
 
 if __name__ == "__main__":
     if args.dry_run == 'true':
         parser.print_help()
     else:
+        install_sparkamagic_kernels(args)
         result = prepare(emr_dir, yarn_dir)
         if result == False :
             jars(args, emr_dir)
