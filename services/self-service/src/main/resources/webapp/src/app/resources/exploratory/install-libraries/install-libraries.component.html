@@ -62,10 +62,10 @@
                 [value]="query"
                 [matAutocomplete]="auto"
               >
-              <span class="add-icon" [matTooltip]="!isLibExist ? 'Current library dosen\'t exist' : 'You have already added or installed current library'"
-              matTooltipPosition="above"
-              [matTooltipDisabled] = "isLibExist && (isInSelectedList || isInstalled)"
-              >
+<!--              <span class="add-icon" [matTooltip]="(isInSelectedList || isInstalled) ? 'Current library dosen\'t exist' : 'You have already added or installed current library'"-->
+<!--              matTooltipPosition="above"-->
+<!--              [matTooltipDisabled] = "isLibExist && (isInSelectedList || isInstalled)"-->
+              <span class="add-icon">
                 <button  mat-icon-button class="btn" [disabled]="!isLibExist || query.length < 1 ||
                 isDuplicated({name: query.slice(0, query.indexOf(':')), version: query.slice(query.indexOf(':') + 1) || 'N/A'})" (click)="addLibrary(query);$event.stopPropagation()">
                   <mat-icon matSuffix >add</mat-icon>
@@ -215,7 +215,7 @@
 <!--            <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>-->
 <!--          </div>-->
           <ng-container *ngFor="let lib of filtredNotebookLibs">
-            <mat-list-item class="table-item" (click)="showlibinfo(lib)">
+            <mat-list-item class="table-item">
             <div class="lib-name ellipsis">
               <strong>{{ lib.name }}</strong>&nbsp;
               <span *ngIf="lib.version  && lib.version !== 'N/A'">{{ lib.version }}</span>
@@ -228,7 +228,7 @@
                   <div class="lib-resource-type-col">{{ item.resourceType }}</div>
                   <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{ item.status }}
                     <div class="warn-action" *ngIf="item.status === 'failed' && notebook?.status === 'running'">
-                      <div>
+                      <div *ngIf="!item.available_versions">
                         <span *ngIf="!installingInProgress" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
                           <i class="material-icons">replay</i>
                         </span>
@@ -237,12 +237,19 @@
                           <i class="material-icons">replay</i>
                         </span>
                       </div>
-                      <div *ngIf="item.status === 'failed' && item.error" class="lib-error" (click)="showErrorMessage(item)">
+                      <div *ngIf="item.status === 'failed' && item.error && !item.available_versions" class="lib-error" (click)="showErrorMessage(item)">
                         <i class="material-icons">error_outline</i>
                       </div>
+                      <div class="lib-error"
+                           *ngIf="item.status === 'failed' && item.available_versions?.length" class="lib-error"
+                           (click)="openLibInfo(item, 'available');$event.stopPropagation()"
+                           matTooltip="Show available version" matTooltipPosition="above"
+                      >
+                        <i class="material-icons terminated">error_outline</i>
+                      </div>
                     </div>
-                    <div class="warn-action" matTooltip="Show installed dependency" matTooltipPosition="above">
-                        <span class="info-icon" (click)="openLibInfo(lib);$event.stopPropagation() ">
+                    <div class="warn-action" matTooltip="Show installed dependency" matTooltipPosition="above" *ngIf="item.add_pkgs?.length">
+                        <span class="info-icon" (click)="openLibInfo(item, 'added');$event.stopPropagation() ">
                           <i class="material-icons">info</i>
                         </span>
                     </div>
@@ -253,28 +260,28 @@
             </div>
           </mat-list-item>
 
-          <mat-list-item  *ngIf="isLibInfoOpened[lib.name]">
-            <div class="lib-info">
-              <ul class="libs-version">
+<!--          <mat-list-item  *ngIf="isLibInfoOpened[lib.name]">-->
+<!--            <div class="lib-info">-->
+<!--              <ul class="libs-version">-->
 
-                <li class="dependency-list-header">
-                  List of available version:
-                </li>
+<!--                <li class="dependency-list-header">-->
+<!--                  List of available version:-->
+<!--                </li>-->
 
-<!--                <div class="scrolling-content delete-list" id="scrolling">-->
+<!--&lt;!&ndash;                <div class="scrolling-content delete-list" id="scrolling">&ndash;&gt;-->
 
-                  <li *ngFor="let object of [1,2,3]" class="delete-item list-item">
-                    <!--                        <div class="object">-->
-                    {{lib.name+lib.version}}
-                    <!--                        </div>-->
-                    <!--                        <div class="size">v2.3.4</div>-->
-                    <button mat-raised-button type="button"  class="butt action">Install</button>
-                  </li>
+<!--                  <li *ngFor="let object of [1,2,3]" class="delete-item list-item">-->
+<!--                    &lt;!&ndash;                        <div class="object">&ndash;&gt;-->
+<!--                    {{lib.name+lib.version}}-->
+<!--                    &lt;!&ndash;                        </div>&ndash;&gt;-->
+<!--                    &lt;!&ndash;                        <div class="size">v2.3.4</div>&ndash;&gt;-->
+<!--                    <button mat-raised-button type="button"  class="butt action">Install</button>-->
+<!--                  </li>-->
 
-<!--                </div>-->
-              </ul>
-            </div>
-          </mat-list-item>
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--              </ul>-->
+<!--            </div>-->
+<!--          </mat-list-item>-->
           </ng-container>
           <div *ngIf="!filtredNotebookLibs.length && notebookLibs?.length" class="scrollingList info message">
             <p>No matches found</p>

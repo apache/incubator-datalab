@@ -373,14 +373,14 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.filterModel.resetFilterLibs();
   }
 
-  public openLibInfo(lib) {
+  public openLibInfo(lib, type) {
     this.dialog.open(
-      LibInfoDialogComponent, { data: lib, width: '550px', panelClass: 'error-modalbox' });
+      LibInfoDialogComponent, { data: {lib, type}, width: '550px', panelClass: 'error-modalbox' });
   }
 
-  showlibinfo(lib: any) {
-    this.isLibInfoOpened[lib.name] = !this.isLibInfoOpened[lib.name];
-  }
+  // showlibinfo(lib: any) {
+  //   this.isLibInfoOpened[lib.name] = !this.isLibInfoOpened[lib.name];
+  // }
 }
 
 @Component({
@@ -415,32 +415,44 @@ export class ErrorLibMessageDialogComponent {
   selector: 'lib-info-dialog',
   template: `
   <div class="dialog-header">
-    <h4 class="modal-title">Installed dependency</h4>
+    <h4 class="modal-title" *ngIf="data.type === 'added'">Installed dependency</h4>
+    <h4 class="modal-title" *ngIf="data.type === 'available'">Library installation error</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
-  <mat-list class="resources">
+<!--  <mat-list class="resources">-->
 
-    <mat-list-item class="list-header">
-      <div class="object">Name</div>
-      <div class="size">Version</div>
-    </mat-list-item>
+<!--    <mat-list-item class="list-header">-->
+<!--      <div class="object">Name</div>-->
+<!--      <div class="size">Version</div>-->
+<!--    </mat-list-item>-->
 
-    <div class="scrolling-content delete-list" id="scrolling">
+<!--    <div class="scrolling-content delete-list" id="scrolling">-->
 
-      <mat-list-item *ngFor="let object of [1,2,3]" class="delete-item">
-        <div class="object">
-         {{data.name}}
-        </div>
-        <div class="size">v2.3.4</div>
-      </mat-list-item>
+<!--      <mat-list-item *ngFor="let lib of data.add_pkgs" class="delete-item">-->
+<!--        <div class="object">-->
+<!--         {{lib}}-->
+<!--        </div>-->
+<!--        <div class="size">v2.3.4</div>-->
+<!--      </mat-list-item>-->
 
-    </div>
-  </mat-list>
+<!--    </div>-->
+<!--  </mat-list>-->
+
+  <div class="lib-list" *ngIf="data.type === 'added'">
+    <span class="strong">Dependency: </span>{{data.lib.add_pkgs.join(', ')}}
+  </div>
+  <div class="lib-list" *ngIf="data.type === 'available'">
+    <p class="terminated">Version is not available</p>
+    <span class="strong">Available versions: </span>{{data.lib.available_versions.join(', ')}}
+  </div>
 <!--  <div class="text-center">-->
 <!--    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>-->
 <!--  </div>-->
   `,
   styles: [    `
+    .lib-list { max-height: 200px; overflow-x: auto; word-break: break-all; padding: 20px 30px !important; margin: 20px 0; color: #577289;}
+    .terminated{padding-bottom: 15px;}
+
     .mat-list-base {
       padding: 40px 30px;
     }
