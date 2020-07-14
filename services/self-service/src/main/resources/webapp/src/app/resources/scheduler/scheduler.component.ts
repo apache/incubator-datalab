@@ -88,7 +88,6 @@ export class SchedulerComponent implements OnInit {
 
   public open(notebook, type, resource?): void {
     this.notebook = notebook;
-    console.log(this.notebook)
     this.zones = _moment.tz.names()
       .map(item => [_moment.tz(item).format('Z'), item])
       .sort()
@@ -141,8 +140,10 @@ export class SchedulerComponent implements OnInit {
     if (this.destination.type === 'СOMPUTATIONAL' && this.inherit) {
       this.getExploratorySchedule(this.notebook.project, this.notebook.name);
       this.schedulerForm.get('startDate').disable();
+      this.schedulerForm.get('finishDate').disable();
     } else {
       this.schedulerForm.get('startDate').enable();
+      this.schedulerForm.get('finishDate').enable();
     }
   }
 
@@ -156,7 +157,7 @@ export class SchedulerComponent implements OnInit {
       ? this.schedulerForm.get('startDate').enable()
       : this.schedulerForm.get('startDate').disable();
 
-    this.enableSchedule ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
+    this.enableSchedule && this.destination.type !== 'СOMPUTATIONAL' ? this.schedulerForm.get('finishDate').enable() : this.schedulerForm.get('finishDate').disable();
     this.enableSchedule ? this.schedulerForm.get('terminateDate').enable() : this.schedulerForm.get('terminateDate').disable();
 
     if (this.enableSchedule && $event.source) this.enableIdleTimeView = false;
@@ -256,7 +257,6 @@ export class SchedulerComponent implements OnInit {
   }
 
   private setScheduleByInactivity() {
-    console.log(this.notebook)
     const data = { sync_start_required: this.parentInherit, check_inactivity_required: this.enableIdleTime, max_inactivity: this.schedulerForm.controls.inactivityTime.value };
     (this.destination.type === 'СOMPUTATIONAL')
       ? this.setInactivity(this.notebook.project, this.notebook.name, data, this.destination.computational_name)
@@ -266,7 +266,7 @@ export class SchedulerComponent implements OnInit {
   private formInit(start?: string, end?: string, terminate?: string) {
     this.schedulerForm = this.formBuilder.group({
       startDate: { disabled: this.inherit, value: start ? _moment(start).format() : null },
-      finishDate: { disabled: false, value: end ? _moment(end).format() : null },
+      finishDate: { disabled: this.inherit, value: end ? _moment(end).format() : null },
       terminateDate: { disabled: false, value: terminate ? _moment(terminate).format() : null },
       inactivityTime: [this.inactivityLimits.min,
       [Validators.compose([Validators.pattern(this.integerRegex), this.validInactivityRange.bind(this)])]]
@@ -284,6 +284,7 @@ export class SchedulerComponent implements OnInit {
           this.startTime = params.start_time ? SchedulerCalculations.convertTimeFormat(params.start_time) : null;
           this.endTime = params.end_time ? SchedulerCalculations.convertTimeFormat(params.end_time) : null;
           this.formInit(params.begin_date, params.finish_date, params.terminate_datetime);
+          console.log();
           this.schedulerForm.controls.inactivityTime.setValue(params.max_inactivity || this.inactivityLimits.min);
           this.enableIdleTime = params.check_inactivity_required;
           this.considerInactivity = params.consider_inactivity || false;

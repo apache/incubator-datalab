@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.domain.AuditPaginationDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.model.Facet;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -50,6 +51,7 @@ import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Aggregates.limit;
 import static com.mongodb.client.model.Aggregates.match;
 import static com.mongodb.client.model.Aggregates.skip;
+import static com.mongodb.client.model.Aggregates.sort;
 import static com.mongodb.client.model.Filters.gte;
 import static com.mongodb.client.model.Filters.in;
 import static com.mongodb.client.model.Filters.lte;
@@ -85,6 +87,7 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
         }
         countPipeline.add(count());
         valuesPipeline.addAll(Arrays.asList(skip(pageSize * (pageNumber - 1)), limit(pageSize)));
+        valuesPipeline.add(sortCriteria());
 
         List<Bson> userFilter = Collections.singletonList(group(getGroupingFields(USER)));
         List<Bson> projectFilter = Collections.singletonList(group(getGroupingFields(PROJECT)));
@@ -114,6 +117,10 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
             searchCriteria.add(lte(TIMESTAMP_FIELD, to));
         }
         return searchCriteria;
+    }
+
+    private Bson sortCriteria() {
+        return sort(Sorts.descending(TIMESTAMP_FIELD));
     }
 
     private AuditPaginationDTO toAuditPaginationDTO(Document document) {

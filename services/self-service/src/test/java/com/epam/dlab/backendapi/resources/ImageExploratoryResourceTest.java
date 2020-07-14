@@ -54,7 +54,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ImageExploratoryResourceTest extends TestBase {
-	private final static String AUDIT_MESSAGE = "Image name: %s";
+	private final static String AUDIT_MESSAGE = "Create image: %s";
 	private static final String PROJECT = "projectName";
 	private ImageExploratoryService imageExploratoryService = mock(ImageExploratoryService.class);
 	private RequestId requestId = mock(RequestId.class);

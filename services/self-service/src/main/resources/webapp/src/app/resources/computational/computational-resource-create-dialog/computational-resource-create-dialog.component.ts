@@ -248,12 +248,17 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.userResourceService.getComputationalTemplates(project, endpoint, provider).subscribe(
       clusterTypes => {
         this.clusterTypes = clusterTypes.templates;
+        if (this.notebook_instance.resources.some(v => v.image === 'docker.dlab-dataengine-service'
+          && v.status !== 'terminated'
+          && v.status !== 'failed')) {
+          this.clusterTypes = this.clusterTypes.filter(v => v.image !== 'docker.dlab-dataengine-service');
+        }
         this.userComputations = clusterTypes.user_computations;
         this.projectComputations = clusterTypes.project_computations;
 
         this.clusterTypes.forEach((cluster, index) => this.clusterTypes[index].computation_resources_shapes =
           SortUtils.shapesSort(cluster.computation_resources_shapes));
-        this.selectedImage = clusterTypes.templates[0];
+        this.selectedImage = this.clusterTypes[0];
         if (this.selectedImage) {
           this._ref.detectChanges();
           this.filterShapes();

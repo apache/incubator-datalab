@@ -66,6 +66,7 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String AUDIT_ADD_GROUP = "Added group(s) %s";
 	private static final String AUDIT_REMOVE_GROUP = "Removed group(s) %s";
 	private static final String AUDIT_UPDATE_BUDGET = "Update budget %d->%d";
+	private static final String AUDIT_ADD_EDGE_NODE = "Create edge node for endpoint %s, requested in project %s";
 
 	private final ProjectDAO projectDAO;
 	private final ExploratoryService exploratoryService;
@@ -138,9 +139,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Audit(action = TERMINATE, type = EDGE_NODE)
     @Override
     public void terminateEndpoint(@User UserInfo userInfo, @ResourceName String endpoint, @Project String name) {
-        projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
-        projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
-        exploratoryService.updateProjectExploratoryStatuses(name, endpoint, UserInstanceStatus.TERMINATING);
+	    projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
+	    projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
+	    exploratoryService.updateProjectExploratoryStatuses(userInfo, name, endpoint, UserInstanceStatus.TERMINATING);
     }
 
 	@ProjectAdmin
@@ -209,14 +210,14 @@ public class ProjectServiceImpl implements ProjectService {
     @Audit(action = UPDATE, type = PROJECT)
     public void updateProject(@User UserInfo userInfo, @Project @ResourceName String projectName, UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints,
                               @Info String projectAudit) {
-        final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints
-                .stream()
-                .map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
-                .collect(Collectors.toList());
-        project.getEndpoints().addAll(endpointsToBeCreated);
-        projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
-                project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
-        endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, projectName, project, e.getName()));
+	    final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints
+			    .stream()
+			    .map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
+			    .collect(Collectors.toList());
+	    project.getEndpoints().addAll(endpointsToBeCreated);
+	    projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
+			    project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
+	    endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, projectName, project, e.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
     }
 
     @Override
@@ -254,22 +255,22 @@ public class ProjectServiceImpl implements ProjectService {
 				UserInstanceStatus.TERMINATING).isEmpty();
 	}
 
-    private void createProjectOnCloud(UserInfo user, ProjectDTO projectDTO) {
-        try {
-            projectDTO.getEndpoints().forEach(endpoint -> createEndpoint(user, projectDTO.getName(), projectDTO, endpoint.getName()));
-        } catch (Exception e) {
-            log.error("Can not create project due to: {}", e.getMessage());
-            projectDAO.updateStatus(projectDTO.getName(), ProjectDTO.Status.FAILED);
-        }
-    }
+	private void createProjectOnCloud(UserInfo user, ProjectDTO project) {
+		try {
+			project.getEndpoints().forEach(e -> createEndpoint(user, project.getName(), project, e.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
+		} catch (Exception e) {
+			log.error("Can not create project due to: {}", e.getMessage());
+			projectDAO.updateStatus(project.getName(), ProjectDTO.Status.FAILED);
+		}
+	}
 
-    @Audit(action = CREATE, type = EDGE_NODE)
-    public void createEndpoint(@User UserInfo user, @Project String projectName, ProjectDTO projectDTO, @ResourceName String endpointName) {
-        EndpointDTO endpointDTO = endpointService.get(endpointName);
-        String uuid = provisioningService.post(endpointDTO.getUrl() + CREATE_PRJ_API, user.getAccessToken(),
-                requestBuilder.newProjectCreate(user, projectDTO, endpointDTO), String.class);
-        requestId.put(user.getName(), uuid);
-    }
+	@Audit(action = CREATE, type = EDGE_NODE)
+	public void createEndpoint(@User UserInfo user, @Project String projectName, ProjectDTO projectDTO, @ResourceName String endpointName, @Info String auditInfo) {
+		EndpointDTO endpointDTO = endpointService.get(endpointName);
+		String uuid = provisioningService.post(endpointDTO.getUrl() + CREATE_PRJ_API, user.getAccessToken(),
+				requestBuilder.newProjectCreate(user, projectDTO, endpointDTO), String.class);
+		requestId.put(user.getName(), uuid);
+	}
 
 	private void projectActionOnCloud(UserInfo user, String projectName, String provisioningApiUri, String endpoint) {
 		try {
