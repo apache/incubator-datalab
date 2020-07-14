@@ -58,10 +58,10 @@ import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.GROUP;
 @Singleton
 @Slf4j
 public class UserGroupServiceImpl implements UserGroupService {
-	private static final String AUDIT_ADD_ROLE_MESSAGE = "Add role(s): %s.\n";
-	private static final String AUDIT_REMOVE_ROLE_MESSAGE = "Remove role(s): %s.\n";
-	private static final String AUDIT_ADD_USER_MESSAGE = "Add user(s): %s.\n";
-	private static final String AUDIT_REMOVE_USER_MESSAGE = "Remove user(s): %s.\n";
+	private static final String AUDIT_ADD_ROLE_MESSAGE = "Add role(s): %s\n";
+	private static final String AUDIT_REMOVE_ROLE_MESSAGE = "Remove role(s): %s\n";
+	private static final String AUDIT_ADD_USER_MESSAGE = "Add user(s): %s\n";
+	private static final String AUDIT_REMOVE_USER_MESSAGE = "Remove user(s): %s\n";
 	private static final String ROLE_NOT_FOUND_MSG = "Any of role : %s were not found";
 	private static final String ADMIN = "admin";
 	private static final String PROJECT_ADMIN = "projectAdmin";

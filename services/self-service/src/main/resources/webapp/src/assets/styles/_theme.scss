@@ -484,6 +484,9 @@ span.mat-slide-toggle-content {
     transform: rotate(45deg);
   }
 }
+.none-select{
+  user-select: none;
+}
 
 .action-select-wrapper{
   position: relative;

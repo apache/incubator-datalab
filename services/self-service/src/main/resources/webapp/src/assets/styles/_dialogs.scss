@@ -146,6 +146,9 @@ mat-dialog-container {
         text-decoration: none;
         transition: all .45s ease-in-out;
         line-height: 19px;
+        &.spark-url{
+          line-height: 16px;
+        }
 
         &:hover {
           color: #5faec7;
@@ -276,7 +279,7 @@ mat-dialog-container {
     }
   }
 
-  span:not(.description) {
+  span:not(.description),{
     font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -286,7 +289,7 @@ mat-dialog-container {
     &.link-icon{
       //margin-left: 10px;
       cursor: pointer;
-      padding-top: 3px;
+      padding-top: 2px;
     }
   }
 

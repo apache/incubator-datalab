@@ -68,3 +68,14 @@
     }
   }
 }
+
+.spark-url{
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.copy-icon-wrapper{
+  margin-top: -2px;
+  margin-left: 5px;
+}
