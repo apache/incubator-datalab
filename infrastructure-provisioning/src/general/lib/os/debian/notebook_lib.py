@@ -371,23 +371,27 @@ def install_os_pkg(requisites):
         print("Updating repositories and installing requested tools: {}".format(requisites))
         manage_pkg('update', 'remote', '')
         for os_pkg in requisites:
-            if os_pkg[1] != '':
+            if os_pkg[1] != '' and os_pkg[1] !='N/A':
                 os_pkg = "{}={}".format(os_pkg[0], os_pkg[1])
             else:
                 os_pkg = os_pkg[0]
-            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 > /tmp/os_install_{0}.log'.format(os_pkg))
-            sudo('cat /tmp/os_install_{0}.log | if ! grep -w -E "({1})" /tmp/os_install_{0}.log > '
-                 '/tmp/os_install_{0}_err.log; then echo "" > /tmp/os_install_{0}_err.log;fi'.format(os_pkg, error_parser))
-            sudo('cat /tmp/os_install_{0}.log | if ! grep -w -E -A 20 "({1})" /tmp/os_install_{0}.log > '
-                 '/tmp/os_install_{0}_dep.log; then echo "" > /tmp/os_install_{0}_dep.log;fi'.format(os_pkg, new_pkgs_parser))
-            err = sudo('cat /tmp/os_install_{}_err.log'.format(os_pkg)).replace('"', "'")
-            dep = sudo('cat /tmp/os_install_{}_dep.log'.format(os_pkg))
-            dep = dep[len(new_pkgs_parser) : dep.find(" upgraded, ") -1].replace('\r', '')\
-                .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]), ' ').strip()
-            if dep == '' or dep == os_pkg.split("=")[0]:
-                dep = []
+            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
+                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
+            err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
+            sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 20 "({1})" /tmp/tee.tmp > '
+                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, new_pkgs_parser))
+            dep = sudo('cat /tmp/os_install_{}.log'.format(os_pkg))
+            if err == '':
+                dep = dep[len(new_pkgs_parser): dep.find(" upgraded, ") - 1].replace('\r', '') \
+                    .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]), ' ').strip().split(' ')
+                if dep == '' or dep == os_pkg.split("=")[0]:
+                    dep = []
             else:
-                dep = dep.split(' ')
+                dep = []
+            if 'E: Version' in err and 'was not found' in err:
+                versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0])).replace('\r\n', '').replace(' 500', '').replace('     ', ' ').strip().split(' ')
+            else:
+                versions = []
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
             res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
             if res:
@@ -396,12 +400,13 @@ def install_os_pkg(requisites):
                 version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
                 status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
-                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "status": "failed", "error_message": err, "available_versions": []})
+                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "status": "failed", "error_message": err, "available_versions": versions})
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
         return status
-    except:
-        return "Fail to install OS packages"
+    except Exception as err:
+        append_result("Failed to install OS packages", str(err))
+        sys.exit(1)
 
 
 @backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
