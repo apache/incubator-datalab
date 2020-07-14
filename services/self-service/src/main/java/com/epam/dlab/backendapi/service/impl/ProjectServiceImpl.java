@@ -65,7 +65,7 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String AUDIT_ADD_ENDPOINT = "Added endpoint(s) %s";
 	private static final String AUDIT_ADD_GROUP = "Added group(s) %s";
 	private static final String AUDIT_REMOVE_GROUP = "Removed group(s) %s";
-	private static final String AUDIT_UPDATE_BUDGET = "Update budget %d->%d";
+	private static final String AUDIT_UPDATE_BUDGET = "Update quota %d->%d";
 	private static final String AUDIT_ADD_EDGE_NODE = "Create edge node for endpoint %s, requested in project %s";
 
 	private final ProjectDAO projectDAO;
@@ -224,7 +224,6 @@ public class ProjectServiceImpl implements ProjectService {
     public void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> dtos) {
 	    final List<ProjectDTO> projects = dtos
 			    .stream()
-			    .filter(dto -> Objects.nonNull(dto.getBudget()))
 			    .map(this::getUpdateProjectDTO)
 			    .collect(Collectors.toList());
 

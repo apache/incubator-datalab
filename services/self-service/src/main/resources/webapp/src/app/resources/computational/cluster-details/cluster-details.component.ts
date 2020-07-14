@@ -118,7 +118,13 @@ export class DetailComputationalResourcesComponent implements OnInit {
         : null;
   }
 
-  private logAction(name: any, description: string) {
-    this.auditService.sendDataToAudit({resource_name: name, info: `Follow ${description} link`, type: 'COMPUTE'}).subscribe();
+  private logAction(resource: any, environment) {
+    const clusterInfo = {
+      cluster: resource.computational_name,
+      notebook: environment.name,
+      clusterType: resource.dataEngineType === 'dataengine-service' ? 'Hadoop' : 'Master'
+    }
+
+    this.auditService.sendDataToAudit({resource_name: resource.computational_name, info: JSON.stringify(clusterInfo), type: 'COMPUTE'}).subscribe();
   }
 }

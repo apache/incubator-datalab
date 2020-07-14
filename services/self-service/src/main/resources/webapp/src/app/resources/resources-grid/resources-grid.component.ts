@@ -417,6 +417,6 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   logAction(name) {
-    this.auditService.sendDataToAudit({resource_name: name, info: `Open terminal on notebook ${name}`, type: 'WEB_TERMINAL'}).subscribe();
+    this.auditService.sendDataToAudit({resource_name: name, info: `Open terminal, requested for notebook`, type: 'WEB_TERMINAL'}).subscribe();
   }
 }
