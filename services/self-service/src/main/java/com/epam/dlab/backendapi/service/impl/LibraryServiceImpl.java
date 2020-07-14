@@ -56,12 +56,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.INSTALL;
@@ -114,30 +114,23 @@ public class LibraryServiceImpl implements LibraryService {
 	public List<LibInfoRecord> getLibInfo(String user, String project, String exploratoryName) {
 		Document document = libraryDAO.findAllLibraries(user, project, exploratoryName);
 
-		Map<LibKey, List<LibraryStatus>> model = new TreeMap<>(Comparator.comparing(LibKey::getName)
-				.thenComparing(LibKey::getVersion)
-				.thenComparing(LibKey::getGroup));
-
+		Map<LibKey, List<LibraryStatus>> model = new LinkedHashMap<>();
 		if (document.get(ExploratoryLibDAO.EXPLORATORY_LIBS) != null) {
 			List<Document> exploratoryLibs = (List<Document>) document.get(ExploratoryLibDAO.EXPLORATORY_LIBS);
 			exploratoryLibs.forEach(e -> populateModel(exploratoryName, e, model, "notebook"));
-
 		}
-
 		if (document.get(ExploratoryLibDAO.COMPUTATIONAL_LIBS) != null) {
 			Document computationalLibs = getLibsOfActiveComputationalResources(document);
 			populateComputational(computationalLibs, model, "cluster");
 		}
 
-        List<LibInfoRecord> libInfoRecords = new ArrayList<>();
+		LinkedList<LibInfoRecord> libInfoRecords = new LinkedList<>();
+		for (Map.Entry<LibKey, List<LibraryStatus>> entry : model.entrySet()) {
+			libInfoRecords.addFirst(new LibInfoRecord(entry.getKey(), entry.getValue()));
+		}
 
-        for (Map.Entry<LibKey, List<LibraryStatus>> entry : model.entrySet()) {
-            libInfoRecords.add(new LibInfoRecord(entry.getKey(), entry.getValue()));
-
-        }
-
-        return libInfoRecords;
-    }
+		return libInfoRecords;
+	}
 
     @Audit(action = INSTALL, type = COMPUTATIONAL_LIBS)
     @Override
