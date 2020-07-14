@@ -63,9 +63,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.CREATE;
-import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL_SCHEDULER;
-import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK_SCHEDULER;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.SET_UP_SCHEDULER;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTE;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
 import static com.epam.dlab.constants.ServiceConsts.PROVISIONING_SERVICE_NAME;
 import static com.epam.dlab.dto.UserInstanceStatus.CONFIGURING;
 import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
@@ -83,7 +83,7 @@ import static java.util.Date.from;
 @Singleton
 public class SchedulerJobServiceImpl implements SchedulerJobService {
 	private static final String SCHEDULER_NOT_FOUND_MSG = "Scheduler job data not found for user %s with exploratory %s";
-	private static final String AUDIT_MESSAGE = "Scheduled action";
+	private static final String AUDIT_MESSAGE = "Scheduled action, requested for notebook %s";
 	private static final long ALLOWED_INACTIVITY_MINUTES = 1L;
 
 	@Inject
@@ -129,8 +129,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
                         exploratoryName) + " with computational resource " + computationalName));
     }
 
-    @Audit(action = CREATE, type = NOTEBOOK_SCHEDULER)
-    @Override
+	@Audit(action = SET_UP_SCHEDULER, type = NOTEBOOK)
+	@Override
     public void updateExploratorySchedulerData(@User UserInfo user, @Project String project, @ResourceName String exploratoryName, SchedulerJobDTO dto) {
         validateExploratoryStatus(user.getName(), project, exploratoryName);
         populateDefaultSchedulerValues(dto);
@@ -145,8 +145,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
         }
     }
 
-    @Audit(action = CREATE, type = COMPUTATIONAL_SCHEDULER)
-    @Override
+	@Audit(action = SET_UP_SCHEDULER, type = COMPUTE)
+	@Override
     public void updateComputationalSchedulerData(@User UserInfo user, @Project String project, String exploratoryName, @ResourceName String computationalName, SchedulerJobDTO dto) {
         validateExploratoryStatus(user.getName(), project, exploratoryName);
         validateComputationalStatus(user.getName(), project, exploratoryName, computationalName);
@@ -225,8 +225,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
         final String expName = job.getExploratoryName();
         final String compName = job.getComputationalName();
         final String user = job.getUser();
-        log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-        computationalService.stopSparkCluster(securityService.getServiceAccountInfo(user), user, project, expName, compName, AUDIT_MESSAGE);
+		log.debug("Stopping exploratory {} computational {} for user {} by scheduler", expName, compName, user);
+		computationalService.stopSparkCluster(securityService.getServiceAccountInfo(user), user, project, expName, compName, String.format(AUDIT_MESSAGE, expName));
     }
 
 	private void terminateComputational(SchedulerJobData job) {
@@ -234,16 +234,16 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
         final String expName = job.getExploratoryName();
         final String compName = job.getComputationalName();
         final UserInfo userInfo = securityService.getServiceAccountInfo(user);
-        log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-        computationalService.terminateComputational(userInfo, user, job.getProject(), expName, compName, AUDIT_MESSAGE);
+		log.debug("Terminating exploratory {} computational {} for user {} by scheduler", expName, compName, user);
+		computationalService.terminateComputational(userInfo, user, job.getProject(), expName, compName, String.format(AUDIT_MESSAGE, expName));
     }
 
 	private void stopExploratory(SchedulerJobData job) {
         final String expName = job.getExploratoryName();
         final String user = job.getUser();
         final String project = job.getProject();
-        log.debug("Stopping exploratory {} for user {} by scheduler", expName, user);
-        exploratoryService.stop(securityService.getServiceAccountInfo(user), user, project, expName, AUDIT_MESSAGE);
+		log.debug("Stopping exploratory {} for user {} by scheduler", expName, user);
+		exploratoryService.stop(securityService.getServiceAccountInfo(user), user, project, expName, String.format(AUDIT_MESSAGE, expName));
     }
 
 	private List<SchedulerJobData> getExploratorySchedulersForTerminating(OffsetDateTime now) {
@@ -264,8 +264,8 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
         final String user = schedulerJobData.getUser();
         final String exploratoryName = schedulerJobData.getExploratoryName();
         final String project = schedulerJobData.getProject();
-        log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
-        exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, project, AUDIT_MESSAGE);
+		log.debug("Starting exploratory {} for user {} by scheduler", exploratoryName, user);
+		exploratoryService.start(securityService.getServiceAccountInfo(user), exploratoryName, project, String.format(AUDIT_MESSAGE, exploratoryName));
         if (schedulerJobData.getJobDTO().isSyncStartRequired()) {
             log.trace("Starting computational for exploratory {} for user {} by scheduler", exploratoryName, user);
             final DataEngineType sparkCluster = DataEngineType.SPARK_STANDALONE;
@@ -283,13 +283,13 @@ public class SchedulerJobServiceImpl implements SchedulerJobService {
         final String user = job.getUser();
         final String project = job.getProject();
         final String expName = job.getExploratoryName();
-        log.debug("Terminating exploratory {} for user {} by scheduler", expName, user);
-        exploratoryService.terminate(securityService.getUserInfoOffline(user), user, project, expName, AUDIT_MESSAGE);
+		log.debug("Terminating exploratory {} for user {} by scheduler", expName, user);
+		exploratoryService.terminate(securityService.getUserInfoOffline(user), user, project, expName, String.format(AUDIT_MESSAGE, expName));
     }
 
 	private void startSpark(String user, String expName, String compName, String project) {
-        log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
-        computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, project, AUDIT_MESSAGE);
+		log.debug("Starting exploratory {} computational {} for user {} by scheduler", expName, compName, user);
+		computationalService.startSparkCluster(securityService.getServiceAccountInfo(user), expName, compName, project, String.format(AUDIT_MESSAGE, expName));
     }
 
 	private boolean shouldClusterBeStarted(DataEngineType sparkCluster, UserComputationalResource compResource) {

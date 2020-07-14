@@ -23,6 +23,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -31,6 +32,6 @@ public class GroupDTO {
 	@NotEmpty
 	private String name;
 	@NotEmpty
-	private Set<String> roleIds;
+	private Map<String,String> roleIds;
 	private Set<String> users = Collections.emptySet();
 }

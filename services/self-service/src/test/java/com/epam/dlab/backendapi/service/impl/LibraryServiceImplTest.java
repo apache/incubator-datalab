@@ -419,11 +419,11 @@ public class LibraryServiceImplTest {
 	private List<LibInfoRecord> getLibInfoRecordList() {
 		LibKey explLibKey = new LibKey("expLibName", "expLibVersion", "expLibGroup");
 		List<LibraryStatus> explLibStatuses = Collections.singletonList(
-				new LibraryStatus(EXPLORATORY_NAME, "notebook", "expLibStatus", "expLibErrorMessage"));
+				new LibraryStatus(EXPLORATORY_NAME, "notebook", "expLibStatus", "expLibErrorMessage", null, null));
 
 		LibKey compLibKey = new LibKey("compLibName", "compLibVersion", "compLibGroup");
 		List<LibraryStatus> compLibStatuses = Collections.singletonList(
-				new LibraryStatus("compName", "cluster", "compLibStatus", "compLibErrorMessage"));
+				new LibraryStatus("compName", "cluster", "compLibStatus", "compLibErrorMessage", null, null));
 
 		return Arrays.asList(
 				new LibInfoRecord(compLibKey, compLibStatuses),

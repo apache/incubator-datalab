@@ -42,6 +42,8 @@ public interface ExploratoryService {
 
     String create(UserInfo userInfo, Exploratory exploratory, String project, String exploratoryName);
 
+    void updateProjectExploratoryStatuses(UserInfo userInfo, String project, String endpoint, UserInstanceStatus status);
+
     void updateProjectExploratoryStatuses(String project, String endpoint, UserInstanceStatus status);
 
     void updateClusterConfig(UserInfo userInfo, String project, String exploratoryName, List<ClusterConfig> config);
