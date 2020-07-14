@@ -240,7 +240,7 @@ export class AuditGridComponent implements OnInit {
                   <p *ngIf="data.element.info.indexOf('Scheduled') !== -1;else notScheduled"> {{data.element.action | titlecase}} by scheduler, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span>.</p>
                   <ng-template #notScheduled>
                     <p>
-                      <span *ngIf="data.element.action === 'FOLLOW_LINK'">Follow compute <span class="strong">{{info.cluster}}</span>&nbsp;<span>{{info.clusterType}}</span> link, requested for notebook <span class="strong">{{info.notebook}}</span>.</span>
+                      <span *ngIf="data.element.action === 'FOLLOW_LINK'">{{info.action | titlecase}} compute <span class="strong">{{info.cluster}}</span>&nbsp;<span>{{info.clusterType}}</span> link, requested for notebook <span class="strong">{{info.notebook}}</span>.</span>
                       <span *ngIf="data.element.action !== 'FOLLOW_LINK'">{{data.element.action | titlecase}} compute <span class="strong">{{data.element.resourceName}}</span>, requested for notebook <span class="strong">{{data.element.info.split(' ')[data.element.info.split(' ').length - 1] }}</span>.</span>
                     </p>
                     </ng-template>

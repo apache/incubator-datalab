@@ -17,6 +17,7 @@
   ~ under the License.
   -->
 
+<script src="detail-dialog.component.ts"></script>
 <div class="detail-dialog" id="dialog-box">
   <header class="dialog-header header-white">
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
@@ -58,12 +59,23 @@
               {{upTimeSince || "not specified."}}</p>
             <p *ngIf="notebook.url?.length">Open following URL(s) in your browser to access this box:</p>
             <div class="links_block">
-              <p *ngFor="let item of notebook.url">
+              <p *ngFor="let item of notebook.url" (mouseleave)="hideCopyIcon()">
                 <span class="description">{{item.description}}: &nbsp;</span>
-                <a  (click)="logAction(notebook.name, item.description)" class="ellipsis" matTooltip="{{item.url}}" matTooltipPosition="above" href="{{item.url}}"
-                  target="_blank">
+                <a (mouseover)="showCopyIcon(item.description)"
+                   (click)="logAction(notebook.name, item.description)"
+                   class="ellipsis none-select" matTooltip="{{item.url}}"
+                   matTooltipPosition="above"
+                   href="{{item.url}}"
+                  target="_blank"
+                   (contextmenu)="false"
+                >
                   &nbsp;{{item.url}}
                 </a>
+                <span (click)="logAction(notebook.name, item.description, 'Copy');$event.stopPropagation()" *ngIf="isCopyIconVissible[item.description]" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper">
+                  <span  class="link-icon" (click)="copyBucketName(item.url)" >
+                    <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
+                   </span>
+                </span>
               </p>
             </div>
             <p class="flex" *ngIf="notebook.username">Node User: &nbsp;<span
@@ -77,7 +89,7 @@
                 <p *ngIf="PROVIDER === 'azure' && notebook.account_name">
                   <span
                     class="bucket-info"
-                    (mouseover)="showCopyIcon()"
+                    (mouseover)="showCopyIcon('bucket')"
                     [matTooltip]="notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net'"
                     matTooltipPosition="above"
                     [matTooltipClass]="'bucket-item-tooltip'"
@@ -86,7 +98,7 @@
 <!--                    rc-22-projecta-conteiner@1ebobsvx7t.blob.core.windows.net-->
                   </span>
 
-                  <span  *ngIf="isCopyIconVissible" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
+                  <span  *ngIf="isCopyIconVissible.bucket" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
                     <span  class="link-icon" (click)="copyBucketName(notebook.bucket_name + '@' + notebook.account_name + '.blob.core.windows.net');$event.stopPropagation()" >
                     <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
                   </span>
@@ -95,11 +107,11 @@
                 <p *ngIf="notebook.bucket_name && PROVIDER !== 'azure'">{{ DICTIONARY[PROVIDER].container }}
                   <span
                     class="bucket-info"
-                    (mouseover)="showCopyIcon()"
+                    (mouseover)="showCopyIcon('bucket')"
                   >
                     {{ notebook.bucket_name }}
                 </span>
-                  <span  *ngIf="isCopyIconVissible" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
+                  <span  *ngIf="isCopyIconVissible.bucket" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above">
                     <span  class="link-icon" (click)="copyBucketName(notebook.bucket_name);$event.stopPropagation()" >
                     <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
                   </span>
