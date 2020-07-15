@@ -95,12 +95,14 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     dep = dep.split(', ')
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
+                err_status = 'failed'
                 versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
                 if versions == '':
                     versions = []
                 else:
                     versions = versions.split(', ')
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "status": "failed",
+                    err_status = 'invalid version'
+                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "status": err_status,
                                    "error_message": err, "available_versions": versions})
         return status
     except Exception as err:
