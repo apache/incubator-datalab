@@ -34,7 +34,7 @@ import boto3
 import requests
 
 
-def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg, endpoint_name):
+def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg, endpoint_name, service_base_name):
     print('Terminating EMR cluster')
     try:
         clusters_list = dlab.meta_lib.get_emr_list(tag_name)
@@ -77,7 +77,7 @@ def terminate_edge_node(tag_name, project_name, tag_value, nb_sg, edge_sg, de_sg
 
     print("Deregistering project specific notebook's AMI")
     try:
-        dlab.actions_lib.deregister_image(project_name)
+        dlab.actions_lib.deregister_image('{}-{}-{}-*'.format(service_base_name, project_name, endpoint_name))
     except Exception as err:
         dlab.fab.append_result("Failed to deregister images.", str(err))
         sys.exit(1)
@@ -140,7 +140,7 @@ if __name__ == "__main__":
         try:
             terminate_edge_node(project_conf['tag_name'], project_conf['project_name'], project_conf['tag_value'],
                                 project_conf['nb_sg'], project_conf['edge_sg'], project_conf['de_sg'],
-                                project_conf['emr_sg'], project_conf['endpoint_name'])
+                                project_conf['emr_sg'], project_conf['endpoint_name'], project_conf['service_base_name'])
         except Exception as err:
             traceback.print_exc()
             dlab.fab.append_result("Failed to terminate project.", str(err))
