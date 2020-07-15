@@ -330,11 +330,14 @@ tr.detail-row {
 .data-grid .list-menu li {
   font-size: 14px;
   border-bottom: 1px solid #edf1f5;
-  padding: 8px 15px;
+  padding-bottom: 5px;
   cursor: pointer;
   margin: 5px -5px;
   color: #577289;
   transition: all 0.45s ease-in-out;
+  div{
+    padding: 8px 15px;
+  }
 }
 
 .data-grid .list-menu a.navigate {
@@ -349,8 +352,8 @@ tr.detail-row {
   vertical-align: bottom;
 }
 
-.data-grid .list-menu li:hover,
-.data-grid .list-menu li:hover a {
+.data-grid .list-menu li:not(.not-allow):hover,
+.data-grid .list-menu li:not(.not-allow):hover a {
   background: none !important;
   color: #36afd5;
 }

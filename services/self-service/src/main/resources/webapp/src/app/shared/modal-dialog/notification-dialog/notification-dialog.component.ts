@@ -32,8 +32,7 @@ import {Endpoint} from '../../../administration/project/project.component';
           <div mat-dialog-content class="content message">
             <div *ngIf="data.type === 'terminateNode'" class="table-header">
               <div *ngIf="data.item.action.endpoint.length > 0">
-                Edge node<span *ngIf="data.item.action.endpoint.length>1">s</span>
-                        <span class="strong">{{ data.item.action.endpoint.join(', ') }}</span> in project
+                Edge node<span *ngIf="data.item.action.endpoint.length>1">s</span>&nbsp;<span class="strong">{{ data.item.action.endpoint.join(', ') }}</span> in project
                 <span class="strong">{{ data.item.action.project_name }}</span> will be terminated.
               </div>
             </div>
@@ -82,7 +81,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                               <div class="resource-list-row sans node" *ngFor="let project of data.list">
                                   <div class="resource-name ellipsis">
                                       <div>Edge node</div>
-                                      <div *ngFor="let notebook of project.resource">{{notebook.exploratory_name}}</div>
+                                      <div *ngFor="let notebook of project['resource']">{{notebook['exploratory_name']}}</div>
                                   </div>
                                   <div class="project ellipsis">{{project.name}}</div>
                               </div>

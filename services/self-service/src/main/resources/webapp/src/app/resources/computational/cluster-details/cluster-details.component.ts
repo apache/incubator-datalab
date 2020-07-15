@@ -49,7 +49,7 @@ export class DetailComputationalResourcesComponent implements OnInit {
   config: Array<{}> = [];
   public configurationForm: FormGroup;
   isCopyIconVissible: any = {};
-  isCopied: boolean;
+  isCopied: boolean = true;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,

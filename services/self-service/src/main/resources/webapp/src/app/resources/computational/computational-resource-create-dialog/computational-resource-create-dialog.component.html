@@ -19,7 +19,7 @@
 
 <div class="create-cluster" id="dialog-box">
   <header class="dialog-header">
-    <h4 class="modal-title">Add computational resources</h4>
+    <h4 class="modal-title">Add compute</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </header>
   <div class="dialog-content selection">
@@ -233,9 +233,9 @@
     </div>
     <ng-template #placeholder>
       <div *ngIf="!loading && !clusterTypes?.length" class="info message">
-        Computational resource creations are not available.<br>Please, check your permissions.</div>
+        Compute creations are not available.<br>Please, check your permissions.</div>
       <div *ngIf="loading" class="info message">
-        Computational resource data is processing
+        Compute data is processing
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       </div>
     </ng-template>

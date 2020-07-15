@@ -71,7 +71,7 @@
                 >
                   &nbsp;{{item.url}}
                 </a>
-                <span (click)="logAction(notebook.name, item.description, 'Copy');$event.stopPropagation()" *ngIf="isCopyIconVissible[item.description]" [matTooltip]="isCopied ? 'Copy bucket name' : 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper">
+                <span (click)="logAction(notebook.name, item.description, 'Copy');$event.stopPropagation()" *ngIf="isCopyIconVissible[item.description]" [matTooltip]="isCopied ? 'Copy ' + item.description + ' url': 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper">
                   <span  class="link-icon" (click)="copyBucketName(item.url)" >
                     <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
                    </span>

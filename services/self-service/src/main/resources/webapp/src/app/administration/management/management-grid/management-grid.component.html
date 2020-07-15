@@ -129,7 +129,7 @@
 
     <ng-container matColumnDef="resources">
       <th mat-header-cell *matHeaderCellDef class="resources label-header">
-        <span class="label">Computational resources</span>
+        <span class="label">Compute</span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span *ngIf="filtering && filterForm.resources.length > 0 && !collapsedFilterRow">filter_list</span>
@@ -195,7 +195,7 @@
               </div>
             </li>
             <li *ngIf="element.name !== 'edge node'"
-              matTooltip="Unable to terminate notebook because at least one computational resource is in progress"
+              matTooltip="Unable to terminate notebook because at least one compute is in progress"
               matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
               <div (click)="toggleResourceAction(element, 'terminate')"
                 [ngClass]="{'not-allowed' : element.status !== 'running' && element.status !== 'stopped' || isResourcesInProgress(element)}">
