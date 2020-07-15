@@ -407,7 +407,7 @@ export class ErrorLibMessageDialogComponent {
     public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    console.log(data);
+
   }
 }
 
@@ -495,6 +495,6 @@ export class LibInfoDialogComponent {
     public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    console.log(data);
+
   }
 }
