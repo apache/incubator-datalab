@@ -52,6 +52,9 @@
               </div>
             </div>
           </div>
+          <p class="other-message">
+            <span *ngIf="group === 'others'">Other group can include libs from Python 2 and Python 3 groups</span>
+          </p>
           <div class="search">
             <mat-form-field class="chip-list">
               <input
@@ -226,7 +229,7 @@
                 <div class="wrap-col">
                   <div class="lib-destination-col">{{ item.resource }}</div>
                   <div class="lib-resource-type-col">{{ item.resourceType }}</div>
-                  <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{ item.status }}
+                  <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || 'failed' }}">{{ item.status }}
                     <div class="warn-action" *ngIf="item.status === 'failed' && notebook?.status === 'running'">
                       <div *ngIf="!item.available_versions">
                         <span *ngIf="!installingInProgress" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
@@ -241,7 +244,7 @@
                         <i class="material-icons">error_outline</i>
                       </div>
                       <div class="lib-error"
-                           *ngIf="item.status === 'failed' && item.available_versions?.length" class="lib-error"
+                           *ngIf="(item.status === 'failed' || item.status?.toLowerCase() === 'invalid version') && item.available_versions?.length" class="lib-error"
                            (click)="openLibInfo(item, 'available');$event.stopPropagation()"
                            matTooltip="Show available version" matTooltipPosition="above"
                       >
