@@ -50,7 +50,8 @@ export class ExploratoryModel {
     public project: string,
     public endpoint: string,
     public tags: any,
-    public edgeNodeStatus: string
+    public edgeNodeStatus: string,
+    public activeCompute: boolean
   ) { }
 
   public static loadEnvironments(data: Array<any>) {
@@ -92,7 +93,8 @@ export class ExploratoryModel {
               el.project,
               el.endpoint,
               el.tags,
-              value.shared[el.endpoint].status
+              value.shared[el.endpoint].status,
+              !!el.computational_resources.filter(resource => resource.status !== 'terminated' && resource.status !== 'failed').length
             );
           })
         };
