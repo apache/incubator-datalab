@@ -439,9 +439,11 @@ def install_r_pkg(requisites):
                     sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
                     versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
                                     '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:].split(' ')
+                    status_msg = 'invalid version'
                 else:
                     versions = []
-                status.append({"group": "r_pkg", "name": name, "status": "failed", "error_message": err, "available_versions": versions})
+                    status_msg = 'failed'
+                status.append({"group": "r_pkg", "name": name, "status": status_msg, "error_message": err, "available_versions": versions})
         return status
     except Exception as err:
         append_result("Failed to install R packages", str(err))

@@ -390,8 +390,10 @@ def install_os_pkg(requisites):
                 dep = []
             if 'E: Version' in err and 'was not found' in err:
                 versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0])).replace('\r\n', '').replace(' 500', '').replace('     ', ' ').strip().split(' ')
+                status_msg = 'invalid version'
             else:
                 versions = []
+                status_msg = 'failed'
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
             res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
             if res:
@@ -400,7 +402,7 @@ def install_os_pkg(requisites):
                 version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
                 status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
-                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "status": "failed", "error_message": err, "available_versions": versions})
+                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "status": status_msg, "error_message": err, "available_versions": versions})
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
         return status
