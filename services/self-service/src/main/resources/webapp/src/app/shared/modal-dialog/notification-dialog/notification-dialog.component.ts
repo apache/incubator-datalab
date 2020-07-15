@@ -81,7 +81,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                               <div class="resource-list-row sans node" *ngFor="let project of data.list">
                                   <div class="resource-name ellipsis">
                                       <div>Edge node</div>
-                                      <div *ngFor="let notebook of project.resource">{{notebook.exploratory_name}}</div>
+                                      <div *ngFor="let notebook of project['resource']">{{notebook['exploratory_name']}}</div>
                                   </div>
                                   <div class="project ellipsis">{{project.name}}</div>
                               </div>
