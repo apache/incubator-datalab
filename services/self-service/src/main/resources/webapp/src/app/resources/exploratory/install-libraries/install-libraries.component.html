@@ -41,13 +41,13 @@
             <div class="control-group constol-select">
               <label class="label">Select resource</label>
               <div class="control">
-                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)" (emitClick)="emitClick()"></dropdown-list>
               </div>
             </div>
             <div class="control-group control-select">
               <label class="label">Select group</label>
               <div class="control">
-                <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+                <dropdown-list #groupSelect (selectedItem)="onUpdate($event)" (emitClick)="emitClick()"></dropdown-list>
                 <span class="error-message" *ngIf="!group && libSearch.value">Group field is required. Please choose appropriate group.</span>
               </div>
             </div>
@@ -59,8 +59,11 @@
             <mat-form-field class="chip-list">
               <input
                 type="text"
-                [placeholder]="group === 'java' ? 'Enter library name in <groupId>:<artifactId>:<versionId> format' : 'Enter library name in <name>:<version> format(version is not required)'"
+                [placeholder]="group === 'java' ?
+                'Enter library name in <groupId>:<artifactId>:<versionId> format' :
+                'Enter library name in <name>:<version> format(version is not required)'"
                 matInput
+                #trigger="matAutocompleteTrigger"
                 [formControl]="libSearch"
                 [value]="query"
                 [matAutocomplete]="auto"
