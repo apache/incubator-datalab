@@ -49,6 +49,8 @@ export interface SharedEndpoint {
   user_own_bucket_name?: string | null;
   user_container_name?: string | null;
   user_own_bicket_name?: string | null;
+  shared_storage_account_name?: string | null;
+  user_storage_account_name?: string | null;
 }
 
 export interface ProjectEndpoint {
@@ -64,6 +66,7 @@ export interface BucketList {
   name: string;
   children: Bucket[];
   length?: number;
+  cloud: string;
 }
 
 export interface Bucket {
@@ -256,11 +259,12 @@ export class ResourcesGridComponent implements OnInit {
         project.endpoints.forEach((endpoint: ProjectEndpoint) => {
           if (endpoint.status === 'ACTIVE') {
             const currEndpoint: SharedEndpoint = project.projectEndpoints[endpoint.name];
-            const edgeItem: BucketList = {name: `${project.project} (${endpoint.name})`, children: []};
+            const edgeItem: BucketList = {name: `${project.project} (${endpoint.name})`, children: [], cloud: endpoint.cloudProvider};
             const projectBucket: string = currEndpoint.user_own_bicket_name
               || currEndpoint.user_own_bucket_name
-              || currEndpoint.user_container_name;
-            const sharedBucket: string = currEndpoint.shared_bucket_name || currEndpoint.shared_container_name;
+              || currEndpoint.user_container_name ? currEndpoint.user_storage_account_name + '.' + currEndpoint.user_container_name : null;
+            const sharedBucket: string = currEndpoint.shared_bucket_name ||
+            currEndpoint.shared_container_name ? currEndpoint.shared_storage_account_name + '.' + currEndpoint.shared_container_name : null;
             if (projectBucket && currEndpoint.status !== 'terminated'
               && currEndpoint.status !== 'terminating' && currEndpoint.status !== 'failed') {
               edgeItem.children.push({name: projectBucket, endpoint: endpoint.name});
