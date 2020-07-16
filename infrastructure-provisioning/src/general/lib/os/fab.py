@@ -417,25 +417,25 @@ def install_r_pkg(requisites):
     try:
         for r_pkg in requisites:
             name, vers = r_pkg
-            if vers != '' and vers !='N/A':
-                if name == 'sparklyr':
-                    run('sudo -i R -e \'devtools::install_version("{0}", version = "{1}", repos = "http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | '
-                        'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
-                else:
-                    sudo('R -e \'devtools::install_version("{0}", version = "{1}", repos = "http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | '
-                         'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
+            if vers =='N/A':
+                vers = ''
             else:
-                if name == 'sparklyr':
-                    run('sudo -i R -e \'install.packages("{0}", repos="https://cloud.r-project.org", dep=TRUE)\' 2>&1 | '
-                        'tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, error_parser))
-                else:
-                    sudo('R -e \'install.packages("{0}", repos="https://cloud.r-project.org", dep=TRUE)\' 2>&1 | '
-                         'tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, error_parser))
-            dep = sudo('grep "(NA -> " /tmp/tee.tmp | awk \'{print $1}\'').replace('\r\n', ' ')
-            if dep == name or dep == '':
+                vers = '"{}"'.format(vers)
+            if name == 'sparklyr':
+                run('sudo -i R -e \'devtools::install_version("{0}", version = {1}, repos = "http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | '
+                        'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
+            else:
+                sudo('R -e \'devtools::install_version("{0}", version = "{1}", repos = "https://cloud.r-project.org", dep=TRUE)\' 2>&1 | '
+                         'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
+            dep = sudo('grep "(NA" /tmp/tee.tmp | awk \'{print $1}\'').replace('\r\n', ' ')
+            dep_ver = sudo('grep "(NA" /tmp/tee.tmp | awk \'{print $4}\'').replace('\r\n', ' ').replace(')', '').split(' ')
+            if dep == '':
                 dep = []
             else:
                 dep = dep.split(' ')
+                for n, i in enumerate(dep):
+                    dep[n] = '{} v.{}'.format(dep[n], dep_ver[n])
+                dep = [i for i in dep if i]
             err = sudo('cat /tmp/install_{0}.log'.format(name)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
             res = sudo('cat /tmp/install_{0}.list'.format(name))
