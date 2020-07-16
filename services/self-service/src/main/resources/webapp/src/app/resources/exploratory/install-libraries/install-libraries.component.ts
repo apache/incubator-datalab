@@ -81,6 +81,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   @ViewChild('groupSelect', { static: false }) group_select;
   @ViewChild('resourceSelect', { static: false }) resource_select;
+  @ViewChild('trigger', { static: false }) matAutoComplete;
   public isLibInfoOpened = {  };
   private isLibExist: boolean;
 
@@ -378,9 +379,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       LibInfoDialogComponent, { data: {lib, type}, width: '550px', panelClass: 'error-modalbox' });
   }
 
-  // showlibinfo(lib: any) {
-  //   this.isLibInfoOpened[lib.name] = !this.isLibInfoOpened[lib.name];
-  // }
+  public emitClick() {
+      this.matAutoComplete.closePanel();
+  }
 }
 
 @Component({
@@ -407,7 +408,7 @@ export class ErrorLibMessageDialogComponent {
     public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    console.log(data);
+
   }
 }
 
@@ -495,6 +496,6 @@ export class LibInfoDialogComponent {
     public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    console.log(data);
+
   }
 }

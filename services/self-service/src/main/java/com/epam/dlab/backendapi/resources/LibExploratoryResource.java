@@ -96,7 +96,7 @@ public class LibExploratoryResource {
 			if (StringUtils.isEmpty(computationalName)) {
 				UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), projectName,
 						exploratoryName);
-				return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
+				return ExploratoryLibCache.getCache().getExploratoryLibGroupList(userInfo, userInstance);
 			} else {
 				UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), projectName,
 						exploratoryName, computationalName);
@@ -105,7 +105,7 @@ public class LibExploratoryResource {
 						.filter(e -> e.getComputationalName().equals(computationalName))
 						.collect(Collectors.toList()));
 
-				return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
+				return ExploratoryLibCache.getCache().getComputeLibGroupList(userInfo, userInstance);
 			}
 		} catch (Exception t) {
 			log.error("Cannot load list of lib groups for user {} and exploratory {}", userInfo.getName(),

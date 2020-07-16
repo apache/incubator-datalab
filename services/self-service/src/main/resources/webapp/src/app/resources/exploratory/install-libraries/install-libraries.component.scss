@@ -17,6 +17,8 @@
  * under the License.
  */
 
+@import '_variables.scss';
+
 .aligner {
   height: 100%;
   display: flex;
@@ -85,9 +87,6 @@
 
   .mat-list-item {
     height: auto !important;
-    &.table-item{
-      cursor: pointer;
-    }
 
     .mat-list-item-content {
       height: auto !important;
@@ -183,9 +182,21 @@ ul.resources{
 
     .control-group {
       width: 50%;
+      padding-bottom: 0;
 
       .label {
         width: 20%;
+      }
+    }
+
+    .other-message{
+      height: 22px;
+      display: flex;
+      align-items: center;
+
+      span{
+        font-size: 12px;
+        color: $link-color;
       }
     }
 

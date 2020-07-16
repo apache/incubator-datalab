@@ -41,23 +41,29 @@
             <div class="control-group constol-select">
               <label class="label">Select resource</label>
               <div class="control">
-                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)" (emitClick)="emitClick()"></dropdown-list>
               </div>
             </div>
             <div class="control-group control-select">
               <label class="label">Select group</label>
               <div class="control">
-                <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+                <dropdown-list #groupSelect (selectedItem)="onUpdate($event)" (emitClick)="emitClick()"></dropdown-list>
                 <span class="error-message" *ngIf="!group && libSearch.value">Group field is required. Please choose appropriate group.</span>
               </div>
             </div>
           </div>
+          <p class="other-message">
+            <span *ngIf="group === 'others'">Other group can include libs from Python 2 and Python 3 groups</span>
+          </p>
           <div class="search">
             <mat-form-field class="chip-list">
               <input
                 type="text"
-                [placeholder]="group === 'java' ? 'Enter library name in <groupId>:<artifactId>:<versionId> format' : 'Enter library name in <name>:<version> format(version is not required)'"
+                [placeholder]="group === 'java' ?
+                'Enter library name in <groupId>:<artifactId>:<versionId> format' :
+                'Enter library name in <name>:<version> format(version is not required)'"
                 matInput
+                #trigger="matAutocompleteTrigger"
                 [formControl]="libSearch"
                 [value]="query"
                 [matAutocomplete]="auto"
@@ -226,8 +232,8 @@
                 <div class="wrap-col">
                   <div class="lib-destination-col">{{ item.resource }}</div>
                   <div class="lib-resource-type-col">{{ item.resourceType }}</div>
-                  <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{ item.status }}
-                    <div class="warn-action" *ngIf="item.status === 'failed' && notebook?.status === 'running'">
+                  <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || 'failed' }}">{{ item.status }}
+                    <div class="warn-action" *ngIf="(item.status === 'failed' || item.status === 'invalid version') && notebook?.status === 'running'">
                       <div *ngIf="!item.available_versions">
                         <span *ngIf="!installingInProgress" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
                           <i class="material-icons">replay</i>
@@ -237,11 +243,11 @@
                           <i class="material-icons">replay</i>
                         </span>
                       </div>
-                      <div *ngIf="item.status === 'failed' && item.error && !item.available_versions" class="lib-error" (click)="showErrorMessage(item)">
+                      <div *ngIf="item.status === 'failed' && item.error" class="lib-error" (click)="showErrorMessage(item)">
                         <i class="material-icons">error_outline</i>
                       </div>
                       <div class="lib-error"
-                           *ngIf="item.status === 'failed' && item.available_versions?.length" class="lib-error"
+                           *ngIf="item.status === 'invalid version' && item.available_versions?.length" class="lib-error"
                            (click)="openLibInfo(item, 'available');$event.stopPropagation()"
                            matTooltip="Show available version" matTooltipPosition="above"
                       >
