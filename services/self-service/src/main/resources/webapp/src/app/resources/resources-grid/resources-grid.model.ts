@@ -50,7 +50,8 @@ export class ExploratoryModel {
     public project: string,
     public endpoint: string,
     public tags: any,
-    public edgeNodeStatus: string
+    public edgeNodeStatus: string,
+    public activeCompute: boolean
   ) { }
 
   public static loadEnvironments(data: Array<any>) {
@@ -58,6 +59,8 @@ export class ExploratoryModel {
       return data.map((value) => {
         return {
           project: value.project,
+          projectEndpoints: value.shared,
+          endpoints: value.endpoints,
           exploratory: value.exploratory.map(el => {
             const provider = el.cloud_provider.toLowerCase();
             const billing = value.exploratoryBilling.filter(res => res.name === el.exploratory_name)[0];
@@ -90,7 +93,8 @@ export class ExploratoryModel {
               el.project,
               el.endpoint,
               el.tags,
-              value.shared[el.endpoint].status
+              value.shared[el.endpoint].status,
+              !!el.computational_resources.filter(resource => resource.status !== 'terminated' && resource.status !== 'failed').length
             );
           })
         };
@@ -101,5 +105,7 @@ export class ExploratoryModel {
 
 export interface Exploratory {
   project: string;
+  endpoints: [];
+  projectEndpoints: [];
   exploratory: ExploratoryModel[];
 }

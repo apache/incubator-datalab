@@ -27,12 +27,10 @@ import { ResourcesGridModule } from './resources-grid';
 import { ExploratoryEnvironmentCreateModule } from './exploratory/create-environment';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
-import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component';
-import {FolderTreeComponent} from './bucket-browser/folder-tree/folder-tree.component';
 import {MatTreeModule} from '@angular/material/tree';
 import {BucketDataService} from './bucket-browser/bucket-data.service';
-import {BucketConfirmationDialogComponent} from './bucket-browser/bucket-confirmation-dialog/bucket-confirmation-dialog.component';
-import {BucketTreeComponent} from './bucket-browser/buckets-tree/bucket-tree.component';
+import {ConvertFileSizePipeModule} from '../core/pipes/convert-file-size';
+import {BucketBrowserModule} from './bucket-browser/bucket-browser.module';
 
 @NgModule({
     imports: [
@@ -43,17 +41,16 @@ import {BucketTreeComponent} from './bucket-browser/buckets-tree/bucket-tree.com
         ExploratoryEnvironmentCreateModule,
         MaterialModule,
         MatTreeModule,
+        ConvertFileSizePipeModule,
+        BucketBrowserModule
     ],
   declarations: [
     ResourcesComponent,
     ManageUngitComponent,
     ConfirmDeleteAccountDialog,
-    BucketBrowserComponent,
-    FolderTreeComponent,
-    BucketTreeComponent,
-    BucketConfirmationDialogComponent
+
   ],
-  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog, BucketBrowserComponent, FolderTreeComponent, BucketTreeComponent, BucketConfirmationDialogComponent],
+  entryComponents: [ManageUngitComponent, ConfirmDeleteAccountDialog],
   providers: [BucketDataService],
   exports: [ResourcesComponent]
 })

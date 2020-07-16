@@ -12,4 +12,5 @@ public class UpdateProjectBudgetDTO {
 	private final String project;
 	@NotNull
 	private final Integer budget;
+	private final boolean monthlyBudget;
 }

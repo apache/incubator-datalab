@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.resources;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.exceptions.ResourceInappropriateStateException;
@@ -75,7 +76,7 @@ public class SchedulerJobResourceTest extends TestBase {
 	@Test
 	public void updateExploratoryScheduler() {
         doNothing().when(schedulerJobService)
-                .updateExploratorySchedulerData(anyString(), anyString(), anyString(), any(SchedulerJobDTO.class));
+                .updateExploratorySchedulerData(any(UserInfo.class), anyString(), anyString(), any(SchedulerJobDTO.class));
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/scheduler/projectName/explName")
                 .request()
@@ -85,7 +86,7 @@ public class SchedulerJobResourceTest extends TestBase {
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(schedulerJobService).updateExploratorySchedulerData(USER.toLowerCase(), "projectName",
+        verify(schedulerJobService).updateExploratorySchedulerData(getUserInfo(), "projectName",
                 "explName", getSchedulerJobDTO());
         verifyNoMoreInteractions(schedulerJobService);
     }
@@ -94,7 +95,7 @@ public class SchedulerJobResourceTest extends TestBase {
 	public void updateExploratorySchedulerWithFailedAuth() throws AuthenticationException {
         authFailSetup();
         doNothing().when(schedulerJobService)
-                .updateExploratorySchedulerData(anyString(), anyString(), anyString(), any(SchedulerJobDTO.class));
+                .updateExploratorySchedulerData(any(UserInfo.class), anyString(), anyString(), any(SchedulerJobDTO.class));
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/scheduler/projectName/explName")
                 .request()
@@ -104,7 +105,7 @@ public class SchedulerJobResourceTest extends TestBase {
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(schedulerJobService).updateExploratorySchedulerData(USER.toLowerCase(), "projectName",
+        verify(schedulerJobService).updateExploratorySchedulerData(getUserInfo(), "projectName",
                 "explName", getSchedulerJobDTO());
         verifyNoMoreInteractions(schedulerJobService);
     }
@@ -112,7 +113,7 @@ public class SchedulerJobResourceTest extends TestBase {
 	@Test
 	public void updateExploratorySchedulerWithException() {
         doThrow(new ResourceInappropriateStateException("Can't create/update scheduler for user instance with status"))
-                .when(schedulerJobService).updateExploratorySchedulerData(anyString(), anyString(), anyString(),
+                .when(schedulerJobService).updateExploratorySchedulerData(any(UserInfo.class), anyString(), anyString(),
                 any(SchedulerJobDTO.class));
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/scheduler/projectName/explName")
@@ -123,7 +124,7 @@ public class SchedulerJobResourceTest extends TestBase {
         assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(schedulerJobService).updateExploratorySchedulerData(USER.toLowerCase(), "projectName",
+        verify(schedulerJobService).updateExploratorySchedulerData(getUserInfo(), "projectName",
                 "explName", getSchedulerJobDTO());
         verifyNoMoreInteractions(schedulerJobService);
     }
@@ -131,7 +132,7 @@ public class SchedulerJobResourceTest extends TestBase {
 	@Test
 	public void upsertComputationalScheduler() {
         doNothing().when(schedulerJobService)
-                .updateComputationalSchedulerData(anyString(), anyString(), anyString(), anyString(), any(SchedulerJobDTO.class));
+                .updateComputationalSchedulerData(any(UserInfo.class), anyString(), anyString(), anyString(), any(SchedulerJobDTO.class));
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/scheduler/projectName/explName/compName")
                 .request()
@@ -141,7 +142,7 @@ public class SchedulerJobResourceTest extends TestBase {
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(schedulerJobService).updateComputationalSchedulerData(USER.toLowerCase(), "projectName",
+        verify(schedulerJobService).updateComputationalSchedulerData(getUserInfo(), "projectName",
                 "explName", "compName", getSchedulerJobDTO());
         verifyNoMoreInteractions(schedulerJobService);
     }
@@ -150,7 +151,7 @@ public class SchedulerJobResourceTest extends TestBase {
 	public void upsertComputationalSchedulerWithFailedAuth() throws AuthenticationException {
         authFailSetup();
         doNothing().when(schedulerJobService)
-                .updateComputationalSchedulerData(anyString(), anyString(), anyString(), anyString(), any(SchedulerJobDTO.class));
+                .updateComputationalSchedulerData(any(UserInfo.class), anyString(), anyString(), anyString(), any(SchedulerJobDTO.class));
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/scheduler/projectName/explName/compName")
                 .request()
@@ -160,7 +161,7 @@ public class SchedulerJobResourceTest extends TestBase {
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertNull(response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(schedulerJobService).updateComputationalSchedulerData(USER.toLowerCase(), "projectName",
+        verify(schedulerJobService).updateComputationalSchedulerData(getUserInfo(), "projectName",
                 "explName", "compName", getSchedulerJobDTO());
         verifyNoMoreInteractions(schedulerJobService);
     }
@@ -168,7 +169,7 @@ public class SchedulerJobResourceTest extends TestBase {
 	@Test
 	public void upsertComputationalSchedulerWithException() {
         doThrow(new ResourceInappropriateStateException("Can't create/update scheduler for user instance with status"))
-                .when(schedulerJobService).updateComputationalSchedulerData(anyString(), anyString(), anyString(),
+                .when(schedulerJobService).updateComputationalSchedulerData(any(UserInfo.class), anyString(), anyString(),
                 anyString(), any(SchedulerJobDTO.class));
         final Response response = resources.getJerseyTest()
                 .target("/infrastructure_provision/exploratory_environment/scheduler/projectName/explName/compName")
@@ -179,7 +180,7 @@ public class SchedulerJobResourceTest extends TestBase {
         assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-        verify(schedulerJobService).updateComputationalSchedulerData(USER.toLowerCase(), "projectName",
+        verify(schedulerJobService).updateComputationalSchedulerData(getUserInfo(), "projectName",
                 "explName", "compName", getSchedulerJobDTO());
         verifyNoMoreInteractions(schedulerJobService);
     }

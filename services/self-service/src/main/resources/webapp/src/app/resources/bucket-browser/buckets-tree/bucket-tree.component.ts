@@ -2,35 +2,19 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 
-interface FoodNode {
+
+interface BucketNode {
   name: string;
-  children?: FoodNode[];
+  endpoint?: string;
+  children?: BucketNode[];
 }
 
-const TREE_DATA: FoodNode[] = [
-      {
-        name: 'ProjectA(local)',
-        children: [
-          {name: 'vi-aws-11-05-projectb-local-bucket.'},
-          {name: 'ad-aws-11-05-projectb-local-bucket.'},
-        ]
-      }, {
-        name: 'ProjectA(local1)',
-        children: [
-          {name: 'rt-aws-11-05-projectb-local-bucket.'},
-          {name: 'rt-aws-11-05-projectb-local-bucket.'},
-        ]
-      },
-    ];
-
 /** Flat node with expandable and level information */
-interface ExampleFlatNode {
+interface BucketFlatNode {
   expandable: boolean;
   name: string;
   level: number;
 }
-
-
 
 @Component({
   selector: 'dlab-bucket-tree',
@@ -39,20 +23,20 @@ interface ExampleFlatNode {
 })
 
 export class BucketTreeComponent implements OnInit {
-  public activeBucket;
-
   @Output() emitActiveBucket: EventEmitter<{}> = new EventEmitter();
   @Input() openedBucket: string;
+  @Input() buckets: BucketNode[];
 
-  private _transformer = (node: FoodNode, level: number) => {
+  private _transformer = (node: BucketNode, level: number) => {
     return {
       expandable: !!node.children && node.children.length > 0,
       name: node.name,
+      endpoint: node.endpoint,
       level: level,
     };
   }
 
-  treeControl = new FlatTreeControl<ExampleFlatNode>(
+  treeControl = new FlatTreeControl<BucketFlatNode>(
     node => node.level, node => node.expandable);
 
   treeFlattener = new MatTreeFlattener(
@@ -60,22 +44,58 @@ export class BucketTreeComponent implements OnInit {
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
   private activeBucketName: string;
+  private activeBacket: any;
 
   constructor() {
-    this.dataSource.data = TREE_DATA;
   }
 
   ngOnInit() {
     this.activeBucketName = this.openedBucket || '';
-    // console.log(this.activeBucketName);
-    // console.log(...this.dataSource._flattenedData.getValue().filter(v => v.name === this.activeBucketName));
+    this.dataSource.data = this.buckets;
+    this.setActiveBucket();
   }
 
   public openBucketData(bucket) {
-    this.treeControl.expand(bucket);
-    this.activeBucket = bucket;
-    // console.log(bucket);
+    this.dataSource['_treeControl'].collapseAll();
+    this.setActiveBucket(bucket);
+    this.emitActiveBucket.emit(bucket);
   }
 
-  hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
+  public setActiveBucket(bucket?) {
+    this.activeBacket = bucket || this.dataSource._flattenedData.getValue().filter(v => v.name === this.openedBucket)[0];
+    this.expandAllParents(this.activeBacket);
+  }
+
+  public toggleProject(el, isExpanded){
+    isExpanded ? this.treeControl.collapse(el) : this.treeControl.expand(el);
+  }
+
+  private expandAllParents(el) {
+    if (el) {
+      this.treeControl.expand(el);
+      if (this.getParentNode(el) !== null) {
+        this.expandAllParents(this.getParentNode(el));
+      }
+    }
+  }
+
+  private getParentNode(node: BucketFlatNode): BucketFlatNode | null {
+    const currentLevel = node.level;
+    if (currentLevel < 1) {
+      return null;
+    }
+
+    const startIndex = this.treeControl.dataNodes.indexOf(node) - 1;
+
+    for (let i = startIndex; i >= 0; i--) {
+      const currentNode = this.treeControl.dataNodes[i];
+
+      if (currentNode.level < currentLevel) {
+        return currentNode;
+      }
+    }
+    return null;
+  }
+
+  public hasChild = (_: number, node: BucketFlatNode) => node.expandable;
 }

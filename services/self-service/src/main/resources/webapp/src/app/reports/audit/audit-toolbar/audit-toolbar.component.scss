@@ -1,0 +1,140 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+section.toolbar {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 300;
+  width: 100%;
+
+  >div {
+    width: 33%;
+  }
+
+  >div:nth-child(2) {
+    text-align: center;
+  }
+
+  >div:nth-child(3) {
+    text-align: right;
+  }
+
+  .action-butt {
+    align-self: center;
+  }
+
+  button {
+    &:first-child {
+      margin-right: 0;
+    }
+  }
+
+  .butt-report-range {
+    width: 240px;
+    margin-right: 10px;
+  }
+
+  .general {
+    font-size: 13px;
+
+    div {
+      span {
+        width: 190px;
+        display: inline-block;
+      }
+    }
+  }
+}
+
+/* daterangepicker themes */
+#range-picker {
+  margin-top: 5px;
+}
+
+#range-picker path#Shape {
+  fill: #36afd5;
+}
+
+#range-picker .ng-daterangepicker,
+#range-picker .ng-daterangepicker.is-active,
+#range-picker .ng-daterangepicker .calendar {
+  border: none;
+  border-radius: 0;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
+}
+
+#range-picker .ng-daterangepicker .calendar::after {
+  border-top: 1px solid rgba(234, 234, 234, 0.64);
+  border-left: 1px solid rgba(234, 234, 234, 0.64);
+}
+
+#range-picker .ng-daterangepicker .calendar .side-container .side-button {
+  background: #fff;
+  color: #718ba6;
+  border: none;
+  border-radius: 0px;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12)
+}
+
+#range-picker .ng-daterangepicker .calendar .side-container .side-button.is-active,
+#range-picker .ng-daterangepicker .input-section .label-txt {
+  color: #35afd5;
+}
+
+#range-picker .ng-daterangepicker .calendar .calendar-container .day-num.is-active,
+#range-picker .ng-daterangepicker .calendar .calendar-container .days .day-num:hover {
+  background: #35afd5;
+  background-clip: padding-box;
+
+}
+
+#range-picker .ng-daterangepicker .calendar .calendar-container .day-names,
+#range-picker .ng-daterangepicker .calendar .calendar-container .days {
+  width: 310px;
+}
+
+#range-picker .ng-daterangepicker .calendar .day.is-within-range.is-first-weekday,
+#range-picker .ng-daterangepicker .calendar .day.is-within-range.is-last-weekday {
+  background-clip: padding-box;
+}
+
+#range-picker .ng-daterangepicker .calendar .calendar-container .day.is-within-range {
+  background: #e9f8fc
+}
+
+#range-picker .ng-daterangepicker .input-section .cal-icon svg path {
+  fill: #35afd5;
+}
+
+#range-picker .ng-daterangepicker .input-section .value-txt {
+  color: #718ba6;
+}
+
+#range-picker .ng-daterangepicker .input-section .value-txt.untouched,
+#range-picker .ng-daterangepicker .input-section .label-txt.untouched {
+  color: #fff;
+}
+
+#range-picker .ng-daterangepicker .input-section .value-txt.untouched::after {
+  content: 'Select date';
+  position: absolute;
+  top: 22px;
+  left: 34px;
+  color: #718ba6;
+}

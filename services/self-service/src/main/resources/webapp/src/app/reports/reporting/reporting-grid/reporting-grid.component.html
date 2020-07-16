@@ -22,7 +22,7 @@
 
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef class="env_name label-header">
-        <div class="label"><span class="text"> Environment name</span></div>
+        <div class="label"><span class="text"> Resource name</span></div>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span *ngIf="filteredReportData.dlab_id.length > 0; else dlab_id_filtered">filter_list</span>
@@ -182,7 +182,7 @@
     </ng-container>
     <ng-container matColumnDef="type-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="['resource_type']"
+        <multi-select-dropdown *ngIf="filterConfiguration" (selectionChange)="onUpdate($event)" [type]="'resource_type'"
           [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type">
         </multi-select-dropdown>
       </th>
@@ -222,7 +222,7 @@
       </th>
     </ng-container>
     <ng-container matColumnDef="placeholder">
-      <td mat-footer-cell *matFooterCellDef colspan="7" class="info">
+      <td mat-footer-cell *matFooterCellDef colspan="8" class="info">
         No data available
       </td>
     </ng-container>

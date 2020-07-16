@@ -21,19 +21,20 @@ import { ModuleWithProviders } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { LoginComponent } from './login/login.module';
-import { LayoutComponent } from './layout/layout.component'
+import { LayoutComponent } from './layout/layout.component';
 import { ResourcesComponent } from './resources/resources.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './service-pages/not-found/not-found.component';
 import { AccessDeniedComponent } from './service-pages/access-denied/access-denied.component';
-import { ReportingComponent } from './reporting/reporting.component';
+import { ReportingComponent } from './reports/reporting/reporting.component';
 import { WebterminalComponent } from './webterminal/webterminal.component';
 import { ManagementComponent } from './administration/management/management.component';
 import { ProjectComponent } from './administration/project/project.component';
 import { RolesComponent } from './administration/roles/roles.component';
 import { SwaggerComponent } from './swagger/swagger.component';
 
-import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard } from './core/services';
+import { AuthorizationGuard, CheckParamsGuard, CloudProviderGuard, AdminGuard, AuditGuard } from './core/services';
+import {AuditComponent} from './reports/audit/audit.component';
 
 const routes: Routes = [{
   path: 'login',
@@ -79,7 +80,12 @@ const routes: Routes = [{
       path: 'help/accessnotebookguide',
       component: AccessNotebookGuideComponent,
       canActivate: [AuthorizationGuard]
-    }
+    },
+    {
+      path: 'audit',
+      component: AuditComponent,
+      canActivate: [AuthorizationGuard, AuditGuard],
+    },
   ]
 }, {
   path: 'terminal/:id/:endpoint',

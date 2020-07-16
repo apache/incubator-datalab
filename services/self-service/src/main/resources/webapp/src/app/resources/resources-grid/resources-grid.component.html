@@ -22,7 +22,7 @@
     class="data-grid resources mat-elevation-z6">
 
     <ng-container matColumnDef="project">
-      <td mat-cell *matCellDef="let element" [attr.colspan]="8" class="highlight"> {{ element.project }} </td>
+      <td mat-cell *matCellDef="let element" [attr.colspan]="8" class="project-name"> {{ element.project }} </td>
     </ng-container>
 
     <!-- <ng-container *ngFor="let column of filteringColumns; let i = index" matColumnDef="{{ column.name }}"
@@ -105,7 +105,7 @@
         [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'" sticky>
 
         <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
-          <td class="name-col" (click)="printDetailEnvironmentModal(element)">
+          <td class="name-col highlight" (click)="printDetailEnvironmentModal(element)">
             <span matTooltip="{{ element.name }}" matTooltipPosition="above">{{ element.name }}</span>
           </td>
           <td class="status-col status" ngClass="{{ element.status.toLowerCase() || ''}}">
@@ -137,7 +137,7 @@
             </computational-resources-list>
           </td>
           <td *ngIf="healthStatus?.billingEnabled" class="cost-col">
-            <span class="total_cost">{{ element.cost || 'N/A' }} {{ element.currency_code || '' }}</span>
+            <span class="total_cost">{{ element.billing.report_lines.length ? element.cost : 'N/A' }} {{ element.currency_code || '' }}</span>
             <span (click)="element.billing && printCostDetails(element)" class="currency_details"
               [ngClass]="{ 'not-allowed' : !element.billing.report_lines.length }">
               <i class="material-icons">help_outline</i>
@@ -159,7 +159,7 @@
                 && element.status !== 'creating image'">
                   <li
                     *ngIf="element.status !== 'stopped' && element.status !== 'stopping' && element.status !== 'starting' && element.status !== 'creating image' && element.status.toLowerCase() !== 'reconfiguring'"
-                    matTooltip="Unable to stop notebook because at least one computational resource is in progress"
+                    matTooltip="Unable to stop notebook because at least one compute is in progress"
                     matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
                     <div (click)="exploratoryAction(element, 'stop')"
                       [ngClass]="{'not-allowed': isResourcesInProgress(element) }">
@@ -179,7 +179,7 @@
                     </div>
                   </li>
                   <li *ngIf="element.status.toLowerCase() === 'running' || element.status.toLowerCase() === 'stopped'"
-                    matTooltip="Unable to terminate notebook because at least one computational resource is in progress"
+                    matTooltip="Unable to terminate notebook because at least one compute is in progress"
                     matTooltipPosition="above" [matTooltipDisabled]="!isResourcesInProgress(element)">
                     <div (click)="exploratoryAction(element, 'terminate')"
                       [ngClass]="{'not-allowed': isResourcesInProgress(element) }">
@@ -187,33 +187,55 @@
                       <span>Terminate</span>
                     </div>
                   </li>
-                  <li (click)="exploratoryAction(element, 'deploy')"
-                    *ngIf="element.status === 'running' && element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
-                    <i class="material-icons">memory</i>
-                    <span>Add compute</span>
+                  <li
+                    *ngIf="element.status === 'running' && element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'"
+                    matTooltip="Only one compute can be associated with analytical tool at a time"
+                    matTooltipPosition="above" [matTooltipDisabled]="!element.activeCompute"
+                    [matTooltipClass]="'bucket-item-tooltip'"
+                    [ngClass]="{'not-allow': element.activeCompute }"
+                  >
+                    <div
+                      (click)="exploratoryAction(element, 'deploy')"
+                      [ngClass]="{'not-allowed': element.activeCompute }"
+                    >
+                      <i class="material-icons">memory</i>
+                      <span>Add compute</span>
+                    </div>
                   </li>
                   <li (click)="exploratoryAction(element, 'schedule')" *ngIf="element.status.toLowerCase() === 'running'
                 || element.status.toLowerCase() === 'stopped'">
-                    <i class="material-icons">schedule</i>
-                    <span>Scheduler</span>
+                    <div>
+                      <i class="material-icons">schedule</i>
+                      <span>Scheduler</span>
+                    </div>
                   </li>
                 </div>
                 <li (click)="exploratoryAction(element, 'ami')"
-                  *ngIf="element.status === 'running' && element.cloud_provider !== 'gcp' && element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
-                  <i class="material-icons">view_module</i>
-                  <span>Create {{ DICTIONARY[element.cloud_provider].image }}</span>
+                  *ngIf="element.status === 'running'  && element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
+                  <div>
+                    <i class="material-icons">view_module</i>
+                    <span>Create AMI</span>
+                  </div>
                 </li>
                 <li (click)="exploratoryAction(element, 'install')"
                   *ngIf="element.image !== 'docker.dlab-superset' && element.image !== 'docker.dlab-jupyterlab'">
-                  <i class="material-icons">developer_board</i>
-                  <span>Manage libraries</span>
+                  <div>
+                    <i class="material-icons">developer_board</i>
+                    <span>Manage libraries</span>
+                  </div>
                 </li>
-                <li *ngIf="element.status === 'running'">
-                  <a target="_blank" [attr.href]="'/#/terminal/' + element.private_ip + '/' + element.endpoint"
-                    class="navigate">
-                    <i class="material-icons">laptop</i>
-                    <span>Open terminal</span>
-                  </a>
+                <li *ngIf="element.status === 'running'" (click)="logAction(element.name)">
+                  <div>
+                    <a
+                      target="_blank"
+                      [attr.href]="'/#/terminal/' + element.private_ip + '/' + element.endpoint"
+                      class="navigate"
+                      (contextmenu)="false"
+                    >
+                      <i class="material-icons">laptop</i>
+                      <span>Open terminal</span>
+                    </a>
+                  </div>
                 </li>
               </ul>
             </bubble-up>

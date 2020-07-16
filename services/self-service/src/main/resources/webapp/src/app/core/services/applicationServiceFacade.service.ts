@@ -77,6 +77,7 @@ export class ApplicationServiceFacade {
   private static readonly PROJECT = 'project';
   private static readonly ENDPOINT = 'endpoint';
   private static readonly ENDPOINT_CONNECTION = 'endpoint_connection';
+  private static readonly AUDIT = 'audit';
 
   private requestRegistry: Dictionary<string>;
 
@@ -263,6 +264,12 @@ export class ApplicationServiceFacade {
   public buildUploadFileToBucket(data): Observable<any> {
     return this.buildRequest(HTTPMethod.POST,
       this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/upload',
+      data, { reportProgress: true, observe: 'events' });
+  }
+
+  public buildCreateFolderInBucket(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.BUCKET) + '/folder/upload',
       data);
   }
 
@@ -271,7 +278,7 @@ export class ApplicationServiceFacade {
       this.requestRegistry.Item(ApplicationServiceFacade.BUCKET),
       data, { dataType : 'binary',
         processData : false,
-        responseType : 'arraybuffer' } );
+        responseType : 'arraybuffer', reportProgress: true, observe: 'events' } );
   }
 
   public buildDeleteFileFromBucket(data): Observable<any> {
@@ -627,6 +634,18 @@ export class ApplicationServiceFacade {
       null);
   }
 
+  public getAuditList(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.AUDIT),
+      data);
+  }
+
+  public postActionToAudit(data): Observable<any> {
+    return this.buildRequest(HTTPMethod.POST,
+      this.requestRegistry.Item(ApplicationServiceFacade.AUDIT),
+      data);
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -709,6 +728,9 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT, '/api/endpoint');
     this.requestRegistry.Add(ApplicationServiceFacade.ENDPOINT_CONNECTION, '/api/endpoint/url/');
+
+    // audit
+    this.requestRegistry.Add(ApplicationServiceFacade.AUDIT, '/api/audit');
   }
 
   private buildRequest(method: HTTPMethod, url_path: string, body: any, opt?) {

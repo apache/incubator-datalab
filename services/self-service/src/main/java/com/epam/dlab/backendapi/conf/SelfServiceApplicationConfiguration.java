@@ -78,6 +78,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	@JsonProperty
 	private boolean billingSchedulerEnabled = false;
 
+	@JsonProperty
+	private boolean auditEnabled = false;
+
 	@NotEmpty
 	@JsonProperty
 	private String billingConfFile;
@@ -200,6 +203,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 	 */
 	public boolean isBillingSchedulerEnabled() {
 		return billingSchedulerEnabled;
+	}
+
+	public boolean isAuditEnabled() {
+		return auditEnabled;
 	}
 
 	/**

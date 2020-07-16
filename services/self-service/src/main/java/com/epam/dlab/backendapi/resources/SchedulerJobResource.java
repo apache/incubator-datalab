@@ -69,7 +69,7 @@ public class SchedulerJobResource {
 											   @PathParam("projectName") String projectName,
 											   @PathParam("exploratoryName") String exploratoryName,
 											   @SchedulerJobDTOValid SchedulerJobDTO dto) {
-		schedulerJobService.updateExploratorySchedulerData(userInfo.getName(), projectName, exploratoryName, dto);
+		schedulerJobService.updateExploratorySchedulerData(userInfo, projectName, exploratoryName, dto);
 		return Response.ok().build();
 	}
 
@@ -107,10 +107,9 @@ public class SchedulerJobResource {
 												 @PathParam("exploratoryName") String exploratoryName,
 												 @PathParam("computationalName") String computationalName,
 												 @SchedulerJobDTOValid SchedulerJobDTO dto) {
-		schedulerJobService.updateComputationalSchedulerData(userInfo.getName(), projectName, exploratoryName,
-				computationalName, dto);
+		schedulerJobService.updateComputationalSchedulerData(userInfo, projectName, exploratoryName, computationalName, dto);
 		return Response.ok().build();
-    }
+	}
 
 	/**
 	 * Updates computational resource <code>computationalName<code/> affiliated with exploratory

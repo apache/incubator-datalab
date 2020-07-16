@@ -32,29 +32,29 @@ import {Endpoint} from '../../../administration/project/project.component';
           <div mat-dialog-content class="content message">
             <div *ngIf="data.type === 'terminateNode'" class="table-header">
               <div *ngIf="data.item.action.endpoint.length > 0">
-                Edge node<span *ngIf="data.item.action.endpoint.length>1">s</span>
-                        <span class="strong">{{ ' ' + data.item.action.endpoint.join(', ') }}</span> in project
+                Edge node<span *ngIf="data.item.action.endpoint.length>1">s</span>&nbsp;<span class="strong">{{ data.item.action.endpoint.join(', ') }}</span> in project
                 <span class="strong">{{ data.item.action.project_name }}</span> will be terminated.
               </div>
             </div>
               <div *ngIf="data.type === 'list'" class="info">
                   <div *ngIf="data.template.notebook.length > 0">
-                      Following notebook server<span *ngIf="data.template.notebook.length>1">s </span>
-                      <span *ngFor="let item of data.template.notebook">
-                        <span class="strong">{{ item.exploratory_name }}</span>
-                        <span *ngIf="data.template.notebook.length > 1">, </span>
+                      Following notebook server<span *ngIf="data.template.notebook.length>1">s</span>&nbsp;<span *ngFor="let item of data.template.notebook">
+                        <span class="strong blue">{{ item.exploratory_name}}</span> in project <span
+                        class="strong blue">{{ item.project }}</span>
+                        <span *ngIf="data.template.notebook.length > 1"> , </span>
                       </span> will be stopped and all computational resources will be stopped/terminated
                   </div>
 
                   <div *ngIf="data.template.cluster.length > 0">
                       <p *ngFor="let item of data.template.cluster">
                           Computational resource<span *ngIf="data.template.cluster.length > 1">s </span>
-                          <span class="strong">{{ item.computational_name }}</span> on <span
-                              class="strong">{{ item.exploratory_name }}</span>
+                          <span class="strong blue">{{ item.computational_name }}</span> for <span
+                              class="strong blue">{{ item.exploratory_name }}</span> in project<span
+                        class="strong blue">{{ item.project }}</span>
                           will be stopped
                       </p>
                   </div>
-                  <span class="strong">by a schedule in 15 minutes.</span>
+                  <span class="strong blue">by a schedule in less than 15 minutes.</span>
               </div>
               <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
               <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
@@ -81,7 +81,7 @@ import {Endpoint} from '../../../administration/project/project.component';
                               <div class="resource-list-row sans node" *ngFor="let project of data.list">
                                   <div class="resource-name ellipsis">
                                       <div>Edge node</div>
-                                      <div *ngFor="let notebook of project.resource">{{notebook.exploratory_name}}</div>
+                                      <div *ngFor="let notebook of project['resource']">{{notebook['exploratory_name']}}</div>
                                   </div>
                                   <div class="project ellipsis">{{project.name}}</div>
                               </div>
@@ -112,11 +112,8 @@ import {Endpoint} from '../../../administration/project/project.component';
                 <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
                   <div class="text-center m-top-30 m-bott-10">
                       <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
-                      <button *ngIf="!this.willNotTerminate" type="button" class="butt butt-success" mat-raised-button
-                              (click)="dialogRef.close('terminate')">Yes
-                      </button>
-                      <button *ngIf="this.willNotTerminate" type="button" class="butt butt-success" mat-raised-button
-                              (click)="dialogRef.close('noTerminate')">Yes
+                      <button type="button" class="butt butt-success" mat-raised-button
+                              (click)="dialogRef.close(true)">Yes
                       </button>
                   </div>
               </div>

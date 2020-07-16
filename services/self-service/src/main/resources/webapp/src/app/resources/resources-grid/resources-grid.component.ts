@@ -16,15 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/* tslint:disable:no-empty */
 
+import {Project} from '../../administration/project/project.component';
 import {Component, Input, OnInit} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
-
-import { UserResourceService } from '../../core/services';
-
+import {ProjectService, UserResourceService} from '../../core/services';
 import { ExploratoryModel, Exploratory } from './resources-grid.model';
 import { FilterConfigurationModel } from './filter-configuration.model';
 import { GeneralEnvironmentStatus } from '../../administration/management/management.model';
@@ -37,15 +35,41 @@ import { ComputationalResourceCreateDialogComponent } from '../computational/com
 import { CostDetailsDialogComponent } from '../exploratory/cost-details-dialog';
 import { ConfirmationDialogComponent } from '../../shared/modal-dialog/confirmation-dialog';
 import { SchedulerComponent } from '../scheduler';
-
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 import {ComputationModel} from '../computational/computational-resource.model';
 import {NotebookModel} from '../exploratory/notebook.model';
+import {AuditService} from '../../core/services/audit.service';
 
+export interface SharedEndpoint {
+  edge_node_ip: string;
+  shared_bucket_name?: string | null;
+  shared_container_name?: string | null;
+  status: string;
+  user_own_bucket_name?: string | null;
+  user_container_name?: string | null;
+  user_own_bicket_name?: string | null;
+}
 
+export interface ProjectEndpoint {
+  account: string;
+  cloudProvider: string;
+  endpoint_tag: string;
+  name: string;
+  status: string;
+  url: string;
+}
 
+export interface BucketList {
+  name: string;
+  children: Bucket[];
+  length?: number;
+}
 
+export interface Bucket {
+  name: string;
+  endpoint: string;
+}
 
 @Component({
   selector: 'resources-grid',
@@ -89,6 +113,9 @@ export class ResourcesGridComponent implements OnInit {
 
   public displayedColumns: string[] = this.filteringColumns.map(item => item.name);
   public displayedFilterColumns: string[] = this.filteringColumns.map(item => item.filter_class);
+  public bucketsList: BucketList;
+  public activeProjectsList: any;
+
 
 
   constructor(
@@ -96,10 +123,19 @@ export class ResourcesGridComponent implements OnInit {
     private userResourceService: UserResourceService,
     private dialog: MatDialog,
     private progressBarService: ProgressBarService,
+    private projectService: ProjectService,
+    private auditService: AuditService,
   ) { }
 
   ngOnInit(): void {
     this.buildGrid();
+    this.getUserProjects();
+  }
+
+  public getUserProjects() {
+    this.projectService.getUserProjectsList(true).subscribe((projects: Project[]) => {
+      this.activeProjectsList = projects;
+    });
   }
 
   public buildGrid(): void {
@@ -107,6 +143,7 @@ export class ResourcesGridComponent implements OnInit {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
+        this.getBuckets();
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
@@ -118,11 +155,11 @@ export class ResourcesGridComponent implements OnInit {
     this.collapseFilterRow = !this.collapseFilterRow;
   }
 
-  public onUpdate($event) {
+  public onUpdate($event): void {
     this.filterForm[$event.type] = $event.model;
   }
 
-  public selectActiveProject(project = '') {
+  public selectActiveProject(project = ''): void {
     this.filterForm.project = project;
     this.applyFilter_btnClick(this.filterForm);
   }
@@ -142,7 +179,7 @@ export class ResourcesGridComponent implements OnInit {
    }
 
 
-  public isResourcesInProgress(notebook) {
+  public isResourcesInProgress(notebook): boolean {
     const env = this.getResourceByName(notebook.name, notebook.project);
 
     if (env && env.resources.length) {
@@ -169,7 +206,7 @@ export class ResourcesGridComponent implements OnInit {
 
   public printDetailEnvironmentModal(data): void {
     this.dialog.open(DetailDialogComponent, { data:
-        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser},
+        {notebook: data, bucketStatus: this.healthStatus.bucketBrowser, buckets: this.bucketsList, type: 'resource'},
       panelClass: 'modal-lg'
     })
       .afterClosed().subscribe(() => this.buildGrid());
@@ -180,7 +217,7 @@ export class ResourcesGridComponent implements OnInit {
       .afterClosed().subscribe(() => this.buildGrid());
   }
 
-  public exploratoryAction(data, action: string) {
+  public exploratoryAction(data, action: string): void {
     const resource = this.getResourceByName(data.name, data.project);
 
     if (action === 'deploy') {
@@ -210,6 +247,34 @@ export class ResourcesGridComponent implements OnInit {
 
         .afterClosed().subscribe(() => this.buildGrid());
     }
+  }
+
+  public getBuckets(): void {
+    const bucketsList = [];
+    this.environments.forEach(project => {
+      if (project.endpoints && project.endpoints.length !== 0) {
+        project.endpoints.forEach((endpoint: ProjectEndpoint) => {
+          if (endpoint.status === 'ACTIVE') {
+            const currEndpoint: SharedEndpoint = project.projectEndpoints[endpoint.name];
+            const edgeItem: BucketList = {name: `${project.project} (${endpoint.name})`, children: []};
+            const projectBucket: string = currEndpoint.user_own_bicket_name
+              || currEndpoint.user_own_bucket_name
+              || currEndpoint.user_container_name;
+            const sharedBucket: string = currEndpoint.shared_bucket_name || currEndpoint.shared_container_name;
+            if (projectBucket && currEndpoint.status !== 'terminated'
+              && currEndpoint.status !== 'terminating' && currEndpoint.status !== 'failed') {
+              edgeItem.children.push({name: projectBucket, endpoint: endpoint.name});
+            }
+            if (sharedBucket) {
+              edgeItem.children.push({name: sharedBucket, endpoint: endpoint.name});
+            }
+            bucketsList.push(edgeItem);
+          }
+        });
+      }
+    });
+
+    this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
   }
 
 
@@ -242,7 +307,7 @@ export class ResourcesGridComponent implements OnInit {
     this.filterConfiguration = new FilterConfigurationModel('', statuses, shapes, resources, '', '');
   }
 
-  private applyFilter_btnClick(config: FilterConfigurationModel) {
+  public applyFilter_btnClick(config: FilterConfigurationModel): void {
 
     let filteredData = this.getEnvironmentsListCopy();
 
@@ -350,4 +415,11 @@ export class ResourcesGridComponent implements OnInit {
       .subscribe(() => { },
         (error) => console.log('UPDATE USER PREFERENCES ERROR ', error));
   }
+
+  private logAction(name) {
+    this.auditService.sendDataToAudit({
+      resource_name: name, info: `Open terminal, requested for notebook`, type: 'WEB_TERMINAL'
+    }).subscribe();
+  }
+
 }

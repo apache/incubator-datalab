@@ -73,7 +73,7 @@ public class BucketServiceAzureImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
+    public void uploadObject(String bucket, String object, InputStream stream, String contentType, long fileSize) {
         log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             AzureStorageAccount account = getAzureStorageAccount(bucket);
@@ -86,6 +86,11 @@ public class BucketServiceAzureImpl implements BucketService {
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
         log.info("Finished uploading file {} to bucket {}", object, bucket);
+    }
+
+    @Override
+    public void uploadFolder(UserInfo userInfo, String bucket, String folder) {
+
     }
 
     @Override

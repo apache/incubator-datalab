@@ -49,6 +49,14 @@ export class BucketBrowserService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+  public createFolder(data) {
+    return this.applicationServiceFacade
+      .buildCreateFolderInBucket(data)
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public deleteFile(data) {
     return this.applicationServiceFacade
       .buildDeleteFileFromBucket(data)

@@ -89,7 +89,7 @@ def terminate_edge_node(endpoint_name, project_name, service_base_name, region, 
 
     print("Removing project specific images")
     try:
-        project_image_name_beginning = '{}-{}'.format(service_base_name, project_name)
+        project_image_name_beginning = '{}-{}-{}'.format(service_base_name, project_name, endpoint_name)
         images = GCPMeta.get_list_images(project_image_name_beginning)
         if 'items' in images:
             for i in images['items']:

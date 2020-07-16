@@ -29,4 +29,5 @@ public interface UserGroupDao {
 
 	Set<String> getUserGroups(String user);
 
+    Set<String> getUsers(String group);
 }

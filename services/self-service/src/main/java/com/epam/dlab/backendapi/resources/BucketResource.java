@@ -21,13 +21,19 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.BucketDeleteDTO;
+import com.epam.dlab.backendapi.resources.dto.FolderUploadDTO;
 import com.epam.dlab.backendapi.service.BucketService;
+import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
-import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -46,6 +52,13 @@ import java.nio.file.Paths;
 @Path("/bucket")
 @Slf4j
 public class BucketResource {
+    private static final String AUDIT_UPLOAD_FOLDER_MESSAGE = "Folder: %s";
+    private static final String AUDIT_MESSAGE = "File(s): %s";
+    private static final String OBJECT_FORM_FIELD = "object";
+    private static final String BUCKET_FORM_FIELD = "bucket";
+    private static final String ENDPOINT_FORM_FIELD = "endpoint";
+    private static final String SIZE_FORM_FIELD = "size";
+
     private final BucketService bucketService;
 
     @Inject
@@ -69,13 +82,18 @@ public class BucketResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("/api/bucket/upload")
-    public Response uploadObject(@Auth UserInfo userInfo,
-                                 @FormDataParam("object") String object,
-                                 @FormDataParam("bucket") String bucket,
-                                 @FormDataParam("endpoint") String endpoint,
-                                 @FormDataParam("file") InputStream fileInputStream,
-                                 @FormDataParam("size") long fileSize) {
-        bucketService.uploadObjects(userInfo, bucket, object, endpoint, fileInputStream, fileSize);
+    public Response uploadObject(@Auth UserInfo userInfo, @Context HttpServletRequest request) {
+        upload(userInfo, request);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/folder/upload")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("/api/bucket/upload")
+    public Response uploadFolder(@Auth UserInfo userInfo, @Valid FolderUploadDTO dto) {
+        bucketService.uploadFolder(userInfo, dto.getBucket(), dto.getFolder(), dto.getEndpoint(), String.format(AUDIT_UPLOAD_FOLDER_MESSAGE, dto.getFolder()));
         return Response.ok().build();
     }
 
@@ -88,7 +106,7 @@ public class BucketResource {
                                    @PathParam("bucket") String bucket,
                                    @PathParam("object") String object,
                                    @PathParam("endpoint") String endpoint) {
-        bucketService.downloadObject(userInfo, bucket, object, endpoint, resp);
+        bucketService.downloadObject(userInfo, bucket, object, endpoint, resp, String.format(AUDIT_MESSAGE, object));
         return Response.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Paths.get(object).getFileName() + "\"")
                 .build();
@@ -100,7 +118,44 @@ public class BucketResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("/api/bucket/delete")
     public Response deleteObject(@Auth UserInfo userInfo, @Valid BucketDeleteDTO bucketDto) {
-        bucketService.deleteObjects(userInfo, bucketDto.getBucket(), bucketDto.getObjects(), bucketDto.getEndpoint());
+        final String listOfDeletedObject = String.join(", ", bucketDto.getObjects());
+        bucketService.deleteObjects(userInfo, bucketDto.getBucket(), bucketDto.getObjects(), bucketDto.getEndpoint(), String.format(AUDIT_MESSAGE, listOfDeletedObject));
         return Response.ok().build();
+    }
+
+    private void upload(UserInfo userInfo, HttpServletRequest request) {
+        String object = null;
+        String bucket = null;
+        String endpoint = null;
+        long fileSize = 0;
+
+        ServletFileUpload upload = new ServletFileUpload();
+        try {
+            FileItemIterator iterStream = upload.getItemIterator(request);
+            while (iterStream.hasNext()) {
+                FileItemStream item = iterStream.next();
+                try (InputStream stream = item.openStream()) {
+                    if (item.isFormField()) {
+                        if (OBJECT_FORM_FIELD.equals(item.getFieldName())) {
+                            object = Streams.asString(stream);
+                        } else if (BUCKET_FORM_FIELD.equals(item.getFieldName())) {
+                            bucket = Streams.asString(stream);
+                        } else if (ENDPOINT_FORM_FIELD.equals(item.getFieldName())) {
+                            endpoint = Streams.asString(stream);
+                        } else if (SIZE_FORM_FIELD.equals(item.getFieldName())) {
+                            fileSize = Long.parseLong(Streams.asString(stream));
+                        }
+                    } else {
+                        bucketService.uploadObject(userInfo, bucket, object, endpoint, stream, item.getContentType(), fileSize, String.format(AUDIT_MESSAGE, object));
+                    }
+                } catch (Exception e) {
+                    log.error("Cannot upload object {} to bucket {}. {}", object, bucket, e.getMessage(), e);
+                    throw new DlabException(String.format("Cannot upload object %s to bucket %s. %s", object, bucket, e.getMessage()));
+                }
+            }
+        } catch (Exception e) {
+            log.error("User {} cannot upload object {} to bucket {}. {}", userInfo.getName(), object, bucket, e.getMessage(), e);
+            throw new DlabException(String.format("User %s cannot upload object %s to bucket %s. %s", userInfo.getName(), object, bucket, e.getMessage()));
+        }
     }
 }

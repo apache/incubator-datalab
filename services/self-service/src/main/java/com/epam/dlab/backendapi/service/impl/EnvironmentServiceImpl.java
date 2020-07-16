@@ -50,13 +50,15 @@ import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.ACTIVE;
 import static com.epam.dlab.backendapi.resources.dto.UserDTO.Status.NOT_ACTIVE;
+import static com.epam.dlab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
 @Slf4j
 public class EnvironmentServiceImpl implements EnvironmentService {
-	private static final String ERROR_MSG_FORMAT = "Can not %s environment because on of user resource is in status " +
-			"CREATING or STARTING";
+	private static final String ERROR_MSG_FORMAT = "Can not %s environment because on of user resource is in status CREATING or STARTING";
+	private static final String AUDIT_QUOTA_MESSAGE = "Billing quota reached";
+	private static final String DLAB_SYSTEM_USER = "DLab system user";
 
 	private final EnvDAO envDAO;
 	private final UserSettingsDAO settingsDAO;
@@ -130,39 +132,37 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		exploratoryDAO.fetchRunningExploratoryFieldsForProject(project)
 				.forEach(this::stopNotebookWithServiceAccount);
 
-		projectService.get(project).getEndpoints().stream()
-				.filter(e -> UserInstanceStatus.RUNNING == e.getStatus())
-				.forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo("admin"),
-						endpoint.getName(), project));
+		projectService.get(project).getEndpoints()
+                .stream()
+                .filter(e -> UserInstanceStatus.RUNNING == e.getStatus())
+                .forEach(endpoint -> projectService.stop(securityService.getServiceAccountInfo(DLAB_SYSTEM_USER),
+                        endpoint.getName(), project, AUDIT_QUOTA_MESSAGE));
 	}
 
 	@ProjectAdmin
 	@Override
 	public void stopExploratory(@User UserInfo userInfo, String user, @Project String project, String exploratoryName) {
-		exploratoryService.stop(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName);
+		exploratoryService.stop(userInfo, user, project, exploratoryName, null);
 	}
 
 	@ProjectAdmin
-	@Override
-	public void stopComputational(@User UserInfo userInfo, String user, @Project String project, String exploratoryName,
-								  String computationalName) {
-		computationalService.stopSparkCluster(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName,
-				computationalName);
-	}
+    @Override
+    public void stopComputational(@User UserInfo userInfo, String user, @Project String project, String exploratoryName, String computationalName) {
+        computationalService.stopSparkCluster(userInfo, user, project, exploratoryName, computationalName,
+                String.format(AUDIT_MESSAGE, exploratoryName));
+    }
 
 	@ProjectAdmin
 	@Override
 	public void terminateExploratory(@User UserInfo userInfo, String user, @Project String project, String exploratoryName) {
-		exploratoryService.terminate(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName);
+		exploratoryService.terminate(userInfo, user, project, exploratoryName, null);
 	}
 
 	@ProjectAdmin
 	@Override
-	public void terminateComputational(@User UserInfo userInfo, String user, @Project String project,
-									   String exploratoryName, String computationalName) {
-		computationalService.terminateComputational(new UserInfo(user, userInfo.getAccessToken()), project, exploratoryName,
-				computationalName);
-	}
+	public void terminateComputational(@User UserInfo userInfo, String user, @Project String project, String exploratoryName, String computationalName) {
+        computationalService.terminateComputational(userInfo, user, project, exploratoryName, computationalName, String.format(AUDIT_MESSAGE, exploratoryName));
+    }
 
 	private UserDTO toUserDTO(String u, UserDTO.Status status) {
 		return new UserDTO(u, settingsDAO.getAllowedBudget(u).orElse(null), status);
@@ -182,9 +182,9 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private void stopNotebookWithServiceAccount(UserInstanceDTO instance) {
-		final UserInfo userInfo = securityService.getServiceAccountInfo(instance.getUser());
-		exploratoryService.stop(userInfo, instance.getProject(), instance.getExploratoryName());
-	}
+        final UserInfo userInfo = securityService.getServiceAccountInfo(DLAB_SYSTEM_USER);
+        exploratoryService.stop(userInfo, instance.getUser(), instance.getProject(), instance.getExploratoryName(), AUDIT_QUOTA_MESSAGE);
+    }
 
 	private List<UserResourceInfo> getProjectEnv(ProjectDTO projectDTO, List<UserInstanceDTO> allInstances) {
 		final Stream<UserResourceInfo> userResources = allInstances
@@ -194,10 +194,12 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		if (projectDTO.getEndpoints() != null) {
 			final Stream<UserResourceInfo> edges = projectDTO.getEndpoints()
 					.stream()
-					.map(e -> new UserResourceInfo().withResourceType(ResourceEnum.EDGE_NODE)
-							.withResourceStatus(e.getStatus().toString())
-							.withProject(projectDTO.getName())
-							.withIp(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null));
+					.map(e -> UserResourceInfo.builder()
+							.resourceType(ResourceEnum.EDGE_NODE)
+							.resourceStatus(e.getStatus().toString())
+							.project(projectDTO.getName())
+							.ip(e.getEdgeInfo() != null ? e.getEdgeInfo().getPublicIp() : null)
+							.build());
 			return Stream.concat(edges, userResources).collect(toList());
 		} else {
 			return userResources.collect(toList());
@@ -205,14 +207,17 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	}
 
 	private UserResourceInfo toUserResourceInfo(UserInstanceDTO userInstance) {
-		return new UserResourceInfo().withResourceType(ResourceEnum.NOTEBOOK)
-				.withResourceName(userInstance.getExploratoryName())
-				.withResourceShape(userInstance.getShape())
-				.withResourceStatus(userInstance.getStatus())
-				.withCompResources(userInstance.getResources())
-				.withUser(userInstance.getUser())
-				.withProject(userInstance.getProject())
-				.withCloudProvider(userInstance.getCloudProvider());
+		return UserResourceInfo.builder()
+				.resourceType(ResourceEnum.NOTEBOOK)
+				.resourceName(userInstance.getExploratoryName())
+				.resourceShape(userInstance.getShape())
+				.resourceStatus(userInstance.getStatus())
+				.computationalResources(userInstance.getResources())
+				.user(userInstance.getUser())
+				.project(userInstance.getProject())
+				.cloudProvider(userInstance.getCloudProvider())
+				.exploratoryUrls(userInstance.getResourceUrl())
+				.build();
 	}
 
 	private void checkProjectResourceConditions(String project, String action) {

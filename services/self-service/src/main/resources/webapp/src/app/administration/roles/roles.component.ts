@@ -142,7 +142,7 @@ export class RolesComponent implements OnInit {
           this.manageRolesGroups({
             action, type, value: {
               name: item.group,
-              roleIds: this.extractIds(this.roles, selectedRoles),
+              roles: this.extractIds(this.roles, selectedRoles),
               users: item.users || []
             }
           });
@@ -154,6 +154,7 @@ export class RolesComponent implements OnInit {
   }
 
   public manageRolesGroups($event) {
+    console.log($event);
     switch ($event.action) {
       case 'create':
         this.rolesService.setupNewGroup($event.value).subscribe(() => {
@@ -165,13 +166,13 @@ export class RolesComponent implements OnInit {
       case 'update':
         this.rolesService.updateGroup($event.value).subscribe(() => {
           this.toastr.success(`Group data is updated successfully!`, 'Success!');
-          if (!$event.value.roleIds.includes('admin' || 'projectAdmin')) {
-            this.applicationSecurityService.isLoggedIn().subscribe(() => {
-              this.getEnvironmentHealthStatus();
-            });
-          } else {
+          // if (!$event.value.roleIds.includes('admin' || 'projectAdmin')) {
+          //   this.applicationSecurityService.isLoggedIn().subscribe(() => {
+          //     this.getEnvironmentHealthStatus();
+          //   });
+          // } else {
             this.openManageRolesDialog();
-          }
+          // }
         }, (re) => this.toastr.error('Failed group data updating!', 'Oops!'));
 
         break;
@@ -195,11 +196,26 @@ export class RolesComponent implements OnInit {
   }
 
   public extractIds(sourceList, target) {
-    return sourceList.reduce((acc, item) => {
-      target.includes(item.description) && acc.push(item._id);
+    const map = new Map();
+    const mapped = sourceList.reduce((acc, item) => {
+      target.includes(item.description) && acc.set( item._id, item.description);
       return acc;
-    }, []);
+    }, map);
+
+    return this.mapToObj(mapped);
   }
+
+  mapToObj(inputMap) {
+    const obj = {};
+
+    inputMap.forEach(function(value, key) {
+      obj[key] = value;
+    });
+
+    return obj;
+  }
+
+
 
   public updateGroupData(groups) {
     this.groupsData = groups.map(v => {
@@ -297,7 +313,9 @@ export class RolesComponent implements OnInit {
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
   <div mat-dialog-content class="content">
-    <p *ngIf="data.user">User <span class="strong">{{ data.user }}</span> will be deleted from <span class="strong">{{ data.group }}</span> group.</p>
+
+    <p *ngIf="data.user">User <span class="strong">{{ data.user }}</span> will be deleted from <span class="strong">{{ data.group }}</span> group.
+    </p>
     <p *ngIf="data.id">Group <span class="ellipsis group-name strong">{{ data.group }}</span> will be decommissioned.</p>
     <p class="m-top-20"><span class="strong">Do you want to proceed?</span></p>
   </div>

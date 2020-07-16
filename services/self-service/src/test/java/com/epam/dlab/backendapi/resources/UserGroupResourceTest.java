@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.resources.dto.GroupDTO;
+import com.epam.dlab.backendapi.resources.dto.UpdateGroupDTO;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
 import com.epam.dlab.backendapi.service.UserGroupService;
 import io.dropwizard.auth.AuthenticationException;
@@ -38,6 +39,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -52,8 +54,9 @@ import static org.mockito.Mockito.when;
 public class UserGroupResourceTest extends TestBase {
 
     private static final String USER = "user";
-    private static final String ROLE_ID = "id";
-    private static final String GROUP = "group";
+	private static final String ROLE_ID = "id";
+	private static final String ROLE_DESCRIPTION = "description";
+	private static final String GROUP = "group";
     private UserGroupService userGroupService = mock(UserGroupService.class);
     private ProjectDAO projectDAO = mock(ProjectDAO.class);
 
@@ -73,11 +76,11 @@ public class UserGroupResourceTest extends TestBase {
 				.target("/group")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getCreateGroupDto(GROUP, Collections.singleton(ROLE_ID))));
+				.post(Entity.json(getCreateGroupDto(GROUP, Collections.singletonMap(ROLE_ID, ROLE_DESCRIPTION))));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
-		verify(userGroupService).createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+		verify(userGroupService).createGroup(getUserInfo(), GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
 		verifyNoMoreInteractions(userGroupService);
 	}
 
@@ -88,7 +91,7 @@ public class UserGroupResourceTest extends TestBase {
 				.target("/group")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getCreateGroupDto("", Collections.singleton(ROLE_ID))));
+				.post(Entity.json(getCreateGroupDto("", Collections.singletonMap(ROLE_ID, ROLE_DESCRIPTION))));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
@@ -102,7 +105,7 @@ public class UserGroupResourceTest extends TestBase {
 				.target("/group")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.post(Entity.json(getCreateGroupDto(GROUP, Collections.emptySet())));
+				.post(Entity.json(getCreateGroupDto(GROUP, Collections.emptyMap())));
 
 		assertEquals(HttpStatus.SC_UNPROCESSABLE_ENTITY, response.getStatus());
 
@@ -116,11 +119,11 @@ public class UserGroupResourceTest extends TestBase {
 				.target("/group")
 				.request()
 				.header("Authorization", "Bearer " + TOKEN)
-				.put(Entity.json(getCreateGroupDto(GROUP, Collections.singleton(ROLE_ID))));
+				.put(Entity.json(getUpdaeGroupDto(GROUP, Collections.singletonMap(ROLE_ID, ROLE_DESCRIPTION), Collections.singleton(USER))));
 
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
-		verify(userGroupService).updateGroup(getUserInfo(), GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+		verify(userGroupService).updateGroup(getUserInfo(), GROUP, Collections.singletonMap(ROLE_ID, ROLE_DESCRIPTION), Collections.singleton(USER));
 		verifyNoMoreInteractions(userGroupService);
 	}
 
@@ -157,19 +160,27 @@ public class UserGroupResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_OK, response.getStatus());
 
 
-		verify(userGroupService).removeGroup(GROUP);
+		verify(userGroupService).removeGroup(getUserInfo(), GROUP);
 		verifyNoMoreInteractions(userGroupService);
 	}
 
 	private UserGroupDto getUserGroup() {
 		return new UserGroupDto(GROUP, Collections.emptyList(), Collections.emptySet());
-    }
+	}
 
-    private GroupDTO getCreateGroupDto(String group, Set<String> roleIds) {
-        final GroupDTO dto = new GroupDTO();
-        dto.setName(group);
-        dto.setRoleIds(roleIds);
-        dto.setUsers(Collections.singleton(USER));
-        return dto;
-    }
+	private GroupDTO getCreateGroupDto(String group, Map<String, String> roleIds) {
+		final GroupDTO dto = new GroupDTO();
+		dto.setName(group);
+		dto.setRoleIds(roleIds);
+		dto.setUsers(Collections.singleton(USER));
+		return dto;
+	}
+
+	private UpdateGroupDTO getUpdaeGroupDto(String group, Map<String, String> roles, Set<String> users) {
+		UpdateGroupDTO updateGroupDTO = new UpdateGroupDTO();
+		updateGroupDTO.setName(group);
+		updateGroupDTO.setRoles(roles);
+		updateGroupDTO.setUsers(users);
+		return updateGroupDTO;
+	}
 }

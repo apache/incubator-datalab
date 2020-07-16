@@ -19,11 +19,11 @@
 
 package com.epam.dlab.backendapi.service.impl.aws;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.dto.bucket.BucketDTO;
 import com.epam.dlab.exceptions.DlabException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -66,7 +66,7 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
+    public void uploadObject(String bucket, String object, InputStream stream, String contentType, long fileSize) {
         log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             S3Client s3 = S3Client.create();
@@ -74,6 +74,7 @@ public class BucketServiceAwsImpl implements BucketService {
                     .builder()
                     .bucket(bucket)
                     .key(object)
+                    .contentType(contentType)
                     .build();
             s3.putObject(uploadRequest, RequestBody.fromInputStream(stream, fileSize));
         } catch (Exception e) {
@@ -81,6 +82,24 @@ public class BucketServiceAwsImpl implements BucketService {
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
         log.info("Finished uploading file {} to bucket {}", object, bucket);
+    }
+
+    @Override
+    public void uploadFolder(UserInfo userInfo, String bucket, String folder) {
+        log.info("Uploading folder {} to bucket {}", folder, bucket);
+        try {
+            S3Client s3 = S3Client.create();
+            PutObjectRequest uploadRequest = PutObjectRequest
+                    .builder()
+                    .bucket(bucket)
+                    .key(folder)
+                    .build();
+            s3.putObject(uploadRequest, RequestBody.empty());
+        } catch (Exception e) {
+            log.error("Cannot upload folder {} to bucket {}. Reason: {}", folder, bucket, e.getMessage());
+            throw new DlabException(String.format("Cannot upload folder %s to bucket %s. Reason: %s", folder, bucket, e.getMessage()));
+        }
+        log.info("Finished uploading folder {} to bucket {}", folder, bucket);
     }
 
     @Override
@@ -127,13 +146,12 @@ public class BucketServiceAwsImpl implements BucketService {
     }
 
     private BucketDTO toBucketDTO(String bucket, S3Object s3Object) {
-        final String size = FileUtils.byteCountToDisplaySize(s3Object.size());
         Date date = Date.from(s3Object.lastModified());
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
         return BucketDTO.builder()
                 .bucket(bucket)
                 .object(s3Object.key())
-                .size(size)
+                .size(String.valueOf(s3Object.size()))
                 .lastModifiedDate(formatter.format(date))
                 .build();
     }

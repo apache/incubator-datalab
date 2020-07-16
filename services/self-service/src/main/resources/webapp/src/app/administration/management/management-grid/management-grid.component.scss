@@ -19,7 +19,18 @@
 
 .data-grid {
   &.management {
+    .settings{
+      min-width: 7%;
+    }
+    .mat-column-checkbox{
+      padding-left: 10px;
+      padding-right: 0px;
+      min-width: 68px;
+      &.label-header{
 
+      }
+
+    }
     .user{
       width: 15%;
     }
@@ -33,20 +44,19 @@
     }
 
     .shape {
-      width: 19% !important;
+      width: 17% !important;
     }
 
     .status {
-      width: 13% !important;
+      width: 12% !important;
     }
 
     .type {
-      width: 14%;
-      padding-left: 20px;
+      width: 13%;
     }
 
     .resources {
-      width: 22%;
+      width: 24%;
       padding: 5px;
     }
 
@@ -93,7 +103,7 @@ table.management {
     background: transparent !important;
   }
 
-  td {
+  td:not(.info) {
     padding: 5px;
   }
 
@@ -118,4 +128,9 @@ table.management {
   .filter-row {
     background: inherit;
   }
+}
+
+.computation{
+  cursor: pointer;
+  color: #35afd5;
 }

@@ -1,11 +1,14 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding matTreeNodePaddingIndent="17" [ngStyle]="{'display': 'none'}">
-  <button mat-icon-button disabled></button>
-  <!--    <mat-checkbox class="checklist-leaf-node"-->
-  <!--                  [checked]="checklistSelection.isSelected(node)"-->
-  <!--                  (change)="todoLeafItemSelectionToggle(node)"></mat-checkbox>-->
-  {{node.item}}
-</mat-tree-node>
+
+  <mat-tree-node
+    *matTreeNodeDef="let node"
+    matTreeNodeToggle matTreeNodePadding
+    matTreeNodePaddingIndent="17"
+    [ngStyle]="{'display': 'none'}"
+  >
+    <button mat-icon-button disabled></button>
+    {{node.item}}
+  </mat-tree-node>
 
   <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding matTreeNodePaddingIndent="17" class="input-node">
     <form class="add-folder-form" id="folder-form">
@@ -22,7 +25,7 @@
           Folder with this name already exists
         </mat-error>
       </mat-form-field>
-      <button (click)="saveNode(node, itemValue.value)"
+      <button (click)="createFolder(node, itemValue.value)"
               [ngClass]="{'check': folderFormControl.valid && folderFormControl.dirty && !folderCreating}"
               mat-icon-button class="btn action-btn"
               [disabled]="!folderFormControl.valid || !folderFormControl.dirty"
@@ -35,20 +38,17 @@
     </form>
   </mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding  matTreeNodePaddingIndent="17">
+  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding  matTreeNodePaddingIndent="17"  [ngClass]="{'cursor-not-allow': bucketDataService.emptyFolder}">
     <button mat-icon-button matTreeNodeToggle
-            [attr.aria-label]="'toggle ' + node.filename">
-      <mat-icon class="mat-icon-rtl-mirror" [ngClass]="{'active-item': selectedFolder === node}">
+            [attr.aria-label]="'toggle ' + node.filename" [ngClass]="{'not-allowed': bucketDataService.emptyFolder}">
+      <mat-icon class="mat-icon-rtl-mirror" [ngClass]="{'active-item': (selectedFolder === node && !bucketDataService.emptyFolder)}">
         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
       </mat-icon>
     </button>
-<!--    <mat-checkbox [checked]="descendantsAllSelected(node)"-->
-<!--                  [indeterminate]="descendantsPartiallySelected(node)"-->
-<!--                  (change)="todoItemSelectionToggle(node)"></mat-checkbox>-->
     <div
       (click)="showItem(node)"
       class="folder-item-line"
-      [ngClass]="{'active-item': selectedFolder === node}"
+      [ngClass]="{'active-item': (selectedFolder === node && !bucketDataService.emptyFolder), 'not-allowed': bucketDataService.emptyFolder}"
     >
       <i class="material-icons folder-icon">folder</i>
       <span
@@ -61,6 +61,5 @@
         {{node.item}}
       </span>
     </div>
-<!--    <button mat-icon-button (click)="addNewItem(node)"><mat-icon>add</mat-icon></button>-->
   </mat-tree-node>
 </mat-tree>

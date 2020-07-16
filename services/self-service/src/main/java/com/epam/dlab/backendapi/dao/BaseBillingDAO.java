@@ -20,8 +20,10 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.backendapi.domain.BillingReportLine;
+import com.epam.dlab.backendapi.domain.BudgetDTO;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
 import com.epam.dlab.dto.billing.BillingResourceType;
+import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
@@ -32,6 +34,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +56,8 @@ import static com.mongodb.client.model.Filters.gte;
 import static com.mongodb.client.model.Filters.in;
 import static com.mongodb.client.model.Filters.lte;
 import static com.mongodb.client.model.Filters.regex;
+import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static java.util.Collections.singletonList;
 
 @Slf4j
@@ -103,6 +108,18 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 	}
 
 	@Override
+	public Double getProjectCost(String project, LocalDate date) {
+		final List<Bson> pipeline = Arrays.asList(match(
+				and(
+						eq(PROJECT, project),
+						gte(USAGE_DATE, date.with(firstDayOfMonth()).toString()),
+						lte(USAGE_DATE, date.with(lastDayOfMonth()).toString()))
+				),
+				group(null, sum(TOTAL_FIELD_NAME, COST_FIELD)));
+		return aggregateBillingData(pipeline);
+	}
+
+	@Override
 	public int getBillingQuoteUsed() {
 		return toPercentage(() -> settings.getMaxBudget(), getTotalCost());
 	}
@@ -127,7 +144,12 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 
 	@Override
 	public boolean isProjectQuoteReached(String project) {
-		final Double projectCost = getProjectCost(project);
+		final boolean monthlyBudget = Optional.ofNullable(projectDAO.get(project)
+				.orElseThrow(projectNotFound())
+				.getBudget())
+				.map(BudgetDTO::isMonthlyBudget)
+				.orElse(Boolean.FALSE);
+		final Double projectCost = monthlyBudget ? getProjectCost(project, LocalDate.now()) : getProjectCost(project);
 		return projectDAO.getAllowedBudget(project)
 				.filter(allowedBudget -> projectCost.intValue() != 0 && allowedBudget <= projectCost)
 				.isPresent();
@@ -239,5 +261,9 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 				.cost(BigDecimal.valueOf(d.getDouble(COST)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
 				.currency(id.getString(CURRENCY))
 				.build();
+	}
+
+	private Supplier<ResourceNotFoundException> projectNotFound() {
+		return () -> new ResourceNotFoundException("Project with passed name not found");
 	}
 }

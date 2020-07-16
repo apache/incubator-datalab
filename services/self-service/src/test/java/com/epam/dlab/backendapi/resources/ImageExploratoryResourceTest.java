@@ -54,6 +54,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ImageExploratoryResourceTest extends TestBase {
+	private final static String AUDIT_MESSAGE = "Create image: %s";
 	private static final String PROJECT = "projectName";
 	private ImageExploratoryService imageExploratoryService = mock(ImageExploratoryService.class);
 	private RequestId requestId = mock(RequestId.class);
@@ -69,7 +70,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 
 	@Test
 	public void createImage() {
-		when(imageExploratoryService.createImage(any(UserInfo.class), anyString(), anyString(), anyString(), anyString()))
+		when(imageExploratoryService.createImage(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyString()))
 				.thenReturn("someUuid");
 		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
@@ -82,7 +83,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
 		verify(imageExploratoryService).createImage(getUserInfo(), PROJECT, "someNotebookName",
-				"someImageName", "someDescription");
+				"someImageName", "someDescription", String.format(AUDIT_MESSAGE, "someImageName"));
 		verify(requestId).put(USER.toLowerCase(), "someUuid");
 		verifyNoMoreInteractions(imageExploratoryService, requestId);
 	}
@@ -90,7 +91,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 	@Test
 	public void createImageWithFailedAuth() throws AuthenticationException {
 		authFailSetup();
-		when(imageExploratoryService.createImage(any(UserInfo.class), anyString(), anyString(), anyString(), anyString()))
+		when(imageExploratoryService.createImage(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyString()))
 				.thenReturn("someUuid");
 		when(requestId.put(anyString(), anyString())).thenReturn("someUuid");
 		final Response response = resources.getJerseyTest()
@@ -102,7 +103,8 @@ public class ImageExploratoryResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).createImage(getUserInfo(), PROJECT, "someNotebookName", "someImageName", "someDescription");
+		verify(imageExploratoryService).createImage(getUserInfo(), PROJECT, "someNotebookName", "someImageName", "someDescription", String.format(AUDIT_MESSAGE, "someImageName"));
+
 		verify(requestId).put(USER.toLowerCase(), "someUuid");
 		verifyNoMoreInteractions(imageExploratoryService, requestId);
 	}
@@ -110,7 +112,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 	@Test
 	public void createImageWithException() {
 		doThrow(new ResourceAlreadyExistException("Image with name is already exist"))
-				.when(imageExploratoryService).createImage(any(UserInfo.class), anyString(), anyString(), anyString(), anyString());
+				.when(imageExploratoryService).createImage(any(UserInfo.class), anyString(), anyString(), anyString(), anyString(), anyString());
 		final Response response = resources.getJerseyTest()
 				.target("/infrastructure_provision/exploratory_environment/image")
 				.request()
@@ -120,7 +122,7 @@ public class ImageExploratoryResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		verify(imageExploratoryService).createImage(getUserInfo(), PROJECT, "someNotebookName", "someImageName", "someDescription");
+		verify(imageExploratoryService).createImage(getUserInfo(), PROJECT, "someNotebookName", "someImageName", "someDescription", String.format(AUDIT_MESSAGE, "someImageName"));
 		verifyNoMoreInteractions(imageExploratoryService);
 		verifyZeroInteractions(requestId);
 	}

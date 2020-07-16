@@ -34,11 +34,7 @@ table {
     padding: 15px 0;
 
     .resource-wrap {
-      .resource-name {
-        width: 30%;
-        padding-left: 0;
-      }
-      resource-name, resource-status{
+      .resource-name, .resource-status {
         width: 30%;
         padding-left: 0;
       }

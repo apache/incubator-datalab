@@ -41,7 +41,7 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class ComputationalResourceAzure {
+public class ComputationalResourceAzure implements ComputationalAPI {
 
 	@Inject
 	private SparkClusterService sparkClusterService;

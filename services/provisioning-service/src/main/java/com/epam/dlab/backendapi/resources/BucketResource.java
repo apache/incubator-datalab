@@ -22,12 +22,19 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.dto.bucket.BucketDeleteDTO;
+import com.epam.dlab.dto.bucket.FolderUploadDTO;
+import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
-import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -42,6 +49,10 @@ import java.io.InputStream;
 @Slf4j
 @Path("/bucket")
 public class BucketResource {
+    private static final String OBJECT_FORM_FIELD = "object";
+    private static final String BUCKET_FORM_FIELD = "bucket";
+    private static final String SIZE_FORM_FIELD = "file-size";
+
     private final BucketService bucketService;
 
     @Inject
@@ -62,12 +73,17 @@ public class BucketResource {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response uploadObject(@Auth UserInfo userInfo,
-                                 @FormDataParam("object") String object,
-                                 @FormDataParam("bucket") String bucket,
-                                 @FormDataParam("file") InputStream inputStream,
-                                 @FormDataParam("file-size") long fileSize) {
-        bucketService.uploadObject(bucket, object, inputStream, fileSize);
+    public Response uploadObject(@Auth UserInfo userInfo, @Context HttpServletRequest request) {
+        upload(request);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/folder/upload")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response uploadFolder(@Auth UserInfo userInfo, @Valid FolderUploadDTO dto) {
+        bucketService.uploadFolder(userInfo, dto.getBucket(), dto.getFolder());
         return Response.ok().build();
     }
 
@@ -89,5 +105,40 @@ public class BucketResource {
     public Response uploadObject(@Auth UserInfo userInfo, BucketDeleteDTO bucketDeleteDTO) {
         bucketService.deleteObjects(bucketDeleteDTO.getBucket(), bucketDeleteDTO.getObjects());
         return Response.ok().build();
+    }
+
+    private void upload(HttpServletRequest request) {
+        String object = null;
+        String bucket = null;
+        long fileSize = 0;
+
+        ServletFileUpload upload = new ServletFileUpload();
+        try {
+            FileItemIterator iterStream = upload.getItemIterator(request);
+            while (iterStream.hasNext()) {
+                FileItemStream item = iterStream.next();
+                try (InputStream stream = item.openStream()) {
+                    if (item.isFormField()) {
+                        if (OBJECT_FORM_FIELD.equals(item.getFieldName())) {
+                            object = Streams.asString(stream);
+                        }
+                        if (BUCKET_FORM_FIELD.equals(item.getFieldName())) {
+                            bucket = Streams.asString(stream);
+                        }
+                        if (SIZE_FORM_FIELD.equals(item.getFieldName())) {
+                            fileSize = Long.parseLong(Streams.asString(stream));
+                        }
+                    } else {
+                        bucketService.uploadObject(bucket, object, stream, item.getContentType(), fileSize);
+                    }
+                } catch (Exception e) {
+                    log.error("Cannot upload object {} to bucket {}. {}", object, bucket, e.getMessage(), e);
+                    throw new DlabException(String.format("Cannot upload object %s to bucket %s. %s", object, bucket, e.getMessage()));
+                }
+            }
+        } catch (Exception e) {
+            log.error("Cannot upload object {} to bucket {}. {}", object, bucket, e.getMessage(), e);
+            throw new DlabException(String.format("Cannot upload object %s to bucket %s. %s", object, bucket, e.getMessage()));
+        }
     }
 }

@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.bucket.BucketDTO;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,11 +27,13 @@ import java.io.InputStream;
 import java.util.List;
 
 public interface BucketService {
-    String DATE_FORMAT = "dd-MM-yyyy hh:mm:ss";
+    String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     List<BucketDTO> getObjects(String bucket);
 
-    void uploadObject(String bucket, String object, InputStream stream, long fileSize);
+    void uploadObject(String bucket, String object, InputStream stream, String contentType, long fileSize);
+
+    void uploadFolder(UserInfo userInfo, String bucket, String folder);
 
     void downloadObject(String bucket, String object, HttpServletResponse resp);
 

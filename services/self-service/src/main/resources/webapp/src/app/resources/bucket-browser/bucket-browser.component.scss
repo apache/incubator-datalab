@@ -27,14 +27,15 @@
 
   .loading-block{
     width: 80%;
-    margin: 20% auto 0 auto;
+    margin: 0 auto;
     display: flex;
-    align-content: center;
+    align-items: center;
     justify-content: center;
     height: 100%;
     .uploading{
       width: 100%;
       text-align: center;
+      padding-bottom: 50px;
       p{
         margin-bottom: 20px;
       }
@@ -150,6 +151,11 @@
         &:hover{
           color:  #00bcd4;
           background-color: #fafafa;
+        }
+        &.disabled{
+          &:hover{
+            color: #577289;
+          }
         }
       }
 
@@ -293,7 +299,7 @@
       max-height: 100%;
 
       .name{
-        flex:2;
+        width: 60%;
         display: flex;
         align-items: center;
         overflow: hidden;
@@ -316,16 +322,16 @@
             transform: translateX(6px);
           }
           span.item-name{
-            padding-left: 8px;
+            padding-left: 4px;
             &.removed-checkbox{
-              padding-left: 0;
+              padding-left: 4px;
             }
           }
         }
       }
 
       .size{
-        flex:1;
+        width: 15%;
 
         &-folder{
           padding-left: 4px;
@@ -333,7 +339,7 @@
       }
 
       .date{
-        flex:1;
+        width: 25%;
 
         .th_date{
           font-size: 13px;
@@ -342,26 +348,6 @@
 
       .progress-wrapper{
         flex:1;
-
-        .progres{
-          border: 1px solid rgba(0,0,0,.12);
-          height: 15px;
-          position: relative;
-
-          .bar{
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            background-color:  #00bcd4;
-
-            &.full{
-              width: 100%;
-              transition: 5s ease-in-out;
-            }
-          }
-        }
       }
 
       .material-icons.close{
@@ -395,7 +381,7 @@
   }
 
   .folder-tree {
-    padding: 0px 30px;
+    padding: 0px 15px;
     padding-top: 6px;
   }
 
@@ -499,14 +485,6 @@
            }
          }
        }
-
-       &.no-select{
-         pointer-events: none;
-
-         .name-wrap{
-           padding-left: 29px !important;
-         }
-       }
      }
    }
 
@@ -570,9 +548,9 @@ input[type='file'] {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-      font-weight: 600;
+      font-weight: 500;
       color: #455c74;
-      font-size: 14px;
+      font-size: 13px;
       background: #f6fafe;
   }
 
@@ -598,9 +576,11 @@ input[type='file'] {
 
   }
   .upload-files{
-    padding: 5px;
+    padding: 5px 0;
     height: calc(100% - 30px);
     overflow: auto;
+    overflow-y: overlay;
+    width: 100%;
     .file{
       padding: 2px;
       display: flex;
@@ -612,61 +592,77 @@ input[type='file'] {
       }
 
       .name{
-        flex:12;
-        padding-right: 5px;
-        overflow: hidden;
+        width: 33.3%;
+        padding-left: 5px;
+        position: relative;
         display: flex;
-      }
-
-      .upload-path{
-        flex:12;
-        padding-right: 5px;
-        display: flex;
-      }
-
-      .size{
-        flex:4;
-      }
-      .state{
-        flex:6;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        .mat-raised-button{
-          width: 60px;
-          padding: 5px;
-          border-radius: 0;
-          font-style: normal;
-          font-weight: 600;
-          font-size: 11px;
-          font-family: "Open Sans", sans-serif;
-          color: #577289;
-          line-height: 8px;
+        span{
+          position: absolute;
+          width: calc(100% + 30px);
         }
       }
-      .remove{
-        display: flex;
-        align-items: center;
-        flex: 1;
-        position: relative;
-        .close{
-          color: #577289;
-          font-size: 12px;
-          cursor: pointer;
-          position: absolute;
-          top: 3px;
-          right: 0;
-          height: 18px;
-          width: 14px;
-          transition: all 0.45s ease-in-out;
 
-          &:hover{
-            color: #f1696e;
+      .second-block{
+        width: 66.7%;
+        display: flex;
+        padding: 0 14px 0 17px;
+        .upload-path{
+          width: 60%;
+          padding-left: 24px;
+          padding-right: 1%;
+          display: flex;
+        }
+
+        .size{
+          width: 15%;
+        }
+        .state{
+          width: 22%;
+          display: flex;
+          align-items: center;
+          .mat-raised-button{
+            width: 60px;
+            padding: 5px;
+            border-radius: 0;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 11px;
+            font-family: "Open Sans", sans-serif;
+            color: #577289;
+            line-height: 8px;
+          }
+        }
+        .remove{
+          display: flex;
+          align-items: center;
+          width: 5%;
+          position: absolute;
+          right: 20px;
+          .close{
+            color: #577289;
+            font-size: 12px;
+            cursor: pointer;
+            position: absolute;
+            top: 3px;
+            right: 0;
+            height: 18px;
+            width: 14px;
+            transition: all 0.45s ease-in-out;
+
+            &:hover{
+              color: #f1696e;
+            }
           }
         }
       }
+
+
     }
   }
+}
+
+.events-none{
+  pointer-events: none;
 }
 
 @media only screen and (max-height: 920px) {

@@ -48,7 +48,8 @@ import static com.epam.dlab.dto.billing.BillingResourceType.VOLUME;
 
 public class BillingUtils {
     private static final String[] AVAILABLE_NOTEBOOKS = {"zeppelin", "tensor-rstudio", "rstudio", "tensor", "superset", "jupyterlab", "jupyter", "deeplearning"};
-    private static final String[] REPORT_HEADERS = {"DLab ID", "User", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
+    private static final String[] BILLING_FILTERED_REPORT_HEADERS = {"DLab ID", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
+    private static final String[] COMPLETE_REPORT_REPORT_HEADERS = {"DLab ID", "User", "Project", "DLab Resource Type", "Status", "Shape", "Product", "Cost"};
     private static final String REPORT_FIRST_LINE = "Service base name: %s. Available reporting period from: %s to: %s";
     private static final String TOTAL_LINE = "Total: %s %s";
     private static final String SSN_FORMAT = "%s-ssn";
@@ -69,7 +70,7 @@ public class BillingUtils {
     private static final String IMAGE_NAME = "Image";
 
     private static final String DATAENGINE_NAME_FORMAT = "%d x %s";
-    private static final String DATAENGINE_SERVICE_NAME_FORMAT = "Master: %sSlave: %s";
+    private static final String DATAENGINE_SERVICE_NAME_FORMAT = "Master: %sSlave: %d x %s";
 
     public static Stream<BillingReportLine> edgeBillingDataStream(String project, String sbn, String endpoint) {
         final String userEdgeId = String.format(EDGE_FORMAT, sbn, project, endpoint).toLowerCase();
@@ -159,7 +160,7 @@ public class BillingUtils {
     public static String getComputationalShape(UserComputationalResource resource) {
         return DataEngineType.fromDockerImageName(resource.getImageName()) == DataEngineType.SPARK_STANDALONE ?
                 String.format(DATAENGINE_NAME_FORMAT, resource.getDataengineInstanceCount(), resource.getDataengineShape()) :
-                String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), resource.getSlaveNodeShape());
+                String.format(DATAENGINE_SERVICE_NAME_FORMAT, resource.getMasterNodeShape(), resource.getTotalInstanceCount() - 1, resource.getSlaveNodeShape());
     }
 
     private static Stream<BillingReportLine> standardImageBillingDataStream(String sbn, String endpoint) {
@@ -182,6 +183,14 @@ public class BillingUtils {
         return list.stream();
     }
 
+    /**
+     *
+     * @param sbn Service Base Name
+     * @param from formatted date, like 2020-04-07
+     * @param to formatted date, like 2020-05-07
+     * @return line, like:
+     * "Service base name: SERVICE_BASE_NAME. Available reporting period from: 2020-04-07 to: 2020-04-07"
+     */
     public static String getFirstLine(String sbn, LocalDate from, LocalDate to) {
         return CSVFormatter.formatLine(Lists.newArrayList(String.format(REPORT_FIRST_LINE, sbn,
                 Optional.ofNullable(from).map(date -> date.format(DateTimeFormatter.ISO_DATE)).orElse(StringUtils.EMPTY),
@@ -189,18 +198,23 @@ public class BillingUtils {
                 CSVFormatter.SEPARATOR, '\"');
     }
 
-    public static String getHeader(boolean isFull) {
-        List<String> headers = new ArrayList<>(Arrays.asList(BillingUtils.REPORT_HEADERS));
-        if (!isFull) {
-            headers.remove(1);
+    /**
+     * headerType there are two types of header according user role
+     * @return line, like DLab ID,User,Project,DLab Resource Type,Status,Shape,Product,Cost
+     * in case of additional header type, the ENUM object will be propagated from the Service Impl Class
+     */
+    public static String getHeader(boolean isReportHeaderCompletable) {
+        if (!isReportHeaderCompletable){
+            return CSVFormatter.formatLine(Arrays.asList(BillingUtils.BILLING_FILTERED_REPORT_HEADERS), CSVFormatter.SEPARATOR);
         }
-        return CSVFormatter.formatLine(headers, CSVFormatter.SEPARATOR);
+        return CSVFormatter.formatLine(Arrays.asList(BillingUtils.COMPLETE_REPORT_REPORT_HEADERS), CSVFormatter.SEPARATOR);
     }
 
-    public static String printLine(BillingReportLine line, boolean isFull) {
+    public static String printLine(BillingReportLine line, boolean isReportHeaderCompletable) {
         List<String> lines = new ArrayList<>();
         lines.add(getOrEmpty(line.getDlabId()));
-        if (isFull) {
+        //if user does not have the billing role, the User field should not be present in report
+        if (isReportHeaderCompletable) {
             lines.add(getOrEmpty(line.getUser()));
         }
         lines.add(getOrEmpty(line.getProject()));
@@ -212,12 +226,20 @@ public class BillingUtils {
         return CSVFormatter.formatLine(lines, CSVFormatter.SEPARATOR);
     }
 
-    public static String getTotal(Double total, String currency) {
+    /**
+     *
+     * @param total monetary amount
+     * @param currency user's currency
+     * @param stringOfAdjustedHeader filtered fields of report header
+     * @return line with cost of resources
+     */
+    public static String getTotal(Double total, String currency, String stringOfAdjustedHeader) {
         List<String> totalLine = new ArrayList<>();
-        for (int i = 0; i < REPORT_HEADERS.length - 1; i++) {
+        String[] headerFieldsList = stringOfAdjustedHeader.split(String.valueOf(CSVFormatter.SEPARATOR));
+        for (int i = 0; i < headerFieldsList.length - 1; i++) {
             totalLine.add(StringUtils.EMPTY);
         }
-        totalLine.add(REPORT_HEADERS.length - 1, String.format(TOTAL_LINE, getOrEmpty(String.valueOf(total)), getOrEmpty(currency)));
+        totalLine.add(headerFieldsList.length - 1, String.format(TOTAL_LINE, getOrEmpty(String.valueOf(total)), getOrEmpty(currency)));
         return CSVFormatter.formatLine(totalLine, CSVFormatter.SEPARATOR);
 
     }

@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.service.impl.gcp;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.dto.bucket.BucketDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -29,7 +30,6 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -58,18 +58,35 @@ public class BucketServiceGcpImpl implements BucketService {
     }
 
     @Override
-    public void uploadObject(String bucket, String object, InputStream stream, long fileSize) {
+    public void uploadObject(String bucket, String object, InputStream stream, String contentType, long fileSize) {
         log.info("Uploading file {} to bucket {}", object, bucket);
         try {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             BlobId blobId = BlobId.of(bucket, object);
-            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+                    .setContentType(contentType)
+                    .build();
             storage.create(blobInfo, stream);
         } catch (Exception e) {
             log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage());
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
         log.info("Finished uploading file {} to bucket {}", object, bucket);
+    }
+
+    @Override
+    public void uploadFolder(UserInfo userInfo, String bucket, String folder) {
+        log.info("Uploading file {} to bucket {}", folder, bucket);
+        try {
+            Storage storage = StorageOptions.getDefaultInstance().getService();
+            BlobId blobId = BlobId.of(bucket, folder);
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+            storage.create(blobInfo);
+        } catch (Exception e) {
+            log.error("Cannot upload folder {} to bucket {}. Reason: {}", folder, bucket, e.getMessage());
+            throw new DlabException(String.format("Cannot upload folder %s to bucket %s. Reason: %s", folder, bucket, e.getMessage()));
+        }
+        log.info("Finished uploading folder {} to bucket {}", folder, bucket);
     }
 
     @Override
@@ -103,13 +120,12 @@ public class BucketServiceGcpImpl implements BucketService {
     }
 
     private BucketDTO toBucketDTO(BlobInfo blobInfo) {
-        final String size = FileUtils.byteCountToDisplaySize(blobInfo.getSize());
         Date date = new Date(blobInfo.getUpdateTime());
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
         return BucketDTO.builder()
                 .bucket(blobInfo.getBucket())
                 .object(blobInfo.getName())
-                .size(size)
+                .size(String.valueOf(blobInfo.getSize()))
                 .lastModifiedDate(formatter.format(date))
                 .build();
     }

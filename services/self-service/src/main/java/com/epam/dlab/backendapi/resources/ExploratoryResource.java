@@ -20,7 +20,6 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
@@ -34,7 +33,6 @@ import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -86,7 +84,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 			log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
 			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
 		}
-		String uuid = exploratoryService.create(userInfo, getExploratory(formDTO), formDTO.getProject());
+		String uuid = exploratoryService.create(userInfo, getExploratory(formDTO), formDTO.getProject(), formDTO.getName());
 		return Response.ok(uuid).build();
 
 	}
@@ -100,12 +98,11 @@ public class ExploratoryResource implements ExploratoryAPI {
 	 * @return Invocation response as JSON string.
 	 */
 	@POST
-	@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
 	public String start(@Auth UserInfo userInfo,
 						@Valid @NotNull ExploratoryActionFormDTO formDTO) {
 		log.debug("Starting exploratory environment {} for user {}", formDTO.getNotebookInstanceName(),
 				userInfo.getName());
-		return exploratoryService.start(userInfo, formDTO.getNotebookInstanceName(), formDTO.getProjectName());
+		return exploratoryService.start(userInfo, formDTO.getNotebookInstanceName(), formDTO.getProjectName(), null);
 	}
 
 	/**
@@ -121,7 +118,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 					   @PathParam("project") String project,
 					   @PathParam("name") String name) {
 		log.debug("Stopping exploratory environment {} for user {}", name, userInfo.getName());
-		return exploratoryService.stop(userInfo, project, name);
+		return exploratoryService.stop(userInfo, userInfo.getName(), project, name, null);
 	}
 
 	/**
@@ -137,7 +134,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 							@PathParam("project") String project,
 							@PathParam("name") String name) {
 		log.debug("Terminating exploratory environment {} for user {}", name, userInfo.getName());
-		return exploratoryService.terminate(userInfo, project, name);
+		return exploratoryService.terminate(userInfo, userInfo.getName(), project, name, null);
 	}
 
 	@PUT

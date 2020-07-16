@@ -53,9 +53,10 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ImageExploratoryResource {
+	private final static String AUDIT_MESSAGE = "Create image: %s";
 
-	private ImageExploratoryService imageExploratoryService;
-	private RequestId requestId;
+	private final ImageExploratoryService imageExploratoryService;
+	private final RequestId requestId;
 
 	@Inject
 	public ImageExploratoryResource(ImageExploratoryService imageExploratoryService, RequestId requestId) {
@@ -69,7 +70,7 @@ public class ImageExploratoryResource {
 								@Context UriInfo uriInfo) {
 		log.debug("Creating an image {} for user {}", formDTO, ui.getName());
 		String uuid = imageExploratoryService.createImage(ui, formDTO.getProjectName(), formDTO.getNotebookName(),
-				formDTO.getName(), formDTO.getDescription());
+				formDTO.getName(), formDTO.getDescription(), String.format(AUDIT_MESSAGE, formDTO.getName()));
 		requestId.put(ui.getName(), uuid);
 
 		final URI imageUri = UriBuilder.fromUri(uriInfo.getRequestUri())

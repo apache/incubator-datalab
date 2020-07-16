@@ -83,6 +83,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectImage($event) {
     this.selectedImage = $event;
+    this.filterShapes();
     this.getComputationalResourceLimits();
 
     if ($event.templates && $event.templates.length)
@@ -252,11 +253,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
         this.clusterTypes.forEach((cluster, index) => this.clusterTypes[index].computation_resources_shapes =
           SortUtils.shapesSort(cluster.computation_resources_shapes));
-        this.selectedImage = clusterTypes.templates[0];
-
+        this.selectedImage = this.clusterTypes[0];
         if (this.selectedImage) {
           this._ref.detectChanges();
-
           this.filterShapes();
           this.resourceForm.get('template_name').setValue(this.selectedImage.template_name);
           this.getComputationalResourceLimits();
@@ -267,9 +266,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private filterShapes(): void {
+    const allowed: any = ['GPU optimized'];
     if (this.notebook_instance.template_name.toLowerCase().indexOf('tensorflow') !== -1
-      || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1) {
-      const allowed: any = ['GPU optimized'];
+      || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1
+    ) {
       const filtered = Object.keys(
         SortUtils.shapesSort(this.selectedImage.computation_resources_shapes))
         .filter(key => allowed.includes(key))
@@ -277,12 +277,20 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           obj[key] = this.selectedImage.computation_resources_shapes[key];
           return obj;
         }, {});
-
       if (this.PROVIDER !== 'azure') {
         const images = this.clusterTypes.filter(image => image.image === 'docker.dlab-dataengine');
         this.clusterTypes = images;
         this.selectedImage = this.clusterTypes[0];
       }
+      this.selectedImage.computation_resources_shapes = filtered;
+    } else {
+      const filtered = Object.keys(
+        SortUtils.shapesSort(this.selectedImage.computation_resources_shapes))
+        .filter(key => !(allowed.includes(key)))
+        .reduce((obj, key) => {
+          obj[key] = this.selectedImage.computation_resources_shapes[key];
+          return obj;
+        }, {});
       this.selectedImage.computation_resources_shapes = filtered;
     }
   }

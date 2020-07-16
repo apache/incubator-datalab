@@ -39,6 +39,10 @@
   width: 660px;
 }
 
+.modal-xl-m {
+  width: 715px;
+}
+
 .modal-xl {
   width: 900px;
 }
@@ -64,6 +68,7 @@ mat-dialog-container {
     #dialog-box {
       color: $modal-text-color;
       min-height: 150px;
+      font-family: Roboto, "Helvetica Neue", sans-serif;
 
       .dialog-header {
         padding-left: 30px;
@@ -141,6 +146,9 @@ mat-dialog-container {
         text-decoration: none;
         transition: all .45s ease-in-out;
         line-height: 19px;
+        &.spark-url{
+          line-height: 16px;
+        }
 
         &:hover {
           color: #5faec7;
@@ -263,6 +271,7 @@ mat-dialog-container {
   p {
     font-weight: 400;
     margin-bottom: 10px;
+    display: flex;
 
     small {
       font-size: 12px;
@@ -270,11 +279,18 @@ mat-dialog-container {
     }
   }
 
-  span:not(.description) {
+  span:not(.description),{
     font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
+    max-width: 450px;
+    white-space: nowrap;
+    &.link-icon{
+      //margin-left: 10px;
+      cursor: pointer;
+      padding-top: 2px;
+    }
   }
 
   .links_block {
@@ -356,6 +372,54 @@ mat-dialog-container {
 
 .mat-list-base .mat-list-item.delete-item{
   height: 30px;
+}
+
+.d-none{
+  display: none !important;
+}
+
+.d-flex{
+  display: flex !important;
+}
+
+.progres{
+  border: 1px solid rgba(0,0,0,.12);
+  height: 17px;
+  position: relative;
+  width: 155px;
+
+  .bar{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    background-color:  #00bcd4;
+  }
+
+  .progress-bar-text{
+    position: absolute;
+    left: 5px;
+    top: 0;
+    bottom: 0;
+    font-size: 11px;
+    line-height: 13px;
+    color: rgba(0, 0, 0, 0.87);
+    z-index: 10;
+  }
+}
+
+.not-allow{
+  cursor: not-allowed !important;
+  &.open-bucket{
+    color: $blue-grey-color !important;
+  }
+}
+
+.audit-info-content{
+  .mat-list-item-content{
+    align-items: start !important;
+  }
 }
 
 

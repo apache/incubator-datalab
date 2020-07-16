@@ -572,17 +572,17 @@ def ensure_jar_endpoint():
                 conn.run('mkdir -p {}'.format(web_path))
             conn.run('wget -P {}  --user={} --password={} '
                      'https://{}/repository/packages/provisioning-service-'
-                     '2.2.jar --no-check-certificate'
+                     '2.4.jar --no-check-certificate'
                      .format(web_path, args.repository_user,
                              args.repository_pass, args.repository_address))
-            conn.run('mv {0}/provisioning-service-2.2.jar {0}/provisioning-service.jar'
+            conn.run('mv {0}/provisioning-service-2.4.jar {0}/provisioning-service.jar'
                      .format(web_path))
             conn.run('wget -P {}  --user={} --password={} '
                      'https://{}/repository/packages/billing-{}-'
-                     '2.2.jar --no-check-certificate'
+                     '2.4.jar --no-check-certificate'
                      .format(web_path, args.repository_user,
                              args.repository_pass, args.repository_address, args.cloud_provider))
-            conn.run('mv {0}/billing-{1}-2.2.jar {0}/billing.jar'
+            conn.run('mv {0}/billing-{1}-2.4.jar {0}/billing.jar'
                      .format(web_path, args.cloud_provider))
             conn.sudo('touch {}'.format(ensure_file))
     except Exception as err:

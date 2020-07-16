@@ -26,6 +26,7 @@ export * from './userResource.service';
 export * from './authorization.guard';
 export * from './admin.guard';
 export * from './cloudProvider.guard';
+export * from './audit.guard';
 export * from './checkParams.guard';
 export * from './librariesInstallation.service';
 export * from './manageUngit.service';

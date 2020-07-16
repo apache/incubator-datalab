@@ -26,6 +26,8 @@ import { DateUtils, CheckUtils } from '../../../core/util';
 import { DataengineConfigurationService } from '../../../core/services';
 import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 import { CLUSTER_CONFIGURATION } from '../computational-resource-create-dialog/cluster-configuration-templates';
+import {AuditService} from '../../../core/services/audit.service';
+import {CopyPathUtils} from '../../../core/util/copyPathUtils';
 
 @Component({
   selector: 'dlab-cluster-details',
@@ -46,19 +48,20 @@ export class DetailComputationalResourcesComponent implements OnInit {
   tooltip: boolean = false;
   config: Array<{}> = [];
   public configurationForm: FormGroup;
+  isCopyIconVissible: any = {};
+  isCopied: boolean = true;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public toastr: ToastrService,
     public dialogRef: MatDialogRef<DetailComputationalResourcesComponent>,
     private dataengineConfigurationService: DataengineConfigurationService,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private auditService: AuditService
   ) { }
 
   ngOnInit() {
     this.open(this.data.environment, this.data.resource);
-
-    console.log(this.PROVIDER);
   }
 
   public open(environment, resource): void {
@@ -116,5 +119,30 @@ export class DetailComputationalResourcesComponent implements OnInit {
       return this.configuration.nativeElement['checked']
         ? (control.value && control.value !== null && CheckUtils.isJSON(control.value) ? null : { valid: false })
         : null;
+  }
+
+  private logAction(resource: any, environment, copy?: string) {
+    const clusterInfo = {
+      action: copy,
+      cluster: resource.computational_name,
+      notebook: environment.name,
+      clusterType: resource.dataEngineType === 'dataengine-service' ? 'Hadoop' : 'Master'
+    };
+
+    this.auditService.sendDataToAudit({resource_name: resource.computational_name, info: JSON.stringify(clusterInfo), type: 'COMPUTE'}).subscribe();
+  }
+
+  copyBucketName(url: string) {
+    CopyPathUtils.copyPath(url);
+  }
+
+  protected showCopyIcon(element) {
+    this.isCopyIconVissible[element] = true;
+  }
+  protected hideCopyIcon() {
+    for (const key in this.isCopyIconVissible) {
+      this.isCopyIconVissible[key] = false;
+    }
+    this.isCopied = true;
   }
 }

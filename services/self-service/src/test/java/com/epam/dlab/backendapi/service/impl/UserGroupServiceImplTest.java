@@ -78,7 +78,7 @@ public class UserGroupServiceImplTest extends TestBase {
     public void createGroup() {
         when(userRoleDao.addGroupToRole(anySet(), anySet())).thenReturn(true);
 
-        userGroupService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+        userGroupService.createGroup(getUserInfo(), GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
 
         verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
         verify(userGroupDao).addUsers(GROUP, Collections.singleton(USER));
@@ -88,7 +88,7 @@ public class UserGroupServiceImplTest extends TestBase {
 	public void createGroupWithNoUsers() {
 		when(userRoleDao.addGroupToRole(anySet(), anySet())).thenReturn(true);
 
-		userGroupService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.emptySet());
+		userGroupService.createGroup(getUserInfo(), GROUP, Collections.singleton(ROLE_ID), Collections.emptySet());
 
 		verify(userRoleDao).addGroupToRole(Collections.singleton(GROUP), Collections.singleton(ROLE_ID));
 		verify(userGroupDao).addUsers(anyString(), anySet());
@@ -99,7 +99,7 @@ public class UserGroupServiceImplTest extends TestBase {
 		when(userRoleDao.addGroupToRole(anySet(), anySet())).thenReturn(false);
 
 		expectedException.expect(ResourceNotFoundException.class);
-		userGroupService.createGroup(GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
+		userGroupService.createGroup(getUserInfo(), GROUP, Collections.singleton(ROLE_ID), Collections.singleton(USER));
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class UserGroupServiceImplTest extends TestBase {
 				UserInstanceStatus.TERMINATING)).thenReturn(Collections.singletonList(projectDTO));
 		doNothing().when(userGroupDao).removeGroup(anyString());
 
-		userGroupService.removeGroup(GROUP);
+		userGroupService.removeGroup(getUserInfo(), GROUP);
 
 		verify(userRoleDao).removeGroup(GROUP);
 		verify(userGroupDao).removeGroup(GROUP);
@@ -129,7 +129,7 @@ public class UserGroupServiceImplTest extends TestBase {
 		doNothing().when(userGroupDao).removeGroup(anyString());
 
 		try {
-			userGroupService.removeGroup(GROUP);
+			userGroupService.removeGroup(getUserInfo(), GROUP);
 		} catch (Exception e){
 			assertEquals("Group can not be removed because it is used in some project", e.getMessage());
 		}
@@ -149,7 +149,7 @@ public class UserGroupServiceImplTest extends TestBase {
 		when(userRoleDao.removeGroup(anyString())).thenReturn(false);
 		doNothing().when(userGroupDao).removeGroup(anyString());
 
-		userGroupService.removeGroup(GROUP);
+		userGroupService.removeGroup(getUserInfo(), GROUP);
 
 		verify(userRoleDao).removeGroup(GROUP);
 		verify(userGroupDao).removeGroup(GROUP);
@@ -167,7 +167,7 @@ public class UserGroupServiceImplTest extends TestBase {
 		expectedException.expectMessage("Exception");
 		expectedException.expect(DlabException.class);
 
-		userGroupService.removeGroup(GROUP);
+		userGroupService.removeGroup(getUserInfo(), GROUP);
 	}
 
     private UserGroupDto getUserGroup() {

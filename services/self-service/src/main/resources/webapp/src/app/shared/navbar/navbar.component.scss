@@ -106,6 +106,8 @@
       border-radius: 0;
       font-size: 14px;
       cursor: pointer;
+      min-width: 280px;
+      text-align: left;
 
       .user-name {
         color: #36afd5;
@@ -238,7 +240,7 @@ a.nav-item {
 
 .hamburger {
   border: none;
-  padding: 0px;
+  padding: 0;
   background: none;
   outline: none;
   width: 60px;
@@ -325,4 +327,8 @@ mat-sidenav-content {
     display: block;
     max-height: 100%;
   }
+}
+
+.blue{
+  color: #35afd5;
 }

@@ -20,12 +20,17 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.annotation.Audit;
+import com.epam.dlab.backendapi.annotation.Info;
+import com.epam.dlab.backendapi.annotation.ResourceName;
+import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.bucket.BucketDTO;
 import com.epam.dlab.dto.bucket.BucketDeleteDTO;
+import com.epam.dlab.dto.bucket.FolderUploadDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -47,6 +52,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.DELETE;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.DOWNLOAD;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.UPLOAD;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.BUCKET;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 
@@ -54,6 +63,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 public class BucketServiceImpl implements BucketService {
     private static final String BUCKET_GET_OBJECTS = "%sbucket/%s";
     private static final String BUCKET_UPLOAD_OBJECT = "%sbucket/upload";
+    private static final String BUCKET_UPLOAD_FOLDER = "%sbucket/folder/upload";
     private static final String BUCKET_DOWNLOAD_OBJECT = "%sbucket/%s/object/%s/download";
     private static final String BUCKET_DELETE_OBJECT = "%sbucket/objects/delete";
 
@@ -78,12 +88,13 @@ public class BucketServiceImpl implements BucketService {
         }
     }
 
+    @Audit(action = UPLOAD, type = BUCKET)
     @Override
-    public void uploadObjects(UserInfo userInfo, String bucket, String object, String endpoint, InputStream inputStream, long fileSize) {
+    public void uploadObject(@User UserInfo userInfo, @ResourceName String bucket, String object, String endpoint, InputStream inputStream,String contentType, long fileSize, @Info String auditInfo) {
         log.info("Uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
-            FormDataMultiPart formData = getFormDataMultiPart(bucket, object, inputStream, fileSize);
+            FormDataMultiPart formData = getFormDataMultiPart(bucket, object, inputStream, contentType, fileSize);
             Response response = provisioningService.postForm(String.format(BUCKET_UPLOAD_OBJECT, endpointDTO.getUrl()), userInfo.getAccessToken(), formData, Response.class);
             if (response.getStatus() != HttpStatus.SC_OK) {
                 throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
@@ -95,8 +106,30 @@ public class BucketServiceImpl implements BucketService {
         log.info("Finished uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
     }
 
+    @Audit(action = UPLOAD, type = BUCKET)
     @Override
-    public void downloadObject(UserInfo userInfo, String bucket, String object, String endpoint, HttpServletResponse resp) {
+    public void uploadFolder(@User UserInfo userInfo, @ResourceName String bucket, String folder, String endpoint, @Info String auditInfo) {
+        log.info("Uploading folder {} for user {} to bucket {}", folder, userInfo.getName(), bucket);
+        try {
+            if (!folder.endsWith("/")) {
+                throw new DlabException("Folder doesn't end with '/'");
+            }
+            EndpointDTO endpointDTO = endpointService.get(endpoint);
+            FolderUploadDTO dto = new FolderUploadDTO(bucket, folder);
+            Response response = provisioningService.post(String.format(BUCKET_UPLOAD_FOLDER, endpointDTO.getUrl()), userInfo.getAccessToken(), dto, Response.class);
+            if (response.getStatus() != HttpStatus.SC_OK) {
+                throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
+            }
+        } catch (Exception e) {
+            log.error("Cannot upload folder {} to bucket {} for user {}, endpoint {}. Reason {}", folder, bucket, userInfo.getName(), endpoint, e.getMessage());
+            throw new DlabException(String.format("Cannot upload object %s to bucket %s for user %s, endpoint %s. Reason %s", folder, bucket, userInfo.getName(), endpoint, e.getMessage()));
+        }
+        log.info("Finished uploading folder {} for user {} to bucket {}", folder, userInfo.getName(), bucket);
+    }
+
+    @Audit(action = DOWNLOAD, type = BUCKET)
+    @Override
+    public void downloadObject(@User UserInfo userInfo, @ResourceName String bucket, String object, String endpoint, HttpServletResponse resp, @Info String auditInfo) {
         log.info("Downloading file {} for user {} from bucket {}", object, userInfo.getName(), bucket);
         EndpointDTO endpointDTO = endpointService.get(endpoint);
         try (InputStream inputStream = provisioningService.getWithMediaTypes(String.format(BUCKET_DOWNLOAD_OBJECT, endpointDTO.getUrl(), bucket, encodeObject(object)), userInfo.getAccessToken(),
@@ -109,8 +142,9 @@ public class BucketServiceImpl implements BucketService {
         }
     }
 
+    @Audit(action = DELETE, type = BUCKET)
     @Override
-    public void deleteObjects(UserInfo userInfo, String bucket, List<String> objects, String endpoint) {
+    public void deleteObjects(@User UserInfo userInfo, @ResourceName String bucket, List<String> objects, String endpoint, @Info String auditInfo) {
         try {
             EndpointDTO endpointDTO = endpointService.get(endpoint);
             BucketDeleteDTO bucketDeleteDTO = new BucketDeleteDTO(bucket, objects);
@@ -128,8 +162,8 @@ public class BucketServiceImpl implements BucketService {
         return URLEncoder.encode(object, StandardCharsets.UTF_8.toString()).replace("+", "%20");
     }
 
-    private FormDataMultiPart getFormDataMultiPart(String bucket, String object, InputStream inputStream, long fileSize) {
-        StreamDataBodyPart filePart = new StreamDataBodyPart("file", inputStream, object, MediaType.valueOf(APPLICATION_OCTET_STREAM));
+    private FormDataMultiPart getFormDataMultiPart(String bucket, String object, InputStream inputStream, String contentType, long fileSize) {
+        StreamDataBodyPart filePart = new StreamDataBodyPart("file", inputStream, object, MediaType.valueOf(contentType));
         FormDataMultiPart formData = new FormDataMultiPart();
         formData.field("bucket", bucket);
         formData.field("object", object);

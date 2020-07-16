@@ -24,7 +24,7 @@ public class UsernameUtils {
 	private static final String UNDERLINE = "_";
 
 	public static String removeDomain(String username) {
-		return username.replaceAll("@.*", "");
+		return username != null ? username.replaceAll("@.*", "") : null;
 	}
 
 	public static String replaceWhitespaces(String username) {
