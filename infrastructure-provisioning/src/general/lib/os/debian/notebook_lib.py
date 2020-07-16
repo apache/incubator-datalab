@@ -386,6 +386,11 @@ def install_os_pkg(requisites):
                     .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]), ' ').strip().split(' ')
                 if dep == '' or dep == os_pkg.split("=")[0]:
                     dep = []
+                else:
+                    for n, i in enumerate(dep):
+                        pkg = sudo('apt list --installed 2>&1 | grep {}'.format(i))
+                        if "/" in pkg:
+                            dep[n] = '{} v.{}'.format(pkg.split('/')[0], pkg.split(' ')[1])
             else:
                 dep = []
             if 'E: Version' in err and 'was not found' in err:
