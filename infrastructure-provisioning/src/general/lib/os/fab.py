@@ -87,21 +87,30 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     version = \
                     [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split(
                         '==')[1]
-                sudo('if grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
-                dep = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
+                sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
+                dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
                 if dep == '' or dep == pip_pkg.split("==")[0]:
                     dep = []
                 else:
                     dep = dep.split(', ')
+                    for n, i in enumerate(dep):
+                        if i == pip_pkg.split("==")[0]:
+                            dep[n] = ''
+                        else:
+                            dep[n] = sudo('{} freeze 2>&1 | grep -w -i -E {}'.format(pip_version , i)).replace('==', ' v.')
+                    dep = [i for i in dep if i]
+
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
                 err_status = 'failed'
-                versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
+                versions = ''
+                if 'Could not find a version that satisfies the requirement' in err:
+                    versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
+                    err_status = 'invalid version'
                 if versions == '':
                     versions = []
                 else:
                     versions = versions.split(', ')
-                    err_status = 'invalid version'
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "status": err_status,
                                    "error_message": err, "available_versions": versions})
         return status
