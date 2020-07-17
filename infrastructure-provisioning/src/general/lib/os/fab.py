@@ -425,7 +425,7 @@ def install_r_pkg(requisites):
                 run('sudo -i R -e \'devtools::install_version("{0}", version = {1}, repos = "http://cran.us.r-project.org", dep=TRUE)\' 2>&1 | '
                         'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
             else:
-                sudo('R -e \'devtools::install_version("{0}", version = "{1}", repos = "https://cloud.r-project.org", dep=TRUE)\' 2>&1 | '
+                sudo('R -e \'devtools::install_version("{0}", version = {1}, repos = "https://cloud.r-project.org", dep=TRUE)\' 2>&1 | '
                          'tee /tmp/tee.tmp; if ! grep -w -E  "({2})" /tmp/tee.tmp > /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(name, vers, error_parser))
             dep = sudo('grep "(NA" /tmp/tee.tmp | awk \'{print $1}\'').replace('\r\n', ' ')
             dep_ver = sudo('grep "(NA" /tmp/tee.tmp | awk \'{print $4}\'').replace('\r\n', ' ').replace(')', '').split(' ')
