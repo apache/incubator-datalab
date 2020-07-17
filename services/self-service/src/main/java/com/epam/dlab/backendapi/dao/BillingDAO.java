@@ -29,21 +29,17 @@ public interface BillingDAO {
 
 	Double getUserCost(String user);
 
-	Double getProjectCost(String project);
+	Double getOverallProjectCost(String project);
 
-	Double getProjectCost(String project, LocalDate date);
+	Double getMonthlyProjectCost(String project, LocalDate date);
 
 	int getBillingQuoteUsed();
 
 	int getBillingUserQuoteUsed(String user);
 
-	int getBillingProjectQuoteUsed(String project);
-
 	boolean isBillingQuoteReached();
 
 	boolean isUserQuoteReached(String user);
-
-	boolean isProjectQuoteReached(String project);
 
 	List<BillingReportLine> findBillingData(String project, String endpoint, List<String> resourceNames);
 

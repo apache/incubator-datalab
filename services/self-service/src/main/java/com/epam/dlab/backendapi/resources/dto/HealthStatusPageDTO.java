@@ -44,10 +44,6 @@ public class HealthStatusPageDTO {
 	@JsonProperty
 	private boolean projectAdmin;
 	@JsonProperty
-	private int billingQuoteUsed;
-	@JsonProperty
-	private int billingUserQuoteUsed;
-	@JsonProperty
 	private boolean projectAssigned;
 	@JsonProperty
 	private BucketBrowser bucketBrowser;
