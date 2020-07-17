@@ -97,7 +97,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                         if i == pip_pkg.split("==")[0]:
                             dep[n] = ''
                         else:
-                            dep[n] = sudo('{} freeze 2>&1 | grep -i "{}=="'.format(pip_version , i)).replace('==', ' v.')
+                            dep[n] = sudo('{} freeze 2>&1 | grep {}=='.format(pip_version , i)).replace('==', ' v.')
+                            if dep[n] == '':
+                                dep[n] = sudo('{} freeze 2>&1 | grep {}=='.format(pip_version, i.lower())).replace('==', ' v.')
                     dep = [i for i in dep if i]
 
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "version": version, "status": "installed", "add_pkgs": dep})
