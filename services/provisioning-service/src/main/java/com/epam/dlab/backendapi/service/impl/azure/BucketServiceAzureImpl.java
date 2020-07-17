@@ -25,6 +25,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.service.BucketService;
 import com.epam.dlab.dto.bucket.BucketDTO;
@@ -90,7 +91,7 @@ public class BucketServiceAzureImpl implements BucketService {
 
     @Override
     public void uploadFolder(UserInfo userInfo, String bucket, String folder) {
-
+        // Azure doesn't support this feature
     }
 
     @Override
