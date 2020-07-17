@@ -19,9 +19,9 @@
 
 package com.epam.dlab.backendapi.schedulers;
 
-import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.schedulers.internal.Scheduled;
+import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.EnvironmentService;
 import com.epam.dlab.backendapi.service.ProjectService;
 import com.google.inject.Inject;
@@ -34,7 +34,7 @@ import org.quartz.JobExecutionContext;
 public class CheckProjectQuoteScheduler implements Job {
 
 	@Inject
-	private BillingDAO billingDAO;
+	private BillingService billingService;
 	@Inject
 	private EnvironmentService environmentService;
 	@Inject
@@ -45,7 +45,7 @@ public class CheckProjectQuoteScheduler implements Job {
 		projectService.getProjects()
 				.stream()
 				.map(ProjectDTO::getName)
-				.filter(billingDAO::isProjectQuoteReached)
+				.filter(billingService::isProjectQuoteReached)
 				.peek(p -> log.debug("Stopping {} project env because of reaching user billing quote", p))
 				.forEach(environmentService::stopProjectEnvironment);
 	}

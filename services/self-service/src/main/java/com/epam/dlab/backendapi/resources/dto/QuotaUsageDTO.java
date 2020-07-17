@@ -17,27 +17,16 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.resources.dto;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.domain.BillingReport;
-import com.epam.dlab.backendapi.resources.dto.BillingFilter;
-import com.epam.dlab.backendapi.resources.dto.QuotaUsageDTO;
+import lombok.Builder;
+import lombok.Data;
 
-import java.util.List;
+import java.util.Map;
 
-public interface BillingService {
-	BillingReport getBillingReport(UserInfo userInfo, BillingFilter filter);
-
-	String downloadReport(UserInfo userInfo, BillingFilter filter);
-
-	BillingReport getExploratoryBillingData(String project, String endpoint, String exploratoryName, List<String> compNames);
-
-	void updateRemoteBillingData(UserInfo userInfo);
-
-	QuotaUsageDTO getQuotas(UserInfo userInfo);
-
-	boolean isProjectQuoteReached(String project);
-
-	int getBillingProjectQuoteUsed(String project);
+@Data
+@Builder
+public class QuotaUsageDTO {
+	private int totalQuotaUsed;
+	private Map<String, Integer> projectQuotas;
 }
