@@ -94,6 +94,7 @@ section.toolbar {
 
 #range-picker .ng-daterangepicker .calendar .side-container .side-button.is-active,
 #range-picker .ng-daterangepicker .input-section .label-txt {
+  display: unset;
   color: #35afd5;
 }
 
@@ -131,10 +132,10 @@ section.toolbar {
   color: #fff;
 }
 
-#range-picker .ng-daterangepicker .input-section .value-txt.untouched::after {
-  content: 'Select date';
-  position: absolute;
-  top: 22px;
-  left: 34px;
-  color: #718ba6;
-}
+//#range-picker .ng-daterangepicker .input-section .value-txt.untouched::after {
+//  content: 'date';
+//  position: absolute;
+//  top: 22px;
+//  left: 34px;
+//  color: #718ba6;
+//}

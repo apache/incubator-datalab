@@ -68,6 +68,14 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
     // this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
     //   this.healthStatus = result;
     // }));
+    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
+    const labels = <NodeListOf<Element>>document.querySelectorAll('.label-txt');
+    const addedText = document.createTextNode('From date');
+    labels[0].innerHTML = 'From date';
+    labels[1].innerHTML = 'To date';
+    for (let label = 0; label < rangeLabels.length; ++label) {
+      rangeLabels[label].classList.add('d-none');
+    }
   }
 
   ngAfterViewInit() {
@@ -76,14 +84,20 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
 
   setDateRange() {
     const availableRange = JSON.parse(localStorage.getItem('report_period'));
-
+    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
+    for (let label = 0; label < rangeLabels.length; ++label) {
+      rangeLabels[label].classList.remove('d-none');
+      console.log('remove');
+    }
     this.availablePeriodFrom = availableRange.start_date;
     this.availablePeriodTo = availableRange.end_date;
   }
 
   clearRangePicker(): void {
     const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
-
+    for (let label = 0; label < rangeLabels.length; ++label) {
+      rangeLabels[label].classList.add('d-none');
+    }
     for (let label = 0; label < rangeLabels.length; ++label)
       rangeLabels[label].classList.add('untouched');
   }
@@ -94,7 +108,13 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
     for (let label = 0; label < rangeLabels.length; ++label)
       if (rangeLabels[label].classList.contains('untouched')) {
         rangeLabels[label].classList.remove('untouched');
+        rangeLabels[label].classList.remove('d-none');
       }
+
+
+    const labels = <NodeListOf<Element>>document.querySelectorAll('.label-txt');
+    labels[0].innerHTML = 'From:';
+    labels[1].innerHTML = 'To:';
 
     const reportDateRange = dateRange.split('-');
     this.setRangeOption.emit({

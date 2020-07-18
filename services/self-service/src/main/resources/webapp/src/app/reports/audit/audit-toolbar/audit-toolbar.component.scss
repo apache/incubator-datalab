@@ -95,7 +95,9 @@ section.toolbar {
 #range-picker .ng-daterangepicker .calendar .side-container .side-button.is-active,
 #range-picker .ng-daterangepicker .input-section .label-txt {
   color: #35afd5;
-}
+  display: unset;
+  font-size: 13px;
+  }
 
 #range-picker .ng-daterangepicker .calendar .calendar-container .day-num.is-active,
 #range-picker .ng-daterangepicker .calendar .calendar-container .days .day-num:hover {
@@ -124,6 +126,8 @@ section.toolbar {
 
 #range-picker .ng-daterangepicker .input-section .value-txt {
   color: #718ba6;
+  display: unset;
+  padding-left: 5px;
 }
 
 #range-picker .ng-daterangepicker .input-section .value-txt.untouched,
@@ -132,9 +136,24 @@ section.toolbar {
 }
 
 #range-picker .ng-daterangepicker .input-section .value-txt.untouched::after {
-  content: 'Select date';
+  content: 'date';
   position: absolute;
-  top: 22px;
-  left: 34px;
+  top: 9px;
+  left: 61px;
   color: #718ba6;
+}
+
+#range-picker .ng-daterangepicker {
+  height: 37px;
+  width: 350px;
+
+  .d-none{
+    display: none;
+  }
+
+  .input-section {
+    height: 37px;
+    padding-right: 30px;
+  }
+
 }
