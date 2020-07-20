@@ -61,31 +61,50 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    if (localStorage.getItem('report_period')) {
-      const availableRange = JSON.parse(localStorage.getItem('report_period'));
-      this.availablePeriodFrom = availableRange.start_date;
-      this.availablePeriodTo = availableRange.end_date;    }
+    // if (localStorage.getItem('report_period')) {
+    //   const availableRange = JSON.parse(localStorage.getItem('report_period'));
+    //   this.availablePeriodFrom = availableRange.start_date;
+    //   this.availablePeriodTo = availableRange.end_date;
+    // } else {
+
+    // }
     this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
       this.healthStatus = result;
     }));
+    this.setInitDatapickerConfig();
+    // this.clearRangePicker();
   }
 
   ngAfterViewInit() {
-    this.clearRangePicker();
+    // this.clearRangePicker();
+  }
+
+  private setInitDatapickerConfig() {
+    const labels = <NodeListOf<Element>>document.querySelectorAll('.label-txt');
+    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
+    labels[0].innerHTML = 'From date';
+    labels[1].innerHTML = 'To date';
+    for (let label = 0; label < rangeLabels.length; ++label) {
+      // rangeLabels[label].classList.add('untouched');
+      rangeLabels[label].classList.add('d-none');
+    }
   }
 
   setDateRange() {
     const availableRange = JSON.parse(localStorage.getItem('report_period'));
+
+    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
+    for (let label = 0; label < rangeLabels.length; ++label) {
+      rangeLabels[label].classList.remove('d-none');
+
+    }
 
     this.availablePeriodFrom = availableRange.start_date;
     this.availablePeriodTo = availableRange.end_date;
   }
 
   clearRangePicker(): void {
-    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
-
-    for (let label = 0; label < rangeLabels.length; ++label)
-      rangeLabels[label].classList.add('untouched');
+    this.setInitDatapickerConfig();
   }
 
   onChange(dateRange: string): void {
@@ -94,7 +113,11 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
     for (let label = 0; label < rangeLabels.length; ++label)
       if (rangeLabels[label].classList.contains('untouched')) {
         rangeLabels[label].classList.remove('untouched');
+        rangeLabels[label].classList.remove('d-none');
       }
+    const labels = <NodeListOf<Element>>document.querySelectorAll('.label-txt');
+    labels[0].innerHTML = 'From:';
+    labels[1].innerHTML = 'To:';
 
     const reportDateRange = dateRange.split('-');
     this.setRangeOption.emit({

@@ -30,7 +30,7 @@ body.modal-open {
 }
 
 .alignleft, .al {float: left}
-.alignright, .ar {float: right}
+.alignright, .ar {float: right; left: 26px; z-index: 1010}
 .aligncenter, .ac {margin-left: auto;margin-right: auto}
 
 .mt-5 {margin-top: 5px}

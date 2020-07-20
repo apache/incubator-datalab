@@ -20,8 +20,22 @@
 <section class="audit-table-wrapper">
   <table mat-table [dataSource]="auditData" class="data-grid audit mat-elevation-z6">
 
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef class="th_date label-header">
+        <div class="label"><span class="text">Date</span></div>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </button>
+      </th>
+      <td mat-cell *matCellDef="let element"> {{element.timestamp | date: 'dd/MM/yyyy hh:mm:ss aa'}} </td>
+      <td mat-footer-cell *matFooterCellDef class="table-footer">
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="user">
-      <th mat-header-cell *matHeaderCellDef class="th_user label-header">
+      <th mat-header-cell *matHeaderCellDef class="th_user label-header" [ngStyle]="{'z-index': 99}">
         <div class="label"><span class="audit-user"> User</span></div>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
@@ -32,6 +46,28 @@
       </th>
       <td mat-cell *matCellDef="let element"><span class="table-item user-col">{{element.user || 'N/A'}}</span></td>
       <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef class="th_action label-header" [ngStyle]="{'zIndex': 98, 'display': 'sticky'}">
+        <div class="label">
+          <span class="text"> Action </span>
+        </div>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </button>
+      </th>
+      <td mat-cell *matCellDef=" let element">
+        <div class="action-wrapper">
+          <span>{{element.action | convertaction }}</span>
+          <div class="audit-info" (click)="openActionInfo(element)" *ngIf="element.info">
+            <i class="material-icons">info</i>
+          </div>
+        </div>
+      </td>
+      <td mat-footer-cell *matFooterCellDef  class="table-footer"></td>
     </ng-container>
 
     <ng-container matColumnDef="project">
@@ -122,32 +158,6 @@
       <td mat-cell *matCellDef="let element"><span class="table-item">{{element.resourceName || 'N/A'}}</span></td>
       <td mat-footer-cell *matFooterCellDef class="table-footer" [hidden]="true">
 
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="action">
-      <th mat-header-cell *matHeaderCellDef class="th_action label-header">
-        <div class="label">
-          <span class="text"> Action </span>
-        </div>
-      </th>
-      <td mat-cell *matCellDef=" let element">
-        <div class="action-wrapper">
-          <span>{{element.action | convertaction }}</span>
-          <div class="audit-info" (click)="openActionInfo(element)" *ngIf="element.info">
-            <i class="material-icons">info</i>
-          </div>
-        </div>
-      </td>
-      <td mat-footer-cell *matFooterCellDef  class="table-footer"></td>
-    </ng-container>
-
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef class="th_date label-header">
-        <div class="label"><span class="text">Date</span></div>
-      </th>
-      <td mat-cell *matCellDef="let element"> {{element.timestamp | date: 'dd/MM/yyyy hh:mm:ss aa'}} </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer">
       </td>
     </ng-container>
 

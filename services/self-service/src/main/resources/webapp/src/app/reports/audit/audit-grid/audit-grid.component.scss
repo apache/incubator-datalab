@@ -33,10 +33,12 @@
     tr {
       .th_user {
         width: 19%;
+        z-index: 9 !important;
       }
 
       .th_action {
         width: 11%;
+        z-index: 8 !important;
         .label{
           padding-bottom: 10px;
         }
@@ -44,6 +46,7 @@
 
       .th_date {
         width: 14%;
+        z-index: 10 !important;
         .label{
           padding-bottom: 10px;
         }
@@ -51,18 +54,22 @@
 
       .th_project{
         width: 11%;
+        z-index: 7 !important;
       }
 
       .th_resource{
         width: 14%;
+        z-index: 5 !important;
       }
 
       .th_resource-type{
         width: 14%;
+        z-index: 6 !important;
       }
 
       .th_buttons{
         width: 6%;
+        z-index: 4 !important;
       }
 
       th {
@@ -239,14 +246,11 @@
 
     .dropdown-multiselect {
       button {
-        font-size: 14px;
+        font-size: 13px;
         height: 34px;
         padding: 7px 20px;
       }
     }
-  }
-  .user-col{
-    padding-left: 5px;
   }
 }
 
@@ -277,7 +281,7 @@
 }
 
 .audit-user{
-  padding-left: 19px;
+  padding-left: 15px;
 }
 
 .table-footer{

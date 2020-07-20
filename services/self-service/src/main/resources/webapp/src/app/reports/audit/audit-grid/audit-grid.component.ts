@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, EventEmitter, Inject, OnInit, Output} from '@angular/core';
 import {FilterAuditModel} from '../filter-audit.model';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {AuditService} from '../../../core/services/audit.service';
@@ -54,6 +54,8 @@ export class AuditGridComponent implements OnInit {
   public allItems: number;
   private copiedFilterAuditData: FilterAuditModel;
   public isNavigationDisabled: boolean;
+
+  @Output() resetDateFilter: EventEmitter<any> = new EventEmitter();
 
 
   constructor(
@@ -157,6 +159,7 @@ export class AuditGridComponent implements OnInit {
 
   public resetFilterConfigurations(): void {
     this.filterAuditData = FilterAuditModel.getDefault();
+    this.resetDateFilter.emit();
     this.buildAuditGrid(true);
   }
 

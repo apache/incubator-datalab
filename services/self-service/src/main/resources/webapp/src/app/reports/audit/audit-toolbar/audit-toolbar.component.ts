@@ -61,25 +61,22 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    // if (localStorage.getItem('report_period')) {
-    //   const availableRange = JSON.parse(localStorage.getItem('report_period'));
-    //   this.availablePeriodFrom = availableRange.start_date;
-    //   this.availablePeriodTo = availableRange.end_date;    }
-    // this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
-    //   this.healthStatus = result;
-    // }));
-    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
-    const labels = <NodeListOf<Element>>document.querySelectorAll('.label-txt');
-    const addedText = document.createTextNode('From date');
-    labels[0].innerHTML = 'From date';
-    labels[1].innerHTML = 'To date';
-    for (let label = 0; label < rangeLabels.length; ++label) {
-      rangeLabels[label].classList.add('d-none');
-    }
+    this.setInitDatapickerConfig();
   }
 
   ngAfterViewInit() {
     this.clearRangePicker();
+  }
+
+  private setInitDatapickerConfig() {
+    const labels = <NodeListOf<Element>>document.querySelectorAll('.label-txt');
+    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
+    labels[0].innerHTML = 'From date';
+    labels[1].innerHTML = 'To date';
+    for (let label = 0; label < rangeLabels.length; ++label) {
+      rangeLabels[label].classList.add('d-none');
+      rangeLabels[label].classList.add('untouched');
+    }
   }
 
   setDateRange() {
@@ -87,19 +84,14 @@ export class AuditToolbarComponent implements OnInit, AfterViewInit {
     const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
     for (let label = 0; label < rangeLabels.length; ++label) {
       rangeLabels[label].classList.remove('d-none');
-      console.log('remove');
+
     }
     this.availablePeriodFrom = availableRange.start_date;
     this.availablePeriodTo = availableRange.end_date;
   }
 
   clearRangePicker(): void {
-    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
-    for (let label = 0; label < rangeLabels.length; ++label) {
-      rangeLabels[label].classList.add('d-none');
-    }
-    for (let label = 0; label < rangeLabels.length; ++label)
-      rangeLabels[label].classList.add('untouched');
+    this.setInitDatapickerConfig();
   }
 
   onChange(dateRange: string): void {

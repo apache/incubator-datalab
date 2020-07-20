@@ -28,8 +28,9 @@
   min-width: 100%;
   background: #fff;
   padding-left: 15px;
-  font-size: 14px;
-  // height: 34px;
+  font-size: 13px;
+  padding-top: 1px;
+  height: 34px;
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
@@ -68,7 +69,7 @@
     span {
       color: #999;
       font-weight: 300;
-      display: inline-block;
+      //display: inline-block;
       max-width: 80%;
     }
 
