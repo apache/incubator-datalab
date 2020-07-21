@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Cache of libraries for exploratory.
@@ -50,6 +51,7 @@ import java.util.Map;
 @Singleton
 public class ExploratoryLibCache implements Managed, Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExploratoryLibCache.class);
+	private static final String PIP2_GROUP = "pip2";
 
 	@Inject
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
@@ -115,13 +117,28 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	}
 
 	/**
-	 * Return the list of libraries groups from cache.
+	 * Return the list of libraries groups from cache for compute resource.
 	 *
 	 * @param userInfo     the user info.
 	 * @param userInstance the notebook info.
 	 * @return list of libraries groups
 	 */
-	public List<String> getLibGroupList(UserInfo userInfo, UserInstanceDTO userInstance) {
+	public List<String> getComputeLibGroupList(UserInfo userInfo, UserInstanceDTO userInstance) {
+		ExploratoryLibList libs = getLibs(userInfo, userInstance);
+		return libs.getGroupList()
+				.stream()
+				.filter(g -> !PIP2_GROUP.equals(g))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Return the list of libraries groups from cache for exploratory resource.
+	 *
+	 * @param userInfo     the user info.
+	 * @param userInstance the notebook info.
+	 * @return list of libraries groups
+	 */
+	public List<String> getExploratoryLibGroupList(UserInfo userInfo, UserInstanceDTO userInstance) {
 		ExploratoryLibList libs = getLibs(userInfo, userInstance);
 		return libs.getGroupList();
 	}

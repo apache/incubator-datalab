@@ -25,6 +25,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,4 +40,8 @@ public class LibraryStatus {
     private String status;
     @JsonProperty
     private String error;
+    @JsonProperty("available_versions")
+    private List<String> availableVersions;
+    @JsonProperty("add_pkgs")
+    private List<String> addedPackages;
 }

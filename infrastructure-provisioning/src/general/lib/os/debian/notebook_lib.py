@@ -365,27 +365,60 @@ def install_nodejs(os_user):
 
 def install_os_pkg(requisites):
     status = list()
-    error_parser = "Could not|No matching|Error:|failed|Requires:"
+    error_parser = "Could not|No matching|Error:|E:|failed|Requires:"
+    new_pkgs_parser = "The following NEW packages will be installed:"
     try:
         print("Updating repositories and installing requested tools: {}".format(requisites))
         manage_pkg('update', 'remote', '')
         for os_pkg in requisites:
-            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
+            if os_pkg[1] != '' and os_pkg[1] !='N/A':
+                os_pkg = "{}={}".format(os_pkg[0], os_pkg[1])
+            else:
+                os_pkg = os_pkg[0]
+            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
+                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
-            sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{0}.list; then  echo "" > /tmp/os_install_{0}.list;fi'.format(os_pkg))
+            sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 20 "({1})" /tmp/tee.tmp > '
+                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, new_pkgs_parser))
+            dep = sudo('cat /tmp/os_install_{}.log'.format(os_pkg))
+            if err == '':
+                dep = dep[len(new_pkgs_parser): dep.find(" upgraded, ") - 1].replace('\r', '') \
+                    .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]), ' ').strip().split(' ')
+                if dep == '' or dep == os_pkg.split("=")[0]:
+                    dep = []
+                else:
+                    for n, i in enumerate(dep):
+                        pkg = sudo('apt list --installed 2>&1 | grep {}'.format(i))
+                        if pkg == '':
+                            pkg = sudo('apt list --installed 2>&1 | grep {}'.format(i.lower()))
+                        if i == os_pkg.split("=")[0]:
+                            dep[n] = ''
+                        elif "/" in pkg:
+                            dep[n] = '{} v.{}'.format(pkg.split('/')[0], pkg.split(' ')[1])
+                    dep = [i for i in dep if i]
+            else:
+                dep = []
+            if 'E: Version' in err and 'was not found' in err:
+                versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0])).replace('\r\n', '').replace(' 500', '').replace('     ', ' ').strip().split(' ')
+                status_msg = 'invalid version'
+            else:
+                versions = []
+                status_msg = 'failed'
+            sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
             res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
             if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
-                version = [i for i in ver if os_pkg in i][0].split(' ')[1]
-                status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
+                version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
+                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": "installed", "add_pkgs": dep})
             else:
-                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": err})
+                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "status": status_msg, "error_message": err, "available_versions": versions})
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
         return status
-    except:
-        return "Fail to install OS packages"
+    except Exception as err:
+        append_result("Failed to install OS packages", str(err))
+        sys.exit(1)
 
 
 @backoff.on_exception(backoff.expo, SystemExit, max_tries=10)

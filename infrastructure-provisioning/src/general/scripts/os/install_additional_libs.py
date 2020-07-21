@@ -59,7 +59,8 @@ if __name__ == "__main__":
                     [data[row]['name'].split(':')[0], data[row]['name'].split(':')[1],
                      data[row]['version'], data[row]['override']])
             else:
-                pkgs['libraries'][data[row]['group']].append(data[row]['name'])
+                pkgs['libraries'][data[row]['group']].append(
+                    [data[row]['name'], data[row]['version']])
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to parse libs list.", str(err))

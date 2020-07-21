@@ -29,6 +29,11 @@ import { LibrariesInstallationService } from '../../../core/services';
 import { SortUtils, HTTP_STATUS_CODES } from '../../../core/util';
 import {FilterLibsModel} from './filter-libs.model';
 
+interface Library {
+  name: string;
+  version: string;
+}
+
 
 @Component({
   selector: 'install-libraries',
@@ -76,6 +81,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   @ViewChild('groupSelect', { static: false }) group_select;
   @ViewChild('resourceSelect', { static: false }) resource_select;
+  @ViewChild('trigger', { static: false }) matAutoComplete;
+  public isLibInfoOpened = {  };
+  private isLibExist: boolean;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -90,14 +98,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.open(this.data);
-    this.uploadLibGroups();
     this.libSearch.valueChanges.pipe(
       debounceTime(1000))
       .subscribe(newValue => {
         this.query = newValue || '';
         this.filterList();
       });
-    this.getInstalledLibsByResource();
   }
 
   ngOnDestroy() {
@@ -160,7 +166,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       this.destination && this.destination.type === 'СOMPUTATIONAL'
         ? this.model.computational_name = this.destination.name
         : this.model.computational_name = null;
-
       this.uploadLibGroups();
       this.getInstalledLibsByResource();
     }
@@ -186,10 +191,18 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     return this.isInSelectedList || this.isInstalled;
   }
 
-  public selectLibrary(item): void {
-    this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
+  public addLibrary(item): void {
+    const lib = item.split(':').filter(v => !!v);
+    this.model.selectedLibs.push({ group: this.group, name: lib[0], version: lib[1] || 'N/A' });
     this.query = '';
     this.libSearch.setValue('');
+    this.filteredList = null;
+  }
+
+  public selectLibrary(item): void {
+    // this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
+    // this.query = '';
+    this.libSearch.setValue(item.name + ':');
     this.filteredList = null;
   }
 
@@ -304,7 +317,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
           });
     } else {
       this.model.getLibrariesList(this.group, this.query)
-        .subscribe(libs => this.filteredList = libs);
+        .subscribe((libs: Library[]) => {
+          console.log('libs', libs);
+          console.log(this.query.slice(0, this.query.indexOf(':')));
+          this.isLibExist = libs.some(v => v.name === this.query.slice(0, this.query.indexOf(':')));
+          this.filteredList = libs;
+        });
     }
   }
 
@@ -355,6 +373,15 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.filtredNotebookLibs = [...this.notebookLibs];
     this.filterModel.resetFilterLibs();
   }
+
+  public openLibInfo(lib, type) {
+    this.dialog.open(
+      LibInfoDialogComponent, { data: {lib, type}, width: '550px', panelClass: 'error-modalbox' });
+  }
+
+  public emitClick() {
+      this.matAutoComplete.closePanel();
+  }
 }
 
 @Component({
@@ -380,5 +407,95 @@ export class ErrorLibMessageDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { }
+  ) {
+
+  }
+}
+
+@Component({
+  selector: 'lib-info-dialog',
+  template: `
+  <div class="dialog-header">
+    <h4 class="modal-title" *ngIf="data.type === 'added'">Installed dependency</h4>
+    <h4 class="modal-title" *ngIf="data.type === 'available'">Library installation error</h4>
+    <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
+  </div>
+<!--  <mat-list class="resources">-->
+
+<!--    <mat-list-item class="list-header">-->
+<!--      <div class="object">Name</div>-->
+<!--      <div class="size">Version</div>-->
+<!--    </mat-list-item>-->
+
+<!--    <div class="scrolling-content delete-list" id="scrolling">-->
+
+<!--      <mat-list-item *ngFor="let lib of data.add_pkgs" class="delete-item">-->
+<!--        <div class="object">-->
+<!--         {{lib}}-->
+<!--        </div>-->
+<!--        <div class="size">v2.3.4</div>-->
+<!--      </mat-list-item>-->
+
+<!--    </div>-->
+<!--  </mat-list>-->
+
+  <div class="lib-list" *ngIf="data.type === 'added'">
+    <span class="strong">Dependency: </span>{{data.lib.add_pkgs.join(', ')}}
+  </div>
+  <div class="lib-list" *ngIf="data.type === 'available'">
+    <p class="terminated">Version is not available</p>
+    <span class="strong">Available versions: </span>{{data.lib.available_versions.join(', ')}}
+  </div>
+<!--  <div class="text-center">-->
+<!--    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>-->
+<!--  </div>-->
+  `,
+  styles: [    `
+    .lib-list { max-height: 200px; overflow-x: auto; word-break: break-all; padding: 20px 30px !important; margin: 20px 0; color: #577289;}
+    .terminated{padding-bottom: 15px;}
+
+    .mat-list-base {
+      padding: 40px 30px;
+    }
+
+    .object {
+      width: 70%;
+      display: flex;
+      align-items: center;
+      padding-right: 10px;
+    }
+
+    .size {
+      width: 30%;
+    }
+    .scrolling-content.delete-list {
+      max-height: 200px;
+      overflow-y: auto;
+      padding-top: 11px;
+    }
+
+    .empty-list {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+      color: #35afd5;
+      padding: 15px;
+    }
+
+    .list-header {
+      border-top: 1px solid #edf1f5;
+      border-bottom: 1px solid #edf1f5;
+      color: #577289;
+      width: 100%;
+    }
+  `
+  ]
+})
+export class LibInfoDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<ErrorLibMessageDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+
+  }
 }

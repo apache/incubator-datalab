@@ -17,6 +17,8 @@
  * under the License.
  */
 
+@import '_variables.scss';
+
 .aligner {
   height: 100%;
   display: flex;
@@ -108,6 +110,61 @@
     margin: 0 auto;
   }
 }
+.list-item{
+  display: flex;
+  width: 100%;
+  padding-left: 20px;
+}
+
+.mat-list-base {
+  //padding: 40px 30px;
+}
+
+.object {
+  width: 70%;
+  display: flex;
+  align-items: center;
+  padding-right: 10px;
+}
+
+.size {
+  width: 30%;
+}
+.scrolling-content.delete-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.empty-list {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  color: #35afd5;
+  padding: 15px;
+}
+
+ul.resources{
+  padding-left: 10px;
+}
+
+.dependency-list-header {
+  //border-top: 1px solid #edf1f5;
+  //border-bottom: 1px solid #edf1f5;
+  color: #577289;
+  width: 100%;
+  padding: 15px 0 5px 0;
+  font-weight: 600;
+}
+
+.add-icon{
+  cursor: pointer;
+  position: absolute;
+  top: -13px;
+  right: 10px;
+  .mat-icon{
+    font-size: 24px;
+  }
+}
 
 .search-box {
   display: flex;
@@ -125,9 +182,21 @@
 
     .control-group {
       width: 50%;
+      padding-bottom: 0;
 
       .label {
         width: 20%;
+      }
+    }
+
+    .other-message{
+      height: 22px;
+      display: flex;
+      align-items: center;
+
+      span{
+        font-size: 12px;
+        color: $link-color;
       }
     }
 
@@ -349,8 +418,8 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
         .warn-action {
           position: absolute;
-          top: 0;
-          right: -10px;
+          top: -3px;
+          right: -50px;
 
           div {
             display: inline-block;
@@ -456,7 +525,29 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   color: red;
 }
 
-@media screen and (min-width: 1281px) {
+.info-icon{
+  color: lightgray;
+  cursor: pointer;
+}
+
+.lib-info{
+  width: 100%;
+  .delete-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 5px 10px;
+    .butt.action{
+      line-height: 26px;
+    }
+  }
+}
+
+.btn{
+  line-height: 26px;
+}
+  @media screen and (min-width: 1281px) {
   .libs-info {
     height: 60%;
 

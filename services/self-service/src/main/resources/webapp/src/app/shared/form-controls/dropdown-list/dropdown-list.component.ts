@@ -44,6 +44,7 @@ export class DropdownListComponent {
   empty: boolean = false;
 
   @Output() selectedItem: EventEmitter<{}> = new EventEmitter();
+  @Output() emitClick: EventEmitter<{}> = new EventEmitter();
 
   public selectOptions($event: Event, value: any, index: number): void {
     this.label = this.map ? this.map[value] : (this.empty && !value ? value : value[this.byField]);
@@ -68,5 +69,9 @@ export class DropdownListComponent {
 
   private onUpdate(): void {
     this.selectedItem.emit({ model: this.model });
+  }
+
+  public emitEvent() {
+    this.emitClick.emit();
   }
 }
