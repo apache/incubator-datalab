@@ -153,8 +153,8 @@ if __name__ == "__main__":
     ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
     print("Install py3spark local kernel for Jupyter")
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
-    print("Installing ITorch kernel for Jupyter")
-    install_itorch(args.os_user)
+    #print("Installing ITorch kernel for Jupyter")
+    #install_itorch(args.os_user)
 
     # INSTALL UNGIT
     print("Install nodejs")
