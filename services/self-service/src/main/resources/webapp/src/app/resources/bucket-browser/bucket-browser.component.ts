@@ -64,6 +64,7 @@ export class BucketBrowserComponent implements OnInit {
   public isFileUploading: boolean;
   public uploadingQueueLength: number = 4;
   public maxFileSize: number = 4294967296;
+  public cloud: string;
 
   @ViewChild(FolderTreeComponent, {static: true}) folderTreeComponent;
 
@@ -88,6 +89,7 @@ export class BucketBrowserComponent implements OnInit {
     this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
     this.bucketStatus = this.data.bucketStatus;
     this.buckets = this.data.buckets;
+    this.cloud = this.getCloud();
   }
 
   public getTokenValidTime() {
@@ -343,6 +345,15 @@ export class BucketBrowserComponent implements OnInit {
     this.path = '';
     this.bucketDataService.refreshBucketdata(this.bucketName, this.endpoint);
     this.isSelectionOpened = false;
+    this.cloud = this.getCloud();
+  }
+
+  private getCloud() {
+    return this.buckets.filter(v => v.children.some(bucket => {
+      console.log(bucket.name);
+      console.log(this.bucketName);
+      return bucket.name === this.bucketName;
+    }))[0].cloud.toLowerCase();
   }
 
   public createFolder(folder) {

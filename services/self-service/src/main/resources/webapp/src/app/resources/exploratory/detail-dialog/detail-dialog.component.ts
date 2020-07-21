@@ -140,7 +140,7 @@ export class DetailDialogComponent implements OnInit {
     if (!permition) {
       return;
     }
-    bucketName = this.isBucketAllowed ? this.notebook.bucket_name : this.data.buckets[0].children[0].name;
+    bucketName = this.isBucketAllowed ? bucketName : this.data.buckets[0].children[0].name;
     // bucketName = 'ofuks-1304-pr2-local-bucket';
     this.dialog.open(BucketBrowserComponent, { data:
         {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.data.buckets},

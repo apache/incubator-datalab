@@ -24,6 +24,7 @@
         <mat-error *ngIf="folderFormControl.hasError('isDuplicate')">
           Folder with this name already exists
         </mat-error>
+        <mat-hint *ngIf="cloud === 'azure'">If you do not upload any object to the folder, this folder will be removed on MS Azure</mat-hint>
       </mat-form-field>
       <button (click)="createFolder(node, itemValue.value)"
               [ngClass]="{'check': folderFormControl.valid && folderFormControl.dirty && !folderCreating}"
