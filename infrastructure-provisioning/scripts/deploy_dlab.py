@@ -143,6 +143,12 @@ parser.add_argument('--conf_stepcerts_root_ca', type=str, default='', help='Step
 parser.add_argument('--conf_stepcerts_kid', type=str, default='', help='Step KID')
 parser.add_argument('--conf_stepcerts_kid_password', type=str, default='', help='Step KID password')
 parser.add_argument('--conf_stepcerts_ca_url', type=str, default='', help='Step CA URL')
+parser.add_argument('--conf_letsencrypt_enabled', type=str, default='false', help='Enable or disable Let`s Encrypt certificates')
+parser.add_argument('--conf_letsencrypt_domain_name', type=str, default='', help='Domain names to apply. '
+                         'For multiple domains enter a comma separated list of domains as a parameter')
+parser.add_argument('--conf_letsencrypt_email', type=str, default='', help='Email that will be entered during '
+                         'certificate obtaining and can be user for urgent renewal and security notices. '
+                         'Use comma to register multiple emails, e.g. u1@example.com,u2@example.com.')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()
