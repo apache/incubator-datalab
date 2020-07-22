@@ -28,4 +28,8 @@
     </parent>
 
     <artifactId>common</artifactId>
+
+    <properties>
+        <sonar.coverage.skip>true</sonar.coverage.skip>
+    </properties>
 </project>
