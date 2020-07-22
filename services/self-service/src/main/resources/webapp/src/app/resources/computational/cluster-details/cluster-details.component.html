@@ -101,10 +101,26 @@
             <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
           </div>
           <div class="m-top-10">
-            <p *ngFor="let item of resource.computational_url" class="ellipsis flex">
-              <span class="strong">{{ item.description }}:</span>&nbsp;
-              <a (click)="logAction(resource, environment)" href="{{item.url}}" target="_blank" matTooltip="{{item.url}}"
-                matTooltipPosition="above">{{ item.url }}</a>
+            <p *ngFor="let item of resource.computational_url" class="ellipsis flex" (mouseleave)="hideCopyIcon()">
+              <span class="strong spark-url-desc">{{ item.description }}:</span>&nbsp;
+              <a (click)="logAction(resource, environment, 'follow')"
+                 href="{{item.url}}"
+                 target="_blank"
+                 matTooltip="{{item.url}}"
+                 matTooltipPosition="above"
+                 (mouseover)="showCopyIcon(item.description)"
+                 class="spark-url"
+                 (contextmenu)="false"
+              >{{ item.url }}</a>
+              <span
+                (click)="logAction(resource, environment, 'copy');$event.stopPropagation()"
+                *ngIf="isCopyIconVissible[item.description]"
+                [matTooltip]="isCopied ? 'Copy ' + item.description + (item.description.indexOf('url')  === -1 ? ' url' : ''): 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper"
+              >
+                <span  class="link-icon" (click)="copyBucketName(item.url)" >
+                  <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
+                 </span>
+              </span>
             </p>
           </div>
         </div>

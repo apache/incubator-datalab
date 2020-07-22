@@ -21,7 +21,6 @@ package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
@@ -65,18 +64,16 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 
 	private final ExploratoryDAO expDAO;
 	private final SelfServiceApplicationConfiguration configuration;
-	private final BillingDAO billingDAO;
 	private final ProjectService projectService;
 	private final EndpointService endpointService;
 	private final BillingService billingService;
 
 	@Inject
 	public InfrastructureInfoServiceImpl(ExploratoryDAO expDAO, SelfServiceApplicationConfiguration configuration,
-										 BillingDAO billingDAO, ProjectService projectService, EndpointService endpointService,
-										 BillingService billingService) {
+	                                     ProjectService projectService, EndpointService endpointService,
+	                                     BillingService billingService) {
 		this.expDAO = expDAO;
 		this.configuration = configuration;
-		this.billingDAO = billingDAO;
 		this.projectService = projectService;
 		this.endpointService = endpointService;
 		this.billingService = billingService;
@@ -91,7 +88,7 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 					.stream()
 					.map(p -> {
 						List<UserInstanceDTO> exploratories = expDAO.findExploratories(user.getName(), p.getName());
-						return new ProjectInfrastructureInfo(p.getName(), billingDAO.getBillingProjectQuoteUsed(p.getName()),
+						return new ProjectInfrastructureInfo(p.getName(), billingService.getBillingProjectQuoteUsed(p.getName()),
 								getSharedInfo(p.getName()), exploratories, getExploratoryBillingData(exploratories),
 								getEndpoints(allEndpoints, p));
 					})
@@ -115,8 +112,6 @@ public class InfrastructureInfoServiceImpl implements InfrastructureInfoService 
 					.projectAdmin(UserRoles.isProjectAdmin(userInfo))
 					.admin(UserRoles.isAdmin(userInfo))
 					.projectAssigned(projectService.isAnyProjectAssigned(userInfo))
-					.billingQuoteUsed(billingDAO.getBillingQuoteUsed())
-					.billingUserQuoteUsed(billingDAO.getBillingUserQuoteUsed(user))
 					.bucketBrowser(HealthStatusPageDTO.BucketBrowser.builder()
 							.view(checkAccess(userInfo, PERMISSION_VIEW))
 							.upload(checkAccess(userInfo, PERMISSION_UPLOAD))

@@ -329,7 +329,7 @@ if __name__ == "__main__":
             },
             {
                 'key': "AZURE_AUTH_FILE_PATH",
-                'value': ""
+                'value': ssn_conf['azure_auth_path']
             }
         ]
 

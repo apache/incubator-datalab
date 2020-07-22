@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.billing.azure.config;
+package com.epam.dlab.model.azure;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

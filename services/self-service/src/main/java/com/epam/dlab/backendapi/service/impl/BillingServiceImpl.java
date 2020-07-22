@@ -23,12 +23,15 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.BillingReportLine;
+import com.epam.dlab.backendapi.domain.BudgetDTO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.domain.ProjectEndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.BillingFilter;
+import com.epam.dlab.backendapi.resources.dto.QuotaUsageDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.BillingService;
@@ -63,7 +66,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -73,6 +78,7 @@ public class BillingServiceImpl implements BillingService {
     private static final String USAGE_DATE_FORMAT = "yyyy-MM";
 
     private final ProjectService projectService;
+    private final ProjectDAO projectDAO;
     private final EndpointService endpointService;
     private final ExploratoryService exploratoryService;
     private final SelfServiceApplicationConfiguration configuration;
@@ -82,11 +88,12 @@ public class BillingServiceImpl implements BillingService {
     private final String sbn;
 
     @Inject
-    public BillingServiceImpl(ProjectService projectService, EndpointService endpointService,
+    public BillingServiceImpl(ProjectService projectService, ProjectDAO projectDAO, EndpointService endpointService,
                               ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
                               @Named(ServiceConsts.BILLING_SERVICE_NAME) RESTService provisioningService, ImageExploratoryDao imageExploratoryDao,
                               BillingDAO billingDAO) {
         this.projectService = projectService;
+        this.projectDAO = projectDAO;
         this.endpointService = endpointService;
         this.exploratoryService = exploratoryService;
         this.configuration = configuration;
@@ -174,6 +181,38 @@ public class BillingServiceImpl implements BillingService {
                 log.error("Something went wrong while trying to update billing for {}. {}", endpointDTO.getName(), e.getMessage(), e);
             }
         });
+    }
+
+    @Override
+    public QuotaUsageDTO getQuotas(UserInfo userInfo) {
+        int totalQuota = billingDAO.getBillingQuoteUsed();
+        Map<String, Integer> projectQuotas = projectService.getProjects(userInfo)
+                .stream()
+                .collect(Collectors.toMap(ProjectDTO::getName, p -> getBillingProjectQuoteUsed(p.getName())));
+        return QuotaUsageDTO.builder()
+                .totalQuotaUsed(totalQuota)
+                .projectQuotas(projectQuotas)
+                .build();
+    }
+
+    @Override
+    public boolean isProjectQuoteReached(String project) {
+        final Double projectCost = getProjectCost(project);
+        return projectDAO.getAllowedBudget(project)
+                .filter(allowedBudget -> projectCost.intValue() != 0 && allowedBudget <= projectCost)
+                .isPresent();
+    }
+
+    @Override
+    public int getBillingProjectQuoteUsed(String project) {
+        return toPercentage(() -> projectDAO.getAllowedBudget(project), getProjectCost(project));
+    }
+
+    private Double getProjectCost(String project) {
+        final boolean monthlyBudget = Optional.ofNullable(projectService.get(project).getBudget())
+                .map(BudgetDTO::isMonthlyBudget)
+                .orElse(Boolean.FALSE);
+        return monthlyBudget ? billingDAO.getMonthlyProjectCost(project, LocalDate.now()) : billingDAO.getOverallProjectCost(project);
     }
 
     private Map<String, BillingReportLine> getBillableResources() {
@@ -340,5 +379,12 @@ public class BillingServiceImpl implements BillingService {
                 .shape(billingReportLine.getShape())
                 .exploratoryName(billingReportLine.getExploratoryName())
                 .build();
+    }
+
+    private Integer toPercentage(Supplier<Optional<Integer>> allowedBudget, Double totalCost) {
+        return allowedBudget.get()
+                .map(userBudget -> (totalCost * 100) / userBudget)
+                .map(Double::intValue)
+                .orElse(BigDecimal.ZERO.intValue());
     }
 }

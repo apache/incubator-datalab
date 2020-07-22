@@ -47,7 +47,7 @@ export class DetailDialogComponent implements OnInit {
   config: Array<{}> = [];
   bucketStatus: object = {};
   isBucketAllowed = true;
-  isCopyIconVissible = false;
+  isCopyIconVissible: {bucket} = {bucket: false};
 
   public configurationForm: FormGroup;
 
@@ -140,7 +140,7 @@ export class DetailDialogComponent implements OnInit {
     if (!permition) {
       return;
     }
-    bucketName = this.isBucketAllowed ? this.notebook.bucket_name : this.data.buckets[0].children[0].name;
+    bucketName = this.isBucketAllowed ? bucketName : this.data.buckets[0].children[0].name;
     // bucketName = 'ofuks-1304-pr2-local-bucket';
     this.dialog.open(BucketBrowserComponent, { data:
         {bucket: bucketName, endpoint: endpoint, bucketStatus: this.bucketStatus, buckets: this.data.buckets},
@@ -148,11 +148,13 @@ export class DetailDialogComponent implements OnInit {
     .afterClosed().subscribe();
   }
 
-  protected showCopyIcon() {
-    this.isCopyIconVissible = true;
+  protected showCopyIcon(element) {
+    this.isCopyIconVissible[element] = true;
   }
   protected hideCopyIcon() {
-    this.isCopyIconVissible = false;
+    for (const key in this.isCopyIconVissible) {
+      this.isCopyIconVissible[key] = false;
+    }
     this.isCopied = true;
   }
 
@@ -160,7 +162,11 @@ export class DetailDialogComponent implements OnInit {
     CopyPathUtils.copyPath(copyValue);
   }
 
-  private logAction(name: any, description: string) {
-    this.auditService.sendDataToAudit({resource_name: name, info: `Follow ${description} link`, type: 'NOTEBOOK'}).subscribe();
+  private logAction(name: any, description: string, copy?: string) {
+    if (copy) {
+      this.auditService.sendDataToAudit({resource_name: name, info: `Copy ${description} link`, type: 'NOTEBOOK'}).subscribe();
+    } else {
+      this.auditService.sendDataToAudit({resource_name: name, info: `Follow ${description} link`, type: 'NOTEBOOK'}).subscribe();
+    }
   }
 }
