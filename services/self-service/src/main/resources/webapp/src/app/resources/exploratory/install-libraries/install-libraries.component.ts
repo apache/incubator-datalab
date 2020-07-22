@@ -84,6 +84,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   @ViewChild('trigger', { static: false }) matAutoComplete;
   public isLibInfoOpened = {  };
   private isLibExist: boolean;
+  lib: Library = {name: '', version: ''};
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -145,7 +146,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public filterList(): void {
     this.validity_format = '';
-    (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
+    (this.lib.name.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
   public filterGroups(groupsList) {
@@ -192,17 +193,17 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   public addLibrary(item): void {
-    const lib = item.split(':').filter(v => !!v);
-    this.model.selectedLibs.push({ group: this.group, name: lib[0], version: lib[1] || 'N/A' });
+    this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version || 'N/A' });
     this.query = '';
     this.libSearch.setValue('');
+    this.lib = {name: '', version: ''};
     this.filteredList = null;
   }
 
   public selectLibrary(item): void {
     // this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
     // this.query = '';
-    this.libSearch.setValue(item.name + ':');
+    this.libSearch.setValue(item.name);
     this.filteredList = null;
   }
 
@@ -417,7 +418,7 @@ export class ErrorLibMessageDialogComponent {
   template: `
   <div class="dialog-header">
     <h4 class="modal-title" *ngIf="data.type === 'added'">Installed dependency</h4>
-    <h4 class="modal-title" *ngIf="data.type === 'available'">Library installation error</h4>
+    <h4 class="modal-title" *ngIf="data.type === 'available'">Version is not available</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
 <!--  <mat-list class="resources">-->
@@ -443,7 +444,7 @@ export class ErrorLibMessageDialogComponent {
     <span class="strong">Dependency: </span>{{data.lib.add_pkgs.join(', ')}}
   </div>
   <div class="lib-list" *ngIf="data.type === 'available'">
-    <p class="terminated">Version is not available</p>
+<!--    <p class="terminated">Version is not available</p>-->
     <span class="strong">Available versions: </span>{{data.lib.available_versions.join(', ')}}
   </div>
 <!--  <div class="text-center">-->

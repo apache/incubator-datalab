@@ -214,9 +214,13 @@ ul.resources{
         width: 100%;
         overflow-y: auto;
 
-        .mat-form-field {
+
+        &.mat-form-field {
           width: 100%;
-          padding: 5px 20px;
+          //padding: 5px 20px;
+          .mat-form-field-infix{
+            display: flex;
+          }
         }
 
         .mat-input-flex {
@@ -547,6 +551,22 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 .btn{
   line-height: 26px;
 }
+
+.m-top-20{
+  position: relative;
+  .plus-icon{
+    position: absolute;
+    right: 70px;
+    top: 5px;
+    color: #35afd5;
+    font-size: 27px;
+    cursor: pointer;
+    &.not-allow{
+      color: lightgray;
+    }
+  }
+}
+
   @media screen and (min-width: 1281px) {
   .libs-info {
     height: 60%;
