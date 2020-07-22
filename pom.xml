@@ -52,6 +52,34 @@
                 <module>services/billing-gcp</module>
             </modules>
         </profile>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <sonar.host.url>
+                    http://jenkins.develop.dlabanalytics.com:9000/sonar
+                </sonar.host.url>
+                <sonar.coverage.exclusions>
+                    src/main/java/com/epam/dlab/dto/**,
+                    src/main/java/com/epam/dlab/backendapi/auth/**,
+                    src/main/java/com/epam/dlab/backendapi/conf/**,
+                    src/main/java/com/epam/dlab/backendapi/domain/**,
+                    src/main/java/com/epam/dlab/backendapi/dropwizard/**,
+                    src/main/java/com/epam/dlab/backendapi/healthcheck/**,
+                    src/main/java/com/epam/dlab/backendapi/modules/**,
+                    src/main/java/com/epam/dlab/backendapi/resources/dto/**,
+                    src/main/java/com/epam/dlab/backendapi/roles/**,
+                    src/main/java/com/epam/dlab/backendapi/servlet/guacamole/**,
+                    src/main/java/com/epam/dlab/backendapi/util/**,
+                    src/main/java/com/epam/dlab/backendapi/validation/**,
+                    src/main/java/com/epam/dlab/process/**,
+                    src/main/java/com/epam/dlab/backendapi/modules/**,
+                    src/main/java/com/epam/dlab/backendapi/validation/**
+                </sonar.coverage.exclusions>
+            </properties>
+        </profile>
     </profiles>
 
     <modules>
@@ -130,8 +158,6 @@
                 <artifactId>dropwizard-util</artifactId>
                 <version>${io.dropwizard.version}</version>
             </dependency>
-
-
         </dependencies>
     </dependencyManagement>
 
@@ -173,6 +199,11 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.7.0.1746</version>
                 </plugin>
             </plugins>
         </pluginManagement>
