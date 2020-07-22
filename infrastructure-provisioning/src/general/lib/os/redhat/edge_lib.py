@@ -111,6 +111,8 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 sudo('systemctl daemon-reload')
                 sudo('systemctl enable step-cert-manager.service')
             else:
+                if os.environ['conf_letsencrypt_enabled'] == 'true':
+                    print('Lets Encrypt certificates are not supported for redhat in dlab. Using self signed certificates')
                 sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
                      -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
             sudo('mkdir -p /tmp/lua')
