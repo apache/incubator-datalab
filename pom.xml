@@ -274,6 +274,7 @@
                         <exclude>**/*.ipynb</exclude>
                         <exclude>**/*.iml</exclude>
                         <exclude>**/*.json</exclude>
+                        <exclude>**/*.json.tpl</exclude>
                         <exclude>**/*.r</exclude>
                         <exclude>**/__init__.py</exclude>
                         <exclude>**/*.conf</exclude>

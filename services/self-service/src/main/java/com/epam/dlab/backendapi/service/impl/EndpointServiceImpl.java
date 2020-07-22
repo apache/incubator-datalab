@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
@@ -47,8 +66,8 @@ public class EndpointServiceImpl implements EndpointService {
 
 	@Inject
 	public EndpointServiceImpl(EndpointDAO endpointDAO, ProjectService projectService, ExploratoryDAO exploratoryDAO,
-							   @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-							   UserRoleDao userRoleDao) {
+	                           @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
+	                           UserRoleDao userRoleDao) {
 
 		this.endpointDAO = endpointDAO;
 		this.projectService = projectService;
@@ -83,26 +102,26 @@ public class EndpointServiceImpl implements EndpointService {
 				.orElseThrow(() -> new ResourceNotFoundException("Endpoint with name " + name + " not found"));
 	}
 
-    /**
-     * Create new endpoint object in the System.
-     * The Endpoint objects should contain Unique values of the 'url' and 'name' fields,
-     * i.e two objects with same URLs should not be created in the system.
-     *
-     * @param userInfo     user properties
-     * @param resourceName name of the endpoint
-     * @param endpointDTO  object with endpoint fields
-     */
-    @Audit(action = CONNECT, type = ENDPOINT)
-    @Override
-    public void create(@User UserInfo userInfo, @ResourceName String resourceName, EndpointDTO endpointDTO) {
-        if (endpointDAO.get(endpointDTO.getName()).isPresent()) {
-            throw new ResourceConflictException("The Endpoint with this name exists in system");
-        }
-        if (endpointDAO.getEndpointWithUrl(endpointDTO.getUrl()).isPresent()) {
-            throw new ResourceConflictException("The Endpoint URL with this address exists in system");
-        }
-        CloudProvider cloudProvider = checkUrl(userInfo, endpointDTO.getUrl());
-        if (Objects.isNull(cloudProvider)) {
+	/**
+	 * Create new endpoint object in the System.
+	 * The Endpoint objects should contain Unique values of the 'url' and 'name' fields,
+	 * i.e two objects with same URLs should not be created in the system.
+	 *
+	 * @param userInfo     user properties
+	 * @param resourceName name of the endpoint
+	 * @param endpointDTO  object with endpoint fields
+	 */
+	@Audit(action = CONNECT, type = ENDPOINT)
+	@Override
+	public void create(@User UserInfo userInfo, @ResourceName String resourceName, EndpointDTO endpointDTO) {
+		if (endpointDAO.get(endpointDTO.getName()).isPresent()) {
+			throw new ResourceConflictException("The Endpoint with this name exists in system");
+		}
+		if (endpointDAO.getEndpointWithUrl(endpointDTO.getUrl()).isPresent()) {
+			throw new ResourceConflictException("The Endpoint URL with this address exists in system");
+		}
+		CloudProvider cloudProvider = checkUrl(userInfo, endpointDTO.getUrl());
+		if (Objects.isNull(cloudProvider)) {
 			throw new DlabException("CloudProvider cannot be null");
 		}
 		endpointDAO.create(new EndpointDTO(endpointDTO.getName(), endpointDTO.getUrl(), endpointDTO.getAccount(),
@@ -113,26 +132,26 @@ public class EndpointServiceImpl implements EndpointService {
 	@Override
 	public void updateEndpointStatus(String name, EndpointDTO.EndpointStatus status) {
 		endpointDAO.updateEndpointStatus(name, status.name());
-    }
+	}
 
-    @Override
-    public void remove(UserInfo userInfo, String name) {
-        EndpointDTO endpointDTO = endpointDAO.get(name).orElseThrow(() -> new ResourceNotFoundException(String.format("Endpoint %s does not exist", name)));
-        List<ProjectDTO> projects = projectService.getProjectsByEndpoint(name);
-        checkProjectEndpointResourcesStatuses(projects, name);
-        CloudProvider cloudProvider = endpointDTO.getCloudProvider();
-        removeEndpoint(userInfo, name, cloudProvider, projects);
-    }
+	@Override
+	public void remove(UserInfo userInfo, String name) {
+		EndpointDTO endpointDTO = endpointDAO.get(name).orElseThrow(() -> new ResourceNotFoundException(String.format("Endpoint %s does not exist", name)));
+		List<ProjectDTO> projects = projectService.getProjectsByEndpoint(name);
+		checkProjectEndpointResourcesStatuses(projects, name);
+		CloudProvider cloudProvider = endpointDTO.getCloudProvider();
+		removeEndpoint(userInfo, name, cloudProvider, projects);
+	}
 
 	@Audit(action = DISCONNECT, type = ENDPOINT)
-    public void removeEndpoint(@User UserInfo userInfo, @ResourceName String name, CloudProvider cloudProvider, List<ProjectDTO> projects) {
-        removeEndpointInAllProjects(userInfo, name, projects);
-        endpointDAO.remove(name);
-        List<CloudProvider> remainingProviders = endpointDAO.getEndpoints()
-                .stream()
-                .map(EndpointDTO::getCloudProvider)
-                .collect(Collectors.toList());
-        userRoleDao.removeUnnecessaryRoles(cloudProvider, remainingProviders);
+	public void removeEndpoint(@User UserInfo userInfo, @ResourceName String name, CloudProvider cloudProvider, List<ProjectDTO> projects) {
+		removeEndpointInAllProjects(userInfo, name, projects);
+		endpointDAO.remove(name);
+		List<CloudProvider> remainingProviders = endpointDAO.getEndpoints()
+				.stream()
+				.map(EndpointDTO::getCloudProvider)
+				.collect(Collectors.toList());
+		userRoleDao.removeUnnecessaryRoles(cloudProvider, remainingProviders);
 	}
 
 	@Override
@@ -148,9 +167,9 @@ public class EndpointServiceImpl implements EndpointService {
 			response = provisioningService.get(url + HEALTH_CHECK, userInfo.getAccessToken(), Response.class);
 			cloudProvider = response.readEntity(CloudProvider.class);
 		} catch (Exception e) {
-            log.error("Cannot connect to url '{}'. {}", url, e.getMessage(), e);
-            throw new DlabException(String.format("Cannot connect to url '%s'.", url));
-        }
+			log.error("Cannot connect to url '{}'. {}", url, e.getMessage(), e);
+			throw new DlabException(String.format("Cannot connect to url '%s'.", url));
+		}
 		if (response.getStatus() != 200) {
 			log.warn("Endpoint url {} is not valid", url);
 			throw new ResourceNotFoundException(String.format("Endpoint url '%s' is not valid", url));
