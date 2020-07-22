@@ -59,7 +59,7 @@
             </activation>
             <properties>
                 <sonar.host.url>
-                    http://jenkins.develop.dlabanalytics.com:9000/sonar
+                    http://localhost:9000/sonar
                 </sonar.host.url>
                 <sonar.coverage.exclusions>
                     src/main/java/com/epam/dlab/dto/**,
