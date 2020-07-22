@@ -98,6 +98,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 if versions != '':
                     versions = versions.split(', ')
                     status_msg = 'invalid version'
+                else:
+                    versions = []
+
             sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; '
                  'then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
             dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
