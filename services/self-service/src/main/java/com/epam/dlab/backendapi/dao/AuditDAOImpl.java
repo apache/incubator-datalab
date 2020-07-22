@@ -86,8 +86,8 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
             countPipeline.add(match);
         }
         countPipeline.add(count());
-        valuesPipeline.addAll(Arrays.asList(skip(pageSize * (pageNumber - 1)), limit(pageSize)));
         valuesPipeline.add(sortCriteria());
+        valuesPipeline.addAll(Arrays.asList(skip(pageSize * (pageNumber - 1)), limit(pageSize)));
 
         List<Bson> userFilter = Collections.singletonList(group(getGroupingFields(USER)));
         List<Bson> projectFilter = Collections.singletonList(group(getGroupingFields(PROJECT)));
