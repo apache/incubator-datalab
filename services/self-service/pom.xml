@@ -257,6 +257,17 @@
                         <exclude>**/*Module.*</exclude>
                         <exclude>**/*Form.*</exclude>
                         <exclude>com/epam/dlab/dto/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/auth/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/conf/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/domain/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/dropwizard/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/healthcheck/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/modules/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/resources/dto/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/roles/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/servlet/guacamole/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/util/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/validation/**/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>

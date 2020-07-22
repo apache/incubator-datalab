@@ -50,7 +50,7 @@ public class BucketServiceAzureImpl implements BucketService {
                     .map(blob -> toBucketDTO(bucket, blob))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("Cannot retrieve objects from bucket {}. Reason: {}", bucket, e.getMessage());
+            log.error("Cannot retrieve objects from bucket {}. Reason: {}", bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot retrieve objects from bucket %s. Reason: %s", bucket, e.getMessage()));
         }
     }
@@ -64,7 +64,7 @@ public class BucketServiceAzureImpl implements BucketService {
             BlobClient blobClient = blobContainerClient.getBlobClient(object);
             blobClient.upload(stream, fileSize);
         } catch (Exception e) {
-            log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage());
+	        log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
         log.info("Finished uploading file {} to bucket {}", object, bucket);
@@ -84,7 +84,7 @@ public class BucketServiceAzureImpl implements BucketService {
             BlobClient blobClient = blobContainerClient.getBlobClient(object);
             blobClient.download(outputStream);
         } catch (Exception e) {
-            log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
+	        log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
         log.info("Finished downloading file {} from bucket {}", object, bucket);
@@ -97,7 +97,7 @@ public class BucketServiceAzureImpl implements BucketService {
             BlobContainerClient blobContainerClient = blobServiceClient.getBlobContainerClient(bucket);
             objects.forEach(object -> blobContainerClient.getBlobClient(object).delete());
         } catch (Exception e) {
-            log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage());
+	        log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot delete objects %s from bucket %s. Reason: %s", objects, bucket, e.getMessage()));
         }
     }

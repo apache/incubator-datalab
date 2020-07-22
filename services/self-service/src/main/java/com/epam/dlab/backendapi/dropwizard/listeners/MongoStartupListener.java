@@ -71,7 +71,7 @@ public class MongoStartupListener implements ServerLifecycleListener {
 			return MAPPER.readValue(is, new TypeReference<List<UserRoleDto>>() {
 			});
 		} catch (IOException e) {
-			log.error("Can not marshall dlab roles due to: {}", e.getMessage());
+			log.error("Can not marshall dlab roles due to: {}", e.getMessage(), e);
 			throw new IllegalStateException("Can not marshall dlab roles due to: " + e.getMessage());
 		}
 	}

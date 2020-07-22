@@ -29,16 +29,22 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String PROJECT_IMAGE = "docker.dlab-project";
 	private static final String EDGE_IMAGE = "docker.dlab-edge";
 	private static final String CALLBACK_URI = "/api/project/status";
+
+	protected final RESTService selfService;
+	private final ProvisioningServiceApplicationConfiguration configuration;
+	private final FolderListenerExecutor folderListenerExecutor;
+	private final ICommandExecutor commandExecutor;
+	private final CommandBuilder commandBuilder;
+
 	@Inject
-	protected RESTService selfService;
-	@Inject
-	private ProvisioningServiceApplicationConfiguration configuration;
-	@Inject
-	private FolderListenerExecutor folderListenerExecutor;
-	@Inject
-	private ICommandExecutor commandExecutor;
-	@Inject
-	private CommandBuilder commandBuilder;
+	public ProjectServiceImpl(RESTService selfService, ProvisioningServiceApplicationConfiguration configuration,
+	                          FolderListenerExecutor folderListenerExecutor, ICommandExecutor commandExecutor, CommandBuilder commandBuilder) {
+		this.selfService = selfService;
+		this.configuration = configuration;
+		this.folderListenerExecutor = folderListenerExecutor;
+		this.commandExecutor = commandExecutor;
+		this.commandBuilder = commandBuilder;
+	}
 
 	@Override
 	public String create(UserInfo userInfo, ProjectCreateDTO dto) {
@@ -92,7 +98,7 @@ public class ProjectServiceImpl implements ProjectService {
 		try {
 			commandExecutor.executeAsync(userInfo.getName(), uuid, commandBuilder.buildCommand(runDockerCommand, dto));
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.error("Something went wrong. Reason {}", e.getMessage(), e);
 		}
 		return uuid;
 	}

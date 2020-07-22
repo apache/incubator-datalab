@@ -36,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -258,7 +257,7 @@ public class ProjectServiceImpl implements ProjectService {
 		try {
 			project.getEndpoints().forEach(e -> createEndpoint(user, project.getName(), project, e.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
 		} catch (Exception e) {
-			log.error("Can not create project due to: {}", e.getMessage());
+			log.error("Can not create project due to: {}", e.getMessage(), e);
 			projectDAO.updateStatus(project.getName(), ProjectDTO.Status.FAILED);
 		}
 	}
@@ -278,7 +277,7 @@ public class ProjectServiceImpl implements ProjectService {
 					requestBuilder.newProjectAction(user, projectName, endpointDTO), String.class);
 			requestId.put(user.getName(), uuid);
 		} catch (Exception e) {
-			log.error("Can not terminate project due to: {}", e.getMessage());
+			log.error("Can not terminate project due to: {}", e.getMessage(), e);
 			projectDAO.updateStatus(projectName, ProjectDTO.Status.FAILED);
 		}
 	}
