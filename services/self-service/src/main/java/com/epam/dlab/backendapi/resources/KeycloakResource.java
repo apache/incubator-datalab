@@ -11,6 +11,7 @@ import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.AccessTokenResponse;
 
 import javax.ws.rs.GET;
@@ -27,6 +28,7 @@ import java.net.URISyntaxException;
 import static java.lang.String.format;
 
 @Path("/oauth")
+@Slf4j
 public class KeycloakResource {
 	private static final String LOGIN_URI_FORMAT = "%s/realms/%s/protocol/openid-connect/auth?client_id=%s" +
 			"&redirect_uri=%s&response_type=code";
@@ -97,6 +99,7 @@ public class KeycloakResource {
 		try {
 			tokenResponse = keycloakService.generateAccessToken(refreshToken);
 		} catch (DlabException e) {
+			log.error("Cannot refresh token due to: {}", e.getMessage(), e);
 			return Response.status(Response.Status.BAD_REQUEST)
 					.location(new URI(logoutUri))
 					.build();

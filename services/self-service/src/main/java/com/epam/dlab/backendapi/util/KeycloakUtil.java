@@ -16,7 +16,7 @@ public class KeycloakUtil {
             byte[] bytes = Base64Url.decode(parts[1]);
             return JsonSerialization.readValue(bytes, IDToken.class);
         } catch (Exception e) {
-            throw new DlabException("Can not parse token due to: " + e.getMessage());
+            throw new DlabException("Can not parse token due to: " + e.getMessage(), e);
         }
     }
 }

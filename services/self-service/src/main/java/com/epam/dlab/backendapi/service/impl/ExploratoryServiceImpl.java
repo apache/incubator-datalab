@@ -229,7 +229,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		try {
 			return Optional.of(exploratoryDAO.fetchExploratoryFields(user, project, exploratoryName));
 		} catch (DlabException e) {
-			log.warn("User instance with exploratory {}, project {} for user {} not found.", exploratoryName, project, user);
+			log.warn("User instance with exploratory {}, project {} for user {} not found.", exploratoryName, project, user, e);
 		}
 		return Optional.empty();
 	}
@@ -239,7 +239,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		try {
 			return Optional.of(exploratoryDAO.fetchExploratoryFields(user, project, exploratoryName, includeCompResources));
 		} catch (DlabException e) {
-			log.warn("User instance with exploratory {}, project {} for user {} not found.", exploratoryName, project, user);
+			log.warn("User instance with exploratory {}, project {} for user {} not found.", exploratoryName, project, user, e);
 		}
 		return Optional.empty();
 	}

@@ -48,19 +48,18 @@ public class BucketServiceAwsImpl implements BucketService {
 
     @Override
     public List<BucketDTO> getObjects(String bucket) {
-        try {
-            S3Client s3 = S3Client.create();
-            ListObjectsRequest getRequest = ListObjectsRequest
-                    .builder()
-                    .bucket(bucket)
-                    .build();
+        try (S3Client s3 = S3Client.create()) {
+	        ListObjectsRequest getRequest = ListObjectsRequest
+			        .builder()
+			        .bucket(bucket)
+			        .build();
 
-            return s3.listObjects(getRequest).contents()
-                    .stream()
-                    .map(o -> toBucketDTO(bucket, o))
-                    .collect(Collectors.toList());
+	        return s3.listObjects(getRequest).contents()
+			        .stream()
+			        .map(o -> toBucketDTO(bucket, o))
+			        .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("Cannot retrieve objects from bucket {}. Reason: {}", bucket, e.getMessage());
+	        log.error("Cannot retrieve objects from bucket {}. Reason: {}", bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot retrieve objects from bucket %s. Reason: %s", bucket, e.getMessage()));
         }
     }
@@ -68,18 +67,17 @@ public class BucketServiceAwsImpl implements BucketService {
     @Override
     public void uploadObject(String bucket, String object, InputStream stream, String contentType, long fileSize) {
         log.info("Uploading file {} to bucket {}", object, bucket);
-        try {
-            S3Client s3 = S3Client.create();
-            PutObjectRequest uploadRequest = PutObjectRequest
-                    .builder()
-                    .bucket(bucket)
-                    .key(object)
-                    .contentType(contentType)
-                    .build();
-            s3.putObject(uploadRequest, RequestBody.fromInputStream(stream, fileSize));
-        } catch (Exception e) {
-            log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage());
-            throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
+	    try (S3Client s3 = S3Client.create()) {
+		    PutObjectRequest uploadRequest = PutObjectRequest
+				    .builder()
+				    .bucket(bucket)
+				    .key(object)
+				    .contentType(contentType)
+				    .build();
+		    s3.putObject(uploadRequest, RequestBody.fromInputStream(stream, fileSize));
+	    } catch (Exception e) {
+		    log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage(), e);
+		    throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
         log.info("Finished uploading file {} to bucket {}", object, bucket);
     }
@@ -87,60 +85,57 @@ public class BucketServiceAwsImpl implements BucketService {
     @Override
     public void uploadFolder(UserInfo userInfo, String bucket, String folder) {
         log.info("Uploading folder {} to bucket {}", folder, bucket);
-        try {
-            S3Client s3 = S3Client.create();
-            PutObjectRequest uploadRequest = PutObjectRequest
-                    .builder()
-                    .bucket(bucket)
-                    .key(folder)
-                    .build();
-            s3.putObject(uploadRequest, RequestBody.empty());
-        } catch (Exception e) {
-            log.error("Cannot upload folder {} to bucket {}. Reason: {}", folder, bucket, e.getMessage());
-            throw new DlabException(String.format("Cannot upload folder %s to bucket %s. Reason: %s", folder, bucket, e.getMessage()));
-        }
+	    try (S3Client s3 = S3Client.create()) {
+		    PutObjectRequest uploadRequest = PutObjectRequest
+				    .builder()
+				    .bucket(bucket)
+				    .key(folder)
+				    .build();
+		    s3.putObject(uploadRequest, RequestBody.empty());
+	    } catch (Exception e) {
+		    log.error("Cannot upload folder {} to bucket {}. Reason: {}", folder, bucket, e.getMessage(), e);
+		    throw new DlabException(String.format("Cannot upload folder %s to bucket %s. Reason: %s", folder, bucket, e.getMessage()));
+	    }
         log.info("Finished uploading folder {} to bucket {}", folder, bucket);
     }
 
     @Override
     public void downloadObject(String bucket, String object, HttpServletResponse resp) {
         log.info("Downloading file {} from bucket {}", object, bucket);
-        try (ServletOutputStream outputStream = resp.getOutputStream()) {
-            S3Client s3 = S3Client.create();
-            GetObjectRequest downloadRequest = GetObjectRequest
-                    .builder()
-                    .bucket(bucket)
-                    .key(object)
-                    .build();
-            s3.getObject(downloadRequest, ResponseTransformer.toOutputStream(outputStream));
-        } catch (Exception e) {
-            log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
-            throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
-        }
+	    try (ServletOutputStream outputStream = resp.getOutputStream(); S3Client s3 = S3Client.create()) {
+		    GetObjectRequest downloadRequest = GetObjectRequest
+				    .builder()
+				    .bucket(bucket)
+				    .key(object)
+				    .build();
+		    s3.getObject(downloadRequest, ResponseTransformer.toOutputStream(outputStream));
+	    } catch (Exception e) {
+		    log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage(), e);
+		    throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
+	    }
         log.info("Finished downloading file {} from bucket {}", object, bucket);
     }
 
     @Override
     public void deleteObjects(String bucket, List<String> objects) {
-        try {
-            S3Client s3 = S3Client.create();
-            List<ObjectIdentifier> objectsToDelete = objects
-                    .stream()
-                    .map(o -> ObjectIdentifier.builder()
-                            .key(o)
-                            .build())
-                    .collect(Collectors.toList());
+	    try (S3Client s3 = S3Client.create()) {
+		    List<ObjectIdentifier> objectsToDelete = objects
+				    .stream()
+				    .map(o -> ObjectIdentifier.builder()
+						    .key(o)
+						    .build())
+				    .collect(Collectors.toList());
 
-            DeleteObjectsRequest deleteObjectsRequests = DeleteObjectsRequest.builder()
-                    .bucket(bucket)
-                    .delete(Delete.builder()
+		    DeleteObjectsRequest deleteObjectsRequests = DeleteObjectsRequest.builder()
+				    .bucket(bucket)
+				    .delete(Delete.builder()
                             .objects(objectsToDelete)
                             .build())
                     .build();
 
             s3.deleteObjects(deleteObjectsRequests);
         } catch (Exception e) {
-            log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage());
+		    log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot delete objects %s from bucket %s. Reason: %s", objects, bucket, e.getMessage()));
         }
     }

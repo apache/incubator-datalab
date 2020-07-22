@@ -52,7 +52,7 @@ public class BucketServiceGcpImpl implements BucketService {
                     .map(this::toBucketDTO)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("Cannot retrieve objects from bucket {}. Reason: {}", bucket, e.getMessage());
+            log.error("Cannot retrieve objects from bucket {}. Reason: {}", bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot retrieve objects from bucket %s. Reason: %s", bucket, e.getMessage()));
         }
     }
@@ -68,7 +68,7 @@ public class BucketServiceGcpImpl implements BucketService {
                     .build();
             storage.create(blobInfo, stream);
         } catch (Exception e) {
-            log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage());
+	        log.error("Cannot upload object {} to bucket {}. Reason: {}", object, bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot upload object %s to bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
         log.info("Finished uploading file {} to bucket {}", object, bucket);
@@ -83,7 +83,7 @@ public class BucketServiceGcpImpl implements BucketService {
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
             storage.create(blobInfo);
         } catch (Exception e) {
-            log.error("Cannot upload folder {} to bucket {}. Reason: {}", folder, bucket, e.getMessage());
+	        log.error("Cannot upload folder {} to bucket {}. Reason: {}", folder, bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot upload folder %s to bucket %s. Reason: %s", folder, bucket, e.getMessage()));
         }
         log.info("Finished uploading folder {} to bucket {}", folder, bucket);
@@ -98,7 +98,7 @@ public class BucketServiceGcpImpl implements BucketService {
             blob.downloadTo(outputStream);
             log.info("Finished downloading file {} from bucket {}", object, bucket);
         } catch (Exception e) {
-            log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage());
+	        log.error("Cannot download object {} from bucket {}. Reason: {}", object, bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot download object %s from bucket %s. Reason: %s", object, bucket, e.getMessage()));
         }
         log.info("Finished downloading file {} from bucket {}", object, bucket);
@@ -114,7 +114,7 @@ public class BucketServiceGcpImpl implements BucketService {
                     .collect(Collectors.toList());
             storage.delete(blobIds);
         } catch (Exception e) {
-            log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage());
+	        log.error("Cannot delete objects {} from bucket {}. Reason: {}", objects, bucket, e.getMessage(), e);
             throw new DlabException(String.format("Cannot delete objects %s from bucket %s. Reason: %s", objects, bucket, e.getMessage()));
         }
     }
