@@ -54,7 +54,7 @@ def dataengine_dir_prepare(cluster_dir):
 
 def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
-    error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"
+    error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:|requires"
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
             sudo('ln -s /bin/pip3.5 /bin/pip3')
@@ -64,7 +64,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         for pip_pkg in requisites:
             if pip_pkg[1] == '' or pip_pkg[1] == 'N/A':
                 pip_pkg = pip_pkg[0]
+                version = ''
             else:
+                version = pip_pkg[1]
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
             sudo('{0} install {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
@@ -85,36 +87,32 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     version = [i for i in ver if changed_pip_pkg.lower() in i][0].split('==')[1]
                 else:
                     version = \
-                    [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split(
-                        '==')[1]
-                sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
-                dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
-                if dep == '' or dep == pip_pkg.split("==")[0]:
-                    dep = []
-                else:
-                    dep = dep.split(', ')
-                    for n, i in enumerate(dep):
-                        if i == pip_pkg.split("==")[0]:
-                            dep[n] = ''
-                        else:
-                            dep[n] = sudo('{} freeze 2>&1 | grep {}=='.format(pip_version , i)).replace('==', ' v.')
-                            if dep[n] == '':
-                                dep[n] = sudo('{} freeze 2>&1 | grep {}=='.format(pip_version, i.lower())).replace('==', ' v.')
-                    dep = [i for i in dep if i]
-
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "version": version, "status": "installed", "add_pkgs": dep})
+                    [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split('==')[1]
+                if "==" in pip_pkg and pip_pkg.split("==")[1] == version or True:
+                    status_msg = "installed"
             else:
-                err_status = 'failed'
-                versions = ''
-                if 'Could not find a version that satisfies the requirement' in err:
-                    versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
-                    err_status = 'invalid version'
-                if versions == '':
-                    versions = []
-                else:
+                status_msg = 'failed'
+            versions = []
+            if 'Could not find a version that satisfies the requirement' in err:
+                versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
+                if versions != '':
                     versions = versions.split(', ')
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "status": err_status,
-                                   "error_message": err, "available_versions": versions})
+                    status_msg = 'invalid version'
+            sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; '
+                 'then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
+            dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
+            if dep == '':
+                dep = []
+            else:
+                dep = dep.split(', ')
+                for n, i in enumerate(dep):
+                    if i == pip_pkg.split("==")[0]:
+                        dep[n] = ''
+                    else:
+                        dep[n] = sudo('{} show {} 2>&1 | grep Version:'.format(pip_version, i)).replace('Version: ', '{} v.'.format(i))
+                dep = [i for i in dep if i]
+            status.append({"group": lib_group, "name": pip_pkg.split("==")[0], "version": version, "status": status_msg,
+                           "error_message": err, "available_versions": versions, "add_pkgs": dep})
         return status
     except Exception as err:
         append_result("Failed to install {} packages".format(pip_version), str(err))

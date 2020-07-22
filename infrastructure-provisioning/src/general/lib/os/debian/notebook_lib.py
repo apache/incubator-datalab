@@ -372,8 +372,10 @@ def install_os_pkg(requisites):
         manage_pkg('update', 'remote', '')
         for os_pkg in requisites:
             if os_pkg[1] != '' and os_pkg[1] !='N/A':
+                version = os_pkg[1]
                 os_pkg = "{}={}".format(os_pkg[0], os_pkg[1])
             else:
+                version = ''
                 os_pkg = os_pkg[0]
             sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install --allow-downgrades {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
@@ -399,12 +401,11 @@ def install_os_pkg(requisites):
                 status_msg = 'failed'
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
             res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
-            version = os_pkg.split("=")[1]
             if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
                 version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
-                if os_pkg.split("=")[1] == '' or os_pkg.split("=")[1] == version:
+                if '=' in os_pkg and os_pkg.split("=")[1] == version or True:
                     status_msg = "installed"
             status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": status_msg,
                            "error_message": err, "add_pkgs": dep, "available_versions": versions})
