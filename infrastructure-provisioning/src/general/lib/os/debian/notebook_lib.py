@@ -375,7 +375,7 @@ def install_os_pkg(requisites):
                 version = os_pkg[1]
                 os_pkg = "{}={}".format(os_pkg[0], os_pkg[1])
             else:
-                version = ''
+                version = 'N/A'
                 os_pkg = os_pkg[0]
             sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install --allow-downgrades {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))

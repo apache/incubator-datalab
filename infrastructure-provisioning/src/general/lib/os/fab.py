@@ -64,7 +64,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         for pip_pkg in requisites:
             if pip_pkg[1] == '' or pip_pkg[1] == 'N/A':
                 pip_pkg = pip_pkg[0]
-                version = ''
+                version = 'N/A'
             else:
                 version = pip_pkg[1]
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
