@@ -395,7 +395,7 @@ def install_os_pkg(requisites):
             if 'E: Version' in err and 'was not found' in err:
                 versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0])).replace('\r\n', '').replace(' 500', '').replace('     ', ' ').strip().split(' ')
                 if versions != '':
-                    status_msg = 'invalid version'
+                    status_msg = 'invalid_version'
             else:
                 versions = []
                 status_msg = 'failed'

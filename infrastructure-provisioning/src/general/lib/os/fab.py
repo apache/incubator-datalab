@@ -96,7 +96,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
                 if versions != '':
                     versions = versions.split(', ')
-                    status_msg = 'invalid version'
+                    status_msg = 'invalid_version'
                 else:
                     versions = []
 
@@ -452,7 +452,7 @@ def install_r_pkg(requisites):
                 sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
                 versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
                                     '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:].split(' ')
-                status_msg = 'invalid version'
+                status_msg = 'invalid_version'
             else:
                 versions = []
             status.append({"group": "r_pkg", "name": name, "version": version, "status": status_msg, "error_message": err, "available_versions": versions, "add_pkgs": dep})
