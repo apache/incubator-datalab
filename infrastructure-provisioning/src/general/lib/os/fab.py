@@ -88,7 +88,6 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 else:
                     version = \
                     [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split('==')[1]
-                if "==" in pip_pkg and pip_pkg.split("==")[1] == version or True:
                     status_msg = "installed"
             else:
                 status_msg = 'failed'
@@ -420,6 +419,7 @@ def install_r_pkg(requisites):
     try:
         for r_pkg in requisites:
             name, vers = r_pkg
+            version = vers
             if vers =='N/A':
                 vers = ''
             else:
@@ -445,17 +445,17 @@ def install_r_pkg(requisites):
             if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
-                status.append({"group": "r_pkg", "name": name, "version": version, "status": "installed", "add_pkgs": dep})
+                status_msg = 'installed'
             else:
-                if 'Error in download_version_url(package, version, repos, type) :' in err:
-                    sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
-                    versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
+                status_msg = 'failed'
+            if 'Error in download_version_url(package, version, repos, type) :' in err:
+                sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
+                versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
                                     '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:].split(' ')
-                    status_msg = 'invalid version'
-                else:
-                    versions = []
-                    status_msg = 'failed'
-                status.append({"group": "r_pkg", "name": name, "status": status_msg, "error_message": err, "available_versions": versions})
+                status_msg = 'invalid version'
+            else:
+                versions = []
+            status.append({"group": "r_pkg", "name": name, "version": version, "status": status_msg, "error_message": err, "available_versions": versions, "add_pkgs": dep})
         return status
     except Exception as err:
         append_result("Failed to install R packages", str(err))
