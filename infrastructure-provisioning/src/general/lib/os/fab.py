@@ -68,7 +68,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
             else:
                 version = pip_pkg[1]
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
-            sudo('{0} install {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
+            sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
             sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
             res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
@@ -79,7 +79,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
                      '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
                 res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
-            if res:
+            if err:
+                status_msg = 'failed'
+            elif res:
                 res = res.lower()
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
@@ -88,9 +90,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 else:
                     version = \
                     [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split('==')[1]
-                    status_msg = "installed"
-            else:
-                status_msg = 'failed'
+                status_msg = "installed"
             versions = []
             if 'Could not find a version that satisfies the requirement' in err:
                 versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
@@ -442,12 +442,12 @@ def install_r_pkg(requisites):
             err = sudo('cat /tmp/install_{0}.log'.format(name)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
             res = sudo('cat /tmp/install_{0}.list'.format(name))
-            if res:
+            if err:
+                status_msg = 'failed'
+            elif res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
                 status_msg = 'installed'
-            else:
-                status_msg = 'failed'
             if 'Error in download_version_url(package, version, repos, type) :' in err:
                 sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
                 versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
