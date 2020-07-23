@@ -392,21 +392,20 @@ def install_os_pkg(requisites):
                 for n, i in enumerate(dep):
                     dep[n] = sudo('apt show {} 2>&1 | grep Version:'.format(i)).replace('Version: ', '{} v.'.format(i))
                 dep = [i for i in dep if i]
+            versions = []
+            sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
+            res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
+            if err:
+                status_msg = 'failed'
+            elif res:
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                ver = ansi_escape.sub('', res).split("\r\n")
+                version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
+                status_msg = "installed"
             if 'E: Version' in err and 'was not found' in err:
                 versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0])).replace('\r\n', '').replace(' 500', '').replace('     ', ' ').strip().split(' ')
                 if versions != '':
                     status_msg = 'invalid_version'
-            else:
-                versions = []
-                status_msg = 'failed'
-            sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
-            res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
-            if res:
-                ansi_escape = re.compile(r'\x1b[^m]*m')
-                ver = ansi_escape.sub('', res).split("\r\n")
-                version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
-                if '=' in os_pkg and os_pkg.split("=")[1] == version or True:
-                    status_msg = "installed"
             status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": status_msg,
                            "error_message": err, "add_pkgs": dep, "available_versions": versions})
         sudo('unattended-upgrades -v')
