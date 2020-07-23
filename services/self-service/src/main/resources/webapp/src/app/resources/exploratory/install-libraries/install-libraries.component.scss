@@ -184,19 +184,28 @@ ul.resources{
       width: 50%;
       padding-bottom: 0;
 
+      &.java-library-search{
+        width: 100%;
+
+        .label{
+          width: 10%;
+        }
+
+        .control{
+          width: 85%;
+        }
+      }
+
+      .control{
+        width: 70%;
+
+        input{
+          font-size: 14px;
+        }
+      }
+
       .label {
         width: 20%;
-      }
-    }
-
-    .other-message{
-      height: 22px;
-      display: flex;
-      align-items: center;
-
-      span{
-        font-size: 12px;
-        color: $link-color;
       }
     }
 
@@ -205,6 +214,7 @@ ul.resources{
       padding-bottom: 0;
       flex-direction: column;
       box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
+      margin-top: 25px;
 
       .mat-form-field-flex {
         padding-left: 15px;
@@ -214,9 +224,13 @@ ul.resources{
         width: 100%;
         overflow-y: auto;
 
-        .mat-form-field {
+
+        &.mat-form-field {
           width: 100%;
-          padding: 5px 20px;
+
+          .mat-form-field-infix{
+            display: flex;
+          }
         }
 
         .mat-input-flex {
@@ -283,7 +297,7 @@ ul.resources{
 }
 
 .list-selected {
-  padding: 0 5px;
+  padding: 10px;
   font-family: 'Open Sans', sans-serif;
   height: 130px;
   overflow-y: auto;
@@ -319,10 +333,6 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   line-height: 40px;
 }
 
-.list-header+div{
-  padding-left: 5px;
-}
-
 .mat-dialog-container {
   position: relative;
 }
@@ -351,18 +361,17 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
       }
     }
   }
-  .lib-col{
-    padding-left: 4px;
-
-  }
   .lib-name {
     width: 27%;
-    &.lib-input{
 
+    &-col{
+      display: flex;
     }
 
     .lib-name-wrapper{
+      overflow: hidden;
       display: block;
+      text-overflow: ellipsis;
     }
 
     strong {
@@ -547,6 +556,32 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 .btn{
   line-height: 26px;
 }
+
+.control-relative{
+  position: relative;
+
+  .plus-icon {
+    position: absolute;
+    right: -40px;
+    top: 5px;
+    color: #35afd5;
+    font-size: 27px;
+    cursor: pointer;
+
+    &.not-allow {
+      color: lightgray;
+    }
+  }
+
+  .other-message{
+    position: absolute;
+    font-size: 12px;
+    color: $link-color;
+    top: 40px;
+    left: 12px;
+  }
+}
+
   @media screen and (min-width: 1281px) {
   .libs-info {
     height: 60%;
