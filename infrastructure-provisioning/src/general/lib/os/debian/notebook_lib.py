@@ -412,8 +412,12 @@ def install_os_pkg(requisites):
         sudo('export LC_ALL=C')
         return status
     except Exception as err:
-        append_result("Failed to install OS packages", str(err))
-        sys.exit(1)
+        for os_pkg in requisites:
+            name, vers = os_pkg
+            status.append(
+                {"group": "os_pkg", "name": name, "version": vers, "status": 'installation_error', "error_message": err})
+        print("Failed to install OS packages: {}".format(requisites))
+        return status
 
 
 @backoff.on_exception(backoff.expo, SystemExit, max_tries=10)

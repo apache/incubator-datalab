@@ -360,9 +360,13 @@ def install_os_pkg(requisites):
             except:
                 status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": err})
         return status
-    except:
-        return "Fail to install OS packages"
-
+    except Exception as err:
+        for os_pkg in requisites:
+            name, vers = os_pkg
+            status.append(
+                {"group": "os_pkg", "name": name, "version": vers, "status": 'installation_error', "error_message": err})
+        print("Failed to install OS packages: {}".format(requisites))
+        return status
 
 def remove_os_pkg(pkgs):
     try:
