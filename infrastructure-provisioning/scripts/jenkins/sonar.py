@@ -23,4 +23,4 @@ TOKEN = 'ca50bcc08f84b90c0324d2e04dcee5f9c5034e67'
 response = requests.get('http://localhost:9000/sonar/api/qualitygates/project_status?projectKey=' + PROJECT_KEY,
                         auth=(TOKEN, '')).json()
 
-print('SUCCESS', response['projectStatus']['status'])
+print(response['projectStatus']['status'])
