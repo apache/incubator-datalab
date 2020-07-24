@@ -117,9 +117,11 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                            "error_message": err, "available_versions": versions, "add_pkgs": dep})
         return status
     except Exception as err:
-        append_result("Failed to install {} packages".format(pip_version), str(err))
+        for pip_pkg in requisites:
+            name, vers = pip_pkg
+            status.append({"group": lib_group, "name": name, "version": vers, "status": 'installation_error', "error_message": err})
         print("Failed to install {} packages".format(pip_version))
-        sys.exit(1)
+        return status
 
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
@@ -458,9 +460,12 @@ def install_r_pkg(requisites):
             status.append({"group": "r_pkg", "name": name, "version": version, "status": status_msg, "error_message": err, "available_versions": versions, "add_pkgs": dep})
         return status
     except Exception as err:
-        append_result("Failed to install R packages", str(err))
+        for r_pkg in requisites:
+            name, vers = r_pkg
+            status.append(
+                {"group": "r_pkg", "name": name, "version": vers, "status": 'installation_error', "error_message": err})
         print("Failed to install R packages")
-        sys.exit(1)
+        return status
 
 
 def update_spark_jars(jars_dir='/opt/jars'):
@@ -522,10 +527,12 @@ def install_java_pkg(requisites):
         update_spark_jars()
         return status
     except Exception as err:
-        append_result("Failed to install {} packages".format(requisites), str(err))
+        for java_pkg in requisites:
+            group, artifact, version, override = java_pkg
+            status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "installation_error",
+                           "error_message": err})
         print("Failed to install {} packages".format(requisites))
-        sys.exit(1)
-
+        return status
 
 def get_available_r_pkgs():
     try:
