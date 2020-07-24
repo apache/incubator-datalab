@@ -80,7 +80,7 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                      '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
                 res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
             if err:
-                status_msg = 'failed'
+                status_msg = 'installation_error'
             elif res:
                 res = res.lower()
                 ansi_escape = re.compile(r'\x1b[^m]*m')
@@ -443,7 +443,7 @@ def install_r_pkg(requisites):
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
             res = sudo('cat /tmp/install_{0}.list'.format(name))
             if err:
-                status_msg = 'failed'
+                status_msg = 'installation_error'
             elif res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
