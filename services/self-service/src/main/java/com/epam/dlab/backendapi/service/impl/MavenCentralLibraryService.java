@@ -41,7 +41,7 @@ public class MavenCentralLibraryService implements ExternalLibraryService {
 
 	private static final String QUOTE_ENCODED = "%22";
 	private static final String SEARCH_API_QUERY_FORMAT = "/solrsearch/select?q=%s&rows=20&wt=json&core=gav&p=jar";
-	private static final String LIB_NOT_FOUND_MSG = "Artifact with id=%s, groupId=%s and version %s not found";
+	private static final String LIB_NOT_FOUND_MSG = "No matches found";
 	private final RESTService restClient;
 
 	@Inject
