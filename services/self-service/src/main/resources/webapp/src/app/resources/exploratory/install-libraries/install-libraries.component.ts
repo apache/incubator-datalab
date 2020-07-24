@@ -96,7 +96,6 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.open(this.data);
-    this.libSearch.disable();
     this.libSearch.valueChanges
       .pipe(
       debounceTime(1000),
@@ -167,8 +166,10 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public onUpdate($event) {
     if ($event.model.type === 'group_lib') {
-      this.libSearch.enable();
       this.group = $event.model.value;
+      if (this.group) {
+        this.libSearch.enable();
+      }
       this.lib = {name: '', version: ''};
     } else if ($event.model.type === 'destination') {
       this.resetDialog();
@@ -391,6 +392,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
     this.destination = this.getResourcesList()[0];
     this.uploadLibGroups();
     this.getInstalledLibsByResource();
+    this.libSearch.disable();
   }
 
   private resetDialog(): void {
