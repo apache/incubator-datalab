@@ -364,7 +364,7 @@ def install_os_pkg(requisites):
         for os_pkg in requisites:
             name, vers = os_pkg
             status.append(
-                {"group": "os_pkg", "name": name, "version": vers, "status": 'failed', "error_message": err})
+                {"group": "os_pkg", "name": name, "version": vers, "status": 'installation_error', "error_message": err})
         print("Failed to install OS packages: {}".format(requisites))
         return status
 
