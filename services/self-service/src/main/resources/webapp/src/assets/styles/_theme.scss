@@ -49,6 +49,14 @@
 
     &.action {
       width: 140px;
+
+      &.install-btn{
+        margin-left: 0;
+      }
+
+      &.close-btn{
+        margin-right: 25px;
+      }
     }
 
     &.butt-success {

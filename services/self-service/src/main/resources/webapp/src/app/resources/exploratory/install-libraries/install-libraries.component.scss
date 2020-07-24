@@ -65,6 +65,10 @@
   height: 30%;
 }
 
+.top-wrapper{
+  height: 285px;
+}
+
 .install-libraries {
   height: 100%;
   padding-bottom: 130px;
@@ -78,7 +82,6 @@
   }
 
   .info {
-    height: 40%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -99,7 +102,6 @@
   .lib-view-wrap {
     display: flex;
     flex-direction: column;
-    height: 40%;
   }
 
   .error {
@@ -342,7 +344,6 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   display: flex;
   flex: 1 1 auto;
   min-height: 0px;
-  height: 50%;
 
   .mat-list {
     width: 100%;
@@ -555,6 +556,9 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
 .btn{
   line-height: 26px;
+  &.install-btn{
+    margin-left: 0;
+  }
 }
 
 .control-relative{
