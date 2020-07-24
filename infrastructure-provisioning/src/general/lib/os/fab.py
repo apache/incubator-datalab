@@ -518,7 +518,7 @@ def install_java_pkg(requisites):
                 sudo('cp -f $(find {0} -name "*.jar" | xargs) {1}'.format(ivy_cache_dir, dest_dir))
                 status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "version": version, "status": "installed"})
             else:
-                status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "failed", "error_message": err})
+                status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "installation_error", "error_message": err})
         update_spark_jars()
         return status
     except Exception as err:
