@@ -42,7 +42,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
@@ -355,7 +362,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			if (isSuccess) {
 				lib.setStatus(LibStatus.INSTALLED.toString());
 			} else {
-				lib.setStatus(LibStatus.FAILED.toString());
+				lib.setStatus(LibStatus.INSTALLATION_ERROR.toString());
 				lib.setErrorMessage("Mock error message");
 			}
 		}
