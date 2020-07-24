@@ -17,18 +17,40 @@
  * under the License.
  */
 
+#scrolling::-webkit-scrollbar,
+.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+#scrolling::-webkit-scrollbar-track,
+.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-track {
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  background-color: rgb(243, 243, 243);
+}
+
+#scrolling::-webkit-scrollbar-thumb,
+.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-thumb {
+  background-color: #f6fafe;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
 .table-wrapper {
   width: 100%;
-  position: relative;
+  //position: relative;
   //z-index: 101;
+  overflow: auto;
+  transform:rotateX(180deg);
 }
 
 .reporting {
-  position: relative;
+  //position: relative;
   width: 100%;
   min-width: 1100px;
   overflow: auto;
   border-collapse: inherit;
+  transform:rotateX(180deg);
 
   .mat-cell {
     vertical-align: middle;
@@ -68,11 +90,11 @@
 
     &.header-row {
       th {
-        font-size: 11px;
-        text-align: center;
+
         .label{
           padding-left: 0;
           position: relative;
+          font-size: 13px;
         }
       }
     }
@@ -95,7 +117,7 @@
   }
 
   .service{
-    width: 12%;
+    width: 10%;
   }
 
   .tags {
@@ -131,8 +153,8 @@
   }
 
   .th_type {
-    width: 10%;
-    min-width: 150px;
+    width: 12%;
+    min-width: 170px;
     z-index: 12 !important;
   }
 
@@ -195,7 +217,12 @@
 
     .sort{
       position: absolute;
-      bottom: 3px;
+      bottom: 2px;
+
+      &-user,
+      &-project{
+        right: -15px;
+      }
 
       &-arrow{
         width: 6px;
@@ -268,27 +295,13 @@
   }
 }
 
-.navigation-btn{
-  top: 50%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 2000;
-  position: absolute;
-  left: 0;
-  right: 0;
-  width: inherit;
   .left {
   }
 
   .right {
-    position: sticky;
+    position: absolute;
     right: 0;
   }
-  .mat-fab{
-    background-color: transparent;
-  }
-}
 
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {

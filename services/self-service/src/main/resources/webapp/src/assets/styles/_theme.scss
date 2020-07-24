@@ -28,6 +28,9 @@
     font-size: 15px;
     font-family: 'Open Sans', sans-serif;
     color: #577289;
+    &[disabled]{
+      box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    }
 
     i {
       margin: 0 5px 0 0;
@@ -791,7 +794,8 @@ mat-progress-bar {
 
 /* daterangepicker themes */
 #range-picker {
-  margin-top: 5px;
+  display: flex;
+  justify-content: center;
 }
 
 #range-picker path#Shape {
@@ -803,7 +807,7 @@ mat-progress-bar {
 #range-picker .ng-daterangepicker .calendar {
   border: none;
   border-radius: 0;
-  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
+  box-shadow: none;
 }
 
 #range-picker .ng-daterangepicker .calendar::after {
@@ -816,7 +820,7 @@ mat-progress-bar {
   color: #718ba6;
   border: none;
   border-radius: 0px;
-  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12)
+
 }
 
 #range-picker .ng-daterangepicker .calendar .side-container .side-button.is-active,
@@ -872,7 +876,10 @@ mat-progress-bar {
 
 #range-picker .ng-daterangepicker {
   height: 37px;
-  width: 350px;
+  width: 360px;
+  display: flex;
+  justify-content: space-between;
+
 
   .d-none{
     display: none;
@@ -881,6 +888,8 @@ mat-progress-bar {
   .input-section {
     height: 37px;
     padding-right: 30px;
+    width: 175px;
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
   }
 }
 

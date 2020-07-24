@@ -72,11 +72,10 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
       this.healthStatus = result;
     }));
     this.setInitDatapickerConfig();
-    // this.clearRangePicker();
   }
 
   ngAfterViewInit() {
-    // this.clearRangePicker();
+    this.clearRangePicker();
   }
 
   private setInitDatapickerConfig() {
@@ -85,20 +84,13 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
     labels[0].innerHTML = 'From date';
     labels[1].innerHTML = 'To date';
     for (let label = 0; label < rangeLabels.length; ++label) {
-      // rangeLabels[label].classList.add('untouched');
+      rangeLabels[label].classList.add('untouched');
       rangeLabels[label].classList.add('d-none');
     }
   }
 
   setDateRange() {
     const availableRange = JSON.parse(localStorage.getItem('report_period'));
-
-    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
-    for (let label = 0; label < rangeLabels.length; ++label) {
-      rangeLabels[label].classList.remove('d-none');
-
-    }
-
     this.availablePeriodFrom = availableRange.start_date;
     this.availablePeriodTo = availableRange.end_date;
   }
