@@ -16,9 +16,10 @@
 #  specific language governing permissions and limitations
 #  under the License.
 import requests
+import sys
 
 PROJECT_KEY = 'com.epam.dlab%3Adlab'
-TOKEN = 'ca50bcc08f84b90c0324d2e04dcee5f9c5034e67'
+TOKEN = sys.argv[1]
 
 response = requests.get('http://localhost:9000/sonar/api/qualitygates/project_status?projectKey=' + PROJECT_KEY,
                         auth=(TOKEN, '')).json()
