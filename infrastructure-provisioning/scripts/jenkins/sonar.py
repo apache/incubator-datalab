@@ -17,6 +17,10 @@
 #  under the License.
 import requests
 
-r = requests.get('https://xkcd.com/1906/')
+PROJECT_KEY = 'com.epam.dlab%3Adlab'
+TOKEN = 'ca50bcc08f84b90c0324d2e04dcee5f9c5034e67'
 
-print('SUCCESS', r.status_code)
+response = requests.get('https://localhost:9000/sonar/api/qualitygates/project_status?projectKey=' + PROJECT_KEY,
+                        auth=(TOKEN, '')).json()
+
+print('SUCCESS', response['projectStatus']['status'])
