@@ -260,11 +260,15 @@ export class ResourcesGridComponent implements OnInit {
           if (endpoint.status === 'ACTIVE') {
             const currEndpoint: SharedEndpoint = project.projectEndpoints[endpoint.name];
             const edgeItem: BucketList = {name: `${project.project} (${endpoint.name})`, children: [], cloud: endpoint.cloudProvider};
-            const projectBucket: string = currEndpoint.user_own_bicket_name
-              || currEndpoint.user_own_bucket_name
-              || currEndpoint.user_container_name ? currEndpoint.user_storage_account_name + '.' + currEndpoint.user_container_name : null;
-            const sharedBucket: string = currEndpoint.shared_bucket_name ||
-            currEndpoint.shared_container_name ? currEndpoint.shared_storage_account_name + '.' + currEndpoint.shared_container_name : null;
+            let projectBucket: string = currEndpoint.user_own_bicket_name
+              || currEndpoint.user_own_bucket_name;
+            if (currEndpoint.user_container_name) {
+              projectBucket = currEndpoint.user_storage_account_name + '.' + currEndpoint.user_container_name;
+            }
+            let sharedBucket: string = currEndpoint.shared_bucket_name;
+            if (currEndpoint.shared_container_name) {
+              sharedBucket = currEndpoint.shared_storage_account_name + '.' + currEndpoint.shared_container_name;
+            }
             if (projectBucket && currEndpoint.status !== 'terminated'
               && currEndpoint.status !== 'terminating' && currEndpoint.status !== 'failed') {
               edgeItem.children.push({name: projectBucket, endpoint: endpoint.name});
