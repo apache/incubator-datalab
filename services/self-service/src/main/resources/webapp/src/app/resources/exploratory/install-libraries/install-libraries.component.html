@@ -75,7 +75,7 @@
                         <span [innerHTML]="item.name | highlight:query"></span>
                       </a>
                       <span *ngIf="item.isInSelectedList">{{ item.name }}
-                        <span *ngIf="item.version && item.version !== 'N/A' && item.isInstalled && !item.isInSelectedList">{{ item.version }}</span>
+<!--                        <span *ngIf="item.version && item.version !== 'N/A' && item.isInstalled && !item.isInSelectedList">{{ item.version }}</span>-->
                       </span>
                       <strong *ngIf="item.isInSelectedList">selected
                         <i class="material-icons">done</i>

@@ -484,7 +484,7 @@ export class ErrorLibMessageDialogComponent {
 <!--  </mat-list>-->
 
   <div class="lib-list" *ngIf="data.type === 'added'">
-    <span class="strong dependency-title">Dependency: </span><span class="packeges" *ngFor="let pack of data.lib.add_pkgs">{{pack+', '}}</span>
+    <span class="strong dependency-title">Dependency: </span><span class="packeges" *ngFor="let pack of data.lib.add_pkgs; index as i">{{pack + (i !== data.lib.add_pkgs.length - 1 ? ', ' : '')}}</span>
   </div>
   <div class="lib-list" *ngIf="data.type === 'available'">
     <span class="strong">Available versions: </span>{{data.lib.available_versions.join(', ')}}
