@@ -140,7 +140,9 @@ mat-chip.mat-chip strong {
 .terminating,
 .failed,
 .deleting,
-.deleted {
+.deleted,
+.invalid_version,
+.installation_error{
   color: #f1696e;
 }
 

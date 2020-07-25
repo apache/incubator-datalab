@@ -18,16 +18,17 @@
  */
 
 
-import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject, OnDestroy} from '@angular/core';
+import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject, OnDestroy, AfterViewInit} from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime } from 'rxjs/operators';
+import {debounceTime, takeUntil} from 'rxjs/operators';
 
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
 import { SortUtils, HTTP_STATUS_CODES } from '../../../core/util';
 import {FilterLibsModel} from './filter-libs.model';
+import {Subject} from 'rxjs';
 
 interface Library {
   name: string;
@@ -42,22 +43,18 @@ interface Library {
   encapsulation: ViewEncapsulation.None
 })
 export class InstallLibrariesComponent implements OnInit, OnDestroy {
-
+  private unsubscribe$ = new Subject();
   public model: InstallLibrariesModel;
   public notebook: any;
-  public filteredList: any;
+  public filteredList: any = [];
   public groupsList: Array<string>;
   public notebookLibs: Array<any> = [];
-  public notebookFailedLibs: Array<any> = [];
   public loadLibsTimer: any;
-
-  public query: string = '';
   public group: string;
   public destination: any;
   public uploading: boolean = false;
   public libs_uploaded: boolean = false;
   public validity_format: string = '';
-
   public isInstalled: boolean = false;
   public isInSelectedList: boolean = false;
   public installingInProgress: boolean = false;
@@ -82,8 +79,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   @ViewChild('groupSelect', { static: false }) group_select;
   @ViewChild('resourceSelect', { static: false }) resource_select;
   @ViewChild('trigger', { static: false }) matAutoComplete;
-  public isLibInfoOpened = {  };
   private isLibExist: boolean;
+  public lib: Library = {name: '', version: ''};
+  private selectedLib: any = null;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -98,10 +96,14 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.open(this.data);
-    this.libSearch.valueChanges.pipe(
-      debounceTime(1000))
-      .subscribe(newValue => {
-        this.query = newValue || '';
+    this.libSearch.valueChanges
+      .pipe(
+      debounceTime(1000),
+      takeUntil(this.unsubscribe$)
+      )
+      .subscribe(value => {
+        this.lib.name = value;
+        this.isDuplicated(this.lib);
         this.filterList();
       });
   }
@@ -109,12 +111,17 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     window.clearTimeout(this.loadLibsTimer);
     window.clearTimeout(this.clear);
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   uploadLibGroups(): void {
     this.libs_uploaded = false;
     this.uploading = true;
     this.librariesInstallationService.getGroupsList(this.notebook.project, this.notebook.name, this.model.computational_name)
+      .pipe(
+        takeUntil(this.unsubscribe$)
+      )
       .subscribe(
         response => {
           this.libsUploadingStatus(response);
@@ -145,7 +152,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   public filterList(): void {
     this.validity_format = '';
-    (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
+    (this.lib.name && this.lib.name.length >= 2 && this.group ) ? this.getFilteredList() : this.filteredList = null;
   }
 
   public filterGroups(groupsList) {
@@ -160,6 +167,10 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public onUpdate($event) {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
+      if (this.group) {
+        this.libSearch.enable();
+      }
+      this.lib = {name: '', version: ''};
     } else if ($event.model.type === 'destination') {
       this.resetDialog();
       this.destination = $event.model.value;
@@ -168,6 +179,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
         : this.model.computational_name = null;
       this.uploadLibGroups();
       this.getInstalledLibsByResource();
+      this.libSearch.disable();
     }
     this.filterList();
   }
@@ -177,37 +189,52 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   }
 
   public isDuplicated(item) {
-    const select = { group: this.group, name: item.name, version: item.version };
-
-    this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
-
-    if (this.destination && this.destination.libs)
-      this.isInstalled = this.destination.libs.findIndex(libr => {
-        return select.group !== 'java'
-          ? select.name === libr.name && select.group === libr.group && select.version === libr.version
-          : select.name === libr.name && select.group === libr.group;
-      }) >= 0;
-
-    return this.isInSelectedList || this.isInstalled;
+    if (this.filteredList) {
+      if (this.group !== 'java') {
+        this.selectedLib = this.filteredList.find(lib => lib.name.toLowerCase() === item.name.toLowerCase());
+      } else {
+        this.selectedLib = this.filteredList.find(lib => {
+          return lib.name.toLowerCase() === item.name.substring(0, item.name.lastIndexOf(':')).toLowerCase();
+        });
+      }
+    } else {
+      this.selectedLib = null;
+    }
   }
 
   public addLibrary(item): void {
-    const lib = item.split(':').filter(v => !!v);
-    this.model.selectedLibs.push({ group: this.group, name: lib[0], version: lib[1] || 'N/A' });
-    this.query = '';
-    this.libSearch.setValue('');
-    this.filteredList = null;
+    if (this.selectedLib && !this.selectedLib.isInSelectedList) {
+      if (this.group !== 'java') {
+        this.model.selectedLibs.push({ group: this.group, name: item.name.toLowerCase(), version: item.version.toLowerCase() || 'N/A' });
+      } else {
+        this.model.selectedLibs.push({
+          group: this.group, name: item.name.substring(0, item.name.lastIndexOf(':')).toLowerCase(),
+          version: item.name.substring(item.name.lastIndexOf(':') + 1).toLowerCase() || 'N/A'
+        });
+      }
+      this.libSearch.setValue('');
+      this.lib = {name: '', version: ''};
+      this.filteredList = null;
+    }
   }
 
   public selectLibrary(item): void {
-    // this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version });
-    // this.query = '';
-    this.libSearch.setValue(item.name + ':');
-    this.filteredList = null;
+    if (item.isInSelectedList) {
+      return;
+    }
+    if (this.group === 'java') {
+      this.libSearch.setValue(item.name + ':' + item.version);
+      this.lib.name = item.name + ':' + item.version;
+    } else {
+      this.libSearch.setValue(item.name);
+      this.lib.name = item.name;
+    }
+    this.matAutoComplete.closePanel();
   }
 
   public removeSelectedLibrary(item): void {
     this.model.selectedLibs.splice(this.model.selectedLibs.indexOf(item), 1);
+    this.getMatchedLibs();
   }
 
   public open(notebook): void {
@@ -220,7 +247,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
           this.resetDialog();
         }
       },
-      error => this.toastr.error(error.message || 'Library installation failed!', 'Oops!'),
+      error => this.toastr.error(error.message || 'Library installation error!', 'Oops!'),
       () => {
         this.getInstalledLibrariesList(true);
         this.changeDetector.detectChanges();
@@ -237,7 +264,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public isInstallingInProgress(): void {
     this.installingInProgress = this.notebookLibs.some(lib => lib.filteredStatus.some(status => status.status === 'installing'));
       if (this.installingInProgress) {
-        clearTimeout(this.loadLibsTimer);
+        window.clearTimeout(this.loadLibsTimer);
         this.loadLibsTimer = window.setTimeout(() => this.getInstalledLibrariesList(), 10000);
       }
     }
@@ -254,6 +281,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   private getInstalledLibrariesList(init?: boolean) {
     this.model.getInstalledLibrariesList(this.notebook)
+      .pipe(
+        takeUntil(this.unsubscribe$)
+      )
       .subscribe((data: any) => {
         if ( !this.filtredNotebookLibs.length || data.length !== this.notebookLibs.length) {
           this.filtredNotebookLibs = [...data];
@@ -285,6 +315,9 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   private getInstalledLibsByResource() {
     this.librariesInstallationService.getInstalledLibsByResource(this.notebook.project, this.notebook.name, this.model.computational_name)
+      .pipe(
+        takeUntil(this.unsubscribe$)
+      )
       .subscribe((data: any) => this.destination.libs = data);
   }
 
@@ -302,45 +335,75 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   private getFilteredList(): void {
     this.validity_format = '';
-
-    if (this.group === 'java') {
-      this.model.getDependencies(this.query)
-        .subscribe(
-          lib => this.filteredList = [lib],
-          error => {
-            if (error.status === HTTP_STATUS_CODES.NOT_FOUND
-              || error.status === HTTP_STATUS_CODES.BAD_REQUEST
-              || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
-              this.validity_format = error.message;
-              this.filteredList = null;
-            }
-          });
-    } else {
-      this.model.getLibrariesList(this.group, this.query)
-        .subscribe((libs: Library[]) => {
-          console.log('libs', libs);
-          console.log(this.query.slice(0, this.query.indexOf(':')));
-          this.isLibExist = libs.some(v => v.name === this.query.slice(0, this.query.indexOf(':')));
-          this.filteredList = libs;
-        });
+    if (this.lib.name.length > 1) {
+      if (this.group === 'java') {
+        this.model.getDependencies(this.lib.name)
+          .pipe(
+            takeUntil(this.unsubscribe$)
+          )
+          .subscribe(
+            libs => {
+              this.filteredList = [libs];
+              this.filteredList.forEach(lib => {
+                lib.isInSelectedList = this.model.selectedLibs.some(el => lib.name.toLowerCase() === el.name.substring(0, el.name.lastIndexOf(':')).toLowerCase());
+                lib.isInstalled = this.notebookLibs.some(libr => {
+                    return lib.name.toLowerCase() === libr.name.substring(0, libr.name.lastIndexOf(':')).toLowerCase() &&
+                      this.group === libr.group &&
+                      libr.status.some(res => res.resource === this.destination.name);
+                  }
+                );
+              });
+              this.isDuplicated(this.lib);
+            },
+            error => {
+              if (error.status === HTTP_STATUS_CODES.NOT_FOUND
+                || error.status === HTTP_STATUS_CODES.BAD_REQUEST
+                || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
+                this.validity_format = error.message;
+                this.filteredList = null;
+              }
+            });
+      } else {
+        this.getMatchedLibs();
+      }
     }
+  }
+
+  private getMatchedLibs() {
+    this.model.getLibrariesList(this.group, this.lib.name.toLowerCase())
+      .pipe(
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe((libs: Library[]) => {
+        this.isLibExist = libs.some(v => v.name.toLowerCase() === this.lib.name.toLowerCase());
+        this.filteredList = libs;
+        this.filteredList.forEach(lib => {
+          lib.isInSelectedList = this.model.selectedLibs.some(el => el.name.toLowerCase() === lib.name.toLowerCase());
+          lib.isInstalled = this.notebookLibs.some(libr => lib.name === libr.name &&
+            this.group === libr.group &&
+            libr.status.some(res => res.resource === this.destination.name));
+        });
+        this.isDuplicated(this.lib);
+      });
+
   }
 
   private selectorsReset(): void {
     this.destination = this.getResourcesList()[0];
     this.uploadLibGroups();
     this.getInstalledLibsByResource();
+    this.libSearch.disable();
   }
 
   private resetDialog(): void {
     this.group = '';
-    this.query = '';
+    this.lib.name = '';
     this.libSearch.setValue('');
     this.isInstalled = false;
     this.isInSelectedList = false;
     this.uploading = false;
     this.model.selectedLibs = [];
-    this.filteredList = null;
+    this.filteredList = [];
     this.groupsList = [];
 
     clearTimeout(this.clear);
@@ -417,7 +480,7 @@ export class ErrorLibMessageDialogComponent {
   template: `
   <div class="dialog-header">
     <h4 class="modal-title" *ngIf="data.type === 'added'">Installed dependency</h4>
-    <h4 class="modal-title" *ngIf="data.type === 'available'">Library installation error</h4>
+    <h4 class="modal-title" *ngIf="data.type === 'available'">Version is not available</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
 <!--  <mat-list class="resources">-->
@@ -440,54 +503,16 @@ export class ErrorLibMessageDialogComponent {
 <!--  </mat-list>-->
 
   <div class="lib-list" *ngIf="data.type === 'added'">
-    <span class="strong">Dependency: </span>{{data.lib.add_pkgs.join(', ')}}
+    <span class="strong dependency-title">Dependency: </span><span class="packeges" *ngFor="let pack of data.lib.add_pkgs; index as i">{{pack + (i !== data.lib.add_pkgs.length - 1 ? ', ' : '')}}</span>
   </div>
   <div class="lib-list" *ngIf="data.type === 'available'">
-    <p class="terminated">Version is not available</p>
     <span class="strong">Available versions: </span>{{data.lib.available_versions.join(', ')}}
   </div>
-<!--  <div class="text-center">-->
-<!--    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">Close</button>-->
-<!--  </div>-->
   `,
   styles: [    `
     .lib-list { max-height: 200px; overflow-x: auto; word-break: break-all; padding: 20px 30px !important; margin: 20px 0; color: #577289;}
-    .terminated{padding-bottom: 15px;}
-
-    .mat-list-base {
-      padding: 40px 30px;
-    }
-
-    .object {
-      width: 70%;
-      display: flex;
-      align-items: center;
-      padding-right: 10px;
-    }
-
-    .size {
-      width: 30%;
-    }
-    .scrolling-content.delete-list {
-      max-height: 200px;
-      overflow-y: auto;
-      padding-top: 11px;
-    }
-
-    .empty-list {
-      display: flex;
-      width: 100%;
-      justify-content: center;
-      color: #35afd5;
-      padding: 15px;
-    }
-
-    .list-header {
-      border-top: 1px solid #edf1f5;
-      border-bottom: 1px solid #edf1f5;
-      color: #577289;
-      width: 100%;
-    }
+    .packeges { padding-left: 7px; line-height: 23px;}
+    .dependency-title{ line-height: 23px; }
   `
   ]
 })

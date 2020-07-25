@@ -54,7 +54,7 @@ def dataengine_dir_prepare(cluster_dir):
 
 def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
-    error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"
+    error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:|requires"
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
             sudo('ln -s /bin/pip3.5 /bin/pip3')
@@ -64,9 +64,11 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         for pip_pkg in requisites:
             if pip_pkg[1] == '' or pip_pkg[1] == 'N/A':
                 pip_pkg = pip_pkg[0]
+                version = 'N/A'
             else:
+                version = pip_pkg[1]
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
-            sudo('{0} install {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
+            sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
             sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
             res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
@@ -77,7 +79,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
                      '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
                 res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
-            if res:
+            if err:
+                status_msg = 'installation_error'
+            elif res:
                 res = res.lower()
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
@@ -85,41 +89,39 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     version = [i for i in ver if changed_pip_pkg.lower() in i][0].split('==')[1]
                 else:
                     version = \
-                    [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split(
-                        '==')[1]
-                sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
-                dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
-                if dep == '' or dep == pip_pkg.split("==")[0]:
-                    dep = []
-                else:
-                    dep = dep.split(', ')
-                    for n, i in enumerate(dep):
-                        if i == pip_pkg.split("==")[0]:
-                            dep[n] = ''
-                        else:
-                            dep[n] = sudo('{} freeze 2>&1 | grep {}=='.format(pip_version , i)).replace('==', ' v.')
-                            if dep[n] == '':
-                                dep[n] = sudo('{} freeze 2>&1 | grep {}=='.format(pip_version, i.lower())).replace('==', ' v.')
-                    dep = [i for i in dep if i]
-
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "version": version, "status": "installed", "add_pkgs": dep})
-            else:
-                err_status = 'failed'
-                versions = ''
-                if 'Could not find a version that satisfies the requirement' in err:
-                    versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
-                    err_status = 'invalid version'
-                if versions == '':
-                    versions = []
-                else:
+                    [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split('==')[1]
+                status_msg = "installed"
+            versions = []
+            if 'Could not find a version that satisfies the requirement' in err:
+                versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
+                if versions != '':
                     versions = versions.split(', ')
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "status": err_status,
-                                   "error_message": err, "available_versions": versions})
+                    status_msg = 'invalid_version'
+                else:
+                    versions = []
+
+            sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; '
+                 'then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
+            dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
+            if dep == '':
+                dep = []
+            else:
+                dep = dep.split(', ')
+                for n, i in enumerate(dep):
+                    if i == pip_pkg.split("==")[0]:
+                        dep[n] = ''
+                    else:
+                        dep[n] = sudo('{} show {} 2>&1 | grep Version:'.format(pip_version, i)).replace('Version: ', '{} v.'.format(i))
+                dep = [i for i in dep if i]
+            status.append({"group": lib_group, "name": pip_pkg.split("==")[0], "version": version, "status": status_msg,
+                           "error_message": err, "available_versions": versions, "add_pkgs": dep})
         return status
     except Exception as err:
-        append_result("Failed to install {} packages".format(pip_version), str(err))
+        for pip_pkg in requisites:
+            name, vers = pip_pkg
+            status.append({"group": lib_group, "name": name, "version": vers, "status": 'installation_error', "error_message": err})
         print("Failed to install {} packages".format(pip_version))
-        sys.exit(1)
+        return status
 
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
@@ -419,6 +421,7 @@ def install_r_pkg(requisites):
     try:
         for r_pkg in requisites:
             name, vers = r_pkg
+            version = vers
             if vers =='N/A':
                 vers = ''
             else:
@@ -441,25 +444,28 @@ def install_r_pkg(requisites):
             err = sudo('cat /tmp/install_{0}.log'.format(name)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
             res = sudo('cat /tmp/install_{0}.list'.format(name))
-            if res:
+            if err:
+                status_msg = 'installation_error'
+            elif res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
-                status.append({"group": "r_pkg", "name": name, "version": version, "status": "installed", "add_pkgs": dep})
-            else:
-                if 'Error in download_version_url(package, version, repos, type) :' in err:
-                    sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
-                    versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
+                status_msg = 'installed'
+            if 'Error in download_version_url(package, version, repos, type) :' in err:
+                sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
+                versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
                                     '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:].split(' ')
-                    status_msg = 'invalid version'
-                else:
-                    versions = []
-                    status_msg = 'failed'
-                status.append({"group": "r_pkg", "name": name, "status": status_msg, "error_message": err, "available_versions": versions})
+                status_msg = 'invalid_version'
+            else:
+                versions = []
+            status.append({"group": "r_pkg", "name": name, "version": version, "status": status_msg, "error_message": err, "available_versions": versions, "add_pkgs": dep})
         return status
     except Exception as err:
-        append_result("Failed to install R packages", str(err))
+        for r_pkg in requisites:
+            name, vers = r_pkg
+            status.append(
+                {"group": "r_pkg", "name": name, "version": vers, "status": 'installation_error', "error_message": err})
         print("Failed to install R packages")
-        sys.exit(1)
+        return status
 
 
 def update_spark_jars(jars_dir='/opt/jars'):
@@ -517,14 +523,16 @@ def install_java_pkg(requisites):
                 sudo('cp -f $(find {0} -name "*.jar" | xargs) {1}'.format(ivy_cache_dir, dest_dir))
                 status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "version": version, "status": "installed"})
             else:
-                status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "failed", "error_message": err})
+                status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "installation_error", "error_message": err})
         update_spark_jars()
         return status
     except Exception as err:
-        append_result("Failed to install {} packages".format(requisites), str(err))
+        for java_pkg in requisites:
+            group, artifact, version, override = java_pkg
+            status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "installation_error",
+                           "error_message": err})
         print("Failed to install {} packages".format(requisites))
-        sys.exit(1)
-
+        return status
 
 def get_available_r_pkgs():
     try:
