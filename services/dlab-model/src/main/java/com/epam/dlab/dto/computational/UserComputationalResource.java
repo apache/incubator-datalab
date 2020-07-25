@@ -67,6 +67,8 @@ public class UserComputationalResource {
 	private int dataengineInstanceCount;
 	@JsonProperty("instance_id")
 	private String instanceId;
+	@JsonProperty("dataproc_version")
+	private String clusterVersion;
 	private int totalInstanceCount;
 	protected List<ClusterConfig> config;
 	private Map<String, String> tags;
