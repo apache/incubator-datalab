@@ -15,8 +15,12 @@
 #  KIND, either express or implied.  See the License for the
 #  specific language governing permissions and limitations
 #  under the License.
+
 import requests
 import sys
+import time
+
+time.sleep(30)  # wait for new code to be analyzed by SonarQube
 
 PROJECT_KEY = 'com.epam.dlab%3Adlab'
 TOKEN = sys.argv[1]
