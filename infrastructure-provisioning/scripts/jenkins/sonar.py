@@ -19,13 +19,19 @@
 import requests
 import sys
 import time
+import urllib.parse
 
 time.sleep(30)  # wait for new code to be analyzed by SonarQube
 
-PROJECT_KEY = 'com.epam.dlab%3Adlab'
-TOKEN = sys.argv[1]
+PROJECT_KEY = urllib.parse.quote(sys.argv[1])
+print(PROJECT_KEY)
+TOKEN = sys.argv[2]
 
-response = requests.get('http://localhost:9000/sonar/api/qualitygates/project_status?projectKey=' + PROJECT_KEY,
-                        auth=(TOKEN, '')).json()
 
-print(response['projectStatus']['status'])
+def get_sonarqube_status():
+    response = requests.get('http://localhost:9000/sonar/api/qualitygates/project_status?projectKey=' + PROJECT_KEY,
+                            auth=(TOKEN, '')).json()
+    return response['projectStatus']['status']
+
+
+print(get_sonarqube_status())
