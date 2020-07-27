@@ -19,13 +19,17 @@
 
 .data-grid {
   &.management {
+    .filter-row-item{
+      padding: 5px;
+    }
+
     .settings{
       min-width: 7%;
     }
     .mat-column-checkbox{
       padding-left: 10px;
       padding-right: 0px;
-      min-width: 68px;
+      min-width: 38px;
       &.label-header{
 
       }
@@ -57,7 +61,6 @@
 
     .resources {
       width: 24%;
-      padding: 5px;
     }
 
     .settings {
@@ -74,6 +77,50 @@
     .actions-col {
       width: 6%;
 
+    }
+
+    .label-header{
+      padding-left: 15px;
+      .ar{
+        left: 21px;
+        top: 2px;
+      }
+      .settings{
+        min-width: 7%;
+      }
+      &.mat-column-checkbox{
+        z-index: 12 !important;
+        padding-left: 10px;
+        .ar{
+          position: absolute;
+        }
+      }
+      &.user{
+        z-index: 11 !important;
+      }
+      &.type{
+        z-index: 10 !important;
+      }
+
+      &.project {
+        z-index: 9 !important;
+      }
+
+      &.shape {
+        z-index: 8 !important;
+      }
+
+      &.status {
+        z-index: 7 !important;
+      }
+
+      &.resources {
+        z-index: 6 !important;
+      }
+
+      &.actions {
+        z-index: 5 !important;
+      }
     }
 
     .dashboard_table_body {
@@ -105,6 +152,7 @@ table.management {
 
   td:not(.info) {
     padding: 5px;
+    padding-left: 20px;
   }
 
   .header-row {
@@ -114,7 +162,6 @@ table.management {
       padding-top: 14px;
       vertical-align: super !important;
       padding-left: 5px;
-      font-size: 12px;
     }
     .actions {
       text-align: right;
@@ -127,6 +174,11 @@ table.management {
 
   .filter-row {
     background: inherit;
+
+    .filter-field{
+      font-size: 13px;
+      padding-left: 15px;
+    }
   }
 }
 

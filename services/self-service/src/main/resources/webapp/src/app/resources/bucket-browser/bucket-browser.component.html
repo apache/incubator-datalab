@@ -95,7 +95,7 @@
         (click)="refreshBucket()"
         [disabled]="allDisable"
       >
-        <i class="material-icons">autorenew</i>Refresh
+        <i class="material-icons refresh-icon">autorenew</i>Refresh
       </button>
     </div>
     <p class="path"><span>Bucket path:</span>
@@ -189,7 +189,8 @@
                 </span>
               </div>
               <div class="size">{{file.object?.size | convertFileSize}}</div>
-              <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>
+<!--              <div class="date" *ngIf="!file.isDownloading">{{convertDate(file.object?.lastModifiedDate) | date: 'dd/MM/yyyy hh:mm:ss aa'  }}</div>-->
+              <div class="date" *ngIf="!file.isDownloading">{{file.object?.lastModifiedDate}}</div>
               <div class="progress-wrapper" *ngIf="file.isDownloading">
                 <div class="progres">
                   <span class="progress-bar-text">{{file.progress || 0}}% Downloading...</span>

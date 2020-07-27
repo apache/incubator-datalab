@@ -469,7 +469,7 @@ span.mat-slide-toggle-content {
   position: relative;
   cursor: pointer;
   &.header-checkbox{
-    margin-top: 13px;
+    margin-top: 7px;
     float: left;
   }
   &.checked {
@@ -737,17 +737,32 @@ mat-horizontal-stepper {
   }
 }
 
-.mat-table {
-  .header-row {
-    th.mat-header-cell {
+table.mat-table {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 400;
+
+  .mat-cell{
+    font-size: 13px;
+  }
+  .header-row,
+  .mat-header-row{
+    .mat-header-cell {
       font-family: 'Open Sans', sans-serif;
       font-weight: 600;
+      font-size: 13px;
+      .label{
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 600;
+        font-size: 13px;
+      }
     }
 
     .mat-cell {
       word-break: break-all;
       vertical-align: top;
       padding: 15px 5px 10px 5px;
+      font-size: 13px;
+      font-family: "Open Sans", sans-serif;
 
       td {
         vertical-align: baseline;
@@ -873,6 +888,31 @@ mat-progress-bar {
 //  left: 61px;
 //  color: #718ba6;
 //}
+
+.filter-row .actions {
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.filter-row .actions button {
+  background: #fff;
+  border-color: #35afd5;
+  color: #35afd5;
+  outline: none;
+}
+
+.filter-row .actions .reset:hover {
+  border-color: #f1696e;
+  background: #f9fafb;
+  color: #f1696e;
+}
+
+.filter-row .actions .apply:hover {
+  border-color: #49af38;
+  background: #f9fafb;
+  color: #49af38;
+}
 
 #range-picker .ng-daterangepicker {
   height: 37px;

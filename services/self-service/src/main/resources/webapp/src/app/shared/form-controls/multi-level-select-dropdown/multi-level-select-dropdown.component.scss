@@ -69,13 +69,14 @@
     span {
       color: #999;
       font-weight: 300;
-      //display: inline-block;
+      display: inline-block;
       max-width: 80%;
     }
 
     .selected-items {
       color: #4a5c89;
       max-width: 477px;
+      padding-top: 5px;
     }
   }
 }
