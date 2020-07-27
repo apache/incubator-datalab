@@ -29,7 +29,8 @@ export class FolderTreeComponent implements OnDestroy {
   @Output() showFolderContent: EventEmitter<any> = new EventEmitter();
   @Output() disableAll: EventEmitter<any> = new EventEmitter();
   @Input() folders;
-  @Input() endpoint;
+  @Input() endpoint: string;
+  @Input() cloud: string;
 
   private folderTreeSubs;
   private path = [];
@@ -213,19 +214,15 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
     }
     const path = `${ flatParent.object && flatObject !== '/' ? flatObject : ''}${itemValue}/`;
     const bucket = flatParent.object ? flatParent.object.bucket : flatParent.item;
-    // const formData = new FormData();
-    // formData.append('file', '');
-    // formData.append('object', path);
-    // formData.append('bucket', bucket);
-    // formData.append('endpoint', this.endpoint);
 
     this.bucketDataService.emptyFolder = null;
-    this.bucketBrowserService.createFolder({
-      'bucket': bucket,
-      'folder': path.replace(/ا/g, ''),
-      'endpoint': this.endpoint
-    })
-      .subscribe(_ => {
+    if (this.cloud !== 'azure') {
+      this.bucketBrowserService.createFolder({
+        'bucket': bucket,
+        'folder': path.replace(/ا/g, ''),
+        'endpoint': this.endpoint
+      })
+        .subscribe(_ => {
           this.bucketDataService.insertItem(flatParent, itemValue, false);
           this.toastr.success('Folder successfully created!', 'Success!');
           this.folderCreating = false;
@@ -234,6 +231,12 @@ private addNewItem(node: TodoItemFlatNode, file, isFile) {
           this.folderCreating = false;
           this.toastr.error(error.message || 'Folder creation error!', 'Oops!');
         });
+    } else {
+      this.bucketDataService.insertItem(flatParent, itemValue, false);
+      this.toastr.success('Folder successfully created!', 'Success!');
+      this.folderCreating = false;
+      this.removeItem(node);
+    }
   }
 
   private resetForm() {

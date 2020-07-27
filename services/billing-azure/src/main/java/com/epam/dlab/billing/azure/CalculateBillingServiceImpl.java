@@ -20,12 +20,12 @@
 package com.epam.dlab.billing.azure;
 
 import com.epam.dlab.MongoKeyWords;
-import com.epam.dlab.billing.azure.config.AzureAuthFile;
 import com.epam.dlab.billing.azure.config.BillingConfigurationAzure;
 import com.epam.dlab.billing.azure.model.AzureDailyResourceInvoice;
 import com.epam.dlab.billing.azure.model.BillingPeriod;
 import com.epam.dlab.dto.billing.BillingData;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.azure.AzureAuthFile;
 import com.epam.dlab.util.mongo.modules.IsoDateModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

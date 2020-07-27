@@ -28,57 +28,57 @@
       <p class=" message">Cannot install libraries: Exploratory
         <strong>{{ notebook?.name }}</strong> is not running</p>
     </div>
-    <div class="loading-block" *ngIf="!libs_uploaded && uploading && data.status === 'running'">
+    <div *ngIf="notebook?.status === 'running'" class="top-wrapper">
+      <div class="loading-block" *ngIf="!libs_uploaded && uploading && data.status === 'running'">
       <div class="uploading">
         <p>Please wait until DLab loads full list of available libraries for you...</p>
         <img src="assets/img/gif-spinner.gif" alt="loading">
       </div>
     </div>
-    <div *ngIf="notebook?.status === 'running' && !uploading" class="lib-view-wrap">
+      <div *ngIf="notebook?.status === 'running' && !uploading" class="lib-view-wrap">
       <div class="search-box">
         <div class="search-form">
           <div>
             <div class="control-group constol-select">
               <label class="label">Select resource</label>
               <div class="control">
-                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)" (emitClick)="emitClick()"></dropdown-list>
               </div>
             </div>
             <div class="control-group control-select">
               <label class="label">Select group</label>
               <div class="control">
-                <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
-                <span class="error-message" *ngIf="!group && libSearch.value">Group field is required. Please choose appropriate group.</span>
+                <dropdown-list #groupSelect (selectedItem)="onUpdate($event)" (emitClick)="emitClick()"></dropdown-list>
+                <span class="error-message" *ngIf="!group && libSearch?.value">Group field is required. Please choose appropriate group.</span>
               </div>
             </div>
           </div>
-          <div class="search">
-            <mat-form-field class="chip-list">
-              <input
-                type="text"
-                [placeholder]="group === 'java' ? 'Enter library name in <groupId>:<artifactId>:<versionId> format' : 'Enter library name'"
-                matInput
-                [formControl]="libSearch"
-                [value]="query"
-                [matAutocomplete]="auto"
-              >
-              <mat-icon matSuffix>search</mat-icon>
-              <mat-autocomplete #auto="matAutocomplete" class="suggestions">
+          <div class="m-top-20" *ngIf="group !== 'java'; else javaGroup">
+            <div class="control-group constol-select">
+              <label class="label">Library name</label>
+              <div class="control control-relative">
+                <span class="other-message" *ngIf="group === 'others'">Other group can include libs from Python 2 and Python 3 groups</span>
+                <input
+                  type="text" [placeholder]="'Enter library name'"
+                  [disabled]="!group"
+                  [matAutocomplete]="auto"
+                  [formControl]="libSearch"
+                  #trigger="matAutocompleteTrigger"
+                  (keyup.enter)="addLibrary(lib)"
+                >
+              </div>
+              <mat-autocomplete #auto="matAutocomplete" class="suggestions" >
                 <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index">
-                  <mat-option [ngClass]="{ 'not-allowed': isDuplicated(item) }">
-                    <div class="option" (click)="selectLibrary(item)">
-                      <a *ngIf="!isDuplicated(item)">
-                        <span [innerHTML]="item.name | highlight:query"></span>
-                        <span *ngIf="item.version && item.version !== 'N/A'">{{ item.version }}</span>
+                  <mat-option>
+                    <div class="option" (click)="selectLibrary(item);$event.stopPropagation()" [ngClass]="{'not-allow': item.isInSelectedList}">
+                      <a *ngIf="!item.isInSelectedList">
+                        <span [innerHTML]="item.name | highlight:lib.name.toLowerCase()"></span>
                       </a>
-                      <span *ngIf="isInSelectedList || isInstalled">{{ item.name }}
-                        <span *ngIf="item.version && item.version !== 'N/A'">{{ item.version }}</span>
-                      </span>
-
-                      <strong *ngIf="isInSelectedList">selected
+                      <span *ngIf="item.isInSelectedList">{{ item.name }}</span>
+                      <strong *ngIf="item.isInSelectedList">selected
                         <i class="material-icons">done</i>
                       </strong>
-                      <strong *ngIf="isInstalled">installed
+                      <strong *ngIf="item.isInstalled && !item.isInSelectedList">installed
                         <i class="material-icons">done</i>
                       </strong>
                     </div>
@@ -88,10 +88,133 @@
                   <span class="configuring">No matches found</span>
                 </mat-option>
                 <mat-option *ngIf="validity_format?.length > 0">
-                  <span class="configuring">{{ validity_format }}</span>
+                  <span class="configuring" >{{ validity_format }}</span >
                 </mat-option>
               </mat-autocomplete>
-            </mat-form-field>
+            </div>
+            <div class="control-group control-select">
+              <label class="label">Library version</label>
+              <div class="control control-relative">
+                <input  type="text" [placeholder]="'Enter library version (optional)'" [(ngModel)]="lib.version" [disabled]="!lib.name" (keyup.enter)="addLibrary(lib)">
+                <span class="plus-icon"
+                      [ngClass]="{'not-allow': !this.selectedLib || this.selectedLib?.isInSelectedList}"
+                      matTooltip="Library is in selected list" matTooltipPosition="above" [matTooltipDisabled]="!this.selectedLib?.isInSelectedList"
+                >
+                  <mat-icon  (click)="addLibrary(lib)"  [ngClass]="{'not-allowed': !this.selectedLib || this.selectedLib?.isInSelectedList }">add</mat-icon>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #javaGroup>
+            <div class="m-top-20">
+              <div class="control-group constol-select java-library-search">
+                <label class="label">Library</label>
+                <div class="control control-relative">
+                 <span class="other-message" *ngIf="lib.name?.length && !this.selectedLib">groupId:artifactId:versionId</span>
+                 <input
+                    type="text" [placeholder]="'Enter library name in <groupId>:<artifactId>:<versionId> format'"
+
+                    [disabled]="!group"
+                    [matAutocomplete]="auto"
+                    [formControl]="libSearch"
+                    #trigger="matAutocompleteTrigger"
+                    (keyup.enter)="addLibrary(lib)"
+                  >
+                  <span
+                    class="plus-icon"
+                    [ngClass]="{'not-allow': !this.selectedLib || this.selectedLib?.isInSelectedList}"
+                    matTooltip="Library is in selected list" matTooltipPosition="above" [matTooltipDisabled]="!this.selectedLib?.isInSelectedList"
+                  >
+                  <mat-icon  (click)="addLibrary(lib)" (keyup.enter)="addLibrary(lib)" [ngClass]="{'not-allowed': !this.selectedLib || this.selectedLib?.isInSelectedList}">add</mat-icon>
+                </span>
+                </div>
+                <mat-autocomplete #auto="matAutocomplete" class="suggestions">
+                  <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index">
+                    <mat-option >
+                      <div class="option" (click)="selectLibrary(item);$event.stopPropagation()" [ngClass]="{'not-allow': item.isInSelectedList}">
+                        <a *ngIf="!item.isInSelectedList">
+                          <span [innerHTML]="item.name + ':' + item.version | highlight:item.name.toLowerCase()">
+                             <span>{{ item.version }}</span>
+                          </span>
+                        </a>
+                        <span *ngIf="item.isInSelectedList">{{ item.name }}
+                          <span *ngIf="item.version && item.version !== 'N/A'">{{ item.version }}</span>
+                      </span>
+                        <strong *ngIf="item.isInSelectedList">selected
+                          <i class="material-icons">done</i>
+                        </strong>
+                        <strong *ngIf="item.isInstalled && !item.isInSelectedList">installed
+                          <i class="material-icons">done</i>
+                        </strong>
+                      </div>
+                    </mat-option>
+                  </ng-template>
+                  <mat-option *ngIf="model.isEmpty(filteredList) && !validity_format">
+                    <span class="configuring">No matches found</span>
+                  </mat-option>
+                  <mat-option *ngIf="validity_format?.length > 0">
+                    <span class="configuring" >{{ validity_format }}</span >
+                  </mat-option>
+                </mat-autocomplete>
+              </div>
+            </div>
+          </ng-template>
+<!--          <p class="other-message">-->
+<!--            -->
+<!--          </p>-->
+          <div class="search">
+<!--            <mat-form-field class="chip-list">-->
+<!--              <input-->
+<!--                type="text"-->
+<!--                [placeholder]="group === 'java' ?-->
+<!--                'Enter library name in <groupId>:<artifactId>:<versionId> format' :-->
+<!--                'Enter library name in <name>:<version> format(version is not required)'"-->
+<!--                matInput-->
+<!--                #trigger="matAutocompleteTrigger"-->
+<!--                [formControl]="libSearch"-->
+<!--                [value]="query"-->
+<!--                [matAutocomplete]="auto"-->
+<!--              >-->
+<!--&lt;!&ndash;              <span class="add-icon" [matTooltip]="(isInSelectedList || isInstalled) ? 'Current library dosen\'t exist' : 'You have already added or installed current library'"&ndash;&gt;-->
+<!--&lt;!&ndash;              matTooltipPosition="above"&ndash;&gt;-->
+<!--&lt;!&ndash;              [matTooltipDisabled] = "isLibExist && (isInSelectedList || isInstalled)"&ndash;&gt;-->
+<!--              <span class="add-icon">-->
+<!--                <button  mat-icon-button class="btn" [disabled]="!isLibExist || query.length < 1 ||-->
+<!--                isDuplicated({name: query.slice(0, query.indexOf(':')), version: query.slice(query.indexOf(':') + 1) || 'N/A'})" (click)="addLibrary(query);$event.stopPropagation()">-->
+<!--                  <mat-icon matSuffix >add</mat-icon>-->
+<!--                </button>-->
+<!--              </span>-->
+
+<!--              <mat-autocomplete #auto="matAutocomplete" class="suggestions" >-->
+<!--                <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index" *ngIf="query.indexOf(':') === -1">-->
+<!--                  <mat-option [ngClass]="{ 'not-allowed': isDuplicated(item) }">-->
+<!--                    <div class="option" (click)="selectLibrary(item)">-->
+<!--                      <a *ngIf="!isDuplicated(item)">-->
+<!--                        <span [innerHTML]="item.name | highlight:query"></span>-->
+<!--&lt;!&ndash;                        <span *ngIf="item.version && item.version !== 'N/A'">{{ item.version }}</span>&ndash;&gt;-->
+<!--                      </a>-->
+<!--                      <span *ngIf="isInSelectedList || isInstalled">{{ item.name }}-->
+<!--                        <span *ngIf="item.version && item.version !== 'N/A'">{{ item.version }}</span>-->
+<!--                      </span>-->
+
+<!--                      <strong *ngIf="isInSelectedList">selected-->
+<!--                        <i class="material-icons">done</i>-->
+<!--                      </strong>-->
+<!--                      <strong *ngIf="isInstalled">installed-->
+<!--                        <i class="material-icons">done</i>-->
+<!--                      </strong>-->
+<!--                    </div>-->
+<!--                  </mat-option>-->
+<!--                </ng-template>-->
+<!--                <mat-option *ngIf="model.isEmpty(filteredList) && !validity_format && query.indexOf(':') === -1">-->
+<!--                  <span class="configuring">No matches found</span>-->
+<!--                </mat-option>-->
+<!--                <mat-option *ngIf="validity_format?.length > 0">-->
+<!--                  <span class="configuring" *ngIf="query.indexOf(':') === -1">{{ validity_format }}</span >-->
+<!--                </mat-option>-->
+<!--              </mat-autocomplete>-->
+<!--            </mat-form-field>           -->
             <div class="list-selected list-container" id='scrolling'>
               <mat-chip-list *ngIf="model.selectedLibs.length && libs_uploaded">
                 <mat-chip *ngFor="let item of model.selectedLibs">
@@ -106,6 +229,10 @@
         </div>
       </div>
     </div>
+    </div>
+
+
+
     <div class="libs-info">
       <mat-list>
         <mat-list-item class="list-header">
@@ -205,15 +332,13 @@
 <!--          <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">-->
 <!--            <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>-->
 <!--          </div>-->
-          <mat-list-item  *ngFor="let lib of filtredNotebookLibs">
-
-            <div class="lib-name ellipsis pr-20" >
-              <div class="d-flex">
-              <span class="ellipsis lib-name-wrapper" [matTooltip]="lib.name + (lib.version !== 'N/A' ? lib.version : '')" matTooltipPosition="above">
-                <strong >{{ lib.name }}</strong>&nbsp;
-                <span *ngIf="lib.version && lib.version !== 'N/A'">{{ lib.version }}</span>
+          <ng-container *ngFor="let lib of filtredNotebookLibs">
+            <mat-list-item class="table-item">
+            <div class="lib-name lib-name-col ellipsis" >
+              <span [matTooltip]="lib.name + ' ' + lib.version" matTooltipPosition="above" class="lib-name-wrapper">
+                <span class="stong" >{{ lib.name }}</span>&nbsp;
+                <span *ngIf="lib.version  && lib.version !== 'N/A'">{{ lib.version }}</span>
               </span>
-              </div>
             </div>
             <div class="lib-group-col">{{ groupsListMap[lib.group] }}</div>
             <div class="st-group">
@@ -221,9 +346,9 @@
                 <div class="wrap-col">
                   <div class="lib-destination-col">{{ item.resource }}</div>
                   <div class="lib-resource-type-col">{{ item.resourceType }}</div>
-                  <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{ item.status }}
-                    <div class="warn-action" *ngIf="item.status === 'failed' && notebook?.status === 'running'">
-                      <div>
+                  <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || 'installation_error' }}">{{ item.status.replace('_', ' ') }}
+                    <div class="warn-action" *ngIf="(item.status === 'installation_error' || item.status.toLowerCase() === 'invalid_version') && notebook?.status === 'running'">
+                      <div *ngIf="!item.available_versions">
                         <span *ngIf="!installingInProgress" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
                           <i class="material-icons">replay</i>
                         </span>
@@ -232,15 +357,53 @@
                           <i class="material-icons">replay</i>
                         </span>
                       </div>
-                      <div *ngIf="item.status === 'failed' && item.error" class="lib-error" (click)="showErrorMessage(item)">
+                      <div *ngIf="item.status === 'installation_error' && item.error" class="lib-error" (click)="showErrorMessage(item)" matTooltip="Show error message" matTooltipPosition="above">
+                        <i class="material-icons terminated">error_outline</i>
+                      </div>
+                      <div class="lib-error"
+                           *ngIf="item.status.toLowerCase() === 'invalid_version' && item.available_versions?.length"
+                           (click)="openLibInfo(item, 'available');$event.stopPropagation()"
+                           matTooltip="Show available version" matTooltipPosition="above"
+                      >
                         <i class="material-icons">error_outline</i>
                       </div>
+                      <div matTooltip="Show installed dependency" matTooltipPosition="above" *ngIf="item.add_pkgs?.length">
+                        <span class="info-icon" (click)="openLibInfo(item, 'added');$event.stopPropagation() ">
+                          <i class="material-icons">info</i>
+                        </span>
+                      </div>
                     </div>
+
                   </div>
                 </div>
+
               </ng-template>
             </div>
           </mat-list-item>
+
+<!--          <mat-list-item  *ngIf="isLibInfoOpened[lib.name]">-->
+<!--            <div class="lib-info">-->
+<!--              <ul class="libs-version">-->
+
+<!--                <li class="dependency-list-header">-->
+<!--                  List of available version:-->
+<!--                </li>-->
+
+<!--&lt;!&ndash;                <div class="scrolling-content delete-list" id="scrolling">&ndash;&gt;-->
+
+<!--                  <li *ngFor="let object of [1,2,3]" class="delete-item list-item">-->
+<!--                    &lt;!&ndash;                        <div class="object">&ndash;&gt;-->
+<!--                    {{lib.name+lib.version}}-->
+<!--                    &lt;!&ndash;                        </div>&ndash;&gt;-->
+<!--                    &lt;!&ndash;                        <div class="size">v2.3.4</div>&ndash;&gt;-->
+<!--                    <button mat-raised-button type="button"  class="butt action">Install</button>-->
+<!--                  </li>-->
+
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--              </ul>-->
+<!--            </div>-->
+<!--          </mat-list-item>-->
+          </ng-container>
           <div *ngIf="!filtredNotebookLibs.length && notebookLibs?.length" class="scrollingList info message">
             <p>No matches found</p>
           </div>
@@ -251,8 +414,16 @@
       </mat-list>
     </div>
     <div class="m-top-15 actions" *ngIf="!uploading && notebook?.status === 'running'">
-      <button mat-raised-button type="button" class="butt action" (click)="dialogRef.close()">Close</button>
-      <button mat-raised-button type="submit" class="butt butt-success action" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress || !destination">Install</button>
+      <button mat-raised-button type="button" class="butt action close-btn" (click)="dialogRef.close()">Close</button>
+      <span matTooltip="Please wait until lib installation completes" [matTooltipDisabled]="!installingInProgress" matTooltipPosition="above">
+        <button mat-raised-button type="submit"
+                class="butt butt-success action install-btn"
+                (click)="model.confirmAction()"
+                [disabled]="!model.selectedLibs.length || installingInProgress || !destination"
+        >
+          Install
+        </button>
+      </span>
     </div>
    </div>
   </div>

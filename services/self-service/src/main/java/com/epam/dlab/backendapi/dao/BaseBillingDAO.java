@@ -25,6 +25,7 @@ import com.epam.dlab.dto.billing.BillingResourceType;
 import com.google.inject.Inject;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +49,7 @@ import static com.mongodb.client.model.Accumulators.min;
 import static com.mongodb.client.model.Accumulators.sum;
 import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Aggregates.match;
+import static com.mongodb.client.model.Aggregates.sort;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.gte;
@@ -152,6 +154,7 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 			pipeline.add(Aggregates.match(Filters.and(matchCriteria)));
 		}
 		pipeline.add(groupCriteria());
+		pipeline.add(usageDateSort());
 		return StreamSupport.stream(getCollection(BILLING).aggregate(pipeline).spliterator(), false)
 				.map(this::toBillingReport)
 				.collect(Collectors.toList());
@@ -185,6 +188,10 @@ public class BaseBillingDAO extends BaseDAO implements BillingDAO {
 		return Optional.ofNullable(aggregate(BILLING, pipeline).first())
 				.map(d -> d.getDouble(TOTAL_FIELD_NAME))
 				.orElse(BigDecimal.ZERO.doubleValue());
+	}
+
+	private Bson usageDateSort() {
+		return sort(Sorts.descending(USAGE_DATE));
 	}
 
 	private Bson groupCriteria() {

@@ -59,7 +59,8 @@ if __name__ == "__main__":
                     [data[row]['name'].split(':')[0], data[row]['name'].split(':')[1],
                      data[row]['version'], data[row]['override']])
             else:
-                pkgs['libraries'][data[row]['group']].append(data[row]['name'])
+                pkgs['libraries'][data[row]['group']].append(
+                    [data[row]['name'], data[row]['version']])
     except Exception as err:
         print('Error: {0}'.format(err))
         append_result("Failed to parse libs list.", str(err))
@@ -96,12 +97,16 @@ if __name__ == "__main__":
     try:
         print('Installing other packages: {}'.format(pkgs['libraries']['others']))
         for pkg in pkgs['libraries']['others']:
-            status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
-            status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
-            if status_pip2[0]['status'] == 'installed':
-                general_status = general_status + status_pip2
-            else:
+            if os.environ['conf_resource'] in ('dataengine-service'):#, 'dataengine'):
+                status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
                 general_status = general_status + status_pip3
+            else:
+                status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
+                status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
+                if status_pip2[0]['status'] == 'installed':
+                    general_status = general_status + status_pip2
+                else:
+                    general_status = general_status + status_pip3
     except KeyError:
         pass
 

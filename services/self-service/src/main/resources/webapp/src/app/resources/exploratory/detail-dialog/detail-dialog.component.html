@@ -139,7 +139,7 @@
                       matTooltipPosition="above"
                       [matTooltipClass]="'bucket-item-tooltip'"
                       [ngClass]="{'not-allow': !this.bucketStatus.view || !this.data.buckets.length}"
-                      (click)="bucketBrowser(notebook.bucket_name, notebook.endpoint, this.bucketStatus.view && this.data.buckets.length)"
+                      (click)="bucketBrowser(notebook.cloud_provider !== 'azure' ? notebook.bucket_name : notebook.account_name + '.' + notebook.bucket_name, notebook.endpoint, this.bucketStatus.view && this.data.buckets.length)"
                 >
                   Open bucket browser
                 </span>

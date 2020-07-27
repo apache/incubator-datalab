@@ -450,7 +450,8 @@ Prerequisites:
 
 - Windows Azure Active Directory
 - Microsoft Graph
-- Windows Azure Service Management API</details>
+- Windows Azure Service Management API
+- Storage Blob Data Contributor Role</details>
 
 
 **Preparation steps for deployment:**
