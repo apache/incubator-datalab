@@ -183,6 +183,12 @@ def install_sparkamagic_kernels(args):
                                                                             args.cluster_name)
         local('sed -i \'s|SparkR|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkrkernel/kernel.json'.format(
             sparkr_kernel_name, args.os_user))
+        local('sudo mv -f /home/{0}/.local/share/jupyter/kernels/pysparkkernel '
+              '/home/{0}/.local/share/jupyter/kernels/pysparkkernel-{1}'.format(args.os_user, args.cluster_name))
+        local('sudo mv -f /home/{0}/.local/share/jupyter/kernels/sparkkernel '
+              '/home/{0}/.local/share/jupyter/kernels/sparkkernel-{1}'.format(args.os_user, args.cluster_name))
+        local('sudo mv -f /home/{0}/.local/share/jupyter/kernels/sparkrkernel '
+              '/home/{0}/.local/share/jupyter/kernels/sparkrkernel-{1}'.format(args.os_user, args.cluster_name))
         local('mkdir -p /home/' + args.os_user + '/.sparkmagic')
         local('cp -f /tmp/sparkmagic_config_template.json /home/' + args.os_user + '/.sparkmagic/config.json')
         local('sed -i \'s|LIVY_HOST|{0}|g\' /home/{1}/.sparkmagic/config.json'.format(
