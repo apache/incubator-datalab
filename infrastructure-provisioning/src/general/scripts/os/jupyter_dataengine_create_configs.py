@@ -154,17 +154,48 @@ def pyspark_kernel(args):
         format(args.cluster_name, kernel_path, args.os_user))
     local('sudo mv /tmp/{}/kernel_var.json '.format(args.cluster_name) + kernel_path)
 
+def install_sparkamagic_kernels(args):
+    try:
+        local('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension')
+        sparkmagic_dir = local("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture=True)
+        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir))
+        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir))
+        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --user'.format(sparkmagic_dir))
+        pyspark_kernel_name = 'PySpark (Python-3.6 / Spark-{0} ) [{1}]'.format(args.spark_version,
+                                                                         args.cluster_name)
+        local('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
+            pyspark_kernel_name, args.os_user))
+        scala_version = local('spark-submit --version 2>&1 | grep -o -P "Scala version \K.{0,7}"', capture=True)
+        spark_kernel_name = 'Spark (Scala-{0} / Spark-{1} ) [{2}]'.format(scala_version, args.spark_version,
+                                                                         args.cluster_name)
+        local('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(
+            spark_kernel_name, args.os_user))
+        r_version = local("R --version | awk '/version / {print $3}'", capture=True)
+        sparkr_kernel_name = 'SparkR (R-{0} / Spark-{1} ) [{2}]'.format(str(r_version), args.spark_version,
+                                                                            args.cluster_name)
+        local('sed -i \'s|SparkR|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkrkernel/kernel.json'.format(
+            sparkr_kernel_name, args.os_user))
+        local('mkdir -p /home/' + args.os_user + '/.sparkmagic')
+        local('cp -f /tmp/sparkmagic_config_template.json /home/' + args.os_user + '/.sparkmagic/config.json')
+        spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
+        local('sed -i \'s|LIVY_HOST|{0}|g\' /home/{1}/.sparkmagic/config.json'.format(
+                spark_master_ip, args.os_user))
+        local('sudo chown -R {0}:{0} /home/{0}/.sparkmagic/'.format(args.os_user))
+    except:
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     if args.dry_run == 'true':
         parser.print_help()
     else:
-        dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-        install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
-                                 args.datalake_enabled)
-        configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.datalake_enabled,
-                                   args.spark_configurations)
-        pyspark_kernel(args)
-        toree_kernel(args)
-        if args.r_enabled == 'true':
-            r_kernel(args)
+        install_sparkamagic_kernels(args)
+        #dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
+        #install_dataengine_spark(args.cluster_name, spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
+        #                         args.datalake_enabled)
+        #configure_dataengine_spark(args.cluster_name, local_jars_dir, cluster_dir, args.datalake_enabled,
+        #                           args.spark_configurations)
+        #pyspark_kernel(args)
+        #toree_kernel(args)
+        #if args.r_enabled == 'true':
+        #    r_kernel(args)

@@ -160,8 +160,13 @@ def configure_nftables(config):
             sudo('systemctl enable nftables.service')
             sudo('systemctl start nftables')
             sudo('sysctl net.ipv4.ip_forward=1')
+            if os.environ['conf_cloud_provider'] == 'aws':
+                interface = 'eth0'
+            elif os.environ['conf_cloud_provider'] == 'gcp':
+                interface = 'ens4'
             sudo('sed -i \'s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g\' /etc/sysctl.conf')
             sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/nftables.conf'.format(config['edge_ip']))
+            sudo('sed -i "s|INTERFACE|{}|g" /opt/dlab/templates/nftables.conf'.format(interface))
             sudo('sed -i "s|SUBNET_CIDR|{}|g" /opt/dlab/templates/nftables.conf'.format(config['exploratory_subnet']))
             sudo('cp /opt/dlab/templates/nftables.conf /etc/')
             sudo('systemctl restart nftables')
