@@ -380,7 +380,7 @@ def install_os_pkg(requisites):
             sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install --allow-downgrades {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
-            sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 20 "({1})" /tmp/tee.tmp > '
+            sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, new_pkgs_parser))
             dep = sudo('cat /tmp/os_install_{}.log'.format(os_pkg))
             if dep == '':
@@ -390,7 +390,9 @@ def install_os_pkg(requisites):
                         .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]),
                                                                       ' ').strip().split(' ')
                 for n, i in enumerate(dep):
-                    dep[n] = sudo('apt show {} 2>&1 | grep Version:'.format(i)).replace('Version: ', '{} v.'.format(i))
+                    sudo('apt show {0} 2>&1 | if ! grep Version: > '
+                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(i))
+                    dep[n] =sudo('cat /tmp/os_install_{}.log'.format(i)).replace('Version: ', '{} v.'.format(i))
                 dep = [i for i in dep if i]
             versions = []
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))

@@ -115,6 +115,9 @@ if __name__ == "__main__":
             or os.environ['application'] in ('rstudio', 'tensor-rstudio'):
         try:
             print('Installing R packages: {}'.format(pkgs['libraries']['r_pkg']))
+            if os.environ['conf_resource'] in ('dataengine-service'):
+                manage_pkg('-y install', 'remote', 'libcurl libcurl-devel')
+                sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
             status = install_r_pkg(pkgs['libraries']['r_pkg'])
             general_status = general_status + status
         except KeyError:
