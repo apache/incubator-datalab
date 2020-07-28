@@ -19,6 +19,8 @@
 
 .audit-table-wrapper {
   width: 100%;
+  height: calc(100vh - 130px);
+  overflow: auto;
 
   .audit {
     width: 100%;
