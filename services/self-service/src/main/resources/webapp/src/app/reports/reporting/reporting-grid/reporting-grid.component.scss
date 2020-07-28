@@ -135,6 +135,7 @@
     width: 16%;
     min-width: 200px;
     z-index: 15 !important;
+    padding-left: 0;
   }
 
   .th_user{
@@ -211,7 +212,7 @@
       vertical-align: super !important;
 
       .text{
-     padding-left: 15px;
+     padding-left: 20px;
       }
     }
 

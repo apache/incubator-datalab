@@ -49,6 +49,7 @@
       .th_date {
         width: 14%;
         z-index: 10 !important;
+        padding-left: 0;
 
         .label {
           padding-bottom: 10px;
@@ -199,7 +200,7 @@
         vertical-align: super !important;
 
         .text {
-          padding-left: 15px;
+          padding-left: 20px;
         }
       }
 
@@ -301,7 +302,7 @@
 }
 
 .audit-user {
-  padding-left: 15px;
+  padding-left: 20px;
 }
 
 .table-footer {

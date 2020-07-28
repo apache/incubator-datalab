@@ -305,88 +305,6 @@ table.resources {
     text-transform: capitalize;
   }
 
-  &.data-grid .list-menu {
-    left: auto;
-    margin-left: 0;
-    right: 15px;
-    padding: 10px 15px;
-    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-    0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
-    border: none;
-    min-width: 190px;
-  }
-
-  .settings {
-    position: relative;
-    text-align: right;
-    width: 6%;
-    padding-right: 15px !important;
-    justify-content: flex-end;
-
-    .actions {
-      background-image: url(../../../assets/svg/settings_icon.svg);
-      width: 16px;
-      height: 16px;
-      display: inline-block;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-  }
-
-
-  &.data-grid .list-menu li {
-    font-size: 13px;
-    border-bottom: 1px solid #edf1f5;
-    padding-bottom: 5px;
-    cursor: pointer;
-    margin: 5px -5px;
-    color: #577289;
-    transition: all 0.45s ease-in-out;
-    div{
-      padding: 8px 15px;
-    }
-  }
-
-  &.data-grid .list-menu a.navigate {
-    text-decoration: none;
-    color: #577289;
-    transition: all 0.45s ease-in-out;
-  }
-
-  &.data-grid .list-menu li i {
-    font-size: 18px;
-    padding-right: 5px;
-    vertical-align: bottom;
-  }
-
-  &.data-grid .list-menu li:not(.not-allow):hover,
-  &.data-grid .list-menu li:not(.not-allow):hover a {
-    background: none !important;
-    color: #36afd5;
-  }
-
-  &.data-grid .list-menu li:last-child {
-    border-bottom: 0;
-  }
-
-  &.data-grid .list-menu ul {
-    margin-bottom: 0;
-  }
-
-  &.data-grid .list-menu .active-items li {
-    border-bottom: 1px solid #edf1f5;
-  }
-
-  &.data-grid .message_block {
-    background: #edf6f9;
-  }
-
   .message_block td {
     text-align: left !important;
   }
@@ -430,6 +348,88 @@ table.resources {
   .not-allow{
     cursor: not-allowed !important;
   }
-
 }
+
+.data-grid .list-menu {
+  left: auto;
+  margin-left: 0;
+  right: 15px;
+  padding: 10px 15px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+  0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  border: none;
+  min-width: 190px;
+}
+
+.settings {
+  position: relative;
+  text-align: right;
+  width: 6%;
+  padding-right: 15px !important;
+  justify-content: flex-end;
+
+  .actions {
+    background-image: url(../../../assets/svg/settings_icon.svg);
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+
+.data-grid .list-menu li {
+  font-size: 13px;
+  border-bottom: 1px solid #edf1f5;
+  padding-bottom: 5px;
+  cursor: pointer;
+  margin: 5px -5px;
+  color: #577289;
+  transition: all 0.45s ease-in-out;
+  div{
+    padding: 8px 15px;
+  }
+}
+
+.data-grid .list-menu a.navigate {
+  text-decoration: none;
+  color: #577289;
+  transition: all 0.45s ease-in-out;
+}
+
+.data-grid .list-menu li i {
+  font-size: 18px;
+  padding-right: 5px;
+  vertical-align: bottom;
+}
+
+.data-grid .list-menu li:not(.not-allow):hover,
+.data-grid .list-menu li:not(.not-allow):hover a {
+  background: none !important;
+  color: #36afd5;
+}
+
+.data-grid .list-menu li:last-child {
+  border-bottom: 0;
+}
+
+.data-grid .list-menu ul {
+  margin-bottom: 0;
+}
+
+.data-grid .list-menu .active-items li {
+  border-bottom: 1px solid #edf1f5;
+}
+
+.data-grid .message_block {
+  background: #edf6f9;
+}
+
 

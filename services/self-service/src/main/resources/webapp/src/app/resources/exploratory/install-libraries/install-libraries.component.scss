@@ -90,12 +90,15 @@
 
   .mat-list-item {
     height: auto !important;
+    font-family: "Open Sans", sans-serif;
+    font-weight: 400;
 
     .mat-list-item-content {
       height: auto !important;
       min-height: 54px !important;
       border-bottom: 1px solid #edf1f5;
       padding-right: 10px;
+      padding-left: 0;
     }
   }
 
@@ -111,15 +114,32 @@
   .uploading {
     margin: 0 auto;
   }
+
+  .list-selected {
+    padding: 10px;
+    font-family: 'Open Sans', sans-serif;
+    height: 130px;
+    overflow-y: auto;
+
+    h4 {
+      margin-bottom: 20px;
+      font-size: 14px;
+      text-align: center;
+      font-weight: 400;
+      color: #718ba6;
+    }
+
+    mat-chip-list .mat-chip-list-wrapper {
+      overflow-y: auto;
+      padding: 3px;
+    }
+  }
 }
+
 .list-item{
   display: flex;
   width: 100%;
   padding-left: 20px;
-}
-
-.mat-list-base {
-  //padding: 40px 30px;
 }
 
 .object {
@@ -132,6 +152,7 @@
 .size {
   width: 30%;
 }
+
 .scrolling-content.delete-list {
   max-height: 200px;
   overflow-y: auto;
@@ -142,7 +163,7 @@
   width: 100%;
   justify-content: center;
   color: #35afd5;
-  padding: 15px;
+  padding: 14px;
 }
 
 ul.resources{
@@ -150,8 +171,6 @@ ul.resources{
 }
 
 .dependency-list-header {
-  //border-top: 1px solid #edf1f5;
-  //border-bottom: 1px solid #edf1f5;
   color: #577289;
   width: 100%;
   padding: 15px 0 5px 0;
@@ -202,7 +221,13 @@ ul.resources{
         width: 70%;
 
         input{
+          font-size: 15px;
+          padding-left: 15px;
+        }
+
+        .dropdown-list button {
           font-size: 14px;
+          padding-top: 0;
         }
       }
 
@@ -298,29 +323,9 @@ ul.resources{
   }
 }
 
-.list-selected {
-  padding: 10px;
-  font-family: 'Open Sans', sans-serif;
-  height: 130px;
-  overflow-y: auto;
-
-  h4 {
-    margin-bottom: 20px;
-    font-size: 14px;
-    text-align: center;
-    font-weight: 400;
-    color: #718ba6;
-  }
-
-  mat-chip-list .mat-chip-list-wrapper {
-    overflow-y: auto;
-    padding: 3px;
-  }
-}
-
 .mat-list-item {
   color: #718ba6 !important;
-  font-size: 14px;
+  font-size: 13px !important;
   font-weight: 300;
 }
 
@@ -343,7 +348,20 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   padding: 0 20px;
   display: flex;
   flex: 1 1 auto;
-  min-height: 0px;
+  min-height: 0;
+
+  .filter-row {
+    .filter-col{
+      padding-left: 0;
+      &.lib-name{
+        padding-left: 5px;
+        .filter-field{
+          padding-left: 15px;
+        }
+      }
+    }
+  }
+
 
   .mat-list {
     width: 100%;
@@ -352,7 +370,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
       max-height: 300px;
       height: 80%;
       overflow-y: auto;
-      overflow-x: hidden;
+      overflow-x: overlay;
 
       .info {
         p {
@@ -362,8 +380,11 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
       }
     }
   }
+
   .lib-name {
     width: 27%;
+    padding-right: 10px;
+    padding-left: 20px;
 
     &-col{
       display: flex;
@@ -383,21 +404,26 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   .lib-group,
   .lib-destination {
     width: 17%;
-    padding-left: 6px;
+    padding-left: 15px;
+    padding-right: 10px;
   }
 
   .lib-status {
     width: 17%;
-    padding-left: 6px;
+    padding-left: 15px;
+    padding-right: 10px;
   }
 
   .lib-resource-type {
     width: 17%;
-    padding-left: 6px;
+    padding-left: 15px;
+    padding-right: 10px;
   }
+
   .lib-group-col {
     width: 17%;
-    padding-left: 8px;
+    padding-left: 17px;
+    padding-right: 10px;
   }
 
   .st-group {
@@ -411,20 +437,19 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
       .lib-destination-col {
         width: 33.3%;
-        padding-left: 8px;
+        padding-left: 15px;
       }
 
       .lib-resource-type-col {
         width: 33.3%;
         color: #36afd5;
-        padding-left: 8px;
+        padding-left: 15px;
       }
 
       .lib-status-col {
         position: relative;
         width: 33.3%;
-        padding-left: 8px;
-
+        padding-left: 15px;
 
         .warn-action {
           position: absolute;
@@ -467,15 +492,18 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
   padding-bottom: 3px;
 }
 
-.mat-dialog-container.mat-dialog-container .install-libraries#dialog-box  {
+.mat-dialog-container.mat-dialog-container .install-libraries#dialog-box {
   .mat-header-cell{
     padding: 0;
     border: none;
+    position: absolute;
+    right: 10px;
   }
 
   .filter-actions {
     display: flex;
     margin-left: 6px;
+
     .btn {
       padding: 6px;
       height: auto;
@@ -486,6 +514,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
         display: flex;
       }
     }
+
     .reset{
       &:hover {
         border-color: #f1696e;
@@ -493,6 +522,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
         color: #f1696e;
       }
     }
+
     .apply:hover {
       border-color: #49af38;
       background: #f9fafb;
@@ -502,8 +532,10 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 }
 
 .install-libraries .dropdown-multiselect .list-menu li {
+
   a{
     font-size: 13px;
+
     &.list-item{
       color: #4a5c89 !important;
     }
@@ -542,12 +574,14 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
 .lib-info{
   width: 100%;
+
   .delete-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
     padding: 5px 10px;
+
     .butt.action{
       line-height: 26px;
     }
@@ -556,6 +590,7 @@ mat-chip.mat-chip:not(.mat-basic-chip) {
 
 .btn{
   line-height: 26px;
+
   &.install-btn{
     margin-left: 0;
   }
