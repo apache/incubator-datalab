@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
@@ -73,7 +92,7 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project/create")
 	public Response createProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								  @Valid CreateProjectDTO projectDTO) {
+	                              @Valid CreateProjectDTO projectDTO) {
 		List<ProjectEndpointDTO> projectEndpointDTOS = projectDTO.getEndpoints()
 				.stream()
 				.map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
@@ -100,7 +119,7 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response startProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								 @NotNull @Valid ProjectActionFormDTO startProjectDto) {
+	                             @NotNull @Valid ProjectActionFormDTO startProjectDto) {
 		projectService.start(userInfo, startProjectDto.getEndpoints(), startProjectDto.getProjectName());
 		return Response
 				.accepted()
@@ -119,7 +138,7 @@ public class ProjectResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response stopProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-								@NotNull @Valid ProjectActionFormDTO stopProjectDTO) {
+	                            @NotNull @Valid ProjectActionFormDTO stopProjectDTO) {
 		projectService.stopWithResources(userInfo, stopProjectDTO.getEndpoints(), stopProjectDTO.getProjectName());
 		return Response
 				.accepted()
@@ -140,8 +159,8 @@ public class ProjectResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@RolesAllowed("/api/project")
 	public Response getProject(@Parameter(hidden = true) @Auth UserInfo userInfo,
-							   @Parameter(description = "Project name")
-							   @PathParam("name") String name) {
+	                           @Parameter(description = "Project name")
+	                           @PathParam("name") String name) {
 		return Response
 				.ok(projectService.get(name))
 				.build();
@@ -172,7 +191,7 @@ public class ProjectResource {
 	@Path("/me")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUserProjects(@Parameter(hidden = true) @Auth UserInfo userInfo,
-									@QueryParam("active") @DefaultValue("false") boolean active) {
+	                                @QueryParam("active") @DefaultValue("false") boolean active) {
 		return Response
 				.ok(projectService.getUserProjects(userInfo, active))
 				.build();
@@ -206,7 +225,7 @@ public class ProjectResource {
 	@Path("terminate")
 	@RolesAllowed("/api/project")
 	public Response removeProjectEndpoint(@Parameter(hidden = true) @Auth UserInfo userInfo,
-										  @NotNull @Valid ProjectActionFormDTO projectActionDTO) {
+	                                      @NotNull @Valid ProjectActionFormDTO projectActionDTO) {
 		projectService.terminateEndpoint(userInfo, projectActionDTO.getEndpoints(), projectActionDTO.getProjectName());
 		return Response.ok().build();
 	}

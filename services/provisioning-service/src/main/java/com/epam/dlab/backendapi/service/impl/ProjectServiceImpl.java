@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
@@ -29,16 +48,22 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String PROJECT_IMAGE = "docker.dlab-project";
 	private static final String EDGE_IMAGE = "docker.dlab-edge";
 	private static final String CALLBACK_URI = "/api/project/status";
+
+	protected final RESTService selfService;
+	private final ProvisioningServiceApplicationConfiguration configuration;
+	private final FolderListenerExecutor folderListenerExecutor;
+	private final ICommandExecutor commandExecutor;
+	private final CommandBuilder commandBuilder;
+
 	@Inject
-	protected RESTService selfService;
-	@Inject
-	private ProvisioningServiceApplicationConfiguration configuration;
-	@Inject
-	private FolderListenerExecutor folderListenerExecutor;
-	@Inject
-	private ICommandExecutor commandExecutor;
-	@Inject
-	private CommandBuilder commandBuilder;
+	public ProjectServiceImpl(RESTService selfService, ProvisioningServiceApplicationConfiguration configuration,
+	                          FolderListenerExecutor folderListenerExecutor, ICommandExecutor commandExecutor, CommandBuilder commandBuilder) {
+		this.selfService = selfService;
+		this.configuration = configuration;
+		this.folderListenerExecutor = folderListenerExecutor;
+		this.commandExecutor = commandExecutor;
+		this.commandBuilder = commandBuilder;
+	}
 
 	@Override
 	public String create(UserInfo userInfo, ProjectCreateDTO dto) {
@@ -63,7 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private String executeDocker(UserInfo userInfo, ResourceBaseDTO dto, DockerAction action, String projectName,
-								 String resourceType, String image, String endpoint) {
+	                             String resourceType, String image, String endpoint) {
 		String uuid = DockerCommands.generateUUID();
 
 		folderListenerExecutor.start(configuration.getKeyLoaderDirectory(),
@@ -92,7 +117,7 @@ public class ProjectServiceImpl implements ProjectService {
 		try {
 			commandExecutor.executeAsync(userInfo.getName(), uuid, commandBuilder.buildCommand(runDockerCommand, dto));
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.error("Something went wrong. Reason {}", e.getMessage(), e);
 		}
 		return uuid;
 	}

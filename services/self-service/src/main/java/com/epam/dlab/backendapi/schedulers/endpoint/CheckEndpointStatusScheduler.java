@@ -50,7 +50,7 @@ public class CheckEndpointStatusScheduler implements Job {
         try {
             endpointService.checkUrl(serviceUser, endpoint.getUrl());
         } catch (Exception e) {
-            log.warn("Failed connecting to endpoint {}, url: '{}'. {}", endpoint.getName(), endpoint.getUrl(), e.getMessage());
+            log.warn("Failed connecting to endpoint {}, url: '{}'. {}", endpoint.getName(), endpoint.getUrl(), e.getMessage(), e);
             return endpoint.getStatus() == EndpointDTO.EndpointStatus.ACTIVE;
         }
         return endpoint.getStatus() == EndpointDTO.EndpointStatus.INACTIVE;

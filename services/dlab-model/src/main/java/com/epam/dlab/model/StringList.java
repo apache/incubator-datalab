@@ -19,26 +19,29 @@
 
 package com.epam.dlab.model;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.ws.rs.WebApplicationException;
 import java.util.ArrayList;
 
+@Slf4j
 public class StringList extends ArrayList<String> {
-    public StringList(String s) {
-        super();
+	public StringList(String s) {
+		super();
 
-        for (String v : s.split(",")) {
-            try {
-                add(v.trim());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                throw new WebApplicationException(400);
-            }
-        }
-        if (isEmpty())
-            throw new WebApplicationException(400);
-    }
+		for (String v : s.split(",")) {
+			try {
+				add(v.trim());
+			} catch (Exception e) {
+				log.error("Something went wrong. Reason {}", e.getMessage(), e);
+				throw new WebApplicationException(400);
+			}
+		}
+		if (isEmpty())
+			throw new WebApplicationException(400);
+	}
 
-    public static String valueOf(String s) {
-        return s;
-    }
+	public static String valueOf(String s) {
+		return s;
+	}
 }

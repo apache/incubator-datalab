@@ -83,7 +83,7 @@ public class BucketServiceImpl implements BucketService {
             return provisioningService.get(String.format(BUCKET_GET_OBJECTS, endpointDTO.getUrl(), bucket), userInfo.getAccessToken(), new GenericType<List<BucketDTO>>() {
             });
         } catch (Exception e) {
-            log.error("Cannot get objects from bucket {} for user {}, endpoint {}. Reason {}", bucket, userInfo.getName(), endpoint, e.getMessage());
+            log.error("Cannot get objects from bucket {} for user {}, endpoint {}. Reason {}", bucket, userInfo.getName(), endpoint, e.getMessage(), e);
             throw new DlabException(String.format("Cannot get objects from bucket %s for user %s, endpoint %s. Reason %s", bucket, userInfo.getName(), endpoint, e.getMessage()));
         }
     }
@@ -100,7 +100,7 @@ public class BucketServiceImpl implements BucketService {
                 throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
             }
         } catch (Exception e) {
-            log.error("Cannot upload object {} to bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage());
+	        log.error("Cannot upload object {} to bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage(), e);
             throw new DlabException(String.format("Cannot upload object %s to bucket %s for user %s, endpoint %s. Reason %s", object, bucket, userInfo.getName(), endpoint, e.getMessage()));
         }
         log.info("Finished uploading file {} for user {} to bucket {}", object, userInfo.getName(), bucket);
@@ -121,7 +121,7 @@ public class BucketServiceImpl implements BucketService {
                 throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
             }
         } catch (Exception e) {
-            log.error("Cannot upload folder {} to bucket {} for user {}, endpoint {}. Reason {}", folder, bucket, userInfo.getName(), endpoint, e.getMessage());
+	        log.error("Cannot upload folder {} to bucket {} for user {}, endpoint {}. Reason {}", folder, bucket, userInfo.getName(), endpoint, e.getMessage(), e);
             throw new DlabException(String.format("Cannot upload object %s to bucket %s for user %s, endpoint %s. Reason %s", folder, bucket, userInfo.getName(), endpoint, e.getMessage()));
         }
         log.info("Finished uploading folder {} for user {} to bucket {}", folder, userInfo.getName(), bucket);
@@ -137,7 +137,7 @@ public class BucketServiceImpl implements BucketService {
             IOUtils.copyLarge(inputStream, outputStream);
             log.info("Finished downloading file {} for user {} from bucket {}", object, userInfo.getName(), bucket);
         } catch (Exception e) {
-            log.error("Cannot upload object {} from bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage());
+	        log.error("Cannot upload object {} from bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage(), e);
             throw new DlabException(String.format("Cannot download object %s from bucket %s for user %s, endpoint %s. Reason %s", object, bucket, userInfo.getName(), endpoint, e.getMessage()));
         }
     }
@@ -153,7 +153,7 @@ public class BucketServiceImpl implements BucketService {
                 throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
             }
         } catch (Exception e) {
-            log.error("Cannot delete objects {} from bucket {} for user {}, endpoint {}. Reason {}", objects, bucket, userInfo.getName(), endpoint, e.getMessage());
+	        log.error("Cannot delete objects {} from bucket {} for user {}, endpoint {}. Reason {}", objects, bucket, userInfo.getName(), endpoint, e.getMessage(), e);
             throw new DlabException(String.format("Cannot delete objects %s from bucket %s for user %s, endpoint %s. Reason %s", objects, bucket, userInfo.getName(), endpoint, e.getMessage()));
         }
     }

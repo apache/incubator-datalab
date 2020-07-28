@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
@@ -36,7 +55,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -81,10 +99,10 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Inject
 	public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
-							  UserGroupDao userGroupDao,
-							  @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-							  RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService,
-							  ExploratoryDAO exploratoryDAO, SelfServiceApplicationConfiguration configuration) {
+	                          UserGroupDao userGroupDao,
+	                          @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
+	                          RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService,
+	                          ExploratoryDAO exploratoryDAO, SelfServiceApplicationConfiguration configuration) {
 		this.projectDAO = projectDAO;
 		this.exploratoryService = exploratoryService;
 		this.userGroupDao = userGroupDao;
@@ -136,13 +154,13 @@ public class ProjectServiceImpl implements ProjectService {
 				.orElseThrow(projectNotFound());
 	}
 
-    @Audit(action = TERMINATE, type = EDGE_NODE)
-    @Override
-    public void terminateEndpoint(@User UserInfo userInfo, @ResourceName String endpoint, @Project String name) {
-	    projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
-	    projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
-	    exploratoryService.updateProjectExploratoryStatuses(userInfo, name, endpoint, UserInstanceStatus.TERMINATING);
-    }
+	@Audit(action = TERMINATE, type = EDGE_NODE)
+	@Override
+	public void terminateEndpoint(@User UserInfo userInfo, @ResourceName String endpoint, @Project String name) {
+		projectActionOnCloud(userInfo, name, TERMINATE_PRJ_API, endpoint);
+		projectDAO.updateEdgeStatus(name, endpoint, UserInstanceStatus.TERMINATING);
+		exploratoryService.updateProjectExploratoryStatuses(userInfo, name, endpoint, UserInstanceStatus.TERMINATING);
+	}
 
 	@ProjectAdmin
 	@Override
@@ -179,15 +197,15 @@ public class ProjectServiceImpl implements ProjectService {
 		List<ProjectEndpointDTO> endpointDTOs = getProjectEndpointDTOS(endpoints, projectName);
 		checkProjectRelatedResourcesInProgress(projectName, endpointDTOs, STOP_ACTION);
 
-        endpointDTOs
-                .stream()
-                .filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED,
-                        UserInstanceStatus.FAILED).contains(e.getStatus()))
-                .forEach(e -> stop(userInfo, e.getName(), projectName, null));
+		endpointDTOs
+				.stream()
+				.filter(e -> !Arrays.asList(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING, UserInstanceStatus.STOPPED,
+						UserInstanceStatus.FAILED).contains(e.getStatus()))
+				.forEach(e -> stop(userInfo, e.getName(), projectName, null));
 
-        exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName,
-                endpointDTOs
-                        .stream()
+		exploratoryDAO.fetchRunningExploratoryFieldsForProject(projectName,
+				endpointDTOs
+						.stream()
 						.map(ProjectEndpointDTO::getName)
 						.collect(Collectors.toList()))
 				.forEach(e -> exploratoryService.stop(userInfo, e.getUser(), projectName, e.getExploratoryName(), null));
@@ -196,39 +214,39 @@ public class ProjectServiceImpl implements ProjectService {
 	@ProjectAdmin
 	@Override
 	public void update(@User UserInfo userInfo, UpdateProjectDTO projectDTO, @Project String projectName) {
-        final ProjectDTO project = projectDAO.get(projectDTO.getName()).orElseThrow(projectNotFound());
-        final Set<String> endpoints = project.getEndpoints()
-                .stream()
-                .map(ProjectEndpointDTO::getName)
-                .collect(toSet());
-        final Set<String> newEndpoints = new HashSet<>(projectDTO.getEndpoints());
-        newEndpoints.removeAll(endpoints);
-        final String projectUpdateAudit = updateProjectAudit(projectDTO, project, newEndpoints);
-        updateProject(userInfo, projectName, projectDTO, project, newEndpoints, projectUpdateAudit);
-    }
+		final ProjectDTO project = projectDAO.get(projectDTO.getName()).orElseThrow(projectNotFound());
+		final Set<String> endpoints = project.getEndpoints()
+				.stream()
+				.map(ProjectEndpointDTO::getName)
+				.collect(toSet());
+		final Set<String> newEndpoints = new HashSet<>(projectDTO.getEndpoints());
+		newEndpoints.removeAll(endpoints);
+		final String projectUpdateAudit = updateProjectAudit(projectDTO, project, newEndpoints);
+		updateProject(userInfo, projectName, projectDTO, project, newEndpoints, projectUpdateAudit);
+	}
 
-    @Audit(action = UPDATE, type = PROJECT)
-    public void updateProject(@User UserInfo userInfo, @Project @ResourceName String projectName, UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints,
-                              @Info String projectAudit) {
-	    final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints
-			    .stream()
-			    .map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
-			    .collect(Collectors.toList());
-	    project.getEndpoints().addAll(endpointsToBeCreated);
-	    projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
-			    project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
-	    endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, projectName, project, e.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
-    }
+	@Audit(action = UPDATE, type = PROJECT)
+	public void updateProject(@User UserInfo userInfo, @Project @ResourceName String projectName, UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints,
+	                          @Info String projectAudit) {
+		final List<ProjectEndpointDTO> endpointsToBeCreated = newEndpoints
+				.stream()
+				.map(e -> new ProjectEndpointDTO(e, UserInstanceStatus.CREATING, null))
+				.collect(Collectors.toList());
+		project.getEndpoints().addAll(endpointsToBeCreated);
+		projectDAO.update(new ProjectDTO(project.getName(), projectDTO.getGroups(), project.getKey(),
+				project.getTag(), project.getBudget(), project.getEndpoints(), projectDTO.isSharedImageEnabled()));
+		endpointsToBeCreated.forEach(e -> createEndpoint(userInfo, projectName, project, e.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
+	}
 
-    @Override
-    public void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> dtos) {
-	    final List<ProjectDTO> projects = dtos
-			    .stream()
-			    .map(this::getUpdateProjectDTO)
-			    .collect(Collectors.toList());
+	@Override
+	public void updateBudget(UserInfo userInfo, List<UpdateProjectBudgetDTO> dtos) {
+		final List<ProjectDTO> projects = dtos
+				.stream()
+				.map(this::getUpdateProjectDTO)
+				.collect(Collectors.toList());
 
-	    projects.forEach(p -> updateBudget(userInfo, p.getName(), p.getBudget(), getUpdateBudgetAudit(p)));
-    }
+		projects.forEach(p -> updateBudget(userInfo, p.getName(), p.getBudget(), getUpdateBudgetAudit(p)));
+	}
 
 	@Audit(action = UPDATE, type = PROJECT)
 	public void updateBudget(@User UserInfo userInfo, @Project @ResourceName String name, BudgetDTO budget, @Info String updateBudgetAudit) {
@@ -258,7 +276,7 @@ public class ProjectServiceImpl implements ProjectService {
 		try {
 			project.getEndpoints().forEach(e -> createEndpoint(user, project.getName(), project, e.getName(), String.format(AUDIT_ADD_EDGE_NODE, e.getName(), project.getName())));
 		} catch (Exception e) {
-			log.error("Can not create project due to: {}", e.getMessage());
+			log.error("Can not create project due to: {}", e.getMessage(), e);
 			projectDAO.updateStatus(project.getName(), ProjectDTO.Status.FAILED);
 		}
 	}
@@ -278,17 +296,17 @@ public class ProjectServiceImpl implements ProjectService {
 					requestBuilder.newProjectAction(user, projectName, endpointDTO), String.class);
 			requestId.put(user.getName(), uuid);
 		} catch (Exception e) {
-			log.error("Can not terminate project due to: {}", e.getMessage());
+			log.error("Can not terminate project due to: {}", e.getMessage(), e);
 			projectDAO.updateStatus(projectName, ProjectDTO.Status.FAILED);
 		}
 	}
 
 	private void checkProjectRelatedResourcesInProgress(String projectName, List<ProjectEndpointDTO> endpoints, String action) {
-        boolean edgeProgress = endpoints
+		boolean edgeProgress = endpoints
 				.stream()
 				.anyMatch(e ->
-                Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
-                        UserInstanceStatus.TERMINATING).contains(e.getStatus()));
+						Arrays.asList(UserInstanceStatus.CREATING, UserInstanceStatus.STARTING, UserInstanceStatus.STOPPING,
+								UserInstanceStatus.TERMINATING).contains(e.getStatus()));
 
 		List<String> endpointNames = endpoints
 				.stream()
