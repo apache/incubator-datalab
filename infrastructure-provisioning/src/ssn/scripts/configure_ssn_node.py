@@ -243,11 +243,11 @@ if __name__ == "__main__":
     print("Configuring nginx.")
     configure_nginx(deeper_config, args.dlab_path, args.hostname)
 
-    print("Installing jenkins.")
-    ensure_jenkins(args.dlab_path)
+    #print("Installing jenkins.")
+    #ensure_jenkins(args.dlab_path)
 
-    print("Configuring jenkins.")
-    configure_jenkins(args.dlab_path, args.os_user, deeper_config, args.tag_resource_id)
+    #print("Configuring jenkins.")
+    #configure_jenkins(args.dlab_path, args.os_user, deeper_config, args.tag_resource_id)
 
     print("Copying key")
     cp_key(args.keyfile, env.host_string, args.os_user)
