@@ -18,7 +18,7 @@
  */
 
 
-import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject, OnDestroy, AfterViewInit} from '@angular/core';
+import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inject, OnDestroy} from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
@@ -205,11 +205,11 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
   public addLibrary(item): void {
     if (this.selectedLib && !this.selectedLib.isInSelectedList) {
       if (this.group !== 'java') {
-        this.model.selectedLibs.push({ group: this.group, name: item.name.toLowerCase(), version: item.version.toLowerCase() || 'N/A' });
+        this.model.selectedLibs.push({ group: this.group, name: item.name, version: item.version || 'N/A' });
       } else {
         this.model.selectedLibs.push({
-          group: this.group, name: item.name.substring(0, item.name.lastIndexOf(':')).toLowerCase(),
-          version: item.name.substring(item.name.lastIndexOf(':') + 1).toLowerCase() || 'N/A'
+          group: this.group, name: item.name.substring(0, item.name.lastIndexOf(':')),
+          version: item.name.substring(item.name.lastIndexOf(':') + 1) || 'N/A'
         });
       }
       this.libSearch.setValue('');

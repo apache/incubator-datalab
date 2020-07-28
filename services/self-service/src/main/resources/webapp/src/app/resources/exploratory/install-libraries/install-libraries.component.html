@@ -72,7 +72,7 @@
                   <mat-option>
                     <div class="option" (click)="selectLibrary(item);$event.stopPropagation()" [ngClass]="{'not-allow': item.isInSelectedList}">
                       <a *ngIf="!item.isInSelectedList">
-                        <span [innerHTML]="item.name | highlight:lib.name.toLowerCase()"></span>
+                        <span [innerHTML]="item.name | highlight:lib.name"></span>
                       </a>
                       <span *ngIf="item.isInSelectedList">{{ item.name }}</span>
                       <strong *ngIf="item.isInSelectedList">selected
@@ -134,7 +134,7 @@
                     <mat-option >
                       <div class="option" (click)="selectLibrary(item);$event.stopPropagation()" [ngClass]="{'not-allow': item.isInSelectedList}">
                         <a *ngIf="!item.isInSelectedList">
-                          <span [innerHTML]="item.name + ':' + item.version | highlight:item.name.toLowerCase()">
+                          <span [innerHTML]="item.name + ':' + item.version | highlight:item.name">
                              <span>{{ item.version }}</span>
                           </span>
                         </a>
@@ -347,12 +347,12 @@
                   <div class="lib-destination-col">{{ item.resource }}</div>
                   <div class="lib-resource-type-col">{{ item.resourceType }}</div>
                   <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || 'installation_error' }}">{{ item.status.replace('_', ' ') }}
-                    <div class="warn-action" *ngIf="(item.status === 'installation_error' || item.status.toLowerCase() === 'invalid_version') && notebook?.status === 'running'">
+                    <div class="warn-action" *ngIf="(item.status === 'installation_error' || item.status.toLowerCase() === 'invalid_version' || item.add_pkgs?.length) && notebook?.status === 'running'">
                       <div *ngIf="!item.available_versions">
-                        <span *ngIf="!installingInProgress" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
+                        <span *ngIf="!installingInProgress && !item.add_pkgs?.length" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
                           <i class="material-icons">replay</i>
                         </span>
-                        <span class="not-allowed" *ngIf="installingInProgress" matTooltip="You can't reinstall library until previous process will be completed"
+                        <span class="not-allowed" *ngIf="installingInProgress && !item.add_pkgs?.length" matTooltip="You can't reinstall library until previous process will be completed"
                           matTooltipPosition="above">
                           <i class="material-icons">replay</i>
                         </span>
