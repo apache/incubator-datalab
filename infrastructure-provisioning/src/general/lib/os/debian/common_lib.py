@@ -64,49 +64,11 @@ def manage_pkg(command, environment, requisites, warn='False'):
                         local('sudo apt-get {0} {1}'.format(command, requisites), capture=True)
                 else:
                     print('Wrong environment')
-        attempt = 0
-        installed = False
-        while not installed:
-            print('Pkg installation attempt: {}'.format(attempt))
-            if attempt > 60:
-                print("Notebook is broken please recreate it.")
-                sys.exit(1)
-            else:
-                try:
-                    allow = False
-                    counter = 0
-                    while not allow:
-                        if counter > 60:
-                            print("Notebook is broken please recreate it.")
-                            sys.exit(1)
-                        else:
-                            print('Package manager is:')
-                            if environment == 'remote':
-                                if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
-                                    counter += 1
-                                    time.sleep(10)
-                                else:
-                                    allow = True
-                                    sudo('apt-get {0} {1}'.format(command, requisites))
-                            elif environment == 'local':
-                                if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
-                                    counter += 1
-                                    time.sleep(10)
-                                else:
-                                    allow = True
-                                    local('sudo apt-get {0} {1}'.format(command, requisites), capture=True)
-                            else:
-                                print('Wrong environment')
-                    installed = True
-                except:
-                    print("Will try to install with nex attempt.")
-                    sudo('dpkg --configure -a')
-                    attempt += 1
     except:
         sys.exit(1)
 
 def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
-                                'groff gcc vim less git wget '
+                                'groff gcc vim less git wget sysv-rc-conf '
                                 'libssl-dev unattended-upgrades nmap '
                                 'libffi-dev unzip libxml2-dev haveged'):
     try:
@@ -131,6 +93,8 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
                         sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
                         sudo('systemctl enable haveged')
                         sudo('systemctl start haveged')
+                        if os.environ['conf_cloud_provider'] == 'aws':
+                            manage_pkg('-y install --install-recommends', 'remote', 'linux-aws-hwe')
                         check = True
                     except:
                         count += 1
