@@ -177,6 +177,37 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def create_nat_route(self, nat_route_params):
+        request = self.service.routes().insert(project=self.project, body=nat_route_params)
+        try:
+            result = request.execute()
+            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            print('NAT route {} created.'.format(nat_route_params['name']))
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create NAT route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create NAT route",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def delete_nat_route(self, nat_route_name):
+        request = self.service.routes().delete(project=self.project, route=nat_route_name)
+        try:
+            result = request.execute()
+            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            print('NAT route {} deleteed.'.format(nat_route_name))
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to delete NAT route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to delete NAT route",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+
     def create_bucket(self, bucket_name):
         try:
             bucket = self.storage_client.create_bucket(bucket_name)

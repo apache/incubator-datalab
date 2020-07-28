@@ -152,6 +152,8 @@ if __name__ == "__main__":
     dataproc_cluster['config']['workerConfig']['machineTypeUri'] = os.environ['dataproc_slave_instance_type']
     dataproc_cluster['config']['masterConfig']['numInstances'] = int(os.environ['dataproc_master_count'])
     dataproc_cluster['config']['workerConfig']['numInstances'] = int(os.environ['dataproc_slave_count'])
+    livy_init = 'gs://goog-dataproc-initialization-actions-{}/livy/livy.sh'.format(dataproc_conf['region'])
+    dataproc_cluster['config']['initializationActions'][0]['executableFile'] = livy_init
     if int(os.environ['dataproc_preemptible_count']) != 0:
         dataproc_cluster['config']['secondaryWorkerConfig']['numInstances'] = int(
             os.environ['dataproc_preemptible_count'])

@@ -539,3 +539,41 @@ if __name__ == "__main__":
         GCPActions.remove_role(project_conf['edge_role_name'])
         GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
         sys.exit(1)
+
+    if os.environ['edge_is_nat'] == 'true':
+        try:
+            logging.info('[CREATE NAT ROUTE]')
+            print('[REATE NAT ROUTE]')
+            nat_route_name = '{0}-{1}-{2}-nat-route'.format(project_conf['service_base_name'],
+                                                                  project_conf['project_name'],
+                                                                  project_conf['endpoint_name'])
+            edge_instance = GCPMeta.get_instance(project_conf['instance_name'])['selfLink']
+            params = "--nat_route_name {} --vpc {} --tag {} --edge_instance {}".format(nat_route_name,
+                                                                                                       project_conf['vpc_selflink'],
+                                                                                                       project_conf['ps_firewall_target'],
+                                                                                                       edge_instance)
+            try:
+                local("~/scripts/{}.py {}".format('common_create_nat_route', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            dlab.fab.append_result("Failed to create nat route.", str(err))
+            GCPActions.remove_instance(project_conf['instance_name'], project_conf['zone'])
+            GCPActions.remove_static_address(project_conf['static_address_name'], project_conf['region'])
+            GCPActions.remove_bucket(project_conf['bucket_name'])
+            GCPActions.remove_firewall(project_conf['fw_edge_ingress_public'])
+            GCPActions.remove_firewall(project_conf['fw_edge_ingress_internal'])
+            GCPActions.remove_firewall(project_conf['fw_edge_egress_public'])
+            GCPActions.remove_firewall(project_conf['fw_edge_egress_internal'])
+            GCPActions.remove_firewall(project_conf['fw_ps_ingress'])
+            GCPActions.remove_firewall(project_conf['fw_ps_egress_private'])
+            GCPActions.remove_firewall(project_conf['fw_ps_egress_public'])
+            GCPActions.remove_service_account(project_conf['ps_service_account_name'],
+                                              project_conf['service_base_name'])
+            GCPActions.remove_role(project_conf['ps_role_name'])
+            GCPActions.remove_service_account(project_conf['edge_service_account_name'],
+                                              project_conf['service_base_name'])
+            GCPActions.remove_role(project_conf['edge_role_name'])
+            GCPActions.remove_subnet(project_conf['private_subnet_name'], project_conf['region'])
+            sys.exit(1)

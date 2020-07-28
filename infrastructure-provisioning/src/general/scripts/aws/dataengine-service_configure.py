@@ -176,7 +176,7 @@ if __name__ == "__main__":
             emr_conf['computational_name'] = os.environ['computational_name']
         else:
             emr_conf['computational_name'] = ''
-        emr_conf['apps'] = 'Hadoop Hive Hue Spark'
+        emr_conf['apps'] = 'Hadoop Hive Hue Spark Livy'
         emr_conf['service_base_name'] = os.environ['conf_service_base_name']
         emr_conf['project_name'] = os.environ['project_name']
         emr_conf['endpoint_name'] = os.environ['endpoint_name']
