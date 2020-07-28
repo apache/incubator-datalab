@@ -65,6 +65,7 @@
                   [formControl]="libSearch"
                   #trigger="matAutocompleteTrigger"
                   (keyup.enter)="addLibrary(lib)"
+                  class="library-input"
                 >
               </div>
               <mat-autocomplete #auto="matAutocomplete" class="suggestions" >
@@ -95,7 +96,14 @@
             <div class="control-group control-select">
               <label class="label">Library version</label>
               <div class="control control-relative">
-                <input  type="text" [placeholder]="'Enter library version (optional)'" [(ngModel)]="lib.version" [disabled]="!lib.name" (keyup.enter)="addLibrary(lib)">
+                <input
+                  type="text"
+                  class="library-input"
+                  [placeholder]="'Enter library version (optional)'"
+                  [(ngModel)]="lib.version"
+                  [disabled]="!lib.name"
+                  (keyup.enter)="addLibrary(lib)"
+                >
                 <span class="plus-icon"
                       [ngClass]="{'not-allow': !this.selectedLib || this.selectedLib?.isInSelectedList}"
                       matTooltip="Library is in selected list" matTooltipPosition="above" [matTooltipDisabled]="!this.selectedLib?.isInSelectedList"
@@ -114,7 +122,7 @@
                  <span class="other-message" *ngIf="lib.name?.length && !this.selectedLib">groupId:artifactId:versionId</span>
                  <input
                     type="text" [placeholder]="'Enter library name in <groupId>:<artifactId>:<versionId> format'"
-
+                    class="library-input"
                     [disabled]="!group"
                     [matAutocomplete]="auto"
                     [formControl]="libSearch"
@@ -231,8 +239,6 @@
     </div>
     </div>
 
-
-
     <div class="libs-info">
       <mat-list>
         <mat-list-item class="list-header">
@@ -273,11 +279,17 @@
         </mat-list-item>
 
         <ng-container *ngIf="filtered" >
-         <mat-list-item class="lib-col filter-row">
-          <th class="lib-name lib-input">
-            <input placeholder="Filter by library name" [value]="filterModel.name" (input)="filterModel.name = $event.target['value']" type="text" class="form-control filter-field "/>
+         <mat-list-item class="filter-row">
+          <th class="lib-name filter-col">
+            <input
+              placeholder="Filter by library name"
+              [value]="filterModel.name"
+              (input)="filterModel.name = $event.target['value']"
+              type="text"
+              class="form-control filter-field"
+            />
           </th>
-          <th class="lib-group lib-col">
+          <th class="lib-group filter-col">
               <multi-select-dropdown
                 (selectionChange)="onFilterUpdate($event)"
                 [items]="this.filterConfiguration.group"
@@ -286,7 +298,7 @@
               >
               </multi-select-dropdown>
             </th>
-            <th class="lib-destination lib-col">
+            <th class="lib-destination filter-col">
               <multi-select-dropdown
                 (selectionChange)="onFilterUpdate($event)"
                 [items]="this.filterConfiguration.resource"
@@ -295,7 +307,7 @@
               >
               </multi-select-dropdown>
             </th>
-            <th class="lib-resource-type lib-col">
+            <th class="lib-resource-type filter-col">
               <multi-select-dropdown
                 (selectionChange)="onFilterUpdate($event)"
                 [items]="this.filterConfiguration.resourceType"
@@ -304,12 +316,13 @@
               >
               </multi-select-dropdown>
           </th>
-          <th class="lib-status lib-col">
+          <th class="lib-status filter-col">
             <multi-select-dropdown
               (selectionChange)="onFilterUpdate($event)"
               [items]="this.filterConfiguration.status"
               [type]="'status'"
-              [model]="this.filterModel.status">
+              [model]="this.filterModel.status"
+            >
             </multi-select-dropdown>
           </th>
            <ng-container matColumnDef="action-filter" stickyEnd>

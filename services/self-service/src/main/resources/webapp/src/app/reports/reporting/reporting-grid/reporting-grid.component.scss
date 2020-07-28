@@ -17,16 +17,43 @@
  * under the License.
  */
 
+#scrolling::-webkit-scrollbar,
+.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+#scrolling::-webkit-scrollbar-track,
+.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-track {
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  background-color: rgb(243, 243, 243);
+}
+
+#scrolling::-webkit-scrollbar-thumb,
+.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-thumb {
+  background-color: #f6fafe;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
 .table-wrapper {
   width: 100%;
-
+  //position: sticky;
+  //z-index: 101;
+  //overflow-y: auto;
+  //transform:rotateX(180deg);
+  display: block;
+  height: calc(100vh - 130px);
+  overflow: auto;
 }
 
 .reporting {
+  //position: relative;
   width: 100%;
   min-width: 1100px;
   overflow: auto;
   border-collapse: inherit;
+  //transform:rotateX(180deg);
 
   .mat-cell {
     vertical-align: middle;
@@ -35,15 +62,15 @@
   tr {
     th {
       padding-right: 5px;
-      z-index: 2 !important;
+      //z-index: 2 !important;
       &.th_charges{
-        z-index: 3 !important;
+        z-index: 16 !important;
       }
     }
 
     td {
       font-size: 13px;
-      padding-left: 15px;
+      padding-left: 20px;
 
       &.info {
         z-index: 1 !important;
@@ -66,9 +93,11 @@
 
     &.header-row {
       th {
-        font-size: 11px;
+
         .label{
           padding-left: 0;
+          position: relative;
+          font-size: 13px;
         }
       }
     }
@@ -77,6 +106,7 @@
   .th_shape {
     width: 10%;
     min-width: 150px;
+    z-index: 10 !important;
   }
 
   .th_user,
@@ -85,8 +115,12 @@
   .tags {
     width: 15%;
     min-width: 150px;
-    overflow: hidden;
+    //overflow: hidden;
     word-wrap: break-word;
+  }
+
+  .service{
+    width: 10%;
   }
 
   .tags {
@@ -97,25 +131,41 @@
 
   .service {
     min-width: 175px;
+    z-index: 9 !important;
   }
 
   .env_name {
     width: 16%;
     min-width: 200px;
+    z-index: 15 !important;
+    padding-left: 0;
+  }
+
+  .th_user{
+    z-index: 14 !important;
+  }
+
+  .th_empty {
+    width: 1%;
+    z-index: 4 !important;
   }
 
   .th_project{
     width: 12%;
+    z-index: 13 !important;
+    min-width: 150px;
   }
 
   .th_type {
-    width: 10%;
-    min-width: 150px;
+    width: 12%;
+    min-width: 170px;
+    z-index: 12 !important;
   }
 
   .th_status {
     width: 8%;
     min-width: 150px;
+    z-index: 11 !important;
   }
 
   .th_charges {
@@ -126,10 +176,6 @@
     .label {
       padding-top: 0;
     }
-  }
-
-  .th_project {
-    min-width: 150px;
   }
 
   .tags-col {
@@ -169,13 +215,18 @@
       vertical-align: super !important;
 
       .text{
-     padding-left: 15px;
+     padding-left: 20px;
       }
     }
 
     .sort{
       position: absolute;
-      bottom: 20px;
+      bottom: 2px;
+
+      &-user,
+      &-project{
+        right: -15px;
+      }
 
       &-arrow{
         width: 6px;
@@ -248,6 +299,14 @@
   }
 }
 
+  .left {
+  }
+
+  .right {
+    position: absolute;
+    right: 0;
+  }
+
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {
     .env_name,
@@ -259,10 +318,6 @@
 
     .th_user {
       width: 12%;
-    }
-
-    .th_charges {
-      width: 6%;
     }
 
     .user-field {

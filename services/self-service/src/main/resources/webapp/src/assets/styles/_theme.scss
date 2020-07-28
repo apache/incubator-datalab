@@ -28,6 +28,9 @@
     font-size: 15px;
     font-family: 'Open Sans', sans-serif;
     color: #577289;
+    &[disabled]{
+      box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    }
 
     i {
       margin: 0 5px 0 0;
@@ -474,7 +477,7 @@ span.mat-slide-toggle-content {
   position: relative;
   cursor: pointer;
   &.header-checkbox{
-    margin-top: 13px;
+    margin-top: 7px;
     float: left;
   }
   &.checked {
@@ -742,17 +745,32 @@ mat-horizontal-stepper {
   }
 }
 
-.mat-table {
-  .header-row {
-    th.mat-header-cell {
+table.mat-table {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 400;
+
+  .mat-cell{
+    font-size: 13px;
+  }
+  .header-row,
+  .mat-header-row{
+    .mat-header-cell {
       font-family: 'Open Sans', sans-serif;
       font-weight: 600;
+      font-size: 13px;
+      .label{
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 600;
+        font-size: 13px;
+      }
     }
 
     .mat-cell {
       word-break: break-all;
       vertical-align: top;
       padding: 15px 5px 10px 5px;
+      font-size: 13px;
+      font-family: "Open Sans", sans-serif;
 
       td {
         vertical-align: baseline;
@@ -796,4 +814,131 @@ mat-progress-bar {
   box-shadow: inset 0 -1px 0 lightgrey;
   border-bottom: none !important;
 }
+
+/* daterangepicker themes */
+#range-picker {
+  display: flex;
+  justify-content: center;
+}
+
+#range-picker path#Shape {
+  fill: #36afd5;
+}
+
+#range-picker .ng-daterangepicker,
+#range-picker .ng-daterangepicker.is-active,
+#range-picker .ng-daterangepicker .calendar {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#range-picker .ng-daterangepicker .calendar::after {
+  border-top: 1px solid rgba(234, 234, 234, 0.64);
+  border-left: 1px solid rgba(234, 234, 234, 0.64);
+}
+
+#range-picker .ng-daterangepicker .calendar .side-container .side-button {
+  background: #fff;
+  color: #718ba6;
+  border: none;
+  border-radius: 0px;
+
+}
+
+#range-picker .ng-daterangepicker .calendar .side-container .side-button.is-active,
+#range-picker .ng-daterangepicker .input-section .label-txt {
+  color: #35afd5;
+  display: unset;
+  font-size: 13px;
+}
+
+#range-picker .ng-daterangepicker .calendar .calendar-container .day-num.is-active,
+#range-picker .ng-daterangepicker .calendar .calendar-container .days .day-num:hover {
+  background: #35afd5;
+  background-clip: padding-box;
+
+}
+
+#range-picker .ng-daterangepicker .calendar .calendar-container .day-names,
+#range-picker .ng-daterangepicker .calendar .calendar-container .days {
+  width: 310px;
+}
+
+#range-picker .ng-daterangepicker .calendar .day.is-within-range.is-first-weekday,
+#range-picker .ng-daterangepicker .calendar .day.is-within-range.is-last-weekday {
+  background-clip: padding-box;
+}
+
+#range-picker .ng-daterangepicker .calendar .calendar-container .day.is-within-range {
+  background: #e9f8fc
+}
+
+#range-picker .ng-daterangepicker .input-section .cal-icon svg path {
+  fill: #35afd5;
+}
+
+#range-picker .ng-daterangepicker .input-section .value-txt {
+  color: #718ba6;
+  display: unset;
+  padding-left: 5px;
+}
+
+#range-picker .ng-daterangepicker .input-section .value-txt.untouched,
+#range-picker .ng-daterangepicker .input-section .label-txt.untouched {
+  color: #fff;
+}
+
+//#range-picker .ng-daterangepicker .input-section .value-txt.untouched::after {
+//  content: 'date';
+//  position: absolute;
+//  top: 9px;
+//  left: 61px;
+//  color: #718ba6;
+//}
+
+.filter-row .actions {
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.filter-row .actions button {
+  background: #fff;
+  border-color: #35afd5;
+  color: #35afd5;
+  outline: none;
+}
+
+.filter-row .actions .reset:hover {
+  border-color: #f1696e;
+  background: #f9fafb;
+  color: #f1696e;
+}
+
+.filter-row .actions .apply:hover {
+  border-color: #49af38;
+  background: #f9fafb;
+  color: #49af38;
+}
+
+#range-picker .ng-daterangepicker {
+  height: 37px;
+  width: 360px;
+  display: flex;
+  justify-content: space-between;
+
+
+  .d-none{
+    display: none;
+  }
+
+  .input-section {
+    height: 37px;
+    padding-right: 30px;
+    width: 175px;
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+  }
+}
+
 

@@ -30,10 +30,13 @@ body.modal-open {
 }
 
 .alignleft, .al {float: left}
-.alignright, .ar {float: right}
+.alignright, .ar {float: right; left: 26px; z-index: 1010}
 .aligncenter, .ac {margin-left: auto;margin-right: auto}
 
 .mt-5 {margin-top: 5px}
+
+
+.pr-3{padding-right: 3pxr7}
 
 .pb-50 {padding-bottom: 50px;}
 
@@ -173,4 +176,8 @@ button {
 input[type=file],
 input[type=file]::-webkit-file-upload-button {
     cursor: pointer;
+}
+
+.refresh-icon{
+  color: #35afd5;
 }
