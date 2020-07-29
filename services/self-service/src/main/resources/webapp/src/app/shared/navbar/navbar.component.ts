@@ -164,14 +164,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private checkQuoteUsed(): void {
-    if (!this.storage.getBillingQuoteUsed( ) && !this.storage.getIsBillingQuoteUsed()) {
+    if (!this.storage.getBillingQuoteUsed( )) {
       this.healthStatusService.getQuotaStatus().pipe(take(1)).subscribe((params: Quota) => {
         let checkQuotaAlert = '';
-        params = {
-          projectQuotas: {Proj1: 99, Proj2: 99, Proj3: 99, Proj4: 99},
-          totalQuotaUsed: 50
-        };
-
         const exceedProjects = [], informProjects = [];
         Object.keys(params.projectQuotas).forEach(key => {
           if (params.projectQuotas[key] > this.quotesLimit && params.projectQuotas[key] < 100) {
@@ -192,9 +187,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
         if (Number(params.totalQuotaUsed) >= 100) checkQuotaAlert = 'total_exceed';
 
         if (checkQuotaAlert === '') {
-          this.storage.setIsBillingQuoteUsed(true);
+          this.storage.setBillingQuoteUsed('informed');
         } else {
-          this.storage.setIsBillingQuoteUsed('');
+          this.storage.setBillingQuoteUsed('');
         }
 
         if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;

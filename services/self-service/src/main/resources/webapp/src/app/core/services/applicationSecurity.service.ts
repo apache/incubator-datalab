@@ -87,7 +87,6 @@ export class ApplicationSecurityService {
           map(response => {
             this.storage.destroyTokens();
             this.storage.setBillingQuoteUsed('');
-            this.storage.setIsBillingQuoteUsed('');
             this._loggedInStatus.next(false);
             return response;
           }, this));
