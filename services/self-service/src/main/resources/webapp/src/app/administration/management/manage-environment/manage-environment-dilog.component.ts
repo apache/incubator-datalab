@@ -57,7 +57,6 @@ export class ManageEnvironmentComponent implements OnInit {
 
   public onFormChange() {
     this.manageUsersForm.valueChanges.subscribe(value => {
-      console.log(this.manageUsersForm);
       this.isFormChanged = JSON.stringify(this.initialFormState) === JSON.stringify(this.manageUsersForm.value);
       if ((this.getCurrentTotalValue() && this.getCurrentTotalValue() >= this.getCurrentUsersTotal())) {
         this.manageUsersForm.controls['projects']['controls'].forEach(v => {
