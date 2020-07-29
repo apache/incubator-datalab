@@ -64,6 +64,7 @@
                 <sonar.coverage.exclusions>
                     **/*Exception.java,
                     **/*DAO.java,
+                    **/*DAOImpl.java,
                     src/main/java/com/epam/dlab/dto/**,
                     src/main/java/com/epam/dlab/backendapi/auth/**,
                     src/main/java/com/epam/dlab/backendapi/conf/**,
