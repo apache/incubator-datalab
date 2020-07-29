@@ -56,7 +56,9 @@ import {Endpoint} from '../../../administration/project/project.component';
                   </div>
                   <span class="strong blue">by a schedule in less than 15 minutes.</span>
               </div>
-              <div *ngIf="data.type === 'message'"><span [innerHTML]="data.template"></span></div>
+              <div class="alert" *ngIf="data.type === 'message'">
+                <span  [innerHTML]="data.template"></span>
+              </div>
               <div *ngIf="data.type === 'confirmation'" class="confirm-dialog">
                   <p *ngIf="data.template; else label">
                       <span [innerHTML]="data.template"></span>
@@ -169,6 +171,7 @@ import {Endpoint} from '../../../administration/project/project.component';
     label{cursor: pointer}
     .bottom-message{padding-top: 15px;}
     .table-header{padding-bottom: 10px;}
+    .alert{text-align: left; line-height: 22px; padding-bottom: 25px;padding-top: 15px;}
 
 
   `]

@@ -84,6 +84,14 @@ export class HealthStatusService {
         catchError(ErrorUtils.handleServiceError));
   }
 
+  public getQuotaStatus(): Observable<{}> {
+    return this.applicationServiceFacade
+      .buildGetQuotaStatus()
+      .pipe(
+        map(response => response),
+        catchError(ErrorUtils.handleServiceError));
+  }
+
   public runEdgeNode(): Observable<{}> {
     return this.applicationServiceFacade
       .buildRunEdgeNodeRequest()
