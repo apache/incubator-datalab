@@ -459,7 +459,7 @@ def install_r_pkg(requisites):
                 sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
                 versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
                                     '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:].split(' ')
-                if versions != '':
+                if versions != ['']:
                     status_msg = 'invalid_version'
             else:
                 versions = []
