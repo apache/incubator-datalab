@@ -54,7 +54,7 @@ def dataengine_dir_prepare(cluster_dir):
 
 def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
-    error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:|requires"
+    error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:|requires|FileNotFoundError:|RuntimeError:|error:"
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
             sudo('ln -s /bin/pip3.5 /bin/pip3')
@@ -111,7 +111,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     if i == pip_pkg.split("==")[0]:
                         dep[n] = ''
                     else:
-                        dep[n] = sudo('{} show {} 2>&1 | grep Version:'.format(pip_version, i)).replace('Version: ', '{} v.'.format(i))
+                        sudo('{0} show {1} 2>&1 | if ! grep Version: /tmp/tee.tmp > '
+                             '/tmp/{0}_install_{1}.log; then echo "" > /tmp/{0}_install_{1}.log;fi'.format(pip_version, i))
+                        dep[n] = sudo('cat /tmp/{0}_install_{1}.log'.format(pip_version, i)).replace('Version: ', '{} v.'.format(i))
                 dep = [i for i in dep if i]
             status.append({"group": lib_group, "name": pip_pkg.split("==")[0], "version": version, "status": status_msg,
                            "error_message": err, "available_versions": versions, "add_pkgs": dep})
@@ -439,7 +441,10 @@ def install_r_pkg(requisites):
             else:
                 dep = dep.split(' ')
                 for n, i in enumerate(dep):
-                    dep[n] = '{} v.{}'.format(dep[n], dep_ver[n])
+                    if i == name:
+                        dep[n] = ''
+                    else:
+                        dep[n] = '{} v.{}'.format(dep[n], dep_ver[n])
                 dep = [i for i in dep if i]
             err = sudo('cat /tmp/install_{0}.log'.format(name)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
@@ -454,7 +459,8 @@ def install_r_pkg(requisites):
                 sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
                 versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
                                     '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:].split(' ')
-                status_msg = 'invalid_version'
+                if versions != ['']:
+                    status_msg = 'invalid_version'
             else:
                 versions = []
             status.append({"group": "r_pkg", "name": name, "version": version, "status": status_msg, "error_message": err, "available_versions": versions, "add_pkgs": dep})
