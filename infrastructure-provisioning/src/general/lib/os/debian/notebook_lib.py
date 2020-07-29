@@ -390,9 +390,12 @@ def install_os_pkg(requisites):
                         .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]),
                                                                       ' ').strip().split(' ')
                 for n, i in enumerate(dep):
-                    sudo('apt show {0} 2>&1 | if ! grep Version: > '
+                    if i == os_pkg.split("=")[0]:
+                        dep[n] = ''
+                    else:
+                        sudo('apt show {0} 2>&1 | if ! grep Version: > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(i))
-                    dep[n] =sudo('cat /tmp/os_install_{}.log'.format(i)).replace('Version: ', '{} v.'.format(i))
+                        dep[n] =sudo('cat /tmp/os_install_{}.log'.format(i)).replace('Version: ', '{} v.'.format(i))
                 dep = [i for i in dep if i]
             versions = []
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
