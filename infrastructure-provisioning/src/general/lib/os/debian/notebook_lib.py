@@ -167,7 +167,7 @@ def ensure_matplot(os_user):
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('python2.7 -m pip install -U numpy==1.16.6 --no-cache-dir')
+                sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
                 sudo('python3.6 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/' + os_user + '/.ensure_dir/matplot_ensured')
         except:
@@ -219,7 +219,7 @@ def ensure_additional_python_libs(os_user):
         try:
             manage_pkg('-y install', 'remote', 'libjpeg8-dev zlib1g-dev')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
-                sudo('pip2 install NumPy==1.14.3 SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
                 sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('pip2 install opencv-python h5py --no-cache-dir')
@@ -245,10 +245,10 @@ def ensure_python2_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python2_libraries_ensured'):
         try:
             try:
-                manage_pkg('-y install', 'remote', 'libssl-dev python-virtualenv')
+                manage_pkg('-y install', 'remote', 'libssl1.0-dev python-virtualenv')
             except:
                 sudo('pip2 install virtualenv --no-cache-dir')
-                manage_pkg('-y install', 'remote', 'libssl-dev')
+                manage_pkg('-y install', 'remote', 'libssl1.0-dev')
             try:
                 sudo('pip2 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
@@ -294,7 +294,7 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('update-initramfs -u')
             with settings(warn_only=True):
-                reboot(wait=150)
+                reboot(wait=180)
             manage_pkg('-y install', 'remote', 'dkms libglvnd-dev')
             kernel_version = run('uname -r | tr -d "[..0-9-]"')
             if kernel_version == 'azure':
@@ -477,17 +477,19 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         manage_pkg('update', 'remote', '')
-        manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev libprotobuf-dev protobuf-compiler python-dev python-pip')
-        sudo('pip2 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev '
+                   'libprotobuf-dev protobuf-compiler python-dev python-pip')
+        sudo('pip2 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
         sudo('pip3 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgflags-dev')
-        manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
+        manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
+                   'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
-        sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')
-        sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
+        sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
+        sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
         sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
@@ -498,16 +500,16 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         with cd('/home/{}/pytorch/'.format(os_user)):
             sudo('git submodule update --init')
             with settings(warn_only=True):
-                sudo('git checkout v{}'.format(caffe2_version))
-                sudo('git submodule update --recursive')
-            sudo('mkdir build && cd build && cmake{} .. && make "-j$(nproc)" install'.format(cmake_version))
+                sudo('git checkout {}'.format(os.environ['notebook_pytorch_branch']))
+                sudo('git submodule update --init --recursive')
+            sudo('python3 setup.py install')
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
-def install_cntk(os_user, cntk_version):
+def install_cntk(os_user, cntk2_version, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
-        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
-        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk2_version))
+        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk_gpu-{}.post1-cp36-cp36m-manylinux1_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 
@@ -527,19 +529,19 @@ def install_theano(os_user, theano_version):
 
 def install_mxnet(os_user, mxnet_version):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('pip2 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
-        sudo('pip3 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
+        sudo('pip2 install mxnet-cu101=={} opencv-python --no-cache-dir'.format(mxnet_version))
+        sudo('pip3 install mxnet-cu101=={} opencv-python --no-cache-dir'.format(mxnet_version))
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
 
-def install_torch(os_user):
-    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
-        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
-        with cd('/home/{}/torch/'.format(os_user)):
-            run('bash install-deps;')
-            run('./install.sh -b')
-        run('source /home/{}/.bashrc'.format(os_user))
-        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
+#def install_torch(os_user):
+#    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
+#        run('git clone https://github.com/nagadomi/distro.git ~/torch --recursive')
+#        with cd('/home/{}/torch/'.format(os_user)):
+#           run('bash install-deps;')
+#           run('./install.sh -b')
+#        run('source /home/{}/.bashrc'.format(os_user))
+#        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
 
 
 def install_gitlab_cert(os_user, certfile):

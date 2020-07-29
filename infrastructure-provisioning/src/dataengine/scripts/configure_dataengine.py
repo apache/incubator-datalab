@@ -53,6 +53,7 @@ caffe_version = os.environ['notebook_caffe_version']
 caffe2_version = os.environ['notebook_caffe2_version']
 cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
+cntk2_version = os.environ['notebook_cntk2_version']
 mxnet_version = os.environ['notebook_mxnet_version']
 python3_version = "3.4"
 scala_link = "http://www.scala-lang.org/files/archive/"
@@ -173,10 +174,10 @@ if __name__ == "__main__":
     if os.environ['application'] == 'deeplearning':
         print("Installing Caffe2")
         install_caffe2(args.os_user, caffe2_version, cmake_version)
-        print("Installing Torch")
-        install_torch(args.os_user)
+        #print("Installing Torch")
+        #install_torch(args.os_user)
         print("Install CNTK Python library")
-        install_cntk(args.os_user, cntk_version)
+        install_cntk(args.os_user, cntk2_version, cntk_version)
         print("Installing MXNET")
         install_mxnet(args.os_user, mxnet_version)
 
