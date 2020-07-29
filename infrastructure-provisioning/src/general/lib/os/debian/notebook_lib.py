@@ -387,8 +387,7 @@ def install_os_pkg(requisites):
                 dep = []
             else:
                 dep = dep[len(new_pkgs_parser): dep.find(" upgraded, ") - 1].replace('\r', '') \
-                        .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]),
-                                                                      ' ').strip().split(' ')
+                        .replace('\n', '').replace('  ', ' ').strip().split(' ')
                 for n, i in enumerate(dep):
                     if i == os_pkg.split("=")[0]:
                         dep[n] = ''
@@ -408,7 +407,8 @@ def install_os_pkg(requisites):
                 version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
                 status_msg = "installed"
             if 'E: Version' in err and 'was not found' in err:
-                versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0])).replace('\r\n', '').replace(' 500', '').replace('     ', ' ').strip().split(' ')
+                versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0]))\
+                    .replace('\r\n', '').replace(' 500', '').replace('     ', ' ').replace('***', '').strip().split(' ')
                 if versions != '':
                     status_msg = 'invalid_version'
             status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": status_msg,
