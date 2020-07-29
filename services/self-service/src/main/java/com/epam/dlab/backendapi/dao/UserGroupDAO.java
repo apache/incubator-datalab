@@ -16,20 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.backendapi.resources.dto.BackupInfoRecord;
-import com.epam.dlab.dto.backup.EnvBackupDTO;
-import com.epam.dlab.dto.backup.EnvBackupStatus;
+import java.util.Set;
 
-import java.util.List;
-import java.util.Optional;
+public interface UserGroupDAO {
+	void addUsers(String group, Set<String> users);
 
-public interface BackupDao {
-	void createOrUpdate(EnvBackupDTO dto, String user, EnvBackupStatus status);
+	void updateUsers(String group, Set<String> users);
 
-	List<BackupInfoRecord> getBackups(String userName);
+	void removeGroup(String groupId);
 
-	Optional<BackupInfoRecord> getBackup(String userName, String id);
+	Set<String> getUserGroups(String user);
+
+	Set<String> getUsers(String group);
 }

@@ -27,7 +27,7 @@ import com.epam.dlab.backendapi.annotation.ResourceName;
 import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
-import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.dao.ImageExploratoryDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
@@ -64,24 +64,24 @@ import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.IMAGE;
 @Singleton
 @Slf4j
 public class ImageExploratoryServiceImpl implements ImageExploratoryService {
-    private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist in project %s";
-    private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
+	private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist in project %s";
+	private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
 
-    @Inject
-    private ExploratoryDAO exploratoryDAO;
-    @Inject
-    private ImageExploratoryDao imageExploratoryDao;
-    @Inject
-    private ExploratoryLibDAO libDAO;
-    @Inject
-    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-    private RESTService provisioningService;
-    @Inject
-    private RequestBuilder requestBuilder;
-    @Inject
-    private EndpointService endpointService;
-    @Inject
-    private ProjectService projectService;
+	@Inject
+	private ExploratoryDAO exploratoryDAO;
+	@Inject
+	private ImageExploratoryDAO imageExploratoryDao;
+	@Inject
+	private ExploratoryLibDAO libDAO;
+	@Inject
+	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
+	private RESTService provisioningService;
+	@Inject
+	private RequestBuilder requestBuilder;
+	@Inject
+	private EndpointService endpointService;
+	@Inject
+	private ProjectService projectService;
 
     @Audit(action = CREATE, type = IMAGE)
     @Override

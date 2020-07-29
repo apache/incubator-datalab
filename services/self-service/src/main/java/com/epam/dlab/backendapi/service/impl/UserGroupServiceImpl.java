@@ -24,8 +24,8 @@ import com.epam.dlab.backendapi.annotation.ResourceName;
 import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
-import com.epam.dlab.backendapi.dao.UserGroupDao;
-import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.dao.UserGroupDAO;
+import com.epam.dlab.backendapi.dao.UserRoleDAO;
 import com.epam.dlab.backendapi.domain.AuditDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
@@ -66,16 +66,16 @@ public class UserGroupServiceImpl implements UserGroupService {
 	private static final String ADMIN = "admin";
 	private static final String PROJECT_ADMIN = "projectAdmin";
 
-	private final UserGroupDao userGroupDao;
-	private final UserRoleDao userRoleDao;
+	private final UserGroupDAO userGroupDao;
+	private final UserRoleDAO userRoleDao;
 	private final ProjectDAO projectDAO;
 	private final ProjectService projectService;
 	private final AuditService auditService;
 	private final SelfServiceApplicationConfiguration configuration;
 
 	@Inject
-	public UserGroupServiceImpl(UserGroupDao userGroupDao, UserRoleDao userRoleDao, ProjectDAO projectDAO, ProjectService projectService, AuditService auditService,
-								SelfServiceApplicationConfiguration configuration) {
+	public UserGroupServiceImpl(UserGroupDAO userGroupDao, UserRoleDAO userRoleDao, ProjectDAO projectDAO, ProjectService projectService, AuditService auditService,
+	                            SelfServiceApplicationConfiguration configuration) {
 		this.userGroupDao = userGroupDao;
 		this.userRoleDao = userRoleDao;
 		this.projectDAO = projectDAO;

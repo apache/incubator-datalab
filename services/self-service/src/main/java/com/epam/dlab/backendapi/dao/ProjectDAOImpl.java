@@ -59,10 +59,10 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String ENDPOINT_FIELD = "endpoints.$.";
 	private static final String ANYUSER = Pattern.quote("$anyuser");
 
-	private final UserGroupDao userGroupDao;
+	private final UserGroupDAO userGroupDao;
 
 	@Inject
-	public ProjectDAOImpl(UserGroupDao userGroupDao) {
+	public ProjectDAOImpl(UserGroupDAO userGroupDao) {
 		this.userGroupDao = userGroupDao;
 	}
 

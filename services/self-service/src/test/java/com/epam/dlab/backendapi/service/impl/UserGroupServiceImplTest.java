@@ -20,8 +20,8 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.backendapi.dao.ProjectDAO;
-import com.epam.dlab.backendapi.dao.UserGroupDao;
-import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.dao.UserGroupDAO;
+import com.epam.dlab.backendapi.dao.UserRoleDAO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.TestBase;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
@@ -54,25 +54,25 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UserGroupServiceImplTest extends TestBase {
 
-    private static final String ROLE_ID = "Role id";
-    private static final String USER = "test";
-    private static final String GROUP = "admin";
-    @Mock
-    private UserRoleDao userRoleDao;
-    @Mock
-    private UserGroupDao userGroupDao;
-    @Mock
-    private ProjectDAO projectDAO;
-    @InjectMocks
-    private UserGroupServiceImpl userGroupService;
+	private static final String ROLE_ID = "Role id";
+	private static final String USER = "test";
+	private static final String GROUP = "admin";
+	@Mock
+	private UserRoleDAO userRoleDao;
+	@Mock
+	private UserGroupDAO userGroupDao;
+	@Mock
+	private ProjectDAO projectDAO;
+	@InjectMocks
+	private UserGroupServiceImpl userGroupService;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 
-    @Before
-    public void setup() throws AuthenticationException {
-        authSetup();
-    }
+	@Before
+	public void setup() throws AuthenticationException {
+		authSetup();
+	}
 
     @Test
     public void createGroup() {

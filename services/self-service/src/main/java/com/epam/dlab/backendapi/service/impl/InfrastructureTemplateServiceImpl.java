@@ -23,7 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
-import com.epam.dlab.backendapi.dao.UserGroupDao;
+import com.epam.dlab.backendapi.dao.UserGroupDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneConfiguration;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
@@ -67,7 +67,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 	@Inject
 	private EndpointService endpointService;
 	@Inject
-	private UserGroupDao userGroupDao;
+	private UserGroupDAO userGroupDao;
 
 
 	@Inject

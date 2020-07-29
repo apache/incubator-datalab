@@ -30,7 +30,7 @@ import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
-import com.epam.dlab.backendapi.dao.UserGroupDao;
+import com.epam.dlab.backendapi.dao.UserGroupDAO;
 import com.epam.dlab.backendapi.domain.BudgetDTO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
@@ -88,7 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	private final ProjectDAO projectDAO;
 	private final ExploratoryService exploratoryService;
-	private final UserGroupDao userGroupDao;
+	private final UserGroupDAO userGroupDao;
 	private final RESTService provisioningService;
 	private final RequestId requestId;
 	private final RequestBuilder requestBuilder;
@@ -99,7 +99,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Inject
 	public ProjectServiceImpl(ProjectDAO projectDAO, ExploratoryService exploratoryService,
-	                          UserGroupDao userGroupDao,
+	                          UserGroupDAO userGroupDao,
 	                          @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
 	                          RequestId requestId, RequestBuilder requestBuilder, EndpointService endpointService,
 	                          ExploratoryDAO exploratoryDAO, SelfServiceApplicationConfiguration configuration) {

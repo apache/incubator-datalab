@@ -22,7 +22,7 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
-import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.dao.ImageExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.BillingReportLine;
@@ -83,14 +83,14 @@ public class BillingServiceImpl implements BillingService {
     private final ExploratoryService exploratoryService;
     private final SelfServiceApplicationConfiguration configuration;
     private final RESTService provisioningService;
-    private final ImageExploratoryDao imageExploratoryDao;
+    private final ImageExploratoryDAO imageExploratoryDao;
     private final BillingDAO billingDAO;
     private final String sbn;
 
     @Inject
     public BillingServiceImpl(ProjectService projectService, ProjectDAO projectDAO, EndpointService endpointService,
                               ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
-                              @Named(ServiceConsts.BILLING_SERVICE_NAME) RESTService provisioningService, ImageExploratoryDao imageExploratoryDao,
+                              @Named(ServiceConsts.BILLING_SERVICE_NAME) RESTService provisioningService, ImageExploratoryDAO imageExploratoryDao,
                               BillingDAO billingDAO) {
         this.projectService = projectService;
         this.projectDAO = projectDAO;
