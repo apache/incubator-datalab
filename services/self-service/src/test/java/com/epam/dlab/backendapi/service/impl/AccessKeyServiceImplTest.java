@@ -23,6 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.resources.TestBase;
 import com.epam.dlab.backendapi.resources.dto.KeysDTO;
+import com.epam.dlab.exceptions.DlabException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -50,8 +51,16 @@ public class AccessKeyServiceImplTest extends TestBase {
 
 		KeysDTO keysDTO = accessKeyService.generateKeys(userInfo);
 
-		assertEquals(USER.toLowerCase(), keysDTO.getUsername());
-		assertNotNull(keysDTO.getPublicKey());
-		assertNotNull(keysDTO.getPrivateKey());
+		assertEquals("Usernames are not equal", USER.toLowerCase(), keysDTO.getUsername());
+		assertNotNull("Public key is null", keysDTO.getPublicKey());
+		assertNotNull("Private key is null", keysDTO.getPrivateKey());
+	}
+
+	@Test(expected = DlabException.class)
+	public void generateKeysWithException() {
+		UserInfo userInfo = getUserInfo();
+		when(conf.getPrivateKeySize()).thenReturn(0);
+
+		accessKeyService.generateKeys(userInfo);
 	}
 }
