@@ -57,6 +57,7 @@ export class ManageEnvironmentComponent implements OnInit {
 
   public onFormChange() {
     this.manageUsersForm.valueChanges.subscribe(value => {
+      console.log(this.manageUsersForm);
       this.isFormChanged = JSON.stringify(this.initialFormState) === JSON.stringify(this.manageUsersForm.value);
       if ((this.getCurrentTotalValue() && this.getCurrentTotalValue() >= this.getCurrentUsersTotal())) {
         this.manageUsersForm.controls['projects']['controls'].forEach(v => {
@@ -99,7 +100,7 @@ export class ManageEnvironmentComponent implements OnInit {
     this.manageUsersForm.setControl('projects',
       this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
         project: x.name,
-        budget: [x.budget.value, [ this.userValidityCheck.bind(this)]],
+        budget: [x.budget.value, [ Validators.max(1000000000), this.userValidityCheck.bind(this)]],
         monthlyBudget: x.budget.monthlyBudget,
       }))));
   }
