@@ -115,8 +115,11 @@ if __name__ == "__main__":
             or os.environ['application'] in ('rstudio', 'tensor-rstudio'):
         try:
             print('Installing R packages: {}'.format(pkgs['libraries']['r_pkg']))
-            if os.environ['conf_resource'] in ('dataengine-service'):
-                manage_pkg('-y install', 'remote', 'libcurl libcurl-devel')
+            if os.environ['conf_resource'] in ('dataengine-service') :
+                if os.environ['conf_cloud_provider'] in ('aws'):
+                    manage_pkg('-y install', 'remote', 'libcurl libcurl-devel')
+                elif os.environ['conf_cloud_provider'] in ('gcp'):
+                    manage_pkg('-y install', 'remote', 'libcurl4-gnutls-dev')
                 sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
             status = install_r_pkg(pkgs['libraries']['r_pkg'])
             general_status = general_status + status
