@@ -21,7 +21,7 @@ import sys
 import time
 import urllib
 
-time.sleep(30)  # wait for new code to be analyzed by SonarQube
+time.sleep(30)  # wait for new code to be analyzed by SonarQube#
 
 PROJECT_KEY = urllib.quote(sys.argv[1])
 TOKEN = sys.argv[2]
