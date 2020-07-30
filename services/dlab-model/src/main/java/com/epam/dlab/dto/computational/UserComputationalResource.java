@@ -68,7 +68,9 @@ public class UserComputationalResource {
 	@JsonProperty("instance_id")
 	private String instanceId;
 	@JsonProperty("dataproc_version")
-	private String clusterVersion;
+	private String gcpClusterVersion;
+	@JsonProperty("emr_version")
+	private String awsClusterVersion;
 	private int totalInstanceCount;
 	protected List<ClusterConfig> config;
 	private Map<String, String> tags;
