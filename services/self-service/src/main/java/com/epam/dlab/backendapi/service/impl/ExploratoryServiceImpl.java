@@ -461,6 +461,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private LibInstallDTO toLibInstallDto(Library l) {
 		return new LibInstallDTO(l.getGroup(), l.getName(), l.getVersion())
 				.withStatus(String.valueOf(l.getStatus()))
+				.withAddedPackages(l.getAddedPackages())
 				.withErrorMessage(l.getErrorMessage());
 	}
 }

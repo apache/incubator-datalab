@@ -25,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Library {
@@ -34,6 +36,10 @@ public class Library {
 	private final LibStatus status;
 	@JsonProperty("error_message")
 	private final String errorMessage;
+	@JsonProperty("available_versions")
+	private List<String> availableVersions;
+	@JsonProperty("add_pkgs")
+	private List<String> addedPackages;
 	private String resourceName;
 	private ResourceType type;
 
