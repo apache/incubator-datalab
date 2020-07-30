@@ -34,8 +34,6 @@ import javax.ws.rs.core.Response;
 @Path("/healthcheck")
 @Produces(MediaType.APPLICATION_JSON)
 public class ProvisioningHealthCheckResource {
-    private static final String HEALTH_CHECK = "ProvisioningHealthCheck";
-
     @Inject
     private ProvisioningServiceApplicationConfiguration configuration;
 
