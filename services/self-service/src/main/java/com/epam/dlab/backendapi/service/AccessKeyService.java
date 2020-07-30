@@ -22,7 +22,7 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.KeysDTO;
 
+@FunctionalInterface
 public interface AccessKeyService {
-
 	KeysDTO generateKeys(UserInfo userInfo);
 }
