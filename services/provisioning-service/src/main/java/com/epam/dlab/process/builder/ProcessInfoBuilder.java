@@ -38,7 +38,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.epam.dlab.process.model.ProcessStatus.*;
+import static com.epam.dlab.process.model.ProcessStatus.CREATED;
+import static com.epam.dlab.process.model.ProcessStatus.FAILED;
+import static com.epam.dlab.process.model.ProcessStatus.FINISHED;
+import static com.epam.dlab.process.model.ProcessStatus.KILLED;
+import static com.epam.dlab.process.model.ProcessStatus.LAUNCHING;
+import static com.epam.dlab.process.model.ProcessStatus.REJECTED;
+import static com.epam.dlab.process.model.ProcessStatus.RUNNING;
+import static com.epam.dlab.process.model.ProcessStatus.SCHEDULED;
+import static com.epam.dlab.process.model.ProcessStatus.STOPPED;
+import static com.epam.dlab.process.model.ProcessStatus.TIMEOUT;
 
 @Slf4j
 public class ProcessInfoBuilder implements Supplier<ProcessInfo>, Testing, TimeoutAction, Expireable {
@@ -168,7 +177,7 @@ public class ProcessInfoBuilder implements Supplier<ProcessInfo>, Testing, Timeo
 			try {
 				future.get();
 			} catch (Exception e) {
-				log.error("Exception occurred during getting future result: {}", e.getMessage());
+				log.error("Exception occurred during getting future result: {}", e.getMessage(), e);
 			}
 		});
 	}
@@ -267,14 +276,14 @@ public class ProcessInfoBuilder implements Supplier<ProcessInfo>, Testing, Timeo
 					try {
 						return fPid.getInt(p);
 					} catch (IllegalAccessException e) {
-						log.error("Unable to access PID. {}", e.getMessage());
+						log.error("Unable to access PID. {}", e.getMessage(), e);
 						return -1;
 					}
 				};
 			}
 			return pidSupplier.apply(process);
 		} catch (NoSuchFieldException e) {
-			log.debug("PID field not found");
+			log.debug("PID field not found", e);
 			pidSupplier = p -> -1;
 			return -1;
 		}

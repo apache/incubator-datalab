@@ -24,6 +24,7 @@ import com.epam.dlab.billing.gcp.dao.BillingDAO;
 import com.epam.dlab.billing.gcp.model.BillingHistory;
 import com.epam.dlab.billing.gcp.repository.BillingHistoryRepository;
 import com.epam.dlab.dto.billing.BillingData;
+import com.epam.dlab.exceptions.DlabException;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.QueryJobConfiguration;
@@ -32,7 +33,6 @@ import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -53,7 +53,6 @@ public class BigQueryBillingDAO implements BillingDAO {
 	private static final String DATASET_PARAM = "dataset";
 
 	private final BillingHistoryRepository billingHistoryRepo;
-	private final MongoTemplate mongoTemplate;
 	private final BigQuery service;
 	private final String dataset;
 	private final String sbn;
@@ -69,11 +68,10 @@ public class BigQueryBillingDAO implements BillingDAO {
 
 	@Autowired
 	public BigQueryBillingDAO(DlabConfiguration conf, BillingHistoryRepository billingHistoryRepo,
-							  BigQuery service, MongoTemplate mongoTemplate) {
+	                          BigQuery service) {
 		dataset = conf.getBigQueryDataset();
 		this.service = service;
 		this.billingHistoryRepo = billingHistoryRepo;
-		this.mongoTemplate = mongoTemplate;
 		sbn = conf.getSbn();
 	}
 
@@ -107,8 +105,9 @@ public class BigQueryBillingDAO implements BillingDAO {
 							.map(this::toGcpBillingData);
 			billingHistoryRepo.save(new BillingHistory(tableName, table.getLastModifiedTime()));
 			return gcpBillingDataStream;
-		} catch (InterruptedException e) {
-			throw new IllegalStateException("Can not get billing info from BigQuery due to: " + e.getMessage(), e);
+		} catch (Exception e) {
+			log.error("Can not get billing info from BigQuery due to {}", e.getMessage(), e);
+			throw new DlabException("Can not get billing info from BigQuery due to: " + e.getMessage(), e);
 		}
 	}
 

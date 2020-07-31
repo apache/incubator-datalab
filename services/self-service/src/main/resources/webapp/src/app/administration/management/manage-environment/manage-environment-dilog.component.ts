@@ -99,7 +99,7 @@ export class ManageEnvironmentComponent implements OnInit {
     this.manageUsersForm.setControl('projects',
       this._fb.array((this.data.projectsList || []).map((x: any) => this._fb.group({
         project: x.name,
-        budget: [x.budget.value, [ this.userValidityCheck.bind(this)]],
+        budget: [x.budget.value, [ Validators.max(1000000000), this.userValidityCheck.bind(this)]],
         monthlyBudget: x.budget.monthlyBudget,
       }))));
   }

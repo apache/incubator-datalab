@@ -19,7 +19,6 @@
 
 package com.epam.dlab.backendapi.interceptor;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.annotation.Project;
 import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.service.BillingService;
@@ -31,7 +30,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
@@ -51,15 +49,6 @@ public class BudgetLimitInterceptor implements MethodInterceptor {
 		} else {
 			return mi.proceed();
 		}
-	}
-
-	private Boolean userQuoteReached(MethodInvocation mi) {
-		return Arrays.stream(mi.getArguments())
-				.filter(arg -> arg.getClass().equals(UserInfo.class))
-				.findAny()
-				.map(u -> ((UserInfo) u).getName())
-				.map(billingDAO::isUserQuoteReached)
-				.orElse(Boolean.FALSE);
 	}
 
 	private Boolean projectQuoteReached(MethodInvocation mi) {

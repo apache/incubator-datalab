@@ -44,7 +44,7 @@ public class RestoreHandlerStartupListener implements ServerLifecycleListener {
 			endpointService.getEndpointsWithStatus(EndpointDTO.EndpointStatus.ACTIVE)
 					.forEach(e -> provisioningService.post(e.getUrl() + "/handler/restore", StringUtils.EMPTY, Object.class));
 		} catch (Exception e) {
-			log.error("Exception occurred during restore handler request: {}", e.getMessage());
+			log.error("Exception occurred during restore handler request: {}", e.getMessage(), e);
 		}
 	}
 }

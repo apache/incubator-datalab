@@ -17,11 +17,13 @@
  * under the License.
  */
 
+@import "variables";
+
 .data-table {
   width: 100%;
 }
 
-table {
+table.resources {
   width: 100%;
 
   .header-row {
@@ -29,15 +31,24 @@ table {
     background-clip:padding-box;
     th {
       padding: 5px;
+      padding-left: 20px;
+
+      .mat-icon-button{
+        line-height: 45px;
+      }
     }
 
     .label {
       display: inline-block;
-      padding-top: 10px;
+      padding-top: 14px;
       vertical-align: super !important;
-      padding-left: 5px;
-      font-size: 12px;
+      font-size: 13px;
     }
+  }
+
+  .filter-field{
+    font-size: 13px;
+    padding-left: 15px;
   }
 
   .exploratory {
@@ -50,13 +61,17 @@ table {
 
       td {
         padding: 5px;
+        padding-left: 20px;
+        display: flex;
+        align-items: center;
 
         &.name-col {
           padding-right: 5px;
-          padding-left: 24px;
+          padding-left: 21px;
           cursor: pointer;
           overflow: hidden;
           text-overflow: ellipsis;
+          min-width: 187px;
         }
 
         &.resources-col {
@@ -84,6 +99,8 @@ table {
     th {
       padding: 5px;
       background-clip: padding-box;
+
+
       &:last-child {
         padding-right: 6px;
       }
@@ -91,39 +108,35 @@ table {
   }
 
   .name-col {
-    width: 15%;
+    width: 17%;
     padding-right: 5px;
     padding-left: 24px;
     background-color: inherit;
-    &.notebook-name{
-
-    }
-    .label{
-      padding-top: 14px;
-    }
+    min-width: 187px;
   }
 
   .project-name{
     font-weight: 600;
     color: #577289;
+    padding-left: 21px;
   }
+
 
   .status-col,
   .shape-col {
-    width: 12%;
-    .label{
-      padding-top: 14px;
-    }
+    width: 11%;
+    min-width: 105px;
   }
   .shape-col{
     color: #577289;
     .label{
-      color: rgba(0,0,0,.54);
+      color: $table-header-color;
     }
   }
 
   .tag-col {
     width: 13%;
+    min-width: 95px;
 
     mat-chip {
       min-height: 20px;
@@ -140,157 +153,201 @@ table {
 
   .resources-col {
     width: 32%;
-    .label{
-      padding-top: 14px;
-    }
+    min-width: 420px;
   }
 
   .cost-col {
     width: 10%;
-    text-align: center;
+    min-width: 95px;
+    justify-content: space-between;
+  }
+
+  .label-header{
+    &.cost-col{
+      z-index: 6 !important;
+    }
+
+    &.status-col{
+      z-index: 10 !important;
+    }
+
+    &.resources-col {
+      z-index: 7 !important;
+    }
+
+    &.tag-col {
+      z-index: 8 !important;
+    }
+
+    &.shape-col {
+      z-index: 9 !important;
+    }
+
+    &.settings {
+      z-index: 5 !important;
+    }
   }
 
   .actions-col {
-    width: 10%;
+    //width: 10%;
     padding-right: 24px;
     text-align: right;
     background-color: inherit;
+    z-index: 5 !important;
     .label{
       padding-right: 5px;
     }
   }
-}
-
-tr.detail-row {
-  height: 0;
-}
+  tr.detail-row {
+    height: 0;
+  }
 
 
-.element-diagram {
-  min-width: 80px;
-  border: 2px solid black;
-  padding: 8px;
-  font-weight: lighter;
-  margin: 8px 0;
-  height: 104px;
-}
+  .element-diagram {
+    min-width: 80px;
+    border: 2px solid black;
+    padding: 8px;
+    font-weight: lighter;
+    margin: 8px 0;
+    height: 104px;
+  }
 
-.element-symbol {
-  font-weight: bold;
-  font-size: 40px;
-  line-height: normal;
-}
+  .element-symbol {
+    font-weight: bold;
+    font-size: 40px;
+    line-height: normal;
+  }
 
-.element-description {
-  padding: 16px;
-}
+  .element-description {
+    padding: 16px;
+  }
 
-.element-description-attribution {
-  opacity: 0.5;
-}
+  .element-description-attribution {
+    opacity: 0.5;
+  }
 
 
 
-.dashboard_table {
-  width: 100%;
-  table-layout: fixed;
-}
+  .dashboard_table {
+    width: 100%;
+    table-layout: fixed;
+  }
 
 
 
-.dashboard_table tr {
-  vertical-align: top;
-}
+  .dashboard_table tr {
+    vertical-align: top;
+  }
 
-.dashboard_table tr th span {
-  width: 50px;
-  text-align: center;
-  height: 100%;
-  line-height: 40px;
-}
+  .dashboard_table tr th span {
+    width: 50px;
+    text-align: center;
+    height: 100%;
+    line-height: 40px;
+  }
 
-.dashboard_table tr td {
-  font-size: 14px;
-  padding: 20px 15px 16px;
-}
+  .dashboard_table tr td {
+    font-size: 13px;
+    padding: 20px 15px 16px;
+  }
 
-.dashboard_table tr td,
-.dashboard_table tr th {
-  border: 1px solid #d5dfea;
-  text-align: left;
-}
+  .dashboard_table tr td,
+  .dashboard_table tr th {
+    border: 1px solid #d5dfea;
+    text-align: left;
+  }
 
-.dashboard_table tr td:last-child {
-  text-align: center;
-}
+  .dashboard_table tr td:last-child {
+    text-align: center;
+  }
 
-.dashboard_table_body td:first-child {
-  background: #f3fbfd;
-  color: #455c74;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  .dashboard_table_body td:first-child {
+    background: #f3fbfd;
+    color: #455c74;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-.dashboard_table tr:nth-child(2n + 1) {
-  background: #f9fafb;
-}
+  .dashboard_table tr:nth-child(2n + 1) {
+    background: #f9fafb;
+  }
 
-.dashboard_table tr.filter-row td {
-  padding: 10px;
-}
+  .dashboard_table tr.filter-row td {
+    padding: 10px;
+  }
 
-.dashboard_table tr.filter-row td:first-child {
-  font-weight: 400;
-}
+  .dashboard_table tr.filter-row td:first-child {
+    font-weight: 400;
+  }
 
-.dashboard_table tr.filter-row td:last-child {
-  padding: 10px 0;
-}
+  .dashboard_table tr.filter-row td:last-child {
+    padding: 10px 0;
+  }
 
-.filter-row .actions {
-  text-align: right;
-  display: flex;
-  justify-content: flex-end;
-}
+  .dashboard_table tr:nth-child(2n + 1) td:first-child {
+    background: #edf6f9;
+  }
 
-.filter-row .actions button {
-  background: #fff;
-  border-color: #35afd5;
-  color: #35afd5;
-  outline: none;
-}
+  .dashboard_table th {
+    background: #a1b7d1;
+    color: #fff;
+    font-weight: 600;
+    line-height: 40px;
+    text-transform: uppercase;
+    padding-left: 12px;
+    font-size: 13px;
+  }
 
-.filter-row .actions .reset:hover {
-  border-color: #f1696e;
-  background: #f9fafb;
-  color: #f1696e;
-}
+  &.data-grid .status {
+    text-transform: capitalize;
+  }
 
-.filter-row .actions .apply:hover {
-  border-color: #49af38;
-  background: #f9fafb;
-  color: #49af38;
-}
+  .message_block td {
+    text-align: left !important;
+  }
 
-.dashboard_table tr:nth-child(2n + 1) td:first-child {
-  background: #edf6f9;
-}
+  &.data-grid .total_cost {
+    float: left;
+    display: inline-block;
+    color: #455c74;
+  }
 
-.dashboard_table th {
-  background: #a1b7d1;
-  color: #fff;
-  font-weight: 600;
-  line-height: 40px;
-  text-transform: uppercase;
-  padding-left: 12px;
-  font-size: 12px;
-}
+  .currency_details {
+    color: #35afd5;
+    cursor: pointer;
+    transition: all 0.45s ease-in-out;
+    padding-left: 10px;
+  }
 
-.data-grid .status {
-  text-transform: capitalize;
+  .currency_details:hover {
+    color: #3392b0;
+  }
+
+  .currency_details .material-icons {
+    font-size: 18px;
+  }
+
+  .mat-icon-button .mat-icon,
+  .mat-icon-button i {
+    line-height: 42px;
+    font-size: 18px;
+  }
+
+  .info {
+    padding: 40px;
+    text-align: center;
+  }
+
+  .content-row{
+    background-clip: padding-box;
+  }
+
+  .not-allow{
+    cursor: not-allowed !important;
+  }
 }
 
 .data-grid .list-menu {
@@ -299,7 +356,7 @@ tr.detail-row {
   right: 15px;
   padding: 10px 15px;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-    0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
   border: none;
   min-width: 190px;
 }
@@ -307,8 +364,9 @@ tr.detail-row {
 .settings {
   position: relative;
   text-align: right;
-  min-width: 7%;
+  width: 6%;
   padding-right: 15px !important;
+  justify-content: flex-end;
 
   .actions {
     background-image: url(../../../assets/svg/settings_icon.svg);
@@ -328,7 +386,7 @@ tr.detail-row {
 
 
 .data-grid .list-menu li {
-  font-size: 14px;
+  font-size: 13px;
   border-bottom: 1px solid #edf1f5;
   padding-bottom: 5px;
   cursor: pointer;
@@ -374,46 +432,4 @@ tr.detail-row {
   background: #edf6f9;
 }
 
-.message_block td {
-  text-align: left !important;
-}
 
-.data-grid .total_cost {
-  display: inline-block;
-  width: 70%;
-  color: #455c74;
-}
-
-.currency_details {
-  float: right;
-  color: #35afd5;
-  cursor: pointer;
-  transition: all 0.45s ease-in-out;
-}
-
-.currency_details:hover {
-  color: #3392b0;
-}
-
-.currency_details .material-icons {
-  font-size: 18px;
-}
-
-.mat-icon-button .mat-icon,
-.mat-icon-button i {
-  line-height: 42px;
-  font-size: 18px;
-}
-
-.info {
-  padding: 40px;
-  text-align: center;
-}
-
-.content-row{
-  background-clip: padding-box;
-}
-
-.not-allow{
-  cursor: not-allowed !important;
-}

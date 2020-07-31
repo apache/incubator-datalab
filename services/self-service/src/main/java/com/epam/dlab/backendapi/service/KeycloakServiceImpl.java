@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
@@ -20,6 +39,7 @@ import javax.ws.rs.core.Response;
 public class KeycloakServiceImpl implements KeycloakService {
 
 	private static final String URI = "/realms/%s/protocol/openid-connect/token";
+	private static final String GRANT_TYPE = "grant_type";
 	private final Client httpClient;
 	private final KeycloakConfiguration conf;
 	private final SecurityDAO securityDAO;
@@ -61,8 +81,8 @@ public class KeycloakServiceImpl implements KeycloakService {
 				String.valueOf(conf.getCredentials().get("secret"))));
 		final Response response =
 				httpClient.target(conf.getAuthServerUrl() + String.format(URI, conf.getRealm())).request()
-				.header(HttpHeaders.AUTHORIZATION, "Basic " + credentials)
-				.post(Entity.form(requestForm));
+						.header(HttpHeaders.AUTHORIZATION, "Basic " + credentials)
+						.post(Entity.form(requestForm));
 		if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
 
 			log.error("Error getting token:code {}, body {}", response.getStatus(), response.readEntity(String.class));
@@ -73,19 +93,19 @@ public class KeycloakServiceImpl implements KeycloakService {
 
 	private Form accessTokenRequestForm(String code) {
 		return new Form()
-				.param("grant_type", "authorization_code")
+				.param(GRANT_TYPE, "authorization_code")
 				.param("code", code)
 				.param("redirect_uri", redirectUri);
 	}
 
 	private Form refreshTokenRequestForm(String refreshToken) {
 		return new Form()
-				.param("grant_type", "refresh_token")
+				.param(GRANT_TYPE, "refresh_token")
 				.param("refresh_token", refreshToken);
 	}
 
 	private Form serviceAccountRequestForm() {
 		return new Form()
-				.param("grant_type", "client_credentials");
+				.param(GRANT_TYPE, "client_credentials");
 	}
 }

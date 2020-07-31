@@ -23,7 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
-import com.epam.dlab.backendapi.dao.UserGroupDao;
+import com.epam.dlab.backendapi.dao.UserGroupDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
@@ -71,7 +71,7 @@ public class InfrastructureTemplateServiceBaseTest {
 	@Mock
 	private EndpointService endpointService;
 	@Mock
-	private UserGroupDao userGroupDao;
+	private UserGroupDAO userGroupDao;
 	@Mock
 	private SelfServiceApplicationConfiguration configuration;
 

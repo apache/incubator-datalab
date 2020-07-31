@@ -38,9 +38,14 @@ import {
   animateChild,
   state
 } from '@angular/animations';
-import {skip} from 'rxjs/operators';
+import {skip, take} from 'rxjs/operators';
 import {ProgressBarService} from '../../core/services/progress-bar.service';
 
+
+interface Quota {
+  projectQuotas: {};
+  totalQuotaUsed: number;
+}
 @Component({
   selector: 'dlab-navbar',
   templateUrl: 'navbar.component.html',
@@ -110,7 +115,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       if (this.isLoggedIn) {
         this.subscriptions.add(this.healthStatusService.statusData.pipe(skip(1)).subscribe(result => {
           this.healthStatus = result;
-          result.status && this.checkQuoteUsed(this.healthStatus);
+          result.status && this.checkQuoteUsed();
           result.status && !result.projectAssigned && !result.admin && this.checkAssignment(this.healthStatus);
         }));
         this.subscriptions.add(timer(0, this.CHECK_ACTIVE_SCHEDULE_TIMEOUT).subscribe(() => this.refreshSchedulerData()));
@@ -148,9 +153,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.isExpanded = !this.isExpanded;
   }
 
-  public emitQuotes(alert, user_quota?, total_quota?): void {
+  public emitQuotes(alert, total_quota?, exideedProjects?, informProjects?): void {
     const dialogRef: MatDialogRef<NotificationDialogComponent> = this.dialog.open(NotificationDialogComponent, {
-      data: { template: this.selectAlert(alert, user_quota, total_quota), type: 'message' },
+      data: { template: this.selectAlert(alert, total_quota, exideedProjects, informProjects), type: 'message' },
       width: '550px'
     });
     dialogRef.afterClosed().subscribe(() => {
@@ -158,17 +163,38 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
-  private checkQuoteUsed(params): void {
-    if (!this.storage.getBillingQuoteUsed() && params) {
-      let checkQuotaAlert = '';
+  private checkQuoteUsed(): void {
+    if (!this.storage.getBillingQuoteUsed( )) {
+      this.healthStatusService.getQuotaStatus().pipe(take(1)).subscribe((params: Quota) => {
+        let checkQuotaAlert = '';
+        const exceedProjects = [], informProjects = [];
+        Object.keys(params.projectQuotas).forEach(key => {
+          if (params.projectQuotas[key] > this.quotesLimit && params.projectQuotas[key] < 100) {
+            informProjects.push(key);
+          } else if (params.projectQuotas[key] >= 100) {
+            exceedProjects.push(key);
+          }
+        });
 
-      if (params.billingUserQuoteUsed >= this.quotesLimit && params.billingUserQuoteUsed < 100) checkQuotaAlert = 'user_quota';
-      if (params.billingQuoteUsed >= this.quotesLimit && params.billingQuoteUsed < 100) checkQuotaAlert = 'total_quota';
-      if (Number(params.billingUserQuoteUsed) >= 100) checkQuotaAlert = 'user_exceed';
-      if (Number(params.billingQuoteUsed) >= 100) checkQuotaAlert = 'total_exceed';
+        if (informProjects.length > 0 && exceedProjects.length === 0) checkQuotaAlert = 'project_quota';
+        if (params.totalQuotaUsed >= this.quotesLimit && params.totalQuotaUsed < 100) checkQuotaAlert = 'total_quota';
+        if (exceedProjects.length > 0 && informProjects.length === 0) checkQuotaAlert = 'project_exceed';
+        if (informProjects.length > 0 && exceedProjects.length > 0) checkQuotaAlert = 'project_inform_and_exceed';
+        if (params.totalQuotaUsed >= this.quotesLimit && params.totalQuotaUsed < 100 && exceedProjects.length > 0) checkQuotaAlert = 'total_quota_and_project_exceed';
+        if (params.totalQuotaUsed >= this.quotesLimit && params.totalQuotaUsed < 100 && informProjects.length > 0 && exceedProjects.length > 0) checkQuotaAlert = 'total_quota_and_project_inform_and_exceed';
 
-      if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
-      checkQuotaAlert && this.emitQuotes(checkQuotaAlert, params.billingUserQuoteUsed, params.billingQuoteUsed);
+
+        if (Number(params.totalQuotaUsed) >= 100) checkQuotaAlert = 'total_exceed';
+
+        if (checkQuotaAlert === '') {
+          this.storage.setBillingQuoteUsed('informed');
+        } else {
+          this.storage.setBillingQuoteUsed('');
+        }
+
+        if (this.dialog.openDialogs.length > 0 || this.dialog.openDialogs.length > 0) return;
+        checkQuotaAlert && this.emitQuotes(checkQuotaAlert, params.totalQuotaUsed, exceedProjects, informProjects);
+      });
     }
   }
 
@@ -206,25 +232,46 @@ export class NavbarComponent implements OnInit, OnDestroy {
       });
   }
 
-  private selectAlert(type: string, user_quota?: number, total_quota?: number): string {
+  private selectAlert(type: string, total_quota?: number, exideedProjects?: string[], informProjects?: string[]): string {
     const alerts = {
-      user_exceed: `Dear <b>${this.currentUserName}</b>,<br />
-          DLab cloud infrastructure usage quota associated with your user has been exceeded.
-          All your analytical environment will be stopped. To proceed working with environment,
-          request increase of user quota from DLab administrator.`,
-      total_exceed: `Dear <b>${this.currentUserName}</b>,<br />
+      total_quota_and_project_inform_and_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
+          Once quota is depleted all your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${exideedProjects}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${informProjects}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
+          If quota is depleted all your analytical environment will be stopped.<br /><br />
+          To proceed working with environment you'll have to request increase of quota from DLab administrator. `,
+
+      total_quota_and_project_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
+          Once quota is depleted all your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${exideedProjects}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
+          To proceed working with environment you'll have to request increase of quota from DLab administrator. `,
+
+      project_inform_and_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DLab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects}</span> has been exceeded. All your analytical environment will be stopped.<br /><br />
+          Quota associated with project(s) <span class="strong">${informProjects}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
+          If quota is depleted all your analytical environment will be stopped.<br /><br />
+          To proceed working with environment, request increase of project quota from DLab administrator.`,
+      project_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DLab cloud infrastructure usage quota associated with project(s) <span class="strong">${exideedProjects}</span> has been exceeded.
+          All your analytical environment will be stopped.<br /><br />
+          To proceed working with environment,
+          request increase of project(s) quota from DLab administrator.`,
+      total_exceed: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
           DLab cloud infrastructure usage quota has been exceeded.
-          All your analytical environment will be stopped. To proceed working with environment,
+          All your analytical environment will be stopped.<br /><br />
+          To proceed working with environment,
           request increase application quota from DLab administrator.`,
-      user_quota: `Dear <b>${this.currentUserName}</b>,<br />
-          Cloud infrastructure usage quota associated with your user has been used for <b>${user_quota}%</b>.
-          Once quota is depleted all your analytical environment will be stopped.
-          To proceed working with environment you'll have to request increase of user quota from DLab administrator.`,
-      total_quota: `Dear <b>${this.currentUserName}</b>,<br />
-          DLab cloud infrastructure usage quota has been used for <b>${total_quota}%</b>.
-          Once quota is depleted all your analytical environment will be stopped.
-          To proceed working with environment you'll have to request increase of user quota from DLab administrator. `,
-      permissions: `Dear <b>${this.currentUserName}</b>,<br />
+      project_quota: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          Cloud infrastructure usage quota associated with project(s) <span class="strong">${informProjects}</span> has been used over <span class="strong">${this.quotesLimit}%</span>.
+          Once quota is depleted all your analytical environment will be stopped.<br /><br />
+          To proceed working with environment you'll have to request increase of project(s) quota from DLab administrator.`,
+      total_quota: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
+          DLab cloud infrastructure usage quota has been used for <span class="strong">${total_quota}%</span>.
+          Once quota is depleted all your analytical environment will be stopped.<br /><br />
+          To proceed working with environment you'll have to request increase of total quota from DLab administrator. `,
+      permissions: `Dear <span class="strong">${this.currentUserName}</span>,<br /><br />
           Currently, you are not assigned to any project. To start working with the environment
           request permission from DLab administrator.`
     };

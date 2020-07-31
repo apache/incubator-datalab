@@ -19,6 +19,7 @@
 
 package com.epam.dlab.backendapi.core.commands;
 
+@FunctionalInterface
 public interface CmdCommand {
     String toCMD();
 }

@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package com.epam.dlab.backendapi.dao;
 
-package com.epam.dlab.auth.conf;
+import java.util.Set;
 
-import lombok.Data;
+public interface UserGroupDAO {
+	void addUsers(String group, Set<String> users);
 
-@Data
-public class GcpLoginConfiguration {
-	private final boolean oauth2authenticationEnabled;
-	private final String redirectedUri;
-	private final String clientId;
-	private final String clientSecret;
-	private final String applicationName;
-	private final int userStateCacheSize;
-	private final long userStateCacheExpirationTime;
+	void updateUsers(String group, Set<String> users);
+
+	void removeGroup(String groupId);
+
+	Set<String> getUserGroups(String user);
+
+	Set<String> getUsers(String group);
 }

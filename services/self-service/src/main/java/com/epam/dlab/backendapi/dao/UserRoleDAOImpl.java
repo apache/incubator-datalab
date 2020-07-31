@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Singleton;
 import com.mongodb.client.model.BsonField;
 import com.mongodb.client.result.UpdateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -53,7 +54,8 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
-public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
+@Slf4j
+public class UserRoleDAOImpl extends BaseDAO implements UserRoleDAO {
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 	private static final String[] DEFAULT_AWS_SHAPES = {"nbShapes_t2.medium_fetching", "compShapes_c4.xlarge_fetching"};
 	private static final String[] DEFAULT_GCP_SHAPES = {"compShapes_n1-standard-2_fetching", "nbShapes_n1-standard-2_fetching"};
@@ -177,6 +179,7 @@ public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
 			return MAPPER.readValue(is, new TypeReference<List<UserRoleDto>>() {
 			});
 		} catch (IOException e) {
+			log.error("Can not marshall dlab roles due to: {}", e.getMessage(), e);
 			throw new IllegalStateException("Can not marshall dlab roles due to: " + e.getMessage());
 		}
 	}

@@ -20,18 +20,19 @@
 
 package com.epam.dlab.backendapi.core.response.folderlistener;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.google.common.base.MoreObjects;
 import lombok.extern.slf4j.Slf4j;
 
-/** Class to store the file handler for processing.
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+/**
+ * Class to store the file handler for processing.
  */
 @Slf4j
 public class WatchItem implements Comparable<WatchItem> {
-	
+
 	/** Status of file processing.
 	 * <pre>
 	 * WAIT_FOR_FILE waiting for the file creation.
@@ -149,9 +150,10 @@ public class WatchItem implements Comparable<WatchItem> {
 			} catch (InterruptedException e) {
     			Thread.currentThread().interrupt();
 				return ItemStatus.IS_INTERRUPTED;
-			} catch (ExecutionException e) {
-				return ItemStatus.IS_FAILED;
-			}
+		    } catch (ExecutionException e) {
+			    log.error("Execution exception occurred", e);
+			    return ItemStatus.IS_FAILED;
+		    }
     	}
     	
     	return ItemStatus.INPROGRESS;
@@ -182,7 +184,7 @@ public class WatchItem implements Comparable<WatchItem> {
 			try {
 				futureResult = future.get();
 			} catch (Exception e) {
-				log.error("Exception occurred during getting result: {}", e.getMessage());
+				log.error("Exception occurred during getting result: {}", e.getMessage(), e);
 			}
 		}
 		return futureResult; 
