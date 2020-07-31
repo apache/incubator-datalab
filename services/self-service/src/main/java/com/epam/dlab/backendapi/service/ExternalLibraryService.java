@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 
+@FunctionalInterface
 public interface ExternalLibraryService {
 
 	LibraryDTO getLibrary(String groupId, String artifactId, String version);

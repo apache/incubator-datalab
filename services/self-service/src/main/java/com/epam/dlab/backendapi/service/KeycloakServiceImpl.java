@@ -39,6 +39,7 @@ import javax.ws.rs.core.Response;
 public class KeycloakServiceImpl implements KeycloakService {
 
 	private static final String URI = "/realms/%s/protocol/openid-connect/token";
+	private static final String GRANT_TYPE = "grant_type";
 	private final Client httpClient;
 	private final KeycloakConfiguration conf;
 	private final SecurityDAO securityDAO;
@@ -92,19 +93,19 @@ public class KeycloakServiceImpl implements KeycloakService {
 
 	private Form accessTokenRequestForm(String code) {
 		return new Form()
-				.param("grant_type", "authorization_code")
+				.param(GRANT_TYPE, "authorization_code")
 				.param("code", code)
 				.param("redirect_uri", redirectUri);
 	}
 
 	private Form refreshTokenRequestForm(String refreshToken) {
 		return new Form()
-				.param("grant_type", "refresh_token")
+				.param(GRANT_TYPE, "refresh_token")
 				.param("refresh_token", refreshToken);
 	}
 
 	private Form serviceAccountRequestForm() {
 		return new Form()
-				.param("grant_type", "client_credentials");
+				.param(GRANT_TYPE, "client_credentials");
 	}
 }

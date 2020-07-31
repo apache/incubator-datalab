@@ -23,6 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 
 import java.util.Map;
 
+@FunctionalInterface
 public interface TagService {
 	Map<String, String> getResourceTags(UserInfo userInfo, String endpoint, String project, String customTag);
 }

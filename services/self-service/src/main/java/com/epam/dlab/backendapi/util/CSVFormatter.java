@@ -22,21 +22,21 @@ package com.epam.dlab.backendapi.util;
 import java.util.List;
 
 public class CSVFormatter {
+	public static final char SEPARATOR = ',';
 
-    private CSVFormatter() {
-    }
+	private CSVFormatter() {
+	}
 
-    public static final char SEPARATOR = ',';
 
-    public static String formatLine(List<String> values, char separator) {
-        boolean first = true;
-        StringBuilder builder = new StringBuilder();
-        for (String value : values) {
-            if (!first) {
-                builder.append(separator);
-            }
-            builder.append(followCsvStandard(value));
-            first = false;
+	public static String formatLine(List<String> values, char separator) {
+		boolean first = true;
+		StringBuilder builder = new StringBuilder();
+		for (String value : values) {
+			if (!first) {
+				builder.append(separator);
+			}
+			builder.append(followCsvStandard(value));
+			first = false;
         }
         return builder.append(System.lineSeparator()).toString();
     }

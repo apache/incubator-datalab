@@ -65,6 +65,7 @@ public class UserGroupServiceImpl implements UserGroupService {
 	private static final String ROLE_NOT_FOUND_MSG = "Any of role : %s were not found";
 	private static final String ADMIN = "admin";
 	private static final String PROJECT_ADMIN = "projectAdmin";
+	private static final String INAPPROPRIATE_PERMISSION = "User %s doesn't have appropriate permission";
 
 	private final UserGroupDAO userGroupDao;
 	private final UserRoleDAO userRoleDao;
@@ -103,10 +104,10 @@ public class UserGroupServiceImpl implements UserGroupService {
 					.flatMap(Collection::stream)
 					.filter(g -> g.equalsIgnoreCase(group))
 					.findAny()
-					.orElseThrow(() -> new DlabException(String.format("User %s doesn't have appropriate permission", userInfo.getName())));
+					.orElseThrow(() -> new DlabException(String.format(INAPPROPRIATE_PERMISSION, userInfo.getName())));
 			updateGroup(userInfo.getName(), group, roles, users);
 		} else {
-			throw new DlabException(String.format("User %s doesn't have appropriate permission", userInfo.getName()));
+			throw new DlabException(String.format(INAPPROPRIATE_PERMISSION, userInfo.getName()));
 		}
 	}
 
@@ -140,7 +141,7 @@ public class UserGroupServiceImpl implements UserGroupService {
 					.filter(userGroup -> groups.contains(userGroup.getGroup()) && !containsAdministrationPermissions(userGroup))
 					.collect(Collectors.toList());
 		} else {
-			throw new DlabException(String.format("User %s doesn't have appropriate permission", user.getName()));
+			throw new DlabException(String.format(INAPPROPRIATE_PERMISSION, user.getName()));
 		}
 	}
 

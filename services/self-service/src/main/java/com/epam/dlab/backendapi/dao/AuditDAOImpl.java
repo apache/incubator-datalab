@@ -57,7 +57,7 @@ import static com.mongodb.client.model.Filters.in;
 import static com.mongodb.client.model.Filters.lte;
 
 public class AuditDAOImpl extends BaseDAO implements AuditDAO {
-    private final static String AUDIT_COLLECTION = "audit";
+    private static final String AUDIT_COLLECTION = "audit";
     private static final String RESOURCE_NAME_FIELD = "resourceName";
     private static final String RESOURCE_TYPE_FIELD = "type";
     private static final String TIMESTAMP_FIELD = "timestamp";

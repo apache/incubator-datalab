@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.epam.dlab.cloud.CloudProvider.AZURE;
 import static com.epam.dlab.rest.contracts.DockerAPI.DOCKER_COMPUTATIONAL;
 import static com.epam.dlab.rest.contracts.DockerAPI.DOCKER_EXPLORATORY;
 
@@ -144,7 +145,7 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 	 * Temporary filter for creation of exploratory env due to Azure issues
 	 */
 	private boolean exploratoryGpuIssuesAzureFilter(ExploratoryMetadataDTO e, CloudProvider cloudProvider) {
-		return (!"redhat".equals(settingsDAO.getConfOsFamily()) || cloudProvider != CloudProvider.AZURE) ||
+		return (!"redhat".equals(settingsDAO.getConfOsFamily()) || cloudProvider != AZURE) ||
 				!(e.getImage().endsWith("deeplearning") || e.getImage().endsWith("tensor"));
 	}
 
@@ -203,7 +204,8 @@ public class InfrastructureTemplateServiceImpl implements InfrastructureTemplate
 								.minDataprocPreemptibleInstanceCount(configuration.getMinDataprocPreemptibleCount())
 								.build());
 			case AZURE:
-				log.error("Dataengine service is not supported currently for {}", cloudProvider);
+				log.error("Dataengine service is not supported currently for {}", AZURE);
+				throw new UnsupportedOperationException("Dataengine service is not supported currently for " + AZURE);
 			default:
 				throw new UnsupportedOperationException("Dataengine service is not supported currently for " + cloudProvider);
 		}

@@ -66,6 +66,7 @@ public class BucketServiceImpl implements BucketService {
     private static final String BUCKET_UPLOAD_FOLDER = "%sbucket/folder/upload";
     private static final String BUCKET_DOWNLOAD_OBJECT = "%sbucket/%s/object/%s/download";
     private static final String BUCKET_DELETE_OBJECT = "%sbucket/objects/delete";
+    private static final String SOMETHING_WENT_WRONG_MESSAGE = "Something went wrong. Response status is %s ";
 
     private final EndpointService endpointService;
     private final RESTService provisioningService;
@@ -97,7 +98,7 @@ public class BucketServiceImpl implements BucketService {
             FormDataMultiPart formData = getFormDataMultiPart(bucket, object, inputStream, contentType, fileSize);
             Response response = provisioningService.postForm(String.format(BUCKET_UPLOAD_OBJECT, endpointDTO.getUrl()), userInfo.getAccessToken(), formData, Response.class);
             if (response.getStatus() != HttpStatus.SC_OK) {
-                throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
+                throw new DlabException(String.format(SOMETHING_WENT_WRONG_MESSAGE, response.getStatus()));
             }
         } catch (Exception e) {
 	        log.error("Cannot upload object {} to bucket {} for user {}, endpoint {}. Reason {}", object, bucket, userInfo.getName(), endpoint, e.getMessage(), e);
@@ -118,7 +119,7 @@ public class BucketServiceImpl implements BucketService {
             FolderUploadDTO dto = new FolderUploadDTO(bucket, folder);
             Response response = provisioningService.post(String.format(BUCKET_UPLOAD_FOLDER, endpointDTO.getUrl()), userInfo.getAccessToken(), dto, Response.class);
             if (response.getStatus() != HttpStatus.SC_OK) {
-                throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
+                throw new DlabException(String.format(SOMETHING_WENT_WRONG_MESSAGE, response.getStatus()));
             }
         } catch (Exception e) {
 	        log.error("Cannot upload folder {} to bucket {} for user {}, endpoint {}. Reason {}", folder, bucket, userInfo.getName(), endpoint, e.getMessage(), e);
@@ -150,7 +151,7 @@ public class BucketServiceImpl implements BucketService {
             BucketDeleteDTO bucketDeleteDTO = new BucketDeleteDTO(bucket, objects);
             Response response = provisioningService.post(String.format(BUCKET_DELETE_OBJECT, endpointDTO.getUrl()), userInfo.getAccessToken(), bucketDeleteDTO, Response.class);
             if (response.getStatus() != HttpStatus.SC_OK) {
-                throw new DlabException(String.format("Something went wrong. Response status is %s ", response.getStatus()));
+                throw new DlabException(String.format(SOMETHING_WENT_WRONG_MESSAGE, response.getStatus()));
             }
         } catch (Exception e) {
 	        log.error("Cannot delete objects {} from bucket {} for user {}, endpoint {}. Reason {}", objects, bucket, userInfo.getName(), endpoint, e.getMessage(), e);
