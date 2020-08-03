@@ -238,7 +238,10 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                 sudo('systemctl enable step-cert-manager.service')
             elif os.environ['conf_letsencrypt_enabled'] == 'true':
                 install_certbot(os.environ['conf_os_family'])
-                run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['conf_letsencrypt_email'])
+                if 'conf_letsencrypt_email' in os.environ:
+                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['conf_letsencrypt_email'])
+                else:
+                    run_certbot(os.environ['conf_letsencrypt_domain_name'])
                 configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'])
             else:
                 sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
