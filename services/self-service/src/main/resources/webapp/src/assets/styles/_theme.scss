@@ -969,4 +969,19 @@ mat-progress-bar {
   }
 }
 
+.show-all-btn.mat-raised-button .mat-button-wrapper > *{
+  vertical-align: baseline;
+}
+
+.resource-btns {
+  .mat-raised-button{
+    line-height: 38px;
+  }
+
+  .mat-select-value{
+    margin-top: 1px;
+  }
+}
+
+
 
