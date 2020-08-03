@@ -104,6 +104,7 @@ public class ComputationalServiceImplTest {
     private final String EXPLORATORY_NAME = "expName";
     private final String PROJECT = "project";
     private final String COMP_NAME = "compName";
+    private final String NOTE_BOOK_NAME = "notebookName";
     private final String UUID = "1234-56789765-4321";
     private final LocalDateTime LAST_ACTIVITY = LocalDateTime.now().minusMinutes(MAX_INACTIVITY);
 
@@ -614,13 +615,13 @@ public class ComputationalServiceImplTest {
         final List<ClusterConfig> config = Collections.singletonList(new ClusterConfig());
         userInstanceDto.setResources(Collections.singletonList(getUserComputationalResource(RUNNING, COMP_NAME)));
         when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(userInstanceDto);
-        when(requestBuilder.newClusterConfigUpdate(any(UserInfo.class), any(UserInstanceDTO.class),
-                any(UserComputationalResource.class), anyListOf(ClusterConfig.class), any(EndpointDTO.class)))
-                .thenReturn(clusterConfigDTO);
+        when(requestBuilder.newClusterConfigUpdate(any(UserInfo.class), any(UserInstanceDTO.class), any(UserComputationalResource.class),
+                anyListOf(ClusterConfig.class),
+                any(EndpointDTO.class))).thenReturn(clusterConfigDTO);
         when(provisioningService.post(anyString(), anyString(), any(ComputationalClusterConfigDTO.class), any()))
                 .thenReturn("someUuid");
         computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
-                COMP_NAME, config, String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, anyString(), anyString()));
+                COMP_NAME, config, String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, COMP_NAME, NOTE_BOOK_NAME));
 
         verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME, true);
         verify(requestBuilder).newClusterConfigUpdate(refEq(getUserInfo()), refEq(userInstanceDto),
@@ -648,10 +649,9 @@ public class ComputationalServiceImplTest {
         when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(userInstanceDto);
         try {
             computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
-                    COMP_NAME, config, String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, anyString(), anyString()));
+                    COMP_NAME, config, String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, COMP_NAME, NOTE_BOOK_NAME));
         } catch (ResourceNotFoundException e) {
-            assertEquals("Running computational resource with name compName for exploratory expName not found",
-                    e.getMessage());
+            assertEquals("Running computational resource with name compName for exploratory expName not found", e.getMessage());
         }
 
         verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME, true);
@@ -669,7 +669,7 @@ public class ComputationalServiceImplTest {
         try {
             computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
                     COMP_NAME + "X", config,
-                    String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, anyString(), anyString()));
+                    String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, COMP_NAME, NOTE_BOOK_NAME));
         } catch (ResourceNotFoundException e) {
             assertEquals("Running computational resource with name compNameX for exploratory expName not found",
                     e.getMessage());
