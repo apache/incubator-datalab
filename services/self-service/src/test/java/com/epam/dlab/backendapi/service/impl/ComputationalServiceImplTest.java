@@ -669,6 +669,7 @@ public class ComputationalServiceImplTest {
         try {
             computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
                     COMP_NAME + "X", config, String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, COMP_NAME, NOTE_BOOK_NAME));
+
         } catch (ResourceNotFoundException e) {
             assertEquals("Running computational resource with name compNameX for exploratory expName not found",
                     e.getMessage());
