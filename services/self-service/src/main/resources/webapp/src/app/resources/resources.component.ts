@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -35,10 +35,10 @@ import {BucketBrowserComponent} from './bucket-browser/bucket-browser.component'
   styleUrls: ['./resources.component.scss']
 })
 
-export class ResourcesComponent implements OnInit {
+export class ResourcesComponent implements OnInit, AfterViewInit {
   public exploratoryEnvironments: Exploratory[] = [];
   public healthStatus: any;
-  projects: Project[] = [];
+  projects = [];
 
   @ViewChild(ResourcesGridComponent, { static: true }) resourcesGrid: ResourcesGridComponent;
 
@@ -53,6 +53,11 @@ export class ResourcesComponent implements OnInit {
   ngOnInit() {
     this.getEnvironmentHealthStatus();
     this.exploratoryEnvironments = this.resourcesGrid.environments;
+    this.projects = this.resourcesGrid.activeProjectsList;
+  }
+
+  ngAfterViewInit() {
+    console.log(this.resourcesGrid);
   }
 
   public createEnvironment(): void {

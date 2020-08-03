@@ -36,24 +36,24 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   fullReport: Array<any>;
   isFiltered: boolean = false;
   active: object = {};
+  public isScrollButtonsVisible: boolean;
 
   @ViewChild('nameFilter', { static: false }) filter;
   @ViewChild('tableWrapper', { static: false }) tableWrapper;
-  @ViewChild('table', { static: false }) table;
 
+  @ViewChild('table', { static: false }) table;
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
   @Input() filteredReportData: ReportingConfigModel;
-  private isScrollButtonsVisible: boolean;
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
     this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
-    this.isMaxRight = this.tableWrapper.nativeElement.offsetWidth + this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+    this.isMaxRight = this.checkMaxRight();
   }
   @HostListener('scroll', ['$event'])
   scrollTable($event: Event) {
-    this.isMaxRight = this.tableWrapper.nativeElement.offsetWidth + this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+    this.isMaxRight = this.checkMaxRight();
   }
 
 
@@ -71,7 +71,7 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     window.setTimeout(() => {
       this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
-      this.isMaxRight = this.tableWrapper.nativeElement.offsetWidth + this.tableWrapper.nativeElement.scrollLeft !== this.table._elementRef.nativeElement.offsetWidth;
+      this.isMaxRight = this.checkMaxRight();
     }, 500);
   }
 
@@ -150,6 +150,11 @@ export class ReportingGridComponent implements OnInit, AfterViewInit {
     } else {
       this.tableWrapper.nativeElement.scrollLeft = this.tableWrapper.nativeElement.offsetWidth;
     }
+  }
+
+  private checkMaxRight() {
+    return this.isMaxRight = this.tableWrapper.nativeElement.offsetWidth +
+      this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
   }
 
 }
