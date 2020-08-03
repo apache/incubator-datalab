@@ -843,7 +843,7 @@ mat-progress-bar {
   box-shadow: none;
 }
 
-#range-picker .ng-daterangepicker .calendar{
+#range-picker .ng-daterangepicker .calendar {
   z-index: 102;
   border: 1px solid rgba(234, 234, 234, 0.64);
   border-radius: 0;
@@ -851,9 +851,10 @@ mat-progress-bar {
   0 2px 2px 0 rgba(0, 0, 0, 0.14),
   0 1px 5px 0 rgba(0, 0, 0, 0.12);
 
-  &.is-to:after{
+  &.is-to:after {
     left: 250px;
   }
+}
 
 #range-picker .ng-daterangepicker .calendar::after {
   border-top: 1px solid rgba(234, 234, 234, 0.64);
