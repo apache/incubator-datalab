@@ -23,6 +23,7 @@ import com.epam.dlab.dto.billing.BillingData;
 
 import java.util.List;
 
+@FunctionalInterface
 public interface BillingService {
-    List<BillingData> getBillingData();
+	List<BillingData> getBillingData();
 }

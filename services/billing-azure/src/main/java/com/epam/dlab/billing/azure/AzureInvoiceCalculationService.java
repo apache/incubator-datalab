@@ -22,7 +22,6 @@ package com.epam.dlab.billing.azure;
 import com.epam.dlab.billing.BillingCalculationUtils;
 import com.epam.dlab.billing.azure.config.BillingConfigurationAzure;
 import com.epam.dlab.billing.azure.model.AzureDailyResourceInvoice;
-import com.epam.dlab.billing.azure.model.AzureDlabBillableResource;
 import com.epam.dlab.billing.azure.rate.AzureRateCardClient;
 import com.epam.dlab.billing.azure.rate.Meter;
 import com.epam.dlab.billing.azure.rate.RateCardResponse;
@@ -58,7 +57,6 @@ public class AzureInvoiceCalculationService {
 	private static final long MAX_AUTH_TOKEN_TTL_MILLIS = 9L * 60L * 1000L;
 
 	private BillingConfigurationAzure billingConfigurationAzure;
-	private Map<String, AzureDlabBillableResource> billableResources;
 
 	/**
 	 * Constructs service class

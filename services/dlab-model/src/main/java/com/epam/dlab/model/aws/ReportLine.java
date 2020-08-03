@@ -28,12 +28,18 @@ import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** The line of billing report.
+/**
+ * The line of billing report.
  */
 public class ReportLine {
+	/** Patterns to calculate the type of resource in report line. */
+	private static final Pattern pInstancceId = Pattern.compile("^i-[a-z0-9]{17}$");
+	private static final Pattern pVolumeId = Pattern.compile("^vol-[a-z0-9]{17}$");
+	private static final Pattern pIpAddress = Pattern.compile("^[1-9][0-9]{0,2}\\.[1-9][0-9]{0,2}\\.[1-9][0-9]{0,2}\\.[1-9][0-9]{0,2}$");
+	private static final Pattern pClusterId = Pattern.compile("j-[A-Z0-9]{12,13}$");
+
 	public static final String FIELD_DLAB_ID = "dlab_id";
 	public static final String FIELD_USER_ID = "user";
-	public static final String FIELD_PROJECT = "project";
 	public static final String FIELD_USAGE_DATE = "usage_date";
 	public static final String FIELD_PRODUCT = "product";
 	public static final String FIELD_USAGE_TYPE = "usage_type";
@@ -160,13 +166,6 @@ public class ReportLine {
 	public void setTags(LinkedHashMap<String, String> tags) {
 		this.tags = tags;
 	}
-
-	
-	/** Patterns to calculate the type of resource in report line. */
-	private static final Pattern pInstancceId = Pattern.compile("^i-[a-z0-9]{17}$");
-	private static final Pattern pVolumeId = Pattern.compile("^vol-[a-z0-9]{17}$");
-	private static final Pattern pIpAddress = Pattern.compile("^[1-9][0-9]{0,2}\\.[1-9][0-9]{0,2}\\.[1-9][0-9]{0,2}\\.[1-9][0-9]{0,2}$");
-	private static final Pattern pClusterId = Pattern.compile("j-[A-Z0-9]{12,13}$");
 	
 	/** Calculate and set the type of resource and resource id.
 	 * @throws ParseException */

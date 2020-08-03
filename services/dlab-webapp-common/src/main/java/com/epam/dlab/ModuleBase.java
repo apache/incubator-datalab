@@ -20,22 +20,22 @@
 package com.epam.dlab;
 
 import com.google.inject.AbstractModule;
-
 import io.dropwizard.setup.Environment;
 
-/** The base class for an application configuration of service.
+/**
+ * The base class for an application configuration of service.
  */
-abstract public class ModuleBase<T extends ServiceConfiguration> extends AbstractModule {
+public abstract class ModuleBase<T extends ServiceConfiguration> extends AbstractModule {
 	/** Application configuration of service. */
-    protected T configuration;
-    /** Environment of service. */
-    protected Environment environment;
+	protected T configuration;
+	/** Environment of service. */
+	protected Environment environment;
 
-    /** Instantiates an application configuration of service.
-     * @param configuration application configuration of service.
-     * @param environment environment of service.
-     */
-    public ModuleBase(T configuration, Environment environment) {
+	/** Instantiates an application configuration of service.
+	 * @param configuration application configuration of service.
+	 * @param environment environment of service.
+	 */
+	public ModuleBase(T configuration, Environment environment) {
         this.configuration = configuration;
         this.environment = environment;
     }

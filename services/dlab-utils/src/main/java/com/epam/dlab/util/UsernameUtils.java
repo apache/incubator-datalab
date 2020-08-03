@@ -23,14 +23,14 @@ public class UsernameUtils {
 
 	private static final String UNDERLINE = "_";
 
+	private UsernameUtils() {
+	}
+
 	public static String removeDomain(String username) {
 		return username != null ? username.replaceAll("@.*", "") : null;
 	}
 
 	public static String replaceWhitespaces(String username) {
 		return username.replaceAll("\\s", UNDERLINE);
-	}
-
-	private UsernameUtils() {
 	}
 }
