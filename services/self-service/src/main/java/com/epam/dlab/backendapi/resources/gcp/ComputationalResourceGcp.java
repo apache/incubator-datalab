@@ -210,7 +210,8 @@ public class ComputationalResourceGcp implements ComputationalAPI {
 										   @PathParam("computationalName") String computationalName,
 										   @Valid @NotNull List<ClusterConfig> config) {
 
-		computationalService.updateSparkClusterConfig(userInfo, projectName, exploratoryName, computationalName, config);
+		computationalService.updateSparkClusterConfig(userInfo, projectName, exploratoryName, computationalName, config,
+				String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, computationalName, exploratoryName));
 		return Response.ok().build();
 	}
 
