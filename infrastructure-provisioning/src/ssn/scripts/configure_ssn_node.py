@@ -137,7 +137,7 @@ def install_certbot(os_family):
         print('Failed Certbot install: ' + str(err))
         sys.exit(1)
 
-def run_certbot(domain_name, email):
+def run_certbot(domain_name, email=''):
     try:
         print('Running  Certbot')
         sudo('service nginx stop')
@@ -238,8 +238,8 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                 sudo('systemctl enable step-cert-manager.service')
             elif os.environ['conf_letsencrypt_enabled'] == 'true':
                 install_certbot(os.environ['conf_os_family'])
-                run_certbot(cloud_params['LETS_ENCRYPT_DOMAIN_NAME'], cloud_params['LETS_ENCRYPT_EMAIL'])
-                configure_nginx_LE(cloud_params['LETS_ENCRYPT_DOMAIN_NAME'])
+                run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['conf_letsencrypt_email'])
+                configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'])
             else:
                 sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
                      -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
