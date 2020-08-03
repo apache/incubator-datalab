@@ -242,7 +242,6 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                     run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['conf_letsencrypt_email'])
                 else:
                     run_certbot(os.environ['conf_letsencrypt_domain_name'])
-                configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'])
             else:
                 sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
                      -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
@@ -305,6 +304,9 @@ if __name__ == "__main__":
 
     print("Configuring nginx.")
     configure_nginx(deeper_config, args.dlab_path, args.hostname)
+
+    print("Configuring nginx letsencrypt certificates.")
+    configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'])
 
     #print("Installing jenkins.")
     #ensure_jenkins(args.dlab_path)
