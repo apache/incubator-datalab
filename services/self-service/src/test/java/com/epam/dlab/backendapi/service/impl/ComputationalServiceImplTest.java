@@ -71,6 +71,7 @@ import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 import static com.epam.dlab.dto.UserInstanceStatus.STOPPED;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
+import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_RECONFIGURE_MESSAGE;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -619,7 +620,7 @@ public class ComputationalServiceImplTest {
         when(provisioningService.post(anyString(), anyString(), any(ComputationalClusterConfigDTO.class), any()))
                 .thenReturn("someUuid");
         computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
-                COMP_NAME, config);
+                COMP_NAME, config, String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, anyString(), anyString()));
 
         verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME, true);
         verify(requestBuilder).newClusterConfigUpdate(refEq(getUserInfo()), refEq(userInstanceDto),
@@ -647,7 +648,7 @@ public class ComputationalServiceImplTest {
         when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(userInstanceDto);
         try {
             computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
-                    COMP_NAME, config);
+                    COMP_NAME, config, String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, anyString(), anyString()));
         } catch (ResourceNotFoundException e) {
             assertEquals("Running computational resource with name compName for exploratory expName not found",
                     e.getMessage());
@@ -667,7 +668,8 @@ public class ComputationalServiceImplTest {
         when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(userInstanceDto);
         try {
             computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
-                    COMP_NAME + "X", config);
+                    COMP_NAME + "X", config,
+                    String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, anyString(), anyString()));
         } catch (ResourceNotFoundException e) {
             assertEquals("Running computational resource with name compNameX for exploratory expName not found",
                     e.getMessage());

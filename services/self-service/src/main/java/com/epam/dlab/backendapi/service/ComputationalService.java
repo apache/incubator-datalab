@@ -65,7 +65,7 @@ public interface ComputationalService {
     void startSparkCluster(UserInfo userInfo, String exploratoryName, String computationalName, String project, String auditInfo);
 
     void updateSparkClusterConfig(UserInfo userInfo, String project, String exploratoryName, String computationalName,
-                                  List<ClusterConfig> config);
+                                  List<ClusterConfig> config, String auditMessage);
 
     Optional<UserComputationalResource> getComputationalResource(String user, String project, String exploratoryName,
                                                                  String computationalName);

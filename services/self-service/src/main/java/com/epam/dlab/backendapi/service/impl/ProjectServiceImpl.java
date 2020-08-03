@@ -81,9 +81,9 @@ public class ProjectServiceImpl implements ProjectService {
 	private static final String TERMINATE_ACTION = "terminate";
 
 	private static final String AUDIT_ADD_ENDPOINT = "Added endpoint(s) %s";
-	private static final String AUDIT_ADD_GROUP = "Added group(s) %s";
+	private static final String AUDIT_ADD_GROUP = "Added group(s) %s ";
 	private static final String AUDIT_REMOVE_GROUP = "Removed group(s) %s";
-	private static final String AUDIT_UPDATE_BUDGET = "Update quota %d->%d";
+	private static final String AUDIT_UPDATE_BUDGET = "Update quota %d->%d. Is monthly period: %b";
 	private static final String AUDIT_ADD_EDGE_NODE = "Create edge node for endpoint %s, requested in project %s";
 
 	private final ProjectDAO projectDAO;
@@ -319,7 +319,7 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private String updateProjectAudit(UpdateProjectDTO projectDTO, ProjectDTO project, Set<String> newEndpoints) {
-		if (configuration.isAuditEnabled()) {
+		if (!configuration.isAuditEnabled()) {
 			return null;
 		}
 		StringBuilder audit = new StringBuilder();
@@ -347,7 +347,8 @@ public class ProjectServiceImpl implements ProjectService {
 		Integer value = Optional.ofNullable(get(p.getName()).getBudget())
 				.map(BudgetDTO::getValue)
 				.orElse(null);
-		return String.format(AUDIT_UPDATE_BUDGET, value, p.getBudget().getValue());
+		boolean monthlyBudget = get(p.getName()).getBudget().isMonthlyBudget();
+		return String.format(AUDIT_UPDATE_BUDGET, value, p.getBudget().getValue(), monthlyBudget);
 	}
 
 	private List<ProjectEndpointDTO> getProjectEndpointDTOS(List<String> endpoints, @Project String name) {
