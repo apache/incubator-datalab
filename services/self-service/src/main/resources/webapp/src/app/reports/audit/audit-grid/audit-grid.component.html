@@ -199,16 +199,17 @@
 
     <ng-container matColumnDef="actions-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
+
       </th>
     </ng-container>
 
-    <ng-container matColumnDef="action-filter" stickyEnd>
-      <th mat-header-cell *matHeaderCellDef>
+    <ng-container matColumnDef="date-filter">
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
       </th>
     </ng-container>
 
     <ng-container matColumnDef="filter-buttons" stickyEnd>
-      <th mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef class="filter-row-item">
         <div class="actions audit-actions">
           <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
             <i class="material-icons">close</i>

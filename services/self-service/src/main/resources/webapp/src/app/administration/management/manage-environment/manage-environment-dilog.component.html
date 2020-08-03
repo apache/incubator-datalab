@@ -49,8 +49,11 @@
                   <input type="number" (keypress)="CheckUtils.numberOnly($event)" min="0"
                     placeholder="Enter limit, in USD" formControlName="budget">
                   <span class="error"
-                    *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('overrun')">Projects
-                    quotes cannot be greater than total budget</span>
+                    *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('overrun') &&
+                     !manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('max')"
+                  >
+                    Projects budget cannot be higher than total budget
+                  </span>
                   <span class="error"
                         *ngIf="manageUsersForm?.controls['projects']['controls'][i].controls['budget'].hasError('max')">Project budget cannot be higher than 1000000000</span>
                 </div>
@@ -61,6 +64,8 @@
               <mat-list-item class="list-item">
                 <div class="username ellipsis">
                   <span class="ellipsis">Total budget</span>
+                </div>
+                <div class="period">
                 </div>
                 <div class="quotes">
                   <input type="number" (keypress)="CheckUtils.numberOnly($event)" formControlName="total"

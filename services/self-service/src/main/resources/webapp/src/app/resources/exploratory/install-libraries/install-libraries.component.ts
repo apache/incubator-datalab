@@ -22,7 +22,7 @@ import {Component, OnInit, ViewChild, ViewEncapsulation, ChangeDetectorRef, Inje
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import {debounceTime, takeUntil} from 'rxjs/operators';
+import {debounceTime, take, takeUntil} from 'rxjs/operators';
 
 import { InstallLibrariesModel } from './install-libraries.model';
 import { LibrariesInstallationService } from '../../../core/services';
@@ -360,6 +360,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
                 || error.status === HTTP_STATUS_CODES.BAD_REQUEST
                 || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
                 this.validity_format = error.message;
+                if (error.message.indexOf('query param artifact') !== -1) {
+                  this.validity_format = 'Wrong library name format. Should be <groupId>:<artifactId>:<versionId>.';
+                }
+                if (error.message.indexOf('not found') !== -1) {
+                  this.validity_format = 'No matches found.';
+                }
                 this.filteredList = null;
               }
             });
@@ -511,7 +517,7 @@ export class ErrorLibMessageDialogComponent {
   `,
   styles: [    `
     .lib-list { max-height: 200px; overflow-x: auto; word-break: break-all; padding: 20px 30px !important; margin: 20px 0; color: #577289;}
-    .packeges { padding-left: 7px; line-height: 23px;}
+    .packeges { word-spacing: 5px; line-height: 23px;}
     .dependency-title{ line-height: 23px; }
   `
   ]

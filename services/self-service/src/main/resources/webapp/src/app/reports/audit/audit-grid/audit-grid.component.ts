@@ -43,7 +43,7 @@ export interface AuditItem {
 export class AuditGridComponent implements OnInit {
   public auditData: Array<AuditItem>;
   public displayedColumns: string[] = ['date', 'user', 'action', 'project', 'resource-type', 'resource', 'buttons'];
-  public displayedFilterColumns: string[] = ['action-filter', 'user-filter', 'actions-filter',  'project-filter', 'resource-type-filter', 'resource-filter', 'filter-buttons'];
+  public displayedFilterColumns: string[] = ['date-filter', 'user-filter', 'actions-filter',  'project-filter', 'resource-type-filter', 'resource-filter', 'filter-buttons'];
   public collapseFilterRow: boolean = false;
   public filterConfiguration: FilterAuditModel = new FilterAuditModel([], [], [], [], [], '', '');
   public filterAuditData: FilterAuditModel = new FilterAuditModel([], [], [], [], [], '', '');

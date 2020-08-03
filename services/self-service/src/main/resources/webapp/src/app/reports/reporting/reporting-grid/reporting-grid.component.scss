@@ -17,34 +17,43 @@
  * under the License.
  */
 
-#scrolling::-webkit-scrollbar,
-.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-#scrolling::-webkit-scrollbar-track,
-.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-track {
-  box-shadow: none;
-  -webkit-box-shadow: none;
-  background-color: rgb(243, 243, 243);
-}
-
-#scrolling::-webkit-scrollbar-thumb,
-.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-thumb {
-  background-color: #f6fafe;
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
 .table-wrapper {
   width: 100%;
   display: block;
-  height: calc(100vh - 130px);
+  max-height: calc(100vh - 130px);
   overflow: auto;
+  position: relative;
+  scroll-behavior: smooth;
+  box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
 }
 
+.wrapper{
+  position: relative;
+
+  .buttons{
+    position: absolute;
+    display: flex;
+    justify-content: space-around;
+    z-index: 1000;
+    bottom: 9px;
+    left: 0;
+    right: 0;
+
+    button{
+      background-color: #fff;
+      box-shadow: none;
+      mat-icon{
+        color: lightgrey;
+        &.highlight{
+          color: #35afd5;
+        }
+      }
+    }
+  }
+}
+
+
 .reporting {
-  //position: relative;
   width: 100%;
   min-width: 1100px;
   overflow: auto;
@@ -98,7 +107,7 @@
   }
 
   .th_shape {
-    width: 10%;
+    width: 12%;
     min-width: 150px;
     z-index: 10 !important;
   }
@@ -109,7 +118,6 @@
   .tags {
     width: 15%;
     min-width: 150px;
-    //overflow: hidden;
     word-wrap: break-word;
   }
 
@@ -129,7 +137,7 @@
   }
 
   .env_name {
-    width: 16%;
+    width: 21%;
     min-width: 200px;
     z-index: 15 !important;
     padding-left: 0;
@@ -163,8 +171,7 @@
   }
 
   .th_charges {
-    width: 10%;
-    min-width: 155px;
+    min-width: 135px;
     text-align: right;
 
     .label {
@@ -188,8 +195,11 @@
     }
   }
 
-  .mat-column-charge {
+  .mat-column-charge,
+  .filter-row-item:last-child,
+  .table-footer.mat-column-charge{
     text-align: right;
+    background-color: #f8f8f8;
   }
 
   .header-row {
@@ -199,7 +209,7 @@
       padding-top: 0;
 
       .label {
-        padding-top: 12px;
+        padding-top: 10px;
       }
     }
 
@@ -246,11 +256,13 @@
     }
   }
 
-
-
   .filter-row {
     .actions {
       text-align: right;
+
+      button{
+        background: inherit;
+      }
     }
   }
 
@@ -290,6 +302,11 @@
   &.total-cost{
     min-width: 140px;
     padding-left: 0 !important;
+    text-align: right;
+    padding-right: 25px;
+    position: sticky;
+    right: 0;
+    z-index: 17;
   }
 }
 
