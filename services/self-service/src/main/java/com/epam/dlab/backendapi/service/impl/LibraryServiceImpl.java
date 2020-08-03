@@ -67,9 +67,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.epam.dlab.backendapi.domain.AuditActionEnum.INSTALL;
-import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL_LIBS;
-import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK_LIBS;
 import static com.epam.dlab.backendapi.domain.NotebookTemplate.DEEP_LEARNING;
 import static com.epam.dlab.backendapi.domain.NotebookTemplate.JUPYTER;
 import static com.epam.dlab.backendapi.domain.NotebookTemplate.JUPYTER_LAB;
@@ -83,6 +80,10 @@ import static com.epam.dlab.dto.LibraryGroups.GROUP_OTHERS;
 import static com.epam.dlab.dto.LibraryGroups.GROUP_PIP2;
 import static com.epam.dlab.dto.LibraryGroups.GROUP_PIP3;
 import static com.epam.dlab.dto.LibraryGroups.GROUP_R_PKG;
+import static com.epam.dlab.backendapi.domain.AuditActionEnum.INSTALL_LIBS;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK;
+import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTE;
+
 
 @Slf4j
 @Singleton
@@ -148,7 +149,7 @@ public class LibraryServiceImpl implements LibraryService {
 		return libInfoRecords;
 	}
 
-    @Audit(action = INSTALL, type = COMPUTATIONAL_LIBS)
+    @Audit(action = INSTALL_LIBS, type = COMPUTE)
     @Override
     public String installComputationalLibs(@User UserInfo ui, @Project String project, String expName, @ResourceName String compName, List<LibInstallDTO> libs, @Info String auditInfo) {
         final UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(ui.getName(), project, expName, compName);
@@ -161,7 +162,7 @@ public class LibraryServiceImpl implements LibraryService {
         return uuid;
     }
 
-    @Audit(action = INSTALL, type = NOTEBOOK_LIBS)
+    @Audit(action = INSTALL_LIBS, type = NOTEBOOK)
     @Override
     public String installExploratoryLibs(@User UserInfo ui, @Project String project, @ResourceName String expName, List<LibInstallDTO> libs, @Info String auditInfo) {
 	    final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), project, expName);

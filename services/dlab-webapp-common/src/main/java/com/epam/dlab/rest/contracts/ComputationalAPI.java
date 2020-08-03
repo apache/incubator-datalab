@@ -37,4 +37,5 @@ public interface ComputationalAPI {
 	String COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC = COMPUTATIONAL_TERMINATE + "/cloud";
 	String COMPUTATIONAL_LIB_INSTALL = LIBRARY + COMPUTATIONAL + "/lib_install";
 	String COMPUTATIONAL_LIB_LIST = LIBRARY + COMPUTATIONAL + "/lib_list";
+	String COMPUTATIONAL_RECONFIGURE_MESSAGE = "Reconfigure compute <%s>, requested for notebook <%s>";
 }

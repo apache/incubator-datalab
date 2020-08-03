@@ -45,7 +45,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static com.epam.dlab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
-
+import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_RECONFIGURE_MESSAGE;
 /**
  * Provides the REST API for the computational resource on Azure.
  */
@@ -160,7 +160,8 @@ public class ComputationalResourceAzure {
 										   @PathParam("computationalName") String computationalName,
 										   @Valid @NotNull List<ClusterConfig> config) {
 
-		computationalService.updateSparkClusterConfig(userInfo, projectName, exploratoryName, computationalName, config);
+		computationalService.updateSparkClusterConfig(userInfo, projectName, exploratoryName, computationalName, config,
+				String.format(COMPUTATIONAL_RECONFIGURE_MESSAGE, computationalName, exploratoryName));
 		return Response.ok().build();
     }
 
