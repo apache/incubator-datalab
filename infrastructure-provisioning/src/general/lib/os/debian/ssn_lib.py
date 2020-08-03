@@ -173,65 +173,6 @@ def ensure_mongo():
         print('Failed to install MongoDB: ', str(err))
         sys.exit(1)
 
-def install_certbot(os_family):
-    try:
-        print('Installing Certbot')
-        if os_family == 'debian':
-            sudo('apt-get -y update')
-            sudo('apt-get -y install software-properties-common')
-            sudo('add-apt-repository -y universe')
-            sudo('add-apt-repository -y ppa:certbot/certbot')
-            sudo('apt-get -y update')
-            sudo('apt-get -y install certbot python-certbot-nginx')
-        elif os_family == 'redhat':
-            print('This OS family is not supported yet')
-    except Exception as err:
-        print('Failed Certbot install: ' + str(err))
-        sys.exit(1)
-
-def run_certbot(domain_name, email):
-    try:
-        print('Running  Certbot')
-        sudo('service nginx stop')
-        if email != '':
-            sudo('certbot certonly --standalone -n -d ssn.{} -m {}'.format(domain_name, email))
-        else:
-            sudo('certbot certonly --standalone -n -d ssn.{} --register-unsafely-without-email --agree-tos'.format(domain_name))
-    except Exception as err:
-        print('Failed to run Certbot: ' + str(err))
-        sys.exit(1)
-
-def find_replace_line(file_path, searched_str, replacement_line):
-    try:
-        with open(file_path, 'r') as file:
-            lines = file.readlines()
-            for line in lines:
-                if searched_str in line:
-                    line = replacement_line
-            with open(file_path, 'w') as file:
-                file.writelines(lines)
-    except Exception as err:
-        print('Failed to replace string: ' + str(err))
-        sys.exit(1)
-
-def configure_nginx_LE(domain_name):
-    try:
-        server_name_line ='     server_name  ssn.{};'.format(domain_name)
-        cert_path_line = '    ssl_certificate  /etc/letsencrypt/live/{}/fullchain.pem;'.format(domain_name)
-        cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/{}/privkey.pem;'.format(domain_name)
-        certbot_service = 'ExecStart = /usr/bin/certbot -q renew --pre-hook "service nginx stop" --post-hook "service nginx start"'
-        certbot_service_path = '/lib/systemd/system/certbot.service'
-        nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
-        find_replace_line(nginx_config_path,'server_name' ,server_name_line)
-        find_replace_line(nginx_config_path,'ssl_certificate' ,cert_path_line)
-        find_replace_line(nginx_config_path,'ssl_certificate_key' ,cert_key_line)
-        find_replace_line(certbot_service_path, 'ExecStart', certbot_service)
-        sudo('systemctl restart nginx')
-    except Exception as err:
-        print('Failed to run Certbot: ' + str(err))
-        sys.exit(1)
-
-
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              os_user, mongo_passwd, keystore_passwd, cloud_provider,
              service_base_name, tag_resource_id, billing_tag, account_id, billing_bucket,
@@ -400,10 +341,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                          '-noprompt -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
                     sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt '
                          '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
-                elif os.environ['conf_letsencrypt_enabled'] == 'true':
-                    install_certbot(os.environ['conf_os_family'])
-                    run_certbot(cloud_params['LETS_ENCRYPT_DOMAIN_NAME'], cloud_params['LETS_ENCRYPT_EMAIL'])
-                    configure_nginx_LE(cloud_params['LETS_ENCRYPT_DOMAIN_NAME'])
                 else:
                     sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
                          -keystore /home/{0}/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(

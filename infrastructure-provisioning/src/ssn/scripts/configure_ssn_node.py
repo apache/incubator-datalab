@@ -121,6 +121,63 @@ def creating_service_directories(dlab_path, os_user):
         print('Failed to create service directories: ', str(err))
         sys.exit(1)
 
+def install_certbot(os_family):
+    try:
+        print('Installing Certbot')
+        if os_family == 'debian':
+            sudo('apt-get -y update')
+            sudo('apt-get -y install software-properties-common')
+            sudo('add-apt-repository -y universe')
+            sudo('add-apt-repository -y ppa:certbot/certbot')
+            sudo('apt-get -y update')
+            sudo('apt-get -y install certbot python-certbot-nginx')
+        elif os_family == 'redhat':
+            print('This OS family is not supported yet')
+    except Exception as err:
+        print('Failed Certbot install: ' + str(err))
+        sys.exit(1)
+
+def run_certbot(domain_name, email):
+    try:
+        print('Running  Certbot')
+        sudo('service nginx stop')
+        if email != '':
+            sudo('certbot certonly --standalone -n -d ssn.{} -m {}'.format(domain_name, email))
+        else:
+            sudo('certbot certonly --standalone -n -d ssn.{} --register-unsafely-without-email --agree-tos'.format(domain_name))
+    except Exception as err:
+        print('Failed to run Certbot: ' + str(err))
+        sys.exit(1)
+
+def find_replace_line(file_path, searched_str, replacement_line):
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            for line in lines:
+                if searched_str in line:
+                    line = replacement_line
+            with open(file_path, 'w') as file:
+                file.writelines(lines)
+    except Exception as err:
+        print('Failed to replace string: ' + str(err))
+        sys.exit(1)
+
+def configure_nginx_LE(domain_name):
+    try:
+        server_name_line ='     server_name  ssn.{};'.format(domain_name)
+        cert_path_line = '    ssl_certificate  /etc/letsencrypt/live/{}/fullchain.pem;'.format(domain_name)
+        cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/{}/privkey.pem;'.format(domain_name)
+        certbot_service = 'ExecStart = /usr/bin/certbot -q renew --pre-hook "service nginx stop" --post-hook "service nginx start"'
+        certbot_service_path = '/lib/systemd/system/certbot.service'
+        nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
+        find_replace_line(nginx_config_path,'server_name' ,server_name_line)
+        find_replace_line(nginx_config_path,'ssl_certificate' ,cert_path_line)
+        find_replace_line(nginx_config_path,'ssl_certificate_key' ,cert_key_line)
+        find_replace_line(certbot_service_path, 'ExecStart', certbot_service)
+        sudo('systemctl restart nginx')
+    except Exception as err:
+        print('Failed to run Certbot: ' + str(err))
+        sys.exit(1)
 
 def configure_ssl_certs(hostname, custom_ssl_cert):
     try:
@@ -179,7 +236,10 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                     use_sudo=True)
                 sudo('systemctl daemon-reload')
                 sudo('systemctl enable step-cert-manager.service')
-
+            elif os.environ['conf_letsencrypt_enabled'] == 'true':
+                install_certbot(os.environ['conf_os_family'])
+                run_certbot(cloud_params['LETS_ENCRYPT_DOMAIN_NAME'], cloud_params['LETS_ENCRYPT_EMAIL'])
+                configure_nginx_LE(cloud_params['LETS_ENCRYPT_DOMAIN_NAME'])
             else:
                 sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
                      -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
