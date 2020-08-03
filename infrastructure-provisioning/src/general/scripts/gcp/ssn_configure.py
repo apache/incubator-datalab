@@ -422,11 +422,18 @@ if __name__ == "__main__":
                     'key': 'LETS_ENCRYPT_DOMAIN_NAME',
                     'value': os.environ['conf_letsencrypt_domain_name']
                 })
-            cloud_params.append(
-                {
-                    'key': 'LETS_ENCRYPT_EMAIL',
-                    'value': os.environ['conf_letsencrypt_email']
-                })
+            if 'conf_letsencrypt_email' in os.environ:
+                cloud_params.append(
+                    {
+                        'key': 'LETS_ENCRYPT_EMAIL',
+                        'value': os.environ['conf_letsencrypt_email']
+                    })
+            else:
+                cloud_params.append(
+                    {
+                        'key': 'LETS_ENCRYPT_EMAIL',
+                        'value': ''
+                    })
             cloud_params.append(
                 {
                     'key': 'STEP_CERTS_ENABLED',
