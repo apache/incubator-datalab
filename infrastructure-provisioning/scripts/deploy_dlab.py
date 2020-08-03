@@ -146,7 +146,7 @@ parser.add_argument('--conf_stepcerts_ca_url', type=str, default='', help='Step 
 parser.add_argument('--conf_letsencrypt_enabled', type=str, default='false', help='Enable or disable Let`s Encrypt certificates')
 parser.add_argument('--conf_letsencrypt_domain_name', type=str, default='', help='Domain names to apply. '
                          'For multiple domains enter a comma separated list of domains as a parameter'
-                         'ssn.domain_name will be used for ssn_node and edge.domain_name for edge_node')
+                         'ssn.domain_name will be used for ssn_node, DNS A record have to exist during deployment')
 parser.add_argument('--conf_letsencrypt_email', type=str, default='', help='Email that will be entered during '
                          'certificate obtaining and can be user for urgent renewal and security notices. '
                          'Use comma to register multiple emails, e.g. u1@example.com,u2@example.com.')
