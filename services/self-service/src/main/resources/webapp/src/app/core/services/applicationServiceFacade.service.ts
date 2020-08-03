@@ -78,6 +78,7 @@ export class ApplicationServiceFacade {
   private static readonly ENDPOINT = 'endpoint';
   private static readonly ENDPOINT_CONNECTION = 'endpoint_connection';
   private static readonly AUDIT = 'audit';
+  private static readonly QUOTA = 'quota';
 
   private requestRegistry: Dictionary<string>;
 
@@ -305,6 +306,13 @@ export class ApplicationServiceFacade {
     return this.buildRequest(HTTPMethod.GET,
       this.requestRegistry.Item(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUS),
       data);
+  }
+
+  public buildGetQuotaStatus(): Observable<any> {
+    return this.buildRequest(HTTPMethod.GET,
+      this.requestRegistry.Item(ApplicationServiceFacade.QUOTA),
+        null
+    );
   }
 
   public buildRunEdgeNodeRequest(): Observable<any> {
@@ -723,6 +731,7 @@ export class ApplicationServiceFacade {
     // billing report
     this.requestRegistry.Add(ApplicationServiceFacade.BILLING, '/api/billing/report');
     this.requestRegistry.Add(ApplicationServiceFacade.DOWNLOAD_REPORT, '/api/billing/report/download');
+    this.requestRegistry.Add(ApplicationServiceFacade.QUOTA, '/api/billing/quota');
 
     // project
     this.requestRegistry.Add(ApplicationServiceFacade.PROJECT, '/api/project');

@@ -22,7 +22,7 @@ package com.epam.dlab.backendapi.dropwizard.listeners;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.EndpointDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
-import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.dao.UserRoleDAO;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.cloud.CloudProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -51,13 +51,13 @@ public class MongoStartupListener implements ServerLifecycleListener {
 
 	private static final String ROLES_FILE_FORMAT = "/mongo/%s/mongo_roles.json";
 	private static final ObjectMapper MAPPER = new ObjectMapper();
-	private final UserRoleDao userRoleDao;
+	private final UserRoleDAO userRoleDao;
 	private final SelfServiceApplicationConfiguration configuration;
 	private final SettingsDAO settingsDAO;
 	private final EndpointDAO endpointDAO;
 
 	@Inject
-	public MongoStartupListener(UserRoleDao userRoleDao, SelfServiceApplicationConfiguration configuration,
+	public MongoStartupListener(UserRoleDAO userRoleDao, SelfServiceApplicationConfiguration configuration,
 	                            SettingsDAO settingsDAO, EndpointDAO endpointDAO) {
 		this.userRoleDao = userRoleDao;
 		this.configuration = configuration;

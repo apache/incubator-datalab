@@ -25,7 +25,7 @@ import com.epam.dlab.backendapi.annotation.ResourceName;
 import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.dao.EndpointDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.dao.UserRoleDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.EndpointResourcesDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
@@ -62,12 +62,12 @@ public class EndpointServiceImpl implements EndpointService {
 	private final ProjectService projectService;
 	private final ExploratoryDAO exploratoryDAO;
 	private final RESTService provisioningService;
-	private final UserRoleDao userRoleDao;
+	private final UserRoleDAO userRoleDao;
 
 	@Inject
 	public EndpointServiceImpl(EndpointDAO endpointDAO, ProjectService projectService, ExploratoryDAO exploratoryDAO,
 	                           @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-	                           UserRoleDao userRoleDao) {
+	                           UserRoleDAO userRoleDao) {
 
 		this.endpointDAO = endpointDAO;
 		this.projectService = projectService;

@@ -20,7 +20,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BackupDao;
+import com.epam.dlab.backendapi.dao.BackupDAO;
 import com.epam.dlab.backendapi.resources.dto.BackupInfoRecord;
 import com.epam.dlab.backendapi.service.BackupService;
 import com.epam.dlab.constants.ServiceConsts;
@@ -43,7 +43,7 @@ public class BackupServiceImpl implements BackupService {
 	private RESTService provisioningService;
 
 	@Inject
-	private BackupDao backupDao;
+	private BackupDAO backupDao;
 
 	@Override
 	public String createBackup(EnvBackupDTO dto, UserInfo user) {

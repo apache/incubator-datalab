@@ -55,7 +55,7 @@ import static java.util.stream.Collectors.toList;
 
 @Singleton
 @Slf4j
-public class UserRoleDaoImpl extends BaseDAO implements UserRoleDao {
+public class UserRoleDAOImpl extends BaseDAO implements UserRoleDAO {
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 	private static final String[] DEFAULT_AWS_SHAPES = {"nbShapes_t2.medium_fetching", "compShapes_c4.xlarge_fetching"};
 	private static final String[] DEFAULT_GCP_SHAPES = {"compShapes_n1-standard-2_fetching", "nbShapes_n1-standard-2_fetching"};

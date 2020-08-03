@@ -25,7 +25,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserInfo implements Principal {
@@ -154,21 +160,36 @@ public class UserInfo implements Principal {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	    if (this == o) {
+		    return true;
+	    }
+	    if (o == null || getClass() != o.getClass()) {
+		    return false;
+	    }
 
-        UserInfo userInfo = (UserInfo) o;
+	    UserInfo userInfo = (UserInfo) o;
 
-        if (awsUser != userInfo.awsUser) return false;
-        if (username != null ? !username.equals(userInfo.username) : userInfo.username != null) return false;
-        if (accessToken != null ? !accessToken.equals(userInfo.accessToken) : userInfo.accessToken != null)
-            return false;
-        if (!roles.equals(userInfo.roles)) return false;
-        if (!keys.equals(userInfo.keys)) return false;
-        if (firstName != null ? !firstName.equals(userInfo.firstName) : userInfo.firstName != null) return false;
-        if (lastName != null ? !lastName.equals(userInfo.lastName) : userInfo.lastName != null) return false;
-        return remoteIp != null ? remoteIp.equals(userInfo.remoteIp) : userInfo.remoteIp == null;
-
+	    if (awsUser != userInfo.awsUser) {
+		    return false;
+	    }
+	    if (username != null ? !username.equals(userInfo.username) : userInfo.username != null) {
+		    return false;
+	    }
+	    if (accessToken != null ? !accessToken.equals(userInfo.accessToken) : userInfo.accessToken != null)
+		    return false;
+	    if (!roles.equals(userInfo.roles)) {
+		    return false;
+	    }
+	    if (!keys.equals(userInfo.keys)) {
+		    return false;
+	    }
+	    if (firstName != null ? !firstName.equals(userInfo.firstName) : userInfo.firstName != null) {
+		    return false;
+	    }
+	    if (lastName != null ? !lastName.equals(userInfo.lastName) : userInfo.lastName != null) {
+		    return false;
+	    }
+	    return remoteIp != null ? remoteIp.equals(userInfo.remoteIp) : userInfo.remoteIp == null;
     }
 
 

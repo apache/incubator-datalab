@@ -16,18 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.epam.dlab.backendapi.dao;
 
-import java.util.Set;
+import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.dlab.dto.exploratory.ImageStatus;
+import com.epam.dlab.dto.exploratory.LibStatus;
+import com.epam.dlab.model.exploratory.Image;
+import com.epam.dlab.model.library.Library;
 
-public interface UserGroupDao {
-	void addUsers(String group, Set<String> users);
+import java.util.List;
+import java.util.Optional;
 
-	void updateUsers(String group, Set<String> users);
+public interface ImageExploratoryDAO {
 
-	void removeGroup(String groupId);
+	boolean exist(String image, String project);
 
-	Set<String> getUserGroups(String user);
+	void save(Image image);
 
-    Set<String> getUsers(String group);
+	void updateImageFields(Image image);
+
+	List<ImageInfoRecord> getImages(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses);
+
+	List<ImageInfoRecord> getImagesForProject(String project);
+
+	Optional<ImageInfoRecord> getImage(String user, String name, String project, String endpoint);
+
+	List<Library> getLibraries(String user, String imageFullName, String project, String endpoint, LibStatus status);
 }

@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.backendapi.resources.dto.SystemInfoDto;
 
+@FunctionalInterface
 public interface SystemInfoService {
 
 	SystemInfoDto getSystemInfo();

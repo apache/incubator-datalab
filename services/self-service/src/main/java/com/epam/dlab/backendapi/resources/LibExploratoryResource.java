@@ -60,7 +60,6 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class LibExploratoryResource {
-	private static final String DROPWIZARD_ARTIFACT = "io.dropwizard:dropwizard-core:1.3.5";
 	private static final String AUDIT_MESSAGE = "Install libs: %s";
 
 	private final ExternalLibraryService externalLibraryService;

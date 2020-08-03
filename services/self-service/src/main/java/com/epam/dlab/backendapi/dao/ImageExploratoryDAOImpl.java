@@ -28,15 +28,23 @@ import com.google.inject.Singleton;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
 import static com.mongodb.client.model.Projections.elemMatch;
-import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 
 @Singleton
-public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratoryDao {
+public class ImageExploratoryDAOImpl extends BaseDAO implements ImageExploratoryDAO {
 
 	private static final String LIBRARIES = "libraries";
 	private static final String IMAGE_NAME = "name";

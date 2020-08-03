@@ -32,7 +32,7 @@ import static com.mongodb.client.model.Filters.elemMatch;
 import static com.mongodb.client.model.Filters.eq;
 
 @Singleton
-public class UserGroupDaoImpl extends BaseDAO implements UserGroupDao {
+public class UserGroupDAOImpl extends BaseDAO implements UserGroupDAO {
 
 	private static final String USERS_FIELD = "users";
 

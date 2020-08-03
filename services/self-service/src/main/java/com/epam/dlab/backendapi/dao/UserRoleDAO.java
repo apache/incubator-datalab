@@ -26,7 +26,7 @@ import com.epam.dlab.cloud.CloudProvider;
 import java.util.List;
 import java.util.Set;
 
-public interface UserRoleDao {
+public interface UserRoleDAO {
 	List<UserRoleDto> findAll();
 
 	void insert(UserRoleDto dto);
