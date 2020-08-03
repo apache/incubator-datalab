@@ -119,7 +119,7 @@
               <div class="control-group constol-select java-library-search">
                 <label class="label">Library</label>
                 <div class="control control-relative">
-                 <span class="other-message" *ngIf="lib.name?.length && !this.selectedLib">groupId:artifactId:versionId</span>
+<!--                 <span class="other-message" *ngIf="lib.name?.length && !this.selectedLib">groupId:artifactId:versionId</span>-->
                  <input
                     type="text" [placeholder]="'Enter library name in <groupId>:<artifactId>:<versionId> format'"
                     class="library-input"
@@ -168,61 +168,8 @@
               </div>
             </div>
           </ng-template>
-<!--          <p class="other-message">-->
-<!--            -->
-<!--          </p>-->
+
           <div class="search">
-<!--            <mat-form-field class="chip-list">-->
-<!--              <input-->
-<!--                type="text"-->
-<!--                [placeholder]="group === 'java' ?-->
-<!--                'Enter library name in <groupId>:<artifactId>:<versionId> format' :-->
-<!--                'Enter library name in <name>:<version> format(version is not required)'"-->
-<!--                matInput-->
-<!--                #trigger="matAutocompleteTrigger"-->
-<!--                [formControl]="libSearch"-->
-<!--                [value]="query"-->
-<!--                [matAutocomplete]="auto"-->
-<!--              >-->
-<!--&lt;!&ndash;              <span class="add-icon" [matTooltip]="(isInSelectedList || isInstalled) ? 'Current library dosen\'t exist' : 'You have already added or installed current library'"&ndash;&gt;-->
-<!--&lt;!&ndash;              matTooltipPosition="above"&ndash;&gt;-->
-<!--&lt;!&ndash;              [matTooltipDisabled] = "isLibExist && (isInSelectedList || isInstalled)"&ndash;&gt;-->
-<!--              <span class="add-icon">-->
-<!--                <button  mat-icon-button class="btn" [disabled]="!isLibExist || query.length < 1 ||-->
-<!--                isDuplicated({name: query.slice(0, query.indexOf(':')), version: query.slice(query.indexOf(':') + 1) || 'N/A'})" (click)="addLibrary(query);$event.stopPropagation()">-->
-<!--                  <mat-icon matSuffix >add</mat-icon>-->
-<!--                </button>-->
-<!--              </span>-->
-
-<!--              <mat-autocomplete #auto="matAutocomplete" class="suggestions" >-->
-<!--                <ng-template ngFor let-item [ngForOf]="filteredList" let-i="index" *ngIf="query.indexOf(':') === -1">-->
-<!--                  <mat-option [ngClass]="{ 'not-allowed': isDuplicated(item) }">-->
-<!--                    <div class="option" (click)="selectLibrary(item)">-->
-<!--                      <a *ngIf="!isDuplicated(item)">-->
-<!--                        <span [innerHTML]="item.name | highlight:query"></span>-->
-<!--&lt;!&ndash;                        <span *ngIf="item.version && item.version !== 'N/A'">{{ item.version }}</span>&ndash;&gt;-->
-<!--                      </a>-->
-<!--                      <span *ngIf="isInSelectedList || isInstalled">{{ item.name }}-->
-<!--                        <span *ngIf="item.version && item.version !== 'N/A'">{{ item.version }}</span>-->
-<!--                      </span>-->
-
-<!--                      <strong *ngIf="isInSelectedList">selected-->
-<!--                        <i class="material-icons">done</i>-->
-<!--                      </strong>-->
-<!--                      <strong *ngIf="isInstalled">installed-->
-<!--                        <i class="material-icons">done</i>-->
-<!--                      </strong>-->
-<!--                    </div>-->
-<!--                  </mat-option>-->
-<!--                </ng-template>-->
-<!--                <mat-option *ngIf="model.isEmpty(filteredList) && !validity_format && query.indexOf(':') === -1">-->
-<!--                  <span class="configuring">No matches found</span>-->
-<!--                </mat-option>-->
-<!--                <mat-option *ngIf="validity_format?.length > 0">-->
-<!--                  <span class="configuring" *ngIf="query.indexOf(':') === -1">{{ validity_format }}</span >-->
-<!--                </mat-option>-->
-<!--              </mat-autocomplete>-->
-<!--            </mat-form-field>           -->
             <div class="list-selected list-container" id='scrolling'>
               <mat-chip-list *ngIf="model.selectedLibs.length && libs_uploaded">
                 <mat-chip *ngFor="let item of model.selectedLibs">
@@ -362,10 +309,10 @@
                   <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || 'installation_error' }}">{{ item.status.replace('_', ' ') }}
                     <div class="warn-action" *ngIf="(item.status === 'installation_error' || item.status.toLowerCase() === 'invalid_version' || item.add_pkgs?.length) && notebook?.status === 'running'">
                       <div *ngIf="!item.available_versions">
-                        <span *ngIf="!installingInProgress && !item.add_pkgs?.length" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
+                        <span *ngIf="!installingInProgress && item.status === 'installation_error'" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
                           <i class="material-icons">replay</i>
                         </span>
-                        <span class="not-allowed" *ngIf="installingInProgress && !item.add_pkgs?.length" matTooltip="You can't reinstall library until previous process will be completed"
+                        <span class="not-allowed" *ngIf="installingInProgress && item.status === 'installation_error'" matTooltip="Please wait until lib installation completes"
                           matTooltipPosition="above">
                           <i class="material-icons">replay</i>
                         </span>
@@ -393,29 +340,6 @@
               </ng-template>
             </div>
           </mat-list-item>
-
-<!--          <mat-list-item  *ngIf="isLibInfoOpened[lib.name]">-->
-<!--            <div class="lib-info">-->
-<!--              <ul class="libs-version">-->
-
-<!--                <li class="dependency-list-header">-->
-<!--                  List of available version:-->
-<!--                </li>-->
-
-<!--&lt;!&ndash;                <div class="scrolling-content delete-list" id="scrolling">&ndash;&gt;-->
-
-<!--                  <li *ngFor="let object of [1,2,3]" class="delete-item list-item">-->
-<!--                    &lt;!&ndash;                        <div class="object">&ndash;&gt;-->
-<!--                    {{lib.name+lib.version}}-->
-<!--                    &lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--                    &lt;!&ndash;                        <div class="size">v2.3.4</div>&ndash;&gt;-->
-<!--                    <button mat-raised-button type="button"  class="butt action">Install</button>-->
-<!--                  </li>-->
-
-<!--&lt;!&ndash;                </div>&ndash;&gt;-->
-<!--              </ul>-->
-<!--            </div>-->
-<!--          </mat-list-item>-->
           </ng-container>
           <div *ngIf="!filtredNotebookLibs.length && notebookLibs?.length" class="scrollingList info message">
             <p>No matches found</p>
