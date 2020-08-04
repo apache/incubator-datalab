@@ -193,7 +193,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.dlab.fab.append_result("Failed configuring ssn.", str(err))
-        #clear_resources()
+        clear_resources()
         sys.exit(1)
 
     try:
