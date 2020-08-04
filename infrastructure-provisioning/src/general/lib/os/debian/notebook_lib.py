@@ -138,6 +138,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('touch /home/{}/.Renviron'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
             sudo('''echo 'SPARK_HOME="{0}"' >> /home/{1}/.Renviron'''.format(local_spark_path, os_user))
+            sudo('''echo 'JAVA_HOME="{0}"' >> /home/{1}/.Renviron'''.format(java_home, os_user))
             sudo('touch /home/{}/.Rprofile'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
             sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/{}/.Rprofile'''.format(os_user))

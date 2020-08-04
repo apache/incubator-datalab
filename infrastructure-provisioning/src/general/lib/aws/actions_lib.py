@@ -1647,6 +1647,10 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             endpoint_url))
         sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> '
              '/tmp/notebook_spark-defaults_local.conf')
+        if not exists('/opt/spark/conf/spark-env.sh'):
+            sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+            java_home = run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").splitlines()[0]
+            sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if os.environ['application'] == 'zeppelin':
             sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> '
                                                            '/tmp/notebook_spark-defaults_local.conf')
