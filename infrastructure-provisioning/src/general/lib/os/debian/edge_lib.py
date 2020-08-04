@@ -26,6 +26,9 @@ import sys
 from fabric.api import *
 from fabric.contrib.files import exists
 from dlab.common_lib import manage_pkg
+from dlab.common_lib import install_certbot
+from dlab.common_lib import run_certbot
+from dlab.common_lib import configure_nginx_LE
 
 
 def configure_http_proxy_server(config):
