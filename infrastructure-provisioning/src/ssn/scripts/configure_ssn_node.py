@@ -155,10 +155,10 @@ def find_replace_line(file_path, searched_str, replacement_line):
     try:
         lines = sudo('cat {}'.format(file_path)).split('\r\n')
         sudo('echo "" > {}'.format(file_path))
-        for line in lines:
+        for n, line in enumerate(lines):
             if searched_str in line:
-                line = replacement_line
-            sudo('echo "{}" >> {}'.format(line, file_path)
+                lines[n] = replacement_line
+            sudo('echo "{}" >> {}'.format(lines[n], file_path)
     except Exception as err:
         traceback.print_exc()
         print('Failed to replace string: ' + str(err))
