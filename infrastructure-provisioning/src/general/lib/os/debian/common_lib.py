@@ -218,7 +218,10 @@ def configure_nginx_LE(domain_name, node):
         cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/{}.{}/privkey.pem;'.format(node, domain_name)
         certbot_service = 'ExecStart = /usr/bin/certbot -q renew --pre-hook "service nginx stop" --post-hook "service nginx start"'
         certbot_service_path = '/lib/systemd/system/certbot.service'
-        nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
+        if node == 'ssn':
+            nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
+        else:
+            nginx_config_path = '/etc/nginx/conf.d/proxy.conf'
         find_replace_line(nginx_config_path,'    server_name  ' ,server_name_line)
         find_replace_line(nginx_config_path,'    ssl_certificate ' ,cert_path_line)
         find_replace_line(nginx_config_path,'    ssl_certificate_key ' ,cert_key_line)
