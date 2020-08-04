@@ -16,7 +16,7 @@
                 "CLUSTER_TAG"
             ],
             "metadata": {
-                "livy-version": "0.6.0",
+                "livy-version": "0.6.0"
             }
         },
         "masterConfig": {
