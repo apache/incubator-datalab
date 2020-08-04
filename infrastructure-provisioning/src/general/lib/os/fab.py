@@ -720,17 +720,14 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
             manage_pkg('-y install', 'remote', 'python2-pip')
         else:
             sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
+    manage_pkg('-y install', 'remote', 'python3-pip')
     if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
-        manage_pkg('-y install', 'remote', 'python3-pip')
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
-        manage_pkg('-y install', 'remote', 'python3-pip')
         sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.6 -V 2>/dev/null | awk '{print $2}'"):
-        manage_pkg('-y install', 'remote', 'python3-pip')
         sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
-        manage_pkg('-y install', 'remote', 'python3-pip')
         sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
     if emr:
         sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))

@@ -124,7 +124,7 @@ def install_sparkamagic_kernels(args):
                                                                          args.cluster_name)
         local('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
             pyspark_kernel_name, args.os_user))
-        spark_kernel_name = 'PySpark (Scala-{0} / Spark-{1} ) [{2}]'.format(args.scala_version, args.spark_version,
+        spark_kernel_name = 'Spark (Scala-{0} / Spark-{1} ) [{2}]'.format(args.scala_version, args.spark_version,
                                                                          args.cluster_name)
         local('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(
             spark_kernel_name, args.os_user))
