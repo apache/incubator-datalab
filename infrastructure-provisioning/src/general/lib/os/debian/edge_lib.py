@@ -105,6 +105,14 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                     use_sudo=True)
                 sudo('systemctl daemon-reload')
                 sudo('systemctl enable step-cert-manager.service')
+            elif os.environ['conf_letsencrypt_enabled'] == 'true':
+                print("Configuring letsencrypt certificates.")
+                install_certbot(os.environ['conf_os_family'])
+                if 'conf_letsencrypt_email' in os.environ:
+                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['"project_name"'], os.environ['conf_letsencrypt_email'])
+                else:
+                    run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['"project_name"'])
+                configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], os.environ['"project_name"'])
             else:
                 sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
                      -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
