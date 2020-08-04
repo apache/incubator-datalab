@@ -305,8 +305,9 @@ if __name__ == "__main__":
     print("Configuring nginx.")
     configure_nginx(deeper_config, args.dlab_path, args.hostname)
 
-    print("Configuring nginx letsencrypt certificates.")
-    configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'])
+    if os.environ['conf_letsencrypt_enabled'] == 'true':
+        print("Configuring nginx letsencrypt certificates.")
+        configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'])
 
     #print("Installing jenkins.")
     #ensure_jenkins(args.dlab_path)
