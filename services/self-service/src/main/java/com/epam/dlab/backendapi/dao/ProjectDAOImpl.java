@@ -75,15 +75,18 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	@Override
 	public List<ProjectDTO> getProjectsWithEndpointStatusNotIn(UserInstanceStatus... statuses) {
 		final List<String> statusList =
-				Arrays.stream(statuses).map(UserInstanceStatus::name).collect(Collectors.toList());
+				Arrays.stream(statuses)
+						.map(UserInstanceStatus::name)
+						.collect(Collectors.toList());
 
 		return find(PROJECTS_COLLECTION, not(in(ENDPOINT_STATUS_FIELD, statusList)), ProjectDTO.class);
 	}
 
 	@Override
 	public List<ProjectDTO> getUserProjects(UserInfo userInfo, boolean active) {
-		final Set<String> groups = Stream.concat(userGroupDao.getUserGroups(userInfo.getName()).stream(),
-				userInfo.getRoles().stream())
+		Stream<String> userGroups = userGroupDao.getUserGroups(userInfo.getName()).stream();
+		Stream<String> roles = userInfo.getRoles().stream();
+		final Set<String> groups = Stream.concat(userGroups, roles)
 				.collect(Collectors.toSet());
 		return find(PROJECTS_COLLECTION, userProjectCondition(groups, active), ProjectDTO.class);
 	}
