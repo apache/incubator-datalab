@@ -151,13 +151,16 @@ def run_certbot(domain_name, email=''):
 
 def find_replace_line(file_path, searched_str, replacement_line):
     try:
-        with open(file_path, 'r') as file:
-            lines = file.readlines()
-            for line in lines:
-                if searched_str in line:
-                    line = replacement_line
-            with open(file_path, 'w') as file:
-                file.writelines(lines)
+        lines = sudo('cat {}'.format(file_path)).split('\r\n')
+        #with open(file_path, 'r') as file:
+            #lines = file.readlines()
+        sudo('echo "" > {}'.format(file_path))
+        for line in lines:
+            if searched_str in line:
+                line = replacement_line
+            sudo('echo "{}" >> {}'.format, file_path)
+            #with open(file_path, 'w') as file:
+                #file.writelines(lines)
     except Exception as err:
         print('Failed to replace string: ' + str(err))
         sys.exit(1)
