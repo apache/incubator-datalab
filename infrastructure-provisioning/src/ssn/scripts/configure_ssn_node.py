@@ -166,7 +166,7 @@ def find_replace_line(file_path, searched_str, replacement_line):
 
 def configure_nginx_LE(domain_name):
     try:
-        server_name_line ='     server_name  ssn.{};'.format(domain_name)
+        server_name_line ='    server_name  ssn.{};'.format(domain_name)
         cert_path_line = '    ssl_certificate  /etc/letsencrypt/live/ssn.{}/fullchain.pem;'.format(domain_name)
         cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/ssn.{}/privkey.pem;'.format(domain_name)
         certbot_service = 'ExecStart = /usr/bin/certbot -q renew --pre-hook "service nginx stop" --post-hook "service nginx start"'
