@@ -74,11 +74,16 @@
     <ng-container matColumnDef="tag">
       <th mat-header-cell *matHeaderCellDef class="tag-col label-header">
         <span class="label"> Tags </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </button>
       </th>
     </ng-container>
     <ng-container matColumnDef="resources">
       <th mat-header-cell *matHeaderCellDef class="resources-col label-header">
-        <span class="label"> Computational resources </span>
+        <span class="label"> Compute </span>
         <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
           <i class="material-icons">
             <span *ngIf="filtering && filterForm.resources.length > 0 && !collapseFilterRow">filter_list</span>
@@ -90,10 +95,15 @@
     <ng-container matColumnDef="cost">
       <th mat-header-cell *matHeaderCellDef class="cost-col label-header">
         <span class="label"> Cost </span>
+        <button mat-icon-button aria-label="More" class="ar" (click)="toggleFilterRow()">
+          <i class="material-icons">
+            <span>more_vert</span>
+          </i>
+        </button>
       </th>
     </ng-container>
     <ng-container matColumnDef="actions" stickyEnd>
-      <th mat-header-cell *matHeaderCellDef class="actions-col label-header">
+      <th mat-header-cell *matHeaderCellDef class="settings label-header">
         <span class="label"> Actions </span>
       </th>
     </ng-container>
@@ -247,8 +257,10 @@
     <!-- FILTER START -->
     <ng-container matColumnDef="name-filter" sticky>
       <th mat-header-cell *matHeaderCellDef class="name-col filter-row-item">
-        <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
-          [value]="filterForm.name" (input)="filterForm.name = $event.target['value']" />
+        <div class="input-wrapper">
+          <input placeholder="Filter by environment name" type="text" class="form-control filter-field"
+            [value]="filterForm.name" (input)="filterForm.name = $event.target['value']" />
+        </div>
       </th>
     </ng-container>
     <ng-container matColumnDef="status-filter">

@@ -22,6 +22,7 @@ package com.epam.dlab.backendapi.dao;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
+import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.ResourceType;
 import com.epam.dlab.model.library.Library;
@@ -394,6 +395,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 		return ((List<Document>) libsDocument.getOrDefault(libFieldName, Collections.emptyList()))
 				.stream()
 				.map(d -> convertFromDocument(d, Library.class))
+				.filter(library -> LibStatus.INVALID_VERSION != library.getStatus())
 				.peek(l -> l.withType(libType).withResourceName(resourceName));
 	}
 }

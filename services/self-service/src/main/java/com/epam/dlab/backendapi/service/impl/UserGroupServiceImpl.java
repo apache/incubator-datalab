@@ -24,8 +24,8 @@ import com.epam.dlab.backendapi.annotation.ResourceName;
 import com.epam.dlab.backendapi.annotation.User;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
-import com.epam.dlab.backendapi.dao.UserGroupDao;
-import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.dao.UserGroupDAO;
+import com.epam.dlab.backendapi.dao.UserRoleDAO;
 import com.epam.dlab.backendapi.domain.AuditDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.UserGroupDto;
@@ -65,17 +65,18 @@ public class UserGroupServiceImpl implements UserGroupService {
 	private static final String ROLE_NOT_FOUND_MSG = "Any of role : %s were not found";
 	private static final String ADMIN = "admin";
 	private static final String PROJECT_ADMIN = "projectAdmin";
+	private static final String INAPPROPRIATE_PERMISSION = "User %s doesn't have appropriate permission";
 
-	private final UserGroupDao userGroupDao;
-	private final UserRoleDao userRoleDao;
+	private final UserGroupDAO userGroupDao;
+	private final UserRoleDAO userRoleDao;
 	private final ProjectDAO projectDAO;
 	private final ProjectService projectService;
 	private final AuditService auditService;
 	private final SelfServiceApplicationConfiguration configuration;
 
 	@Inject
-	public UserGroupServiceImpl(UserGroupDao userGroupDao, UserRoleDao userRoleDao, ProjectDAO projectDAO, ProjectService projectService, AuditService auditService,
-								SelfServiceApplicationConfiguration configuration) {
+	public UserGroupServiceImpl(UserGroupDAO userGroupDao, UserRoleDAO userRoleDao, ProjectDAO projectDAO, ProjectService projectService, AuditService auditService,
+	                            SelfServiceApplicationConfiguration configuration) {
 		this.userGroupDao = userGroupDao;
 		this.userRoleDao = userRoleDao;
 		this.projectDAO = projectDAO;
@@ -103,10 +104,10 @@ public class UserGroupServiceImpl implements UserGroupService {
 					.flatMap(Collection::stream)
 					.filter(g -> g.equalsIgnoreCase(group))
 					.findAny()
-					.orElseThrow(() -> new DlabException(String.format("User %s doesn't have appropriate permission", userInfo.getName())));
+					.orElseThrow(() -> new DlabException(String.format(INAPPROPRIATE_PERMISSION, userInfo.getName())));
 			updateGroup(userInfo.getName(), group, roles, users);
 		} else {
-			throw new DlabException(String.format("User %s doesn't have appropriate permission", userInfo.getName()));
+			throw new DlabException(String.format(INAPPROPRIATE_PERMISSION, userInfo.getName()));
 		}
 	}
 
@@ -140,7 +141,7 @@ public class UserGroupServiceImpl implements UserGroupService {
 					.filter(userGroup -> groups.contains(userGroup.getGroup()) && !containsAdministrationPermissions(userGroup))
 					.collect(Collectors.toList());
 		} else {
-			throw new DlabException(String.format("User %s doesn't have appropriate permission", user.getName()));
+			throw new DlabException(String.format(INAPPROPRIATE_PERMISSION, user.getName()));
 		}
 	}
 

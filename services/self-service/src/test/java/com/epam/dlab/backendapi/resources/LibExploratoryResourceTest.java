@@ -441,8 +441,7 @@ public class LibExploratoryResourceTest extends TestBase {
 		assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
 		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-		assertEquals("{\"errors\":[\"query param artifact Wrong library name format. Should be " +
-						"<groupId>:<artifactId>:<versionId>. E.g. io.dropwizard:dropwizard-core:1.3.5\"]}",
+		assertEquals("{\"errors\":[\"query param artifact Wrong library name format. Should be <groupId>:<artifactId>:<versionId>\"]}",
 				response.readEntity(String.class));
 
 		verifyZeroInteractions(externalLibraryService);

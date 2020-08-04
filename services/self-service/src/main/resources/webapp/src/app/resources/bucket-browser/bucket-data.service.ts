@@ -30,8 +30,13 @@ const array = [{'bucket': 'ofuks-1304-prj1-local-bucket', 'object': 'folder11/',
 export class BucketDataService {
   public _bucketData = new BehaviorSubject<any>(null);
   public serverData: any = [];
-  get data(): TodoItemNode[] { return this._bucketData.value; }
+
+  get data(): TodoItemNode[] {
+    return this._bucketData.value;
+  }
+
   emptyFolder = null;
+
   constructor(
     private bucketBrowserService: BucketBrowserService,
   ) {
@@ -39,21 +44,25 @@ export class BucketDataService {
 
   public refreshBucketdata(bucket, endpoint) {
     let backetData = [];
-    this.bucketBrowserService.getBucketData(bucket, endpoint).subscribe(v => {
-      const copiedData = JSON.parse(JSON.stringify(v));
 
-      this.serverData = v;
-      if (this.emptyFolder) {
-        copiedData.unshift(this.emptyFolder);
-      }
-      backetData = this.convertToFolderTree(copiedData);
-      const data = this.buildFileTree({[bucket]: backetData}, 0);
-      this._bucketData.next(data);
-    });
-    // this.serverData = array;
-    // backetData = this.convertToFolderTree(array);
+    // this.bucketBrowserService.getBucketData(bucket, endpoint).subscribe(v => {
+    // const copiedData = JSON.parse(JSON.stringify(v));
+    // this.serverData = v;
+    // if (this.emptyFolder) {
+    //   copiedData.unshift(this.emptyFolder);
+    // }
+    //
+    // backetData = this.convertToFolderTree(copiedData);
     // const data = this.buildFileTree({[bucket]: backetData}, 0);
     // this._bucketData.next(data);
+    // });
+    if (this.emptyFolder) {
+      array.unshift(this.emptyFolder);
+    }
+    this.serverData = array;
+    backetData = this.convertToFolderTree(array);
+    const data = this.buildFileTree({[bucket]: backetData}, 0);
+    this._bucketData.next(data);
   }
 
   public buildFileTree(obj: {[key: string]: any}, level: number): TodoItemNode[] {
@@ -121,6 +130,7 @@ export class BucketDataService {
         if (!pointer.obj) {
           pointer.obj = object;
         }
+
       });
     };
 
@@ -138,4 +148,5 @@ export class BucketDataService {
       }
       return finalData;
     }
+
 }

@@ -55,7 +55,7 @@ public class FileUtils {
 		try {
 			Files.deleteIfExists(Paths.get(absolutePath));
 		} catch (IOException e) {
-			log.error("Problems occured with deleting file {} due to: {}", absolutePath, e.getLocalizedMessage());
+			log.error("Problems occured with deleting file {} due to: {}", absolutePath, e.getLocalizedMessage(), e);
 		}
 	}
 }

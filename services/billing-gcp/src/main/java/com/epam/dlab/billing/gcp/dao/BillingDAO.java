@@ -23,6 +23,7 @@ import com.epam.dlab.dto.billing.BillingData;
 
 import java.util.List;
 
+@FunctionalInterface
 public interface BillingDAO {
-    List<BillingData> getBillingData() throws InterruptedException;
+	List<BillingData> getBillingData() throws InterruptedException;
 }

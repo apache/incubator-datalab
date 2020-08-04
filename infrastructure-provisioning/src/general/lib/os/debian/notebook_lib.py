@@ -411,17 +411,21 @@ def install_os_pkg(requisites):
             sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install --allow-downgrades {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
-            sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 20 "({1})" /tmp/tee.tmp > '
+            sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, new_pkgs_parser))
             dep = sudo('cat /tmp/os_install_{}.log'.format(os_pkg))
             if dep == '':
                 dep = []
             else:
                 dep = dep[len(new_pkgs_parser): dep.find(" upgraded, ") - 1].replace('\r', '') \
-                        .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]),
-                                                                      ' ').strip().split(' ')
+                        .replace('\n', '').replace('  ', ' ').strip().split(' ')
                 for n, i in enumerate(dep):
-                    dep[n] = sudo('apt show {} 2>&1 | grep Version:'.format(i)).replace('Version: ', '{} v.'.format(i))
+                    if i == os_pkg.split("=")[0]:
+                        dep[n] = ''
+                    else:
+                        sudo('apt show {0} 2>&1 | if ! grep Version: > '
+                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(i))
+                        dep[n] =sudo('cat /tmp/os_install_{}.log'.format(i)).replace('Version: ', '{} v.'.format(i))
                 dep = [i for i in dep if i]
             versions = []
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
@@ -434,7 +438,8 @@ def install_os_pkg(requisites):
                 version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
                 status_msg = "installed"
             if 'E: Version' in err and 'was not found' in err:
-                versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0])).replace('\r\n', '').replace(' 500', '').replace('     ', ' ').strip().split(' ')
+                versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0]))\
+                    .replace('\r\n', '').replace(' 500', '').replace('     ', ' ').replace('***', '').strip().split(' ')
                 if versions != '':
                     status_msg = 'invalid_version'
             status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": status_msg,

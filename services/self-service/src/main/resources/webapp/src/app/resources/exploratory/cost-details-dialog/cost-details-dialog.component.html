@@ -33,7 +33,7 @@
       </table>
       <div class="billing-detail content-box">
         <mat-list>
-            <mat-list-item class="list-header">
+            <mat-list-item class="list-header" [ngClass]="{'pr-3': notebook.billing.report_lines.length > 6}">
               <div class="resource-name ellipsis" [ngClass]="{ 'wide-name-field' : provider === 'azure' }">Name</div>
               <div class="service">Product</div>
 <!--              <div class="resource-type" *ngIf="provider === 'aws'">Type</div>-->
@@ -55,6 +55,7 @@
                 <div class="cost-currency">{{ item.cost }} {{ item.currency }}</div>
               </mat-list-item>
             </div>
+
         </mat-list>
         <div class="total">
           <strong>Total: </strong>{{ notebook.cost }} {{ notebook.currency_code }}</div>

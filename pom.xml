@@ -52,6 +52,38 @@
                 <module>services/billing-gcp</module>
             </modules>
         </profile>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <sonar.host.url>
+                    http://localhost:9000/sonar
+                </sonar.host.url>
+                <sonar.coverage.exclusions>
+                    **/*Exception.java,
+                    **/*DAO.java,
+                    **/*DAOImpl.java,
+                    src/main/java/com/epam/dlab/dto/**,
+                    src/main/java/com/epam/dlab/backendapi/interceptor/**,
+                    src/main/java/com/epam/dlab/backendapi/auth/**,
+                    src/main/java/com/epam/dlab/backendapi/conf/**,
+                    src/main/java/com/epam/dlab/backendapi/domain/**,
+                    src/main/java/com/epam/dlab/backendapi/dropwizard/**,
+                    src/main/java/com/epam/dlab/backendapi/healthcheck/**,
+                    src/main/java/com/epam/dlab/backendapi/modules/**,
+                    src/main/java/com/epam/dlab/backendapi/resources/dto/**,
+                    src/main/java/com/epam/dlab/backendapi/roles/**,
+                    src/main/java/com/epam/dlab/backendapi/servlet/guacamole/**,
+                    src/main/java/com/epam/dlab/backendapi/util/**,
+                    src/main/java/com/epam/dlab/backendapi/validation/**,
+                    src/main/java/com/epam/dlab/process/**,
+                    src/main/java/com/epam/dlab/backendapi/modules/**,
+                    src/main/java/com/epam/dlab/backendapi/validation/**
+                </sonar.coverage.exclusions>
+            </properties>
+        </profile>
     </profiles>
 
     <modules>
@@ -88,6 +120,7 @@
         <logback.version>1.2.3</logback.version>
         <commons-fileupload.version>1.3.3</commons-fileupload.version>
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -130,8 +163,6 @@
                 <artifactId>dropwizard-util</artifactId>
                 <version>${io.dropwizard.version}</version>
             </dependency>
-
-
         </dependencies>
     </dependencyManagement>
 
@@ -173,6 +204,11 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.7.0.1746</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -230,7 +266,7 @@
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
-                <version>0.7</version>
+                <version>0.13</version>
                 <configuration>
                     <excludes>
                         <exclude>.git/**</exclude>
@@ -241,6 +277,7 @@
                         <exclude>**/*.ipynb</exclude>
                         <exclude>**/*.iml</exclude>
                         <exclude>**/*.json</exclude>
+                        <exclude>**/*.json.tpl</exclude>
                         <exclude>**/*.r</exclude>
                         <exclude>**/__init__.py</exclude>
                         <exclude>**/*.conf</exclude>

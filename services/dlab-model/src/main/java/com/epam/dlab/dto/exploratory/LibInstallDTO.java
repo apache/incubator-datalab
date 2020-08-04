@@ -77,4 +77,9 @@ public class LibInstallDTO {
 		setErrorMessage(errorMessage);
 		return this;
 	}
+
+	public LibInstallDTO withAddedPackages(List<String> addedPackages) {
+		setAddedPackages(addedPackages);
+		return this;
+	}
 }

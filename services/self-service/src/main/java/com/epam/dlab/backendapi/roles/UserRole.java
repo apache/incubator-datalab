@@ -120,8 +120,12 @@ public class UserRole implements Comparable<UserRole> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		UserRole userRole = (UserRole) o;
 		return this.id.equals(userRole.getId()) && this.type.equals(userRole.getType()) && this.name.equals(userRole.getName());
 	}

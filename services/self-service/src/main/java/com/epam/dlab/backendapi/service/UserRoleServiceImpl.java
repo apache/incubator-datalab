@@ -18,7 +18,7 @@
  */
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.dao.UserRoleDAO;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.google.inject.Inject;
@@ -33,7 +33,7 @@ public class UserRoleServiceImpl implements UserRoleService {
 	private static final String ROLE_NOT_FOUND_MSG = "Any of role : %s were not found";
 
 	@Inject
-	private UserRoleDao userRoleDao;
+	private UserRoleDAO userRoleDao;
 
 	@Override
 	public List<UserRoleDto> getUserRoles() {

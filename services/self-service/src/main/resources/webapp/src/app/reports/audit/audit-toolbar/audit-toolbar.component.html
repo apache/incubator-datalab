@@ -16,7 +16,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<section class="toolbar">
+<section class="audit-toolbar">
   <div class="info_color">
     <div class="general" *ngIf="reportData">
       <div><span>Service base name: </span><strong>{{ reportData.sbn }}</strong></div>
@@ -35,7 +35,7 @@
   </div>
   <div class="action-butt">
     <button mat-raised-button class="butt" (click)="rebuild($event)">
-      <i class="material-icons">autorenew</i>Refresh
+      <i class="material-icons refresh-icon">autorenew</i>Refresh
     </button>
   </div>
 </section>

@@ -44,8 +44,8 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public KeycloakConfigResolver KeycloakConfigResolver() {
-        return new KeycloakSpringBootConfigResolver();
+    public KeycloakConfigResolver keycloakConfigResolver() {
+	    return new KeycloakSpringBootConfigResolver();
     }
 
     @Bean

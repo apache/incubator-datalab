@@ -29,8 +29,8 @@
   width: 100%;
   background: #fff;
   padding-left: 15px;
-  font-size: 14px;
-  // height: 34px;
+  font-size: 13px;
+  height: 34px;
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
@@ -76,6 +76,7 @@
     .selected-items {
       color: #4a5c89;
       max-width: 477px;
+      padding-top: 5px;
     }
   }
 }

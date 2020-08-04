@@ -19,8 +19,39 @@
 
 .table-wrapper {
   width: 100%;
-
+  display: block;
+  max-height: calc(100vh - 130px);
+  overflow: auto;
+  position: relative;
+  scroll-behavior: smooth;
+  box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
 }
+
+.wrapper{
+  position: relative;
+
+  .buttons{
+    position: absolute;
+    display: flex;
+    justify-content: space-around;
+    z-index: 1000;
+    bottom: 9px;
+    left: 0;
+    right: 0;
+
+    button{
+      background-color: #fff;
+      box-shadow: none;
+      mat-icon{
+        color: lightgrey;
+        &.highlight{
+          color: #35afd5;
+        }
+      }
+    }
+  }
+}
+
 
 .reporting {
   width: 100%;
@@ -35,15 +66,14 @@
   tr {
     th {
       padding-right: 5px;
-      z-index: 2 !important;
       &.th_charges{
-        z-index: 3 !important;
+        z-index: 16 !important;
       }
     }
 
     td {
       font-size: 13px;
-      padding-left: 15px;
+      padding-left: 20px;
 
       &.info {
         z-index: 1 !important;
@@ -66,17 +96,20 @@
 
     &.header-row {
       th {
-        font-size: 11px;
+
         .label{
           padding-left: 0;
+          position: relative;
+          font-size: 13px;
         }
       }
     }
   }
 
   .th_shape {
-    width: 10%;
+    width: 12%;
     min-width: 150px;
+    z-index: 10 !important;
   }
 
   .th_user,
@@ -85,8 +118,11 @@
   .tags {
     width: 15%;
     min-width: 150px;
-    overflow: hidden;
     word-wrap: break-word;
+  }
+
+  .service{
+    width: 10%;
   }
 
   .tags {
@@ -97,39 +133,50 @@
 
   .service {
     min-width: 175px;
+    z-index: 9 !important;
   }
 
   .env_name {
-    width: 16%;
+    width: 21%;
     min-width: 200px;
+    z-index: 15 !important;
+    padding-left: 0;
+  }
+
+  .th_user{
+    z-index: 14 !important;
+  }
+
+  .th_empty {
+    width: 1%;
+    z-index: 4 !important;
   }
 
   .th_project{
     width: 12%;
+    z-index: 13 !important;
+    min-width: 150px;
   }
 
   .th_type {
-    width: 10%;
-    min-width: 150px;
+    width: 12%;
+    min-width: 170px;
+    z-index: 12 !important;
   }
 
   .th_status {
     width: 8%;
     min-width: 150px;
+    z-index: 11 !important;
   }
 
   .th_charges {
-    width: 10%;
-    min-width: 155px;
+    min-width: 135px;
     text-align: right;
 
     .label {
       padding-top: 0;
     }
-  }
-
-  .th_project {
-    min-width: 150px;
   }
 
   .tags-col {
@@ -148,8 +195,11 @@
     }
   }
 
-  .mat-column-charge {
+  .mat-column-charge,
+  .filter-row-item:last-child,
+  .table-footer.mat-column-charge{
     text-align: right;
+    background-color: #f8f8f8;
   }
 
   .header-row {
@@ -159,7 +209,7 @@
       padding-top: 0;
 
       .label {
-        padding-top: 12px;
+        padding-top: 10px;
       }
     }
 
@@ -169,13 +219,18 @@
       vertical-align: super !important;
 
       .text{
-     padding-left: 15px;
+     padding-left: 20px;
       }
     }
 
     .sort{
       position: absolute;
-      bottom: 20px;
+      bottom: 2px;
+
+      &-user,
+      &-project{
+        right: -15px;
+      }
 
       &-arrow{
         width: 6px;
@@ -201,11 +256,13 @@
     }
   }
 
-
-
   .filter-row {
     .actions {
       text-align: right;
+
+      button{
+        background: inherit;
+      }
     }
   }
 
@@ -245,8 +302,21 @@
   &.total-cost{
     min-width: 140px;
     padding-left: 0 !important;
+    text-align: right;
+    padding-right: 25px;
+    position: sticky;
+    right: 0;
+    z-index: 17;
   }
 }
+
+  .left {
+  }
+
+  .right {
+    position: absolute;
+    right: 0;
+  }
 
 @media screen and (max-width: 1280px) {
   .dashboard_table.reporting {
@@ -259,10 +329,6 @@
 
     .th_user {
       width: 12%;
-    }
-
-    .th_charges {
-      width: 6%;
     }
 
     .user-field {

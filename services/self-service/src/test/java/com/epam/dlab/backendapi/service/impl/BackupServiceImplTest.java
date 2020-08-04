@@ -20,7 +20,7 @@
 package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.BackupDao;
+import com.epam.dlab.backendapi.dao.BackupDAO;
 import com.epam.dlab.backendapi.resources.dto.BackupInfoRecord;
 import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.backup.EnvBackupStatus;
@@ -41,7 +41,16 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.refEq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BackupServiceImplTest {
@@ -51,7 +60,7 @@ public class BackupServiceImplTest {
 	@Mock
 	private RESTService provisioningService;
 	@Mock
-	private BackupDao backupDao;
+	private BackupDAO backupDao;
 
 	@InjectMocks
 	private BackupServiceImpl backupService;

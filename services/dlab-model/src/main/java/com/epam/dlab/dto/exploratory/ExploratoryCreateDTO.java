@@ -79,6 +79,7 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 		return self;
 	}
 
+	@Override
 	public T withEndpoint(String endpoint) {
 		this.endpoint = endpoint;
 		return self;
@@ -102,10 +103,12 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 		return self;
 	}
 
+	@Override
 	public String getEndpoint() {
 		return endpoint;
 	}
 
+	@Override
 	public void setEndpoint(String endpoint) {
 		this.endpoint = endpoint;
 	}
