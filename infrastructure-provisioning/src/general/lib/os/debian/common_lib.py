@@ -201,11 +201,11 @@ def run_certbot(domain_name, node, email=''):
 def find_replace_line(file_path, searched_str, replacement_line):
     try:
         lines = sudo('cat {}'.format(file_path)).split('\r\n')
-        sudo('echo "" > {}'.format(file_path))
+        sudo('rm {0}; touch {0}'.format(file_path))
         for n, line in enumerate(lines):
             if searched_str in line:
                 lines[n] = replacement_line
-            sudo('echo \'{}\' >> {}'.format(lines[n], file_path))
+            sudo('echo \'{}\' >> {}'.format(lines[n], file_path), quiet=True)
     except Exception as err:
         traceback.print_exc()
         print('Failed to replace string: ' + str(err))
