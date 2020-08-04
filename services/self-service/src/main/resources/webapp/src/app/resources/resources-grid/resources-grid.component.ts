@@ -150,6 +150,7 @@ export class ResourcesGridComponent implements OnInit {
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
+        window.scrollTop = window.scrollTop + 50
         this.progressBarService.stopProgressBar();
       }, () => this.progressBarService.stopProgressBar());
   }
@@ -234,21 +235,20 @@ export class ResourcesGridComponent implements OnInit {
           error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
     } else if (action === 'stop') {
       this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => res && this.buildGrid());
     } else if (action === 'terminate') {
       this.dialog.open(ConfirmationDialogComponent, { data:
           { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => res && this.buildGrid());
     } else if (action === 'install') {
       this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => res && this.buildGrid());
     } else if (action === 'schedule') {
       this.dialog.open(SchedulerComponent, { data: { notebook: data, type: 'EXPLORATORY' }, panelClass: 'modal-xl-s' })
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => res && this.buildGrid());
     } else if (action === 'ami') {
       this.dialog.open(AmiCreateDialogComponent, { data: data, panelClass: 'modal-sm' })
-
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => res && this.buildGrid());
     }
   }
 
