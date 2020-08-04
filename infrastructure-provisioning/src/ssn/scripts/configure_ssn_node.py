@@ -172,8 +172,8 @@ def configure_nginx_LE(domain_name):
         certbot_service = 'ExecStart = /usr/bin/certbot -q renew --pre-hook "service nginx stop" --post-hook "service nginx start"'
         certbot_service_path = '/lib/systemd/system/certbot.service'
         nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
-        find_replace_line(nginx_config_path,'     server_name  ' ,server_name_line)
-        find_replace_line(nginx_config_path,'    ssl_certificate  ' ,cert_path_line)
+        find_replace_line(nginx_config_path,'    server_name  ' ,server_name_line)
+        find_replace_line(nginx_config_path,'    ssl_certificate ' ,cert_path_line)
         find_replace_line(nginx_config_path,'    ssl_certificate_key ' ,cert_key_line)
         find_replace_line(certbot_service_path, 'ExecStart', certbot_service)
         sudo('systemctl restart nginx')
