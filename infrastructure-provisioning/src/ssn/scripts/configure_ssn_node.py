@@ -158,7 +158,7 @@ def find_replace_line(file_path, searched_str, replacement_line):
         for line in lines:
             if searched_str in line:
                 line = replacement_line
-            sudo('echo "{}" >> {}'.format, file_path)
+            sudo('echo "{}" >> {}'.format(line, file_path)
             #with open(file_path, 'w') as file:
                 #file.writelines(lines)
     except Exception as err:
