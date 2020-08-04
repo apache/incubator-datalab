@@ -134,6 +134,7 @@ def install_certbot(os_family):
         elif os_family == 'redhat':
             print('This OS family is not supported yet')
     except Exception as err:
+        traceback.print_exc()
         print('Failed Certbot install: ' + str(err))
         sys.exit(1)
 
@@ -146,22 +147,20 @@ def run_certbot(domain_name, email=''):
         else:
             sudo('certbot certonly --standalone -n -d ssn.{} --register-unsafely-without-email --agree-tos'.format(domain_name))
     except Exception as err:
+        traceback.print_exc()
         print('Failed to run Certbot: ' + str(err))
         sys.exit(1)
 
 def find_replace_line(file_path, searched_str, replacement_line):
     try:
         lines = sudo('cat {}'.format(file_path)).split('\r\n')
-        #with open(file_path, 'r') as file:
-            #lines = file.readlines()
         sudo('echo "" > {}'.format(file_path))
         for line in lines:
             if searched_str in line:
                 line = replacement_line
             sudo('echo "{}" >> {}'.format(line, file_path)
-            #with open(file_path, 'w') as file:
-                #file.writelines(lines)
     except Exception as err:
+        traceback.print_exc()
         print('Failed to replace string: ' + str(err))
         sys.exit(1)
 
@@ -179,6 +178,7 @@ def configure_nginx_LE(domain_name):
         find_replace_line(certbot_service_path, 'ExecStart', certbot_service)
         sudo('systemctl restart nginx')
     except Exception as err:
+        traceback.print_exc()
         print('Failed to run Certbot: ' + str(err))
         sys.exit(1)
 
