@@ -52,6 +52,8 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--numpy_version', type=str, default='')
 parser.add_argument('--application', type=str, default='')
+parser.add_argument('--master_ip', type=str, default='')
+parser.add_argument('--python_version', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -106,8 +108,8 @@ def toree_kernel(args):
     else:
         local('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/')
         local('tar zxvf /tmp/toree_kernel.tar.gz -C ' + kernels_dir + 'toree_' + args.cluster_name + '/')
-        local('sudo mv {0}toree_{1}/toree-0.2.0-incubating/* {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
-        local('sudo rm -r {0}toree_{1}/toree-0.2.0-incubating'.format(kernels_dir, args.cluster_name))
+        local('sudo mv {0}toree_{1}/toree-0.3.0-incubating/* {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
+        local('sudo rm -r {0}toree_{1}/toree-0.3.0-incubating'.format(kernels_dir, args.cluster_name))
         kernel_path = kernels_dir + "toree_" + args.cluster_name + "/kernel.json"
         template_file = "/tmp/toree_dataengine-service_templatev2.json"
         with open(template_file, 'r') as f:
@@ -162,22 +164,57 @@ def add_breeze_library_emr(args):
     local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/s/$/:\/opt\/""" + args.emr_version +
           """\/jars\/usr\/other\/*/' """ + spark_defaults_path + """" """)
 
+def install_sparkamagic_kernels(args):
+    try:
+        local('sudo jupyter nbextension enable --py --sys-prefix widgetsnbextension')
+        sparkmagic_dir = local("sudo pip3 show sparkmagic | grep 'Location: ' | awk '{print $2}'", capture=True)
+        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkkernel --user'.format(sparkmagic_dir))
+        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/pysparkkernel --user'.format(sparkmagic_dir))
+        local('sudo jupyter-kernelspec install {}/sparkmagic/kernels/sparkrkernel --user'.format(sparkmagic_dir))
+        pyspark_kernel_name = 'PySpark (Python-{0} / Spark-{1} ) [{2}]'.format(args.python_version, args.spark_version,
+                                                                         args.cluster_name)
+        local('sed -i \'s|PySpark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/pysparkkernel/kernel.json'.format(
+            pyspark_kernel_name, args.os_user))
+        spark_kernel_name = 'Spark (Scala-{0} / Spark-{1} ) [{2}]'.format(args.scala_version, args.spark_version,
+                                                                         args.cluster_name)
+        local('sed -i \'s|Spark|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkkernel/kernel.json'.format(
+            spark_kernel_name, args.os_user))
+        sparkr_kernel_name = 'SparkR (R-{0} / Spark-{1} ) [{2}]'.format(args.r_version, args.spark_version,
+                                                                            args.cluster_name)
+        local('sed -i \'s|SparkR|{0}|g\' /home/{1}/.local/share/jupyter/kernels/sparkrkernel/kernel.json'.format(
+            sparkr_kernel_name, args.os_user))
+        local('sudo mv -f /home/{0}/.local/share/jupyter/kernels/pysparkkernel '
+              '/home/{0}/.local/share/jupyter/kernels/pysparkkernel_{1}'.format(args.os_user, args.cluster_name))
+        local('sudo mv -f /home/{0}/.local/share/jupyter/kernels/sparkkernel '
+              '/home/{0}/.local/share/jupyter/kernels/sparkkernel_{1}'.format(args.os_user, args.cluster_name))
+        local('sudo mv -f /home/{0}/.local/share/jupyter/kernels/sparkrkernel '
+              '/home/{0}/.local/share/jupyter/kernels/sparkrkernel_{1}'.format(args.os_user, args.cluster_name))
+        local('mkdir -p /home/' + args.os_user + '/.sparkmagic')
+        local('cp -f /tmp/sparkmagic_config_template.json /home/' + args.os_user + '/.sparkmagic/config.json')
+        local('sed -i \'s|LIVY_HOST|{0}|g\' /home/{1}/.sparkmagic/config.json'.format(
+                args.master_ip, args.os_user))
+        local('sudo chown -R {0}:{0} /home/{0}/.sparkmagic/'.format(args.os_user))
+    except:
+        sys.exit(1)
+
+
 
 if __name__ == "__main__":
     if args.dry_run == 'true':
         parser.print_help()
     else:
-        result = prepare(emr_dir, yarn_dir)
-        if result == False :
-            jars(args, emr_dir)
-        yarn(args, yarn_dir)
-        install_emr_spark(args)
-        pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
-                       args.project_name, args.region, args.os_user, args.application, args.pip_mirror, args.numpy_version)
-        toree_kernel(args)
-        if args.r_version != 'false':
-            print('R version: {}'.format(args.r_version))
-            r_kernel(args)
-        spark_defaults(args)
-        configuring_notebook(args.emr_version)
-        add_breeze_library_emr(args)
+        install_sparkamagic_kernels(args)
+        #result = prepare(emr_dir, yarn_dir)
+        #if result == False :
+        #    jars(args, emr_dir)
+        #yarn(args, yarn_dir)
+        #install_emr_spark(args)
+        #pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
+        #               args.project_name, args.region, args.os_user, args.application, args.pip_mirror, args.numpy_version)
+        #toree_kernel(args)
+        #if args.r_version != 'false':
+        #    print('R version: {}'.format(args.r_version))
+        #    r_kernel(args)
+        #spark_defaults(args)
+        #configuring_notebook(args.emr_version)
+        #add_breeze_library_emr(args)

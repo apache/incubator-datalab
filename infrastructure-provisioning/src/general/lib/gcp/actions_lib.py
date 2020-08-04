@@ -177,6 +177,37 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def create_nat_route(self, nat_route_params):
+        request = self.service.routes().insert(project=self.project, body=nat_route_params)
+        try:
+            result = request.execute()
+            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            print('NAT route {} created.'.format(nat_route_params['name']))
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create NAT route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create NAT route",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def delete_nat_route(self, nat_route_name):
+        request = self.service.routes().delete(project=self.project, route=nat_route_name)
+        try:
+            result = request.execute()
+            meta_lib.GCPMeta().wait_for_operation(result['name'])
+            print('NAT route {} deleteed.'.format(nat_route_name))
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to delete NAT route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to delete NAT route",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+
     def create_bucket(self, bucket_name):
         try:
             bucket = self.storage_client.create_bucket(bucket_name)
@@ -1377,6 +1408,10 @@ def configure_local_spark(jars_dir, templates_dir, memory_type='driver'):
             sudo('sed -i "/spark.*.memory/d" /opt/spark/conf/spark-defaults.conf')
             sudo('echo "spark.{0}.memory {1}m" >> /opt/spark/conf/spark-defaults.conf'.format(memory_type,
                                                                                               spark_memory))
+        if not exists('/opt/spark/conf/spark-env.sh'):
+            sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+            java_home = run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").splitlines()[0]
+            sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/spark/conf/spark-env.sh".format(java_home))
         if 'spark_configurations' in os.environ:
             dlab_header = sudo('cat /tmp/notebook_spark-defaults_local.conf | grep "^#"')
             spark_configurations = ast.literal_eval(os.environ['spark_configurations'])

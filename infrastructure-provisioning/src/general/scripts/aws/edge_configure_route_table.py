@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -18,42 +20,19 @@
 # under the License.
 #
 # ******************************************************************************
-user nginx;
-worker_processes  1;
 
-error_log  logs/error.log;
-error_log  logs/error.log  notice;
-error_log  logs/error.log  info;
-
-pid        logs/nginx.pid;
+import argparse
+from dlab.actions_lib import *
+from dlab.meta_lib import *
 
 
-events {
-    worker_connections  1024;
-}
+parser = argparse.ArgumentParser()
+parser.add_argument('--vpc_id', type=str, default='')
+parser.add_argument('--infra_tag_value', type=str, default='')
+parser.add_argument('--edge_instance_id', type=str, default='')
+parser.add_argument('--private_subnet_id', type=str, default='')
+args = parser.parse_args()
 
-
-http {
-    include       mime.types;
-    default_type  application/octet-stream;
-
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
-
-    access_log  logs/access.log  main;
-
-    sendfile            on;
-    tcp_nopush          on;
-    tcp_nodelay         on;
-    keepalive_timeout   100;
-    types_hash_max_size 2048;
-    proxy_read_timeout 86400s;
-    proxy_send_timeout 86400s;
-    client_max_body_size 50M;
-    resolver 8.8.8.8;
-    resolver_timeout 10s;
-
-    include /usr/local/openresty/nginx/conf/conf.d/*.conf;
-}
+if __name__ == "__main__":
+    rt_id = create_nat_rt(args.vpc_id, args.infra_tag_value, args.edge_instance_id, args.private_subnet_id)
 

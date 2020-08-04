@@ -53,6 +53,7 @@ caffe_version = os.environ['notebook_caffe_version']
 caffe2_version = os.environ['notebook_caffe2_version']
 cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
+cntk2_version = os.environ['notebook_cntk2_version']
 mxnet_version = os.environ['notebook_mxnet_version']
 python3_version = "3.4"
 scala_link = "http://www.scala-lang.org/files/archive/"
@@ -173,10 +174,10 @@ if __name__ == "__main__":
     if os.environ['application'] == 'deeplearning':
         print("Installing Caffe2")
         install_caffe2(args.os_user, caffe2_version, cmake_version)
-        print("Installing Torch")
-        install_torch(args.os_user)
+        #print("Installing Torch")
+        #install_torch(args.os_user)
         print("Install CNTK Python library")
-        install_cntk(args.os_user, cntk_version)
+        install_cntk(args.os_user, cntk2_version, cntk_version)
         print("Installing MXNET")
         install_mxnet(args.os_user, mxnet_version)
 
@@ -202,3 +203,25 @@ if __name__ == "__main__":
     if os.environ['application'] == 'zeppelin' and os.environ['notebook_r_enabled'] == 'true':
         print("Install additional R packages")
         install_r_packages(args.os_user)
+
+    # INSTALL LIVY
+    if not exists('/home/{0}/.ensure_dir/livy_ensured'.format(args.os_user)):
+        livy_version = '0.7.0'
+        sudo(
+            'wget -nv --timeout=30 --tries=5 --retry-connrefused https://archive.apache.org/dist/incubator/livy/{0}-incubating/apache-livy-{0}-incubating-bin.zip -P /tmp/'.format(
+                livy_version))
+        sudo('unzip -q /tmp/apache-livy-{}-incubating-bin.zip -d /tmp/'.format(livy_version))
+        sudo('mv /tmp/apache-livy-{}-incubating-bin /opt/livy'.format(livy_version))
+        sudo('mkdir /var/log/livy')
+        put('~/templates/livy-env.sh', '/tmp/livy-env.sh')
+        sudo('mv /tmp/livy-env.sh /opt/livy/conf/livy-env.sh')
+        sudo('chown -R -L {0}:{0} /opt/livy/'.format(args.os_user))
+        sudo('chown -R {0}:{0} /var/log/livy'.format(args.os_user))
+        put('~/templates/livy.service', '/tmp/livy.service')
+        sudo("sed -i 's|OS_USER|{}|' /tmp/livy.service".format(args.os_user))
+        sudo('mv /tmp/livy.service /etc/systemd/system/livy.service')
+        sudo('systemctl daemon-reload')
+        sudo('systemctl enable livy.service')
+        sudo('systemctl start livy.service')
+        sudo('touch /home/{0}/.ensure_dir/livy_ensured'.format(args.os_user))
+

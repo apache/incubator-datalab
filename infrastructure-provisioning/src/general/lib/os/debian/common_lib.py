@@ -28,51 +28,47 @@ import os
 import time
 
 
-def manage_pkg(command, environment, requisites):
+def manage_pkg(command, environment, requisites, warn='False'):
     try:
-        attempt = 0
-        installed = False
-        while not installed:
-            print('Pkg installation attempt: {}'.format(attempt))
-            if attempt > 60:
+        allow = False
+        counter = 0
+        while not allow:
+            if counter > 60:
                 print("Notebook is broken please recreate it.")
                 sys.exit(1)
             else:
-                try:
-                    allow = False
-                    counter = 0
-                    while not allow:
-                        if counter > 60:
-                            print("Notebook is broken please recreate it.")
-                            sys.exit(1)
-                        else:
-                            print('Package manager is:')
-                            if environment == 'remote':
-                                if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
-                                    counter += 1
-                                    time.sleep(10)
-                                else:
-                                    allow = True
-                                    sudo('apt-get {0} {1}'.format(command, requisites))
-                            elif environment == 'local':
-                                if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
-                                    counter += 1
-                                    time.sleep(10)
-                                else:
-                                    allow = True
-                                    local('sudo apt-get {0} {1}'.format(command, requisites), capture=True)
-                            else:
-                                print('Wrong environment')
-                    installed = True
-                except:
-                    print("Will try to install with nex attempt.")
-                    sudo('dpkg --configure -a')
-                    attempt += 1
+                print('Package manager is:')
+                if environment == 'remote':
+                    if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
+                        counter += 1
+                        time.sleep(10)
+                    else:
+                        allow = True
+                        sudo('sudo dpkg --configure -a')
+                        sudo('sudo apt update')
+                        try:
+                            sudo('apt-get {0} {1}'.format(command, requisites), warn_only=warn)
+                        except:
+                            sudo('lsof /var/lib/dpkg/lock')
+                            sudo('lsof /var/lib/apt/lists/lock')
+                            sudo('lsof /var/cache/apt/archives/lock')
+                            sudo('rm -f /var/lib/apt/lists/lock')
+                            sudo('rm -f /var/cache/apt/archives/lock')
+                            sudo('rm -f /var/lib/dpkg/lock')
+                elif environment == 'local':
+                    if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
+                        counter += 1
+                        time.sleep(10)
+                    else:
+                        allow = True
+                        local('sudo apt-get {0} {1}'.format(command, requisites), capture=True)
+                else:
+                    print('Wrong environment')
     except:
         sys.exit(1)
 
 def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
-                                'groff gcc vim less git wget sysv-rc-conf '
+                                'groff gcc vim less git wget '
                                 'libssl-dev unattended-upgrades nmap '
                                 'libffi-dev unzip libxml2-dev haveged'):
     try:
@@ -109,7 +105,8 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
 
 def renew_gpg_key():
     try:
-        sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
+#        if exists('/etc/apt/trusted.gpg'):
+#            sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
         sudo('apt-key update')
     except:
         sys.exit(1)

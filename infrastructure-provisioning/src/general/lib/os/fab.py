@@ -57,7 +57,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:|requires|FileNotFoundError:|RuntimeError:|error:"
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
-            sudo('ln -s /bin/pip3.5 /bin/pip3')
+            for v in range(4, 8):
+                if exists('/bin/pip3.{}'.format(v)):
+                    sudo('ln -s /bin/pip3.{} /bin/pip3'.format(v))
         sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
@@ -184,8 +186,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
         try:
             sudo('pip2 install notebook==5.7.8 --no-cache-dir')
             sudo('pip2 install jupyter --no-cache-dir')
-            sudo('pip3.5 install notebook=={} --no-cache-dir'.format(jupyter_version))
-            sudo('pip3.5 install jupyter --no-cache-dir')
+            sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            sudo('pip3 install jupyter --no-cache-dir')
             sudo('rm -rf {}'.format(jupyter_conf_file))
             run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
             with cd('/home/{}'.format(os_user)):
@@ -207,6 +209,15 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                      "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
             sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
+            http_proxy = run('echo $http_proxy')
+            https_proxy = run('echo $https_proxy')
+            #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
+            #    http_proxy))
+            #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
+            #    https_proxy))
+            java_home = run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").splitlines()[0]
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyter-notebook.service'.format(
+                java_home))
             sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
             sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             sudo('mkdir -p /mnt/var')
@@ -238,7 +249,7 @@ def configure_docker(os_user):
                   stable"')
             manage_pkg('update', 'remote', '')
             sudo('apt-cache policy docker-ce')
-            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
+            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version), 'True')
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))
@@ -561,8 +572,8 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sudo('ln -s /opt/spark/ /usr/local/spark')
             sudo('jupyter toree install')
             sudo('mv ' + scala_kernel_path + 'lib/* /tmp/')
-            put(files_dir + 'toree-assembly-0.2.0.jar', '/tmp/toree-assembly-0.2.0.jar')
-            sudo('mv /tmp/toree-assembly-0.2.0.jar ' + scala_kernel_path + 'lib/')
+            put(files_dir + 'toree-assembly-0.3.0.jar', '/tmp/toree-assembly-0.3.0.jar')
+            sudo('mv /tmp/toree-assembly-0.3.0.jar ' + scala_kernel_path + 'lib/')
             sudo(
                 'sed -i "s|Apache Toree - Scala|Local Apache Toree - Scala (Scala-' + scala_version +
                 ', Spark-' + spark_version + ')|g" ' + scala_kernel_path + 'kernel.json')
@@ -700,18 +711,28 @@ def add_breeze_library_local(os_user):
             sys.exit(1)
 
 
-def configure_data_engine_service_pip(hostname, os_user, keyfile):
+def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     env['connection_attempts'] = 100
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
     if not exists('/usr/bin/pip2'):
-        sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
+        if not exists('/usr/bin/pip-2.7'):
+            manage_pkg('-y install', 'remote', 'python2-pip')
+        else:
+            sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
+    manage_pkg('-y install', 'remote', 'python3-pip')
     if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.6 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
+    if emr:
+        sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
+        sudo('pip2 install -U pip=={}'.format(os.environ['conf_pip_version']))
+        sudo('ln -s /usr/local/bin/pip3.7 /bin/pip3.7')
     sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     sudo('source /etc/profile')
     run('source /etc/profile')

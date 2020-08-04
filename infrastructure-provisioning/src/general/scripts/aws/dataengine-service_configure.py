@@ -33,6 +33,7 @@ import os
 import logging
 import argparse
 import multiprocessing
+from dlab.common_lib import manage_pkg
 
 
 parser = argparse.ArgumentParser()
@@ -81,12 +82,13 @@ def configure_dataengine_service(instance, emr_conf):
         print('[CONFIGURE DATAENGINE SERVICE]')
         try:
             dlab.fab.configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'],
-                                                       emr_conf['key_path'])
+                                                       emr_conf['key_path'], True)
             env['connection_attempts'] = 100
             env.key_filename = emr_conf['key_path']
             env.host_string = emr_conf['os_user'] + '@' + emr_conf['instance_ip']
             sudo('echo "[main]" > /etc/yum/pluginconf.d/priorities.conf ; echo "enabled = 0" >> '
                  '/etc/yum/pluginconf.d/priorities.conf')
+            manage_pkg('-y install', 'remote', 'R-devel')
         except:
             traceback.print_exc()
             raise Exception
@@ -174,7 +176,7 @@ if __name__ == "__main__":
             emr_conf['computational_name'] = os.environ['computational_name']
         else:
             emr_conf['computational_name'] = ''
-        emr_conf['apps'] = 'Hadoop Hive Hue Spark'
+        emr_conf['apps'] = 'Hadoop Hive Hue Spark Livy'
         emr_conf['service_base_name'] = os.environ['conf_service_base_name']
         emr_conf['project_name'] = os.environ['project_name']
         emr_conf['endpoint_name'] = os.environ['endpoint_name']

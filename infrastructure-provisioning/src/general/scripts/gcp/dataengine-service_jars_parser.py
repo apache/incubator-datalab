@@ -44,7 +44,7 @@ if __name__ == "__main__":
         outfile.write(r_ver)
 
     os.system('touch /tmp/python_version')
-    for v in range(4, 7):
+    for v in range(4, 8):
         python_ver_checker = "python3.{} -V 2>/dev/null".format(v) + " | awk '{print $2}'"
         python_ver = subprocess.check_output(python_ver_checker, shell=True).decode('UTF-8')
         if python_ver != '':

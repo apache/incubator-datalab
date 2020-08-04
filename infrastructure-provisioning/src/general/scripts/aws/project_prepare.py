@@ -60,6 +60,7 @@ if __name__ == "__main__":
             os.environ['conf_os_family'])])
         project_conf['instance_size'] = os.environ['aws_edge_instance_size']
         project_conf['sg_ids'] = os.environ['aws_security_groups_ids']
+        project_conf['instance_class'] = 'edge'
         project_conf['edge_instance_name'] = '{}-{}-{}-edge'.format(project_conf['service_base_name'],
                                                                     project_conf['project_name'],
                                                                     project_conf['endpoint_name'])
@@ -400,6 +401,12 @@ if __name__ == "__main__":
                 "FromPort": 389,
                 "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
                 "ToPort": 389, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": -1,
+                "IpRanges": [{"CidrIp": project_conf['all_ip_cidr']}],
+                "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
             }
         ])
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
@@ -622,6 +629,12 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('common_create_instance', params))
             edge_instance = dlab.meta_lib.get_instance_by_name(project_conf['tag_name'],
                                                                project_conf['edge_instance_name'])
+            if os.environ['edge_is_nat']:
+                try:
+                    dlab.actions_lib.modify_instance_sourcedescheck(edge_instance)
+                except:
+                    traceback.print_exc()
+                    raise Exception
         except:
             traceback.print_exc()
             raise Exception
@@ -655,6 +668,37 @@ if __name__ == "__main__":
                 raise Exception
         except Exception as err:
             dlab.fab.append_result("Failed to associate elastic ip.", str(err))
+            try:
+                project_conf['edge_public_ip'] = dlab.meta_lib.get_instance_ip_address(
+                    project_conf['tag_name'], project_conf['edge_instance_name']).get('Public')
+                project_conf['allocation_id'] = dlab.meta_lib.get_allocation_id_by_elastic_ip(
+                    project_conf['edge_public_ip'])
+            except:
+                print("No Elastic IPs to release!")
+            dlab.actions_lib.remove_ec2(project_conf['tag_name'], project_conf['edge_instance_name'])
+            dlab.actions_lib.remove_all_iam_resources('notebook', project_conf['project_name'])
+            dlab.actions_lib.remove_all_iam_resources('edge', project_conf['project_name'])
+            dlab.actions_lib.remove_sgroups(project_conf['dataengine_instances_name'])
+            dlab.actions_lib.remove_sgroups(project_conf['notebook_instance_name'])
+            dlab.actions_lib.remove_sgroups(project_conf['edge_instance_name'])
+            dlab.actions_lib.remove_s3('edge', project_conf['project_name'])
+            sys.exit(1)
+
+    if os.environ['edge_is_nat'] == 'true':
+        try:
+            print('[CONFIGURING ROUTE TABLE FOR NAT]')
+            project_conf['nat_rt_name'] = '{0}-{1}-{2}-nat-rt'.format(project_conf['service_base_name'],
+                                                                              project_conf['project_name'],
+                                                                              project_conf['endpoint_name'])
+            params = "--vpc_id {} --infra_tag_value {} --edge_instance_id {} --private_subnet_id {}".format(
+                project_conf['vpc2_id'], project_conf['nat_rt_name'], edge_instance, subnet_id)
+            try:
+                local("~/scripts/{}.py {}".format('edge_configure_route_table', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            dlab.fab.append_result("Failed to configure route table.", str(err))
             try:
                 project_conf['edge_public_ip'] = dlab.meta_lib.get_instance_ip_address(
                     project_conf['tag_name'], project_conf['edge_instance_name']).get('Public')

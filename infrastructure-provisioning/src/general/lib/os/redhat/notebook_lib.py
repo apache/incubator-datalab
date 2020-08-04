@@ -501,14 +501,14 @@ def install_mxnet(os_user, mxnet_version):
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
 
-def install_torch(os_user):
-    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
-        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
-        with cd('/home/{}/torch/'.format(os_user)):
-            manage_pkg('-y install --nogpgcheck', 'remote', 'cmake curl readline-devel ncurses-devel gcc-c++ gcc-gfortran git gnuplot unzip libjpeg-turbo-devel libpng-devel ImageMagick GraphicsMagick-devel fftw-devel sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld qt-devel')
-            run('./install.sh -b')
-        run('source /home/{}/.bashrc'.format(os_user))
-        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
+#def install_torch(os_user):
+#    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
+#        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
+#        with cd('/home/{}/torch/'.format(os_user)):
+#            manage_pkg('-y install --nogpgcheck', 'remote', 'cmake curl readline-devel ncurses-devel gcc-c++ gcc-gfortran git gnuplot unzip libjpeg-turbo-devel libpng-devel ImageMagick GraphicsMagick-devel fftw-devel sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld qt-devel')
+#            run('./install.sh -b')
+#        run('source /home/{}/.bashrc'.format(os_user))
+#        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
 
 
 def install_gitlab_cert(os_user, certfile):

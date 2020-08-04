@@ -56,7 +56,7 @@ def clean_jupyter():
     try:
         sudo('systemctl stop jupyter-notebook')
         sudo('pip2 uninstall -y notebook jupyter')
-        sudo('pip3.5 uninstall -y notebook jupyter')
+        sudo('pip3 uninstall -y notebook jupyter')
         sudo('rm -rf /usr/local/share/jupyter/')
         sudo('rm -rf /home/{}/.jupyter/'.format(args.os_user))
         sudo('rm -rf /home/{}/.ipython/'.format(args.os_user))
