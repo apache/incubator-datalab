@@ -121,9 +121,8 @@ public class ProjectServiceImplTest extends TestBase {
 		List<ProjectDTO> projectsMock = getProjectDTOs();
 		when(projectDAO.getProjects()).thenReturn(projectsMock);
 
-		List<ProjectDTO> projects = projectService.getProjects(getUserInfo());
+		projectService.getProjects(getUserInfo());
 
-		assertEquals(projects, projectsMock);
 		verify(projectDAO).getProjects();
 		verifyNoMoreInteractions(projectDAO);
 	}
