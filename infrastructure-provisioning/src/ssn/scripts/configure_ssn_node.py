@@ -244,11 +244,11 @@ if __name__ == "__main__":
 
     if os.environ['conf_letsencrypt_enabled'] == 'true':
         print("Configuring letsencrypt certificates.")
-        install_certbot(os.environ['conf_os_family'])
+        install_certbot(os.environ['conf_os_family'], 'ssn')
         if 'conf_letsencrypt_email' in os.environ:
-            run_certbot(os.environ['conf_letsencrypt_domain_name'], os.environ['conf_letsencrypt_email'])
+            run_certbot(os.environ['conf_letsencrypt_domain_name'], 'ssn', os.environ['conf_letsencrypt_email'])
         else:
-            run_certbot(os.environ['conf_letsencrypt_domain_name'])
+            run_certbot(os.environ['conf_letsencrypt_domain_name'], 'ssn')
         configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'])
 
     #print("Installing jenkins.")

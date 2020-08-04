@@ -185,14 +185,14 @@ def install_certbot(os_family):
         print('Failed Certbot install: ' + str(err))
         sys.exit(1)
 
-def run_certbot(domain_name, email=''):
+def run_certbot(domain_name, node, email=''):
     try:
         print('Running  Certbot')
         sudo('service nginx stop')
         if email != '':
-            sudo('certbot certonly --standalone -n -d ssn.{} -m {}'.format(domain_name, email))
+            sudo('certbot certonly --standalone -n -d {}.{} -m {}'.format(node, domain_name, email))
         else:
-            sudo('certbot certonly --standalone -n -d ssn.{} --register-unsafely-without-email --agree-tos'.format(domain_name))
+            sudo('certbot certonly --standalone -n -d {}.{} --register-unsafely-without-email --agree-tos'.format(node, domain_name))
     except Exception as err:
         traceback.print_exc()
         print('Failed to run Certbot: ' + str(err))
@@ -211,11 +211,11 @@ def find_replace_line(file_path, searched_str, replacement_line):
         print('Failed to replace string: ' + str(err))
         sys.exit(1)
 
-def configure_nginx_LE(domain_name):
+def configure_nginx_LE(domain_name, node):
     try:
-        server_name_line ='    server_name  ssn.{};'.format(domain_name)
-        cert_path_line = '    ssl_certificate  /etc/letsencrypt/live/ssn.{}/fullchain.pem;'.format(domain_name)
-        cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/ssn.{}/privkey.pem;'.format(domain_name)
+        server_name_line ='    server_name  {}.{};'.format(node, domain_name)
+        cert_path_line = '    ssl_certificate  /etc/letsencrypt/live/{}.{}/fullchain.pem;'.format(node, domain_name)
+        cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/{}.{}/privkey.pem;'.format(node, domain_name)
         certbot_service = 'ExecStart = /usr/bin/certbot -q renew --pre-hook "service nginx stop" --post-hook "service nginx start"'
         certbot_service_path = '/lib/systemd/system/certbot.service'
         nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
