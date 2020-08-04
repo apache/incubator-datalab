@@ -140,3 +140,29 @@ def ensure_step(user):
             sudo('touch /home/{}/.ensure_dir/step_ensured'.format(user))
     except:
         sys.exit(1)
+
+def install_certbot(os_family):
+    try:
+        print('Installing Certbot')
+        print('Redhat is not supported yet. Skipping....')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed Certbot install: ' + str(err))
+        sys.exit(1)
+
+def run_certbot(domain_name, email=''):
+    try:
+        print('Running  Certbot')
+        print('Redhat is not supported yet. Skipping....')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to run Certbot: ' + str(err))
+        sys.exit(1)
+
+def configure_nginx_LE(domain_name):
+    try:
+        print('Redhat is not supported yet. Skipping....')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to run Certbot: ' + str(err))
+        sys.exit(1)
