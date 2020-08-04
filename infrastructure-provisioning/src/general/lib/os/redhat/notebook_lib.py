@@ -359,12 +359,13 @@ def install_os_pkg(requisites):
             else:
                 version = 'N/A'
                 os_pkg = name
-            manage_pkg('-y install', 'remote', '{0} --nogpgcheck 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
+            manage_pkg('-y install', 'remote', '{0} --nogpgcheck 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" '
+                                               '/tmp/tee.tmp >  /tmp/os_install_{2}.log; then  echo "" > /tmp/os_install_{2}.log;fi'.format(os_pkg, error_parser, name))
             install_output = sudo('cat /tmp/tee.tmp')
-            err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
+            err = sudo('cat /tmp/os_install_{}.log'.format(name)).replace('"', "'")
             sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
-                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, new_pkgs_parser))
-            dep = sudo('cat /tmp/os_install_{}.log'.format(os_pkg))
+                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(name, new_pkgs_parser))
+            dep = sudo('cat /tmp/os_install_{}.log'.format(name))
             if dep == '':
                 dep = []
             else:

@@ -64,16 +64,18 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
+            name, vers = pip_pkg
             if pip_pkg[1] == '' or pip_pkg[1] == 'N/A':
                 pip_pkg = pip_pkg[0]
                 version = 'N/A'
             else:
                 version = pip_pkg[1]
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
-            sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
-            err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
-            sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
-            res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
+            sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp > '
+                 ' /tmp/{0}install_{2}.log; then  echo "" > /tmp/{0}install_{2}.log;fi'.format(pip_version, pip_pkg, error_parser, name))
+            err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg.split("==")[0])).replace('"', "'")
+            sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, name))
+            res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, name))
             changed_pip_pkg = False
             if res == '':
                 changed_pip_pkg = pip_pkg.split("==")[0].replace("_", "-").split('-')
@@ -103,21 +105,21 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     versions = []
 
             sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; '
-                 'then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
-            dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
+                 'then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, name))
+            dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, name)).replace('\r\n', '').strip()[31:]
             if dep == '':
                 dep = []
             else:
                 dep = dep.split(', ')
                 for n, i in enumerate(dep):
-                    if i == pip_pkg.split("==")[0]:
+                    if i == name:
                         dep[n] = ''
                     else:
                         sudo('{0} show {1} 2>&1 | if ! grep Version: /tmp/tee.tmp > '
                              '/tmp/{0}_install_{1}.log; then echo "" > /tmp/{0}_install_{1}.log;fi'.format(pip_version, i))
                         dep[n] = sudo('cat /tmp/{0}_install_{1}.log'.format(pip_version, i)).replace('Version: ', '{} v.'.format(i))
                 dep = [i for i in dep if i]
-            status.append({"group": lib_group, "name": pip_pkg.split("==")[0], "version": version, "status": status_msg,
+            status.append({"group": lib_group, "name": name, "version": version, "status": status_msg,
                            "error_message": err, "available_versions": versions, "add_pkgs": dep})
         return status
     except Exception as err:
