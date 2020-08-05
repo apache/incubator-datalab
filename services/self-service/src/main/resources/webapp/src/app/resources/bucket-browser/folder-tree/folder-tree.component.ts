@@ -84,7 +84,7 @@ export class FolderTreeComponent implements OnDestroy {
           if (this.selectedFolder && !this.bucketDataService.emptyFolder) {
             setTimeout(() => {
               const element = document.querySelector('.folder-item-line.active-item');
-              element && element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+              element && element.scrollIntoView({ block: 'start', behavior: 'smooth' });
             }, 0);
           } else if (this.selectedFolder && this.bucketDataService.emptyFolder) {
             setTimeout(() => {

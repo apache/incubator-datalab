@@ -57,7 +57,7 @@ export class AmiCreateDialogComponent implements OnInit {
 
   public assignChanges(data) {
     this._userResource.createAMI(data).subscribe(
-      response => response.status === HTTP_STATUS_CODES.ACCEPTED && this.dialogRef.close(),
+      response => response.status === HTTP_STATUS_CODES.ACCEPTED && this.dialogRef.close(true),
       error => this.toastr.error(error.message || `Image creation failed!`, 'Oops!'));
   }
 

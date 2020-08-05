@@ -149,7 +149,7 @@
           <label class="label">
             <input #preemptibleNode type="checkbox" (change)="selectPreemptibleNodes($event)" />
             <span>Preemptible node</span>
-            <span class="align" *ngIf="preemptible?.nativeElement['checked'] || false"> count</span>
+            <span class="align" [hidden]="!preemptible?.nativeElement['checked']"> count</span>
           </label>
           <div *ngIf="preemptible?.nativeElement['checked']" class="preemptible-details control"
             [ngClass]="{ show: preemptible?.nativeElement['checked'] || false}">

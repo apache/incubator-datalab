@@ -134,7 +134,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public createComputationalResource(data) {
     this.model.createComputationalResource(data, this.selectedImage, this.notebook_instance, this.spotInstance, this.PROVIDER.toLowerCase())
       .subscribe((response: any) => {
-        if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
+        if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
       }, error => this.toastr.error(error.message, 'Oops!'));
   }
 
