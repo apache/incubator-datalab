@@ -18,7 +18,7 @@
  */
 
 import {Project} from '../../administration/project/project.component';
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
@@ -91,6 +91,7 @@ export class ResourcesGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   @Input() projects: Array<any>;
+  @Output() getEnvironments: EventEmitter<any> = new EventEmitter();
 
   environments: Exploratory[];
 
@@ -146,6 +147,7 @@ export class ResourcesGridComponent implements OnInit {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
+        this.getEnvironments.emit(this.environments);
         this.getBuckets();
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
@@ -283,6 +285,24 @@ export class ResourcesGridComponent implements OnInit {
     });
 
     this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
+    // this.bucketsList = [
+    //   {
+    //     children: [{name: 'SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket.SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket', endpoint: 'local'}],
+    //     cloud: 'GCP',
+    //     name: 'Proj1 (local)'
+    //   },
+    //   {
+    //     children: [{name: 'SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket.SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket', endpoint: 'local'}],
+    //     cloud: 'GCP',
+    //     name: 'Proj1 (local)'
+    //   },
+    //   {
+    //     children: [{name: 'SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket.SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket', endpoint: 'local'}],
+    //     cloud: 'GCP',
+    //     name: 'Proj1 (local)'
+    //   },
+    // ],
+    // console.log(this.bucketsList);
   }
 
 

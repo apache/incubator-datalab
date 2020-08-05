@@ -211,6 +211,11 @@
       .label {
         padding-top: 10px;
       }
+
+      &.label-header{
+        box-shadow: none;
+        border-bottom: 1px solid lightgrey !important;
+      }
     }
 
     .label {

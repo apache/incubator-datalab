@@ -35,7 +35,7 @@
         <mat-label>New folder</mat-label>
         <input matInput #itemValue [formControl]="folderFormControl" [errorStateMatcher]="matcher">
         <mat-error *ngIf="!folderFormControl.hasError('required') && !folderFormControl.hasError('isDuplicate')">
-          The folder name can only contain Latin letters, numbers and special characters except for #, ?, /, \, "
+          The folder name can only contain Latin letters, numbers and special characters except for #, ?, /, \, %"
         </mat-error>
         <mat-error *ngIf="folderFormControl.hasError('required')">
           Folder name is <strong>required</strong>
