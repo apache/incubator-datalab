@@ -615,9 +615,9 @@ public class ComputationalServiceImplTest {
         final List<ClusterConfig> config = Collections.singletonList(new ClusterConfig());
         userInstanceDto.setResources(Collections.singletonList(getUserComputationalResource(RUNNING, COMP_NAME)));
         when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(userInstanceDto);
-        when(requestBuilder.newClusterConfigUpdate(any(UserInfo.class), any(UserInstanceDTO.class), any(UserComputationalResource.class),
-                anyListOf(ClusterConfig.class),
-                any(EndpointDTO.class))).thenReturn(clusterConfigDTO);
+        when(requestBuilder.newClusterConfigUpdate(any(UserInfo.class), any(UserInstanceDTO.class),
+                any(UserComputationalResource.class), anyListOf(ClusterConfig.class), any(EndpointDTO.class)))
+                .thenReturn(clusterConfigDTO);
         when(provisioningService.post(anyString(), anyString(), any(ComputationalClusterConfigDTO.class), any()))
                 .thenReturn("someUuid");
         computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
