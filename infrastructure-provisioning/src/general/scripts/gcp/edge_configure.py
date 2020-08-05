@@ -263,7 +263,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed installing nginx reverse proxy. Excpeption: " + str(err))
-        #clear_resources()
+        clear_resources()
         sys.exit(1)
 
     try:
