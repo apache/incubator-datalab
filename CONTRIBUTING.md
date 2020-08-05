@@ -21,7 +21,7 @@ If you are not familiar with the [Github Pages](pages.github.io) - check it out,
 it's pretty simple yet powerful!
 * __giving feedback__ : Tell us how you use DLab, what was great and what was not 
 so much. Also, what are you expecting from it and what would you like to see in 
-the future? Opening [an issue](https://github.com/epam/DLab/issues) will grab our
+the future? Opening [an issue](https://github.com/apache/incubator-dlab/issues) will grab our
 attention. Seriously, this is the great way to contribute!
 
 #### Roles
