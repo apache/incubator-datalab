@@ -52,7 +52,8 @@
 }
 
 .modal-fullscreen {
-  width: 100vw;
+  width: 90vw;
+  max-width: 90vw !important;
   min-height: 80vh;
 }
 

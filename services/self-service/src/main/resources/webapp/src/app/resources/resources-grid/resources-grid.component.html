@@ -19,7 +19,7 @@
 
 <section class="table-wrapper">
   <table mat-table [dataSource]="filteredEnvironments" multiTemplateDataRows
-    class="data-grid resources mat-elevation-z6">
+    class="data-grid resources mat-elevation-z6" [trackBy]="trackBy">
 
     <ng-container matColumnDef="project">
       <td mat-cell *matCellDef="let element" [attr.colspan]="8" class="project-name"> {{ element.project }} </td>
@@ -111,8 +111,8 @@
     <!-- ----------------------------------------------------- -->
 
     <ng-container matColumnDef="expandedDetail">
-      <td mat-cell *matCellDef="let element" class="exploratory" [attr.colspan]="8"
-        [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'" sticky>
+      <td mat-cell *matCellDef="let element" class="exploratory" [attr.colspan]="8" sticky>
+<!--        [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'" -->
 
         <tr *ngFor="let element of element.exploratory; let i = index" class="element-row mat-row">
           <td class="name-col highlight" (click)="printDetailEnvironmentModal(element)">
@@ -324,9 +324,9 @@
     <tr [hidden]="!collapseFilterRow" mat-header-row *matHeaderRowDef="displayedFilterColumns; sticky: true"
       class="filter-row"></tr>
 
-    <tr mat-row *matRowDef="let element; columns: ['project']" class="element-row"
-      [class.expanded-row]="expandedElement === element"
-      (click)="expandedElement = expandedElement === element ? null : element">
+    <tr mat-row *matRowDef="let element; columns: ['project']" class="element-row">
+<!--      [class.expanded-row]="expandedElement === element"-->
+<!--      (click)="expandedElement = expandedElement === element ? null : element">-->
     </tr>
     <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
 

@@ -120,8 +120,6 @@ export class ResourcesGridComponent implements OnInit {
   public bucketsList: BucketList;
   public activeProjectsList: any;
 
-
-
   constructor(
     public toastr: ToastrService,
     private userResourceService: UserResourceService,
@@ -152,9 +150,8 @@ export class ResourcesGridComponent implements OnInit {
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
-        window.scrollTop = window.scrollTop + 50
         this.progressBarService.stopProgressBar();
-      }, () => this.progressBarService.stopProgressBar());
+        }, () => this.progressBarService.stopProgressBar());
   }
 
   public toggleFilterRow(): void {
@@ -228,7 +225,9 @@ export class ResourcesGridComponent implements OnInit {
 
     if (action === 'deploy') {
       this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: resource, full_list: this.environments }, panelClass: 'modal-xxl' })
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => {
+        res && this.buildGrid();
+      });
     } else if (action === 'run') {
       this.userResourceService
         .runExploratoryEnvironment({ notebook_instance_name: data.name, project_name: data.project })
@@ -237,7 +236,9 @@ export class ResourcesGridComponent implements OnInit {
           error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
     } else if (action === 'stop') {
       this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe((res) => res && this.buildGrid());
+        .afterClosed().subscribe((res) => {
+        res && this.buildGrid();
+      });
     } else if (action === 'terminate') {
       this.dialog.open(ConfirmationDialogComponent, { data:
           { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
@@ -285,24 +286,6 @@ export class ResourcesGridComponent implements OnInit {
     });
 
     this.bucketsList = SortUtils.flatDeep(bucketsList, 1).filter(v => v.children.length);
-    // this.bucketsList = [
-    //   {
-    //     children: [{name: 'SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket.SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket', endpoint: 'local'}],
-    //     cloud: 'GCP',
-    //     name: 'Proj1 (local)'
-    //   },
-    //   {
-    //     children: [{name: 'SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket.SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket', endpoint: 'local'}],
-    //     cloud: 'GCP',
-    //     name: 'Proj1 (local)'
-    //   },
-    //   {
-    //     children: [{name: 'SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket.SERVICE_BASE_NAME-${EDGE_USER_NAME}-bucket', endpoint: 'local'}],
-    //     cloud: 'GCP',
-    //     name: 'Proj1 (local)'
-    //   },
-    // ],
-    // console.log(this.bucketsList);
   }
 
 
@@ -448,6 +431,10 @@ export class ResourcesGridComponent implements OnInit {
     this.auditService.sendDataToAudit({
       resource_name: name, info: `Open terminal, requested for notebook`, type: 'WEB_TERMINAL'
     }).subscribe();
+  }
+
+  public trackBy(index, item) {
+    return null;
   }
 
 }
