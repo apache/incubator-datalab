@@ -279,7 +279,7 @@
     <tr [hidden]="reportData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
   </table>
 </section>
-  <div class="buttons" *ngIf="isScrollButtonsVisible">
+  <div class="buttons" *ngIf="isScrollButtonsVisible && reportData?.length">
     <div class="button-container">
       <button mat-mini-fab aria-label="Scroll left" (click)="sctollTo('left')" [ngClass]="{'not-allowed': tableWrapper.scrollLeft === 0 }">
         <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0}">keyboard_arrow_left</mat-icon>

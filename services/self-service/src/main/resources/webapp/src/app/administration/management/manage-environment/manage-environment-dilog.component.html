@@ -70,7 +70,10 @@
                 <div class="quotes">
                   <input type="number" (keypress)="CheckUtils.numberOnly($event)" formControlName="total"
                          placeholder="Enter total budget, in USD">
-                  <span class="error" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')">Total budget cannot be lower than a sum of projects quotes</span>
+                  <span class="error" *ngIf="manageUsersForm?.controls['total'].hasError('overrun')
+                  && !manageUsersForm?.controls['total'].hasError('max')">Total budget cannot be lower than a sum of projects quotes</span>
+                  <span class="error"
+                        *ngIf="manageUsersForm?.controls['total'].hasError('max')">Total budget cannot be higher than 1000000000</span>
                 </div>
               </mat-list-item>
             </div>

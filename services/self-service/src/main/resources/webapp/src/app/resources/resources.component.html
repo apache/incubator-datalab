@@ -32,15 +32,15 @@
       </button>
       </span>
       <div class="mat-reset">
-        <div class="control selector-wrapper" *ngIf="resourcesGrid.activeProjectsList?.length">
+        <div class="control selector-wrapper" *ngIf="projects?.length">
           <mat-form-field>
-            <mat-label>Select active project</mat-label>
+            <mat-label>Select project</mat-label>
             <mat-select [(value)]="resourcesGrid.activeProject">
-              <mat-option *ngIf="resourcesGrid.activeProjectsList?.length > 1" (click)="setActiveProject('')">Show all</mat-option>
-              <mat-option *ngFor="let project of resourcesGrid.activeProjectsList" [value]="project.name"
-                (click)="setActiveProject(project.name)">
-                {{ project.name }}</mat-option>
-              <mat-option *ngIf="!resourcesGrid.activeProjectsList?.length" class="multiple-select ml-10" disabled>Projects list is empty
+              <mat-option *ngIf="projects?.length > 1" (click)="setActiveProject('')">Show all</mat-option>
+              <mat-option *ngFor="let project of projects" [value]="project"
+                (click)="setActiveProject(project)">
+                {{ project }}</mat-option>
+              <mat-option *ngIf="!projects?.length" class="multiple-select ml-10" disabled>Projects list is empty
               </mat-option>
             </mat-select>
             <button class="caret">
@@ -85,5 +85,5 @@
     </div>
   </div>
   <mat-divider></mat-divider>
-  <resources-grid></resources-grid>
+  <resources-grid (getEnvironments)="getEnvironments($event)" ></resources-grid>
 </div>

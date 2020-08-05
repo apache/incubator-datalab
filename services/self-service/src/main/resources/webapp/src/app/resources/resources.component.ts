@@ -52,12 +52,11 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.getEnvironmentHealthStatus();
-    this.exploratoryEnvironments = this.resourcesGrid.environments;
     this.projects = this.resourcesGrid.activeProjectsList;
   }
 
   ngAfterViewInit() {
-    console.log(this.resourcesGrid);
+
   }
 
   public createEnvironment(): void {
@@ -87,6 +86,7 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
   }
 
   public bucketBrowser(permition): void {
+    console.log(this.exploratoryEnvironments);
     const defaultBucket = this.resourcesGrid.bucketsList[0].children[0];
       permition && this.dialog.open(BucketBrowserComponent, { data:
         {
@@ -114,6 +114,12 @@ export class ResourcesComponent implements OnInit, AfterViewInit {
      this.getEnvironmentHealthStatus();
      }
    );
+  }
+
+
+  public getEnvironments(environment) {
+    this.exploratoryEnvironments = environment;
+    this.projects = environment.map(env => env.project);
   }
 
 
