@@ -1186,7 +1186,7 @@ def download_packages():
                 'https://repo1.maven.org/maven2/org/jfree/jfreechart/{0}/jfreechart-{0}.jar'.format('1.0.19'),
                 'https://repo1.maven.org/maven2/org/jfree/jcommon/{0}/jcommon-{0}.jar'.format('1.0.24'),
                 '--no-check-certificate https://brunelvis.org/jar/spark-kernel-brunel-all-{0}.jar'.format('2.3'),
-                'http://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree-pip/toree-0.2.0.tar.gz',
+                'http://archive.apache.org/dist/incubator/toree/0.3.0-incubating/toree-pip/toree-0.3.0.tar.gz',
                 'https://download2.rstudio.org/server/trusty/amd64/rstudio-server-{}-amd64.deb'.format(
                     configuration['notebook_rstudio_version']),
                 'http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run'.format(
@@ -1222,10 +1222,10 @@ def download_packages():
                     configuration['notebook_livy_version']),
                 'https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/'
                 '1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar',
-                'https://archive.apache.org/dist/incubator/toree/0.2.0-incubating/toree/'
-                'toree-0.2.0-incubating-bin.tar.gz',
-                'https://repo1.maven.org/maven2/org/apache/toree/toree-assembly/0.2.0-incubating/'
-                'toree-assembly-0.2.0-incubating.jar',
+                'https://archive.apache.org/dist/incubator/toree/0.3.0-incubating/toree/'
+                'toree-0.3.0-incubating-bin.tar.gz',
+                'https://repo1.maven.org/maven2/org/apache/toree/toree-assembly/0.3.0-incubating/'
+                'toree-assembly-0.3.0-incubating.jar',
                 'https://cran.r-project.org/src/contrib/Archive/keras/keras_{}.tar.gz'.format(
                     configuration['notebook_keras_version'])
             ]

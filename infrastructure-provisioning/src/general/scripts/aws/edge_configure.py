@@ -161,6 +161,21 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
             raise Exception
+        print('RESTARTING EDGE NODE')
+        try:
+            print('Stoping EDGE node')
+            dlab.actions_lib.stop_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            dlab.fab.append_result("Failed to stop edge.", str(err))
+            sys.exit(1)
+        try:
+            print('Starting EDGE node')
+            dlab.actions_lib.start_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        except Exception as err:
+            print('Error: {0}'.format(err))
+            dlab.fab.append_result("Failed to start edge.", str(err))
+            sys.exit(1)
     except Exception as err:
         dlab.fab.append_result("Failed installing apps: apt & pip.", str(err))
         clear_resources()
@@ -241,6 +256,25 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         dlab.fab.append_result("Failed installing nginx reverse proxy." + str(err))
+        clear_resources()
+        sys.exit(1)
+
+    try:
+        print('[CONFIGRING EDGE AS NAT]')
+        if os.environ['edge_is_nat'] == 'true':
+            print('Installing nftables')
+            additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
+                                 "edge_ip": edge_conf['edge_private_ip']}
+            params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+                edge_conf['instance_hostname'], edge_conf['keyfile_name'], json.dumps(additional_config),
+                edge_conf['dlab_ssh_user'])
+            try:
+                local("~/scripts/{}.py {}".format('configure_nftables', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+    except Exception as err:
+        dlab.fab.append_result("Failed to configure NAT." + str(err))
         clear_resources()
         sys.exit(1)
 

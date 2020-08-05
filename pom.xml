@@ -65,6 +65,8 @@
                     **/*Exception.java,
                     **/*DAO.java,
                     **/*DAOImpl.java,
+                    **/*Configuration.java,
+                    **/*ApplicationConfiguration.java,
                     src/main/java/com/epam/dlab/dto/**,
                     src/main/java/com/epam/dlab/backendapi/interceptor/**,
                     src/main/java/com/epam/dlab/backendapi/auth/**,
@@ -80,7 +82,8 @@
                     src/main/java/com/epam/dlab/backendapi/validation/**,
                     src/main/java/com/epam/dlab/process/**,
                     src/main/java/com/epam/dlab/backendapi/modules/**,
-                    src/main/java/com/epam/dlab/backendapi/validation/**
+                    src/main/java/com/epam/dlab/backendapi/validation/**,
+                    src/main/java/com/epam/dlab/backendapi/schedulers/**
                 </sonar.coverage.exclusions>
             </properties>
         </profile>

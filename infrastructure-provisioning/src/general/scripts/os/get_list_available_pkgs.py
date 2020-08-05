@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     if os.environ['application'] in ('jupyter', 'jupyterlab', 'zeppelin', 'deeplearning', 'tensor', 'tensor-rstudio', 'rstudio'):
         all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
-        all_pkgs['pip3'] = get_available_pip_pkgs("3.5")
+        all_pkgs['pip3'] = get_available_pip_pkgs("3.6")
         all_pkgs['others'] = get_uncategorised_pip_pkgs(all_pkgs['pip2'], all_pkgs['pip3'])
 
     if (os.environ['application'] in ('jupyter', 'jupyterlab', 'zeppelin')

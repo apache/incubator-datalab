@@ -341,6 +341,9 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	private String getUpdateBudgetAudit(ProjectDTO p) {
+		if (!configuration.isAuditEnabled()) {
+			return null;
+		}
 		Integer value = Optional.ofNullable(get(p.getName()).getBudget())
 				.map(BudgetDTO::getValue)
 				.orElse(null);

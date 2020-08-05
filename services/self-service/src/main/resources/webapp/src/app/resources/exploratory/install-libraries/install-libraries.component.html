@@ -280,7 +280,7 @@
                  </button>
 
                  <button mat-icon-button class="btn apply" (click)="filterLibs()">
-                   <i class="material-icons"  [ngClass]="{'not-allowed': filterModel.length === 0}">done</i>
+                   <i class="material-icons"  [ngClass]="{'not-allowed': filterModel['length'] === 0}">done</i>
                  </button>
                </div>
              </th>
@@ -312,9 +312,9 @@
                         <span *ngIf="!installingInProgress && item.status === 'installation_error'" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
                           <i class="material-icons">replay</i>
                         </span>
-                        <span class="not-allowed" *ngIf="installingInProgress && item.status === 'installation_error'" matTooltip="Please wait until lib installation completes"
+                        <span class="not-allow" *ngIf="installingInProgress && item.status === 'installation_error'" matTooltip="Please wait until lib installation completes"
                           matTooltipPosition="above">
-                          <i class="material-icons">replay</i>
+                          <i class="material-icons not-allowed">replay</i>
                         </span>
                       </div>
                       <div *ngIf="item.status === 'installation_error' && item.error" class="lib-error" (click)="showErrorMessage(item)" matTooltip="Show error message" matTooltipPosition="above">

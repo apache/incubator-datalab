@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -18,42 +20,33 @@
 # under the License.
 #
 # ******************************************************************************
-user nginx;
-worker_processes  1;
 
-error_log  logs/error.log;
-error_log  logs/error.log  notice;
-error_log  logs/error.log  info;
+from fabric.api import *
+from fabric.contrib.files import exists
+from dlab.edge_lib import configure_nftables
+import argparse
+import json
+import sys
 
-pid        logs/nginx.pid;
+parser = argparse.ArgumentParser()
+parser.add_argument('--hostname', type=str, default='')
+parser.add_argument('--keyfile', type=str, default='')
+parser.add_argument('--user', type=str, default='')
+parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
+args = parser.parse_args()
 
+##############
+# Run script #
+##############
+if __name__ == "__main__":
+    print("Configure connections")
+    try:
+        env['connection_attempts'] = 100
+        env.key_filename = [args.keyfile]
+        env.host_string = '{}@{}'.format(args.user, args.hostname)
+        deeper_config = json.loads(args.additional_config)
+    except:
+        sys.exit(2)
 
-events {
-    worker_connections  1024;
-}
-
-
-http {
-    include       mime.types;
-    default_type  application/octet-stream;
-
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
-
-    access_log  logs/access.log  main;
-
-    sendfile            on;
-    tcp_nopush          on;
-    tcp_nodelay         on;
-    keepalive_timeout   100;
-    types_hash_max_size 2048;
-    proxy_read_timeout 86400s;
-    proxy_send_timeout 86400s;
-    client_max_body_size 50M;
-    resolver 8.8.8.8;
-    resolver_timeout 10s;
-
-    include /usr/local/openresty/nginx/conf/conf.d/*.conf;
-}
-
+    print("Configuring nftables on edge node.")
+    configure_nftables(deeper_config)
