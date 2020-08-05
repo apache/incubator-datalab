@@ -177,7 +177,7 @@ def install_certbot(os_family):
             sudo('add-apt-repository -y universe')
             sudo('add-apt-repository -y ppa:certbot/certbot')
             sudo('apt-get -y update')
-            sudo('apt-get -y install certbot python-certbot-nginx')
+            sudo('apt-get -y install certbot')
         elif os_family == 'redhat':
             print('This OS family is not supported yet')
     except Exception as err:
