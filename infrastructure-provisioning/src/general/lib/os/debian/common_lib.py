@@ -198,34 +198,21 @@ def run_certbot(domain_name, node, email=''):
         print('Failed to run Certbot: ' + str(err))
         sys.exit(1)
 
-def find_replace_line(file_path, searched_str, replacement_line):
-    try:
-        lines = sudo('cat {}'.format(file_path)).split('\r\n')
-        sudo('rm {0}; touch {0}'.format(file_path))
-        for n, line in enumerate(lines):
-            if searched_str in line:
-                lines[n] = replacement_line
-            sudo('echo \'{}\' >> {}'.format(lines[n], file_path), quiet=True)
-    except Exception as err:
-        traceback.print_exc()
-        print('Failed to replace string: ' + str(err))
-        sys.exit(1)
-
 def configure_nginx_LE(domain_name, node):
     try:
-        server_name_line ='    server_name  {}.{};'.format(node, domain_name)
+        server_name_line ='    server_name {}.{};'.format(node, domain_name)
         cert_path_line = '    ssl_certificate  /etc/letsencrypt/live/{}.{}/fullchain.pem;'.format(node, domain_name)
         cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/{}.{}/privkey.pem;'.format(node, domain_name)
-        certbot_service = 'ExecStart = /usr/bin/certbot -q renew --pre-hook "service nginx stop" --post-hook "service nginx start"'
+        certbot_service = 'ExecStart = /usr/bin/certbot -q renew --pre-hook \"service nginx stop\" --post-hook \"service nginx start\"'
         certbot_service_path = '/lib/systemd/system/certbot.service'
         if node == 'ssn':
             nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
         else:
             nginx_config_path = '/etc/nginx/conf.d/proxy.conf'
-        find_replace_line(nginx_config_path,'    server_name  ' ,server_name_line)
-        find_replace_line(nginx_config_path,'    ssl_certificate ' ,cert_path_line)
-        find_replace_line(nginx_config_path,'    ssl_certificate_key ' ,cert_key_line)
-        find_replace_line(certbot_service_path, 'ExecStart', certbot_service)
+        sudo('sed -i "s|.*    server_name .*|{}|" {}'.format(server_name_line, nginx_config_path))
+        sudo('sed -i "s|.*    ssl_certificate .*|{}|" {}'.format(cert_path_line, nginx_config_path))
+        sudo('sed -i "s|.*    ssl_certificate_key .*|{}|" {}'.format(cert_key_line, nginx_config_path))
+        sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
         sudo('systemctl restart nginx')
     except Exception as err:
         traceback.print_exc()

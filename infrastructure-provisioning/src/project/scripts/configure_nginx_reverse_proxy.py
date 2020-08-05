@@ -27,7 +27,6 @@ import argparse
 import sys
 import os
 from dlab.common_lib import ensure_step
-from dlab.common_lib import configure_nginx_LE
 from dlab.edge_lib import install_nginx_lua
 
 parser = argparse.ArgumentParser()
@@ -68,7 +67,6 @@ if __name__ == "__main__":
                           os.environ['keycloak_auth_server_url'], os.environ['keycloak_realm_name'],
                           args.keycloak_client_id, args.keycloak_client_secret, args.user, args.hostname,
                           args.step_cert_sans)
-        configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'])
     except Exception as err:
         print("Failed install nginx reverse proxy: " + str(err))
         sys.exit(1)
