@@ -60,12 +60,12 @@ export class ConfirmationDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    if(this.data.type !== 5){
+    if (this.data.type !== 5) {
       this.confirmationType = this.data.type;
       this.notebook = this.data.notebook;
       this.model = new ConfirmationDialogModel(this.confirmationType, this.notebook,
         response => {
-          if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close();
+          if (response.status === HTTP_STATUS_CODES.OK) this.dialogRef.close(true);
         },
         error => this.toastr.error(error.message || 'Action failed!', 'Oops'),
         this.data.manageAction,
@@ -75,7 +75,9 @@ export class ConfirmationDialogComponent implements OnInit {
 
       if (!this.confirmationType) this.filterResourcesByType(this.notebook.resources);
       this.isAliveResources = this.model.isAliveResources(this.notebook.resources);
-      this.onlyKilled = this.notebook.resources ? !this.notebook.resources.some(el => el.status !== 'terminated' && el.status !== 'failed') : false;
+      this.onlyKilled = this.notebook.resources ?
+        !this.notebook.resources.some(el => el.status !== 'terminated' && el.status !== 'failed')
+        : false;
     }
   }
 

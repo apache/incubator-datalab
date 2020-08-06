@@ -28,51 +28,47 @@ import os
 import time
 
 
-def manage_pkg(command, environment, requisites):
+def manage_pkg(command, environment, requisites, warn='False'):
     try:
-        attempt = 0
-        installed = False
-        while not installed:
-            print('Pkg installation attempt: {}'.format(attempt))
-            if attempt > 60:
+        allow = False
+        counter = 0
+        while not allow:
+            if counter > 60:
                 print("Notebook is broken please recreate it.")
                 sys.exit(1)
             else:
-                try:
-                    allow = False
-                    counter = 0
-                    while not allow:
-                        if counter > 60:
-                            print("Notebook is broken please recreate it.")
-                            sys.exit(1)
-                        else:
-                            print('Package manager is:')
-                            if environment == 'remote':
-                                if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
-                                    counter += 1
-                                    time.sleep(10)
-                                else:
-                                    allow = True
-                                    sudo('apt-get {0} {1}'.format(command, requisites))
-                            elif environment == 'local':
-                                if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
-                                    counter += 1
-                                    time.sleep(10)
-                                else:
-                                    allow = True
-                                    local('sudo apt-get {0} {1}'.format(command, requisites), capture=True)
-                            else:
-                                print('Wrong environment')
-                    installed = True
-                except:
-                    print("Will try to install with nex attempt.")
-                    sudo('dpkg --configure -a')
-                    attempt += 1
+                print('Package manager is:')
+                if environment == 'remote':
+                    if sudo('pgrep "^apt" -a && echo "busy" || echo "ready"') == 'busy':
+                        counter += 1
+                        time.sleep(10)
+                    else:
+                        allow = True
+                        sudo('sudo dpkg --configure -a')
+                        sudo('sudo apt update')
+                        try:
+                            sudo('apt-get {0} {1}'.format(command, requisites), warn_only=warn)
+                        except:
+                            sudo('lsof /var/lib/dpkg/lock')
+                            sudo('lsof /var/lib/apt/lists/lock')
+                            sudo('lsof /var/cache/apt/archives/lock')
+                            sudo('rm -f /var/lib/apt/lists/lock')
+                            sudo('rm -f /var/cache/apt/archives/lock')
+                            sudo('rm -f /var/lib/dpkg/lock')
+                elif environment == 'local':
+                    if local('sudo pgrep "^apt" -a && echo "busy" || echo "ready"', capture=True) == 'busy':
+                        counter += 1
+                        time.sleep(10)
+                    else:
+                        allow = True
+                        local('sudo apt-get {0} {1}'.format(command, requisites), capture=True)
+                else:
+                    print('Wrong environment')
     except:
         sys.exit(1)
 
 def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
-                                'groff gcc vim less git wget sysv-rc-conf '
+                                'groff gcc vim less git wget '
                                 'libssl-dev unattended-upgrades nmap '
                                 'libffi-dev unzip libxml2-dev haveged'):
     try:
@@ -109,7 +105,8 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev '
 
 def renew_gpg_key():
     try:
-        sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
+#        if exists('/etc/apt/trusted.gpg'):
+#            sudo('mv /etc/apt/trusted.gpg /etc/apt/trusted.bkp')
         sudo('apt-key update')
     except:
         sys.exit(1)
@@ -166,4 +163,55 @@ def ensure_step(user):
             sudo('dpkg -i /tmp/step-cli_0.13.3_amd64.deb')
             sudo('touch /home/{}/.ensure_dir/step_ensured'.format(user))
     except:
+        sys.exit(1)
+
+def install_certbot(os_family):
+    try:
+        print('Installing Certbot')
+        if os_family == 'debian':
+            sudo('apt-get -y update')
+            sudo('apt-get -y install software-properties-common')
+            sudo('add-apt-repository -y universe')
+            sudo('add-apt-repository -y ppa:certbot/certbot')
+            sudo('apt-get -y update')
+            sudo('apt-get -y install certbot')
+        elif os_family == 'redhat':
+            print('This OS family is not supported yet')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed Certbot install: ' + str(err))
+        sys.exit(1)
+
+def run_certbot(domain_name, node, email=''):
+    try:
+        print('Running  Certbot')
+        sudo('service nginx stop')
+        if email != '':
+            sudo('certbot certonly --standalone -n -d {}.{} -m {}'.format(node, domain_name, email))
+        else:
+            sudo('certbot certonly --standalone -n -d {}.{} --register-unsafely-without-email --agree-tos'.format(node, domain_name))
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to run Certbot: ' + str(err))
+        sys.exit(1)
+
+def configure_nginx_LE(domain_name, node):
+    try:
+        server_name_line ='    server_name {}.{};'.format(node, domain_name)
+        cert_path_line = '    ssl_certificate  /etc/letsencrypt/live/{}.{}/fullchain.pem;'.format(node, domain_name)
+        cert_key_line = '    ssl_certificate_key /etc/letsencrypt/live/{}.{}/privkey.pem;'.format(node, domain_name)
+        certbot_service = "ExecStart = /usr/bin/certbot -q renew --pre-hook 'service nginx stop' --post-hook 'service nginx start'"
+        certbot_service_path = '/lib/systemd/system/certbot.service'
+        if node == 'ssn':
+            nginx_config_path = '/etc/nginx/conf.d/nginx_proxy.conf'
+        else:
+            nginx_config_path = '/etc/nginx/conf.d/proxy.conf'
+        sudo('sed -i "s|.*    server_name .*|{}|" {}'.format(server_name_line, nginx_config_path))
+        sudo('sed -i "s|.*    ssl_certificate .*|{}|" {}'.format(cert_path_line, nginx_config_path))
+        sudo('sed -i "s|.*    ssl_certificate_key .*|{}|" {}'.format(cert_key_line, nginx_config_path))
+        sudo('sed -i "s|.*ExecStart.*|{}|" {}'.format(certbot_service, certbot_service_path))
+        sudo('systemctl restart nginx')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to run Certbot: ' + str(err))
         sys.exit(1)

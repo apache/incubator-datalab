@@ -34,6 +34,7 @@ COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/pyspark_local_template.json /root/templates/
 COPY general/templates/os/py3spark_local_template.json /root/templates/
 COPY general/templates/os/pyspark_dataengine-service_template.json /root/templates/
+COPY general/templates/os/sparkmagic_config_template.json /root/templates/
 COPY general/templates/os/r_dataengine-service_template.json /root/templates/
 COPY general/templates/os/r_template.json /root/templates/
 COPY general/templates/os/run_template.sh /root/templates/
@@ -41,7 +42,7 @@ COPY general/templates/os/toree_dataengine-service_* /root/templates/
 COPY general/templates/os/inactive.sh /root/templates/
 COPY general/templates/os/inactive.service /root/templates/
 COPY general/templates/os/inactive.timer /root/templates/
-COPY general/files/os/toree-assembly-0.2.0.jar /root/files/
+COPY general/files/os/toree-assembly-0.3.0.jar /root/files/
 COPY general/files/os/toree_kernel.tar.gz /root/files/
 COPY general/templates/os/pyspark_dataengine_template.json /root/templates/
 COPY general/templates/os/r_dataengine_template.json /root/templates/

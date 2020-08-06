@@ -18,7 +18,7 @@
   -->
 
 <div class="wrapper">
-<section class="table-wrapper" id="scrolling">
+<section class="table-wrapper" id="scrolling" #tableWrapper (scroll)="scrollTable($event)">
 
 <!--  <div class="navigation-btn">-->
 <!--    <div class="left">-->
@@ -32,7 +32,7 @@
 <!--      </button>-->
 <!--    </div>-->
 <!--  </div>-->
-  <table mat-table [dataSource]="reportData" class="data-grid reporting mat-elevation-z6">
+  <table mat-table [dataSource]="reportData" class="data-grid reporting mat-elevation-z6" #table>
 
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef class="env_name label-header">
@@ -166,7 +166,12 @@
       </th>
       <td mat-cell *matCellDef="let element">
       </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer"></td>
+      <td mat-footer-cell *matFooterCellDef class="table-footer total-cost" [colSpan]="2">
+        <span class="strong">
+            Total <span *ngIf="reportData?.length"> {{ fullReport['total_cost'] }}
+          {{ fullReport['currency'] }}</span>
+        </span>
+      </td>
     </ng-container>
 
 
@@ -180,27 +185,22 @@
           </div>
           <span class="text">Service Charges</span>
         </div>
-<!--        <div class="right">-->
-<!--          <button mat-fab aria-label="Scroll right">-->
-<!--            <mat-icon>keyboard_arrow_right</mat-icon>-->
-<!--          </button>-->
-<!--        </div>-->
       </th>
 
       <td mat-cell *matCellDef="let element">
         {{ element.cost }} {{ element['currency'] }}
       </td>
-      <td mat-footer-cell *matFooterCellDef class="table-footer total-cost">
-        Total <span *ngIf="reportData?.length"> {{ fullReport['total_cost'] }}
-          {{ fullReport['currency'] }}</span>
+      <td mat-footer-cell *matFooterCellDef class="table-footer total-cost d-none">
       </td>
     </ng-container>
 
     <!-- ----------------FILTER -->
     <ng-container matColumnDef="name-filter">
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <input #nameFilter type="text" placeholder="Filter by environment name" class="form-control filter-field"
-          [value]="filtered?.dlab_id" (input)="filteredReportData.dlab_id = $event.target['value']" />
+        <div class="input-wrapper">
+          <input #nameFilter type="text" placeholder="Filter by environment name" class="form-control filter-field"
+                 [value]="filtered?.dlab_id" (input)="filteredReportData.dlab_id = $event.target['value']" />
+        </div>
       </th>
     </ng-container>
     <ng-container matColumnDef="user-filter">
@@ -251,7 +251,7 @@
     </ng-container>
     <ng-container matColumnDef="actions" stickyEnd>
       <th mat-header-cell *matHeaderCellDef class="filter-row-item">
-        <div class="actions th_charges">
+        <div class="actions">
           <button mat-icon-button class="btn reset" (click)="resetFiltering(); isFiltered = !isFiltered">
             <i class="material-icons">close</i>
           </button>
@@ -264,7 +264,7 @@
     </ng-container>
     <ng-container matColumnDef="placeholder">
       <td mat-footer-cell *matFooterCellDef colspan="9" class="info">
-        No data available
+        <span>No data available</span>
       </td>
     </ng-container>
 
@@ -279,4 +279,19 @@
     <tr [hidden]="reportData?.length" mat-footer-row *matFooterRowDef="['placeholder']"></tr>
   </table>
 </section>
+  <div class="buttons" *ngIf="isScrollButtonsVisible && reportData?.length">
+    <div class="button-container">
+      <button mat-mini-fab aria-label="Scroll left" (click)="sctollTo('left')" [ngClass]="{'not-allowed': tableWrapper.scrollLeft === 0 }">
+        <mat-icon [ngClass]="{'highlight': tableWrapper.scrollLeft !== 0}">keyboard_arrow_left</mat-icon>
+      </button>
+    </div>
+    <div class="button-container">
+      <button mat-mini-fab aria-label="Scroll right"
+              (click)="sctollTo('right')"
+              [ngClass]="{'not-allowed': !isMaxRight }"
+             >
+        <mat-icon [ngClass]="{'highlight': isMaxRight }">keyboard_arrow_right</mat-icon>
+      </button>
+    </div>
+  </div>
 </div>

@@ -813,6 +813,17 @@ mat-progress-bar {
 .filter-row-item, .label-header{
   box-shadow: inset 0 -1px 0 lightgrey;
   border-bottom: none !important;
+  multi-select-dropdown, .input-wrapper{
+    position: absolute;
+    top: 10px;
+    left: 5px;
+    right: 5px;
+  }
+
+  .input-wrapper{
+    left: 10px;
+    right: 4px;
+  }
 }
 
 /* daterangepicker themes */
@@ -832,13 +843,17 @@ mat-progress-bar {
   box-shadow: none;
 }
 
-#range-picker .ng-daterangepicker .calendar{
+#range-picker .ng-daterangepicker .calendar {
   z-index: 102;
   border: 1px solid rgba(234, 234, 234, 0.64);
   border-radius: 0;
   box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
   0 2px 2px 0 rgba(0, 0, 0, 0.14),
   0 1px 5px 0 rgba(0, 0, 0, 0.12);
+
+  &.is-to:after {
+    left: 250px;
+  }
 }
 
 #range-picker .ng-daterangepicker .calendar::after {
@@ -953,5 +968,20 @@ mat-progress-bar {
     box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
   }
 }
+
+.show-all-btn.mat-raised-button .mat-button-wrapper > *{
+  vertical-align: baseline;
+}
+
+.resource-btns {
+  .mat-raised-button{
+    line-height: 38px;
+  }
+
+  .mat-select-value{
+    margin-top: 1px;
+  }
+}
+
 
 

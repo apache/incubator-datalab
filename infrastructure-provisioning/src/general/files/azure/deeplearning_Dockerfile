@@ -40,7 +40,7 @@ COPY general/templates/os/tensorboard.service /root/templates/
 COPY general/templates/os/inactive.sh /root/templates/
 COPY general/templates/os/inactive.service /root/templates/
 COPY general/templates/os/inactive.timer /root/templates/
-COPY general/files/os/toree-assembly-0.2.0.jar /root/files/
+COPY general/files/os/toree-assembly-0.3.0.jar /root/files/
 COPY general/files/os/toree_kernel.tar.gz /root/files/
 COPY general/templates/azure/core-site* /root/templates/
 

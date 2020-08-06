@@ -50,6 +50,13 @@ def set_hostname(subdomain, hosted_zone_name):
         print('Failed to set hostname: ', str(err))
         sys.exit(1)
 
+def set_resolve():
+    try:
+        sudo('ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf')
+    except Exception as err:
+        traceback.print_exc()
+        print('Failed to set resolve: ', str(err))
+        sys.exit(1)
 
 def cp_key(keyfile, host_string, os_user):
     try:
@@ -179,7 +186,6 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                     use_sudo=True)
                 sudo('systemctl daemon-reload')
                 sudo('systemctl enable step-cert-manager.service')
-
             else:
                 sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
                      -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
@@ -223,6 +229,9 @@ if __name__ == "__main__":
     else:
         custom_ssl_cert = False
 
+    print('Setting resolve DNS configuration')
+    set_resolve()
+
     print("Creating service directories.")
     creating_service_directories(args.dlab_path, args.os_user)
 
@@ -242,6 +251,15 @@ if __name__ == "__main__":
 
     print("Configuring nginx.")
     configure_nginx(deeper_config, args.dlab_path, args.hostname)
+
+    if os.environ['conf_letsencrypt_enabled'] == 'true':
+        print("Configuring letsencrypt certificates.")
+        install_certbot(os.environ['conf_os_family'])
+        if 'conf_letsencrypt_email' in os.environ:
+            run_certbot(os.environ['conf_letsencrypt_domain_name'], 'ssn', os.environ['conf_letsencrypt_email'])
+        else:
+            run_certbot(os.environ['conf_letsencrypt_domain_name'], 'ssn')
+        configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], 'ssn')
 
     #print("Installing jenkins.")
     #ensure_jenkins(args.dlab_path)

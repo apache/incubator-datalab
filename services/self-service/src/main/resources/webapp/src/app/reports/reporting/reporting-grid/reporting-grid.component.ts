@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import {Component, OnInit, Output, EventEmitter, ViewChild, Input} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, ViewChild, Input, HostListener, AfterViewInit, ChangeDetectorRef} from '@angular/core';
 import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
 
 @Component({
@@ -27,7 +27,7 @@ import { ReportingConfigModel } from '../../../../dictionary/global.dictionary';
     '../../../resources/resources-grid/resources-grid.component.scss'],
 
 })
-export class ReportingGridComponent implements OnInit {
+export class ReportingGridComponent implements OnInit, AfterViewInit {
 
   filterConfiguration: ReportingConfigModel;
   // filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], [], '', '', '', []);
@@ -36,17 +36,44 @@ export class ReportingGridComponent implements OnInit {
   fullReport: Array<any>;
   isFiltered: boolean = false;
   active: object = {};
+  public isScrollButtonsVisible: boolean;
 
   @ViewChild('nameFilter', { static: false }) filter;
+  @ViewChild('tableWrapper', { static: false }) tableWrapper;
 
+  @ViewChild('table', { static: false }) table;
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
   @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
   @Input() filteredReportData: ReportingConfigModel;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
+    this.isMaxRight = this.checkMaxRight();
+  }
+  @HostListener('scroll', ['$event'])
+  scrollTable($event: Event) {
+    this.isMaxRight = this.checkMaxRight();
+  }
+
+
+
   displayedColumns: string[] = ['name', 'user', 'project', 'type', 'status', 'shape', 'service', 'empty', 'charge'];
   displayedFilterColumns: string[] = ['name-filter', 'user-filter', 'project-filter', 'type-filter', 'status-filter', 'shape-filter',  'service-filter', 'empty-filter', 'actions'];
   filtered: any;
+  isMaxRight: boolean;
+
+  constructor(private changeDetector: ChangeDetectorRef) {
+  }
 
   ngOnInit() {}
+
+  ngAfterViewInit() {
+    window.setTimeout(() => {
+      this.isScrollButtonsVisible = this.tableWrapper.nativeElement.offsetWidth - this.table._elementRef.nativeElement.offsetWidth < 0;
+      this.isMaxRight = this.checkMaxRight();
+    }, 500);
+  }
 
   onUpdate($event): void {
     this.filteredReportData[$event.type] = $event.model;
@@ -116,4 +143,18 @@ export class ReportingGridComponent implements OnInit {
   shapeSplit(shape) {
     return shape.split(/(?=Slave)/g);
   }
+
+  public sctollTo(direction: string) {
+    if (direction === 'left') {
+      this.tableWrapper.nativeElement.scrollLeft = 0;
+    } else {
+      this.tableWrapper.nativeElement.scrollLeft = this.tableWrapper.nativeElement.offsetWidth;
+    }
+  }
+
+  private checkMaxRight() {
+    return this.isMaxRight = this.tableWrapper.nativeElement.offsetWidth +
+      this.tableWrapper.nativeElement.scrollLeft + 2 <= this.table._elementRef.nativeElement.offsetWidth;
+  }
+
 }

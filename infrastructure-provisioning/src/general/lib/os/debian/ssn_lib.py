@@ -91,8 +91,8 @@ def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
             sudo("find /var/lib/jenkins/jobs/ -type f | xargs sed -i \'s/OS_USR/{}/g; s/SBN/{}/g; s/CTUN/{}/g; s/SGI/{}/g; s/VPC/{}/g; s/SNI/{}/g; s/AKEY/{}/g\'".format(os_user, config['service_base_name'], tag_resource_id, config['security_group_id'], config['vpc_id'], config['subnet_id'], config['admin_key']))
             sudo('chown -R jenkins:jenkins /var/lib/jenkins')
             sudo('/etc/init.d/jenkins stop; sleep 5')
-            sudo('sysv-rc-conf jenkins on')
-            sudo('service jenkins start')
+            sudo('systemctl enable jenkins')
+            sudo('systemctl start jenkins')
             sudo('touch ' + dlab_path + '/tmp/jenkins_configured')
             sudo('echo "jenkins ALL = NOPASSWD:ALL" >> /etc/sudoers')
     except Exception as err:
@@ -172,7 +172,6 @@ def ensure_mongo():
         traceback.print_exc()
         print('Failed to install MongoDB: ', str(err))
         sys.exit(1)
-
 
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              os_user, mongo_passwd, keystore_passwd, cloud_provider,

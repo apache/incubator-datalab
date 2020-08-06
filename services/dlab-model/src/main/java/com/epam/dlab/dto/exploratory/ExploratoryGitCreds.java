@@ -168,7 +168,9 @@ public class ExploratoryGitCreds implements Comparable<ExploratoryGitCreds> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) return true;
+		if (this == obj) {
+			return true;
+		}
 		return (obj instanceof ExploratoryGitCreds && (this.compareTo((ExploratoryGitCreds) obj) == 0));
 
 	}

@@ -60,10 +60,12 @@ export class ManageEnvironmentComponent implements OnInit {
       this.isFormChanged = JSON.stringify(this.initialFormState) === JSON.stringify(this.manageUsersForm.value);
       if ((this.getCurrentTotalValue() && this.getCurrentTotalValue() >= this.getCurrentUsersTotal())) {
         this.manageUsersForm.controls['projects']['controls'].forEach(v => {
-            v.controls['budget'].setErrors(null);
+            v.controls['budget'].errors &&
+            'max' in v.controls['budget'].errors ? null : v.controls['budget'].setErrors(null);
         }
         );
-        this.manageUsersForm.controls['total'].setErrors(null);
+        this.manageUsersForm.controls['total'].errors &&
+        this.manageUsersForm.controls['total'].errors ? null : this.manageUsersForm.controls['total'].setErrors(null);
       }
     });
   }
@@ -106,7 +108,7 @@ export class ManageEnvironmentComponent implements OnInit {
 
   private initForm(): void {
     this.manageUsersForm = this._fb.group({
-      total: [null, [Validators.min(0), this.totalValidityCheck.bind(this)]],
+      total: [null, [Validators.min(0), this.totalValidityCheck.bind(this), Validators.max(1000000000)]],
       projects: this._fb.array([this._fb.group({ project: '', budget: null, status: '' })])
     });
   }

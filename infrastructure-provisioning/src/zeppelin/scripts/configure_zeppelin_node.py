@@ -85,6 +85,8 @@ def configure_zeppelin(os_user):
             sudo('tar -zxvf /tmp/zeppelin-' + zeppelin_version + '-bin-netinst.tgz -C /opt/')
             sudo('ln -s /opt/zeppelin-' + zeppelin_version + '-bin-netinst /opt/zeppelin')
             sudo('cp /opt/zeppelin/conf/zeppelin-env.sh.template /opt/zeppelin/conf/zeppelin-env.sh')
+            java_home = run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").splitlines()[0]
+            sudo("echo 'export JAVA_HOME=\'{}\'' >> /opt/zeppelin/conf/zeppelin-env.sh".format(java_home))
             sudo('cp /opt/zeppelin/conf/zeppelin-site.xml.template /opt/zeppelin/conf/zeppelin-site.xml')
             sudo('sed -i \"/# export ZEPPELIN_PID_DIR/c\export ZEPPELIN_PID_DIR=/var/run/zeppelin\" /opt/zeppelin/conf/zeppelin-env.sh')
             sudo('sed -i \"/# export ZEPPELIN_IDENT_STRING/c\export ZEPPELIN_IDENT_STRING=notebook\" /opt/zeppelin/conf/zeppelin-env.sh')
@@ -106,6 +108,12 @@ def configure_zeppelin(os_user):
         try:
             put(templates_dir + 'zeppelin-notebook.service', '/tmp/zeppelin-notebook.service')
             sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/zeppelin-notebook.service")
+            http_proxy = run('echo $http_proxy')
+            https_proxy = run('echo $https_proxy')
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/zeppelin-notebook.service'.format(
+                http_proxy))
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/zeppelin-notebook.service'.format(
+                https_proxy))
             sudo("chmod 644 /tmp/zeppelin-notebook.service")
             sudo('cp /tmp/zeppelin-notebook.service /etc/systemd/system/zeppelin-notebook.service')
             sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')

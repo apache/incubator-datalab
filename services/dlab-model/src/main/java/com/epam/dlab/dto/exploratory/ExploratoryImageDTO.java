@@ -48,6 +48,7 @@ public class ExploratoryImageDTO extends ExploratoryActionDTO<ExploratoryImageDT
 		return this;
 	}
 
+	@Override
 	public ExploratoryImageDTO withEndpoint(String endpoint) {
 		this.endpoint = endpoint;
 		return this;

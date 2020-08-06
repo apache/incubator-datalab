@@ -19,14 +19,16 @@
 
 .audit-table-wrapper {
   width: 100%;
-  height: calc(100vh - 130px);
+  max-height: calc(100vh - 130px);
   overflow: auto;
+  box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
 
   .audit {
     width: 100%;
     min-width: 1100px;
     overflow: auto;
     border-collapse: inherit;
+    box-shadow: none;
 
     .mat-cell {
       vertical-align: middle;
@@ -42,20 +44,12 @@
         width: 11%;
         z-index: 8 !important;
         max-width: 250px;
-
-        .label {
-          padding-bottom: 10px;
-        }
       }
 
       .th_date {
         width: 14%;
         z-index: 10 !important;
         padding-left: 0;
-
-        .label {
-          padding-bottom: 10px;
-        }
       }
 
       .th_project {

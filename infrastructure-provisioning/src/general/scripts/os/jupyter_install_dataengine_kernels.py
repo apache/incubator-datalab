@@ -46,12 +46,13 @@ def configure_notebook(keyfile, hoststring):
     files_dir = '/root/files/'
     scripts_dir = '/root/scripts/'
     run('mkdir -p /tmp/{}/'.format(args.cluster_name))
-    put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/{}/pyspark_dataengine_template.json'.format(args.cluster_name))
-    put(templates_dir + 'r_dataengine_template.json', '/tmp/{}/r_dataengine_template.json'.format(args.cluster_name))
-    put(templates_dir + 'toree_dataengine_template.json','/tmp/{}/toree_dataengine_template.json'.format(args.cluster_name))
-    put(files_dir + 'toree_kernel.tar.gz', '/tmp/{}/toree_kernel.tar.gz'.format(args.cluster_name))
-    put(templates_dir + 'toree_dataengine_template.json', '/tmp/{}/toree_dataengine_template.json'.format(args.cluster_name))
-    put(templates_dir + 'run_template.sh', '/tmp/{}/run_template.sh'.format(args.cluster_name))
+    put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
+    #put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/{}/pyspark_dataengine_template.json'.format(args.cluster_name))
+    #put(templates_dir + 'r_dataengine_template.json', '/tmp/{}/r_dataengine_template.json'.format(args.cluster_name))
+    #put(templates_dir + 'toree_dataengine_template.json','/tmp/{}/toree_dataengine_template.json'.format(args.cluster_name))
+    #put(files_dir + 'toree_kernel.tar.gz', '/tmp/{}/toree_kernel.tar.gz'.format(args.cluster_name))
+    #put(templates_dir + 'toree_dataengine_template.json', '/tmp/{}/toree_dataengine_template.json'.format(args.cluster_name))
+    #put(templates_dir + 'run_template.sh', '/tmp/{}/run_template.sh'.format(args.cluster_name))
     put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/{}/notebook_spark-defaults_local.conf'.format(args.cluster_name))
     spark_master_ip = args.spark_master.split('//')[1].split(':')[0]
     spark_memory = get_spark_memory(True, args.os_user, spark_master_ip, keyfile)
@@ -86,7 +87,7 @@ if __name__ == "__main__":
     create_inactivity_log(args.spark_master_ip, env.host_string)
     sudo('/usr/bin/python /usr/local/bin/jupyter_dataengine_create_configs.py '
          '--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} \
-         --spark_master {} --region {} --datalake_enabled {} --r_enabled {} --spark_configurations "{}"'.
+         --spark_master {} --datalake_enabled {} --r_enabled {} --spark_configurations "{}"'.
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master,
-                region, args.datalake_enabled, r_enabled, os.environ['spark_configurations']))
+                args.datalake_enabled, r_enabled, os.environ['spark_configurations']))
 

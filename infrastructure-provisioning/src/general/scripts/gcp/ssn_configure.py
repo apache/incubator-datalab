@@ -396,6 +396,69 @@ if __name__ == "__main__":
                     'key': 'STEP_CA_URL',
                     'value': os.environ['conf_stepcerts_ca_url']
                 })
+            cloud_params.append(
+                {
+                    'key': 'LETS_ENCRYPT_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'LETS_ENCRYPT_DOMAIN_NAME',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'LETS_ENCRYPT_EMAIL',
+                    'value': ''
+                })
+        elif os.environ['conf_letsencrypt_enabled'] == 'true':
+            cloud_params.append(
+                {
+                    'key': 'LETS_ENCRYPT_ENABLED',
+                    'value': os.environ['conf_letsencrypt_enabled']
+                })
+            cloud_params.append(
+                {
+                    'key': 'LETS_ENCRYPT_DOMAIN_NAME',
+                    'value': os.environ['conf_letsencrypt_domain_name']
+                })
+            if 'conf_letsencrypt_email' in os.environ:
+                cloud_params.append(
+                    {
+                        'key': 'LETS_ENCRYPT_EMAIL',
+                        'value': os.environ['conf_letsencrypt_email']
+                    })
+            else:
+                cloud_params.append(
+                    {
+                        'key': 'LETS_ENCRYPT_EMAIL',
+                        'value': ''
+                    })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CERTS_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_ROOT_CA',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_ID',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_KID_PASSWORD',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'STEP_CA_URL',
+                    'value': ''
+                })
         else:
             cloud_params.append(
                 {
@@ -420,6 +483,21 @@ if __name__ == "__main__":
             cloud_params.append(
                 {
                     'key': 'STEP_CA_URL',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'LETS_ENCRYPT_ENABLED',
+                    'value': 'false'
+                })
+            cloud_params.append(
+                {
+                    'key': 'LETS_ENCRYPT_DOMAIN_NAME',
+                    'value': ''
+                })
+            cloud_params.append(
+                {
+                    'key': 'LETS_ENCRYPT_EMAIL',
                     'value': ''
                 })
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --billing_enabled {} " \
