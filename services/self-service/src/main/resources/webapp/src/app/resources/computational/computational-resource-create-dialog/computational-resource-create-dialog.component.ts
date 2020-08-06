@@ -83,7 +83,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectImage($event) {
     this.selectedImage = $event;
-    console.log(this.selectedImage);
     this.filterShapes();
     this.getComputationalResourceLimits();
 
