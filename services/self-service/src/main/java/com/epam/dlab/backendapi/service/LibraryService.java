@@ -27,12 +27,16 @@ import org.bson.Document;
 import java.util.List;
 
 public interface LibraryService {
-    List<Document> getLibs(String user, String project, String exploratoryName, String computationalName);
+	List<Document> getLibs(String user, String project, String exploratoryName, String computationalName);
 
-    List<LibInfoRecord> getLibInfo(String user, String project, String exploratoryName);
+	List<LibInfoRecord> getLibInfo(String user, String project, String exploratoryName);
 
-    String installComputationalLibs(UserInfo userInfo, String project, String exploratoryName, String computationalName,
-                                    List<LibInstallDTO> libs, String auditInfo);
+	String installComputationalLibs(UserInfo userInfo, String project, String exploratoryName, String computationalName,
+	                                List<LibInstallDTO> libs, String auditInfo);
 
-    String installExploratoryLibs(UserInfo userInfo, String project, String exploratoryName, List<LibInstallDTO> libs, String auditInfo);
+	String installExploratoryLibs(UserInfo userInfo, String project, String exploratoryName, List<LibInstallDTO> libs, String auditInfo);
+
+	List<String> getExploratoryLibGroups(UserInfo userInfo, String projectName, String exploratoryName);
+
+	List<String> getComputeLibGroups();
 }

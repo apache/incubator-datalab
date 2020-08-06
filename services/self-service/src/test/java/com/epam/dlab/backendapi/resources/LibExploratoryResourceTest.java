@@ -49,6 +49,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,83 +91,41 @@ public class LibExploratoryResourceTest extends TestBase {
         authSetup();
     }
 
-    @Test
-    public void getLibGroupListWithFailedAuth() throws AuthenticationException {
-        authFailSetup();
-        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(getUserInstanceDto());
-        final Response response = resources.getJerseyTest()
-                .target("/infrastructure_provision/exploratory_environment/lib_groups")
-                .queryParam("exploratory_name", "explName")
-                .queryParam("project_name", "projectName")
-                .queryParam("computational_name", "compName")
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .get();
+	@Test
+	public void getComputeLibGroupList() {
+		when(libraryService.getComputeLibGroups()).thenReturn(Collections.emptyList());
 
-        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/lib-groups/compute")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
 
-        verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "projectName", "explName", "compName");
-        verifyNoMoreInteractions(exploratoryDAO);
-    }
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+
+		verify(libraryService).getComputeLibGroups();
+		verifyNoMoreInteractions(libraryService);
+	}
 
 	@Test
-	public void getLibGroupListWithException() {
-        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyString())).thenReturn
-                (getUserInstanceDto());
-        final Response response = resources.getJerseyTest()
-                .target("/infrastructure_provision/exploratory_environment/lib_groups")
-                .queryParam("project_name", "projectName")
-                .queryParam("exploratory_name", "explName")
-                .queryParam("computational_name", "compName")
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .get();
+	public void getExploratoryLibGroupList() {
+		when(libraryService.getExploratoryLibGroups(any(UserInfo.class), anyString(), anyString())).thenReturn(Collections.emptyList());
 
-        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+		final Response response = resources.getJerseyTest()
+				.target("/infrastructure_provision/exploratory_environment/lib-groups/exploratory")
+				.queryParam("project", "projectName")
+				.queryParam("exploratory", "explName")
+				.request()
+				.header("Authorization", "Bearer " + TOKEN)
+				.get();
 
-        verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "projectName", "explName", "compName");
-        verifyNoMoreInteractions(exploratoryDAO);
-    }
+		assertEquals(HttpStatus.SC_OK, response.getStatus());
+		assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
-	@Test
-	public void getLibGroupListWithoutComputationalWithFailedAuth() throws AuthenticationException {
-        authFailSetup();
-        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
-        final Response response = resources.getJerseyTest()
-                .target("/infrastructure_provision/exploratory_environment/lib_groups")
-                .queryParam("exploratory_name", "explName")
-                .queryParam("project_name", "projectName")
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .get();
-
-        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-        verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "projectName", "explName");
-        verifyNoMoreInteractions(exploratoryDAO);
-    }
-
-	@Test
-	public void getLibGroupListWithoutComputationalWithException() {
-        when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getUserInstanceDto());
-        final Response response = resources.getJerseyTest()
-                .target("/infrastructure_provision/exploratory_environment/lib_groups")
-                .queryParam("exploratory_name", "explName")
-                .queryParam("project_name", "projectName")
-                .request()
-                .header("Authorization", "Bearer " + TOKEN)
-                .get();
-
-        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-        verify(exploratoryDAO).fetchExploratoryFields(USER.toLowerCase(), "projectName", "explName");
-        verifyNoMoreInteractions(exploratoryDAO);
-    }
+		verify(libraryService).getExploratoryLibGroups(getUserInfo(), "projectName", "explName");
+		verifyNoMoreInteractions(libraryService);
+	}
 
 	@Test
 	public void getLibList() {

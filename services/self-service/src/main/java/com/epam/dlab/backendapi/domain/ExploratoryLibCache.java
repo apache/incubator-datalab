@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Cache of libraries for exploratory.
@@ -51,7 +50,6 @@ import java.util.stream.Collectors;
 @Singleton
 public class ExploratoryLibCache implements Managed, Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExploratoryLibCache.class);
-	private static final String PIP2_GROUP = "pip2";
 
 	@Inject
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
@@ -114,33 +112,6 @@ public class ExploratoryLibCache implements Managed, Runnable {
 				libCache.cache.clear();
 			}
 		}
-	}
-
-	/**
-	 * Return the list of libraries groups from cache for compute resource.
-	 *
-	 * @param userInfo     the user info.
-	 * @param userInstance the notebook info.
-	 * @return list of libraries groups
-	 */
-	public List<String> getComputeLibGroupList(UserInfo userInfo, UserInstanceDTO userInstance) {
-		ExploratoryLibList libs = getLibs(userInfo, userInstance);
-		return libs.getGroupList()
-				.stream()
-				.filter(g -> !PIP2_GROUP.equals(g))
-				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Return the list of libraries groups from cache for exploratory resource.
-	 *
-	 * @param userInfo     the user info.
-	 * @param userInstance the notebook info.
-	 * @return list of libraries groups
-	 */
-	public List<String> getExploratoryLibGroupList(UserInfo userInfo, UserInstanceDTO userInstance) {
-		ExploratoryLibList libs = getLibs(userInfo, userInstance);
-		return libs.getGroupList();
 	}
 
 	/**
@@ -208,8 +179,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	public void updateLibList(String imageName, String content) {
 		synchronized (cache) {
 			cache.remove(imageName);
-			cache.put(imageName,
-					new ExploratoryLibList(imageName, content));
+			cache.put(imageName, new ExploratoryLibList(imageName, content));
 		}
 	}
 
