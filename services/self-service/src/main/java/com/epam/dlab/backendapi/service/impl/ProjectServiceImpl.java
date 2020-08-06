@@ -344,11 +344,13 @@ public class ProjectServiceImpl implements ProjectService {
 		if (!configuration.isAuditEnabled()) {
 			return null;
 		}
-		ProjectDTO dbProject = get(p.getName());
-		Integer value = Optional.ofNullable(dbProject.getBudget())
+		ProjectDTO projectDTO = get(p.getName());
+		Integer value = Optional.ofNullable(projectDTO.getBudget())
 				.map(BudgetDTO::getValue)
 				.orElse(null);
-		boolean monthlyBudget = dbProject.getBudget().isMonthlyBudget();
+		boolean monthlyBudget = Optional.ofNullable(projectDTO.getBudget())
+				.map(BudgetDTO::isMonthlyBudget)
+				.orElse(null);
 		return String.format(AUDIT_UPDATE_BUDGET, value, p.getBudget().getValue(), monthlyBudget);
 	}
 
