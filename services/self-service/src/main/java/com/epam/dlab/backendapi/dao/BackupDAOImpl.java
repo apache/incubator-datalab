@@ -34,7 +34,7 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
 @Singleton
-public class BackupDaoImpl extends BaseDAO implements BackupDao {
+public class BackupDAOImpl extends BaseDAO implements BackupDAO {
 	@Override
 	public void createOrUpdate(EnvBackupDTO dto, String user, EnvBackupStatus status) {
 		final Document idField = backupId(user, dto.getId());

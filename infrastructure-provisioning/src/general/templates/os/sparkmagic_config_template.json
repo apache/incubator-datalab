@@ -1,0 +1,20 @@
+{
+  "kernel_python_credentials" : {
+    "username": "",
+    "password": "",
+    "url": "http://LIVY_HOST:8998",
+    "auth": "None"
+  },
+  "kernel_scala_credentials" : {
+    "username": "",
+    "password": "",
+    "url": "http://LIVY_HOST:8998",
+    "auth": "None"
+  },
+  "kernel_r_credentials": {
+    "username": "",
+    "password": "",
+    "url": "http://LIVY_HOST:8998",
+    "auth": "None"
+  }
+}

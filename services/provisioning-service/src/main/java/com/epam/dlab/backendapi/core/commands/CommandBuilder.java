@@ -19,8 +19,8 @@
 
 package com.epam.dlab.backendapi.core.commands;
 
-import com.epam.dlab.backendapi.CloudConfiguration;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.conf.CloudConfiguration;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.aws.AwsCloudSettings;

@@ -22,7 +22,7 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
-import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.dao.ImageExploratoryDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
@@ -84,7 +84,7 @@ public class ImageExploratoryServiceImplTest {
 	@Mock
 	private ExploratoryDAO exploratoryDAO;
 	@Mock
-	private ImageExploratoryDao imageExploratoryDao;
+	private ImageExploratoryDAO imageExploratoryDao;
 	@Mock
 	private ExploratoryLibDAO libDAO;
 	@Mock

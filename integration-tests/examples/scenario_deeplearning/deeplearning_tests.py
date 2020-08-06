@@ -115,11 +115,11 @@ def run_theano():
         prepare_ipynb(i, '/home/{}/test_templates/template_theano.ipynb'.format(args.os_user), 'test_theano')
         run_ipynb('test_theano')
 
-def run_torch():
-    interpreters = ['itorch']
-    for i in interpreters:
-        prepare_ipynb(i, '/home/{}/test_templates/template_torch.ipynb'.format(args.os_user), 'test_torch')
-        run_ipynb('test_torch')
+#def run_torch():
+#    interpreters = ['itorch']
+#    for i in interpreters:
+#        prepare_ipynb(i, '/home/{}/test_templates/template_torch.ipynb'.format(args.os_user), 'test_torch')
+#        run_ipynb('test_torch')
 
 
 if __name__ == "__main__":
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         run_keras()
         run_mxnet()
         run_theano()
-        run_torch()
+        #run_torch()
     except Exception as err:
         print('Error!', str(err))
         sys.exit(1)

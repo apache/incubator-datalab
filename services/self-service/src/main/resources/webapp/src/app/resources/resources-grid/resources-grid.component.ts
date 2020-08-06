@@ -18,7 +18,7 @@
  */
 
 import {Project} from '../../administration/project/project.component';
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
@@ -91,6 +91,7 @@ export class ResourcesGridComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   @Input() projects: Array<any>;
+  @Output() getEnvironments: EventEmitter<any> = new EventEmitter();
 
   environments: Exploratory[];
 
@@ -119,8 +120,6 @@ export class ResourcesGridComponent implements OnInit {
   public bucketsList: BucketList;
   public activeProjectsList: any;
 
-
-
   constructor(
     public toastr: ToastrService,
     private userResourceService: UserResourceService,
@@ -146,12 +145,13 @@ export class ResourcesGridComponent implements OnInit {
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result: any) => {
         this.environments = ExploratoryModel.loadEnvironments(result);
+        this.getEnvironments.emit(this.environments);
         this.getBuckets();
         this.getDefaultFilterConfiguration();
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
         this.healthStatus && !this.healthStatus.billingEnabled && this.modifyGrid();
         this.progressBarService.stopProgressBar();
-      }, () => this.progressBarService.stopProgressBar());
+        }, () => this.progressBarService.stopProgressBar());
   }
 
   public toggleFilterRow(): void {
@@ -225,7 +225,9 @@ export class ResourcesGridComponent implements OnInit {
 
     if (action === 'deploy') {
       this.dialog.open(ComputationalResourceCreateDialogComponent, { data: { notebook: resource, full_list: this.environments }, panelClass: 'modal-xxl' })
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => {
+        res && this.buildGrid();
+      });
     } else if (action === 'run') {
       this.userResourceService
         .runExploratoryEnvironment({ notebook_instance_name: data.name, project_name: data.project })
@@ -234,21 +236,22 @@ export class ResourcesGridComponent implements OnInit {
           error => this.toastr.error(error.message || 'Exploratory starting failed!', 'Oops!'));
     } else if (action === 'stop') {
       this.dialog.open(ConfirmationDialogComponent, { data: { notebook: data, type: ConfirmationDialogType.StopExploratory }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => {
+        res && this.buildGrid();
+      });
     } else if (action === 'terminate') {
       this.dialog.open(ConfirmationDialogComponent, { data:
           { notebook: data, type: ConfirmationDialogType.TerminateExploratory }, panelClass: 'modal-sm' })
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => res && this.buildGrid());
     } else if (action === 'install') {
       this.dialog.open(InstallLibrariesComponent, { data: data, panelClass: 'modal-fullscreen' })
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => res && this.buildGrid());
     } else if (action === 'schedule') {
       this.dialog.open(SchedulerComponent, { data: { notebook: data, type: 'EXPLORATORY' }, panelClass: 'modal-xl-s' })
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => res && this.buildGrid());
     } else if (action === 'ami') {
       this.dialog.open(AmiCreateDialogComponent, { data: data, panelClass: 'modal-sm' })
-
-        .afterClosed().subscribe(() => this.buildGrid());
+        .afterClosed().subscribe((res) => res && this.buildGrid());
     }
   }
 
@@ -260,11 +263,15 @@ export class ResourcesGridComponent implements OnInit {
           if (endpoint.status === 'ACTIVE') {
             const currEndpoint: SharedEndpoint = project.projectEndpoints[endpoint.name];
             const edgeItem: BucketList = {name: `${project.project} (${endpoint.name})`, children: [], cloud: endpoint.cloudProvider};
-            const projectBucket: string = currEndpoint.user_own_bicket_name
-              || currEndpoint.user_own_bucket_name
-              || currEndpoint.user_container_name ? currEndpoint.user_storage_account_name + '.' + currEndpoint.user_container_name : null;
-            const sharedBucket: string = currEndpoint.shared_bucket_name ||
-            currEndpoint.shared_container_name ? currEndpoint.shared_storage_account_name + '.' + currEndpoint.shared_container_name : null;
+            let projectBucket: string = currEndpoint.user_own_bicket_name
+              || currEndpoint.user_own_bucket_name;
+            if (currEndpoint.user_container_name) {
+              projectBucket = currEndpoint.user_storage_account_name + '.' + currEndpoint.user_container_name;
+            }
+            let sharedBucket: string = currEndpoint.shared_bucket_name;
+            if (currEndpoint.shared_container_name) {
+              sharedBucket = currEndpoint.shared_storage_account_name + '.' + currEndpoint.shared_container_name;
+            }
             if (projectBucket && currEndpoint.status !== 'terminated'
               && currEndpoint.status !== 'terminating' && currEndpoint.status !== 'failed') {
               edgeItem.children.push({name: projectBucket, endpoint: endpoint.name});
@@ -424,6 +431,10 @@ export class ResourcesGridComponent implements OnInit {
     this.auditService.sendDataToAudit({
       resource_name: name, info: `Open terminal, requested for notebook`, type: 'WEB_TERMINAL'
     }).subscribe();
+  }
+
+  public trackBy(index, item) {
+    return null;
   }
 
 }

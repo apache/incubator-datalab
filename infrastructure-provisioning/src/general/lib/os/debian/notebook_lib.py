@@ -39,6 +39,7 @@ import re
 def enable_proxy(proxy_host, proxy_port):
     try:
         proxy_string = "http://%s:%s" % (proxy_host, proxy_port)
+        proxy_https_string = "http://%s:%s" % (proxy_host, proxy_port)
         sudo('sed -i "/^export http_proxy/d" /etc/profile')
         sudo('sed -i "/^export https_proxy/d" /etc/profile')
         sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
@@ -46,6 +47,7 @@ def enable_proxy(proxy_host, proxy_port):
         if exists('/etc/apt/apt.conf'):
             sudo("sed -i '/^Acquire::http::Proxy/d' /etc/apt/apt.conf")
         sudo("echo 'Acquire::http::Proxy \"" + proxy_string + "\";' >> /etc/apt/apt.conf")
+        sudo("echo 'Acquire::http::Proxy \"" + proxy_https_string + "\";' >> /etc/apt/apt.conf")
 
         print("Renewing gpg key")
         renew_gpg_key()
@@ -118,25 +120,35 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
+            http_proxy = run('echo $http_proxy')
+            https_proxy = run('echo $https_proxy')
             sudo("sed -i '/Type=forking/a \Environment=USER=dlab-user' /etc/systemd/system/rstudio-server.service")
             sudo("sed -i '/ExecStart/s|=/usr/lib/rstudio-server/bin/rserver|=/bin/bash -c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; /usr/lib/rstudio-server/bin/rserver --auth-none 1|g' /etc/systemd/system/rstudio-server.service")
             sudo("sed -i '/ExecStart/s|$|\"|g' /etc/systemd/system/rstudio-server.service")
+            sudo(
+                'sed -i \'/\[Service\]/a Environment=\"HTTP_PROXY={}\"\'  /etc/systemd/system/rstudio-server.service'.format(
+                    http_proxy))
+            sudo(
+                'sed -i \'/\[Service\]/a Environment=\"HTTPS_PROXY={}\"\'  /etc/systemd/system/rstudio-server.service'.format(
+                    https_proxy))
+            java_home = run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").splitlines()[0]
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /etc/systemd/system/rstudio-server.service'.format(
+                java_home))
             sudo("systemctl daemon-reload")
             sudo('touch /home/{}/.Renviron'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
             sudo('''echo 'SPARK_HOME="{0}"' >> /home/{1}/.Renviron'''.format(local_spark_path, os_user))
+            sudo('''echo 'JAVA_HOME="{0}"' >> /home/{1}/.Renviron'''.format(java_home, os_user))
             sudo('touch /home/{}/.Rprofile'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
             sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/{}/.Rprofile'''.format(os_user))
-            http_proxy = run('echo $http_proxy')
-            https_proxy = run('echo $https_proxy')
             sudo('''echo 'Sys.setenv(http_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(http_proxy, os_user))
             sudo('''echo 'Sys.setenv(https_proxy = \"{}\")' >> /home/{}/.Rprofile'''.format(https_proxy, os_user))
             sudo('rstudio-server start')
             sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
-            sudo("sed -i '/exit 0/d' /etc/rc.local")
-            sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/{}/.Renviron\' >> /etc/rc.local"'''.format(os_user))
-            sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
+            #sudo("sed -i '/exit 0/d' /etc/rc.local")
+            #sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/{}/.Renviron\' >> /etc/rc.local"'''.format(os_user))
+            #sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
             sudo('touch /home/{}/.ensure_dir/rstudio_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -156,8 +168,8 @@ def ensure_matplot(os_user):
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
-                sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
-                sudo('python3.5 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('python2.7 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
+                sudo('python3.6 -m pip install -U numpy=={} --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             sudo('touch /home/' + os_user + '/.ensure_dir/matplot_ensured')
         except:
             sys.exit(1)
@@ -165,13 +177,14 @@ def ensure_matplot(os_user):
 @backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
 def add_sbt_key():
     sudo(
-        'apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 642AC823')
+        'curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add')
 
 def ensure_sbt(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/sbt_ensured'):
         try:
             manage_pkg('-y install', 'remote', 'apt-transport-https')
             sudo('echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list')
+
             add_sbt_key()
             manage_pkg('update', 'remote', '')
             manage_pkg('-y install', 'remote', 'sbt')
@@ -195,6 +208,8 @@ def ensure_jre_jdk(os_user):
         try:
             manage_pkg('-y install', 'remote', 'default-jre')
             manage_pkg('-y install', 'remote', 'default-jdk')
+            manage_pkg('-y install', 'remote', 'openjdk-8-jdk')
+            manage_pkg('-y install', 'remote', 'openjdk-8-jre')
             sudo('touch /home/' + os_user + '/.ensure_dir/jre_jdk_ensured')
         except:
             sys.exit(1)
@@ -205,7 +220,7 @@ def ensure_additional_python_libs(os_user):
         try:
             manage_pkg('-y install', 'remote', 'libjpeg8-dev zlib1g-dev')
             if os.environ['application'] in ('jupyter', 'zeppelin'):
-                sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+                sudo('pip2 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
                 sudo('pip3 install NumPy=={} SciPy pandas Sympy Pillow sklearn --no-cache-dir'.format(os.environ['notebook_numpy_version']))
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('pip2 install opencv-python h5py --no-cache-dir')
@@ -231,10 +246,10 @@ def ensure_python2_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python2_libraries_ensured'):
         try:
             try:
-                manage_pkg('-y install', 'remote', 'libssl-dev python-virtualenv')
+                manage_pkg('-y install', 'remote', 'libssl1.0-dev python-virtualenv')
             except:
                 sudo('pip2 install virtualenv --no-cache-dir')
-                manage_pkg('-y install', 'remote', 'libssl-dev')
+                manage_pkg('-y install', 'remote', 'libssl1.0-dev')
             try:
                 sudo('pip2 install tornado=={0} ipython ipykernel=={1} --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
@@ -252,13 +267,15 @@ def ensure_python2_libraries(os_user):
 def ensure_python3_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python3_libraries_ensured'):
         try:
-            manage_pkg('-y install', 'remote', 'python3-setuptools')
+            #manage_pkg('-y install', 'remote', 'python3-setuptools')
             manage_pkg('-y install', 'remote', 'python3-pip')
+            manage_pkg('-y install', 'remote', 'libkrb5-dev')
+            sudo('pip3 install setuptools=={}'.format(os.environ['notebook_setuptools_version']))
             try:
-                sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} --no-cache-dir' \
+                sudo('pip3 install tornado=={0} ipython==7.9.0 ipykernel=={1} sparkmagic --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             except:
-                sudo('pip3 install tornado=={0} ipython==5.0.0 ipykernel=={1} --no-cache-dir' \
+                sudo('pip3 install tornado=={0} ipython==5.0.0 ipykernel=={1} sparkmagic --no-cache-dir' \
                      .format(os.environ['notebook_tornado_version'], os.environ['notebook_ipykernel_version']))
             sudo('pip3 install -U pip=={} --no-cache-dir'.format(os.environ['conf_pip_version']))
             sudo('pip3 install boto3 --no-cache-dir')
@@ -278,39 +295,53 @@ def install_tensor(os_user, cuda_version, cuda_file_name,
             sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('update-initramfs -u')
             with settings(warn_only=True):
-                reboot(wait=150)
-            manage_pkg('-y install', 'remote', 'dkms')
+                reboot(wait=180)
+            manage_pkg('-y install', 'remote', 'dkms libglvnd-dev')
             kernel_version = run('uname -r | tr -d "[..0-9-]"')
             if kernel_version == 'azure':
                 manage_pkg('-y install', 'remote', 'linux-modules-`uname -r`')
             else:
-                #legacy support for old kernels
-                sudo('if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;')
-            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
+                # legacy support for old kernels
+                sudo('if [[ $(apt-cache search linux-image-`uname -r`) ]]; then apt-get -y '
+                     'install linux-image-`uname -r`; else apt-get -y install linux-modules-`uname -r`; fi;')
+            sudo('wget http://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run -O '
+                 '/home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s --dkms'.format(os_user, nvidia_version))
             sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('python3.5 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'. format(os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
-            sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/{0}/prod/local_installers/{1}'.format(cuda_version, cuda_file_name))
+            sudo('python3 -m pip install --upgrade pip=={0} wheel numpy=={1} --no-cache-dir'.format(
+                os.environ['conf_pip_version'], os.environ['notebook_numpy_version']))
+            sudo('wget -P /opt http://developer.download.nvidia.com/compute/cuda/{0}/Prod/local_installers/{1}'.format(
+                cuda_version, cuda_file_name))
             sudo('sh /opt/{} --silent --toolkit'.format(cuda_file_name))
             sudo('mv /usr/local/cuda-{} /opt/'.format(cuda_version))
             sudo('ln -s /opt/cuda-{0} /usr/local/cuda-{0}'.format(cuda_version))
             sudo('rm -f /opt/{}'.format(cuda_file_name))
             # install cuDNN
-            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(cudnn_version, cudnn_file_name))
+            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v{0}/{1} -O /tmp/{1}'.format(
+                cudnn_version, cudnn_file_name))
             run('tar xvzf /tmp/{} -C /tmp'.format(cudnn_file_name))
             sudo('mkdir -p /opt/cudnn/include')
             sudo('mkdir -p /opt/cudnn/lib64')
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
+            run(
+                'echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
-            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
-            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            # sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp27-none-linux_x86_64.whl --no-cache-dir'.format(tensorflow_version))
+            sudo('python3 -m pip install --upgrade '
+                 'https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-{}-cp36-cp36m-manylinux2010_x86_64.whl'
+                 ' --no-cache-dir'.format(tensorflow_version))
             sudo('mkdir /var/log/tensorboard; chown {0}:{0} -R /var/log/tensorboard'.format(os_user))
             put('{}tensorboard.service'.format(templates_dir), '/tmp/tensorboard.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/tensorboard.service".format(os_user))
+            http_proxy = run('echo $http_proxy')
+            https_proxy = run('echo $https_proxy')
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/tensorboard.service'.format(
+                http_proxy))
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/tensorboard.service'.format(
+                https_proxy))
             sudo("chmod 644 /tmp/tensorboard.service")
             sudo('\cp /tmp/tensorboard.service /etc/systemd/system/')
             sudo("systemctl daemon-reload")
@@ -358,7 +389,7 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
-        sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -')
+        sudo('curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -')
         manage_pkg('-y install', 'remote', 'nodejs')
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
@@ -372,53 +403,57 @@ def install_os_pkg(requisites):
         manage_pkg('update', 'remote', '')
         for os_pkg in requisites:
             if os_pkg[1] != '' and os_pkg[1] !='N/A':
+                version = os_pkg[1]
                 os_pkg = "{}={}".format(os_pkg[0], os_pkg[1])
             else:
+                version = 'N/A'
                 os_pkg = os_pkg[0]
-            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
+            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install --allow-downgrades {0} 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
-            sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 20 "({1})" /tmp/tee.tmp > '
+            sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
                  '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, new_pkgs_parser))
             dep = sudo('cat /tmp/os_install_{}.log'.format(os_pkg))
-            if err == '':
-                dep = dep[len(new_pkgs_parser): dep.find(" upgraded, ") - 1].replace('\r', '') \
-                    .replace('\n', '').replace('  ', ' ').replace(' {} '.format(os_pkg.split("=")[0]), ' ').strip().split(' ')
-                if dep == '' or dep == os_pkg.split("=")[0]:
-                    dep = []
-                else:
-                    for n, i in enumerate(dep):
-                        pkg = sudo('apt list --installed 2>&1 | grep {}'.format(i))
-                        if pkg == '':
-                            pkg = sudo('apt list --installed 2>&1 | grep {}'.format(i.lower()))
-                        if i == os_pkg.split("=")[0]:
-                            dep[n] = ''
-                        elif "/" in pkg:
-                            dep[n] = '{} v.{}'.format(pkg.split('/')[0], pkg.split(' ')[1])
-                    dep = [i for i in dep if i]
-            else:
+            if dep == '':
                 dep = []
-            if 'E: Version' in err and 'was not found' in err:
-                versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0])).replace('\r\n', '').replace(' 500', '').replace('     ', ' ').strip().split(' ')
-                status_msg = 'invalid version'
             else:
-                versions = []
-                status_msg = 'failed'
+                dep = dep[len(new_pkgs_parser): dep.find(" upgraded, ") - 1].replace('\r', '') \
+                        .replace('\n', '').replace('  ', ' ').strip().split(' ')
+                for n, i in enumerate(dep):
+                    if i == os_pkg.split("=")[0]:
+                        dep[n] = ''
+                    else:
+                        sudo('apt show {0} 2>&1 | if ! grep Version: > '
+                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(i))
+                        dep[n] =sudo('cat /tmp/os_install_{}.log'.format(i)).replace('Version: ', '{} v.'.format(i))
+                dep = [i for i in dep if i]
+            versions = []
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{1}.list; then  echo "" > /tmp/os_install_{1}.list;fi'.format(os_pkg.split("=")[0], os_pkg))
             res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
-            if res:
+            if err:
+                status_msg = 'installation_error'
+            elif res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
                 version = [i for i in ver if os_pkg.split("=")[0] in i][0].split(' ')[1]
-                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": "installed", "add_pkgs": dep})
-            else:
-                status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "status": status_msg, "error_message": err, "available_versions": versions})
+                status_msg = "installed"
+            if 'E: Version' in err and 'was not found' in err:
+                versions = sudo ('apt-cache policy {} | grep 500 | grep -v Packages'.format(os_pkg.split("=")[0]))\
+                    .replace('\r\n', '').replace(' 500', '').replace('     ', ' ').replace('***', '').strip().split(' ')
+                if versions != '':
+                    status_msg = 'invalid_version'
+            status.append({"group": "os_pkg", "name": os_pkg.split("=")[0], "version": version, "status": status_msg,
+                           "error_message": err, "add_pkgs": dep, "available_versions": versions})
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
         return status
     except Exception as err:
-        append_result("Failed to install OS packages", str(err))
-        sys.exit(1)
+        for os_pkg in requisites:
+            name, vers = os_pkg
+            status.append(
+                {"group": "os_pkg", "name": name, "version": vers, "status": 'installation_error', "error_message": err})
+        print("Failed to install OS packages: {}".format(requisites))
+        return status
 
 
 @backoff.on_exception(backoff.expo, SystemExit, max_tries=10)
@@ -448,17 +483,19 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         manage_pkg('update', 'remote', '')
-        manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev libprotobuf-dev protobuf-compiler python-dev python-pip')
-        sudo('pip2 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
+        manage_pkg('-y install --no-install-recommends', 'remote', 'build-essential cmake git libgoogle-glog-dev '
+                   'libprotobuf-dev protobuf-compiler python-dev python-pip')
+        sudo('pip2 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy2_version']))
         sudo('pip3 install numpy=={} protobuf --no-cache-dir'.format(os.environ['notebook_numpy_version']))
         manage_pkg('-y install --no-install-recommends', 'remote', 'libgflags-dev')
-        manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
+        manage_pkg('-y install --no-install-recommends', 'remote', 'libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
+                   'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
-        sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')
-        sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
+        sudo('cp -f /opt/cudnn/include/* /opt/cuda-{}/include/'.format(os.environ['notebook_cuda_version']))
+        sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-{}/lib64/'.format(os.environ['notebook_cuda_version']))
         sudo('wget https://cmake.org/files/v{2}/cmake-{1}.tar.gz -O /home/{0}/cmake-{1}.tar.gz'.format(
             os_user, cmake_version, cmake_version.split('.')[0] + "." + cmake_version.split('.')[1]))
         sudo('tar -zxvf cmake-{}.tar.gz'.format(cmake_version))
@@ -469,16 +506,16 @@ def install_caffe2(os_user, caffe2_version, cmake_version):
         with cd('/home/{}/pytorch/'.format(os_user)):
             sudo('git submodule update --init')
             with settings(warn_only=True):
-                sudo('git checkout v{}'.format(caffe2_version))
-                sudo('git submodule update --recursive')
-            sudo('mkdir build && cd build && cmake{} .. && make "-j$(nproc)" install'.format(cmake_version))
+                sudo('git checkout {}'.format(os.environ['notebook_pytorch_branch']))
+                sudo('git submodule update --init --recursive')
+            sudo('python3 setup.py install')
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
-def install_cntk(os_user, cntk_version):
+def install_cntk(os_user, cntk2_version, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
-        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
-        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk2_version))
+        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk_gpu-{}.post1-cp36-cp36m-manylinux1_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 
@@ -498,19 +535,19 @@ def install_theano(os_user, theano_version):
 
 def install_mxnet(os_user, mxnet_version):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('pip2 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
-        sudo('pip3 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
+        sudo('pip2 install mxnet-cu101=={} opencv-python --no-cache-dir'.format(mxnet_version))
+        sudo('pip3 install mxnet-cu101=={} opencv-python --no-cache-dir'.format(mxnet_version))
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
 
-def install_torch(os_user):
-    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
-        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
-        with cd('/home/{}/torch/'.format(os_user)):
-            run('bash install-deps;')
-            run('./install.sh -b')
-        run('source /home/{}/.bashrc'.format(os_user))
-        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
+#def install_torch(os_user):
+#    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
+#        run('git clone https://github.com/nagadomi/distro.git ~/torch --recursive')
+#        with cd('/home/{}/torch/'.format(os_user)):
+#           run('bash install-deps;')
+#           run('./install.sh -b')
+#        run('source /home/{}/.bashrc'.format(os_user))
+#        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
 
 
 def install_gitlab_cert(os_user, certfile):

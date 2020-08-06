@@ -18,7 +18,7 @@
  */
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.backendapi.dao.UserRoleDao;
+import com.epam.dlab.backendapi.dao.UserRoleDAO;
 import com.epam.dlab.backendapi.resources.TestBase;
 import com.epam.dlab.backendapi.resources.dto.UserRoleDto;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -39,15 +39,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UserRoleServiceImplTest extends TestBase {
 
-    private static final String ROLE_ID = "roleId";
-    @Mock
-    private UserRoleDao dao;
-    @InjectMocks
-    private UserRoleServiceImpl userRoleService;
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+	private static final String ROLE_ID = "roleId";
+	@Mock
+	private UserRoleDAO dao;
+	@InjectMocks
+	private UserRoleServiceImpl userRoleService;
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 
-    @Test
+	@Test
 	public void createRole() {
 
 		userRoleService.createRole(getUserRole());

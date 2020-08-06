@@ -89,7 +89,7 @@ public class FileSystemCallbackHandlerDao implements CallbackHandlerDao {
 					.ifPresent(FileUtils::deleteFile);
 		} catch (IOException e) {
 			log.error("Problem occurred with accessing directory {} due to: {}", configuration.getHandlerDirectory(),
-					e.getLocalizedMessage());
+					e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -102,7 +102,7 @@ public class FileSystemCallbackHandlerDao implements CallbackHandlerDao {
 			log.trace("Persisting callback handler to file {}", absolutePath);
 			Files.write(Paths.get(absolutePath), mapper.writeValueAsBytes(handlerCallback), StandardOpenOption.CREATE);
 		} catch (Exception e) {
-			log.warn("Can not persist file handler {} due to {}", fileName, e.getMessage());
+			log.warn("Can not persist file handler {} due to {}", fileName, e.getMessage(), e);
 		}
 	}
 
@@ -114,7 +114,7 @@ public class FileSystemCallbackHandlerDao implements CallbackHandlerDao {
 		try {
 			return Optional.of(mapper.readValue(path.toFile(), PersistentFileHandler.class));
 		} catch (Exception e) {
-			log.warn("Can not deserialize file handler from file: {}", path.toString());
+			log.warn("Can not deserialize file handler from file: {}", path.toString(), e);
 		}
 		return Optional.empty();
 	}

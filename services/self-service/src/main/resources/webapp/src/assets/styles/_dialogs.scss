@@ -52,7 +52,8 @@
 }
 
 .modal-fullscreen {
-  width: 100vw;
+  width: 90vw;
+  max-width: 90vw !important;
   min-height: 80vh;
 }
 
@@ -372,6 +373,11 @@ mat-dialog-container {
 
 .mat-list-base .mat-list-item.delete-item{
   height: 30px;
+}
+
+.mat-list-item{
+  font-family: "Open Sans", sans-serif;
+  font-weight: 400;
 }
 
 .d-none{

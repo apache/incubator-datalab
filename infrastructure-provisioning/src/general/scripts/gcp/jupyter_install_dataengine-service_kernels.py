@@ -51,13 +51,14 @@ def configure_notebook(args):
     templates_dir = '/root/templates/'
     files_dir = '/root/files/'
     scripts_dir = '/root/scripts/'
-    put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
-    put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
-    put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
+    put(templates_dir + 'sparkmagic_config_template.json', '/tmp/sparkmagic_config_template.json')
+    #put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
+    #put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
+    #put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
     put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application), '/tmp/create_configs.py')
-    put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
-    put(templates_dir + 'toree_dataengine-service_templatev2.json', '/tmp/toree_dataengine-service_templatev2.json')
-    put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
+    #put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
+    #put(templates_dir + 'toree_dataengine-service_templatev2.json', '/tmp/toree_dataengine-service_templatev2.json')
+    #put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
     sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
     sudo('chmod 755 /usr/local/bin/create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
@@ -81,14 +82,21 @@ if __name__ == "__main__":
     configure_notebook(args)
     spark_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name,
                                                                      args.cluster_name, 'spark')
+    python_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name,
+                                                                     args.cluster_name, 'python')
     hadoop_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name,
                                                                       args.cluster_name, 'hadoop')
     r_version = actions_lib.GCPActions().get_cluster_app_version(args.bucket, args.project_name,
                                                                  args.cluster_name, 'r')
     r_enabled = os.environ['notebook_r_enabled']
+    master_host = '{}-m'.format(args.cluster_name)
+    master_ip = get_instance_private_ip_address(os.environ['gcp_zone'], master_host)
     sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
     sudo('echo "use_proxy=yes" > ~/.wgetrc; proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=); echo "http_proxy=$proxy" >> ~/.wgetrc; echo "https_proxy=$proxy" >> ~/.wgetrc')
-    sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} --application {11} --r_version {12} --r_enabled {13} --scala_version {14}'
+    sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; '
+         '/usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4}'
+         ' --spark_version {5} --hadoop_version {6} --region {7} --user_name {8} --os_user {9} --pip_mirror {10} '
+         '--application {11} --r_version {12} --r_enabled {13} --python_version {14}  --master_ip {15} --scala_version {16}'
          .format(os.environ['gcp_project_id'], os.environ['conf_resource'], args.bucket, args.cluster_name,
                  args.dataproc_version, spark_version, hadoop_version, args.region, args.project_name, args.os_user,
-                 args.pip_mirror, args.application, r_version, r_enabled, scala_version))
+                 args.pip_mirror, args.application, r_version, r_enabled, python_version, master_ip, scala_version))

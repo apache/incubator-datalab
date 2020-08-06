@@ -56,14 +56,15 @@ caffe_version = os.environ['notebook_caffe_version']
 caffe2_version = os.environ['notebook_caffe2_version']
 cmake_version = os.environ['notebook_cmake_version']
 cntk_version = os.environ['notebook_cntk_version']
+cntk2_version = os.environ['notebook_cntk2_version']
 mxnet_version = os.environ['notebook_mxnet_version']
-keras_version = '2.0.8'
+keras_version = os.environ['notebook_keras_version']
 theano_version = os.environ['notebook_theano_version']
-tensorflow_version = '1.4.0'
-cuda_version = '8.0'
-cuda_file_name = 'cuda_8.0.44_linux-run'
-cudnn_version = '6.0'
-cudnn_file_name = 'cudnn-8.0-linux-x64-v6.0.tgz'
+tensorflow_version = os.environ['notebook_tensorflow_version']
+cuda_version = os.environ['notebook_cuda_version']
+cuda_file_name = os.environ['notebook_cuda_file_name']
+cudnn_version = os.environ['notebook_cudnn_version']
+cudnn_file_name = os.environ['notebook_cudnn_file_name']
 
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
@@ -83,6 +84,9 @@ def install_itorch(os_user):
     if not exists('/home/{}/.ensure_dir/itorch_ensured'.format(os_user)):
         run('git clone https://github.com/facebook/iTorch.git')
         with cd('/home/{}/iTorch/'.format(os_user)):
+            run('luarocks install luacrypto')
+            run('luarocks install uuid')
+            run('luarocks install lzmq')
             run('luarocks make')
         sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(os_user))
         sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(os_user))
@@ -125,10 +129,10 @@ if __name__ == "__main__":
     install_keras(args.os_user, keras_version)
     print("Installing Caffe2")
     install_caffe2(args.os_user, caffe2_version, cmake_version)
-    print("Installing Torch")
-    install_torch(args.os_user)
+    #print("Installing Torch")
+    #install_torch(args.os_user)
     print("Install CNTK Python library")
-    install_cntk(args.os_user, cntk_version)
+    install_cntk(args.os_user,cntk2_version, cntk_version)
     print("Installing MXNET")
     install_mxnet(args.os_user, mxnet_version)
 
@@ -149,8 +153,8 @@ if __name__ == "__main__":
     ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
     print("Install py3spark local kernel for Jupyter")
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
-    print("Installing ITorch kernel for Jupyter")
-    install_itorch(args.os_user)
+    #print("Installing ITorch kernel for Jupyter")
+    #install_itorch(args.os_user)
 
     # INSTALL UNGIT
     print("Install nodejs")
@@ -169,7 +173,7 @@ if __name__ == "__main__":
     ensure_additional_python_libs(args.os_user)
     print("Install Matplotlib")
     ensure_matplot(args.os_user)
-    
+
     #POST INSTALLATION PROCESS
     print("Updating pyOpenSSL library")
     update_pyopenssl_lib(args.os_user)

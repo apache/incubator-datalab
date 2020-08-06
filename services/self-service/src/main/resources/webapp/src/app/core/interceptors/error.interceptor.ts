@@ -18,7 +18,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {
   HttpInterceptor,
   HttpRequest,
@@ -47,6 +47,7 @@ import { HTTP_STATUS_CODES } from '../util';
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError(error => {
+        if (error.error && error.error.message && error.error.message.indexOf('query param artifact') !== -1) return _throw(error);
         if (error instanceof HttpErrorResponse) {
           switch ((<HttpErrorResponse>error).status) {
             case HTTP_STATUS_CODES.UNAUTHORIZED:

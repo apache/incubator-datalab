@@ -57,7 +57,7 @@ import static com.mongodb.client.model.Filters.in;
 import static com.mongodb.client.model.Filters.lte;
 
 public class AuditDAOImpl extends BaseDAO implements AuditDAO {
-    private final static String AUDIT_COLLECTION = "audit";
+    private static final String AUDIT_COLLECTION = "audit";
     private static final String RESOURCE_NAME_FIELD = "resourceName";
     private static final String RESOURCE_TYPE_FIELD = "type";
     private static final String TIMESTAMP_FIELD = "timestamp";
@@ -86,8 +86,8 @@ public class AuditDAOImpl extends BaseDAO implements AuditDAO {
             countPipeline.add(match);
         }
         countPipeline.add(count());
-        valuesPipeline.addAll(Arrays.asList(skip(pageSize * (pageNumber - 1)), limit(pageSize)));
         valuesPipeline.add(sortCriteria());
+        valuesPipeline.addAll(Arrays.asList(skip(pageSize * (pageNumber - 1)), limit(pageSize)));
 
         List<Bson> userFilter = Collections.singletonList(group(getGroupingFields(USER)));
         List<Bson> projectFilter = Collections.singletonList(group(getGroupingFields(PROJECT)));

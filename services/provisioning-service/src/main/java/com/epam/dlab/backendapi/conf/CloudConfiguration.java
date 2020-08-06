@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.epam.dlab.backendapi;
+package com.epam.dlab.backendapi.conf;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

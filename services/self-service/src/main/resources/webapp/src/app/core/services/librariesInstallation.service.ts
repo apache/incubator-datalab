@@ -49,7 +49,6 @@ export class LibrariesInstallationService {
 
   public getAvailableDependencies(data): Observable<{}> {
     const body = `/maven?artifact=${data}`;
-
     return this.applicationServiceFacade
       .buildGetAvailableDependenciest(body)
       .pipe(

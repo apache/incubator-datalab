@@ -20,6 +20,7 @@
 package com.epam.dlab.backendapi;
 
 import com.epam.dlab.ServiceConfiguration;
+import com.epam.dlab.backendapi.conf.CloudConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.validation.ProvisioningServiceCloudConfigurationSequenceProvider;
 import com.epam.dlab.validation.AwsValidation;

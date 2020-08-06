@@ -60,7 +60,7 @@ export class InstallLibrariesModel {
       project_name: this.notebook.project,
       exploratory_name: this.notebook.name,
       group: group,
-      start_with: query.slice(0, query.indexOf(':'))
+      start_with: query
     };
     if (this.computational_name)
       lib_query.computational_name = this.computational_name;

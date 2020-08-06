@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
@@ -40,10 +59,10 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	private static final String ENDPOINT_FIELD = "endpoints.$.";
 	private static final String ANYUSER = Pattern.quote("$anyuser");
 
-	private final UserGroupDao userGroupDao;
+	private final UserGroupDAO userGroupDao;
 
 	@Inject
-	public ProjectDAOImpl(UserGroupDao userGroupDao) {
+	public ProjectDAOImpl(UserGroupDAO userGroupDao) {
 		this.userGroupDao = userGroupDao;
 	}
 
@@ -56,15 +75,18 @@ public class ProjectDAOImpl extends BaseDAO implements ProjectDAO {
 	@Override
 	public List<ProjectDTO> getProjectsWithEndpointStatusNotIn(UserInstanceStatus... statuses) {
 		final List<String> statusList =
-				Arrays.stream(statuses).map(UserInstanceStatus::name).collect(Collectors.toList());
+				Arrays.stream(statuses)
+						.map(UserInstanceStatus::name)
+						.collect(Collectors.toList());
 
 		return find(PROJECTS_COLLECTION, not(in(ENDPOINT_STATUS_FIELD, statusList)), ProjectDTO.class);
 	}
 
 	@Override
 	public List<ProjectDTO> getUserProjects(UserInfo userInfo, boolean active) {
-		final Set<String> groups = Stream.concat(userGroupDao.getUserGroups(userInfo.getName()).stream(),
-				userInfo.getRoles().stream())
+		Stream<String> userGroups = userGroupDao.getUserGroups(userInfo.getName()).stream();
+		Stream<String> roles = userInfo.getRoles().stream();
+		final Set<String> groups = Stream.concat(userGroups, roles)
 				.collect(Collectors.toSet());
 		return find(PROJECTS_COLLECTION, userProjectCondition(groups, active), ProjectDTO.class);
 	}

@@ -97,12 +97,16 @@ if __name__ == "__main__":
     try:
         print('Installing other packages: {}'.format(pkgs['libraries']['others']))
         for pkg in pkgs['libraries']['others']:
-            status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
-            status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
-            if status_pip2[0]['status'] == 'installed':
-                general_status = general_status + status_pip2
-            else:
+            if os.environ['conf_resource'] in ('dataengine-service'):#, 'dataengine'):
+                status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
                 general_status = general_status + status_pip3
+            else:
+                status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
+                status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
+                if status_pip2[0]['status'] == 'installed':
+                    general_status = general_status + status_pip2
+                else:
+                    general_status = general_status + status_pip3
     except KeyError:
         pass
 
@@ -111,6 +115,13 @@ if __name__ == "__main__":
             or os.environ['application'] in ('rstudio', 'tensor-rstudio'):
         try:
             print('Installing R packages: {}'.format(pkgs['libraries']['r_pkg']))
+            if os.environ['conf_resource'] in ('dataengine-service') :
+                if os.environ['conf_cloud_provider'] in ('aws'):
+                    manage_pkg('-y install', 'remote', 'libcurl libcurl-devel')
+                elif os.environ['conf_cloud_provider'] in ('gcp'):
+                    manage_pkg('-y build-dep', 'remote', 'libcurl4-gnutls-dev libxml2-dev')
+                    manage_pkg('-y install', 'remote', 'libcurl4-gnutls-dev libxml2-dev')
+                sudo('R -e "install.packages(\'devtools\', repos = \'https://cloud.r-project.org\')"')
             status = install_r_pkg(pkgs['libraries']['r_pkg'])
             general_status = general_status + status
         except KeyError:

@@ -340,8 +340,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 		try {
 			return Optional.of(computationalDAO.fetchComputationalFields(user, project, exploratoryName, computationalName));
 		} catch (DlabException e) {
-			log.warn("Computational resource {} affiliated with exploratory {} for user {} not found.",
-					computationalName, exploratoryName, user);
+			log.warn("Computational resource {} affiliated with exploratory {} for user {} not found.", computationalName, exploratoryName, user, e);
 		}
 		return Optional.empty();
 	}

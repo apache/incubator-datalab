@@ -157,6 +157,25 @@ class GCPMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_route(self, route_name):
+        request = self.service.routes().get(
+            project=self.project,
+            route=route_name)
+        try:
+            return request.execute()
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+            else:
+                raise err
+        except Exception as err:
+            logging.info(
+                "Unable to get Route: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Route",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_bucket(self, bucket_name):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)

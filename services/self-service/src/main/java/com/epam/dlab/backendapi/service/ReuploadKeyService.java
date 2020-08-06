@@ -19,10 +19,9 @@
 
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.reuploadkey.ReuploadKeyStatusDTO;
-import com.epam.dlab.model.ResourceData;
 
+@FunctionalInterface
 public interface ReuploadKeyService {
 
 	void updateResourceData(ReuploadKeyStatusDTO dto);

@@ -89,7 +89,7 @@ public class KeyService extends DockerService implements DockerCommands {
 			commandExecutor.executeAsync(userName, uuid, command);
 		} catch (Exception e) {
 			log.error("Exception occured during reuploading key: {} for command {}", e.getLocalizedMessage(),
-					runDockerCommand.toCMD());
+					runDockerCommand.toCMD(), e);
 		}
 	}
 

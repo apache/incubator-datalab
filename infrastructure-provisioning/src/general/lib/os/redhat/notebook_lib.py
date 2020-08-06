@@ -346,23 +346,62 @@ def install_nodejs(os_user):
 def install_os_pkg(requisites):
     status = list()
     error_parser = "Could not|No matching|Error:|failed|Requires:|Errno"
+    new_pkgs_parser = "Dependency Installed:"
     try:
         print("Updating repositories and installing requested tools: {}".format(requisites))
         manage_pkg('update-minimal --security -y --skip-broken', 'remote', '')
         sudo('export LC_ALL=C')
         for os_pkg in requisites:
-            manage_pkg('-y install', 'remote', '{0} --nogpgcheck 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
+            name, vers = os_pkg
+            if vers != '' and vers !='N/A':
+                version = vers
+                os_pkg = "{}-{}".format(name, vers)
+            else:
+                version = 'N/A'
+                os_pkg = name
+            manage_pkg('-y install', 'remote', '{0} --nogpgcheck 2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
+            install_output = sudo('cat /tmp/tee.tmp')
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
-            try:
-                res = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\'][0]"'.format(os_pkg))
+            sudo('cat /tmp/tee.tmp | if ! grep -w -E -A 30 "({1})" /tmp/tee.tmp > '
+                 '/tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, new_pkgs_parser))
+            dep = sudo('cat /tmp/os_install_{}.log'.format(os_pkg))
+            if dep == '':
+                dep = []
+            else:
+                dep = dep[len(new_pkgs_parser): dep.find("Complete!") - 1].replace('  ', '').strip().split('\r\n')
+                for n, i in enumerate(dep):
+                    i = i.split('.')[0]
+                    sudo('yum info {0} 2>&1 | if ! grep Version > /tmp/os_install_{0}.log; then echo "" > /tmp/os_install_{0}.log;fi'.format(i))
+                    dep[n] =sudo('cat /tmp/os_install_{}.log'.format(i)).replace('Version     : ', '{} v.'.format(i))
+                dep = [i for i in dep if i]
+            versions = []
+            res = sudo(
+                'python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\'][0]"'.format(
+                    name))
+            if err:
+                status_msg = 'installation_error'
+            elif res:
                 version = res.split('\r\n')[1].replace("'", "\"")
-                status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
-            except:
-                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": err})
+                status_msg = "installed"
+            if 'No package {} available'.format(os_pkg) in install_output:
+                versions = sudo ('yum --showduplicates list ' + name + ' | expand | grep -A 10 "Available Packages" | grep -v "Available Packages"| awk \'{print $2}\'').replace('\r\n', '').split(' ')
+                if versions != '':
+                    status_msg = 'invalid_version'
+                    for n, i in enumerate(versions):
+                        if ':' in i:
+                            versions[n] = i.split(':')[1].split('-')[0]
+                        else:
+                            versions[n] = i.split('-')[0]
+            status.append({"group": "os_pkg", "name": name, "version": version, "status": status_msg,
+                           "error_message": err, "add_pkgs": dep, "available_versions": versions})
         return status
-    except:
-        return "Fail to install OS packages"
-
+    except Exception as err:
+        for os_pkg in requisites:
+            name, vers = os_pkg
+            status.append(
+                {"group": "os_pkg", "name": name, "version": vers, "status": 'installation_error', "error_message": err})
+        print("Failed to install OS packages: {}".format(requisites))
+        return status
 
 def remove_os_pkg(pkgs):
     try:
@@ -462,14 +501,14 @@ def install_mxnet(os_user, mxnet_version):
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
 
-def install_torch(os_user):
-    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
-        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
-        with cd('/home/{}/torch/'.format(os_user)):
-            manage_pkg('-y install --nogpgcheck', 'remote', 'cmake curl readline-devel ncurses-devel gcc-c++ gcc-gfortran git gnuplot unzip libjpeg-turbo-devel libpng-devel ImageMagick GraphicsMagick-devel fftw-devel sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld qt-devel')
-            run('./install.sh -b')
-        run('source /home/{}/.bashrc'.format(os_user))
-        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
+#def install_torch(os_user):
+#    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
+#        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
+#        with cd('/home/{}/torch/'.format(os_user)):
+#            manage_pkg('-y install --nogpgcheck', 'remote', 'cmake curl readline-devel ncurses-devel gcc-c++ gcc-gfortran git gnuplot unzip libjpeg-turbo-devel libpng-devel ImageMagick GraphicsMagick-devel fftw-devel sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld qt-devel')
+#            run('./install.sh -b')
+#        run('source /home/{}/.bashrc'.format(os_user))
+#        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
 
 
 def install_gitlab_cert(os_user, certfile):

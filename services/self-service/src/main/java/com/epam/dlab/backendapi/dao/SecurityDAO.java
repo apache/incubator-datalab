@@ -20,10 +20,8 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.auth.dto.UserCredentialDTO;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.util.UsernameUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
@@ -31,35 +29,35 @@ import com.mongodb.client.model.Projections;
 import org.bson.Document;
 import org.keycloak.representations.AccessTokenResponse;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.backendapi.dao.MongoCollections.LOGIN_ATTEMPTS;
 import static com.epam.dlab.backendapi.dao.MongoCollections.ROLES;
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gte;
+import static com.mongodb.client.model.Filters.ne;
+import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 
 /**
  * DAO write the attempt of user login into DLab.
  */
 @Singleton
 public class SecurityDAO extends BaseDAO {
+	private static final String SECURITY_COLLECTION = "security";
+	private static final String TOKEN_RESPONSE = "tokenResponse";
+	private static final String LAST_ACCESS = "last_access";
 
 	@Inject
 	private SelfServiceApplicationConfiguration conf;
-	private static final String SECURITY_COLLECTION = "security";
-	private static final String TOKEN_RESPONSE = "tokenResponse";
-
-	/**
-	 * Write the attempt of user login into Mongo database.
-	 *
-	 * @param credentials user credentials.
-	 */
-	public void writeLoginAttempt(UserCredentialDTO credentials) {
-		insertOne(LOGIN_ATTEMPTS,
-				() -> new Document("login", credentials.getUsername()).append("iamlogin", UsernameUtils.removeDomain
-						(credentials.getUsername())));
-	}
 
 	/**
 	 * Return the roles or throw exception if roles collection does not exists.
@@ -83,7 +81,7 @@ public class SecurityDAO extends BaseDAO {
 						new Document()
 								.append(ID, userName)
 								.append("created", new Date())
-								.append("last_access", new Date())
+								.append(LAST_ACCESS, new Date())
 								.append(TOKEN_RESPONSE, convertToBson(accessTokenResponse))),
 				true);
 	}
@@ -93,15 +91,15 @@ public class SecurityDAO extends BaseDAO {
 				new Document(SET,
 						new Document()
 								.append(ID, userName)
-								.append("last_access", new Date())
+								.append(LAST_ACCESS, new Date())
 								.append(TOKEN_RESPONSE, convertToBson(accessTokenResponse))));
 	}
 
 	public Optional<UserInfo> getUser(String token) {
 		return Optional.ofNullable(mongoService.getCollection(SECURITY_COLLECTION)
-				.findOneAndUpdate(and(eq(TOKEN_RESPONSE + ".access_token", token), gte("last_access",
+				.findOneAndUpdate(and(eq(TOKEN_RESPONSE + ".access_token", token), gte(LAST_ACCESS,
 						new Date(new Date().getTime() - conf.getInactiveUserTimeoutMillSec()))), new Document("$set",
-						new Document("last_access", new Date()))))
+						new Document(LAST_ACCESS, new Date()))))
 				.map(d -> new UserInfo(d.getString(ID), token));
 	}
 

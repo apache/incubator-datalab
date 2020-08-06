@@ -38,7 +38,7 @@ public class MongoHealthCheck extends HealthCheck {
 		try {
 			mongoService.ping();
 		} catch (Exception e) {
-			log.error("Mongo is unavailable {}", e.getMessage());
+			log.error("Mongo is unavailable {}", e.getMessage(), e);
 			return Result.unhealthy(e.getMessage());
 		}
 		return Result.healthy();

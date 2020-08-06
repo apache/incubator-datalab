@@ -26,7 +26,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 public enum LibStatus {
 	INSTALLING,
 	INSTALLED,
-	FAILED;
+	INVALID_VERSION,
+	INSTALLATION_ERROR;
 
 	@JsonCreator
 	public static LibStatus of(String status) {

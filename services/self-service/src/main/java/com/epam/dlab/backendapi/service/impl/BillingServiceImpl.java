@@ -22,7 +22,7 @@ package com.epam.dlab.backendapi.service.impl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BillingDAO;
-import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.dao.ImageExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ProjectDAO;
 import com.epam.dlab.backendapi.domain.BillingReport;
 import com.epam.dlab.backendapi.domain.BillingReportLine;
@@ -83,14 +83,14 @@ public class BillingServiceImpl implements BillingService {
     private final ExploratoryService exploratoryService;
     private final SelfServiceApplicationConfiguration configuration;
     private final RESTService provisioningService;
-    private final ImageExploratoryDao imageExploratoryDao;
+    private final ImageExploratoryDAO imageExploratoryDao;
     private final BillingDAO billingDAO;
     private final String sbn;
 
     @Inject
     public BillingServiceImpl(ProjectService projectService, ProjectDAO projectDAO, EndpointService endpointService,
                               ExploratoryService exploratoryService, SelfServiceApplicationConfiguration configuration,
-                              @Named(ServiceConsts.BILLING_SERVICE_NAME) RESTService provisioningService, ImageExploratoryDao imageExploratoryDao,
+                              @Named(ServiceConsts.BILLING_SERVICE_NAME) RESTService provisioningService, ImageExploratoryDAO imageExploratoryDao,
                               BillingDAO billingDAO) {
         this.projectService = projectService;
         this.projectDAO = projectDAO;
@@ -116,12 +116,12 @@ public class BillingServiceImpl implements BillingService {
         final double sum = billingReportLines.stream().mapToDouble(BillingReportLine::getCost).sum();
         final String currency = billingReportLines.stream().map(BillingReportLine::getCurrency).distinct().count() == 1 ? billingReportLines.get(0).getCurrency() : null;
         return BillingReport.builder()
-                .name("Billing report")
-                .sbn(sbn)
-                .reportLines(billingReportLines)
-                .usageDateFrom(min)
-                .usageDateTo(max)
-                .totalCost(new BigDecimal(sum).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
+		        .name("Billing report")
+		        .sbn(sbn)
+		        .reportLines(billingReportLines)
+		        .usageDateFrom(min)
+		        .usageDateTo(max)
+		        .totalCost(BigDecimal.valueOf(sum).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(currency)
                 .isReportHeaderCompletable(hasUserBillingRole(user))
                 .build();
@@ -155,9 +155,9 @@ public class BillingServiceImpl implements BillingService {
                 .collect(Collectors.toList());;
         final String currency = billingData.stream().map(BillingReportLine::getCurrency).distinct().count() == 1 ? billingData.get(0).getCurrency() : null;
         return BillingReport.builder()
-                .name(exploratoryName)
-                .reportLines(billingData)
-                .totalCost(new BigDecimal(sum).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
+		        .name(exploratoryName)
+		        .reportLines(billingData)
+		        .totalCost(BigDecimal.valueOf(sum).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())
                 .currency(currency)
                 .build();
     }
@@ -297,16 +297,16 @@ public class BillingServiceImpl implements BillingService {
         billingDAO.save(billingReportLines);
     }
 
-    private List<BillingData> getBillingData(UserInfo userInfo, EndpointDTO e) {
-        try {
-            return provisioningService.get(getBillingUrl(e.getUrl(), BILLING_PATH), userInfo.getAccessToken(),
-                    new GenericType<List<BillingData>>() {
-                    });
-        } catch (Exception ex) {
-            log.error("Cannot retrieve billing information for {}. {}", e.getName(), ex.getMessage());
-            return Collections.emptyList();
-        }
-    }
+	private List<BillingData> getBillingData(UserInfo userInfo, EndpointDTO endpointDTO) {
+		try {
+			return provisioningService.get(getBillingUrl(endpointDTO.getUrl(), BILLING_PATH), userInfo.getAccessToken(),
+					new GenericType<List<BillingData>>() {
+					});
+		} catch (Exception e) {
+			log.error("Cannot retrieve billing information for {} . Reason {}.", endpointDTO.getName(), e.getMessage(), e);
+			return Collections.emptyList();
+		}
+	}
 
     private String getBillingUrl(String endpointUrl, String path) {
         URI uri;

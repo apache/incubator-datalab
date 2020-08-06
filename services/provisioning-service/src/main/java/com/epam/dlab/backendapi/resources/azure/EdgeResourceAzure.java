@@ -28,7 +28,6 @@ import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
-import com.epam.dlab.rest.contracts.EdgeAPI;
 import com.epam.dlab.util.FileUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.dropwizard.auth.Auth;
@@ -41,12 +40,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
-import static com.epam.dlab.rest.contracts.ApiCallbacks.*;
+import static com.epam.dlab.rest.contracts.ApiCallbacks.EDGE;
+import static com.epam.dlab.rest.contracts.ApiCallbacks.KEY_LOADER;
+import static com.epam.dlab.rest.contracts.ApiCallbacks.STATUS_URI;
 
 /**
  * Provides API to manage Edge node on Azure
  */
-@Path(EdgeAPI.EDGE)
+@Path("infrastructure/edge")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j

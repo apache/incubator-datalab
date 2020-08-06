@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, EventEmitter, Inject, OnInit, Output} from '@angular/core';
 import {FilterAuditModel} from '../filter-audit.model';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {AuditService} from '../../../core/services/audit.service';
@@ -43,7 +43,7 @@ export interface AuditItem {
 export class AuditGridComponent implements OnInit {
   public auditData: Array<AuditItem>;
   public displayedColumns: string[] = ['date', 'user', 'action', 'project', 'resource-type', 'resource', 'buttons'];
-  public displayedFilterColumns: string[] = ['action-filter', 'user-filter', 'actions-filter',  'project-filter', 'resource-type-filter', 'resource-filter', 'filter-buttons'];
+  public displayedFilterColumns: string[] = ['date-filter', 'user-filter', 'actions-filter',  'project-filter', 'resource-type-filter', 'resource-filter', 'filter-buttons'];
   public collapseFilterRow: boolean = false;
   public filterConfiguration: FilterAuditModel = new FilterAuditModel([], [], [], [], [], '', '');
   public filterAuditData: FilterAuditModel = new FilterAuditModel([], [], [], [], [], '', '');
@@ -54,6 +54,8 @@ export class AuditGridComponent implements OnInit {
   public allItems: number;
   private copiedFilterAuditData: FilterAuditModel;
   public isNavigationDisabled: boolean;
+
+  @Output() resetDateFilter: EventEmitter<any> = new EventEmitter();
 
 
   constructor(
@@ -157,6 +159,7 @@ export class AuditGridComponent implements OnInit {
 
   public resetFilterConfigurations(): void {
     this.filterAuditData = FilterAuditModel.getDefault();
+    this.resetDateFilter.emit();
     this.buildAuditGrid(true);
   }
 

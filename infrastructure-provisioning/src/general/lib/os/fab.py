@@ -54,19 +54,23 @@ def dataengine_dir_prepare(cluster_dir):
 
 def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
-    error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"
+    error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:|requires|FileNotFoundError:|RuntimeError:|error:"
     try:
         if pip_version == 'pip3' and not exists('/bin/pip3'):
-            sudo('ln -s /bin/pip3.5 /bin/pip3')
+            for v in range(4, 8):
+                if exists('/bin/pip3.{}'.format(v)):
+                    sudo('ln -s /bin/pip3.{} /bin/pip3'.format(v))
         sudo('{} install -U pip=={} setuptools'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install -U pip=={} --no-cache-dir'.format(pip_version, os.environ['conf_pip_version']))
         sudo('{} install --upgrade pip=={}'.format(pip_version, os.environ['conf_pip_version']))
         for pip_pkg in requisites:
             if pip_pkg[1] == '' or pip_pkg[1] == 'N/A':
                 pip_pkg = pip_pkg[0]
+                version = 'N/A'
             else:
+                version = pip_pkg[1]
                 pip_pkg = "{}=={}".format(pip_pkg[0], pip_pkg[1])
-            sudo('{0} install {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
+            sudo('{0} install -U {1} --no-cache-dir 2>&1 | tee /tmp/tee.tmp; if ! grep -w -i -E  "({2})" /tmp/tee.tmp >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
             sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
             res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
@@ -77,7 +81,9 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                 sudo('{0} freeze | if ! grep -w -i {1} > /tmp/{0}install_{1}.list; then  echo "" > '
                      '/tmp/{0}install_{1}.list;fi'.format(pip_version, changed_pip_pkg))
                 res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, changed_pip_pkg))
-            if res:
+            if err:
+                status_msg = 'installation_error'
+            elif res:
                 res = res.lower()
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
@@ -85,41 +91,41 @@ def install_pip_pkg(requisites, pip_version, lib_group):
                     version = [i for i in ver if changed_pip_pkg.lower() in i][0].split('==')[1]
                 else:
                     version = \
-                    [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split(
-                        '==')[1]
-                sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
-                dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
-                if dep == '' or dep == pip_pkg.split("==")[0]:
-                    dep = []
-                else:
-                    dep = dep.split(', ')
-                    for n, i in enumerate(dep):
-                        if i == pip_pkg.split("==")[0]:
-                            dep[n] = ''
-                        else:
-                            dep[n] = sudo('{} freeze 2>&1 | grep {}=='.format(pip_version , i)).replace('==', ' v.')
-                            if dep[n] == '':
-                                dep[n] = sudo('{} freeze 2>&1 | grep {}=='.format(pip_version, i.lower())).replace('==', ' v.')
-                    dep = [i for i in dep if i]
-
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "version": version, "status": "installed", "add_pkgs": dep})
-            else:
-                err_status = 'failed'
-                versions = ''
-                if 'Could not find a version that satisfies the requirement' in err:
-                    versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
-                    err_status = 'invalid version'
-                if versions == '':
-                    versions = []
-                else:
+                    [i for i in ver if pip_pkg.split("==")[0].lower() in i][0].split('==')[1]
+                status_msg = "installed"
+            versions = []
+            if 'Could not find a version that satisfies the requirement' in err:
+                versions = err[err.find("(from versions: ") + 16: err.find(")\r\n")]
+                if versions != '':
                     versions = versions.split(', ')
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg.split("==")[0], "status": err_status,
-                                   "error_message": err, "available_versions": versions})
+                    status_msg = 'invalid_version'
+                else:
+                    versions = []
+
+            sudo('if ! grep -w -i -E  "Installing collected packages:" /tmp/tee.tmp > /tmp/{0}install_{1}.log; '
+                 'then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
+            dep = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('\r\n', '').strip()[31:]
+            if dep == '':
+                dep = []
+            else:
+                dep = dep.split(', ')
+                for n, i in enumerate(dep):
+                    if i == pip_pkg.split("==")[0]:
+                        dep[n] = ''
+                    else:
+                        sudo('{0} show {1} 2>&1 | if ! grep Version: /tmp/tee.tmp > '
+                             '/tmp/{0}_install_{1}.log; then echo "" > /tmp/{0}_install_{1}.log;fi'.format(pip_version, i))
+                        dep[n] = sudo('cat /tmp/{0}_install_{1}.log'.format(pip_version, i)).replace('Version: ', '{} v.'.format(i))
+                dep = [i for i in dep if i]
+            status.append({"group": lib_group, "name": pip_pkg.split("==")[0], "version": version, "status": status_msg,
+                           "error_message": err, "available_versions": versions, "add_pkgs": dep})
         return status
     except Exception as err:
-        append_result("Failed to install {} packages".format(pip_version), str(err))
+        for pip_pkg in requisites:
+            name, vers = pip_pkg
+            status.append({"group": lib_group, "name": name, "version": vers, "status": 'installation_error', "error_message": err})
         print("Failed to install {} packages".format(pip_version))
-        sys.exit(1)
+        return status
 
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
@@ -180,8 +186,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
         try:
             sudo('pip2 install notebook==5.7.8 --no-cache-dir')
             sudo('pip2 install jupyter --no-cache-dir')
-            sudo('pip3.5 install notebook=={} --no-cache-dir'.format(jupyter_version))
-            sudo('pip3.5 install jupyter --no-cache-dir')
+            sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            sudo('pip3 install jupyter --no-cache-dir')
             sudo('rm -rf {}'.format(jupyter_conf_file))
             run('jupyter notebook --generate-config --config {}'.format(jupyter_conf_file))
             with cd('/home/{}'.format(os_user)):
@@ -203,6 +209,15 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                      "/caffe/python:/home/" + os_user + "/pytorch/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
             sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
+            http_proxy = run('echo $http_proxy')
+            https_proxy = run('echo $https_proxy')
+            #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTP_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
+            #    http_proxy))
+            #sudo('sed -i \'/\[Service\]/ a\Environment=\"HTTPS_PROXY={}\"\'  /tmp/jupyter-notebook.service'.format(
+            #    https_proxy))
+            java_home = run("update-alternatives --query java | grep -o \'/.*/java-8.*/jre\'").splitlines()[0]
+            sudo('sed -i \'/\[Service\]/ a\Environment=\"JAVA_HOME={}\"\'  /tmp/jupyter-notebook.service'.format(
+                java_home))
             sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
             sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             sudo('mkdir -p /mnt/var')
@@ -234,7 +249,7 @@ def configure_docker(os_user):
                   stable"')
             manage_pkg('update', 'remote', '')
             sudo('apt-cache policy docker-ce')
-            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version))
+            manage_pkg('-y install', 'remote', 'docker-ce={}~ce~3-0~ubuntu'.format(docker_version), 'True')
             sudo('touch /home/{}/.ensure_dir/docker_ensured'.format(os_user))
     except Exception as err:
         print('Failed to configure Docker:', str(err))
@@ -419,6 +434,7 @@ def install_r_pkg(requisites):
     try:
         for r_pkg in requisites:
             name, vers = r_pkg
+            version = vers
             if vers =='N/A':
                 vers = ''
             else:
@@ -436,30 +452,37 @@ def install_r_pkg(requisites):
             else:
                 dep = dep.split(' ')
                 for n, i in enumerate(dep):
-                    dep[n] = '{} v.{}'.format(dep[n], dep_ver[n])
+                    if i == name:
+                        dep[n] = ''
+                    else:
+                        dep[n] = '{} v.{}'.format(dep[n], dep_ver[n])
                 dep = [i for i in dep if i]
             err = sudo('cat /tmp/install_{0}.log'.format(name)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(name))
             res = sudo('cat /tmp/install_{0}.list'.format(name))
-            if res:
+            if err:
+                status_msg = 'installation_error'
+            elif res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
-                status.append({"group": "r_pkg", "name": name, "version": version, "status": "installed", "add_pkgs": dep})
-            else:
-                if 'Error in download_version_url(package, version, repos, type) :' in err:
-                    sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
-                    versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
+                status_msg = 'installed'
+            if 'Error in download_version_url(package, version, repos, type) :' in err:
+                sudo('R -e \'install.packages("versions", repos="https://cloud.r-project.org", dep=TRUE)\'')
+                versions = sudo('R -e \'library(versions); available.versions("' + name + '")\' 2>&1 | grep -A 50 '
                                     '\'date available\' | awk \'{print $2}\'').replace('\r\n', ' ')[5:].split(' ')
-                    status_msg = 'invalid version'
-                else:
-                    versions = []
-                    status_msg = 'failed'
-                status.append({"group": "r_pkg", "name": name, "status": status_msg, "error_message": err, "available_versions": versions})
+                if versions != ['']:
+                    status_msg = 'invalid_version'
+            else:
+                versions = []
+            status.append({"group": "r_pkg", "name": name, "version": version, "status": status_msg, "error_message": err, "available_versions": versions, "add_pkgs": dep})
         return status
     except Exception as err:
-        append_result("Failed to install R packages", str(err))
+        for r_pkg in requisites:
+            name, vers = r_pkg
+            status.append(
+                {"group": "r_pkg", "name": name, "version": vers, "status": 'installation_error', "error_message": err})
         print("Failed to install R packages")
-        sys.exit(1)
+        return status
 
 
 def update_spark_jars(jars_dir='/opt/jars'):
@@ -517,14 +540,16 @@ def install_java_pkg(requisites):
                 sudo('cp -f $(find {0} -name "*.jar" | xargs) {1}'.format(ivy_cache_dir, dest_dir))
                 status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "version": version, "status": "installed"})
             else:
-                status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "failed", "error_message": err})
+                status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "installation_error", "error_message": err})
         update_spark_jars()
         return status
     except Exception as err:
-        append_result("Failed to install {} packages".format(requisites), str(err))
+        for java_pkg in requisites:
+            group, artifact, version, override = java_pkg
+            status.append({"group": "java", "name": "{0}:{1}".format(group, artifact), "status": "installation_error",
+                           "error_message": err})
         print("Failed to install {} packages".format(requisites))
-        sys.exit(1)
-
+        return status
 
 def get_available_r_pkgs():
     try:
@@ -547,8 +572,8 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sudo('ln -s /opt/spark/ /usr/local/spark')
             sudo('jupyter toree install')
             sudo('mv ' + scala_kernel_path + 'lib/* /tmp/')
-            put(files_dir + 'toree-assembly-0.2.0.jar', '/tmp/toree-assembly-0.2.0.jar')
-            sudo('mv /tmp/toree-assembly-0.2.0.jar ' + scala_kernel_path + 'lib/')
+            put(files_dir + 'toree-assembly-0.3.0.jar', '/tmp/toree-assembly-0.3.0.jar')
+            sudo('mv /tmp/toree-assembly-0.3.0.jar ' + scala_kernel_path + 'lib/')
             sudo(
                 'sed -i "s|Apache Toree - Scala|Local Apache Toree - Scala (Scala-' + scala_version +
                 ', Spark-' + spark_version + ')|g" ' + scala_kernel_path + 'kernel.json')
@@ -686,18 +711,28 @@ def add_breeze_library_local(os_user):
             sys.exit(1)
 
 
-def configure_data_engine_service_pip(hostname, os_user, keyfile):
+def configure_data_engine_service_pip(hostname, os_user, keyfile, emr=False):
     env['connection_attempts'] = 100
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
     if not exists('/usr/bin/pip2'):
-        sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
+        if not exists('/usr/bin/pip-2.7'):
+            manage_pkg('-y install', 'remote', 'python2-pip')
+        else:
+            sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
+    manage_pkg('-y install', 'remote', 'python3-pip')
     if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.6 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.6 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and sudo("python3.7 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.7 /usr/bin/pip3')
+    if emr:
+        sudo('pip3 install -U pip=={}'.format(os.environ['conf_pip_version']))
+        sudo('pip2 install -U pip=={}'.format(os.environ['conf_pip_version']))
+        sudo('ln -s /usr/local/bin/pip3.7 /bin/pip3.7')
     sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
     sudo('source /etc/profile')
     run('source /etc/profile')

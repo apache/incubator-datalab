@@ -22,7 +22,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({ name: 'underscoreless' })
 
 export class UnderscorelessPipe implements PipeTransform {
-  transform(value, args: string[]): any {
+  transform(value): any {
     return value.replace(/_/g, ' ');
   }
 }

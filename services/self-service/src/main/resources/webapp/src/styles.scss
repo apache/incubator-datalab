@@ -140,7 +140,9 @@ mat-chip.mat-chip strong {
 .terminating,
 .failed,
 .deleting,
-.deleted {
+.deleted,
+.invalid_version,
+.installation_error{
   color: #f1696e;
 }
 
@@ -174,6 +176,10 @@ mat-chip.mat-chip strong {
   font-size: 15px;
   font-weight: 300;
   color: #35afd5;
+  position: relative;
+  .buttons{
+    position: absolute;
+  }
 }
 
 .base-retreat {
@@ -370,6 +376,9 @@ input[type='number'] {
   .content {
     text-align: center;
   }
+}
+#scrolling{
+  scrollbar-width: thin;
 }
 
 #scrolling::-webkit-scrollbar,

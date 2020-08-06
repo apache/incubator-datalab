@@ -42,7 +42,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
     <audit-toolbar (rebuildAudit)="rebuildAuditGrid()" (setRangeOption) = setRangeOption($event)>
     </audit-toolbar>
     <mat-divider></mat-divider>
-    <dlab-audit-grid></dlab-audit-grid>
+    <dlab-audit-grid (resetDateFilter)="resetDatepicker()"></dlab-audit-grid>
   </div>
 
   `,
@@ -96,6 +96,10 @@ export class AuditComponent implements OnInit, OnDestroy {
   }
 
   public setRangeOption(event) {
-    this.auditGrid.setAvaliblePeriod(event)
+    this.auditGrid.setAvaliblePeriod(event);
+  }
+
+  public resetDatepicker() {
+    this.auditToolbar.clearRangePicker();
   }
 }

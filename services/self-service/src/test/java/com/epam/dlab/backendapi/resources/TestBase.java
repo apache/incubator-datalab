@@ -20,8 +20,14 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.rest.mappers.ResourceNotFoundExceptionMapper;
-import io.dropwizard.auth.*;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.AuthenticationException;
+import io.dropwizard.auth.Authenticator;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -38,6 +44,11 @@ public class TestBase {
 
 	protected final String TOKEN = "TOKEN";
 	protected final String USER = "testUser";
+	protected final String ENDPOINT_NAME = "local";
+	protected final String ENDPOINT_URL = "http://localhost:8443/";
+	protected final String ENDPOINT_ACCOUNT = "account";
+	protected final String ENDPOINT_TAG = "tag";
+
 	@SuppressWarnings("unchecked")
 	private static Authenticator<String, UserInfo> authenticator = mock(Authenticator.class);
 	@SuppressWarnings("unchecked")
@@ -73,5 +84,9 @@ public class TestBase {
 
 	protected UserInfo getUserInfo() {
 		return new UserInfo(USER, TOKEN);
+	}
+
+	protected EndpointDTO getEndpointDTO() {
+		return new EndpointDTO(ENDPOINT_NAME, ENDPOINT_URL, ENDPOINT_ACCOUNT, ENDPOINT_TAG, EndpointDTO.EndpointStatus.ACTIVE, CloudProvider.AWS);
 	}
 }

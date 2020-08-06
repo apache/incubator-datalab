@@ -30,7 +30,7 @@ import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
-import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.dao.ImageExploratoryDAO;
 import com.epam.dlab.backendapi.domain.AuditActionEnum;
 import com.epam.dlab.backendapi.domain.AuditDTO;
 import com.epam.dlab.backendapi.domain.AuditResourceTypeEnum;
@@ -101,7 +101,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 	private final ExploratoryDAO exploratoryDAO;
 	private final ComputationalDAO computationalDAO;
 	private final GitCredsDAO gitCredsDAO;
-	private final ImageExploratoryDao imageExploratoryDao;
+	private final ImageExploratoryDAO imageExploratoryDao;
 	private final RESTService provisioningService;
 	private final RequestBuilder requestBuilder;
 	private final RequestId requestId;
@@ -112,9 +112,9 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 
 	@Inject
 	public ExploratoryServiceImpl(ProjectService projectService, ExploratoryDAO exploratoryDAO, ComputationalDAO computationalDAO, GitCredsDAO gitCredsDAO,
-								  ImageExploratoryDao imageExploratoryDao, @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
-								  RequestBuilder requestBuilder, RequestId requestId, TagService tagService, EndpointService endpointService, AuditService auditService,
-								  SelfServiceApplicationConfiguration configuration) {
+	                              ImageExploratoryDAO imageExploratoryDao, @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService,
+	                              RequestBuilder requestBuilder, RequestId requestId, TagService tagService, EndpointService endpointService, AuditService auditService,
+	                              SelfServiceApplicationConfiguration configuration) {
 		this.projectService = projectService;
 		this.exploratoryDAO = exploratoryDAO;
 		this.computationalDAO = computationalDAO;
@@ -229,7 +229,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		try {
 			return Optional.of(exploratoryDAO.fetchExploratoryFields(user, project, exploratoryName));
 		} catch (DlabException e) {
-			log.warn("User instance with exploratory {}, project {} for user {} not found.", exploratoryName, project, user);
+			log.warn("User instance with exploratory {}, project {} for user {} not found.", exploratoryName, project, user, e);
 		}
 		return Optional.empty();
 	}
@@ -239,7 +239,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 		try {
 			return Optional.of(exploratoryDAO.fetchExploratoryFields(user, project, exploratoryName, includeCompResources));
 		} catch (DlabException e) {
-			log.warn("User instance with exploratory {}, project {} for user {} not found.", exploratoryName, project, user);
+			log.warn("User instance with exploratory {}, project {} for user {} not found.", exploratoryName, project, user, e);
 		}
 		return Optional.empty();
 	}
@@ -460,7 +460,8 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 
 	private LibInstallDTO toLibInstallDto(Library l) {
 		return new LibInstallDTO(l.getGroup(), l.getName(), l.getVersion())
-				.withStatus(l.getStatus().toString())
+				.withStatus(String.valueOf(l.getStatus()))
+				.withAddedPackages(l.getAddedPackages())
 				.withErrorMessage(l.getErrorMessage());
 	}
 }

@@ -34,8 +34,7 @@ import java.lang.annotation.Target;
 public @interface LibNameValid {
 
 
-	String message() default "Wrong library name format. Should be <groupId>:<artifactId>:<versionId>. E.g. io" +
-			".dropwizard:dropwizard-core:1.3.5";
+	String message() default "Wrong library name format. Should be <groupId>:<artifactId>:<versionId>";
 
 	Class<?>[] groups() default {};
 

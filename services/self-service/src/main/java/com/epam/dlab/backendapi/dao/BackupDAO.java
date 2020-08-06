@@ -19,28 +19,17 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
-import com.epam.dlab.dto.exploratory.ImageStatus;
-import com.epam.dlab.dto.exploratory.LibStatus;
-import com.epam.dlab.model.exploratory.Image;
-import com.epam.dlab.model.library.Library;
+import com.epam.dlab.backendapi.resources.dto.BackupInfoRecord;
+import com.epam.dlab.dto.backup.EnvBackupDTO;
+import com.epam.dlab.dto.backup.EnvBackupStatus;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface ImageExploratoryDao {
+public interface BackupDAO {
+	void createOrUpdate(EnvBackupDTO dto, String user, EnvBackupStatus status);
 
-	boolean exist(String image, String project);
+	List<BackupInfoRecord> getBackups(String userName);
 
-	void save(Image image);
-
-	void updateImageFields(Image image);
-
-	List<ImageInfoRecord> getImages(String user, String dockerImage, String project, String endpoint, ImageStatus... statuses);
-
-	List<ImageInfoRecord> getImagesForProject(String project);
-
-	Optional<ImageInfoRecord> getImage(String user, String name, String project, String endpoint);
-
-	List<Library> getLibraries(String user, String imageFullName, String project, String endpoint, LibStatus status);
+	Optional<BackupInfoRecord> getBackup(String userName, String id);
 }

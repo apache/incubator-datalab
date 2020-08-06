@@ -16,13 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package com.epam.dlab.backendapi.dao;
 
-package com.epam.dlab.rest.contracts;
+import java.util.Set;
 
-public interface EdgeAPI {
-	String EDGE = "infrastructure/edge";
-	String EDGE_CREATE = EDGE + "/create";
-	String EDGE_START = EDGE + "/start";
-	String EDGE_STOP = EDGE + "/stop";
-	String EDGE_TERMINATE = EDGE + "/terminate";
+public interface UserGroupDAO {
+	void addUsers(String group, Set<String> users);
+
+	void updateUsers(String group, Set<String> users);
+
+	void removeGroup(String groupId);
+
+	Set<String> getUserGroups(String user);
+
+	Set<String> getUsers(String group);
 }

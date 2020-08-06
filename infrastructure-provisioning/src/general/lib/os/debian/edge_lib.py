@@ -54,8 +54,7 @@ def configure_http_proxy_server(config):
             for cidr in config['allowed_ip_cidr']:
                 replace_string += 'acl AllowedCIDRS src {}\\n'.format(cidr)
             sudo('sed -i "s|ALLOWED_CIDRS|{}|g" /etc/squid/squid.conf'.format(replace_string))
-            sudo('service squid reload')
-            sudo('sysv-rc-conf squid on')
+            sudo('systemctl restart squid')
             sudo('touch /tmp/http_proxy_ensured')
     except Exception as err:
         print("Failed to install and configure squid: " + str(err))
@@ -66,8 +65,12 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                       keycloak_client_secret, user, hostname, step_cert_sans):
     try:
         if not os.path.exists('/tmp/nginx_installed'):
-            manage_pkg('-y install', 'remote', 'wget')
-            manage_pkg('-y install', 'remote', 'gcc build-essential make automake zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev libc6-dev libgd-dev libgeoip-dev libpcre3-dev apt-utils autoconf liblmdb-dev libtool libxml2-dev libyajl-dev pkgconf liblua5.1-0 liblua5.1-0-dev libreadline-dev libreadline6-dev libtinfo-dev libtool-bin lua5.1 zip readline-doc')
+            manage_pkg('-y install', 'remote',
+                       'gcc build-essential make automake zlib1g-dev libpcre++-dev libssl-dev git libldap2-dev '
+                       'libc6-dev libgd-dev libgeoip-dev libpcre3-dev apt-utils autoconf liblmdb-dev libtool '
+                       'libxml2-dev libyajl-dev pkgconf libreadline-dev libreadline6-dev libtinfo-dev '
+                       'libtool-bin zip readline-doc perl curl liblua5.1-0 liblua5.1-0-dev lua5.1')
+            manage_pkg('-y install --no-install-recommends', 'remote', 'wget gnupg ca-certificates')
             if os.environ['conf_stepcerts_enabled'] == 'true':
                 sudo('mkdir -p /home/{0}/keys'.format(user))
                 sudo('''bash -c 'echo "{0}" | base64 --decode > /etc/ssl/certs/root_ca.crt' '''.format(
@@ -111,66 +114,26 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             else:
                 sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
                      -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
-            sudo('mkdir -p /tmp/lua')
+
             sudo('mkdir -p /tmp/src')
             with cd('/tmp/src/'):
-                sudo('wget http://nginx.org/download/nginx-{}.tar.gz'.format(nginx_version))
-                sudo('tar -xzf nginx-{}.tar.gz'.format(nginx_version))
+                sudo('wget https://luarocks.org/releases/luarocks-3.3.1.tar.gz')
+                sudo('tar -xzf luarocks-3.3.1.tar.gz')
 
-                sudo('wget https://github.com/openresty/lua-nginx-module/archive/v0.10.15.tar.gz')
-                sudo('tar -xzf v0.10.15.tar.gz')
+            sudo('wget -O - https://openresty.org/package/pubkey.gpg | sudo apt-key add -')
+            sudo('add-apt-repository -y "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main"')
+            sudo('apt-get update')
+            sudo('apt-get -y install openresty=1.15.8.1-1~bionic1')
 
-                sudo('wget https://github.com/simplresty/ngx_devel_kit/archive/v0.3.1.tar.gz')
-                sudo('tar -xzf v0.3.1.tar.gz')
-
-                sudo('wget http://luajit.org/download/LuaJIT-2.0.5.tar.gz')
-                sudo('tar -xzf LuaJIT-2.0.5.tar.gz')
-
-                sudo('wget http://keplerproject.github.io/luarocks/releases/luarocks-2.2.2.tar.gz')
-                sudo('tar -xzf luarocks-2.2.2.tar.gz')
-
-                sudo('ln -sf nginx-{} nginx'.format(nginx_version))
-
-            with cd('/tmp/src/LuaJIT-2.0.5/'):
-                sudo('make')
-                sudo('make install')
-
-            with cd('/tmp/src/nginx/'), shell_env(LUAJIT_LIB='/usr/local/lib/', LUAJIT_INC='/usr/local/include/luajit-2.0'):
-                sudo('./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
-                              --conf-path=/etc/nginx/nginx.conf --pid-path=/run/nginx.pid --lock-path=/run/lock/subsys/nginx \
-                              --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log \
-                              --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module --with-pcre \
-                              --with-http_realip_module --with-file-aio --with-ipv6 --with-http_v2_module --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB"  \
-                              --without-http_scgi_module --without-http_uwsgi_module --without-http_fastcgi_module --with-http_sub_module \
-                              --add-dynamic-module=/tmp/src/ngx_devel_kit-0.3.1 --add-dynamic-module=/tmp/src/lua-nginx-module-0.10.15')
-                sudo('make')
-                sudo('make install')
-
-            with cd('/tmp/src/luarocks-2.2.2/'):
+            with cd('/tmp/src/luarocks-3.3.1/'):
                 sudo('./configure')
-                sudo('make build')
                 sudo('make install')
-                sudo('wget https://luarocks.org/manifests/cdbattags/lua-resty-jwt-0.2.0-0.src.rock')
-                sudo('luarocks build lua-resty-jwt-0.2.0-0.src.rock')
-                sudo('wget https://luarocks.org/manifests/bungle/lua-resty-session-2.26-1.src.rock')
-                sudo('luarocks build lua-resty-session-2.26-1.src.rock')
-                sudo('wget https://luarocks.org/manifests/pintsized/lua-resty-http-0.15-0.src.rock')
-                sudo('luarocks build lua-resty-http-0.15-0.src.rock')
-                sudo('wget https://luarocks.org/manifests/hanszandbelt/lua-resty-openidc-1.7.2-1.src.rock')
-                sudo('luarocks build lua-resty-openidc-1.7.2-1.src.rock')
-                sudo('wget https://luarocks.org/manifests/starius/luacrypto-0.3.2-2.src.rock')
-                sudo('luarocks build luacrypto-0.3.2-2.src.rock')
-                sudo('wget https://luarocks.org/manifests/openresty/lua-cjson-2.1.0.6-1.src.rock')
-                sudo('luarocks build lua-cjson-2.1.0.6-1.src.rock')
-                sudo('wget https://luarocks.org/manifests/avlubimov/lua-resty-core-0.1.17-4.src.rock')
-                sudo('luarocks build lua-resty-core-0.1.17-4.src.rock')
-                sudo('wget https://luarocks.org/manifests/hjpotter92/random-1.1-0.rockspec')
-                sudo('luarocks install random-1.1-0.rockspec')
-                sudo('wget https://luarocks.org/manifests/rsander/lua-resty-string-0.09-0.rockspec')
-                sudo('luarocks install lua-resty-string-0.09-0.rockspec')
+                sudo('luarocks install lua-resty-openidc --tree /usr/local/openresty/lualib/resty/')
+
+            sudo('luarocks install lua-resty-openidc')
 
             sudo('useradd -r nginx')
-            sudo('rm -f /etc/nginx/nginx.conf')
+
             sudo('mkdir -p /opt/dlab/templates')
             put('/root/templates', '/opt/dlab', use_sudo=True)
             sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(edge_ip))
@@ -183,15 +146,11 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
             sudo('sed -i \'s/KEYCLOAK_CLIENT_SECRET/{}/g\' /opt/dlab/templates/conf.d/proxy.conf'.format(
                 keycloak_client_secret))
 
-            sudo('cp /opt/dlab/templates/nginx.conf /etc/nginx/')
-            sudo('mkdir /etc/nginx/conf.d')
-            sudo('cp /opt/dlab/templates/conf.d/proxy.conf /etc/nginx/conf.d/')
-            sudo('mkdir /etc/nginx/locations')
-            sudo('cp /opt/dlab/templates/nginx_debian /etc/init.d/nginx')
-            sudo('chmod +x /etc/init.d/nginx')
-            sudo('systemctl daemon-reload')
-            sudo('systemctl enable nginx')
-            sudo('/etc/init.d/nginx start')
+            sudo('cp /opt/dlab/templates/nginx.conf /usr/local/openresty/nginx/conf')
+            sudo('mkdir /usr/local/openresty/nginx/conf/conf.d')
+            sudo('cp /opt/dlab/templates/conf.d/proxy.conf /usr/local/openresty/nginx/conf/conf.d/')
+            sudo('mkdir /usr/local/openresty/nginx/conf/locations')
+            sudo('systemctl start openresty')
             sudo('touch /tmp/nginx_installed')
             if os.environ['conf_letsencrypt_enabled'] == 'true':
                 print("Configuring letsencrypt certificates.")
@@ -203,4 +162,26 @@ def install_nginx_lua(edge_ip, nginx_version, keycloak_auth_server_url, keycloak
                 configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], os.environ['project_name'])
     except Exception as err:
         print("Failed install nginx with ldap: " + str(err))
+        sys.exit(1)
+
+def configure_nftables(config):
+    try:
+        if not exists('/tmp/nftables_ensured'):
+            manage_pkg('-y install', 'remote', 'nftables')
+            sudo('systemctl enable nftables.service')
+            sudo('systemctl start nftables')
+            sudo('sysctl net.ipv4.ip_forward=1')
+            if os.environ['conf_cloud_provider'] == 'aws':
+                interface = 'eth0'
+            elif os.environ['conf_cloud_provider'] == 'gcp':
+                interface = 'ens4'
+            sudo('sed -i \'s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g\' /etc/sysctl.conf')
+            sudo('sed -i \'s/EDGE_IP/{}/g\' /opt/dlab/templates/nftables.conf'.format(config['edge_ip']))
+            sudo('sed -i "s|INTERFACE|{}|g" /opt/dlab/templates/nftables.conf'.format(interface))
+            sudo('sed -i "s|SUBNET_CIDR|{}|g" /opt/dlab/templates/nftables.conf'.format(config['exploratory_subnet']))
+            sudo('cp /opt/dlab/templates/nftables.conf /etc/')
+            sudo('systemctl restart nftables')
+            sudo('touch /tmp/nftables_ensured')
+    except Exception as err:
+        print("Failed to configure nftables: " + str(err))
         sys.exit(1)

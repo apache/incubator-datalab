@@ -180,6 +180,20 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*Configuration.*</exclude>
+                        <exclude>**/*Module.*</exclude>
+                        <exclude>**/*Form.*</exclude>
+                        <exclude>com/epam/dlab/process/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/modules/**/*</exclude>
+                        <exclude>com/epam/dlab/backendapi/validation/**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
