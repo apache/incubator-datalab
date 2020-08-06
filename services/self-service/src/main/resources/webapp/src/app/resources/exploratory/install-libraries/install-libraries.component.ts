@@ -172,13 +172,12 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
       }
       this.lib = {name: '', version: ''};
     } else if ($event.model.type === 'destination') {
-      this.resetDialog();
       this.destination = $event.model.value;
       this.destination && this.destination.type === 'СOMPUTATIONAL'
         ? this.model.computational_name = this.destination.name
         : this.model.computational_name = null;
-      this.uploadLibGroups();
-      this.getInstalledLibsByResource();
+      this.resetDialog();
+      // this.getInstalledLibsByResource();
       this.libSearch.disable();
     }
     this.filterList();
@@ -345,7 +344,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
             libs => {
               this.filteredList = [libs];
               this.filteredList.forEach(lib => {
-                lib.isInSelectedList = this.model.selectedLibs.some(el => lib.name.toLowerCase() === el.name.substring(0, el.name.lastIndexOf(':')).toLowerCase());
+                lib.isInSelectedList = this.model.selectedLibs
+                  .some(el => lib.name.toLowerCase() === el.name.substring(0, el.name.lastIndexOf(':')).toLowerCase());
                 lib.isInstalled = this.notebookLibs.some(libr => {
                     return lib.name.toLowerCase() === libr.name.substring(0, libr.name.lastIndexOf(':')).toLowerCase() &&
                       this.group === libr.group &&
@@ -360,7 +360,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
                 || error.status === HTTP_STATUS_CODES.BAD_REQUEST
                 || error.status === HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR) {
                 this.validity_format = error.message;
-                if (error.message.indexOf('query param artifact') !== -1) {
+                if (error.message.indexOf('query param artifact') !== -1 || error.message.indexOf('Illegal character') !== -1) {
                   this.validity_format = 'Wrong library name format. Should be <groupId>:<artifactId>:<versionId>.';
                 }
                 if (error.message.indexOf('not found') !== -1) {
@@ -394,8 +394,8 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
   }
 
-  private selectorsReset(): void {
-    this.destination = this.getResourcesList()[0];
+  private selectorsReset(leaveDestanation?): void {
+    if (!leaveDestanation) this.destination = this.getResourcesList()[0];
     this.uploadLibGroups();
     this.getInstalledLibsByResource();
     this.libSearch.disable();
@@ -414,7 +414,7 @@ export class InstallLibrariesComponent implements OnInit, OnDestroy {
 
     clearTimeout(this.clear);
     clearTimeout(this.loadLibsTimer);
-    this.selectorsReset();
+    this.selectorsReset(true);
   }
 
   public toggleFilterRow(): void {
@@ -489,25 +489,6 @@ export class ErrorLibMessageDialogComponent {
     <h4 class="modal-title" *ngIf="data.type === 'available'">Version is not available</h4>
     <button type="button" class="close" (click)="dialogRef.close()">&times;</button>
   </div>
-<!--  <mat-list class="resources">-->
-
-<!--    <mat-list-item class="list-header">-->
-<!--      <div class="object">Name</div>-->
-<!--      <div class="size">Version</div>-->
-<!--    </mat-list-item>-->
-
-<!--    <div class="scrolling-content delete-list" id="scrolling">-->
-
-<!--      <mat-list-item *ngFor="let lib of data.add_pkgs" class="delete-item">-->
-<!--        <div class="object">-->
-<!--         {{lib}}-->
-<!--        </div>-->
-<!--        <div class="size">v2.3.4</div>-->
-<!--      </mat-list-item>-->
-
-<!--    </div>-->
-<!--  </mat-list>-->
-
   <div class="lib-list" *ngIf="data.type === 'added'">
     <span class="strong dependency-title">Dependency: </span><span class="packeges" *ngFor="let pack of data.lib.add_pkgs; index as i">{{pack + (i !== data.lib.add_pkgs.length - 1 ? ', ' : '')}}</span>
   </div>

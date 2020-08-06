@@ -59,24 +59,30 @@
               {{upTimeSince || "not specified."}}</p>
             <p *ngIf="notebook.url?.length">Open following URL(s) in your browser to access this box:</p>
             <div class="links_block">
-              <p *ngFor="let item of notebook.url" (mouseleave)="hideCopyIcon()">
-                <span class="description">{{item.description}}: &nbsp;</span>
-                <a (mouseover)="showCopyIcon(item.description)"
-                   (click)="logAction(notebook.name, item.description)"
-                   class="ellipsis none-select" matTooltip="{{item.url}}"
-                   matTooltipPosition="above"
-                   href="{{item.url}}"
-                  target="_blank"
-                   (contextmenu)="false"
-                >
-                  &nbsp;{{item.url}}
-                </a>
-                <span (click)="logAction(notebook.name, item.description, 'Copy');$event.stopPropagation()" *ngIf="isCopyIconVissible[item.description]" [matTooltip]="isCopied ? 'Copy ' + item.description + ' url': 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper">
-                  <span  class="link-icon" (click)="copyBucketName(item.url)" >
-                    <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
-                   </span>
+              <ng-container *ngFor="let item of notebook.url">
+                <span class="d-none" *ngIf="item.description === 'Ungit' && notebook.template_name.toLowerCase().indexOf('deep learning') !== -1; else ungit">
                 </span>
-              </p>
+                <ng-template #ungit>
+                  <p (mouseleave)="hideCopyIcon()">
+                    <span class="description">{{item.description}}: &nbsp;</span>
+                    <a (mouseover)="showCopyIcon(item.description)"
+                       (click)="logAction(notebook.name, item.description)"
+                       class="ellipsis none-select" matTooltip="{{item.url}}"
+                       matTooltipPosition="above"
+                       href="{{item.url}}"
+                      target="_blank"
+                       (contextmenu)="false"
+                    >
+                      &nbsp;{{item.url}}
+                    </a>
+                    <span (click)="logAction(notebook.name, item.description, 'Copy');$event.stopPropagation()" *ngIf="isCopyIconVissible[item.description]" [matTooltip]="isCopied ? 'Copy ' + item.description + ' url': 'Copied'" matTooltipPosition="above" class="copy-icon-wrapper">
+                      <span  class="link-icon" (click)="copyBucketName(item.url)" >
+                        <span _ngcontent-xpv-c19="" class="material-icons" (click)="this.isCopied = false">content_copy</span>
+                       </span>
+                    </span>
+                  </p>
+                </ng-template>
+              </ng-container>
             </div>
             <p class="flex" *ngIf="notebook.username">Node User: &nbsp;<span
                 class="strong">{{ notebook.username }}</span></p>

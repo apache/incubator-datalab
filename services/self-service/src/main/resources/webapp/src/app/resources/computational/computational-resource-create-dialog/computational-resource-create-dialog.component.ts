@@ -83,6 +83,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectImage($event) {
     this.selectedImage = $event;
+    console.log(this.selectedImage);
     this.filterShapes();
     this.getComputationalResourceLimits();
 
@@ -267,32 +268,36 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private filterShapes(): void {
     const allowed: any = ['GPU optimized'];
+    let filtered;
+
+    const reduceShapes = (obj, key) => {
+      obj[key] = this.selectedImage.computation_resources_shapes[key];
+      return obj;
+    };
+
+    const filteredShapeKeys = Object.keys(
+      SortUtils.shapesSort(this.selectedImage.computation_resources_shapes));
+
+    const filterShapes = (filter) => filteredShapeKeys
+      .filter(filter)
+      .reduce(reduceShapes, {});
+
     if (this.notebook_instance.template_name.toLowerCase().indexOf('tensorflow') !== -1
       || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1
     ) {
-      const filtered = Object.keys(
-        SortUtils.shapesSort(this.selectedImage.computation_resources_shapes))
-        .filter(key => allowed.includes(key))
-        .reduce((obj, key) => {
-          obj[key] = this.selectedImage.computation_resources_shapes[key];
-          return obj;
-        }, {});
+      filtered = filterShapes(key => allowed.includes(key));
       if (this.PROVIDER !== 'azure') {
         const images = this.clusterTypes.filter(image => image.image === 'docker.dlab-dataengine');
         this.clusterTypes = images;
         this.selectedImage = this.clusterTypes[0];
       }
-      this.selectedImage.computation_resources_shapes = filtered;
+    } else if (this.notebook_instance.template_name.toLowerCase().indexOf('jupyter notebook') !== -1 &&
+      this.selectedImage.image === 'docker.dlab-dataengine-service') {
+      filtered = filterShapes(v => v);
     } else {
-      const filtered = Object.keys(
-        SortUtils.shapesSort(this.selectedImage.computation_resources_shapes))
-        .filter(key => !(allowed.includes(key)))
-        .reduce((obj, key) => {
-          obj[key] = this.selectedImage.computation_resources_shapes[key];
-          return obj;
-        }, {});
-      this.selectedImage.computation_resources_shapes = filtered;
+      filtered = filterShapes(key => !(allowed.includes(key)));
     }
+    this.selectedImage.computation_resources_shapes = filtered;
   }
 
   private filterAvailableSpots() {
