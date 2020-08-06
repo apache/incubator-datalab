@@ -21,6 +21,7 @@ package com.epam.dlab.rest.contracts;
 
 public interface ComputationalAPI {
 	String AUDIT_MESSAGE = "Notebook name %s";
+	String AUDIT_COMPUTATIONAL_RECONFIGURE_MESSAGE = "Reconfigure compute <%s>, requested for notebook <%s>";
 	String LIBRARY = "library/";
 	String COMPUTATIONAL = "computational";
 	String COMPUTATIONAL_CREATE = COMPUTATIONAL + "/create";
@@ -37,5 +38,4 @@ public interface ComputationalAPI {
 	String COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC = COMPUTATIONAL_TERMINATE + "/cloud";
 	String COMPUTATIONAL_LIB_INSTALL = LIBRARY + COMPUTATIONAL + "/lib_install";
 	String COMPUTATIONAL_LIB_LIST = LIBRARY + COMPUTATIONAL + "/lib_list";
-	String COMPUTATIONAL_RECONFIGURE_MESSAGE = "Reconfigure compute <%s>, requested for notebook <%s>";
 }
