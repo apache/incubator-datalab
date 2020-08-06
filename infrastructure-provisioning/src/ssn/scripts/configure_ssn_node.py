@@ -186,7 +186,6 @@ def configure_ssl_certs(hostname, custom_ssl_cert):
                     use_sudo=True)
                 sudo('systemctl daemon-reload')
                 sudo('systemctl enable step-cert-manager.service')
-
             else:
                 sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab.key \
                      -out /etc/ssl/certs/dlab.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
@@ -252,6 +251,15 @@ if __name__ == "__main__":
 
     print("Configuring nginx.")
     configure_nginx(deeper_config, args.dlab_path, args.hostname)
+
+    if os.environ['conf_letsencrypt_enabled'] == 'true':
+        print("Configuring letsencrypt certificates.")
+        install_certbot(os.environ['conf_os_family'])
+        if 'conf_letsencrypt_email' in os.environ:
+            run_certbot(os.environ['conf_letsencrypt_domain_name'], 'ssn', os.environ['conf_letsencrypt_email'])
+        else:
+            run_certbot(os.environ['conf_letsencrypt_domain_name'], 'ssn')
+        configure_nginx_LE(os.environ['conf_letsencrypt_domain_name'], 'ssn')
 
     #print("Installing jenkins.")
     #ensure_jenkins(args.dlab_path)

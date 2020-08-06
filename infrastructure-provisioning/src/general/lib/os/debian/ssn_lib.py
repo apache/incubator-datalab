@@ -173,7 +173,6 @@ def ensure_mongo():
         print('Failed to install MongoDB: ', str(err))
         sys.exit(1)
 
-
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
              os_user, mongo_passwd, keystore_passwd, cloud_provider,
              service_base_name, tag_resource_id, billing_tag, account_id, billing_bucket,

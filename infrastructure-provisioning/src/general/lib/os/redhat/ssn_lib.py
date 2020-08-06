@@ -356,6 +356,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path,
                     sudo('keytool -importcert -trustcacerts -alias ssn -file /etc/ssl/certs/dlab.crt -noprompt '
                          '-storepass changeit -keystore {0}/lib/security/cacerts'.format(java_path))
                 else:
+                    if os.environ['conf_letsencrypt_enabled'] == 'true':
+                        print('Lets Encrypt certificates are not supported for redhat in dlab. Using self signed certificates')
                     sudo('keytool -genkeypair -alias ssn -keyalg RSA -validity 730 -storepass {1} -keypass {1} \
                          -keystore /home/{0}/keys/ssn.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(
                         os_user, keystore_passwd))
