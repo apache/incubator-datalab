@@ -81,19 +81,18 @@ public class LibraryCallback {
 	@POST
 	@Path("/update_lib_list")
 	public Response updateLibList(LibListStatusDTO dto) {
-		log.debug("Updating the list of libraries for image {}", dto.getImageName());
+		log.debug("Updating the list of libraries for image {}", dto.getGroup());
 		requestId.checkAndRemove(dto.getRequestId());
 		try {
 			if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
 				log.warn("Request for the list of libraries fails: {}", dto.getErrorMessage());
-				ExploratoryLibCache.getCache().removeLibList(dto.getImageName());
+				ExploratoryLibCache.getCache().removeLibList(dto.getGroup());
 			} else {
-				ExploratoryLibCache.getCache().updateLibList(dto.getImageName(), dto.getLibs());
+				ExploratoryLibCache.getCache().updateLibList(dto.getGroup(), dto.getLibs());
 			}
 		} catch (Exception e) {
 			log.warn("Cannot update the list of libs: {}", e.getLocalizedMessage(), e);
 		}
-		// Always necessary send OK for status request
 		return Response.ok().build();
 	}
 }

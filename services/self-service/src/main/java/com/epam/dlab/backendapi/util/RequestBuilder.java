@@ -23,7 +23,6 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.conf.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
-import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.ProjectDTO;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
@@ -32,6 +31,7 @@ import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.LibListComputationalDTO;
+import com.epam.dlab.dto.LibListExploratoryDTO;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
@@ -292,17 +292,17 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ExploratoryActionDTO<T>> T newLibExploratoryList(UserInfo userInfo,
-																	   UserInstanceDTO userInstance,
-																	   EndpointDTO endpointDTO) {
+	public <T extends LibListExploratoryDTO> T newLibExploratoryList(UserInfo userInfo, UserInstanceDTO userInstance,
+	                                                                 EndpointDTO endpointDTO, String group) {
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
-		return (T) newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), ExploratoryActionDTO.class)
+		return (T) newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), LibListExploratoryDTO.class)
 				.withNotebookInstanceName(userInstance.getExploratoryId())
 				.withProject(userInstance.getProject())
 				.withEndpoint(endpointDTO.getName())
 				.withNotebookImage(userInstance.getImageName())
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-				.withExploratoryName(userInstance.getExploratoryName());
+				.withExploratoryName(userInstance.getExploratoryName())
+				.withLibCacheKey(group);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -323,10 +323,10 @@ public class RequestBuilder {
 
 	@SuppressWarnings("unchecked")
 	public <T extends LibListComputationalDTO> T newLibComputationalList(UserInfo userInfo,
-																		 UserInstanceDTO userInstance,
-																		 UserComputationalResource
-																				 computationalResource,
-																		 EndpointDTO endpointDTO) {
+	                                                                     UserInstanceDTO userInstance,
+	                                                                     UserComputationalResource
+			                                                                     computationalResource,
+	                                                                     EndpointDTO endpointDTO, String group) {
 
 		checkInappropriateCloudProviderOrElseThrowException(endpointDTO.getCloudProvider());
 		return (T) newResourceSysBaseDTO(userInfo.getName(), endpointDTO.getCloudProvider(), LibListComputationalDTO.class)
@@ -334,7 +334,7 @@ public class RequestBuilder {
 				.withProject(userInstance.getProject())
 				.withEndpoint(endpointDTO.getName())
 				.withComputationalImage(computationalResource.getImageName())
-				.withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance))
+				.withLibCacheKey(group)
 				.withApplicationName(getApplicationNameFromImage(userInstance.getImageName()));
 	}
 

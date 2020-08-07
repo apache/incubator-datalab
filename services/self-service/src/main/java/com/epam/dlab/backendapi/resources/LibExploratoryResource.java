@@ -24,7 +24,7 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
 import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
-import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
+import com.epam.dlab.backendapi.resources.dto.LibraryAutoCompleteDTO;
 import com.epam.dlab.backendapi.resources.dto.SearchLibsFormDTO;
 import com.epam.dlab.backendapi.service.ExternalLibraryService;
 import com.epam.dlab.backendapi.service.LibraryService;
@@ -169,40 +169,33 @@ public class LibExploratoryResource {
 	}
 
 	/**
-	 * Returns the list of available libraries for exploratory basing on search conditions provided in @formDTO.
+	 * Returns the list of available libraries for exploratory basing on search conditions provided in @searchDTO.
 	 *
-	 * @param userInfo user info.
-	 * @param formDTO  search condition for find libraries for the exploratory environment.
+	 * @param userInfo  user info.
+	 * @param searchDTO search condition for find libraries for the exploratory environment.
 	 * @return found libraries
 	 */
 	@POST
 	@Path("search/lib_list")
-	public List<LibraryDTO> getLibList(@Auth UserInfo userInfo,
-									   @Valid @NotNull SearchLibsFormDTO formDTO) {
-		log.trace("Search list of libs for user {} with condition {}", userInfo.getName(), formDTO);
+	public Response getLibList(@Auth UserInfo userInfo,
+	                           @Valid @NotNull SearchLibsFormDTO searchDTO) {
 		try {
-
 			UserInstanceDTO userInstance;
-
-			if (StringUtils.isNotEmpty(formDTO.getComputationalName())) {
-
-				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getProjectName(),
-						formDTO.getNotebookName(), formDTO.getComputationalName());
-
+			if (StringUtils.isNotEmpty(searchDTO.getComputationalName())) {
+				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), searchDTO.getProjectName(),
+						searchDTO.getNotebookName(), searchDTO.getComputationalName());
 				userInstance.setResources(userInstance.getResources().stream()
-						.filter(e -> e.getComputationalName().equals(formDTO.getComputationalName()))
+						.filter(e -> e.getComputationalName().equals(searchDTO.getComputationalName()))
 						.collect(Collectors.toList()));
-
 			} else {
-				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getProjectName(),
-						formDTO.getNotebookName());
+				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), searchDTO.getProjectName(), searchDTO.getNotebookName());
 			}
 
-			return ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO.getStartWith());
-		} catch (Exception t) {
-			log.error("Cannot search libs for user {} with condition {}",
-					userInfo.getName(), formDTO, t);
-			throw new DlabException("Cannot search libraries: " + t.getLocalizedMessage(), t);
+			LibraryAutoCompleteDTO autoCompleteDTO = ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, searchDTO.getGroup(), searchDTO.getStartWith());
+			return Response.ok(autoCompleteDTO).build();
+		} catch (Exception e) {
+			log.error("Cannot search libs for user {} with condition {}", userInfo.getName(), searchDTO, e);
+			throw new DlabException("Cannot search libraries: " + e.getLocalizedMessage(), e);
 		}
 	}
 

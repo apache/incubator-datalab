@@ -366,7 +366,7 @@ public class LibraryServiceImplTest {
 
 	@Test
 	public void getExploratoryJupyterLibGroups() {
-		List<Object> exploratoryGroups = Arrays.asList(GROUP_JAVA, GROUP_OS_PKG, GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS);
+		List<Object> exploratoryGroups = Arrays.asList(GROUP_JAVA, GROUP_OS_PKG, GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS, GROUP_R_PKG);
 		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getJupyterUserInstanceDtoForLibGroups());
 
 		List<String> exploratoryGroupsResult = libraryService.getExploratoryLibGroups(getUser(), PROJECT, EXPLORATORY_NAME);

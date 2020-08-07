@@ -17,47 +17,24 @@
  * under the License.
  */
 
-package com.epam.dlab.dto.exploratory;
+package com.epam.dlab.dto;
 
-import com.epam.dlab.dto.StatusBaseDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-/**
- * Stores the info about group libraries.
- */
 @Getter
 @Setter
-public class LibListStatusDTO extends StatusBaseDTO<LibListStatusDTO> {
+@ToString(callSuper = true)
+public class LibListExploratoryDTO extends ExploratoryActionDTO<LibListExploratoryDTO> {
 
-    @JsonProperty
-    private String libs;
+	@JsonProperty
+	private String libCacheKey;
 
-    @JsonProperty
-    private String group;
-
-    /**
-     * Set the list of libraries and return this object
-     */
-    public LibListStatusDTO withLibs(String libs) {
-        setLibs(libs);
-        return this;
-    }
-
-    /**
-     * Set the name of group and return this object
-     */
-    public LibListStatusDTO withGroup(String group) {
-        setGroup(group);
-        return this;
-    }
-
-    @Override
-    public MoreObjects.ToStringHelper toStringHelper(Object self) {
-        return MoreObjects.toStringHelper(self)
-                .add("group", group)
-                .add("libs", (libs != null) ? "..." : null);
-    }
+	public LibListExploratoryDTO withLibCacheKey(String libCacheKey) {
+		setLibCacheKey(libCacheKey);
+		return this;
+	}
 }

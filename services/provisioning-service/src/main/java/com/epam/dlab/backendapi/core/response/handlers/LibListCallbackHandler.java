@@ -49,7 +49,7 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<LibListStatu
 	 * The name of docker image.
 	 */
 	@JsonProperty
-	private final String imageName;
+	private final String group;
 
 	/**
 	 * Instantiate handler for process of docker response for list of libraries.
@@ -58,15 +58,15 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<LibListStatu
 	 * @param action      docker action.
 	 * @param uuid        request UID.
 	 * @param user        the name of user.
-	 * @param imageName   the name of docker image.
+	 * @param group       the name of a group.
 	 */
 	@JsonCreator
 	public LibListCallbackHandler(
 			@JacksonInject RESTService selfService, @JsonProperty("action") DockerAction action,
 			@JsonProperty("uuid") String uuid, @JsonProperty("user") String user,
-			@JsonProperty("imageName") String imageName) {
+			@JsonProperty("group") String group) {
 		super(selfService, user, uuid, action);
-		this.imageName = imageName;
+		this.group = group;
 	}
 
 	@Override
@@ -105,6 +105,6 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<LibListStatu
 	@Override
 	protected LibListStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
 		return super.getBaseStatusDTO(status)
-				.withImageName(imageName);
+				.withGroup(group);
 	}
 }
