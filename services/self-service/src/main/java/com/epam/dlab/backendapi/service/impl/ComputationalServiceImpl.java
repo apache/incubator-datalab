@@ -297,7 +297,7 @@ public class ComputationalServiceImpl implements ComputationalService {
 
 	@Audit(action = RECONFIGURE, type = COMPUTE)
 	@Override
-	public void updateSparkClusterConfig(@User UserInfo userInfo, @Project String project, String exploratoryName, @ResourceName String computationalName, List<ClusterConfig> config) {
+	public void updateSparkClusterConfig(@User UserInfo userInfo, @Project String project, String exploratoryName, @ResourceName String computationalName, List<ClusterConfig> config, @Info String auditInfo) {
 		final String userName = userInfo.getName();
 		final String token = userInfo.getAccessToken();
 		final UserInstanceDTO userInstanceDTO = exploratoryDAO

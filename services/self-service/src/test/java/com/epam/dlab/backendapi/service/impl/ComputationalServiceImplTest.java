@@ -71,6 +71,7 @@ import static com.epam.dlab.dto.UserInstanceStatus.CREATING;
 import static com.epam.dlab.dto.UserInstanceStatus.RUNNING;
 import static com.epam.dlab.dto.UserInstanceStatus.STOPPED;
 import static com.epam.dlab.rest.contracts.ComputationalAPI.AUDIT_MESSAGE;
+import static com.epam.dlab.rest.contracts.ComputationalAPI.AUDIT_COMPUTATIONAL_RECONFIGURE_MESSAGE;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -103,6 +104,7 @@ public class ComputationalServiceImplTest {
     private final String EXPLORATORY_NAME = "expName";
     private final String PROJECT = "project";
     private final String COMP_NAME = "compName";
+    private final String NOTE_BOOK_NAME = "notebookName";
     private final String UUID = "1234-56789765-4321";
     private final LocalDateTime LAST_ACTIVITY = LocalDateTime.now().minusMinutes(MAX_INACTIVITY);
 
@@ -619,7 +621,7 @@ public class ComputationalServiceImplTest {
         when(provisioningService.post(anyString(), anyString(), any(ComputationalClusterConfigDTO.class), any()))
                 .thenReturn("someUuid");
         computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
-                COMP_NAME, config);
+                COMP_NAME, config, String.format(AUDIT_COMPUTATIONAL_RECONFIGURE_MESSAGE, COMP_NAME, NOTE_BOOK_NAME));
 
         verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME, true);
         verify(requestBuilder).newClusterConfigUpdate(refEq(getUserInfo()), refEq(userInstanceDto),
@@ -647,10 +649,9 @@ public class ComputationalServiceImplTest {
         when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(userInstanceDto);
         try {
             computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
-                    COMP_NAME, config);
+                    COMP_NAME, config, String.format(AUDIT_COMPUTATIONAL_RECONFIGURE_MESSAGE, COMP_NAME, NOTE_BOOK_NAME));
         } catch (ResourceNotFoundException e) {
-            assertEquals("Running computational resource with name compName for exploratory expName not found",
-                    e.getMessage());
+            assertEquals("Running computational resource with name compName for exploratory expName not found", e.getMessage());
         }
 
         verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME, true);
@@ -667,7 +668,7 @@ public class ComputationalServiceImplTest {
         when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString(), anyBoolean())).thenReturn(userInstanceDto);
         try {
             computationalService.updateSparkClusterConfig(getUserInfo(), PROJECT, EXPLORATORY_NAME,
-                    COMP_NAME + "X", config);
+                    COMP_NAME + "X", config, String.format(AUDIT_COMPUTATIONAL_RECONFIGURE_MESSAGE, COMP_NAME, NOTE_BOOK_NAME));
         } catch (ResourceNotFoundException e) {
             assertEquals("Running computational resource with name compNameX for exploratory expName not found",
                     e.getMessage());

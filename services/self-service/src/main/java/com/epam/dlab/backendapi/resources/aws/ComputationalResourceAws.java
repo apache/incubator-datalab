@@ -203,7 +203,8 @@ public class ComputationalResourceAws implements ComputationalAPI {
 										   @PathParam("exploratoryName") String exploratoryName,
 										   @PathParam("computationalName") String computationalName,
 										   @Valid @NotNull List<ClusterConfig> config) {
-		computationalService.updateSparkClusterConfig(userInfo, projectName, exploratoryName, computationalName, config);
+		computationalService.updateSparkClusterConfig(userInfo, projectName, exploratoryName, computationalName, config,
+				String.format(AUDIT_COMPUTATIONAL_RECONFIGURE_MESSAGE, computationalName, exploratoryName));
 		return Response.ok().build();
 	}
 
