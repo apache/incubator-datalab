@@ -348,7 +348,7 @@ public class ProjectServiceImpl implements ProjectService {
 		Integer value = Optional.ofNullable(projectDTO.getBudget())
 				.map(BudgetDTO::getValue)
 				.orElse(null);
-		boolean monthlyBudget = Optional.ofNullable(projectDTO.getBudget())
+		Boolean monthlyBudget = Optional.ofNullable(projectDTO.getBudget())
 				.map(BudgetDTO::isMonthlyBudget)
 				.orElse(null);
 		return String.format(AUDIT_UPDATE_BUDGET, value, p.getBudget().getValue(), monthlyBudget);
