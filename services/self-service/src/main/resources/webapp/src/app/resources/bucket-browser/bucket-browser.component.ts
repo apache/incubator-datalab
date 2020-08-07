@@ -370,8 +370,6 @@ export class BucketBrowserComponent implements OnInit, OnDestroy {
 
   private getCloud() {
     return this.buckets.filter(v => v.children.some(bucket => {
-      console.log(bucket.name);
-      console.log(this.bucketName);
       return bucket.name === this.bucketName;
     }))[0].cloud.toLowerCase();
   }

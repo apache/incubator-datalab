@@ -23,6 +23,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.EndpointDTO;
+import com.epam.dlab.backendapi.domain.NotebookTemplate;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
 import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
@@ -68,24 +69,31 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LibraryServiceImplTest {
 
-    private static final String LIB_NAME = "name";
-    private static final String LIB_GROUP = "group";
-    private static final String LIB_VERSION = "version";
-    private static final String UUID = "id";
-    private final String USER = "test";
-    private final String EXPLORATORY_NAME = "explName";
-    private final String PROJECT = "projectName";
-    private final String COMPUTATIONAL_NAME = "compName";
+	private static final String LIB_NAME = "name";
+	private static final String LIB_GROUP = "group";
+	private static final String LIB_VERSION = "version";
+	private static final String UUID = "id";
+	private final String USER = "test";
+	private final String EXPLORATORY_NAME = "explName";
+	private final String PROJECT = "projectName";
+	private final String COMPUTATIONAL_NAME = "compName";
 
-    private LibInstallDTO liDto;
-    private List<LibInstallDTO> libs;
-    private LibInstallFormDTO libInstallFormDTO;
-    private LibraryInstallDTO libraryInstallDto;
+	private static final String GROUP_JAVA = "java";
+	private static final String GROUP_PIP2 = "pip2";
+	private static final String GROUP_PIP3 = "pip3";
+	private static final String GROUP_R_PKG = "r_pkg";
+	private static final String GROUP_OS_PKG = "os_pkg";
+	private static final String GROUP_OTHERS = "others";
 
-    @Mock
-    private ExploratoryDAO exploratoryDAO;
-    @Mock
-    private ExploratoryLibDAO libraryDAO;
+	private LibInstallDTO liDto;
+	private List<LibInstallDTO> libs;
+	private LibInstallFormDTO libInstallFormDTO;
+	private LibraryInstallDTO libraryInstallDto;
+
+	@Mock
+	private ExploratoryDAO exploratoryDAO;
+	@Mock
+	private ExploratoryLibDAO libraryDAO;
     @Mock
     private RequestBuilder requestBuilder;
     @Mock
@@ -338,14 +346,45 @@ public class LibraryServiceImplTest {
         try {
             libraryService.installExploratoryLibs(user, PROJECT, EXPLORATORY_NAME, getLibs(null), null);
         } catch (DlabException e) {
-            assertEquals("Library name is already installing", e.getMessage());
+	        assertEquals("Library name is already installing", e.getMessage());
         }
 
-        verify(libraryDAO).getLibrary(USER, PROJECT, EXPLORATORY_NAME, LIB_GROUP, LIB_NAME);
-        verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
-        verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
+		verify(libraryDAO).getLibrary(USER, PROJECT, EXPLORATORY_NAME, LIB_GROUP, LIB_NAME);
+		verify(exploratoryDAO).fetchRunningExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+		verifyNoMoreInteractions(libraryDAO, requestBuilder, provisioningService, requestId, exploratoryDAO);
 
-    }
+	}
+
+	@Test
+	public void getComputeLibGroups() {
+		List<Object> computeGroups = Arrays.asList(GROUP_JAVA, GROUP_OS_PKG, GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS);
+
+		List<String> computeGroupsResult = libraryService.getComputeLibGroups();
+
+		assertEquals("lists are not equals", computeGroups, computeGroupsResult);
+	}
+
+	@Test
+	public void getExploratoryJupyterLibGroups() {
+		List<Object> exploratoryGroups = Arrays.asList(GROUP_JAVA, GROUP_OS_PKG, GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS, GROUP_R_PKG);
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getJupyterUserInstanceDtoForLibGroups());
+
+		List<String> exploratoryGroupsResult = libraryService.getExploratoryLibGroups(getUser(), PROJECT, EXPLORATORY_NAME);
+
+		assertEquals("lists are not equals", exploratoryGroups, exploratoryGroupsResult);
+		verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+	}
+
+	@Test
+	public void getExploratoryRstudioLibGroups() {
+		List<Object> exploratoryGroups = Arrays.asList(GROUP_JAVA, GROUP_OS_PKG, GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS, GROUP_R_PKG);
+		when(exploratoryDAO.fetchExploratoryFields(anyString(), anyString(), anyString())).thenReturn(getRstudioUserInstanceDtoForLibGroups());
+
+		List<String> exploratoryGroupsResult = libraryService.getExploratoryLibGroups(getUser(), PROJECT, EXPLORATORY_NAME);
+
+		assertEquals("lists are not equals", exploratoryGroups, exploratoryGroupsResult);
+		verify(exploratoryDAO).fetchExploratoryFields(USER, PROJECT, EXPLORATORY_NAME);
+	}
 
 	private Library getLibrary(LibStatus status) {
 		return new Library(LIB_GROUP, LIB_NAME, "1", status, "");
@@ -382,10 +421,23 @@ public class LibraryServiceImplTest {
 	}
 
 	private UserInstanceDTO getUserInstanceDto() {
-		final UserInstanceDTO userInstanceDTO =
-				new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME);
+		final UserInstanceDTO userInstanceDTO = new UserInstanceDTO().withUser(USER).withExploratoryName(EXPLORATORY_NAME);
 		userInstanceDTO.getResources().add(getUserComputationalResourceWithName(COMPUTATIONAL_NAME));
 		return userInstanceDTO;
+	}
+
+	private UserInstanceDTO getJupyterUserInstanceDtoForLibGroups() {
+		return new UserInstanceDTO()
+				.withUser(USER)
+				.withExploratoryName(EXPLORATORY_NAME)
+				.withTemplateName(NotebookTemplate.JUPYTER.getName());
+	}
+
+	private UserInstanceDTO getRstudioUserInstanceDtoForLibGroups() {
+		return new UserInstanceDTO()
+				.withUser(USER)
+				.withExploratoryName(EXPLORATORY_NAME)
+				.withTemplateName(NotebookTemplate.RSTUDIO.getName());
 	}
 
 	private List<Document> getExpLibsList() {

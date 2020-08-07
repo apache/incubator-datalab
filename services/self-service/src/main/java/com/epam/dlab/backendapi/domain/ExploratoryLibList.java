@@ -20,6 +20,7 @@
 
 package com.epam.dlab.backendapi.domain;
 
+import com.epam.dlab.backendapi.resources.dto.LibraryAutoCompleteDTO;
 import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +29,12 @@ import io.dropwizard.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
@@ -53,9 +59,9 @@ public class ExploratoryLibList {
 	protected static final long UPDATE_REQUEST_TIMEOUT_MILLIS = Duration.minutes(15).toMilliseconds();
 
 	/**
-	 * Image name.
+	 * Group name.
 	 */
-	private String imageName;
+	private String group;
 
 	/**
 	 * List of libraries group:libraries:version.
@@ -86,11 +92,11 @@ public class ExploratoryLibList {
 	/**
 	 * Instantiate the list of libraries.
 	 *
-	 * @param imageName the name of docker's image.
-	 * @param content   JSON string.
+	 * @param group   the name of docker's image.
+	 * @param content JSON string.
 	 */
-	ExploratoryLibList(String imageName, String content) {
-		this.imageName = imageName;
+	ExploratoryLibList(String group, String content) {
+		this.group = group;
 		if (content != null) {
 			setLibs(content);
 		}
@@ -108,8 +114,8 @@ public class ExploratoryLibList {
 	/**
 	 * Return the name of docker image;
 	 */
-	public String getImageName() {
-		return imageName;
+	public String getGroup() {
+		return group;
 	}
 
 	/**
@@ -130,14 +136,13 @@ public class ExploratoryLibList {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			synchronized (this) {
-				libs.clear();
 				@SuppressWarnings("unchecked")
 				Map<String, Map<String, String>> map = mapper.readValue(content, Map.class);
 				for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
 					Map<String, String> group = entry.getValue();
 					String groupName = entry.getKey();
-					log.debug("Update {} image with lib group {} with {} libraries", imageName, groupName,
-							(group != null) ? group.size() : null);
+					libs.remove(groupName);
+					log.info("Update {} group with lib group {} with {} libraries", this.group, groupName, (group != null) ? group.size() : null);
 					libs.put(groupName, new TreeMap<>(group));
 				}
 				expiredTimeMillis = System.currentTimeMillis() + EXPIRED_TIMEOUT_MILLIS;
@@ -154,21 +159,27 @@ public class ExploratoryLibList {
 	 *
 	 * @param group     the name of group.
 	 * @param startWith the prefix for library name.
+	 * @return LibraryAutoCompleteDTO dto
 	 */
-	public List<LibraryDTO> getLibs(String group, String startWith) {
-
-		String startsWithLower = startWith.toLowerCase();
-
+	public LibraryAutoCompleteDTO getLibs(String group, String startWith) {
+		final String startsWithLower = startWith.toLowerCase();
 		Map<String, String> libMap = getLibs(group);
-
 		if (libMap == null) {
-			return Collections.emptyList();
+			return LibraryAutoCompleteDTO.builder()
+					.autoComplete(Boolean.FALSE)
+					.libraries(Collections.emptyList())
+					.build();
 		}
-
-		return libMap.entrySet().stream()
+		List<LibraryDTO> libraries = libMap.entrySet()
+				.stream()
 				.filter(e -> e.getKey().toLowerCase().startsWith(startsWithLower))
 				.map(e -> new LibraryDTO(e.getKey(), e.getValue()))
 				.collect(Collectors.toList());
+
+		return LibraryAutoCompleteDTO.builder()
+				.autoComplete(Boolean.TRUE)
+				.libraries(libraries)
+				.build();
 	}
 
 	/**
@@ -217,7 +228,7 @@ public class ExploratoryLibList {
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this)
-				.add("imageName", imageName)
+				.add("group", group)
 				.add("expiredTimeMillis", expiredTimeMillis)
 				.add("accessTimeMillis", accessTimeMillis)
 				.add("updateStartTimeMillis", updateStartTimeMillis)

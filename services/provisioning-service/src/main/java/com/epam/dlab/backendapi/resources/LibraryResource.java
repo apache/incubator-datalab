@@ -30,6 +30,7 @@ import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
 import com.epam.dlab.backendapi.service.impl.DockerService;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.LibListComputationalDTO;
+import com.epam.dlab.dto.LibListExploratoryDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
@@ -56,7 +57,7 @@ public class LibraryResource extends DockerService implements DockerCommands {
 
 	@POST
 	@Path(ExploratoryAPI.EXPLORATORY + "/lib_list")
-	public String getLibList(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws JsonProcessingException {
+	public String getLibList(@Auth UserInfo ui, LibListExploratoryDTO dto) throws JsonProcessingException {
 		return actionExploratory(ui.getName(), dto, DockerAction.LIB_LIST);
 	}
 
@@ -160,13 +161,14 @@ public class LibraryResource extends DockerService implements DockerCommands {
 	private FileHandlerCallback getFileHandlerCallbackExploratory(DockerAction action, String uuid,
 																  ExploratoryBaseDTO<?> dto) {
 		switch (action) {
+			case LIB_LIST:
+				final String group = ((LibListExploratoryDTO) dto).getLibCacheKey();
+				return new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid,
+						dto.getCloudSettings().getIamUser(), group);
 			case LIB_INSTALL:
 				return new LibInstallCallbackHandler(selfService, action, uuid,
 						dto.getCloudSettings().getIamUser(),
 						(LibraryInstallDTO) dto);
-			case LIB_LIST:
-				return new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid,
-						dto.getCloudSettings().getIamUser(), dto.getNotebookImage());
 			default:
 				throw new IllegalArgumentException("Unknown action " + action);
 		}

@@ -24,7 +24,7 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
 import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
-import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
+import com.epam.dlab.backendapi.resources.dto.LibraryAutoCompleteDTO;
 import com.epam.dlab.backendapi.resources.dto.SearchLibsFormDTO;
 import com.epam.dlab.backendapi.service.ExternalLibraryService;
 import com.epam.dlab.backendapi.service.LibraryService;
@@ -74,43 +74,18 @@ public class LibExploratoryResource {
 		this.externalLibraryService = externalLibraryService;
 	}
 
-	/**
-	 * Returns the list of libraries groups for exploratory.
-	 *
-	 * @param userInfo          user info.
-	 * @param exploratoryName   name of exploratory
-	 * @param computationalName name of computational cluster
-	 * @return library groups
-	 */
 	@GET
-	@Path("/lib_groups")
-	public Iterable<String> getLibGroupList(@Auth UserInfo userInfo,
-											@QueryParam("project_name") @NotBlank String projectName,
-											@QueryParam("exploratory_name") @NotBlank String exploratoryName,
-											@QueryParam("computational_name") String computationalName) {
+	@Path("/lib-groups/exploratory")
+	public Response getExploratoryLibGroupList(@Auth UserInfo userInfo,
+	                                           @QueryParam("project") @NotBlank String projectName,
+	                                           @QueryParam("exploratory") @NotBlank String exploratoryName) {
+		return Response.ok(libraryService.getExploratoryLibGroups(userInfo, projectName, exploratoryName)).build();
+	}
 
-		log.trace("Loading list of lib groups for user {} and exploratory {}, computational {}", userInfo.getName(),
-				exploratoryName, computationalName);
-		try {
-			if (StringUtils.isEmpty(computationalName)) {
-				UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), projectName,
-						exploratoryName);
-				return ExploratoryLibCache.getCache().getExploratoryLibGroupList(userInfo, userInstance);
-			} else {
-				UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), projectName,
-						exploratoryName, computationalName);
-
-				userInstance.setResources(userInstance.getResources().stream()
-						.filter(e -> e.getComputationalName().equals(computationalName))
-						.collect(Collectors.toList()));
-
-				return ExploratoryLibCache.getCache().getComputeLibGroupList(userInfo, userInstance);
-			}
-		} catch (Exception t) {
-			log.error("Cannot load list of lib groups for user {} and exploratory {}", userInfo.getName(),
-					exploratoryName, t);
-			throw new DlabException("Cannot load list of libraries groups: " + t.getLocalizedMessage(), t);
-		}
+	@GET
+	@Path("/lib-groups/compute")
+	public Response getComputeLibGroupList(@Auth UserInfo userInfo) {
+		return Response.ok(libraryService.getComputeLibGroups()).build();
 	}
 
 	/**
@@ -194,41 +169,33 @@ public class LibExploratoryResource {
 	}
 
 	/**
-	 * Returns the list of available libraries for exploratory basing on search conditions provided in @formDTO.
+	 * Returns the list of available libraries for exploratory basing on search conditions provided in @searchDTO.
 	 *
-	 * @param userInfo user info.
-	 * @param formDTO  search condition for find libraries for the exploratory environment.
+	 * @param userInfo  user info.
+	 * @param searchDTO search condition for find libraries for the exploratory environment.
 	 * @return found libraries
 	 */
 	@POST
 	@Path("search/lib_list")
-	public List<LibraryDTO> getLibList(@Auth UserInfo userInfo,
-									   @Valid @NotNull SearchLibsFormDTO formDTO) {
-		log.trace("Search list of libs for user {} with condition {}", userInfo.getName(), formDTO);
+	public Response getLibList(@Auth UserInfo userInfo,
+	                           @Valid @NotNull SearchLibsFormDTO searchDTO) {
 		try {
-
 			UserInstanceDTO userInstance;
-
-			if (StringUtils.isNotEmpty(formDTO.getComputationalName())) {
-
-				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getProjectName(),
-						formDTO.getNotebookName(), formDTO.getComputationalName());
-
+			if (StringUtils.isNotEmpty(searchDTO.getComputationalName())) {
+				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), searchDTO.getProjectName(),
+						searchDTO.getNotebookName(), searchDTO.getComputationalName());
 				userInstance.setResources(userInstance.getResources().stream()
-						.filter(e -> e.getComputationalName().equals(formDTO.getComputationalName()))
+						.filter(e -> e.getComputationalName().equals(searchDTO.getComputationalName()))
 						.collect(Collectors.toList()));
-
 			} else {
-				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getProjectName(),
-						formDTO.getNotebookName());
+				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), searchDTO.getProjectName(), searchDTO.getNotebookName());
 			}
 
-			return ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO
-					.getStartWith());
-		} catch (Exception t) {
-			log.error("Cannot search libs for user {} with condition {}",
-					userInfo.getName(), formDTO, t);
-			throw new DlabException("Cannot search libraries: " + t.getLocalizedMessage(), t);
+			LibraryAutoCompleteDTO autoCompleteDTO = ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, searchDTO.getGroup(), searchDTO.getStartWith());
+			return Response.ok(autoCompleteDTO).build();
+		} catch (Exception e) {
+			log.error("Cannot search libs for user {} with condition {}", userInfo.getName(), searchDTO, e);
+			throw new DlabException("Cannot search libraries: " + e.getLocalizedMessage(), e);
 		}
 	}
 

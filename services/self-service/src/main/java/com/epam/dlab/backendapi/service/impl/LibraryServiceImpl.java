@@ -37,6 +37,7 @@ import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.service.LibraryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.LibraryGroups;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.UserInstanceStatus;
 import com.epam.dlab.dto.computational.UserComputationalResource;
@@ -56,6 +57,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,17 +65,31 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.epam.dlab.backendapi.domain.AuditActionEnum.INSTALL;
 import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.COMPUTATIONAL_LIBS;
 import static com.epam.dlab.backendapi.domain.AuditResourceTypeEnum.NOTEBOOK_LIBS;
+import static com.epam.dlab.backendapi.domain.NotebookTemplate.DEEP_LEARNING;
+import static com.epam.dlab.backendapi.domain.NotebookTemplate.JUPYTER;
+import static com.epam.dlab.backendapi.domain.NotebookTemplate.JUPYTER_LAB;
+import static com.epam.dlab.backendapi.domain.NotebookTemplate.RSTUDIO;
+import static com.epam.dlab.backendapi.domain.NotebookTemplate.TENSOR;
+import static com.epam.dlab.backendapi.domain.NotebookTemplate.TENSOR_RSTUDIO;
+import static com.epam.dlab.backendapi.domain.NotebookTemplate.ZEPPELIN;
+import static com.epam.dlab.dto.LibraryGroups.GROUP_JAVA;
+import static com.epam.dlab.dto.LibraryGroups.GROUP_OS_PKG;
+import static com.epam.dlab.dto.LibraryGroups.GROUP_OTHERS;
+import static com.epam.dlab.dto.LibraryGroups.GROUP_PIP2;
+import static com.epam.dlab.dto.LibraryGroups.GROUP_PIP3;
+import static com.epam.dlab.dto.LibraryGroups.GROUP_R_PKG;
 
 @Slf4j
 @Singleton
 public class LibraryServiceImpl implements LibraryService {
-
 	private static final String COMPUTATIONAL_NOT_FOUND_MSG = "Computational with name %s was not found";
 	private static final String LIB_ALREADY_INSTALLED = "Library %s is already installing";
+
 	@Inject
 	private ExploratoryDAO exploratoryDAO;
 
@@ -148,17 +164,44 @@ public class LibraryServiceImpl implements LibraryService {
     @Audit(action = INSTALL, type = NOTEBOOK_LIBS)
     @Override
     public String installExploratoryLibs(@User UserInfo ui, @Project String project, @ResourceName String expName, List<LibInstallDTO> libs, @Info String auditInfo) {
-        final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), project, expName);
-        EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
-        final String uuid = provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_LIB_INSTALL,
-                ui.getAccessToken(), toExploratoryLibraryInstallDto(ui, project, expName, libs, userInstance, endpointDTO),
-                String.class);
-        requestId.put(ui.getName(), uuid);
-        return uuid;
+	    final UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(ui.getName(), project, expName);
+	    EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
+	    final String uuid = provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_LIB_INSTALL,
+			    ui.getAccessToken(), toExploratoryLibraryInstallDto(ui, project, expName, libs, userInstance, endpointDTO),
+			    String.class);
+	    requestId.put(ui.getName(), uuid);
+	    return uuid;
     }
 
+	@Override
+	public List<String> getExploratoryLibGroups(UserInfo userInfo, String projectName, String exploratoryName) {
+		UserInstanceDTO userInstanceDTO = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), projectName, exploratoryName);
+		final String templateName = userInstanceDTO.getTemplateName();
+		List<LibraryGroups> groups = new ArrayList<>(Arrays.asList(GROUP_JAVA, GROUP_OS_PKG));
+
+		if (Arrays.asList(JUPYTER.getName(), JUPYTER_LAB.getName(), ZEPPELIN.getName(), DEEP_LEARNING.getName(), TENSOR.getName(), TENSOR_RSTUDIO.getName(),
+				RSTUDIO.getName()).contains(templateName)) {
+			groups.addAll(Arrays.asList(GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS));
+		}
+		if (Arrays.asList(JUPYTER.getName(), JUPYTER_LAB.getName(), ZEPPELIN.getName(), TENSOR_RSTUDIO.getName(), RSTUDIO.getName()).contains(templateName)) {
+			groups.add(GROUP_R_PKG);
+		}
+
+		return groups
+				.stream()
+				.map(LibraryGroups::toString)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<String> getComputeLibGroups() {
+		return Stream.of(GROUP_JAVA, GROUP_OS_PKG, GROUP_PIP2, GROUP_PIP3, GROUP_OTHERS)
+				.map(LibraryGroups::toString)
+				.collect(Collectors.toList());
+	}
+
 	private LibraryInstallDTO toExploratoryLibraryInstallDto(UserInfo userInfo, String project, String exploratoryName,
-															 List<LibInstallDTO> libs, UserInstanceDTO userInstance, EndpointDTO endpointDTO) {
+	                                                         List<LibInstallDTO> libs, UserInstanceDTO userInstance, EndpointDTO endpointDTO) {
 		final List<LibInstallDTO> libsToInstall = libs.stream()
 				.map(lib -> toLibInstallDto(lib, libraryDAO.getLibrary(userInfo.getName(), project, exploratoryName,
 						lib.getGroup(), lib.getName())))

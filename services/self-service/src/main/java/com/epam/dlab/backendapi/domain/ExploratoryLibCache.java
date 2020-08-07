@@ -21,15 +21,14 @@
 package com.epam.dlab.backendapi.domain;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.LibraryDTO;
+import com.epam.dlab.backendapi.resources.dto.LibraryAutoCompleteDTO;
 import com.epam.dlab.backendapi.service.EndpointService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.LibListComputationalDTO;
+import com.epam.dlab.dto.LibListExploratoryDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
-import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
@@ -41,9 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Cache of libraries for exploratory.
@@ -51,15 +48,12 @@ import java.util.stream.Collectors;
 @Singleton
 public class ExploratoryLibCache implements Managed, Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExploratoryLibCache.class);
-	private static final String PIP2_GROUP = "pip2";
 
 	@Inject
 	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
 	private RESTService provisioningService;
-
 	@Inject
 	private RequestBuilder requestBuilder;
-
 	@Inject
 	private RequestId requestId;
 	@Inject
@@ -117,43 +111,15 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	}
 
 	/**
-	 * Return the list of libraries groups from cache for compute resource.
-	 *
-	 * @param userInfo     the user info.
-	 * @param userInstance the notebook info.
-	 * @return list of libraries groups
-	 */
-	public List<String> getComputeLibGroupList(UserInfo userInfo, UserInstanceDTO userInstance) {
-		ExploratoryLibList libs = getLibs(userInfo, userInstance);
-		return libs.getGroupList()
-				.stream()
-				.filter(g -> !PIP2_GROUP.equals(g))
-				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Return the list of libraries groups from cache for exploratory resource.
-	 *
-	 * @param userInfo     the user info.
-	 * @param userInstance the notebook info.
-	 * @return list of libraries groups
-	 */
-	public List<String> getExploratoryLibGroupList(UserInfo userInfo, UserInstanceDTO userInstance) {
-		ExploratoryLibList libs = getLibs(userInfo, userInstance);
-		return libs.getGroupList();
-	}
-
-	/**
 	 * Return the list of libraries for docker image and group start with prefix from cache.
 	 *
-	 * @param userInfo     the user info.
-	 * @param userInstance the notebook info.
-	 * @param group        the name of group.
-	 * @param startWith    the prefix for library name.
+	 * @param userInfo  the user info.
+	 * @param group     the name of group.
+	 * @param startWith the prefix for library name.
+	 * @return LibraryAutoCompleteDTO dto
 	 */
-	public List<LibraryDTO> getLibList(UserInfo userInfo, UserInstanceDTO userInstance, String group,
-									   String startWith) {
-		ExploratoryLibList libs = getLibs(userInfo, userInstance);
+	public LibraryAutoCompleteDTO getLibList(UserInfo userInfo, UserInstanceDTO userInstance, String group, String startWith) {
+		ExploratoryLibList libs = getLibs(userInfo, userInstance, group);
 		return libs.getLibs(group, startWith);
 	}
 
@@ -161,55 +127,33 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	 * Return the list of libraries for docker image from cache.
 	 *
 	 * @param userInfo     the user info.
-	 * @param userInstance the notebook info.
+	 * @param userInstance userInstance
+	 * @param cacheKey     the group of library
 	 */
-	private ExploratoryLibList getLibs(UserInfo userInfo, UserInstanceDTO userInstance) {
+	private ExploratoryLibList getLibs(UserInfo userInfo, UserInstanceDTO userInstance, String cacheKey) {
 		ExploratoryLibList libs;
-		String cacheKey = libraryCacheKey(userInstance);
 		synchronized (cache) {
 			cache.computeIfAbsent(cacheKey, libraries -> new ExploratoryLibList(cacheKey, null));
 			libs = cache.get(cacheKey);
 			if (libs.isUpdateNeeded() && !libs.isUpdating()) {
 				libs.setUpdating();
-				requestLibList(userInfo, userInstance);
+				requestLibList(userInfo, userInstance, cacheKey);
 			}
 		}
 
 		return libs;
 	}
 
-	public static String libraryCacheKey(UserInstanceDTO instanceDTO) {
-		if (instanceDTO.getResources() != null && !instanceDTO.getResources().isEmpty()) {
-			if (instanceDTO.getResources().size() > 1) {
-				throw new IllegalStateException("Several clusters in userInstance");
-			}
-
-			UserComputationalResource userComputationalResource = instanceDTO.getResources().get(0);
-			return (DataEngineType.fromDockerImageName(userComputationalResource.getImageName()) == DataEngineType.SPARK_STANDALONE)
-					? instanceDTO.getImageName()
-					: libraryCacheKey(instanceDTO.getImageName(), userComputationalResource.getImageName());
-
-		} else {
-			return instanceDTO.getImageName();
-		}
-	}
-
-	private static String libraryCacheKey(String exploratoryImage, String computationalImage) {
-		return exploratoryImage + "/" + computationalImage;
-	}
-
-
 	/**
 	 * Update the list of libraries for docker image in cache.
 	 *
-	 * @param imageName the name of image.
-	 * @param content   the content of libraries list.
+	 * @param group   the name of image.
+	 * @param content the content of libraries list.
 	 */
-	public void updateLibList(String imageName, String content) {
+	public void updateLibList(String group, String content) {
 		synchronized (cache) {
-			cache.remove(imageName);
-			cache.put(imageName,
-					new ExploratoryLibList(imageName, content));
+			cache.remove(group);
+			cache.put(group, new ExploratoryLibList(group, content));
 		}
 	}
 
@@ -229,8 +173,9 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	 *
 	 * @param userInfo     the user info.
 	 * @param userInstance the notebook info.
+	 * @param group        the library group
 	 */
-	private void requestLibList(UserInfo userInfo, UserInstanceDTO userInstance) {
+	private void requestLibList(UserInfo userInfo, UserInstanceDTO userInstance, String group) {
 		try {
 
 			LOGGER.debug("Ask docker for the list of libraries for user {} and exploratory {} computational {}",
@@ -242,14 +187,14 @@ public class ExploratoryLibCache implements Managed, Runnable {
 				UserComputationalResource userComputationalResource = userInstance.getResources().get(0);
 				EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
 				LibListComputationalDTO dto = requestBuilder.newLibComputationalList(userInfo, userInstance,
-						userComputationalResource, endpointDTO);
+						userComputationalResource, endpointDTO, group);
 
 				uuid = provisioningService.post(endpointDTO.getUrl() + ComputationalAPI.COMPUTATIONAL_LIB_LIST,
 						userInfo.getAccessToken(),
 						dto, String.class);
 			} else {
 				EndpointDTO endpointDTO = endpointService.get(userInstance.getEndpoint());
-				ExploratoryActionDTO<?> dto = requestBuilder.newLibExploratoryList(userInfo, userInstance, endpointDTO);
+				LibListExploratoryDTO dto = requestBuilder.newLibExploratoryList(userInfo, userInstance, endpointDTO, group);
 				uuid = provisioningService.post(endpointDTO.getUrl() + ExploratoryAPI.EXPLORATORY_LIB_LIST,
 						userInfo.getAccessToken(), dto,
 						String.class);
